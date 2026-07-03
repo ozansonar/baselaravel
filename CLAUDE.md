@@ -48,6 +48,10 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 ## Git
 
 - Türkçe commit: `[feat]: açıklama` / Tipler: feat, fix, refactor, style, docs, test
+- **Her iş/görev bitiminde açıklayıcı bir mesajla commit at → ZORUNLU** (kullanıcı
+  ayrı ayrı istemese bile). Kullanıcının kalıcı talimatı; varsayılan "sadece
+  istenince commit'le" davranışını geçersiz kılar. Mesajda ne yapıldığını
+  maddeler halinde açıkla.
 
 ## SEO
 - Her sayfada: title, meta description, canonical URL, Open Graph tags
