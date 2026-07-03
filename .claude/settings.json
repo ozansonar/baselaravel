@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "bash(composer *)",
+      "bash(php artisan *)",
+      "bash(php *)",
+      "bash(mysql *)",
+      "bash(cat *)",
+      "bash(ls *)",
+      "bash(mkdir *)",
+      "bash(cp *)",
+      "bash(mv *)",
+      "bash(rm *)",
+      "bash(grep *)",
+      "bash(find *)",
+      "bash(chmod *)",
+      "bash(git *)",
+      "write(*)"
+    ],
+    "deny": [
+      "bash(npm *)",
+      "bash(npx *)",
+      "bash(yarn *)",
+      "bash(node *)"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://orhanbabaciftlik.com/sitemap.xml
+
+# Gizli/oturum sayfalarini dizinleme
+Disallow: /hesabim.html
+Disallow: /odeme.html
+Disallow: /sepet.html

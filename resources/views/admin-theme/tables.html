@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Tablolar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Tablolar</h2>
+          <p>Temel Bootstrap tabloları ve gelişmiş DataTable bileşenleri</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+      <!-- ==================== 1. TEMEL TABLO ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-table me-2 text-teal"></i>Temel Tablo</h6>
+              <span class="status-badge info">Basic</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table-dark-custom">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Ad Soyad</th>
+                      <th>Pozisyon</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>Ahmet Yılmaz</td>
+                      <td>Frontend Geliştirici</td>
+                      <td><span class="status-badge active">Aktif</span></td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>Elif Kaya</td>
+                      <td>UI/UX Tasarımcı</td>
+                      <td><span class="status-badge active">Aktif</span></td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>Mehmet Demir</td>
+                      <td>Backend Geliştirici</td>
+                      <td><span class="status-badge pending">Beklemede</span></td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>Zeynep Çelik</td>
+                      <td>Proje Yöneticisi</td>
+                      <td><span class="status-badge inactive">Pasif</span></td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>Can Aksoy</td>
+                      <td>DevOps Mühendisi</td>
+                      <td><span class="status-badge active">Aktif</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-list-columns-reverse me-2 text-neon-purple"></i>Çizgili & Hover Tablo</h6>
+              <span class="status-badge pending">Striped</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table-dark-custom table-striped-dark table-hover-dark">
+                  <thead>
+                    <tr>
+                      <th>Ürün</th>
+                      <th>Kategori</th>
+                      <th>Fiyat</th>
+                      <th>Stok</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><div class="d-flex align-items-center gap-2"><div class="table-product-icon teal"><i class="bi bi-laptop"></i></div>MacBook Pro 16"</div></td>
+                      <td>Elektronik</td>
+                      <td class="fw-semibold">₺89.999</td>
+                      <td><span class="stock-indicator high">124</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="d-flex align-items-center gap-2"><div class="table-product-icon purple"><i class="bi bi-headphones"></i></div>AirPods Max</div></td>
+                      <td>Aksesuar</td>
+                      <td class="fw-semibold">₺14.999</td>
+                      <td><span class="stock-indicator medium">38</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="d-flex align-items-center gap-2"><div class="table-product-icon blue"><i class="bi bi-phone"></i></div>iPhone 16 Pro</div></td>
+                      <td>Elektronik</td>
+                      <td class="fw-semibold">₺74.999</td>
+                      <td><span class="stock-indicator low">7</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="d-flex align-items-center gap-2"><div class="table-product-icon orange"><i class="bi bi-watch"></i></div>Apple Watch Ultra</div></td>
+                      <td>Giyilebilir</td>
+                      <td class="fw-semibold">₺32.999</td>
+                      <td><span class="stock-indicator high">256</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="d-flex align-items-center gap-2"><div class="table-product-icon pink"><i class="bi bi-tablet"></i></div>iPad Pro M4</div></td>
+                      <td>Tablet</td>
+                      <td class="fw-semibold">₺49.999</td>
+                      <td><span class="stock-indicator medium">52</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 2. AKSIYON TABLO ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-pencil-square me-2 text-neon-blue"></i>Aksiyonlu Tablo</h6>
+              <span class="status-badge active">Actions</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table-dark-custom">
+                  <thead>
+                    <tr>
+                      <th style="width:40px"><input type="checkbox" class="form-check-input" id="selectAllBasic" onchange="toggleAllBasic(this)"></th>
+                      <th>Kullanıcı</th>
+                      <th>E-posta</th>
+                      <th>Rol</th>
+                      <th>Kayıt Tarihi</th>
+                      <th>Durum</th>
+                      <th style="width:120px">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="checkbox" class="form-check-input row-check-basic"></td>
+                      <td><div class="table-user"><div class="user-avatar-sm avatar-gradient-teal">AY</div><div><span class="fw-semibold">Ahmet Yılmaz</span><small class="d-block text-muted">@ahmetyilmaz</small></div></div></td>
+                      <td>ahmet@email.com</td>
+                      <td><span class="role-badge admin">Admin</span></td>
+                      <td>15 Oca 2026</td>
+                      <td><span class="status-badge active">Aktif</span></td>
+                      <td>
+                        <div class="table-actions">
+                          <button class="btn-table-action" title="Görüntüle"><i class="bi bi-eye"></i></button>
+                          <button class="btn-table-action" title="Düzenle"><i class="bi bi-pencil"></i></button>
+                          <button class="btn-table-action danger" title="Sil"><i class="bi bi-trash3"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="form-check-input row-check-basic"></td>
+                      <td><div class="table-user"><div class="user-avatar-sm avatar-gradient-purple">EK</div><div><span class="fw-semibold">Elif Kaya</span><small class="d-block text-muted">@elifkaya</small></div></div></td>
+                      <td>elif@email.com</td>
+                      <td><span class="role-badge editor">Editör</span></td>
+                      <td>22 Şub 2026</td>
+                      <td><span class="status-badge active">Aktif</span></td>
+                      <td>
+                        <div class="table-actions">
+                          <button class="btn-table-action" title="Görüntüle"><i class="bi bi-eye"></i></button>
+                          <button class="btn-table-action" title="Düzenle"><i class="bi bi-pencil"></i></button>
+                          <button class="btn-table-action danger" title="Sil"><i class="bi bi-trash3"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="form-check-input row-check-basic"></td>
+                      <td><div class="table-user"><div class="user-avatar-sm" style="background:linear-gradient(135deg,var(--neon-blue),var(--neon-green))">MD</div><div><span class="fw-semibold">Mehmet Demir</span><small class="d-block text-muted">@mehmetdemir</small></div></div></td>
+                      <td>mehmet@email.com</td>
+                      <td><span class="role-badge viewer">Görüntüleyici</span></td>
+                      <td>03 Mar 2026</td>
+                      <td><span class="status-badge pending">Beklemede</span></td>
+                      <td>
+                        <div class="table-actions">
+                          <button class="btn-table-action" title="Görüntüle"><i class="bi bi-eye"></i></button>
+                          <button class="btn-table-action" title="Düzenle"><i class="bi bi-pencil"></i></button>
+                          <button class="btn-table-action danger" title="Sil"><i class="bi bi-trash3"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="form-check-input row-check-basic"></td>
+                      <td><div class="table-user"><div class="user-avatar-sm avatar-gradient-orange">ZÇ</div><div><span class="fw-semibold">Zeynep Çelik</span><small class="d-block text-muted">@zeynepcelik</small></div></div></td>
+                      <td>zeynep@email.com</td>
+                      <td><span class="role-badge moderator">Moderatör</span></td>
+                      <td>11 Mar 2026</td>
+                      <td><span class="status-badge inactive">Pasif</span></td>
+                      <td>
+                        <div class="table-actions">
+                          <button class="btn-table-action" title="Görüntüle"><i class="bi bi-eye"></i></button>
+                          <button class="btn-table-action" title="Düzenle"><i class="bi bi-pencil"></i></button>
+                          <button class="btn-table-action danger" title="Sil"><i class="bi bi-trash3"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 3. GELİŞMİŞ DATATABLE ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-database me-2 text-teal"></i>Gelişmiş DataTable</h6>
+              <span class="status-badge active">Advanced</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Toolbar -->
+              <div class="dt-toolbar">
+                <div class="dt-toolbar-left">
+                  <div class="dt-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="dtSearch" placeholder="Tabloda ara..." oninput="dtFilter()">
+                  </div>
+                  <div class="dt-filter-group">
+                    <select id="dtStatusFilter" class="dt-select" onchange="dtFilter()">
+                      <option value="">Tüm Durumlar</option>
+                      <option value="Aktif">Aktif</option>
+                      <option value="Beklemede">Beklemede</option>
+                      <option value="Pasif">Pasif</option>
+                    </select>
+                    <select id="dtDeptFilter" class="dt-select" onchange="dtFilter()">
+                      <option value="">Tüm Departmanlar</option>
+                      <option value="Mühendislik">Mühendislik</option>
+                      <option value="Tasarım">Tasarım</option>
+                      <option value="Pazarlama">Pazarlama</option>
+                      <option value="İnsan Kaynakları">İnsan Kaynakları</option>
+                      <option value="Finans">Finans</option>
+                      <option value="Satış">Satış</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="dt-toolbar-right">
+                  <div class="dt-export-group">
+                    <button class="dt-btn" onclick="dtExport('copy')" title="Kopyala"><i class="bi bi-clipboard"></i></button>
+                    <button class="dt-btn" onclick="dtExport('csv')" title="CSV"><i class="bi bi-filetype-csv"></i></button>
+                    <button class="dt-btn" onclick="dtExport('excel')" title="Excel"><i class="bi bi-file-earmark-spreadsheet"></i></button>
+                    <button class="dt-btn" onclick="dtExport('pdf')" title="PDF"><i class="bi bi-filetype-pdf"></i></button>
+                    <button class="dt-btn" onclick="dtExport('print')" title="Yazdır"><i class="bi bi-printer"></i></button>
+                  </div>
+                  <div class="dropdown">
+                    <button class="dt-btn dropdown-toggle" data-bs-toggle="dropdown" title="Sütunlar"><i class="bi bi-layout-three-columns"></i></button>
+                    <div class="dropdown-menu dropdown-menu-end p-2" id="colVisMenu" style="min-width:180px"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Table -->
+              <div class="dt-table-wrapper">
+                <div class="table-responsive">
+                  <table class="table-dark-custom" id="advancedTable">
+                    <thead>
+                      <tr>
+                        <th style="width:40px"><input type="checkbox" class="form-check-input" id="dtSelectAll" onchange="dtToggleAll(this)"></th>
+                        <th class="sortable" data-col="0" onclick="dtSort(0)">ID <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" data-col="1" onclick="dtSort(1)">Ad Soyad <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" data-col="2" onclick="dtSort(2)">E-posta <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" data-col="3" onclick="dtSort(3)">Departman <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" data-col="4" onclick="dtSort(4)">Pozisyon <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" data-col="5" onclick="dtSort(5)">Maaş <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" data-col="6" onclick="dtSort(6)">Başlangıç <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th data-col="7">Durum</th>
+                        <th data-col="8" style="width:100px">İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dtBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="dt-footer">
+                <div class="dt-info">
+                  <select id="dtPageSize" class="dt-select-sm" onchange="dtChangePageSize()">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                  <span id="dtInfoText">0 kayıttan 0-0 arası gösteriliyor</span>
+                </div>
+                <div class="dt-pagination" id="dtPagination"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 4. SERVER-SIDE DATATABLE ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-cloud-arrow-down me-2 text-neon-purple"></i>Server-Side DataTable</h6>
+              <div class="d-flex align-items-center gap-2">
+                <span class="server-status-dot" id="serverDot"></span>
+                <span class="status-badge pending">Server-Side</span>
+              </div>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Server Toolbar -->
+              <div class="dt-toolbar">
+                <div class="dt-toolbar-left">
+                  <div class="dt-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="ssSearch" placeholder="Sunucu tarafında ara..." oninput="ssDebounceSearch()">
+                    <span class="ss-loading-indicator d-none" id="ssSearchSpinner"><span class="spinner-border spinner-border-sm"></span></span>
+                  </div>
+                  <select id="ssStatusFilter" class="dt-select" onchange="ssFetch()">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="Tamamlandı">Tamamlandı</option>
+                    <option value="İşleniyor">İşleniyor</option>
+                    <option value="Beklemede">Beklemede</option>
+                    <option value="İptal">İptal</option>
+                  </select>
+                  <input type="date" id="ssDateFrom" class="dt-date" onchange="ssFetch()" title="Başlangıç tarihi">
+                  <input type="date" id="ssDateTo" class="dt-date" onchange="ssFetch()" title="Bitiş tarihi">
+                </div>
+                <div class="dt-toolbar-right">
+                  <button class="dt-btn" onclick="ssFetch()" title="Yenile"><i class="bi bi-arrow-clockwise"></i></button>
+                  <div class="dt-export-group">
+                    <button class="dt-btn" onclick="ssExport('csv')" title="CSV İndir"><i class="bi bi-filetype-csv"></i></button>
+                    <button class="dt-btn" onclick="ssExport('json')" title="JSON İndir"><i class="bi bi-filetype-json"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Server Info Bar -->
+              <div class="ss-info-bar" id="ssInfoBar">
+                <div class="ss-info-left">
+                  <span class="ss-request-badge" id="ssRequestInfo">GET /api/orders</span>
+                  <span class="ss-response-time" id="ssResponseTime">-- ms</span>
+                </div>
+                <div class="ss-info-right">
+                  <span id="ssTotalRecords">0 kayıt</span>
+                </div>
+              </div>
+
+              <!-- Server Table -->
+              <div class="dt-table-wrapper" style="position:relative">
+                <div class="ss-loading-overlay d-none" id="ssLoadingOverlay">
+                  <div class="ss-loading-content">
+                    <span class="spinner-border text-info"></span>
+                    <span>Sunucudan veriler yükleniyor...</span>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table-dark-custom" id="serverTable">
+                    <thead>
+                      <tr>
+                        <th class="sortable" onclick="ssSort('id')">Sipariş No <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th class="sortable" onclick="ssSort('customer')">Müşteri <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th>Ürünler</th>
+                        <th class="sortable" onclick="ssSort('total')">Tutar <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th>Ödeme</th>
+                        <th class="sortable" onclick="ssSort('date')">Tarih <i class="bi bi-chevron-expand sort-icon"></i></th>
+                        <th>Durum</th>
+                        <th style="width:80px">İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ssBody">
+                      <tr><td colspan="8" class="text-center py-5 text-clr-muted"><span class="spinner-border spinner-border-sm me-2"></span>Yükleniyor...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Server Footer -->
+              <div class="dt-footer">
+                <div class="dt-info">
+                  <select id="ssPageSize" class="dt-select-sm" onchange="ssChangePageSize()">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                  </select>
+                  <span id="ssInfoText">Yükleniyor...</span>
+                </div>
+                <div class="dt-pagination" id="ssPagination"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 5. DÜZENLENEBİLİR TABLO ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-pencil me-2 text-neon-orange"></i>Düzenlenebilir Tablo</h6>
+              <span class="status-badge pending">Editable</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table-dark-custom" id="editableTable">
+                  <thead>
+                    <tr>
+                      <th>Ürün</th>
+                      <th>Fiyat (₺)</th>
+                      <th>Stok</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">Kablosuz Mouse</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">349</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">128</span></td>
+                      <td>
+                        <select class="dt-select-inline" onchange="onStatusEdit(this)">
+                          <option value="Aktif" selected>Aktif</option>
+                          <option value="Pasif">Pasif</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">Mekanik Klavye</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">1.299</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">64</span></td>
+                      <td>
+                        <select class="dt-select-inline" onchange="onStatusEdit(this)">
+                          <option value="Aktif" selected>Aktif</option>
+                          <option value="Pasif">Pasif</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">USB-C Hub</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">599</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">0</span></td>
+                      <td>
+                        <select class="dt-select-inline" onchange="onStatusEdit(this)">
+                          <option value="Aktif">Aktif</option>
+                          <option value="Pasif" selected>Pasif</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">Webcam 4K</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">2.199</span></td>
+                      <td><span class="editable" contenteditable="true" onblur="onCellEdit(this)">22</span></td>
+                      <td>
+                        <select class="dt-select-inline" onchange="onStatusEdit(this)">
+                          <option value="Aktif" selected>Aktif</option>
+                          <option value="Pasif">Pasif</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="p-3 text-end" style="border-top:1px solid var(--border-color)">
+                <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Hücrelere tıklayarak düzenleyebilirsiniz</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== 6. İÇ İÇE / EXPANDABLE TABLO ==================== -->
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-arrows-expand me-2 text-neon-green"></i>Genişletilebilir Tablo</h6>
+              <span class="status-badge active">Expandable</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table-dark-custom">
+                  <thead>
+                    <tr>
+                      <th style="width:40px"></th>
+                      <th>Sipariş</th>
+                      <th>Müşteri</th>
+                      <th>Tutar</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="expandable-row" onclick="toggleExpand(this)">
+                      <td><i class="bi bi-chevron-right expand-icon"></i></td>
+                      <td class="fw-semibold">#ORD-2061</td>
+                      <td>Ali Veli</td>
+                      <td>₺4.250</td>
+                      <td><span class="status-badge active">Tamamlandı</span></td>
+                    </tr>
+                    <tr class="expand-content">
+                      <td colspan="5">
+                        <div class="expand-detail">
+                          <div class="expand-detail-grid">
+                            <div><small class="text-muted">Ürünler</small><p>MacBook Şarj Adaptörü x1, USB-C Kablo x2</p></div>
+                            <div><small class="text-muted">Kargo</small><p>Yurtiçi Kargo - 1234567890</p></div>
+                            <div><small class="text-muted">Adres</small><p>Kadıköy, İstanbul</p></div>
+                            <div><small class="text-muted">Not</small><p>Hediye paketi yapılsın</p></div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="expandable-row" onclick="toggleExpand(this)">
+                      <td><i class="bi bi-chevron-right expand-icon"></i></td>
+                      <td class="fw-semibold">#ORD-2062</td>
+                      <td>Ayşe Yıldız</td>
+                      <td>₺12.800</td>
+                      <td><span class="status-badge pending">İşleniyor</span></td>
+                    </tr>
+                    <tr class="expand-content">
+                      <td colspan="5">
+                        <div class="expand-detail">
+                          <div class="expand-detail-grid">
+                            <div><small class="text-muted">Ürünler</small><p>iPad Pro M4 x1, Apple Pencil x1</p></div>
+                            <div><small class="text-muted">Kargo</small><p>Aras Kargo - Hazırlanıyor</p></div>
+                            <div><small class="text-muted">Adres</small><p>Çankaya, Ankara</p></div>
+                            <div><small class="text-muted">Not</small><p>-</p></div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="expandable-row" onclick="toggleExpand(this)">
+                      <td><i class="bi bi-chevron-right expand-icon"></i></td>
+                      <td class="fw-semibold">#ORD-2063</td>
+                      <td>Hasan Kara</td>
+                      <td>₺890</td>
+                      <td><span class="status-badge inactive">İptal</span></td>
+                    </tr>
+                    <tr class="expand-content">
+                      <td colspan="5">
+                        <div class="expand-detail">
+                          <div class="expand-detail-grid">
+                            <div><small class="text-muted">Ürünler</small><p>Lightning Kablo x3</p></div>
+                            <div><small class="text-muted">Kargo</small><p>İptal edildi</p></div>
+                            <div><small class="text-muted">Adres</small><p>Konak, İzmir</p></div>
+                            <div><small class="text-muted">Not</small><p>Müşteri iptal talep etti</p></div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// ============================================================
+//  ADVANCED DATATABLE - Client-Side
+// ============================================================
+
+const dtData = [
+  { id: 1001, name: 'Ahmet Yılmaz', email: 'ahmet.yilmaz@firma.com', dept: 'Mühendislik', position: 'Senior Frontend', salary: 95000, date: '2024-03-15', status: 'Aktif' },
+  { id: 1002, name: 'Elif Kaya', email: 'elif.kaya@firma.com', dept: 'Tasarım', position: 'UI/UX Lead', salary: 88000, date: '2023-08-20', status: 'Aktif' },
+  { id: 1003, name: 'Mehmet Demir', email: 'mehmet.demir@firma.com', dept: 'Mühendislik', position: 'Backend Developer', salary: 82000, date: '2024-01-10', status: 'Beklemede' },
+  { id: 1004, name: 'Zeynep Çelik', email: 'zeynep.celik@firma.com', dept: 'Pazarlama', position: 'Marketing Manager', salary: 78000, date: '2023-11-05', status: 'Aktif' },
+  { id: 1005, name: 'Can Aksoy', email: 'can.aksoy@firma.com', dept: 'Mühendislik', position: 'DevOps Engineer', salary: 92000, date: '2024-06-01', status: 'Aktif' },
+  { id: 1006, name: 'Selin Öztürk', email: 'selin.ozturk@firma.com', dept: 'İnsan Kaynakları', position: 'HR Specialist', salary: 65000, date: '2025-01-15', status: 'Aktif' },
+  { id: 1007, name: 'Burak Koç', email: 'burak.koc@firma.com', dept: 'Finans', position: 'Financial Analyst', salary: 72000, date: '2024-09-20', status: 'Pasif' },
+  { id: 1008, name: 'Ayşe Şahin', email: 'ayse.sahin@firma.com', dept: 'Satış', position: 'Sales Executive', salary: 68000, date: '2025-02-28', status: 'Aktif' },
+  { id: 1009, name: 'Emre Aydın', email: 'emre.aydin@firma.com', dept: 'Mühendislik', position: 'Full Stack Dev', salary: 90000, date: '2023-05-12', status: 'Aktif' },
+  { id: 1010, name: 'Deniz Arslan', email: 'deniz.arslan@firma.com', dept: 'Tasarım', position: 'Graphic Designer', salary: 60000, date: '2024-11-03', status: 'Beklemede' },
+  { id: 1011, name: 'Oğuz Yıldırım', email: 'oguz.yildirim@firma.com', dept: 'Mühendislik', position: 'Mobile Developer', salary: 85000, date: '2024-07-22', status: 'Aktif' },
+  { id: 1012, name: 'Merve Tan', email: 'merve.tan@firma.com', dept: 'Pazarlama', position: 'Content Strategist', salary: 62000, date: '2025-03-10', status: 'Aktif' },
+  { id: 1013, name: 'Hakan Güneş', email: 'hakan.gunes@firma.com', dept: 'Finans', position: 'Accountant', salary: 58000, date: '2023-12-01', status: 'Pasif' },
+  { id: 1014, name: 'İrem Başar', email: 'irem.basar@firma.com', dept: 'İnsan Kaynakları', position: 'HR Manager', salary: 85000, date: '2024-04-18', status: 'Aktif' },
+  { id: 1015, name: 'Kaan Erdoğan', email: 'kaan.erdogan@firma.com', dept: 'Satış', position: 'Regional Manager', salary: 95000, date: '2023-06-25', status: 'Aktif' },
+  { id: 1016, name: 'Pınar Acar', email: 'pinar.acar@firma.com', dept: 'Mühendislik', position: 'QA Engineer', salary: 70000, date: '2024-10-14', status: 'Aktif' },
+  { id: 1017, name: 'Tuna Özer', email: 'tuna.ozer@firma.com', dept: 'Tasarım', position: 'Motion Designer', salary: 73000, date: '2025-01-05', status: 'Beklemede' },
+  { id: 1018, name: 'Buse Kaplan', email: 'buse.kaplan@firma.com', dept: 'Pazarlama', position: 'Social Media Mgr', salary: 56000, date: '2024-08-30', status: 'Pasif' },
+  { id: 1019, name: 'Cenk Polat', email: 'cenk.polat@firma.com', dept: 'Mühendislik', position: 'Data Engineer', salary: 98000, date: '2023-09-17', status: 'Aktif' },
+  { id: 1020, name: 'Dila Korkmaz', email: 'dila.korkmaz@firma.com', dept: 'Finans', position: 'CFO Assistant', salary: 75000, date: '2024-02-22', status: 'Aktif' },
+  { id: 1021, name: 'Furkan Yalçın', email: 'furkan.yalcin@firma.com', dept: 'Satış', position: 'Account Manager', salary: 71000, date: '2025-04-01', status: 'Aktif' },
+  { id: 1022, name: 'Gizem Şen', email: 'gizem.sen@firma.com', dept: 'İnsan Kaynakları', position: 'Recruiter', salary: 55000, date: '2024-12-10', status: 'Beklemede' },
+  { id: 1023, name: 'Onur Balcı', email: 'onur.balci@firma.com', dept: 'Mühendislik', position: 'Cloud Architect', salary: 115000, date: '2023-04-08', status: 'Aktif' },
+  { id: 1024, name: 'Naz Tuncer', email: 'naz.tuncer@firma.com', dept: 'Tasarım', position: 'Brand Designer', salary: 67000, date: '2024-05-19', status: 'Aktif' },
+  { id: 1025, name: 'Arda Kurucu', email: 'arda.kurucu@firma.com', dept: 'Mühendislik', position: 'CTO', salary: 150000, date: '2022-01-01', status: 'Aktif' },
+];
+
+let dtState = { page: 1, pageSize: 10, sortCol: null, sortDir: 'asc', filtered: [...dtData], selected: new Set() };
+
+const dtCols = ['id','name','email','dept','position','salary','date','status'];
+const dtColNames = ['ID','Ad Soyad','E-posta','Departman','Pozisyon','Maaş','Başlangıç','Durum','İşlem'];
+const dtColVisible = [true,true,true,true,true,true,true,true,true];
+
+function dtInit() {
+  // Column visibility menu
+  const menu = document.getElementById('colVisMenu');
+  menu.innerHTML = dtColNames.slice(0,-1).map((n,i) =>
+    '<label class="dropdown-item d-flex align-items-center gap-2" style="font-size:13px;cursor:pointer">' +
+    '<input type="checkbox" class="form-check-input" ' + (dtColVisible[i] ? 'checked' : '') + ' onchange="dtToggleCol(' + i + ', this.checked)">' + n + '</label>'
+  ).join('');
+  dtFilter();
+}
+
+function dtFilter() {
+  const q = document.getElementById('dtSearch').value.toLowerCase();
+  const st = document.getElementById('dtStatusFilter').value;
+  const dp = document.getElementById('dtDeptFilter').value;
+
+  dtState.filtered = dtData.filter(r => {
+    if (st && r.status !== st) return false;
+    if (dp && r.dept !== dp) return false;
+    if (q) {
+      const txt = (r.id + ' ' + r.name + ' ' + r.email + ' ' + r.dept + ' ' + r.position).toLowerCase();
+      if (!txt.includes(q)) return false;
+    }
+    return true;
+  });
+  dtState.page = 1;
+  if (dtState.sortCol !== null) dtApplySort();
+  dtRender();
+}
+
+function dtSort(col) {
+  if (dtState.sortCol === col) {
+    dtState.sortDir = dtState.sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    dtState.sortCol = col;
+    dtState.sortDir = 'asc';
+  }
+  dtApplySort();
+  dtRender();
+  // Update sort icons
+  document.querySelectorAll('#advancedTable thead .sortable').forEach(th => {
+    const icon = th.querySelector('.sort-icon');
+    const c = parseInt(th.dataset.col);
+    if (c === col) {
+      icon.className = 'bi sort-icon ' + (dtState.sortDir === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down');
+      icon.style.color = 'var(--teal-primary)';
+    } else {
+      icon.className = 'bi bi-chevron-expand sort-icon';
+      icon.style.color = '';
+    }
+  });
+}
+
+function dtApplySort() {
+  const key = dtCols[dtState.sortCol];
+  dtState.filtered.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return dtState.sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return dtState.sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function dtRender() {
+  const total = dtState.filtered.length;
+  const start = (dtState.page - 1) * dtState.pageSize;
+  const end = Math.min(start + dtState.pageSize, total);
+  const pageData = dtState.filtered.slice(start, end);
+  const totalPages = Math.ceil(total / dtState.pageSize);
+
+  const tbody = document.getElementById('dtBody');
+  if (pageData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)"><i class="bi bi-inbox me-2"></i>Kayıt bulunamadı</td></tr>';
+  } else {
+    tbody.innerHTML = pageData.map(r => {
+      const checked = dtState.selected.has(r.id) ? 'checked' : '';
+      const statusClass = r.status === 'Aktif' ? 'active' : r.status === 'Beklemede' ? 'pending' : 'inactive';
+      const initials = r.name.split(' ').map(w => w[0]).join('');
+      const colors = ['var(--teal-primary),var(--neon-blue)','var(--neon-purple),var(--neon-pink)','var(--neon-blue),var(--neon-green)','var(--neon-orange),var(--neon-red)'];
+      const colorIdx = r.id % colors.length;
+      const dateStr = new Date(r.date).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'numeric'});
+      const salaryStr = '₺' + r.salary.toLocaleString('tr-TR');
+
+      let html = '<tr class="' + (checked ? 'row-selected' : '') + '">';
+      // Checkbox
+      html += '<td><input type="checkbox" class="form-check-input dt-row-check" data-id="' + r.id + '" ' + checked + ' onchange="dtToggleRow(this)"></td>';
+      // Columns based on visibility
+      if (dtColVisible[0]) html += '<td><span class="text-muted">#' + r.id + '</span></td>';
+      if (dtColVisible[1]) html += '<td><div class="table-user"><div class="user-avatar-sm" style="background:linear-gradient(135deg,' + colors[colorIdx] + ')">' + initials + '</div><span class="fw-semibold">' + r.name + '</span></div></td>';
+      if (dtColVisible[2]) html += '<td>' + r.email + '</td>';
+      if (dtColVisible[3]) html += '<td><span class="dept-tag">' + r.dept + '</span></td>';
+      if (dtColVisible[4]) html += '<td>' + r.position + '</td>';
+      if (dtColVisible[5]) html += '<td class="fw-semibold">' + salaryStr + '</td>';
+      if (dtColVisible[6]) html += '<td>' + dateStr + '</td>';
+      if (dtColVisible[7]) html += '<td><span class="status-badge ' + statusClass + '">' + r.status + '</span></td>';
+      if (dtColVisible[8]) html += '<td><div class="table-actions"><button class="btn-table-action" title="Düzenle"><i class="bi bi-pencil"></i></button><button class="btn-table-action danger" title="Sil"><i class="bi bi-trash3"></i></button></div></td>';
+      html += '</tr>';
+      return html;
+    }).join('');
+  }
+
+  // Info
+  document.getElementById('dtInfoText').textContent = total + ' kayıttan ' + (total > 0 ? (start + 1) : 0) + '-' + end + ' arası gösteriliyor';
+
+  // Pagination
+  const pag = document.getElementById('dtPagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let pagHtml = '<button class="dt-page-btn" ' + (dtState.page <= 1 ? 'disabled' : '') + ' onclick="dtGoPage(' + (dtState.page - 1) + ')"><i class="bi bi-chevron-left"></i></button>';
+  for (let i = 1; i <= totalPages; i++) {
+    if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - dtState.page) > 1) {
+      if (i === 3 || i === totalPages - 2) pagHtml += '<span class="dt-page-dots">...</span>';
+      continue;
+    }
+    pagHtml += '<button class="dt-page-btn ' + (i === dtState.page ? 'active' : '') + '" onclick="dtGoPage(' + i + ')">' + i + '</button>';
+  }
+  pagHtml += '<button class="dt-page-btn" ' + (dtState.page >= totalPages ? 'disabled' : '') + ' onclick="dtGoPage(' + (dtState.page + 1) + ')"><i class="bi bi-chevron-right"></i></button>';
+  pag.innerHTML = pagHtml;
+
+  // Header visibility
+  document.querySelectorAll('#advancedTable thead th').forEach((th, i) => {
+    if (i === 0) return; // checkbox column
+    th.classList.toggle('d-none', !dtColVisible[i - 1]);
+  });
+}
+
+function dtGoPage(p) { dtState.page = p; dtRender(); }
+function dtChangePageSize() { dtState.pageSize = parseInt(document.getElementById('dtPageSize').value); dtState.page = 1; dtRender(); }
+function dtToggleCol(i, v) { dtColVisible[i] = v; dtRender(); }
+
+function dtToggleAll(el) {
+  const start = (dtState.page - 1) * dtState.pageSize;
+  const end = Math.min(start + dtState.pageSize, dtState.filtered.length);
+  const pageData = dtState.filtered.slice(start, end);
+  pageData.forEach(r => { if (el.checked) dtState.selected.add(r.id); else dtState.selected.delete(r.id); });
+  dtRender();
+}
+
+function dtToggleRow(el) {
+  const id = parseInt(el.dataset.id);
+  if (el.checked) dtState.selected.add(id); else dtState.selected.delete(id);
+  el.closest('tr').classList.toggle('row-selected', el.checked);
+}
+
+function dtExport(type) {
+  const data = dtState.filtered;
+  if (type === 'copy') {
+    const text = data.map(r => [r.id, r.name, r.email, r.dept, r.position, r.salary, r.date, r.status].join('\t')).join('\n');
+    navigator.clipboard.writeText('ID\tAd Soyad\tE-posta\tDepartman\tPozisyon\tMaaş\tTarih\tDurum\n' + text);
+    showTableToast('Tablo panoya kopyalandı', 'success');
+  } else if (type === 'csv') {
+    const csv = 'ID,Ad Soyad,E-posta,Departman,Pozisyon,Maaş,Tarih,Durum\n' +
+      data.map(r => [r.id, '"'+r.name+'"', r.email, '"'+r.dept+'"', '"'+r.position+'"', r.salary, r.date, r.status].join(',')).join('\n');
+    downloadFile(csv, 'tablo-verisi.csv', 'text/csv');
+    showTableToast('CSV dosyası indirildi', 'success');
+  } else if (type === 'excel') {
+    const csv = '\uFEFFID\tAd Soyad\tE-posta\tDepartman\tPozisyon\tMaaş\tTarih\tDurum\n' +
+      data.map(r => [r.id, r.name, r.email, r.dept, r.position, r.salary, r.date, r.status].join('\t')).join('\n');
+    downloadFile(csv, 'tablo-verisi.xls', 'application/vnd.ms-excel');
+    showTableToast('Excel dosyası indirildi', 'success');
+  } else if (type === 'pdf') {
+    showTableToast('PDF oluşturuluyor... (Demo)', 'info');
+  } else if (type === 'print') {
+    const printWin = window.open('', '_blank');
+    const rows = data.map(r => '<tr><td>'+r.id+'</td><td>'+r.name+'</td><td>'+r.email+'</td><td>'+r.dept+'</td><td>'+r.position+'</td><td>₺'+r.salary.toLocaleString('tr-TR')+'</td><td>'+r.date+'</td><td>'+r.status+'</td></tr>').join('');
+    printWin.document.write('<html><head><title>Tablo Yazdır</title><style>body{font-family:Arial,sans-serif;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px}th{background:#f4f4f4;font-weight:bold}tr:nth-child(even){background:#f9f9f9}h2{margin-bottom:10px}</style></head><body><h2>Çalışan Listesi</h2><table><thead><tr><th>ID</th><th>Ad Soyad</th><th>E-posta</th><th>Departman</th><th>Pozisyon</th><th>Maaş</th><th>Tarih</th><th>Durum</th></tr></thead><tbody>' + rows + '</tbody></table><script>window.print();window.close()<\/script></body></html>');
+    printWin.document.close();
+  }
+}
+
+function downloadFile(content, filename, mime) {
+  const blob = new Blob([content], { type: mime + ';charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+// ============================================================
+//  SERVER-SIDE TABLE
+// ============================================================
+
+const ssAllData = [];
+const ssNames = ['Emre Aktaş','Seda Öz','Barış Tan','Derya Aslan','Kemal Işık','Nurgül Yavuz','Tolga Eren','Sibel Ay','Cem Doğan','Fatma Kılıç','Umut Çetin','Hande Bal','Serkan Kurt','Melis Taş','Volkan Şen','Tuğba Alp','Rıza Genç','Ece Koç','Baran Uslu','Nehir Dal','Alper Gül','Cansu Sarı','Okan Reis','Defne Ada','Murat Bulut','Gamze Tek','Sinan Uyar','Burcu Kel','Ender Ateş','Lale Çam'];
+const ssProducts = [
+  ['iPhone 16 Pro','AirPods Pro 3','MacBook Air M4'],
+  ['Samsung S25 Ultra','Galaxy Buds'],
+  ['iPad Pro M4','Apple Pencil'],
+  ['Sony WH-1000XM6'],
+  ['Nike Air Max 2026','Adidas Ultra Boost'],
+  ['Dyson V20','Robot Süpürge'],
+  ['PS6 Digital','Xbox Controller'],
+  ['Kindle Scribe 2','ReMarkable 3'],
+];
+const ssPayMethods = ['Kredi Kartı','Havale/EFT','Kapıda Ödeme','Dijital Cüzdan'];
+const ssStatuses = ['Tamamlandı','İşleniyor','Beklemede','İptal'];
+
+(function generateSSData() {
+  for (let i = 0; i < 200; i++) {
+    const d = new Date(2025, 0, 1);
+    d.setDate(d.getDate() + Math.floor(Math.random() * 400));
+    const prods = ssProducts[Math.floor(Math.random() * ssProducts.length)];
+    ssAllData.push({
+      id: 'ORD-' + String(3000 + i).padStart(4, '0'),
+      customer: ssNames[i % ssNames.length],
+      products: prods.join(', '),
+      total: Math.floor(Math.random() * 50000) + 500,
+      payment: ssPayMethods[Math.floor(Math.random() * ssPayMethods.length)],
+      date: d.toISOString().split('T')[0],
+      status: ssStatuses[Math.floor(Math.random() * ssStatuses.length)]
+    });
+  }
+})();
+
+let ssState = { page: 1, pageSize: 10, sortCol: 'id', sortDir: 'desc', search: '', status: '', dateFrom: '', dateTo: '' };
+let ssDebounceTimer = null;
+
+function ssDebounceSearch() {
+  clearTimeout(ssDebounceTimer);
+  document.getElementById('ssSearchSpinner').classList.remove('d-none');
+  ssDebounceTimer = setTimeout(() => {
+    ssFetch();
+    document.getElementById('ssSearchSpinner').classList.add('d-none');
+  }, 500);
+}
+
+function ssFetch() {
+  ssState.search = document.getElementById('ssSearch').value.toLowerCase();
+  ssState.status = document.getElementById('ssStatusFilter').value;
+  ssState.dateFrom = document.getElementById('ssDateFrom').value;
+  ssState.dateTo = document.getElementById('ssDateTo').value;
+  ssState.page = 1;
+
+  // Show loading
+  document.getElementById('ssLoadingOverlay').classList.remove('d-none');
+  document.getElementById('serverDot').className = 'server-status-dot loading';
+
+  const startTime = performance.now();
+
+  // Simulate server delay
+  setTimeout(() => {
+    const result = ssProcess();
+    const elapsed = Math.round(performance.now() - startTime);
+
+    ssRender(result);
+
+    document.getElementById('ssLoadingOverlay').classList.add('d-none');
+    document.getElementById('serverDot').className = 'server-status-dot online';
+    document.getElementById('ssResponseTime').textContent = elapsed + ' ms';
+    document.getElementById('ssRequestInfo').textContent = 'GET /api/orders?page=' + ssState.page + '&limit=' + ssState.pageSize + (ssState.search ? '&q=' + ssState.search : '') + (ssState.status ? '&status=' + ssState.status : '');
+    document.getElementById('ssTotalRecords').textContent = result.total + ' kayıt';
+
+    setTimeout(() => { document.getElementById('serverDot').className = 'server-status-dot idle'; }, 1500);
+  }, 300 + Math.random() * 500);
+}
+
+function ssProcess() {
+  let data = [...ssAllData];
+
+  // Filter
+  if (ssState.search) data = data.filter(r => (r.id + ' ' + r.customer + ' ' + r.products).toLowerCase().includes(ssState.search));
+  if (ssState.status) data = data.filter(r => r.status === ssState.status);
+  if (ssState.dateFrom) data = data.filter(r => r.date >= ssState.dateFrom);
+  if (ssState.dateTo) data = data.filter(r => r.date <= ssState.dateTo);
+
+  // Sort
+  data.sort((a, b) => {
+    let va = a[ssState.sortCol], vb = b[ssState.sortCol];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return ssState.sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return ssState.sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const total = data.length;
+  const start = (ssState.page - 1) * ssState.pageSize;
+  const end = Math.min(start + ssState.pageSize, total);
+
+  return { data: data.slice(start, end), total, start, end, totalPages: Math.ceil(total / ssState.pageSize) };
+}
+
+function ssRender(result) {
+  const tbody = document.getElementById('ssBody');
+  if (result.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)"><i class="bi bi-inbox me-2"></i>Kayıt bulunamadı</td></tr>';
+  } else {
+    tbody.innerHTML = result.data.map(r => {
+      const statusMap = { 'Tamamlandı': 'active', 'İşleniyor': 'info', 'Beklemede': 'pending', 'İptal': 'inactive' };
+      const payIcon = { 'Kredi Kartı': 'bi-credit-card', 'Havale/EFT': 'bi-bank', 'Kapıda Ödeme': 'bi-cash-coin', 'Dijital Cüzdan': 'bi-wallet2' };
+      const dateStr = new Date(r.date).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'numeric'});
+      return '<tr>' +
+        '<td class="fw-semibold" style="color:var(--teal-light)">' + r.id + '</td>' +
+        '<td>' + r.customer + '</td>' +
+        '<td><span class="text-muted" style="font-size:12px">' + r.products + '</span></td>' +
+        '<td class="fw-semibold">₺' + r.total.toLocaleString('tr-TR') + '</td>' +
+        '<td><span class="d-flex align-items-center gap-1"><i class="bi ' + (payIcon[r.payment] || 'bi-cash') + '" style="font-size:14px;color:var(--text-muted)"></i> ' + r.payment + '</span></td>' +
+        '<td>' + dateStr + '</td>' +
+        '<td><span class="status-badge ' + statusMap[r.status] + '">' + r.status + '</span></td>' +
+        '<td><button class="btn-table-action" title="Detay"><i class="bi bi-eye"></i></button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // Info
+  document.getElementById('ssInfoText').textContent = result.total + ' kayıttan ' + (result.total > 0 ? (result.start + 1) : 0) + '-' + result.end + ' arası';
+
+  // Pagination
+  const pag = document.getElementById('ssPagination');
+  if (result.totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = '<button class="dt-page-btn" ' + (ssState.page <= 1 ? 'disabled' : '') + ' onclick="ssGoPage(' + (ssState.page - 1) + ')"><i class="bi bi-chevron-left"></i></button>';
+  for (let i = 1; i <= result.totalPages; i++) {
+    if (result.totalPages > 7 && i > 2 && i < result.totalPages - 1 && Math.abs(i - ssState.page) > 1) {
+      if (i === 3 || i === result.totalPages - 2) html += '<span class="dt-page-dots">...</span>';
+      continue;
+    }
+    html += '<button class="dt-page-btn ' + (i === ssState.page ? 'active' : '') + '" onclick="ssGoPage(' + i + ')">' + i + '</button>';
+  }
+  html += '<button class="dt-page-btn" ' + (ssState.page >= result.totalPages ? 'disabled' : '') + ' onclick="ssGoPage(' + (ssState.page + 1) + ')"><i class="bi bi-chevron-right"></i></button>';
+  pag.innerHTML = html;
+
+  // Sort icons
+  document.querySelectorAll('#serverTable thead .sortable').forEach(th => {
+    const icon = th.querySelector('.sort-icon');
+    const col = th.getAttribute('onclick').match(/'(.+?)'/)[1];
+    if (col === ssState.sortCol) {
+      icon.className = 'bi sort-icon ' + (ssState.sortDir === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down');
+      icon.style.color = 'var(--teal-primary)';
+    } else {
+      icon.className = 'bi bi-chevron-expand sort-icon';
+      icon.style.color = '';
+    }
+  });
+}
+
+function ssGoPage(p) {
+  ssState.page = p;
+  document.getElementById('ssLoadingOverlay').classList.remove('d-none');
+  document.getElementById('serverDot').className = 'server-status-dot loading';
+  const startTime = performance.now();
+  setTimeout(() => {
+    ssRender(ssProcess());
+    document.getElementById('ssLoadingOverlay').classList.add('d-none');
+    document.getElementById('serverDot').className = 'server-status-dot online';
+    document.getElementById('ssResponseTime').textContent = Math.round(performance.now() - startTime) + ' ms';
+    document.getElementById('ssRequestInfo').textContent = 'GET /api/orders?page=' + p + '&limit=' + ssState.pageSize;
+    setTimeout(() => { document.getElementById('serverDot').className = 'server-status-dot idle'; }, 1500);
+  }, 200 + Math.random() * 300);
+}
+
+function ssChangePageSize() { ssState.pageSize = parseInt(document.getElementById('ssPageSize').value); ssFetch(); }
+
+function ssSort(col) {
+  if (ssState.sortCol === col) { ssState.sortDir = ssState.sortDir === 'asc' ? 'desc' : 'asc'; }
+  else { ssState.sortCol = col; ssState.sortDir = 'asc'; }
+  ssFetch();
+}
+
+function ssExport(type) {
+  // Export all filtered data (not just current page)
+  const allFiltered = ssAllData.filter(r => {
+    if (ssState.search && !(r.id + ' ' + r.customer + ' ' + r.products).toLowerCase().includes(ssState.search)) return false;
+    if (ssState.status && r.status !== ssState.status) return false;
+    if (ssState.dateFrom && r.date < ssState.dateFrom) return false;
+    if (ssState.dateTo && r.date > ssState.dateTo) return false;
+    return true;
+  });
+
+  if (type === 'csv') {
+    const csv = 'Sipariş No,Müşteri,Ürünler,Tutar,Ödeme,Tarih,Durum\n' +
+      allFiltered.map(r => [r.id, '"'+r.customer+'"', '"'+r.products+'"', r.total, '"'+r.payment+'"', r.date, r.status].join(',')).join('\n');
+    downloadFile(csv, 'siparisler.csv', 'text/csv');
+    showTableToast('CSV indirildi (' + allFiltered.length + ' kayıt)', 'success');
+  } else if (type === 'json') {
+    downloadFile(JSON.stringify(allFiltered, null, 2), 'siparisler.json', 'application/json');
+    showTableToast('JSON indirildi (' + allFiltered.length + ' kayıt)', 'success');
+  }
+}
+
+// ============================================================
+//  HELPER FUNCTIONS
+// ============================================================
+
+function toggleAllBasic(el) {
+  document.querySelectorAll('.row-check-basic').forEach(cb => { cb.checked = el.checked; cb.closest('tr').classList.toggle('row-selected', el.checked); });
+}
+
+function toggleExpand(row) {
+  const content = row.nextElementSibling;
+  const icon = row.querySelector('.expand-icon');
+  content.classList.toggle('show');
+  icon.classList.toggle('bi-chevron-right');
+  icon.classList.toggle('bi-chevron-down');
+}
+
+function onCellEdit(el) {
+  el.style.animation = 'editFlash 0.5s ease';
+  setTimeout(() => el.style.animation = '', 500);
+}
+
+function onStatusEdit(el) {
+  el.style.animation = 'editFlash 0.5s ease';
+  setTimeout(() => el.style.animation = '', 500);
+}
+
+function showTableToast(msg, type) {
+  const colors = { success: 'var(--neon-green)', info: 'var(--neon-blue)', error: 'var(--neon-red)' };
+  const icons = { success: 'bi-check-circle-fill', info: 'bi-info-circle-fill', error: 'bi-x-circle-fill' };
+  const toast = document.createElement('div');
+  toast.className = 'table-toast';
+  toast.innerHTML = '<i class="bi ' + (icons[type] || icons.info) + '" style="color:' + (colors[type] || colors.info) + '"></i> ' + msg;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', () => {
+  dtInit();
+  ssFetch();
+});
+</script>
+</body>
+</html>

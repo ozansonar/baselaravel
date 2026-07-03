@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Kullanıcı Formu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+
+    <div id="navbar-container"></div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-reset fs-13">
+          <li class="breadcrumb-item"><a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a></li>
+          <li class="breadcrumb-item"><a href="users.html" class="breadcrumb-link">Kullanıcılar</a></li>
+          <li class="breadcrumb-item active text-teal" id="breadcrumbCurrent">Yeni Kullanıcı</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" data-aos="fade-down">
+        <div class="d-flex align-items-center gap-3">
+          <a href="users.html" class="btn-glass" title="Geri Dön">
+            <i class="bi bi-arrow-left"></i>
+          </a>
+          <div>
+            <h1 class="page-title" id="pageTitle">Yeni Kullanıcı Oluştur</h1>
+            <p class="page-subtitle" id="pageSubtitle">Sisteme yeni bir kullanıcı ekleyin ve gerekli bilgileri doldurun</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="users.html" class="btn-glass"><i class="bi bi-x-lg me-1"></i> İptal</a>
+          <button class="btn-teal" onclick="saveUser()"><i class="bi bi-check2 me-1"></i> <span id="saveBtnText">Kullanıcı Oluştur</span></button>
+        </div>
+      </div>
+
+
+      <!-- ==================== FORM LAYOUT ==================== -->
+      <div class="stg-layout">
+
+        <!-- Left Navigation -->
+        <div class="stg-nav" data-aos="fade-right" data-aos-delay="100">
+          <a href="#section-avatar" class="stg-nav-item active" onclick="scrollToSection('section-avatar', this)">
+            <i class="bi bi-camera"></i> Profil Fotoğrafı
+          </a>
+          <a href="#section-personal" class="stg-nav-item" onclick="scrollToSection('section-personal', this)">
+            <i class="bi bi-person"></i> Kişisel Bilgiler
+          </a>
+          <a href="#section-account" class="stg-nav-item" onclick="scrollToSection('section-account', this)">
+            <i class="bi bi-key"></i> Hesap Bilgileri
+          </a>
+          <a href="#section-role" class="stg-nav-item" onclick="scrollToSection('section-role', this)">
+            <i class="bi bi-shield"></i> Rol & Yetki
+          </a>
+          <a href="#section-permissions" class="stg-nav-item" onclick="scrollToSection('section-permissions', this)">
+            <i class="bi bi-unlock"></i> İzinler
+          </a>
+          <a href="#section-notifications" class="stg-nav-item" onclick="scrollToSection('section-notifications', this)">
+            <i class="bi bi-bell"></i> Bildirimler
+          </a>
+          <a href="#section-notes" class="stg-nav-item" onclick="scrollToSection('section-notes', this)">
+            <i class="bi bi-journal-text"></i> Notlar
+          </a>
+        </div>
+
+        <!-- Form Content -->
+        <div class="stg-content">
+
+          <!-- ==================== SECTION 1: AVATAR ==================== -->
+          <div class="card-dark mb-4" id="section-avatar" data-aos="fade-up" data-aos-delay="0">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-camera-fill"></i></div>
+                <div>
+                  <h6 class="mb-0">Profil Fotoğrafı</h6>
+                  <small class="text-muted">Kullanıcının profil resmini yükleyin veya değiştirin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="uf-avatar-section">
+                <div class="uf-avatar-preview" id="avatarPreview">
+                  <img src="https://ui-avatars.com/api/?name=Yeni+Kullanici&background=14b8a6&color=fff&size=120" alt="" id="avatarImg">
+                  <div class="uf-avatar-overlay" onclick="document.getElementById('avatarInput').click()">
+                    <i class="bi bi-camera-fill"></i>
+                    <span>Değiştir</span>
+                  </div>
+                </div>
+                <div class="uf-avatar-info">
+                  <h6 id="avatarUserName">Yeni Kullanıcı</h6>
+                  <p class="text-muted mb-2 fs-13">PNG, JPG veya GIF formatında, maksimum 2MB boyutunda bir fotoğraf yükleyin.</p>
+                  <div class="d-flex gap-2">
+                    <button class="btn-glass" onclick="document.getElementById('avatarInput').click()">
+                      <i class="bi bi-upload me-1"></i> Fotoğraf Yükle
+                    </button>
+                    <button class="btn-teal btn-danger-gradient d-none" onclick="removeAvatar()" id="removeAvatarBtn">
+                      <i class="bi bi-trash me-1"></i> Kaldır
+                    </button>
+                  </div>
+                  <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/gif" hidden onchange="previewAvatar(this)">
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 2: PERSONAL INFO ==================== -->
+          <div class="card-dark mb-4" id="section-personal" data-aos="fade-up" data-aos-delay="50">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-person-fill"></i></div>
+                <div>
+                  <h6 class="mb-0">Kişisel Bilgiler</h6>
+                  <small class="text-muted">Kullanıcının temel kişisel bilgilerini girin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="stg-label">Ad <span class="text-neon-red">*</span></label>
+                  <input type="text" class="stg-input" id="firstName" placeholder="Kullanıcının adı" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Soyad <span class="text-neon-red">*</span></label>
+                  <input type="text" class="stg-input" id="lastName" placeholder="Kullanıcının soyadı" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">E-posta Adresi <span class="text-neon-red">*</span></label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="stg-input" id="email" placeholder="ornek@mail.com" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Telefon</label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-telephone"></i></span>
+                    <input type="tel" class="stg-input" id="phone" placeholder="+90 5XX XXX XX XX">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Doğum Tarihi</label>
+                  <input type="date" class="stg-input" id="birthDate">
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Cinsiyet</label>
+                  <select class="stg-select" id="gender">
+                    <option value="">Seçiniz</option>
+                    <option value="male">Erkek</option>
+                    <option value="female">Kadın</option>
+                    <option value="other">Belirtmek İstemiyorum</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Konum</label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-geo-alt"></i></span>
+                    <input type="text" class="stg-input" id="location" placeholder="Şehir, Ülke">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Departman</label>
+                  <select class="stg-select" id="department">
+                    <option value="">Seçiniz</option>
+                    <option value="engineering">Yazılım Geliştirme</option>
+                    <option value="design">Tasarım</option>
+                    <option value="marketing">Pazarlama</option>
+                    <option value="sales">Satış</option>
+                    <option value="hr">İnsan Kaynakları</option>
+                    <option value="finance">Finans</option>
+                    <option value="support">Müşteri Destek</option>
+                    <option value="management">Yönetim</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="stg-label">Biyografi</label>
+                  <textarea class="stg-textarea" id="bio" rows="3" placeholder="Kullanıcı hakkında kısa bilgi..."></textarea>
+                  <small class="text-muted">Maksimum 500 karakter</small>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Web Sitesi</label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-globe"></i></span>
+                    <input type="url" class="stg-input" id="website" placeholder="https://ornek.com">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">LinkedIn</label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-linkedin"></i></span>
+                    <input type="text" class="stg-input" id="linkedin" placeholder="linkedin.com/in/kullanici">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 3: ACCOUNT INFO ==================== -->
+          <div class="card-dark mb-4" id="section-account" data-aos="fade-up" data-aos-delay="50">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-key-fill"></i></div>
+                <div>
+                  <h6 class="mb-0">Hesap Bilgileri</h6>
+                  <small class="text-muted">Giriş ve güvenlik ile ilgili ayarlar</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="stg-label">Kullanıcı Adı <span class="text-neon-red">*</span></label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-at"></i></span>
+                    <input type="text" class="stg-input" id="username" placeholder="kullanici_adi" required>
+                  </div>
+                  <small class="text-muted">Sadece harf, rakam ve alt çizgi kullanılabilir</small>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Görünen Ad</label>
+                  <input type="text" class="stg-input" id="displayName" placeholder="Görüntülenecek ad">
+                  <small class="text-muted">Boş bırakılırsa ad ve soyad kullanılır</small>
+                </div>
+                <div class="col-md-6" id="passwordField">
+                  <label class="stg-label">Şifre <span class="text-neon-red" id="passwordRequired">*</span></label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-lock"></i></span>
+                    <input type="password" class="stg-input" id="password" placeholder="Güçlü bir şifre girin">
+                    <button type="button" class="stg-input-prefix btn-unstyled" onclick="togglePassword('password', this)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  <div class="uf-password-strength mt-2 d-none" id="passwordStrength">
+                    <div class="uf-strength-bars">
+                      <div class="uf-strength-bar"></div>
+                      <div class="uf-strength-bar"></div>
+                      <div class="uf-strength-bar"></div>
+                      <div class="uf-strength-bar"></div>
+                    </div>
+                    <small id="strengthText">Şifre gücü</small>
+                  </div>
+                </div>
+                <div class="col-md-6" id="passwordConfirmField">
+                  <label class="stg-label">Şifre Tekrar <span class="text-neon-red" id="passwordConfirmRequired">*</span></label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix"><i class="bi bi-lock-fill"></i></span>
+                    <input type="password" class="stg-input" id="passwordConfirm" placeholder="Şifreyi tekrar girin">
+                    <button type="button" class="stg-input-prefix btn-unstyled" onclick="togglePassword('passwordConfirm', this)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-12 d-none" id="editPasswordNote">
+                  <div class="uf-info-box">
+                    <i class="bi bi-info-circle-fill text-neon-blue"></i>
+                    <span>Şifre alanlarını boş bırakırsanız mevcut şifre korunur. Yalnızca değiştirmek istiyorsanız doldurun.</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">E-posta Doğrulaması</label>
+                  <select class="stg-select" id="emailVerified">
+                    <option value="unverified">Doğrulanmamış</option>
+                    <option value="verified">Doğrulanmış</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">İki Faktörlü Doğrulama (2FA)</label>
+                  <select class="stg-select" id="twoFactor">
+                    <option value="disabled">Devre Dışı</option>
+                    <option value="enabled">Etkin</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 4: ROLE ==================== -->
+          <div class="card-dark mb-4" id="section-role" data-aos="fade-up" data-aos-delay="50">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-shield-fill-check"></i></div>
+                <div>
+                  <h6 class="mb-0">Rol & Yetki</h6>
+                  <small class="text-muted">Kullanıcının rolünü ve durumunu belirleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="stg-label">Rol <span class="text-neon-red">*</span></label>
+                  <select class="stg-select" id="userRole" onchange="updatePermissionsByRole(this.value)">
+                    <option value="">Rol Seçin</option>
+                    <option value="admin">Admin</option>
+                    <option value="editor">Editör</option>
+                    <option value="moderator">Moderatör</option>
+                    <option value="user">Kullanıcı</option>
+                    <option value="viewer">İzleyici</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Durum <span class="text-neon-red">*</span></label>
+                  <select class="stg-select" id="userStatus">
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Pasif</option>
+                    <option value="pending">Beklemede</option>
+                    <option value="suspended">Askıda</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="stg-label">Rol Açıklamaları</label>
+                  <div class="uf-role-cards">
+                    <div class="uf-role-card" data-role="admin">
+                      <div class="uf-role-card-icon accent-teal"><i class="bi bi-shield-fill"></i></div>
+                      <div class="uf-role-card-info">
+                        <strong>Admin</strong>
+                        <small>Tam erişim. Kullanıcı yönetimi, sistem ayarları ve tüm modüllere erişebilir.</small>
+                      </div>
+                    </div>
+                    <div class="uf-role-card" data-role="editor">
+                      <div class="uf-role-card-icon accent-purple"><i class="bi bi-pencil-fill"></i></div>
+                      <div class="uf-role-card-info">
+                        <strong>Editör</strong>
+                        <small>İçerik oluşturma, düzenleme ve yayınlama yetkisi. Kullanıcı yönetimi yapamaz.</small>
+                      </div>
+                    </div>
+                    <div class="uf-role-card" data-role="moderator">
+                      <div class="uf-role-card-icon accent-blue"><i class="bi bi-shield-fill-check"></i></div>
+                      <div class="uf-role-card-info">
+                        <strong>Moderatör</strong>
+                        <small>İçerik moderasyonu, kullanıcı onaylama ve yorum yönetimi yapabilir.</small>
+                      </div>
+                    </div>
+                    <div class="uf-role-card" data-role="user">
+                      <div class="uf-role-card-icon accent-green"><i class="bi bi-person-fill"></i></div>
+                      <div class="uf-role-card-info">
+                        <strong>Kullanıcı</strong>
+                        <small>Temel kullanım hakları. Kendi profilini düzenleyebilir, içerik görüntüleyebilir.</small>
+                      </div>
+                    </div>
+                    <div class="uf-role-card" data-role="viewer">
+                      <div class="uf-role-card-icon accent-pink"><i class="bi bi-eye-fill"></i></div>
+                      <div class="uf-role-card-info">
+                        <strong>İzleyici</strong>
+                        <small>Sadece okuma erişimi. Hiçbir değişiklik yapamaz, yalnızca görüntüleyebilir.</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 5: PERMISSIONS ==================== -->
+          <div class="card-dark mb-4" id="section-permissions" data-aos="fade-up" data-aos-delay="50">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-unlock-fill"></i></div>
+                <div>
+                  <h6 class="mb-0">İzinler</h6>
+                  <small class="text-muted">Kullanıcının modül bazlı erişim izinlerini yapılandırın</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="uf-perm-grid">
+                <!-- İçerik Yönetimi -->
+                <div class="uf-perm-group">
+                  <h6 class="uf-perm-group-title"><i class="bi bi-journal-richtext me-2"></i>İçerik Yönetimi</h6>
+                  <div class="stg-toggle-list">
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>İçerik Görüntüleme</span>
+                        <small>Tüm içerikleri okuyabilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_content_read" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>İçerik Oluşturma</span>
+                        <small>Yeni içerik ekleyebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_content_create">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>İçerik Düzenleme</span>
+                        <small>Mevcut içerikleri düzenleyebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_content_edit">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>İçerik Silme</span>
+                        <small>İçerikleri kalıcı olarak silebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_content_delete">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>İçerik Yayınlama</span>
+                        <small>İçerikleri yayına alabilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_content_publish">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Kullanıcı Yönetimi -->
+                <div class="uf-perm-group">
+                  <h6 class="uf-perm-group-title"><i class="bi bi-people me-2"></i>Kullanıcı Yönetimi</h6>
+                  <div class="stg-toggle-list">
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Kullanıcı Listesi</span>
+                        <small>Kullanıcıları görüntüleyebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_users_list" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Kullanıcı Ekleme</span>
+                        <small>Yeni kullanıcı oluşturabilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_users_create">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Kullanıcı Düzenleme</span>
+                        <small>Kullanıcı bilgilerini düzenleyebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_users_edit">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Kullanıcı Silme</span>
+                        <small>Kullanıcıları silebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_users_delete">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Rol Atama</span>
+                        <small>Kullanıcılara rol atayabilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_users_role">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sistem Yönetimi -->
+                <div class="uf-perm-group">
+                  <h6 class="uf-perm-group-title"><i class="bi bi-gear me-2"></i>Sistem Yönetimi</h6>
+                  <div class="stg-toggle-list">
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Ayarları Görüntüleme</span>
+                        <small>Sistem ayarlarını görebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_settings_view">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Ayarları Düzenleme</span>
+                        <small>Sistem ayarlarını değiştirebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_settings_edit">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Raporları Görüntüleme</span>
+                        <small>Analitik ve raporlara erişebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_reports_view">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Dışa Aktarma</span>
+                        <small>Verileri dışa aktarabilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_export">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>API Erişimi</span>
+                        <small>API üzerinden sisteme erişebilir</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="perm_api_access">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 6: NOTIFICATIONS ==================== -->
+          <div class="card-dark mb-4" id="section-notifications" data-aos="fade-up" data-aos-delay="50">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-bell-fill"></i></div>
+                <div>
+                  <h6 class="mb-0">Bildirim Tercihleri</h6>
+                  <small class="text-muted">Kullanıcının hangi bildirimleri alacağını yapılandırın</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-4">
+                <div class="col-lg-6">
+                  <h6 class="fs-13 text-teal mb-12"><i class="bi bi-envelope me-2"></i>E-posta Bildirimleri</h6>
+                  <div class="stg-toggle-list">
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Giriş Bildirimi</span>
+                        <small>Yeni cihazdan giriş yapıldığında</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_email_login" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Güvenlik Uyarıları</span>
+                        <small>Şifre değişikliği, 2FA güncellemesi</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_email_security" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Görev Atamaları</span>
+                        <small>Yeni görev atandığında bildirim</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_email_task" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Haftalık Özet</span>
+                        <small>Haftalık aktivite raporu</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_email_weekly">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <h6 class="fs-13 text-neon-purple mb-12"><i class="bi bi-app-indicator me-2"></i>Uygulama Bildirimleri</h6>
+                  <div class="stg-toggle-list">
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Anlık Bildirimler</span>
+                        <small>Uygulama içi anlık bildirimler</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_push_instant" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Yorum Bildirimleri</span>
+                        <small>İçeriğe yorum yapıldığında</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_push_comment" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Bahsetme Bildirimi</span>
+                        <small>Kullanıcı bahsedildiğinde</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_push_mention" checked>
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                    <div class="stg-toggle-item">
+                      <div class="stg-toggle-info">
+                        <span>Sistem Güncellemeleri</span>
+                        <small>Yeni özellik ve bakım duyuruları</small>
+                      </div>
+                      <label class="stg-switch">
+                        <input type="checkbox" id="notif_push_system">
+                        <span class="stg-switch-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 7: NOTES ==================== -->
+          <div class="card-dark mb-4" id="section-notes" data-aos="fade-up" data-aos-delay="50">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon"><i class="bi bi-journal-text"></i></div>
+                <div>
+                  <h6 class="mb-0">Yönetici Notları</h6>
+                  <small class="text-muted">Bu kullanıcı hakkında yalnızca yöneticilerin görebileceği notlar</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="stg-label">Dahili Not</label>
+                  <textarea class="stg-textarea" id="adminNotes" rows="4" placeholder="Bu alana yalnızca yöneticiler erişebilir. Kullanıcı hakkında dahili notlarınızı yazın..."></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Etiketler</label>
+                  <input type="text" class="stg-input" id="tags" placeholder="Virgülle ayırarak etiket ekleyin...">
+                  <small class="text-muted">Örn: vip, kurumsal, beta-test</small>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Öncelik</label>
+                  <select class="stg-select" id="priority">
+                    <option value="normal">Normal</option>
+                    <option value="low">Düşük</option>
+                    <option value="high">Yüksek</option>
+                    <option value="critical">Kritik</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== BOTTOM ACTIONS ==================== -->
+          <div class="uf-bottom-actions" data-aos="fade-up">
+            <div class="d-flex gap-2">
+              <a href="users.html" class="btn-glass"><i class="bi bi-x-lg me-1"></i> İptal</a>
+              <button class="btn-glass" onclick="resetForm()"><i class="bi bi-arrow-counterclockwise me-1"></i> Sıfırla</button>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn-glass" onclick="saveDraft()"><i class="bi bi-save me-1"></i> Taslak Kaydet</button>
+              <button class="btn-teal" onclick="saveUser()"><i class="bi bi-check2 me-1"></i> <span id="saveBtnText2">Kullanıcı Oluştur</span></button>
+            </div>
+          </div>
+
+
+        </div><!-- /stg-content -->
+      </div><!-- /stg-layout -->
+
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3 z-toast">
+  <div class="toast align-items-center border-0 bg-card-bordered" id="ufToast" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center gap-2" id="ufToastBody">
+        <i class="bi bi-check-circle-fill text-neon-green"></i>
+        <span>İşlem başarıyla tamamlandı</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Unsaved Changes Modal -->
+<div class="modal fade" id="unsavedModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon warning">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h5 class="cl-modal-heading">Kaydedilmemiş Değişiklikler</h5>
+        <p class="cl-modal-body-text">Formdaki değişiklikler henüz kaydedilmedi.</p>
+        <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Çıkarsanız değişiklikler kaybolacak.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">Düzenlemeye Devam Et</button>
+          <a href="users.html" class="btn-teal btn-danger-gradient"><i class="bi bi-x-lg me-1"></i> Kaydetmeden Çık</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 50 });
+</script>
+<script>
+// ========== Edit Mode Detection ==========
+let isEditMode = false;
+let editUsername = '';
+
+(function initForm() {
+  const params = new URLSearchParams(window.location.search);
+  editUsername = params.get('edit');
+
+  if (editUsername) {
+    isEditMode = true;
+    document.getElementById('pageTitle').textContent = 'Kullanıcı Düzenle';
+    document.getElementById('pageSubtitle').textContent = 'Kullanıcı bilgilerini güncelleyin ve değişiklikleri kaydedin';
+    document.getElementById('breadcrumbCurrent').textContent = 'Kullanıcı Düzenle';
+    document.getElementById('saveBtnText').textContent = 'Değişiklikleri Kaydet';
+    document.getElementById('saveBtnText2').textContent = 'Değişiklikleri Kaydet';
+    document.getElementById('editPasswordNote').classList.remove('d-none');
+    document.getElementById('passwordRequired').classList.add('d-none');
+    document.getElementById('passwordConfirmRequired').classList.add('d-none');
+    document.title = 'OZAN Admin - Kullanıcı Düzenle';
+
+    loadUserData(editUsername);
+  }
+})();
+
+// ========== Load User Data (Simulated) ==========
+function loadUserData(username) {
+  const users = {
+    ozan: { firstName: 'Ozan', lastName: 'Sonar', email: 'ozan@example.com', phone: '+90 532 123 45 67', username: 'ozan', role: 'admin', status: 'active', location: 'İstanbul, Türkiye', department: 'engineering', bio: 'Full-stack geliştirici ve sistem yöneticisi', emailVerified: 'verified', twoFactor: 'enabled' },
+    ayse: { firstName: 'Ayşe', lastName: 'Yılmaz', email: 'ayse@example.com', phone: '+90 535 234 56 78', username: 'ayse', role: 'editor', status: 'active', location: 'Ankara, Türkiye', department: 'marketing', bio: 'İçerik editörü ve dijital pazarlama uzmanı', emailVerified: 'verified', twoFactor: 'enabled' },
+    mehmet: { firstName: 'Mehmet', lastName: 'Demir', email: 'mehmet@example.com', phone: '+90 538 345 67 89', username: 'mehmet', role: 'moderator', status: 'active', location: 'İzmir, Türkiye', department: 'support', bio: 'Topluluk moderatörü ve müşteri destek uzmanı', emailVerified: 'verified', twoFactor: 'disabled' },
+    zeynep: { firstName: 'Zeynep', lastName: 'Kaya', email: 'zeynep@example.com', phone: '+90 541 456 78 90', username: 'zeynep', role: 'user', status: 'inactive', location: 'Bursa, Türkiye', department: 'design', bio: 'UI/UX tasarımcısı', emailVerified: 'verified', twoFactor: 'disabled' },
+    ali: { firstName: 'Ali', lastName: 'Öztürk', email: 'ali@example.com', phone: '+90 544 567 89 01', username: 'ali', role: 'admin', status: 'active', location: 'İstanbul, Türkiye', department: 'engineering', bio: 'Backend geliştirici ve veritabanı uzmanı', emailVerified: 'verified', twoFactor: 'enabled' },
+    fatma: { firstName: 'Fatma', lastName: 'Çelik', email: 'fatma@example.com', phone: '+90 547 678 90 12', username: 'fatma', role: 'editor', status: 'suspended', location: 'Antalya, Türkiye', department: 'marketing', bio: 'İçerik yazarı', emailVerified: 'verified', twoFactor: 'enabled' },
+    emre: { firstName: 'Emre', lastName: 'Aksoy', email: 'emre@example.com', phone: '', username: 'emre', role: 'viewer', status: 'pending', location: '', department: '', bio: '', emailVerified: 'unverified', twoFactor: 'disabled' },
+    selin: { firstName: 'Selin', lastName: 'Arslan', email: 'selin@example.com', phone: '+90 553 789 01 23', username: 'selin', role: 'moderator', status: 'active', location: 'İstanbul, Türkiye', department: 'support', bio: 'Kıdemli moderatör', emailVerified: 'verified', twoFactor: 'enabled' },
+    burak: { firstName: 'Burak', lastName: 'Yıldız', email: 'burak@example.com', phone: '+90 556 890 12 34', username: 'burak', role: 'user', status: 'active', location: 'Eskişehir, Türkiye', department: 'sales', bio: 'Satış temsilcisi', emailVerified: 'verified', twoFactor: 'disabled' },
+    deniz: { firstName: 'Deniz', lastName: 'Korkmaz', email: 'deniz@example.com', phone: '+90 559 901 23 45', username: 'deniz', role: 'user', status: 'active', location: 'Konya, Türkiye', department: 'finance', bio: 'Finans analisti', emailVerified: 'verified', twoFactor: 'enabled' }
+  };
+
+  const user = users[username];
+  if (!user) return;
+
+  document.getElementById('firstName').value = user.firstName;
+  document.getElementById('lastName').value = user.lastName;
+  document.getElementById('email').value = user.email;
+  document.getElementById('phone').value = user.phone;
+  document.getElementById('username').value = user.username;
+  document.getElementById('userRole').value = user.role;
+  document.getElementById('userStatus').value = user.status;
+  document.getElementById('location').value = user.location;
+  document.getElementById('department').value = user.department;
+  document.getElementById('bio').value = user.bio;
+  document.getElementById('emailVerified').value = user.emailVerified;
+  document.getElementById('twoFactor').value = user.twoFactor;
+
+  document.getElementById('avatarImg').src = `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=14b8a6&color=fff&size=120`;
+  document.getElementById('avatarUserName').textContent = `${user.firstName} ${user.lastName}`;
+
+  updatePermissionsByRole(user.role);
+
+  // Highlight role card
+  document.querySelectorAll('.uf-role-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.role === user.role);
+  });
+}
+
+// ========== Section Navigation ==========
+function scrollToSection(id, el) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.stg-nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ========== Avatar ==========
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Dosya boyutu 2MB\'dan küçük olmalıdır', 'warning');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('avatarImg').src = e.target.result;
+      document.getElementById('removeAvatarBtn').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeAvatar() {
+  const name = isEditMode
+    ? document.getElementById('firstName').value + '+' + document.getElementById('lastName').value
+    : 'Yeni+Kullanici';
+  document.getElementById('avatarImg').src = `https://ui-avatars.com/api/?name=${name}&background=14b8a6&color=fff&size=120`;
+  document.getElementById('removeAvatarBtn').classList.add('d-none');
+  document.getElementById('avatarInput').value = '';
+  showToast('Profil fotoğrafı kaldırıldı');
+}
+
+// ========== Password Toggle ==========
+function togglePassword(fieldId, btn) {
+  const input = document.getElementById(fieldId);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+  }
+}
+
+// ========== Password Strength ==========
+document.getElementById('password').addEventListener('input', function() {
+  const val = this.value;
+  const strengthEl = document.getElementById('passwordStrength');
+  const bars = strengthEl.querySelectorAll('.uf-strength-bar');
+  const text = document.getElementById('strengthText');
+
+  if (!val) {
+    strengthEl.classList.add('d-none');
+    return;
+  }
+  strengthEl.classList.remove('d-none');
+
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const labels = ['Çok Zayıf', 'Zayıf', 'Orta', 'Güçlü'];
+  const colors = ['var(--neon-red, #ef4444)', 'var(--neon-orange)', 'var(--neon-blue)', 'var(--neon-green)'];
+
+  bars.forEach((bar, i) => {
+    if (i < score) {
+      bar.style.background = colors[score - 1];
+      bar.style.opacity = '1';
+    } else {
+      bar.style.background = 'var(--border-color)';
+      bar.style.opacity = '0.3';
+    }
+  });
+
+  text.textContent = labels[score - 1] || 'Çok Zayıf';
+  text.style.color = colors[score - 1] || colors[0];
+});
+
+// ========== Update Permissions By Role ==========
+function updatePermissionsByRole(role) {
+  const presets = {
+    admin: {
+      perm_content_read: true, perm_content_create: true, perm_content_edit: true, perm_content_delete: true, perm_content_publish: true,
+      perm_users_list: true, perm_users_create: true, perm_users_edit: true, perm_users_delete: true, perm_users_role: true,
+      perm_settings_view: true, perm_settings_edit: true, perm_reports_view: true, perm_export: true, perm_api_access: true
+    },
+    editor: {
+      perm_content_read: true, perm_content_create: true, perm_content_edit: true, perm_content_delete: false, perm_content_publish: true,
+      perm_users_list: true, perm_users_create: false, perm_users_edit: false, perm_users_delete: false, perm_users_role: false,
+      perm_settings_view: false, perm_settings_edit: false, perm_reports_view: true, perm_export: true, perm_api_access: false
+    },
+    moderator: {
+      perm_content_read: true, perm_content_create: false, perm_content_edit: true, perm_content_delete: true, perm_content_publish: false,
+      perm_users_list: true, perm_users_create: false, perm_users_edit: false, perm_users_delete: false, perm_users_role: false,
+      perm_settings_view: false, perm_settings_edit: false, perm_reports_view: true, perm_export: false, perm_api_access: false
+    },
+    user: {
+      perm_content_read: true, perm_content_create: true, perm_content_edit: false, perm_content_delete: false, perm_content_publish: false,
+      perm_users_list: true, perm_users_create: false, perm_users_edit: false, perm_users_delete: false, perm_users_role: false,
+      perm_settings_view: false, perm_settings_edit: false, perm_reports_view: false, perm_export: false, perm_api_access: false
+    },
+    viewer: {
+      perm_content_read: true, perm_content_create: false, perm_content_edit: false, perm_content_delete: false, perm_content_publish: false,
+      perm_users_list: false, perm_users_create: false, perm_users_edit: false, perm_users_delete: false, perm_users_role: false,
+      perm_settings_view: false, perm_settings_edit: false, perm_reports_view: false, perm_export: false, perm_api_access: false
+    }
+  };
+
+  const preset = presets[role];
+  if (!preset) return;
+
+  Object.keys(preset).forEach(key => {
+    const el = document.getElementById(key);
+    if (el) el.checked = preset[key];
+  });
+
+  // Highlight active role card
+  document.querySelectorAll('.uf-role-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.role === role);
+  });
+}
+
+// ========== Role Card Click ==========
+document.querySelectorAll('.uf-role-card').forEach(card => {
+  card.addEventListener('click', function() {
+    const role = this.dataset.role;
+    document.getElementById('userRole').value = role;
+    updatePermissionsByRole(role);
+  });
+});
+
+// ========== Save User ==========
+function saveUser() {
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const role = document.getElementById('userRole').value;
+  const password = document.getElementById('password').value;
+  const passwordConfirm = document.getElementById('passwordConfirm').value;
+
+  if (!firstName || !lastName) {
+    showToast('Lütfen ad ve soyad alanlarını doldurun', 'warning');
+    scrollToSection('section-personal');
+    return;
+  }
+  if (!email) {
+    showToast('Lütfen e-posta adresini girin', 'warning');
+    scrollToSection('section-personal');
+    return;
+  }
+  if (!username) {
+    showToast('Lütfen kullanıcı adını girin', 'warning');
+    scrollToSection('section-account');
+    return;
+  }
+  if (!role) {
+    showToast('Lütfen bir rol seçin', 'warning');
+    scrollToSection('section-role');
+    return;
+  }
+
+  if (!isEditMode && !password) {
+    showToast('Lütfen bir şifre belirleyin', 'warning');
+    scrollToSection('section-account');
+    return;
+  }
+
+  if (password && password !== passwordConfirm) {
+    showToast('Şifreler eşleşmiyor', 'warning');
+    scrollToSection('section-account');
+    return;
+  }
+
+  if (password && password.length < 8) {
+    showToast('Şifre en az 8 karakter olmalıdır', 'warning');
+    scrollToSection('section-account');
+    return;
+  }
+
+  const message = isEditMode
+    ? `${firstName} ${lastName} kullanıcısının bilgileri güncellendi`
+    : `${firstName} ${lastName} kullanıcısı başarıyla oluşturuldu`;
+
+  showToast(message);
+
+  setTimeout(() => {
+    window.location.href = 'users.html';
+  }, 1500);
+}
+
+// ========== Save Draft ==========
+function saveDraft() {
+  showToast('Taslak kaydedildi');
+}
+
+// ========== Reset Form ==========
+function resetForm() {
+  if (isEditMode) {
+    loadUserData(editUsername);
+    showToast('Form verileri sıfırlandı');
+  } else {
+    document.querySelectorAll('.stg-input, .stg-textarea').forEach(el => el.value = '');
+    document.querySelectorAll('.stg-select').forEach(el => el.selectedIndex = 0);
+    document.querySelectorAll('.stg-switch input').forEach(el => el.checked = false);
+    document.getElementById('perm_content_read').checked = true;
+    document.getElementById('perm_users_list').checked = true;
+    document.getElementById('notif_email_login').checked = true;
+    document.getElementById('notif_email_security').checked = true;
+    document.getElementById('notif_email_task').checked = true;
+    document.getElementById('notif_push_instant').checked = true;
+    document.getElementById('notif_push_comment').checked = true;
+    document.getElementById('notif_push_mention').checked = true;
+    showToast('Form sıfırlandı');
+  }
+}
+
+// ========== Toast ==========
+function showToast(message, type) {
+  const toast = document.getElementById('ufToast');
+  const body = document.getElementById('ufToastBody');
+  const icons = { danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', default: 'bi-check-circle-fill' };
+  const classes = { danger: 'text-neon-red', warning: 'text-neon-orange', default: 'text-neon-green' };
+  const icon = icons[type] || icons.default;
+  const cls = classes[type] || classes.default;
+  body.innerHTML = `<i class="bi ${icon} ${cls}"></i><span>${message}</span>`;
+  new bootstrap.Toast(toast, { delay: 3000 }).show();
+}
+
+// ========== Update Avatar Name on Input ==========
+document.getElementById('firstName').addEventListener('input', updateAvatarPreview);
+document.getElementById('lastName').addEventListener('input', updateAvatarPreview);
+
+function updateAvatarPreview() {
+  const first = document.getElementById('firstName').value.trim() || 'Yeni';
+  const last = document.getElementById('lastName').value.trim() || 'Kullanıcı';
+  document.getElementById('avatarUserName').textContent = `${first} ${last}`;
+  if (!document.getElementById('avatarInput').files.length) {
+    document.getElementById('avatarImg').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(first)}+${encodeURIComponent(last)}&background=14b8a6&color=fff&size=120`;
+  }
+}
+</script>
+</body>
+</html>

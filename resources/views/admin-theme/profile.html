@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Kullanıcı Profili</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- ==================== COVER & PROFILE HEADER ==================== -->
+      <div class="prf-cover">
+        <div class="prf-cover-bg"></div>
+        <div class="prf-cover-overlay"></div>
+        <button class="prf-cover-edit"><i class="bi bi-camera"></i> Kapak Değiştir</button>
+      </div>
+
+      <div class="prf-header">
+        <div class="prf-avatar-wrap">
+          <div class="prf-avatar">
+            <span>OZ</span>
+            <div class="prf-avatar-status"></div>
+          </div>
+          <button class="prf-avatar-edit"><i class="bi bi-pencil-fill"></i></button>
+        </div>
+
+        <div class="prf-header-info">
+          <div class="prf-name-row">
+            <div>
+              <h2>Ozan Sonar</h2>
+              <p class="prf-role"><i class="bi bi-shield-fill-check"></i> Super Admin <span class="prf-verified"><i class="bi bi-patch-check-fill"></i></span></p>
+            </div>
+            <div class="prf-header-actions">
+              <button class="prf-btn prf-btn-primary" onclick="openEditModal()"><i class="bi bi-pencil-square"></i> Profili Düzenle</button>
+              <button class="prf-btn prf-btn-ghost"><i class="bi bi-share"></i></button>
+              <button class="prf-btn prf-btn-ghost"><i class="bi bi-three-dots-vertical"></i></button>
+            </div>
+          </div>
+
+          <p class="prf-bio">Full-stack developer & UI/UX tasarımcı. Modern web teknolojileri, kullanıcı deneyimi ve performans optimizasyonu konularında uzman.</p>
+
+          <div class="prf-meta">
+            <span><i class="bi bi-geo-alt"></i> İstanbul, Türkiye</span>
+            <span><i class="bi bi-building"></i> OZAN Technologies</span>
+            <span><i class="bi bi-link-45deg"></i> <a href="#">ozan.dev</a></span>
+            <span><i class="bi bi-calendar3"></i> Şubat 2024'den beri üye</span>
+          </div>
+
+          <div class="prf-socials">
+            <a href="#" class="prf-social-btn sc-twitter"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="prf-social-btn sc-linkedin"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="prf-social-btn sc-github"><i class="bi bi-github"></i></a>
+            <a href="#" class="prf-social-btn sc-instagram"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="prf-social-btn sc-youtube"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="prf-stats-bar">
+          <div class="prf-stat">
+            <span class="prf-stat-val">248</span>
+            <span class="prf-stat-label">Proje</span>
+          </div>
+          <div class="prf-stat">
+            <span class="prf-stat-val">1.2K</span>
+            <span class="prf-stat-label">Görev</span>
+          </div>
+          <div class="prf-stat">
+            <span class="prf-stat-val">96%</span>
+            <span class="prf-stat-label">Başarı</span>
+          </div>
+          <div class="prf-stat">
+            <span class="prf-stat-val">4.9</span>
+            <span class="prf-stat-label">Puan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PROFILE TABS ==================== -->
+      <div class="prf-tabs">
+        <button class="prf-tab active" onclick="switchProfileTab(this,'prf-overview')">Genel Bakış</button>
+        <button class="prf-tab" onclick="switchProfileTab(this,'prf-projects')">Projeler</button>
+        <button class="prf-tab" onclick="switchProfileTab(this,'prf-activity')">Aktivite</button>
+        <button class="prf-tab" onclick="switchProfileTab(this,'prf-edit')">Düzenle</button>
+      </div>
+
+      <!-- ==================== TAB: GENEL BAKIŞ ==================== -->
+      <div class="prf-tab-content active" id="prf-overview">
+        <div class="row g-4">
+
+          <!-- Sol Kolon -->
+          <div class="col-lg-4">
+
+            <!-- Hakkında -->
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-person-lines-fill"></i> Hakkında</div>
+              <div class="prf-about-list">
+                <div class="prf-about-item">
+                  <i class="bi bi-briefcase"></i>
+                  <div><small>Pozisyon</small><span>Senior Full-Stack Developer</span></div>
+                </div>
+                <div class="prf-about-item">
+                  <i class="bi bi-building"></i>
+                  <div><small>Şirket</small><span>OZAN Technologies</span></div>
+                </div>
+                <div class="prf-about-item">
+                  <i class="bi bi-mortarboard"></i>
+                  <div><small>Eğitim</small><span>Bilgisayar Mühendisliği, İTÜ</span></div>
+                </div>
+                <div class="prf-about-item">
+                  <i class="bi bi-translate"></i>
+                  <div><small>Diller</small><span>Türkçe, İngilizce, Almanca</span></div>
+                </div>
+                <div class="prf-about-item">
+                  <i class="bi bi-envelope"></i>
+                  <div><small>E-posta</small><span>ozan@ozan.dev</span></div>
+                </div>
+                <div class="prf-about-item">
+                  <i class="bi bi-phone"></i>
+                  <div><small>Telefon</small><span>+90 532 ••• •• ••</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Yetenekler -->
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-lightning-charge-fill"></i> Yetenekler</div>
+              <div class="prf-skills">
+                <span class="prf-skill-tag sk-orange">HTML/CSS</span>
+                <span class="prf-skill-tag sk-blue">JavaScript</span>
+                <span class="prf-skill-tag sk-teal">React</span>
+                <span class="prf-skill-tag sk-purple">Next.js</span>
+                <span class="prf-skill-tag sk-green">Node.js</span>
+                <span class="prf-skill-tag sk-blue">TypeScript</span>
+                <span class="prf-skill-tag sk-pink">Figma</span>
+                <span class="prf-skill-tag sk-orange">Firebase</span>
+                <span class="prf-skill-tag sk-purple">PostgreSQL</span>
+                <span class="prf-skill-tag sk-red">Docker</span>
+                <span class="prf-skill-tag sk-teal">Tailwind</span>
+                <span class="prf-skill-tag sk-green">GraphQL</span>
+              </div>
+            </div>
+
+            <!-- Ekip -->
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-people-fill"></i> Ekip Arkadaşları</div>
+              <div class="prf-team">
+                <div class="prf-team-member">
+                  <div class="prf-team-avatar avatar-gradient-pink">AY</div>
+                  <div>
+                    <span>Ayşe Yılmaz</span>
+                    <small>UI Designer</small>
+                  </div>
+                </div>
+                <div class="prf-team-member">
+                  <div class="prf-team-avatar avatar-gradient-blue">MK</div>
+                  <div>
+                    <span>Mehmet Kaya</span>
+                    <small>Backend Dev</small>
+                  </div>
+                </div>
+                <div class="prf-team-member">
+                  <div class="prf-team-avatar avatar-gradient-orange">ZD</div>
+                  <div>
+                    <span>Zeynep Demir</span>
+                    <small>Product Manager</small>
+                  </div>
+                </div>
+                <div class="prf-team-member">
+                  <div class="prf-team-avatar avatar-gradient-green">EC</div>
+                  <div>
+                    <span>Emre Can</span>
+                    <small>DevOps Engineer</small>
+                  </div>
+                </div>
+                <div class="prf-team-member">
+                  <div class="prf-team-avatar prf-avatar-purple-blue">SB</div>
+                  <div>
+                    <span>Selin Bal</span>
+                    <small>QA Lead</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sağ Kolon -->
+          <div class="col-lg-8">
+
+            <!-- Hızlı İstatistikler -->
+            <div class="row g-3 mb-4">
+              <div class="col-sm-6 col-md-3">
+                <div class="prf-quick-stat">
+                  <div class="prf-qs-icon qs-clr-blue"><i class="bi bi-code-slash"></i></div>
+                  <div class="prf-qs-info">
+                    <span class="prf-qs-val">3,842</span>
+                    <small>Commit</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div class="prf-quick-stat">
+                  <div class="prf-qs-icon qs-clr-green"><i class="bi bi-check2-circle"></i></div>
+                  <div class="prf-qs-info">
+                    <span class="prf-qs-val">1,156</span>
+                    <small>Görev Kapandı</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div class="prf-quick-stat">
+                  <div class="prf-qs-icon qs-clr-purple"><i class="bi bi-bug"></i></div>
+                  <div class="prf-qs-info">
+                    <span class="prf-qs-val">89</span>
+                    <small>Bug Fix</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div class="prf-quick-stat">
+                  <div class="prf-qs-icon qs-clr-orange"><i class="bi bi-star-fill"></i></div>
+                  <div class="prf-qs-info">
+                    <span class="prf-qs-val">24</span>
+                    <small>Ödül</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Katkı Grafiği (GitHub benzeri) -->
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-graph-up-arrow"></i> Katkı Grafiği <small class="text-muted prf-card-subtitle">Son 16 hafta</small></div>
+              <div class="prf-contrib-grid" id="contribGrid"></div>
+              <div class="prf-contrib-legend">
+                <span>Az</span>
+                <div class="prf-contrib-cell prf-cc-08"></div>
+                <div class="prf-contrib-cell prf-cc-25"></div>
+                <div class="prf-contrib-cell prf-cc-50"></div>
+                <div class="prf-contrib-cell prf-cc-75"></div>
+                <div class="prf-contrib-cell bg-teal"></div>
+                <span>Çok</span>
+              </div>
+            </div>
+
+            <!-- Son Aktiviteler (Timeline) -->
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-clock-history"></i> Son Aktiviteler</div>
+              <div class="prf-timeline">
+                <div class="prf-tl-item">
+                  <div class="prf-tl-dot tl-clr-green"><i class="bi bi-check-lg"></i></div>
+                  <div class="prf-tl-content">
+                    <div class="prf-tl-header">
+                      <span><strong>E-Ticaret Redesign</strong> projesini tamamladı</span>
+                      <small>2 saat önce</small>
+                    </div>
+                    <p>Tüm sayfalar responsive hale getirildi ve performans testleri başarılı.</p>
+                  </div>
+                </div>
+                <div class="prf-tl-item">
+                  <div class="prf-tl-dot tl-clr-blue"><i class="bi bi-code-slash"></i></div>
+                  <div class="prf-tl-content">
+                    <div class="prf-tl-header">
+                      <span><strong>API Gateway</strong> için 12 commit yaptı</span>
+                      <small>5 saat önce</small>
+                    </div>
+                    <div class="prf-tl-code">
+                      <code>feat: implement rate limiting middleware</code>
+                      <code>fix: resolve JWT token refresh race condition</code>
+                      <code>refactor: optimize database connection pooling</code>
+                    </div>
+                  </div>
+                </div>
+                <div class="prf-tl-item">
+                  <div class="prf-tl-dot tl-clr-purple"><i class="bi bi-chat-left-text"></i></div>
+                  <div class="prf-tl-content">
+                    <div class="prf-tl-header">
+                      <span><strong>Ayşe Yılmaz</strong>'ın tasarımını inceledi</span>
+                      <small>Dün</small>
+                    </div>
+                    <div class="prf-tl-review">
+                      <i class="bi bi-hand-thumbs-up-fill text-neon-green"></i>
+                      <span>"Harika görünüyor, sadece mobil menü spacing'i düzeltilmeli."</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="prf-tl-item">
+                  <div class="prf-tl-dot tl-clr-orange"><i class="bi bi-trophy"></i></div>
+                  <div class="prf-tl-content">
+                    <div class="prf-tl-header">
+                      <span><strong>"Ayın Geliştiricisi"</strong> ödülünü kazandı</span>
+                      <small>3 gün önce</small>
+                    </div>
+                    <div class="prf-tl-badge">
+                      <div class="prf-achievement-mini">
+                        <i class="bi bi-award-fill text-neon-orange fs-24"></i>
+                        <div>
+                          <span>Ayın Geliştiricisi - Ocak 2026</span>
+                          <small>En yüksek commit sayısı ve sıfır bug ile tamamlanan sprint</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="prf-tl-item">
+                  <div class="prf-tl-dot tl-clr-pink"><i class="bi bi-people"></i></div>
+                  <div class="prf-tl-content">
+                    <div class="prf-tl-header">
+                      <span><strong>Mobil Uygulama v2</strong> ekibine katıldı</span>
+                      <small>1 hafta önce</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB: PROJELER ==================== -->
+      <div class="prf-tab-content" id="prf-projects">
+        <div class="prf-project-filters">
+          <button class="prf-filter-btn active" onclick="filterProjects(this,'all')">Tümü</button>
+          <button class="prf-filter-btn" onclick="filterProjects(this,'active')">Aktif</button>
+          <button class="prf-filter-btn" onclick="filterProjects(this,'completed')">Tamamlanan</button>
+          <button class="prf-filter-btn" onclick="filterProjects(this,'archived')">Arşiv</button>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6 col-xl-4" data-status="active">
+            <div class="prf-project-card">
+              <div class="prf-prj-header">
+                <div class="prf-prj-icon prf-prj-icon-blue-purple"><i class="bi bi-phone"></i></div>
+                <span class="prf-prj-status prf-prj-active">Aktif</span>
+              </div>
+              <h6>Mobil Uygulama v2</h6>
+              <p>React Native ile cross-platform mobil uygulama geliştirme</p>
+              <div class="prf-prj-progress">
+                <div class="d-flex justify-content-between mb-1"><small>İlerleme</small><small class="text-neon-blue">64%</small></div>
+                <div class="prg-bar prg-sm"><div class="prg-fill prg-blue" style="width:64%"></div></div>
+              </div>
+              <div class="prf-prj-footer">
+                <div class="prf-prj-avatars">
+                  <div class="prf-prj-av avatar-gradient-teal">OZ</div>
+                  <div class="prf-prj-av avatar-gradient-pink">AY</div>
+                  <div class="prf-prj-av avatar-gradient-blue">MK</div>
+                </div>
+                <small class="text-muted"><i class="bi bi-clock"></i> 18 gün kaldı</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-xl-4" data-status="active">
+            <div class="prf-project-card">
+              <div class="prf-prj-header">
+                <div class="prf-prj-icon avatar-gradient-orange"><i class="bi bi-hdd-rack"></i></div>
+                <span class="prf-prj-status prf-prj-active">Aktif</span>
+              </div>
+              <h6>API Gateway</h6>
+              <p>Microservice mimarisi için merkezi API gateway</p>
+              <div class="prf-prj-progress">
+                <div class="d-flex justify-content-between mb-1"><small>İlerleme</small><small class="text-neon-orange">28%</small></div>
+                <div class="prg-bar prg-sm"><div class="prg-fill prg-clr-orange" style="width:28%"></div></div>
+              </div>
+              <div class="prf-prj-footer">
+                <div class="prf-prj-avatars">
+                  <div class="prf-prj-av avatar-gradient-teal">OZ</div>
+                  <div class="prf-prj-av avatar-gradient-green">EC</div>
+                </div>
+                <small class="text-muted"><i class="bi bi-clock"></i> 52 gün kaldı</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-xl-4" data-status="completed">
+            <div class="prf-project-card prf-prj-completed">
+              <div class="prf-prj-header">
+                <div class="prf-prj-icon avatar-gradient-green"><i class="bi bi-cart4"></i></div>
+                <span class="prf-prj-status prf-prj-done">Tamamlandı</span>
+              </div>
+              <h6>E-Ticaret Redesign</h6>
+              <p>Mevcut e-ticaret platformunun modern arayüze geçişi</p>
+              <div class="prf-prj-progress">
+                <div class="d-flex justify-content-between mb-1"><small>İlerleme</small><small class="text-neon-green">100%</small></div>
+                <div class="prg-bar prg-sm"><div class="prg-fill prg-green" style="width:100%"></div></div>
+              </div>
+              <div class="prf-prj-footer">
+                <div class="prf-prj-avatars">
+                  <div class="prf-prj-av avatar-gradient-teal">OZ</div>
+                  <div class="prf-prj-av avatar-gradient-pink">AY</div>
+                  <div class="prf-prj-av avatar-gradient-orange">ZD</div>
+                  <div class="prf-prj-av prf-prj-av-more">+5</div>
+                </div>
+                <small class="text-muted"><i class="bi bi-check-circle"></i> 2 gün önce</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-xl-4" data-status="completed">
+            <div class="prf-project-card prf-prj-completed">
+              <div class="prf-prj-header">
+                <div class="prf-prj-icon avatar-gradient-purple"><i class="bi bi-palette"></i></div>
+                <span class="prf-prj-status prf-prj-done">Tamamlandı</span>
+              </div>
+              <h6>Admin Panel UI Kit</h6>
+              <p>Bootstrap 5.3 tabanlı kapsamlı admin panel bileşen kütüphanesi</p>
+              <div class="prf-prj-progress">
+                <div class="d-flex justify-content-between mb-1"><small>İlerleme</small><small class="text-neon-green">100%</small></div>
+                <div class="prg-bar prg-sm"><div class="prg-fill prg-green" style="width:100%"></div></div>
+              </div>
+              <div class="prf-prj-footer">
+                <div class="prf-prj-avatars">
+                  <div class="prf-prj-av avatar-gradient-teal">OZ</div>
+                </div>
+                <small class="text-muted"><i class="bi bi-check-circle"></i> 1 hafta önce</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-xl-4" data-status="active">
+            <div class="prf-project-card">
+              <div class="prf-prj-header">
+                <div class="prf-prj-icon prf-prj-icon-teal-green"><i class="bi bi-robot"></i></div>
+                <span class="prf-prj-status prf-prj-active">Aktif</span>
+              </div>
+              <h6>AI Chat Entegrasyonu</h6>
+              <p>Müşteri destek sistemi için yapay zeka tabanlı chatbot</p>
+              <div class="prf-prj-progress">
+                <div class="d-flex justify-content-between mb-1"><small>İlerleme</small><small class="text-teal">45%</small></div>
+                <div class="prg-bar prg-sm"><div class="prg-fill prg-teal" style="width:45%"></div></div>
+              </div>
+              <div class="prf-prj-footer">
+                <div class="prf-prj-avatars">
+                  <div class="prf-prj-av avatar-gradient-teal">OZ</div>
+                  <div class="prf-prj-av avatar-gradient-blue">MK</div>
+                </div>
+                <small class="text-muted"><i class="bi bi-clock"></i> 36 gün kaldı</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-xl-4" data-status="archived">
+            <div class="prf-project-card prf-prj-archived">
+              <div class="prf-prj-header">
+                <div class="prf-prj-icon prf-prj-icon-archived"><i class="bi bi-archive"></i></div>
+                <span class="prf-prj-status prf-prj-arch">Arşiv</span>
+              </div>
+              <h6>Landing Page Builder</h6>
+              <p>Sürükle-bırak ile landing page oluşturma aracı (v1 - deprecated)</p>
+              <div class="prf-prj-progress">
+                <div class="d-flex justify-content-between mb-1"><small>İlerleme</small><small class="text-muted">100%</small></div>
+                <div class="prg-bar prg-sm"><div class="prg-fill prg-clr-muted" style="width:100%"></div></div>
+              </div>
+              <div class="prf-prj-footer">
+                <div class="prf-prj-avatars">
+                  <div class="prf-prj-av avatar-gradient-teal">OZ</div>
+                </div>
+                <small class="text-muted"><i class="bi bi-archive"></i> 3 ay önce</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB: AKTİVİTE ==================== -->
+      <div class="prf-tab-content" id="prf-activity">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-journal-text"></i> Aktivite Günlüğü</div>
+              <div class="prf-activity-log">
+                <div class="prf-log-date">Bugün</div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-green"><i class="bi bi-check-circle-fill"></i></div>
+                  <div class="prf-log-body">
+                    <span>PR #247 merge edildi <strong>"feat: add dark mode toggle"</strong></span>
+                    <small>09:15</small>
+                  </div>
+                </div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-blue"><i class="bi bi-code-slash"></i></div>
+                  <div class="prf-log-body">
+                    <span>5 commit push edildi <strong>feature/user-settings</strong> branch'ine</span>
+                    <small>11:30</small>
+                  </div>
+                </div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-purple"><i class="bi bi-chat-left-dots-fill"></i></div>
+                  <div class="prf-log-body">
+                    <span><strong>Mobil Uygulama v2</strong> tartışmasına yorum yapıldı</span>
+                    <small>14:20</small>
+                  </div>
+                </div>
+
+                <div class="prf-log-date">Dün</div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-orange"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                  <div class="prf-log-body">
+                    <span>Bug raporu oluşturuldu <strong>#BUG-1042</strong></span>
+                    <small>10:45</small>
+                  </div>
+                </div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-green"><i class="bi bi-file-earmark-plus-fill"></i></div>
+                  <div class="prf-log-body">
+                    <span>Yeni dosya oluşturuldu <strong>settings.html</strong></span>
+                    <small>16:00</small>
+                  </div>
+                </div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-teal"><i class="bi bi-person-plus-fill"></i></div>
+                  <div class="prf-log-body">
+                    <span><strong>Selin Bal</strong> ekibe davet edildi</span>
+                    <small>17:30</small>
+                  </div>
+                </div>
+
+                <div class="prf-log-date">3 Şubat 2026</div>
+                <div class="prf-log-item">
+                  <div class="prf-log-icon lg-clr-pink"><i class="bi bi-kanban"></i></div>
+                  <div class="prf-log-body">
+                    <span><strong>Sprint 14</strong> başlatıldı — 8 görev atandı</span>
+                    <small>09:00</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <!-- Başarılar -->
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-trophy-fill"></i> Başarılar</div>
+              <div class="prf-achievements">
+                <div class="prf-ach-item prf-ach-unlocked">
+                  <div class="prf-ach-icon ach-clr-orange"><i class="bi bi-fire"></i></div>
+                  <div><span>30 Gün Seri</span><small>Arka arkaya 30 gün commit</small></div>
+                </div>
+                <div class="prf-ach-item prf-ach-unlocked">
+                  <div class="prf-ach-icon ach-clr-purple"><i class="bi bi-lightning-fill"></i></div>
+                  <div><span>Hız Canavarı</span><small>1 günde 50+ commit</small></div>
+                </div>
+                <div class="prf-ach-item prf-ach-unlocked">
+                  <div class="prf-ach-icon ach-clr-green"><i class="bi bi-bug-fill"></i></div>
+                  <div><span>Bug Avcısı</span><small>50+ bug çözüldü</small></div>
+                </div>
+                <div class="prf-ach-item">
+                  <div class="prf-ach-icon ach-clr-muted"><i class="bi bi-star-fill"></i></div>
+                  <div><span>1000 Yıldız</span><small>Açık kaynak projeye 1K yıldız</small></div>
+                  <div class="prf-ach-progress"><div class="prg-bar prg-xs"><div class="prg-fill prg-clr-muted" style="width:72%"></div></div><small class="text-muted">720/1000</small></div>
+                </div>
+                <div class="prf-ach-item">
+                  <div class="prf-ach-icon ach-clr-muted"><i class="bi bi-people-fill"></i></div>
+                  <div><span>Mentor</span><small>10 kişiye mentorluk yap</small></div>
+                  <div class="prf-ach-progress"><div class="prg-bar prg-xs"><div class="prg-fill prg-clr-muted" style="width:40%"></div></div><small class="text-muted">4/10</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB: DÜZENLE ==================== -->
+      <div class="prf-tab-content" id="prf-edit">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-pencil-square"></i> Profil Bilgileri</div>
+              <div class="prf-edit-form">
+                <div class="stg-row">
+                  <div class="stg-field stg-half">
+                    <label class="stg-label">Ad</label>
+                    <input type="text" class="stg-input" value="Ozan">
+                  </div>
+                  <div class="stg-field stg-half">
+                    <label class="stg-label">Soyad</label>
+                    <input type="text" class="stg-input" value="Sonar">
+                  </div>
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label">Kullanıcı Adı</label>
+                  <div class="stg-input-group">
+                    <span class="stg-input-prefix">@</span>
+                    <input type="text" class="stg-input" value="ozansonar">
+                  </div>
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label">E-posta</label>
+                  <input type="email" class="stg-input" value="ozan@ozan.dev">
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label">Telefon</label>
+                  <input type="tel" class="stg-input" value="+90 532 000 00 00">
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label">Bio</label>
+                  <textarea class="stg-textarea" rows="3">Full-stack developer & UI/UX tasarımcı. Modern web teknolojileri, kullanıcı deneyimi ve performans optimizasyonu konularında uzman.</textarea>
+                </div>
+                <div class="stg-row">
+                  <div class="stg-field stg-half">
+                    <label class="stg-label">Pozisyon</label>
+                    <input type="text" class="stg-input" value="Senior Full-Stack Developer">
+                  </div>
+                  <div class="stg-field stg-half">
+                    <label class="stg-label">Şirket</label>
+                    <input type="text" class="stg-input" value="OZAN Technologies">
+                  </div>
+                </div>
+                <div class="stg-row">
+                  <div class="stg-field stg-half">
+                    <label class="stg-label">Konum</label>
+                    <input type="text" class="stg-input" value="İstanbul, Türkiye">
+                  </div>
+                  <div class="stg-field stg-half">
+                    <label class="stg-label">Website</label>
+                    <input type="url" class="stg-input" value="https://ozan.dev">
+                  </div>
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                  <button class="stg-save-btn" onclick="showProfileToast()"><i class="bi bi-check-lg"></i> Değişiklikleri Kaydet</button>
+                  <button class="prf-btn prf-btn-ghost">İptal</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="prf-card">
+              <div class="prf-card-title"><i class="bi bi-link-45deg"></i> Sosyal Medya</div>
+              <div class="prf-edit-form">
+                <div class="stg-field">
+                  <label class="stg-label"><i class="bi bi-twitter-x"></i> Twitter / X</label>
+                  <input type="text" class="stg-input" value="@ozansonar" placeholder="@kullanıcıadı">
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label"><i class="bi bi-linkedin"></i> LinkedIn</label>
+                  <input type="text" class="stg-input" value="ozansonar" placeholder="linkedin.com/in/...">
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label"><i class="bi bi-github"></i> GitHub</label>
+                  <input type="text" class="stg-input" value="ozansonar" placeholder="github.com/...">
+                </div>
+                <div class="stg-field">
+                  <label class="stg-label"><i class="bi bi-instagram"></i> Instagram</label>
+                  <input type="text" class="stg-input" value="ozansonar" placeholder="@kullanıcıadı">
+                </div>
+                <button class="stg-save-btn w-100" onclick="showProfileToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+              </div>
+            </div>
+
+            <div class="prf-card prf-danger-card">
+              <div class="prf-card-title text-neon-red"><i class="bi bi-exclamation-triangle-fill"></i> Hesap İşlemleri</div>
+              <div class="d-flex flex-column gap-3">
+                <button class="stg-btn stg-btn-warning w-100"><i class="bi bi-download"></i> Verilerimi İndir</button>
+                <button class="stg-btn stg-btn-danger w-100"><i class="bi bi-person-x"></i> Hesabı Devre Dışı Bırak</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- page-content -->
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Profile tab switching - toggleDropdown is now in components.js
+
+// Profile tab switching
+function switchProfileTab(btn, tabId){
+  document.querySelectorAll('.prf-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.prf-tab-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// Project filter
+function filterProjects(btn, status){
+  document.querySelectorAll('.prf-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('[data-status]').forEach(card=>{
+    card.classList.toggle('d-none',!(status==='all'||card.dataset.status===status));
+  });
+}
+
+// GitHub-style contribution grid
+function generateContribGrid(){
+  const grid=document.getElementById('contribGrid');
+  if(!grid) return;
+  const days=7*16;
+  for(let i=0;i<days;i++){
+    const cell=document.createElement('div');
+    cell.className='prf-contrib-cell';
+    const r=Math.random();
+    let lvl=0;
+    if(r>0.7) lvl=1;
+    if(r>0.82) lvl=2;
+    if(r>0.9) lvl=3;
+    if(r>0.95) lvl=4;
+    cell.dataset.level=lvl;
+    const count=lvl===0?0:Math.floor(Math.random()*10*lvl)+1;
+    cell.title=count+' katkı';
+    grid.appendChild(cell);
+  }
+}
+generateContribGrid();
+
+// Toast
+function showProfileToast(){
+  const existing=document.querySelector('.stg-toast');
+  if(existing) existing.remove();
+  const toast=document.createElement('div');
+  toast.className='stg-toast stg-toast-show';
+  toast.innerHTML='<i class="bi bi-check-circle-fill text-neon-green fs-20"></i><div><strong>Kaydedildi!</strong><small>Profil bilgileri güncellendi</small></div><button onclick="this.parentElement.remove()" class="text-clr-muted prf-toast-btn"><i class="bi bi-x-lg"></i></button>';
+  document.body.appendChild(toast);
+  setTimeout(()=>{toast.classList.add('stg-toast-hide');setTimeout(()=>toast.remove(),300)},3000);
+}
+
+// Open edit tab
+function openEditModal(){
+  document.querySelectorAll('.prf-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.prf-tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.prf-tab')[3].classList.add('active');
+  document.getElementById('prf-edit').classList.add('active');
+  window.scrollTo({top:document.querySelector('.prf-tabs').offsetTop-80,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

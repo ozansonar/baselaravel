@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Ürün Yönetimi</title>
+  <meta name="description" content="OZAN Admin Panel - Ürün listesi, filtreleme ve yönetim sayfası">
+  <link rel="canonical" href="https://admin.ozan.dev/products.html">
+  <meta property="og:title" content="OZAN Admin - Ürün Yönetimi">
+  <meta property="og:description" content="Tüm ürünleri listeleyin, filtreleyin ve yönetin">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Ürünler</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Ürün Yönetimi</h1>
+          <p class="page-subtitle">Tüm ürünleri listeleyin, filtreleyin, düzenleyin ve yönetin</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="dropdown">
+            <button class="btn-glass dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-download"></i> Dışa Aktar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-theme">
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportProducts('csv')"><i class="bi bi-filetype-csv me-2 text-neon-blue"></i>CSV olarak indir</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportProducts('json')"><i class="bi bi-filetype-json me-2 text-neon-orange"></i>JSON olarak indir</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportProducts('excel')"><i class="bi bi-file-earmark-excel me-2 text-neon-green"></i>Excel olarak indir</a></li>
+              <li><hr class="dropdown-divider dropdown-divider-theme"></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportProducts('pdf')"><i class="bi bi-filetype-pdf me-2 text-neon-red"></i>PDF olarak indir</a></li>
+            </ul>
+          </div>
+          <a href="product-add.html" class="btn-teal">
+            <i class="bi bi-plus-lg"></i> Yeni Ürün
+          </a>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STATS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-blue">
+              <i class="bi bi-box-seam-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Ürün</span>
+              <h3 class="usr-stat-value">2.847</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 12.5% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-green">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Aktif Ürün</span>
+              <h3 class="usr-stat-value">2.134</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 8.3% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-orange">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Stok Azalan</span>
+              <h3 class="usr-stat-value">156</h3>
+              <span class="usr-stat-change negative"><i class="bi bi-arrow-up-short"></i> 23.1% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-purple">
+              <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Gelir</span>
+              <h3 class="usr-stat-value">1.24M</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 18.7% bu ay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: STATUS TABS ==================== -->
+      <div class="cl-status-tabs mb-4" data-aos="fade-up" data-aos-delay="100">
+        <button class="cl-status-tab active" onclick="filterByProductStatus('all', this)">
+          <span>Tümü</span>
+          <span class="cl-tab-count">24</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByProductStatus('active', this)">
+          <i class="bi bi-check-circle text-neon-green"></i>
+          <span>Aktif</span>
+          <span class="cl-tab-count">16</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByProductStatus('draft', this)">
+          <i class="bi bi-file-earmark text-neon-orange"></i>
+          <span>Taslak</span>
+          <span class="cl-tab-count">4</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByProductStatus('outofstock', this)">
+          <i class="bi bi-x-circle text-neon-red"></i>
+          <span>Tükendi</span>
+          <span class="cl-tab-count">3</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByProductStatus('archived', this)">
+          <i class="bi bi-archive text-neon-purple"></i>
+          <span>Arşiv</span>
+          <span class="cl-tab-count">1</span>
+        </button>
+      </div>
+
+
+      <!-- ==================== SECTION 3: FILTERS & TOOLBAR ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
+        <div class="card-body-custom">
+          <div class="cl-toolbar">
+            <!-- Search -->
+            <div class="cl-search">
+              <i class="bi bi-search"></i>
+              <input type="text" id="productSearch" placeholder="Ürün adı, SKU veya marka ile ara..." oninput="filterProducts()">
+            </div>
+
+            <!-- Filters Row -->
+            <div class="cl-filters">
+              <select class="cl-filter-select" id="filterCategory" onchange="filterProducts()">
+                <option value="">Tüm Kategoriler</option>
+                <option value="elektronik">Elektronik</option>
+                <option value="giyim">Giyim</option>
+                <option value="ev">Ev & Yaşam</option>
+                <option value="spor">Spor</option>
+                <option value="kozmetik">Kozmetik</option>
+                <option value="aksesuar">Aksesuar</option>
+              </select>
+
+              <select class="cl-filter-select" id="filterBrand" onchange="filterProducts()">
+                <option value="">Tüm Markalar</option>
+                <option value="apple">Apple</option>
+                <option value="samsung">Samsung</option>
+                <option value="nike">Nike</option>
+                <option value="adidas">Adidas</option>
+                <option value="sony">Sony</option>
+              </select>
+
+              <select class="cl-filter-select" id="filterPrice" onchange="filterProducts()">
+                <option value="">Tüm Fiyatlar</option>
+                <option value="0-100">0 - 100 TL</option>
+                <option value="100-500">100 - 500 TL</option>
+                <option value="500-1000">500 - 1.000 TL</option>
+                <option value="1000-5000">1.000 - 5.000 TL</option>
+                <option value="5000+">5.000 TL +</option>
+              </select>
+
+              <select class="cl-filter-select" id="filterStock" onchange="filterProducts()">
+                <option value="">Tüm Stok</option>
+                <option value="instock">Stokta</option>
+                <option value="lowstock">Stok Azalıyor</option>
+                <option value="outofstock">Tükendi</option>
+              </select>
+            </div>
+
+            <!-- Toolbar Actions -->
+            <div class="cl-toolbar-actions">
+              <button class="cl-filter-reset" onclick="resetProductFilters()" title="Filtreleri Sıfırla">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+              <!-- View Toggle -->
+              <div class="prd-view-toggle">
+                <button class="prd-view-btn active" id="gridViewBtn" onclick="switchView('grid')" title="Kart Görünümü">
+                  <i class="bi bi-grid-3x3-gap-fill"></i>
+                </button>
+                <button class="prd-view-btn" id="tableViewBtn" onclick="switchView('table')" title="Tablo Görünümü">
+                  <i class="bi bi-list-ul"></i>
+                </button>
+              </div>
+              <div class="cl-per-page">
+                <label>Göster:</label>
+                <select id="perPage" onchange="changePerPage()">
+                  <option value="12">12</option>
+                  <option value="24" selected>24</option>
+                  <option value="48">48</option>
+                  <option value="96">96</option>
+                </select>
+              </div>
+              <div class="cl-bulk-actions d-none" id="bulkActions">
+                <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
+                <button class="usr-action-btn success" onclick="bulkProductAction('activate')" title="Aktif Et"><i class="bi bi-check-circle"></i></button>
+                <button class="usr-action-btn" onclick="bulkProductAction('draft')" title="Taslağa Al"><i class="bi bi-file-earmark"></i></button>
+                <button class="usr-action-btn danger" onclick="bulkProductAction('delete')" title="Sil"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 4: PRODUCT GRID VIEW ==================== -->
+      <div id="productGridView">
+        <div class="row g-4">
+
+          <!-- Product Card 1 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="active" data-category="elektronik" data-brand="apple" data-price="54999" data-stock="instock" data-aos="fade-up" data-aos-delay="0">
+            <div class="prd-card">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod1/400/300" alt="iPhone 16 Pro Max" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-hot">Popüler</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(1)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=1" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('iPhone 16 Pro Max', 1)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Elektronik</div>
+                <h6 class="prd-card-title">iPhone 16 Pro Max</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Apple</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                  </div>
+                  <span class="prd-rating-count">(347)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">54.999 TL</span>
+                    <span class="prd-price-old">59.999 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-in">
+                    <i class="bi bi-check-circle-fill"></i> Stokta
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-1001</span>
+                  <span><i class="bi bi-box me-1"></i>245 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 2 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="active" data-category="elektronik" data-brand="samsung" data-price="44999" data-stock="instock" data-aos="fade-up" data-aos-delay="50">
+            <div class="prd-card">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod2/400/300" alt="Samsung Galaxy S25 Ultra" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-new">Yeni</span>
+                  <span class="prd-badge prd-badge-discount">-15%</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(2)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=2" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('Samsung Galaxy S25 Ultra', 2)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Elektronik</div>
+                <h6 class="prd-card-title">Samsung Galaxy S25 Ultra</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Samsung</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                  </div>
+                  <span class="prd-rating-count">(218)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">44.999 TL</span>
+                    <span class="prd-price-old">52.999 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-in">
+                    <i class="bi bi-check-circle-fill"></i> Stokta
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-1002</span>
+                  <span><i class="bi bi-box me-1"></i>182 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 3 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="active" data-category="giyim" data-brand="nike" data-price="4299" data-stock="lowstock" data-aos="fade-up" data-aos-delay="100">
+            <div class="prd-card">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod3/400/300" alt="Nike Air Max 2026" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-hot">Popüler</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(3)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=3" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('Nike Air Max 2026', 3)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Giyim</div>
+                <h6 class="prd-card-title">Nike Air Max 2026</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Nike</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                  </div>
+                  <span class="prd-rating-count">(512)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">4.299 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-low">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Az Kaldı
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-2001</span>
+                  <span><i class="bi bi-box me-1"></i>8 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 4 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="active" data-category="elektronik" data-brand="sony" data-price="24999" data-stock="instock" data-aos="fade-up" data-aos-delay="150">
+            <div class="prd-card">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod4/400/300" alt="Sony WH-1000XM6" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-discount">-20%</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(4)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=4" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('Sony WH-1000XM6', 4)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Elektronik</div>
+                <h6 class="prd-card-title">Sony WH-1000XM6</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Sony</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                  </div>
+                  <span class="prd-rating-count">(189)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">24.999 TL</span>
+                    <span class="prd-price-old">31.249 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-in">
+                    <i class="bi bi-check-circle-fill"></i> Stokta
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-1003</span>
+                  <span><i class="bi bi-box me-1"></i>67 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 5 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="draft" data-category="spor" data-brand="adidas" data-price="3599" data-stock="instock" data-aos="fade-up" data-aos-delay="200">
+            <div class="prd-card prd-card-draft">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod5/400/300" alt="Adidas Ultraboost 24" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-draft">Taslak</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(5)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=5" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('Adidas Ultraboost 24', 5)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Spor</div>
+                <h6 class="prd-card-title">Adidas Ultraboost 24</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Adidas</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                  </div>
+                  <span class="prd-rating-count">(95)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">3.599 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-in">
+                    <i class="bi bi-check-circle-fill"></i> Stokta
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-2002</span>
+                  <span><i class="bi bi-box me-1"></i>120 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 6 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="outofstock" data-category="elektronik" data-brand="apple" data-price="89999" data-stock="outofstock" data-aos="fade-up" data-aos-delay="250">
+            <div class="prd-card prd-card-outofstock">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod6/400/300" alt="MacBook Pro M4 Max" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-outofstock">Tükendi</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(6)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=6" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('MacBook Pro M4 Max', 6)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Elektronik</div>
+                <h6 class="prd-card-title">MacBook Pro M4 Max</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Apple</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                  </div>
+                  <span class="prd-rating-count">(423)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">89.999 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-out">
+                    <i class="bi bi-x-circle-fill"></i> Tükendi
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-1004</span>
+                  <span><i class="bi bi-box me-1"></i>0 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 7 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="active" data-category="kozmetik" data-brand="loreal" data-price="899" data-stock="instock" data-aos="fade-up" data-aos-delay="300">
+            <div class="prd-card">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod7/400/300" alt="L'Oréal Paris Revitalift Serum" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-new">Yeni</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(7)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=7" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('Revitalift Serum', 7)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Kozmetik</div>
+                <h6 class="prd-card-title">L'Oréal Revitalift Serum</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>L'Oréal Paris</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                  </div>
+                  <span class="prd-rating-count">(73)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">899 TL</span>
+                    <span class="prd-price-old">1.199 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-in">
+                    <i class="bi bi-check-circle-fill"></i> Stokta
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-3001</span>
+                  <span><i class="bi bi-box me-1"></i>340 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 8 -->
+          <div class="col-xxl-3 col-xl-4 col-md-6" data-status="active" data-category="ev" data-brand="dyson" data-price="18999" data-stock="instock" data-aos="fade-up" data-aos-delay="350">
+            <div class="prd-card">
+              <div class="prd-card-img-wrapper">
+                <img src="https://picsum.photos/seed/prod8/400/300" alt="Dyson V15 Detect" loading="lazy" class="prd-card-img">
+                <div class="prd-card-badges">
+                  <span class="prd-badge prd-badge-discount">-10%</span>
+                </div>
+                <div class="prd-card-overlay">
+                  <button class="prd-overlay-btn" onclick="openQuickView(8)" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+                  <a href="product-add.html?edit=8" class="prd-overlay-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                  <button class="prd-overlay-btn prd-overlay-btn-danger" onclick="openDeleteModal('Dyson V15 Detect', 8)" title="Sil"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+              <div class="prd-card-body">
+                <div class="prd-card-category">Ev & Yaşam</div>
+                <h6 class="prd-card-title">Dyson V15 Detect</h6>
+                <p class="prd-card-brand"><i class="bi bi-building me-1"></i>Dyson</p>
+                <div class="prd-card-rating">
+                  <div class="prd-stars">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                  </div>
+                  <span class="prd-rating-count">(156)</span>
+                </div>
+                <div class="prd-card-footer">
+                  <div class="prd-card-price">
+                    <span class="prd-price-current">18.999 TL</span>
+                    <span class="prd-price-old">21.110 TL</span>
+                  </div>
+                  <div class="prd-card-stock prd-stock-in">
+                    <i class="bi bi-check-circle-fill"></i> Stokta
+                  </div>
+                </div>
+                <div class="prd-card-meta">
+                  <span><i class="bi bi-upc-scan me-1"></i>SKU-4001</span>
+                  <span><i class="bi bi-box me-1"></i>53 adet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 5: PRODUCT TABLE VIEW (Hidden by default) ==================== -->
+      <div id="productTableView" class="d-none">
+        <div class="card-dark mb-4" data-aos="fade-up">
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover cl-table mb-0">
+                <thead>
+                  <tr>
+                    <th class="cl-th-checkbox">
+                      <input type="checkbox" class="usr-checkbox" id="selectAllProducts" onchange="toggleSelectAllProducts(this)">
+                    </th>
+                    <th class="cl-th-sortable" onclick="sortProducts('name')">
+                      Ürün <i class="bi bi-arrow-down-up"></i>
+                    </th>
+                    <th class="cl-th-sortable d-none d-md-table-cell" onclick="sortProducts('category')">
+                      Kategori <i class="bi bi-arrow-down-up"></i>
+                    </th>
+                    <th class="cl-th-sortable" onclick="sortProducts('price')">
+                      Fiyat <i class="bi bi-arrow-down-up"></i>
+                    </th>
+                    <th class="cl-th-sortable d-none d-lg-table-cell" onclick="sortProducts('stock')">
+                      Stok <i class="bi bi-arrow-down-up"></i>
+                    </th>
+                    <th class="cl-th-sortable" onclick="sortProducts('status')">
+                      Durum <i class="bi bi-arrow-down-up"></i>
+                    </th>
+                    <th class="cl-th-sortable d-none d-xl-table-cell" onclick="sortProducts('sales')">
+                      Satış <i class="bi bi-arrow-down-up"></i>
+                    </th>
+                    <th class="cl-th-actions">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="productTableBody">
+
+                  <tr data-status="active" data-category="elektronik" data-brand="apple">
+                    <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateProductBulk()"></td>
+                    <td data-label="Ürün">
+                      <div class="cl-content-cell">
+                        <div class="cl-content-thumb"><img src="https://picsum.photos/seed/prod1/64/48" alt="iPhone 16 Pro Max"></div>
+                        <div class="cl-content-info">
+                          <span class="cl-content-title">iPhone 16 Pro Max</span>
+                          <span class="cl-content-meta"><i class="bi bi-upc-scan me-1"></i>SKU-1001 <span class="cl-separator">|</span> <i class="bi bi-building me-1"></i>Apple</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Kategori" class="d-none d-md-table-cell"><span class="cl-category-badge tech">Elektronik</span></td>
+                    <td data-label="Fiyat">
+                      <div class="prd-table-price">
+                        <span class="prd-price-current">54.999 TL</span>
+                        <span class="prd-price-old">59.999 TL</span>
+                      </div>
+                    </td>
+                    <td data-label="Stok" class="d-none d-lg-table-cell">
+                      <div class="prd-table-stock prd-stock-in"><i class="bi bi-box me-1"></i>245</div>
+                    </td>
+                    <td data-label="Durum"><span class="usr-status-badge active">Aktif</span></td>
+                    <td data-label="Satış" class="d-none d-xl-table-cell">
+                      <div class="cl-views"><i class="bi bi-cart-check me-1"></i> 1.247</div>
+                    </td>
+                    <td data-label="İşlem">
+                      <div class="usr-actions">
+                        <button class="usr-action-btn" title="Hızlı Bakış" onclick="openQuickView(1)"><i class="bi bi-eye"></i></button>
+                        <a class="usr-action-btn" title="Düzenle" href="product-add.html?edit=1"><i class="bi bi-pencil"></i></a>
+                        <button class="usr-action-btn" title="Kopyala" onclick="duplicateProduct(1)"><i class="bi bi-copy"></i></button>
+                        <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal('iPhone 16 Pro Max', 1)"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-status="active" data-category="elektronik" data-brand="samsung">
+                    <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateProductBulk()"></td>
+                    <td data-label="Ürün">
+                      <div class="cl-content-cell">
+                        <div class="cl-content-thumb"><img src="https://picsum.photos/seed/prod2/64/48" alt="Samsung Galaxy S25 Ultra"></div>
+                        <div class="cl-content-info">
+                          <span class="cl-content-title">Samsung Galaxy S25 Ultra</span>
+                          <span class="cl-content-meta"><i class="bi bi-upc-scan me-1"></i>SKU-1002 <span class="cl-separator">|</span> <i class="bi bi-building me-1"></i>Samsung</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Kategori" class="d-none d-md-table-cell"><span class="cl-category-badge tech">Elektronik</span></td>
+                    <td data-label="Fiyat">
+                      <div class="prd-table-price">
+                        <span class="prd-price-current">44.999 TL</span>
+                        <span class="prd-price-old">52.999 TL</span>
+                      </div>
+                    </td>
+                    <td data-label="Stok" class="d-none d-lg-table-cell">
+                      <div class="prd-table-stock prd-stock-in"><i class="bi bi-box me-1"></i>182</div>
+                    </td>
+                    <td data-label="Durum"><span class="usr-status-badge active">Aktif</span></td>
+                    <td data-label="Satış" class="d-none d-xl-table-cell">
+                      <div class="cl-views"><i class="bi bi-cart-check me-1"></i> 892</div>
+                    </td>
+                    <td data-label="İşlem">
+                      <div class="usr-actions">
+                        <button class="usr-action-btn" title="Hızlı Bakış" onclick="openQuickView(2)"><i class="bi bi-eye"></i></button>
+                        <a class="usr-action-btn" title="Düzenle" href="product-add.html?edit=2"><i class="bi bi-pencil"></i></a>
+                        <button class="usr-action-btn" title="Kopyala" onclick="duplicateProduct(2)"><i class="bi bi-copy"></i></button>
+                        <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal('Samsung Galaxy S25 Ultra', 2)"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-status="active" data-category="giyim" data-brand="nike">
+                    <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateProductBulk()"></td>
+                    <td data-label="Ürün">
+                      <div class="cl-content-cell">
+                        <div class="cl-content-thumb"><img src="https://picsum.photos/seed/prod3/64/48" alt="Nike Air Max 2026"></div>
+                        <div class="cl-content-info">
+                          <span class="cl-content-title">Nike Air Max 2026</span>
+                          <span class="cl-content-meta"><i class="bi bi-upc-scan me-1"></i>SKU-2001 <span class="cl-separator">|</span> <i class="bi bi-building me-1"></i>Nike</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Kategori" class="d-none d-md-table-cell"><span class="cl-category-badge design">Giyim</span></td>
+                    <td data-label="Fiyat">
+                      <div class="prd-table-price">
+                        <span class="prd-price-current">4.299 TL</span>
+                      </div>
+                    </td>
+                    <td data-label="Stok" class="d-none d-lg-table-cell">
+                      <div class="prd-table-stock prd-stock-low"><i class="bi bi-exclamation-triangle me-1"></i>8</div>
+                    </td>
+                    <td data-label="Durum"><span class="usr-status-badge active">Aktif</span></td>
+                    <td data-label="Satış" class="d-none d-xl-table-cell">
+                      <div class="cl-views"><i class="bi bi-cart-check me-1"></i> 2.340</div>
+                    </td>
+                    <td data-label="İşlem">
+                      <div class="usr-actions">
+                        <button class="usr-action-btn" title="Hızlı Bakış" onclick="openQuickView(3)"><i class="bi bi-eye"></i></button>
+                        <a class="usr-action-btn" title="Düzenle" href="product-add.html?edit=3"><i class="bi bi-pencil"></i></a>
+                        <button class="usr-action-btn" title="Kopyala" onclick="duplicateProduct(3)"><i class="bi bi-copy"></i></button>
+                        <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal('Nike Air Max 2026', 3)"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-status="outofstock" data-category="elektronik" data-brand="apple">
+                    <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateProductBulk()"></td>
+                    <td data-label="Ürün">
+                      <div class="cl-content-cell">
+                        <div class="cl-content-thumb"><img src="https://picsum.photos/seed/prod6/64/48" alt="MacBook Pro M4 Max" class="cl-archived-thumb"></div>
+                        <div class="cl-content-info">
+                          <span class="cl-content-title cl-archived-title">MacBook Pro M4 Max</span>
+                          <span class="cl-content-meta"><i class="bi bi-upc-scan me-1"></i>SKU-1004 <span class="cl-separator">|</span> <i class="bi bi-building me-1"></i>Apple</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Kategori" class="d-none d-md-table-cell"><span class="cl-category-badge tech">Elektronik</span></td>
+                    <td data-label="Fiyat">
+                      <div class="prd-table-price">
+                        <span class="prd-price-current">89.999 TL</span>
+                      </div>
+                    </td>
+                    <td data-label="Stok" class="d-none d-lg-table-cell">
+                      <div class="prd-table-stock prd-stock-out"><i class="bi bi-x-circle me-1"></i>0</div>
+                    </td>
+                    <td data-label="Durum"><span class="usr-status-badge inactive">Tükendi</span></td>
+                    <td data-label="Satış" class="d-none d-xl-table-cell">
+                      <div class="cl-views"><i class="bi bi-cart-check me-1"></i> 3.891</div>
+                    </td>
+                    <td data-label="İşlem">
+                      <div class="usr-actions">
+                        <button class="usr-action-btn" title="Hızlı Bakış" onclick="openQuickView(6)"><i class="bi bi-eye"></i></button>
+                        <a class="usr-action-btn" title="Düzenle" href="product-add.html?edit=6"><i class="bi bi-pencil"></i></a>
+                        <button class="usr-action-btn" title="Kopyala" onclick="duplicateProduct(6)"><i class="bi bi-copy"></i></button>
+                        <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal('MacBook Pro M4 Max', 6)"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== PAGINATION ==================== -->
+      <div class="cl-pagination-wrapper" data-aos="fade-up">
+        <div class="cl-pagination-info">
+          <span>Toplam <strong>2.847</strong> üründen <strong>1-8</strong> arası gösteriliyor</span>
+        </div>
+        <nav class="cl-pagination">
+          <button class="cl-page-btn" disabled title="İlk Sayfa"><i class="bi bi-chevron-double-left"></i></button>
+          <button class="cl-page-btn" disabled title="Önceki"><i class="bi bi-chevron-left"></i></button>
+          <button class="cl-page-btn active">1</button>
+          <button class="cl-page-btn" onclick="goToProductPage(2)">2</button>
+          <button class="cl-page-btn" onclick="goToProductPage(3)">3</button>
+          <span class="cl-page-ellipsis">...</span>
+          <button class="cl-page-btn" onclick="goToProductPage(24)">24</button>
+          <button class="cl-page-btn" onclick="goToProductPage(2)" title="Sonraki"><i class="bi bi-chevron-right"></i></button>
+          <button class="cl-page-btn" onclick="goToProductPage(24)" title="Son Sayfa"><i class="bi bi-chevron-double-right"></i></button>
+        </nav>
+        <div class="cl-page-jump">
+          <label>Sayfaya git:</label>
+          <input type="number" min="1" max="24" value="1" onchange="goToProductPage(this.value)">
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== QUICK VIEW MODAL ==================== -->
+<div class="modal fade" id="quickViewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title">Ürün Detayı</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="quickViewBody">
+        <div class="row g-4">
+          <!-- Image Gallery -->
+          <div class="col-md-5">
+            <div class="prd-modal-gallery">
+              <div class="prd-modal-main-img">
+                <img src="https://picsum.photos/seed/prod1/600/450" alt="Ürün görseli" id="quickViewMainImg" loading="lazy" class="prd-modal-img">
+              </div>
+              <div class="prd-modal-thumbs" id="quickViewThumbs">
+                <button class="prd-modal-thumb active" onclick="changeQuickViewImg(this, 'prod1')">
+                  <img src="https://picsum.photos/seed/prod1/100/75" alt="Görsel 1" loading="lazy">
+                </button>
+                <button class="prd-modal-thumb" onclick="changeQuickViewImg(this, 'prod1a')">
+                  <img src="https://picsum.photos/seed/prod1a/100/75" alt="Görsel 2" loading="lazy">
+                </button>
+                <button class="prd-modal-thumb" onclick="changeQuickViewImg(this, 'prod1b')">
+                  <img src="https://picsum.photos/seed/prod1b/100/75" alt="Görsel 3" loading="lazy">
+                </button>
+                <button class="prd-modal-thumb" onclick="changeQuickViewImg(this, 'prod1c')">
+                  <img src="https://picsum.photos/seed/prod1c/100/75" alt="Görsel 4" loading="lazy">
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Product Info -->
+          <div class="col-md-7">
+            <div class="prd-modal-info">
+              <span class="prd-modal-category" id="quickViewCategory">Elektronik</span>
+              <h4 class="prd-modal-name" id="quickViewName">iPhone 16 Pro Max</h4>
+              <div class="prd-modal-rating">
+                <div class="prd-stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                </div>
+                <span>4.5 / 5</span>
+                <span class="prd-modal-review-count">(347 değerlendirme)</span>
+              </div>
+              <div class="prd-modal-price-box">
+                <span class="prd-modal-price" id="quickViewPrice">54.999 TL</span>
+                <span class="prd-modal-old-price" id="quickViewOldPrice">59.999 TL</span>
+                <span class="prd-modal-discount-tag">-8%</span>
+              </div>
+              <p class="prd-modal-desc" id="quickViewDesc">
+                Apple iPhone 16 Pro Max, A18 Pro çip ile güçlendirilmiş, 6.9 inç Super Retina XDR OLED ekrana sahip premium akıllı telefon. 48MP ana kamera, 5x optik zoom ve USB-C bağlantı özelliği ile donatılmıştır.
+              </p>
+              <div class="prd-modal-specs">
+                <div class="prd-modal-spec-item">
+                  <span class="prd-spec-label"><i class="bi bi-upc-scan me-1"></i>SKU</span>
+                  <span class="prd-spec-value" id="quickViewSku">SKU-1001</span>
+                </div>
+                <div class="prd-modal-spec-item">
+                  <span class="prd-spec-label"><i class="bi bi-building me-1"></i>Marka</span>
+                  <span class="prd-spec-value" id="quickViewBrand">Apple</span>
+                </div>
+                <div class="prd-modal-spec-item">
+                  <span class="prd-spec-label"><i class="bi bi-box me-1"></i>Stok</span>
+                  <span class="prd-spec-value" id="quickViewStock">245 adet</span>
+                </div>
+                <div class="prd-modal-spec-item">
+                  <span class="prd-spec-label"><i class="bi bi-truck me-1"></i>Kargo</span>
+                  <span class="prd-spec-value">Ücretsiz</span>
+                </div>
+                <div class="prd-modal-spec-item">
+                  <span class="prd-spec-label"><i class="bi bi-tag me-1"></i>Kategori</span>
+                  <span class="prd-spec-value" id="quickViewCategorySpec">Elektronik</span>
+                </div>
+                <div class="prd-modal-spec-item">
+                  <span class="prd-spec-label"><i class="bi bi-cart-check me-1"></i>Satış</span>
+                  <span class="prd-spec-value" id="quickViewSales">1.247 adet</span>
+                </div>
+              </div>
+              <div class="prd-modal-actions">
+                <a href="product-add.html?edit=1" class="btn-teal" id="quickViewEditBtn">
+                  <i class="bi bi-pencil me-1"></i> Düzenle
+                </a>
+                <button class="btn-glass" onclick="duplicateProduct(1)" id="quickViewDuplicateBtn">
+                  <i class="bi bi-copy me-1"></i> Kopyala
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== DELETE CONFIRMATION MODAL ==================== -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon danger">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h5 class="cl-modal-heading">Ürün Silme Onayı</h5>
+        <p class="cl-modal-body-text">Bu ürünü silmek istediğinizden emin misiniz?</p>
+        <p class="cl-modal-content-name" id="deleteProductTitle"></p>
+        <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmDelete()">
+            <i class="bi bi-trash"></i> Evet, Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== BULK DELETE MODAL ==================== -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon danger">
+          <i class="bi bi-trash"></i>
+        </div>
+        <h5 class="cl-modal-heading">Toplu Silme Onayı</h5>
+        <p class="cl-modal-body-text"><strong id="bulkDeleteCount">0</strong> ürünü silmek istediğinizden emin misiniz?</p>
+        <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmBulkDelete()">
+            <i class="bi bi-trash"></i> Evet, Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="products.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

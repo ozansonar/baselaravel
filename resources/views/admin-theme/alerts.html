@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Alerts & Toasts</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Alerts & Toasts</h2>
+          <p>Bildirim uyarıları, toast mesajları, banner'lar ve interaktif bildirim bileşenleri</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+
+      <!-- ==================== 1. TEMEL ALERTLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-info-circle-fill"></i></div>
+            <div><h6>Temel Alertler</h6><p>Solid, soft ve outline stillerinde durum bildirimleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Solid Alertler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-solid-green">
+                <div class="alt-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Başarılı!</strong> İşlem sorunsuz tamamlandı.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-solid-blue">
+                <div class="alt-icon"><i class="bi bi-info-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Bilgi:</strong> Sistem bakımı 22:00'da başlayacak.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-solid-orange">
+                <div class="alt-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Uyarı!</strong> Disk alanı %90 doluluk oranına ulaştı.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-solid-red">
+                <div class="alt-icon"><i class="bi bi-x-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Hata!</strong> Veritabanı bağlantısı kurulamadı.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Soft Alertler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-soft-green">
+                <div class="alt-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Başarılı!</strong> Profil bilgileriniz güncellendi.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-soft-blue">
+                <div class="alt-icon"><i class="bi bi-info-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Bilgi:</strong> 3 yeni mesajınız var.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-soft-orange">
+                <div class="alt-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Uyarı!</strong> Oturumunuz 5 dakika içinde sona erecek.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-soft-red">
+                <div class="alt-icon"><i class="bi bi-x-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Hata!</strong> Dosya yüklenirken bir sorun oluştu.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 2. SOL ÇİZGİLİ & OUTLINE ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-border-left"></i></div>
+            <div><h6>Sol Çizgili & Outline Alertler</h6><p>Kenarlık vurgulu ve minimal tasarım seçenekleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Sol Çizgi (Left Border)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-left-green">
+                <div class="alt-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Deploy Tamamlandı</strong>
+                  <p>v2.1.0 production ortamına başarıyla deploy edildi.</p>
+                </div>
+              </div>
+              <div class="alt alt-left-blue">
+                <div class="alt-icon"><i class="bi bi-info-circle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Yeni Güncelleme</strong>
+                  <p>Bootstrap 5.3.3 sürümüne yükseltme mevcut.</p>
+                </div>
+              </div>
+              <div class="alt alt-left-orange">
+                <div class="alt-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>SSL Uyarısı</strong>
+                  <p>SSL sertifikanız 7 gün içinde sona erecek.</p>
+                </div>
+              </div>
+              <div class="alt alt-left-red">
+                <div class="alt-icon"><i class="bi bi-shield-exclamation"></i></div>
+                <div class="alt-content">
+                  <strong>Güvenlik İhlali</strong>
+                  <p>Şüpheli giriş denemesi tespit edildi. IP: 192.168.1.***</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Outline Alertler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-outline-teal">
+                <div class="alt-icon"><i class="bi bi-patch-check-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Doğrulandı</strong> — Hesabınız başarıyla doğrulandı.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-outline-purple">
+                <div class="alt-icon"><i class="bi bi-gem"></i></div>
+                <div class="alt-content">
+                  <strong>Premium</strong> — Pro plana yükseltme fırsatını kaçırmayın!
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-outline-orange">
+                <div class="alt-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="alt-content">
+                  <strong>Zamanlayıcı</strong> — Zamanlanmış görev 30 dk sonra çalışacak.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+              <div class="alt alt-outline-red">
+                <div class="alt-icon"><i class="bi bi-bug-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Bug Report</strong> — 3 kritik hata çözüm bekliyor.
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 3. ZENGİN İÇERİKLİ ALERTLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-layout-text-sidebar"></i></div>
+            <div><h6>Zengin İçerikli Alertler</h6><p>Buton, liste, progress bar ve avatar içeren gelişmiş uyarılar</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-body-custom">
+              <!-- Action Alert -->
+              <div class="alt alt-soft-blue alt-rich">
+                <div class="alt-icon alt-icon-lg"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Yeni Güncelleme Mevcut — v2.2.0</strong>
+                  <p>Performans iyileştirmeleri, yeni bileşenler ve güvenlik yamaları içerir.</p>
+                  <div class="alt-actions">
+                    <button class="alt-btn alt-btn-primary" onclick="this.closest('.alt').remove()">Şimdi Güncelle</button>
+                    <button class="alt-btn alt-btn-ghost" onclick="this.closest('.alt').remove()">Sonra Hatırlat</button>
+                  </div>
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+
+              <!-- List Alert -->
+              <div class="alt alt-left-orange alt-rich">
+                <div class="alt-icon alt-icon-lg"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Form Gönderiminde Hatalar Var</strong>
+                  <p>Lütfen aşağıdaki alanları düzeltin:</p>
+                  <ul class="alt-list">
+                    <li><i class="bi bi-x-circle"></i> E-posta adresi geçersiz format</li>
+                    <li><i class="bi bi-x-circle"></i> Şifre en az 8 karakter olmalı</li>
+                    <li><i class="bi bi-x-circle"></i> Telefon numarası eksik</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Progress Alert -->
+              <div class="alt alt-soft-teal alt-rich">
+                <div class="alt-icon alt-icon-lg"><i class="bi bi-arrow-clockwise alt-spin"></i></div>
+                <div class="alt-content">
+                  <strong>Yedekleme Devam Ediyor...</strong>
+                  <p>Veritabanı yedeği alınıyor, lütfen bekleyin.</p>
+                  <div class="alt-progress-wrap">
+                    <div class="alt-progress"><div class="alt-progress-bar" id="alertProgress" style="width:68%"></div></div>
+                    <span class="alt-progress-text">68%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- User Alert -->
+              <div class="alt alt-soft-purple alt-rich">
+                <div class="alt-avatar" style="background:linear-gradient(135deg,var(--neon-purple),#7c3aed)">AK</div>
+                <div class="alt-content">
+                  <strong>Ali Korkmaz yorum ekledi</strong>
+                  <p>"Dashboard tasarımı harika olmuş, badges bölümünü de inceledim ve çok beğendim!"</p>
+                  <div class="alt-meta">
+                    <span><i class="bi bi-clock"></i> 5 dakika önce</span>
+                    <span><i class="bi bi-chat-dots"></i> PR #47</span>
+                  </div>
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 4. BANNER ALERTLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-megaphone-fill"></i></div>
+            <div><h6>Banner Alertler</h6><p>Tam genişlikte duyuru ve kampanya banner'ları</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-body-custom">
+              <!-- Gradient Banner -->
+              <div class="alt-banner alt-banner-gradient" style="--ban-grad:linear-gradient(135deg,var(--neon-purple),var(--neon-pink))">
+                <div class="alt-banner-content">
+                  <i class="bi bi-stars"></i>
+                  <div>
+                    <strong>Yeni Yıl Kampanyası!</strong>
+                    <span>Pro plan %50 indirimli — Sınırlı süre!</span>
+                  </div>
+                </div>
+                <div class="alt-banner-actions">
+                  <button class="alt-banner-btn">Hemen Al</button>
+                  <button class="alt-banner-close" onclick="this.closest('.alt-banner').remove()"><i class="bi bi-x-lg"></i></button>
+                </div>
+              </div>
+
+              <!-- Info Banner -->
+              <div class="alt-banner alt-banner-info mt-3">
+                <div class="alt-banner-content">
+                  <i class="bi bi-tools"></i>
+                  <div>
+                    <strong>Planlı Bakım</strong>
+                    <span>8 Şubat 2026, 02:00-04:00 arası kısa süreli kesinti yaşanabilir.</span>
+                  </div>
+                </div>
+                <div class="alt-banner-actions">
+                  <button class="alt-banner-link">Detaylar</button>
+                  <button class="alt-banner-close" onclick="this.closest('.alt-banner').remove()"><i class="bi bi-x-lg"></i></button>
+                </div>
+              </div>
+
+              <!-- Cookie Banner -->
+              <div class="alt-banner alt-banner-dark mt-3">
+                <div class="alt-banner-content">
+                  <i class="bi bi-shield-lock-fill"></i>
+                  <div>
+                    <strong>Çerez Politikası</strong>
+                    <span>Deneyiminizi iyileştirmek için çerezler kullanıyoruz.</span>
+                  </div>
+                </div>
+                <div class="alt-banner-actions">
+                  <button class="alt-banner-btn" onclick="this.closest('.alt-banner').remove()">Kabul Et</button>
+                  <button class="alt-banner-link" onclick="this.closest('.alt-banner').remove()">Reddet</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 5. GLASS & NEON ALERTLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-stars"></i></div>
+            <div><h6>Glass & Neon Alertler</h6><p>Glassmorphism ve neon parlama efektli 2026 trend uyarılar</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Glassmorphism</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-glass alt-glass-teal">
+                <div class="alt-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Yüksek Performans</strong> — Sayfa yüklenme süresi 0.8s'ye düştü.
+                </div>
+              </div>
+              <div class="alt alt-glass alt-glass-purple">
+                <div class="alt-icon"><i class="bi bi-cpu-fill"></i></div>
+                <div class="alt-content">
+                  <strong>AI Analiz</strong> — Model eğitimi tamamlandı, doğruluk: %97.2
+                </div>
+              </div>
+              <div class="alt alt-glass alt-glass-pink">
+                <div class="alt-icon"><i class="bi bi-heart-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Popüler!</strong> — Bu yazı 1.2K beğeni aldı.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Neon Glow</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-neon" style="--alt-neon:var(--teal-primary)">
+                <div class="alt-icon"><i class="bi bi-broadcast"></i></div>
+                <div class="alt-content">
+                  <strong>Canlı Yayın</strong> — 342 kullanıcı şu anda çevrimiçi.
+                </div>
+              </div>
+              <div class="alt alt-neon" style="--alt-neon:var(--neon-purple)">
+                <div class="alt-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Süper Hızlı</strong> — CDN cache hit oranı %99.9
+                </div>
+              </div>
+              <div class="alt alt-neon" style="--alt-neon:var(--neon-green)">
+                <div class="alt-icon"><i class="bi bi-shield-fill-check"></i></div>
+                <div class="alt-content">
+                  <strong>Güvenli</strong> — Tüm güvenlik taramaları başarılı.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 6. TOAST BİLDİRİMLERİ ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-orange"><i class="bi bi-app-indicator"></i></div>
+            <div><h6>Toast Bildirimleri</h6><p>Köşe bildirimler — Canlı demo butonlarına tıklayarak test edin!</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Toast Tetikleyiciler</h6>
+              <span class="bdg bdg-soft-orange bdg-xs bdg-pill">Tıklayın!</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase gap-10">
+                <button class="alt-btn alt-btn-solid green" onclick="showToast('success','Başarılı!','Dosya başarıyla yüklendi.','bi-check-circle-fill')">
+                  <i class="bi bi-check-circle-fill"></i> Başarı Toast
+                </button>
+                <button class="alt-btn alt-btn-solid blue" onclick="showToast('info','Bilgi','Yeni bir güncelleme mevcut.','bi-info-circle-fill')">
+                  <i class="bi bi-info-circle-fill"></i> Bilgi Toast
+                </button>
+                <button class="alt-btn alt-btn-solid orange" onclick="showToast('warning','Uyarı!','Bellek kullanımı yüksek.','bi-exclamation-triangle-fill')">
+                  <i class="bi bi-exclamation-triangle-fill"></i> Uyarı Toast
+                </button>
+                <button class="alt-btn alt-btn-solid red" onclick="showToast('error','Hata!','Sunucu yanıt vermiyor.','bi-x-circle-fill')">
+                  <i class="bi bi-x-circle-fill"></i> Hata Toast
+                </button>
+                <button class="alt-btn alt-btn-solid purple" onclick="showToast('custom','Yeni Mesaj','Ali Korkmaz size bir mesaj gönderdi.','bi-chat-dots-fill')">
+                  <i class="bi bi-chat-dots-fill"></i> Mesaj Toast
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Konum Seçenekleri</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt-pos-grid">
+                <button class="alt-pos-btn" onclick="showToast('info','Top Left','Sol üst köşe','bi-arrow-up-left',{pos:'top-left'})">Sol Üst</button>
+                <button class="alt-pos-btn active" onclick="showToast('success','Top Right','Sağ üst köşe (varsayılan)','bi-arrow-up-right',{pos:'top-right'})">Sağ Üst</button>
+                <button class="alt-pos-btn" onclick="showToast('warning','Bottom Left','Sol alt köşe','bi-arrow-down-left',{pos:'bottom-left'})">Sol Alt</button>
+                <button class="alt-pos-btn" onclick="showToast('error','Bottom Right','Sağ alt köşe','bi-arrow-down-right',{pos:'bottom-right'})">Sağ Alt</button>
+                <button class="alt-pos-btn" onclick="showToast('custom','Top Center','Üst orta','bi-arrow-up',{pos:'top-center'})" style="grid-column:span 2">Üst Orta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Toast Önizleme (Statik)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt-toast-preview">
+                <div class="tst tst-success">
+                  <div class="tst-accent"></div>
+                  <div class="tst-icon"><i class="bi bi-check-circle-fill"></i></div>
+                  <div class="tst-body">
+                    <strong>Başarılı!</strong>
+                    <p>Değişiklikler kaydedildi.</p>
+                  </div>
+                  <button class="tst-close"><i class="bi bi-x-lg"></i></button>
+                  <div class="tst-timer"></div>
+                </div>
+                <div class="tst tst-error">
+                  <div class="tst-accent"></div>
+                  <div class="tst-icon"><i class="bi bi-x-circle-fill"></i></div>
+                  <div class="tst-body">
+                    <strong>Hata!</strong>
+                    <p>Bağlantı zaman aşımına uğradı.</p>
+                  </div>
+                  <button class="tst-close"><i class="bi bi-x-lg"></i></button>
+                  <div class="tst-timer"></div>
+                </div>
+                <div class="tst tst-warning">
+                  <div class="tst-accent"></div>
+                  <div class="tst-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                  <div class="tst-body">
+                    <strong>Uyarı!</strong>
+                    <p>API rate limit'e yaklaşıyorsunuz.</p>
+                  </div>
+                  <button class="tst-close"><i class="bi bi-x-lg"></i></button>
+                  <div class="tst-timer"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 7. ÖZEL DURUM ALERTLERI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-red"><i class="bi bi-shield-fill-exclamation"></i></div>
+            <div><h6>Özel Durum Alertleri</h6><p>Onay isteyen, geri sayımlı ve kalıcı durum uyarıları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Onay Alert (Confirm)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="alt alt-confirm">
+                <div class="alt-confirm-icon red"><i class="bi bi-trash3-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Silmek istediğinize emin misiniz?</strong>
+                  <p>Bu işlem geri alınamaz. Tüm veriler kalıcı olarak silinecektir.</p>
+                  <div class="alt-actions">
+                    <button class="alt-btn alt-btn-danger" onclick="this.closest('.alt').remove()">Evet, Sil</button>
+                    <button class="alt-btn alt-btn-ghost" onclick="this.closest('.alt').remove()">İptal</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alt alt-confirm mt-3">
+                <div class="alt-confirm-icon orange"><i class="bi bi-arrow-repeat"></i></div>
+                <div class="alt-content">
+                  <strong>Değişiklikleri kaydetmeden çıkmak istiyor musunuz?</strong>
+                  <p>Kaydedilmemiş değişiklikleriniz kaybolacaktır.</p>
+                  <div class="alt-actions">
+                    <button class="alt-btn alt-btn-primary" onclick="this.closest('.alt').remove()">Kaydet & Çık</button>
+                    <button class="alt-btn alt-btn-danger" onclick="this.closest('.alt').remove()">Kaydetme</button>
+                    <button class="alt-btn alt-btn-ghost" onclick="this.closest('.alt').remove()">İptal</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Geri Sayımlı & Kalıcı</h6>
+            </div>
+            <div class="card-body-custom">
+              <!-- Countdown Alert -->
+              <div class="alt alt-soft-orange alt-rich" id="countdownAlert">
+                <div class="alt-icon alt-icon-lg"><i class="bi bi-hourglass-split"></i></div>
+                <div class="alt-content">
+                  <strong>Oturum Zaman Aşımı</strong>
+                  <p>Oturumunuz <span class="alt-countdown" id="sessionCountdown">5:00</span> içinde sona erecek.</p>
+                  <div class="alt-actions">
+                    <button class="alt-btn alt-btn-primary" onclick="resetCountdown()">Süreyi Uzat</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sticky/Persistent Alert -->
+              <div class="alt alt-sticky mt-3">
+                <div class="alt-sticky-stripe"></div>
+                <div class="alt-icon"><i class="bi bi-pin-angle-fill"></i></div>
+                <div class="alt-content">
+                  <strong>Sabitlenmiş Bildirim</strong>
+                  <p>Bu uyarı kullanıcı tarafından kapatılana kadar kalır ve sayfanın üstüne sabitlenebilir.</p>
+                </div>
+                <button class="alt-close" onclick="this.closest('.alt').remove()"><i class="bi bi-x-lg"></i></button>
+              </div>
+
+              <!-- Auto-dismiss with progress -->
+              <div class="alt alt-soft-green alt-rich alt-auto-dismiss mt-3" id="autoDismissAlert">
+                <div class="alt-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="alt-content">
+                  <strong>Otomatik Kapanacak</strong>
+                  <p>Bu alert 10 saniye sonra otomatik kapanır.</p>
+                </div>
+                <div class="alt-auto-progress"><div class="alt-auto-bar" id="autoDismissBar"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 8. BİLDİRİM MERKEZİ ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-inbox-fill"></i></div>
+            <div><h6>Bildirim Merkezi</h6><p>Gruplanan, okundu/okunmadı ve işlem yapılabilir bildirim listesi</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-8 mx-auto">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="bi bi-bell-fill me-2"></i>Bildirimler</h6>
+              <div class="d-flex align-items-center gap-2">
+                <span class="bdg bdg-solid-red bdg-xs bdg-pill">5 Yeni</span>
+                <button class="alt-btn alt-btn-ghost" style="font-size:11px;padding:3px 8px" onclick="document.querySelectorAll('.alt-notif-item.unread').forEach(el=>el.classList.remove('unread'))">Tümünü Okundu İşaretle</button>
+              </div>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="alt-notif-group">
+                <div class="alt-notif-group-header">
+                  <span>Bugün</span>
+                </div>
+                <div class="alt-notif-item unread">
+                  <div class="alt-notif-dot"></div>
+                  <div class="alt-notif-icon green"><i class="bi bi-cart-check-fill"></i></div>
+                  <div class="alt-notif-body">
+                    <p><strong>Yeni Sipariş</strong> — ₺2.450 tutarında sipariş alındı</p>
+                    <span>3 dakika önce</span>
+                  </div>
+                  <button class="alt-notif-action"><i class="bi bi-three-dots"></i></button>
+                </div>
+                <div class="alt-notif-item unread">
+                  <div class="alt-notif-dot"></div>
+                  <div class="alt-notif-icon purple"><i class="bi bi-person-plus-fill"></i></div>
+                  <div class="alt-notif-body">
+                    <p><strong>Yeni Üye</strong> — Merve Beyaz ekibe katıldı</p>
+                    <span>25 dakika önce</span>
+                  </div>
+                  <button class="alt-notif-action"><i class="bi bi-three-dots"></i></button>
+                </div>
+                <div class="alt-notif-item unread">
+                  <div class="alt-notif-dot"></div>
+                  <div class="alt-notif-icon red"><i class="bi bi-exclamation-octagon-fill"></i></div>
+                  <div class="alt-notif-body">
+                    <p><strong>Sunucu Uyarısı</strong> — CPU kullanımı %95'e ulaştı</p>
+                    <span>1 saat önce</span>
+                  </div>
+                  <button class="alt-notif-action"><i class="bi bi-three-dots"></i></button>
+                </div>
+              </div>
+              <div class="alt-notif-group">
+                <div class="alt-notif-group-header">
+                  <span>Dün</span>
+                </div>
+                <div class="alt-notif-item">
+                  <div class="alt-notif-dot read"></div>
+                  <div class="alt-notif-icon blue"><i class="bi bi-cloud-check-fill"></i></div>
+                  <div class="alt-notif-body">
+                    <p><strong>Yedekleme Tamamlandı</strong> — Günlük yedek başarıyla alındı</p>
+                    <span>Dün, 23:00</span>
+                  </div>
+                  <button class="alt-notif-action"><i class="bi bi-three-dots"></i></button>
+                </div>
+                <div class="alt-notif-item">
+                  <div class="alt-notif-dot read"></div>
+                  <div class="alt-notif-icon teal"><i class="bi bi-patch-check-fill"></i></div>
+                  <div class="alt-notif-body">
+                    <p><strong>SSL Yenilendi</strong> — Sertifika 365 gün daha geçerli</p>
+                    <span>Dün, 14:30</span>
+                  </div>
+                  <button class="alt-notif-action"><i class="bi bi-three-dots"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- .page-content -->
+  </main>
+
+</div><!-- .admin-wrapper -->
+
+<!-- Toast Container -->
+<div class="tst-container tst-top-right" id="toastTopRight"></div>
+<div class="tst-container tst-top-left" id="toastTopLeft"></div>
+<div class="tst-container tst-bottom-right" id="toastBottomRight"></div>
+<div class="tst-container tst-bottom-left" id="toastBottomLeft"></div>
+<div class="tst-container tst-top-center" id="toastTopCenter"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Toast System
+function showToast(type,title,msg,icon,opts={}){
+  const pos=opts.pos||'top-right';
+  const containerMap={
+    'top-right':'toastTopRight',
+    'top-left':'toastTopLeft',
+    'bottom-right':'toastBottomRight',
+    'bottom-left':'toastBottomLeft',
+    'top-center':'toastTopCenter'
+  };
+  const container=document.getElementById(containerMap[pos]);
+  const toast=document.createElement('div');
+  toast.className='tst tst-'+type;
+  toast.innerHTML=`
+    <div class="tst-accent"></div>
+    <div class="tst-icon"><i class="bi ${icon}"></i></div>
+    <div class="tst-body">
+      <strong>${title}</strong>
+      <p>${msg}</p>
+    </div>
+    <button class="tst-close" onclick="dismissToast(this.closest('.tst'))"><i class="bi bi-x-lg"></i></button>
+    <div class="tst-timer"></div>
+  `;
+  container.appendChild(toast);
+  requestAnimationFrame(()=>toast.classList.add('tst-show'));
+  setTimeout(()=>dismissToast(toast),5000);
+}
+
+function dismissToast(toast){
+  if(!toast||toast.classList.contains('tst-hide'))return;
+  toast.classList.add('tst-hide');
+  toast.classList.remove('tst-show');
+  setTimeout(()=>toast.remove(),400);
+}
+
+// Countdown Timer
+let countdownSec=300;
+let countdownInterval;
+function updateCountdown(){
+  const m=Math.floor(countdownSec/60);
+  const s=countdownSec%60;
+  const el=document.getElementById('sessionCountdown');
+  if(el) el.textContent=m+':'+(s<10?'0':'')+s;
+  if(countdownSec<=0){clearInterval(countdownInterval);return}
+  countdownSec--;
+}
+function resetCountdown(){
+  countdownSec=300;
+  updateCountdown();
+}
+countdownInterval=setInterval(updateCountdown,1000);
+
+// Auto Dismiss Alert
+let autoDismissSec=10;
+const autoBar=document.getElementById('autoDismissBar');
+const autoAlert=document.getElementById('autoDismissAlert');
+if(autoBar&&autoAlert){
+  let autoInterval=setInterval(()=>{
+    autoDismissSec--;
+    const pct=((10-autoDismissSec)/10)*100;
+    autoBar.style.width=pct+'%';
+    if(autoDismissSec<=0){
+      clearInterval(autoInterval);
+      autoAlert.style.opacity='0';
+      autoAlert.style.transform='translateY(-10px)';
+      setTimeout(()=>autoAlert.remove(),300);
+    }
+  },1000);
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+</script>
+</body>
+</html>

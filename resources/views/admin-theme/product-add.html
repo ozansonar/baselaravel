@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Ürün Ekleme</title>
+  <meta name="description" content="OZAN Admin Panel - Yeni ürün ekleme ve düzenleme sayfası">
+  <link rel="canonical" href="https://admin.ozan.dev/product-add.html">
+  <meta property="og:title" content="OZAN Admin - Ürün Ekleme">
+  <meta property="og:description" content="Yeni ürün oluşturun veya mevcut ürünü düzenleyin">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="products.html" class="breadcrumb-link">Ürünler</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Yeni Ürün Ekle</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-start align-items-sm-center justify-content-between flex-column flex-sm-row gap-3 mb-4" data-aos="fade-down">
+        <div class="d-flex align-items-center gap-3">
+          <a href="products.html" class="btn-glass" title="Geri Dön">
+            <i class="bi bi-arrow-left"></i>
+          </a>
+          <div>
+            <h1 class="page-title mb-0">Yeni Ürün Oluştur</h1>
+            <p class="page-subtitle mb-0">Tüm alanları doldurarak yeni bir ürün ekleyin</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn-glass" onclick="saveProductDraft()">
+            <i class="bi bi-file-earmark me-1"></i>Taslak Kaydet
+          </button>
+          <button class="btn-glass" onclick="previewProduct()">
+            <i class="bi bi-eye me-1"></i>Önizle
+          </button>
+          <button class="btn-teal" onclick="publishProduct()">
+            <i class="bi bi-check-lg me-1"></i>Yayınla
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Section Jumper -->
+      <div class="d-lg-none mb-4" data-aos="fade-up">
+        <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+          <option value="" disabled selected>Bölüme git...</option>
+          <option value="section-basic">Temel Bilgiler</option>
+          <option value="section-pricing">Fiyatlandırma</option>
+          <option value="section-stock">Stok & Kargo</option>
+          <option value="section-media">Medya Yönetimi</option>
+          <option value="section-variants">Varyantlar</option>
+          <option value="section-seo">SEO Ayarları</option>
+          <option value="section-advanced">Gelişmiş Ayarlar</option>
+        </select>
+      </div>
+
+      <!-- Form Layout -->
+      <div class="row g-4 align-items-start">
+
+        <!-- Sol Navigasyon (desktop) -->
+        <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right">
+          <div class="stg-nav-inner position-sticky stg-nav-sticky">
+            <a href="#section-basic" class="stg-nav-item active" onclick="scrollToSection('section-basic', this)">
+              <i class="bi bi-box-seam"></i>
+              <div><span>Temel Bilgiler</span><small>Ad, kategori, marka</small></div>
+            </a>
+            <a href="#section-pricing" class="stg-nav-item" onclick="scrollToSection('section-pricing', this)">
+              <i class="bi bi-currency-dollar"></i>
+              <div><span>Fiyatlandırma</span><small>Fiyat, indirim, vergi</small></div>
+            </a>
+            <a href="#section-stock" class="stg-nav-item" onclick="scrollToSection('section-stock', this)">
+              <i class="bi bi-truck"></i>
+              <div><span>Stok & Kargo</span><small>Miktar, boyut, ağırlık</small></div>
+            </a>
+            <a href="#section-media" class="stg-nav-item" onclick="scrollToSection('section-media', this)">
+              <i class="bi bi-images"></i>
+              <div><span>Medya Yönetimi</span><small>Görseller, galeri</small></div>
+            </a>
+            <a href="#section-variants" class="stg-nav-item" onclick="scrollToSection('section-variants', this)">
+              <i class="bi bi-diagram-3"></i>
+              <div><span>Varyantlar</span><small>Renk, beden, seçenek</small></div>
+            </a>
+            <a href="#section-seo" class="stg-nav-item" onclick="scrollToSection('section-seo', this)">
+              <i class="bi bi-search"></i>
+              <div><span>SEO Ayarları</span><small>Meta başlık, açıklama</small></div>
+            </a>
+            <a href="#section-advanced" class="stg-nav-item" onclick="scrollToSection('section-advanced', this)">
+              <i class="bi bi-gear"></i>
+              <div><span>Gelişmiş Ayarlar</span><small>Durum, görünürlük</small></div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Form İçeriği -->
+        <div class="col-12 col-lg-9">
+
+          <!-- ==================== SECTION 1: TEMEL BİLGİLER ==================== -->
+          <div class="card-dark mb-4" id="section-basic" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-box-seam"></i></div>
+                <div>
+                  <h6 class="mb-0">Temel Bilgiler</h6>
+                  <small class="text-muted">Ürünün adını, kategorisini ve açıklamasını belirleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Ürün Adı -->
+                <div class="col-12">
+                  <label class="form-label" for="productName">
+                    Ürün Adı <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="productName"
+                    placeholder="Ürün adını girin..."
+                    oninput="generateProductSlug(this.value); updateCharCounter(this, 150)"
+                  >
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Ürünü tanımlayan net ve SEO uyumlu bir ad girin</div>
+                    <div class="form-text"><span id="productName-counter">0</span>/150</div>
+                  </div>
+                </div>
+
+                <!-- Slug -->
+                <div class="col-12">
+                  <label class="form-label" for="productSlug">URL (Slug)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">site.com/urun/</span>
+                    <input type="text" class="form-control" id="productSlug" placeholder="otomatik-oluşturulur">
+                  </div>
+                  <div class="form-text">Ürün adından otomatik oluşturulur, isterseniz düzenleyebilirsiniz</div>
+                </div>
+
+                <!-- Kategori & Marka -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productCategory">
+                    Kategori <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select" id="productCategory">
+                    <option value="">Kategori seçin...</option>
+                    <option value="elektronik">Elektronik</option>
+                    <option value="giyim">Giyim</option>
+                    <option value="ev">Ev & Yaşam</option>
+                    <option value="spor">Spor</option>
+                    <option value="kozmetik">Kozmetik</option>
+                    <option value="aksesuar">Aksesuar</option>
+                    <option value="kitap">Kitap</option>
+                    <option value="oyuncak">Oyuncak</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label" for="productBrand">
+                    Marka <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="productBrand" placeholder="Marka adı girin...">
+                    <button class="btn-glass" type="button" onclick="openBrandModal()" title="Yeni Marka Ekle">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Alt Kategori -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productSubCategory">Alt Kategori</label>
+                  <select class="form-select" id="productSubCategory">
+                    <option value="">Alt kategori seçin...</option>
+                  </select>
+                  <div class="form-text">Üst kategori seçildikten sonra alt kategoriler yüklenir</div>
+                </div>
+
+                <!-- Ürün Tipi -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productType">Ürün Tipi</label>
+                  <select class="form-select" id="productType">
+                    <option value="physical">Fiziksel Ürün</option>
+                    <option value="digital">Dijital Ürün</option>
+                    <option value="service">Hizmet</option>
+                  </select>
+                </div>
+
+                <!-- Kısa Açıklama -->
+                <div class="col-12">
+                  <label class="form-label" for="productExcerpt">
+                    Kısa Açıklama <span class="text-danger">*</span>
+                  </label>
+                  <textarea
+                    class="form-control"
+                    id="productExcerpt"
+                    rows="3"
+                    placeholder="Ürünün kısa açıklamasını yazın (listeleme sayfalarında görünür)..."
+                    oninput="updateCharCounter(this, 300)"
+                  ></textarea>
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Ürün kartlarında ve arama sonuçlarında görünecek açıklama</div>
+                    <div class="form-text"><span id="productExcerpt-counter">0</span>/300</div>
+                  </div>
+                </div>
+
+                <!-- Detaylı Açıklama -->
+                <div class="col-12">
+                  <label class="form-label">
+                    Detaylı Açıklama <span class="text-danger">*</span>
+                  </label>
+                  <div class="ca-editor-wrapper">
+                    <div class="ca-editor-toolbar">
+                      <div class="ca-toolbar-group">
+                        <button type="button" class="ca-toolbar-btn" onclick="execFormat('bold')" title="Kalın"><i class="bi bi-type-bold"></i></button>
+                        <button type="button" class="ca-toolbar-btn" onclick="execFormat('italic')" title="İtalik"><i class="bi bi-type-italic"></i></button>
+                        <button type="button" class="ca-toolbar-btn" onclick="execFormat('underline')" title="Altı çizili"><i class="bi bi-type-underline"></i></button>
+                      </div>
+                      <div class="ca-toolbar-divider"></div>
+                      <div class="ca-toolbar-group">
+                        <select class="ca-toolbar-select" onchange="execHeading(this.value)" title="Başlık stili">
+                          <option value="">Paragraf</option>
+                          <option value="h2">Başlık 2</option>
+                          <option value="h3">Başlık 3</option>
+                          <option value="h4">Başlık 4</option>
+                        </select>
+                      </div>
+                      <div class="ca-toolbar-divider"></div>
+                      <div class="ca-toolbar-group">
+                        <button type="button" class="ca-toolbar-btn" onclick="execFormat('insertUnorderedList')" title="Madde işareti"><i class="bi bi-list-ul"></i></button>
+                        <button type="button" class="ca-toolbar-btn" onclick="execFormat('insertOrderedList')" title="Numaralı liste"><i class="bi bi-list-ol"></i></button>
+                      </div>
+                      <div class="ca-toolbar-divider"></div>
+                      <div class="ca-toolbar-group">
+                        <button type="button" class="ca-toolbar-btn" onclick="insertLink()" title="Bağlantı ekle"><i class="bi bi-link-45deg"></i></button>
+                        <button type="button" class="ca-toolbar-btn" onclick="insertImage()" title="Görsel ekle"><i class="bi bi-image"></i></button>
+                        <button type="button" class="ca-toolbar-btn" onclick="insertTable()" title="Tablo ekle"><i class="bi bi-table"></i></button>
+                      </div>
+                    </div>
+                    <div class="ca-editor-body" id="productEditor" contenteditable="true">
+                      <p>Ürün detaylarını buraya yazın...</p>
+                    </div>
+                    <div class="ca-editor-footer">
+                      <span><i class="bi bi-fonts me-1"></i><span id="wordCount">0</span> kelime</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Etiketler -->
+                <div class="col-12">
+                  <label class="form-label">Etiketler</label>
+                  <div class="ca-tags-input-wrapper" id="tagsWrapper">
+                    <div class="ca-tags-container" id="tagsContainer"></div>
+                    <input
+                      type="text"
+                      class="ca-tags-field"
+                      id="tagsInput"
+                      placeholder="Etiket yazıp Enter tuşuna basın..."
+                      onkeydown="handleTagInput(event)"
+                    >
+                  </div>
+                  <div class="form-text">Virgül veya Enter ile yeni etiket ekleyin. En fazla 15 etiket.</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 2: FİYATLANDIRMA ==================== -->
+          <div class="card-dark mb-4" id="section-pricing" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-green"><i class="bi bi-currency-dollar"></i></div>
+                <div>
+                  <h6 class="mb-0">Fiyatlandırma</h6>
+                  <small class="text-muted">Ürün fiyatını, indirim ve vergi bilgilerini ayarlayın</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Satış Fiyatı -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productPrice">
+                    Satış Fiyatı <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productPrice" placeholder="0.00" step="0.01" min="0" oninput="calculateProfit()">
+                    <span class="input-group-text">TL</span>
+                  </div>
+                </div>
+
+                <!-- Karşılaştırma Fiyatı -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productComparePrice">Karşılaştırma Fiyatı</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productComparePrice" placeholder="0.00" step="0.01" min="0" oninput="calculateDiscount()">
+                    <span class="input-group-text">TL</span>
+                  </div>
+                  <div class="form-text">Üzeri çizili olarak gösterilecek eski fiyat</div>
+                </div>
+
+                <!-- Maliyet -->
+                <div class="col-md-4">
+                  <label class="form-label" for="productCost">Maliyet Fiyatı</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productCost" placeholder="0.00" step="0.01" min="0" oninput="calculateProfit()">
+                    <span class="input-group-text">TL</span>
+                  </div>
+                </div>
+
+                <!-- Kâr Marjı -->
+                <div class="col-md-4">
+                  <label class="form-label">Kâr Marjı</label>
+                  <div class="prd-profit-display">
+                    <div class="prd-profit-bar">
+                      <div class="prd-profit-fill" id="profitBar"></div>
+                    </div>
+                    <span class="prd-profit-text" id="profitText">%0</span>
+                  </div>
+                </div>
+
+                <!-- İndirim Yüzdesi -->
+                <div class="col-md-4">
+                  <label class="form-label">İndirim</label>
+                  <div class="prd-discount-display" id="discountDisplay">
+                    <i class="bi bi-tag-fill me-1"></i>
+                    <span id="discountText">%0 indirim</span>
+                  </div>
+                </div>
+
+                <!-- Vergi -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productTax">KDV Oranı</label>
+                  <select class="form-select" id="productTax">
+                    <option value="0">KDV Hariç (%0)</option>
+                    <option value="1">%1 KDV</option>
+                    <option value="10">%10 KDV</option>
+                    <option value="20" selected>%20 KDV</option>
+                  </select>
+                </div>
+
+                <!-- Para Birimi -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productCurrency">Para Birimi</label>
+                  <select class="form-select" id="productCurrency">
+                    <option value="TRY" selected>Türk Lirası (TL)</option>
+                    <option value="USD">ABD Doları ($)</option>
+                    <option value="EUR">Euro (€)</option>
+                    <option value="GBP">İngiliz Sterlini (£)</option>
+                  </select>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 3: STOK & KARGO ==================== -->
+          <div class="card-dark mb-4" id="section-stock" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-truck"></i></div>
+                <div>
+                  <h6 class="mb-0">Stok & Kargo</h6>
+                  <small class="text-muted">Stok miktarı, SKU ve kargo bilgilerini düzenleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- SKU -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productSku">
+                    SKU (Stok Kodu) <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="productSku" placeholder="SKU-0001">
+                    <button class="btn-glass" type="button" onclick="generateSku()" title="Otomatik SKU Oluştur">
+                      <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Barkod -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productBarcode">Barkod (EAN/UPC)</label>
+                  <input type="text" class="form-control" id="productBarcode" placeholder="Barkod numarası girin...">
+                </div>
+
+                <!-- Stok Takibi -->
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="trackStock" checked onchange="toggleStockFields()">
+                    <label class="form-check-label" for="trackStock">Stok takibi yap</label>
+                  </div>
+                </div>
+
+                <!-- Stok Alanları -->
+                <div id="stockFields">
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label" for="productStock">Stok Miktarı <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" id="productStock" placeholder="0" min="0">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label" for="productLowStock">Düşük Stok Uyarısı</label>
+                      <input type="number" class="form-control" id="productLowStock" placeholder="10" min="0">
+                      <div class="form-text">Bu sayının altına düşünce uyarı verilir</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label" for="productMaxOrder">Maks. Sipariş Adedi</label>
+                      <input type="number" class="form-control" id="productMaxOrder" placeholder="Sınırsız" min="1">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Kargo Bilgileri -->
+                <div class="col-12 mt-3">
+                  <h6 class="prd-subsection-title"><i class="bi bi-box me-2"></i>Kargo & Boyut Bilgileri</h6>
+                </div>
+
+                <div class="col-md-3 col-6">
+                  <label class="form-label" for="productWeight">Ağırlık</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productWeight" placeholder="0" step="0.01" min="0">
+                    <select class="input-group-text prd-unit-select" id="weightUnit">
+                      <option value="g">g</option>
+                      <option value="kg" selected>kg</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                  <label class="form-label" for="productLength">Uzunluk</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productLength" placeholder="0" step="0.1" min="0">
+                    <span class="input-group-text">cm</span>
+                  </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                  <label class="form-label" for="productWidth">Genişlik</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productWidth" placeholder="0" step="0.1" min="0">
+                    <span class="input-group-text">cm</span>
+                  </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                  <label class="form-label" for="productHeight">Yükseklik</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productHeight" placeholder="0" step="0.1" min="0">
+                    <span class="input-group-text">cm</span>
+                  </div>
+                </div>
+
+                <!-- Ücretsiz Kargo -->
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="freeShipping">
+                    <label class="form-check-label" for="freeShipping">Ücretsiz kargo</label>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 4: MEDYA YÖNETİMİ ==================== -->
+          <div class="card-dark mb-4" id="section-media" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-images"></i></div>
+                <div>
+                  <h6 class="mb-0">Medya Yönetimi</h6>
+                  <small class="text-muted">Ürün görsellerini ve galeri resimlerini yükleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Ana Ürün Görseli -->
+                <div class="col-12">
+                  <label class="form-label">
+                    Ana Ürün Görseli <span class="text-danger">*</span>
+                  </label>
+                  <div class="prd-main-upload" id="mainImageUpload" onclick="document.getElementById('mainImageInput').click()">
+                    <input type="file" class="d-none" id="mainImageInput" accept="image/png,image/jpeg,image/webp" onchange="handleMainImageUpload(this)">
+                    <div class="prd-upload-placeholder" id="mainImagePlaceholder">
+                      <i class="bi bi-cloud-arrow-up"></i>
+                      <span>Ana görseli yükleyin</span>
+                      <small>PNG, JPG, WebP | Maks. 2 MB | Önerilen: 800x800 px</small>
+                    </div>
+                    <img src="" alt="Ana ürün görseli" id="mainImagePreview" class="prd-upload-preview d-none" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Galeri Görselleri -->
+                <div class="col-12">
+                  <label class="form-label">Galeri Görselleri</label>
+                  <div class="form-text mb-2">Ürüne ait ek görselleri sürükleyerek veya tıklayarak yükleyin (Maks. 8 görsel)</div>
+                  <div class="prd-gallery-grid" id="galleryGrid">
+                    <!-- Uploaded images will appear here -->
+                    <div class="prd-gallery-add" onclick="document.getElementById('galleryInput').click()">
+                      <input type="file" class="d-none" id="galleryInput" accept="image/png,image/jpeg,image/webp" multiple onchange="handleGalleryUpload(this)">
+                      <i class="bi bi-plus-lg"></i>
+                      <span>Görsel Ekle</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 5: VARYANTLAR ==================== -->
+          <div class="card-dark mb-4" id="section-variants" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-orange"><i class="bi bi-diagram-3"></i></div>
+                <div>
+                  <h6 class="mb-0">Varyantlar</h6>
+                  <small class="text-muted">Ürünün renk, beden gibi farklı seçeneklerini tanımlayın</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Varyant Toggle -->
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="hasVariants" onchange="toggleVariantSection()">
+                <label class="form-check-label" for="hasVariants">Bu ürün varyantlara sahip</label>
+              </div>
+
+              <!-- Varyant İçeriği -->
+              <div id="variantSection" class="d-none">
+
+                <!-- Seçenek Tipleri -->
+                <div class="prd-variant-options mb-4">
+                  <label class="form-label">Seçenek Tipleri</label>
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button class="prd-option-chip active" onclick="selectVariantType(this, 'color')">
+                      <i class="bi bi-palette me-1"></i> Renk
+                    </button>
+                    <button class="prd-option-chip" onclick="selectVariantType(this, 'size')">
+                      <i class="bi bi-rulers me-1"></i> Beden
+                    </button>
+                    <button class="prd-option-chip" onclick="selectVariantType(this, 'material')">
+                      <i class="bi bi-gem me-1"></i> Materyal
+                    </button>
+                    <button class="prd-option-chip" onclick="selectVariantType(this, 'custom')">
+                      <i class="bi bi-plus-circle me-1"></i> Özel
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Varyant Tablosu -->
+                <div class="table-responsive">
+                  <table class="table cl-table mb-0" id="variantTable">
+                    <thead>
+                      <tr>
+                        <th>Seçenek</th>
+                        <th>Fiyat Farkı</th>
+                        <th>Stok</th>
+                        <th>SKU</th>
+                        <th class="cl-th-actions">İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody id="variantTableBody">
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="prd-color-dot" data-color="#000000"></span>
+                            <input type="text" class="form-control form-control-sm" value="Siyah" placeholder="Seçenek adı">
+                          </div>
+                        </td>
+                        <td><input type="number" class="form-control form-control-sm" value="0" placeholder="0.00"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="50" placeholder="0"></td>
+                        <td><input type="text" class="form-control form-control-sm" value="SKU-1001-BLK" placeholder="SKU"></td>
+                        <td>
+                          <button class="usr-action-btn danger" onclick="removeVariantRow(this)" title="Sil"><i class="bi bi-trash"></i></button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="prd-color-dot" data-color="#ffffff"></span>
+                            <input type="text" class="form-control form-control-sm" value="Beyaz" placeholder="Seçenek adı">
+                          </div>
+                        </td>
+                        <td><input type="number" class="form-control form-control-sm" value="0" placeholder="0.00"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="35" placeholder="0"></td>
+                        <td><input type="text" class="form-control form-control-sm" value="SKU-1001-WHT" placeholder="SKU"></td>
+                        <td>
+                          <button class="usr-action-btn danger" onclick="removeVariantRow(this)" title="Sil"><i class="bi bi-trash"></i></button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <button class="btn-glass mt-3" onclick="addVariantRow()">
+                  <i class="bi bi-plus-lg me-1"></i> Yeni Seçenek Ekle
+                </button>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 6: SEO AYARLARI ==================== -->
+          <div class="card-dark mb-4" id="section-seo" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-orange"><i class="bi bi-search"></i></div>
+                <div>
+                  <h6 class="mb-0">SEO Ayarları</h6>
+                  <small class="text-muted">Arama motorları için meta bilgilerini optimize edin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- SEO Önizleme -->
+                <div class="col-12">
+                  <label class="form-label">Google Önizleme</label>
+                  <div class="ca-seo-preview">
+                    <span class="ca-seo-url" id="seoPreviewUrl">site.com/urun/<span id="seoSlugPreview">urun-adi</span></span>
+                    <h6 class="ca-seo-title" id="seoPreviewTitle">Ürün Adı | Site Adı</h6>
+                    <p class="ca-seo-desc" id="seoPreviewDesc">Ürünün meta açıklaması burada görünecektir. Arama motorlarında gösterilecek açıklama metni...</p>
+                  </div>
+                </div>
+
+                <!-- Meta Başlık -->
+                <div class="col-12">
+                  <label class="form-label" for="seoTitle">
+                    Meta Başlık <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="seoTitle"
+                    placeholder="SEO uyumlu başlık yazın..."
+                    oninput="updateSeoPreview(); updateCharCounter(this, 60)"
+                  >
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Google'da görünecek başlık (50-60 karakter önerilir)</div>
+                    <div class="form-text"><span id="seoTitle-counter">0</span>/60</div>
+                  </div>
+                </div>
+
+                <!-- Meta Açıklama -->
+                <div class="col-12">
+                  <label class="form-label" for="seoDescription">Meta Açıklama</label>
+                  <textarea
+                    class="form-control"
+                    id="seoDescription"
+                    rows="3"
+                    placeholder="Arama sonuçlarında görünecek açıklamayı yazın..."
+                    oninput="updateSeoPreview(); updateCharCounter(this, 160)"
+                  ></textarea>
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Google'da görünecek açıklama (120-160 karakter önerilir)</div>
+                    <div class="form-text"><span id="seoDescription-counter">0</span>/160</div>
+                  </div>
+                </div>
+
+                <!-- Anahtar Kelimeler -->
+                <div class="col-12">
+                  <label class="form-label" for="seoKeywords">Anahtar Kelimeler</label>
+                  <input type="text" class="form-control" id="seoKeywords" placeholder="anahtar, kelime, virgülle, ayırın">
+                  <div class="form-text">Virgülle ayırarak anahtar kelimeleri girin</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 7: GELİŞMİŞ AYARLAR ==================== -->
+          <div class="card-dark mb-4" id="section-advanced" data-aos="fade-up">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-red"><i class="bi bi-gear"></i></div>
+                <div>
+                  <h6 class="mb-0">Gelişmiş Ayarlar</h6>
+                  <small class="text-muted">Ürün durumu, görünürlük ve ek ayarlar</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Yayın Durumu -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productStatus">Yayın Durumu</label>
+                  <select class="form-select" id="productStatus">
+                    <option value="draft">Taslak</option>
+                    <option value="active" selected>Aktif</option>
+                    <option value="scheduled">Zamanlanmış</option>
+                    <option value="archived">Arşivlenmiş</option>
+                  </select>
+                </div>
+
+                <!-- Görünürlük -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productVisibility">Görünürlük</label>
+                  <select class="form-select" id="productVisibility">
+                    <option value="public" selected>Herkese Açık</option>
+                    <option value="hidden">Gizli</option>
+                    <option value="password">Şifre Korumalı</option>
+                  </select>
+                </div>
+
+                <!-- Zamanlanmış Yayın -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productPublishDate">Yayın Tarihi</label>
+                  <input type="datetime-local" class="form-control" id="productPublishDate">
+                  <div class="form-text">Boş bırakılırsa hemen yayınlanır</div>
+                </div>
+
+                <!-- Sıralama -->
+                <div class="col-md-6">
+                  <label class="form-label" for="productOrder">Sıralama</label>
+                  <input type="number" class="form-control" id="productOrder" placeholder="0" min="0">
+                  <div class="form-text">Düşük sayı önce gösterilir</div>
+                </div>
+
+                <!-- Toggles -->
+                <div class="col-12">
+                  <h6 class="prd-subsection-title"><i class="bi bi-toggles me-2"></i>Ek Seçenekler</h6>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="featuredProduct">
+                    <label class="form-check-label" for="featuredProduct">Öne çıkan ürün</label>
+                  </div>
+                  <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="newBadge" checked>
+                    <label class="form-check-label" for="newBadge">"Yeni" rozeti göster</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="allowReviews" checked>
+                    <label class="form-check-label" for="allowReviews">Değerlendirmelere izin ver</label>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="digitalDownload">
+                    <label class="form-check-label" for="digitalDownload">Dijital indirme</label>
+                  </div>
+                  <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="taxExempt">
+                    <label class="form-check-label" for="taxExempt">Vergiden muaf</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="relatedProducts" checked>
+                    <label class="form-check-label" for="relatedProducts">İlgili ürünleri göster</label>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== BOTTOM ACTIONS ==================== -->
+          <div class="prd-bottom-actions" data-aos="fade-up">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <a href="products.html" class="btn-glass">
+                <i class="bi bi-arrow-left me-1"></i> Ürünlere Dön
+              </a>
+              <div class="d-flex gap-2">
+                <button class="btn-glass" onclick="saveProductDraft()">
+                  <i class="bi bi-file-earmark me-1"></i> Taslak Kaydet
+                </button>
+                <button class="btn-teal" onclick="publishProduct()">
+                  <i class="bi bi-check-lg me-1"></i> Yayınla
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== NEW BRAND MODAL ==================== -->
+<div class="modal fade" id="brandModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title">Yeni Marka Ekle</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="newBrandName">Marka Adı <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="newBrandName" placeholder="Marka adı girin...">
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="newBrandLogo">Logo</label>
+          <input type="file" class="form-control" id="newBrandLogo" accept="image/png,image/jpeg,image/svg+xml,image/webp">
+          <div class="form-text">PNG, JPG, SVG, WebP | Maks. 500 KB</div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn-glass" data-bs-dismiss="modal">İptal</button>
+          <button class="btn-teal" onclick="saveBrand()">
+            <i class="bi bi-check-lg me-1"></i> Kaydet
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SUCCESS MODAL ==================== -->
+<div class="modal fade" id="successModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon success">
+          <i class="bi bi-check-lg"></i>
+        </div>
+        <h5 class="cl-modal-heading" id="successTitle">Başarılı!</h5>
+        <p class="cl-modal-body-text" id="successMessage">Ürün başarıyla kaydedildi.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <a href="products.html" class="btn-glass">
+            <i class="bi bi-arrow-left me-1"></i> Ürünlere Dön
+          </a>
+          <button class="btn-teal" data-bs-dismiss="modal">
+            <i class="bi bi-plus-lg me-1"></i> Yeni Ürün
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="product-add.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Progress & Spinners</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Progress & Spinners</h2>
+          <p>İlerleme çubukları, dairesel göstergeler, yükleme animasyonları ve skeleton loader bileşenleri</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+
+      <!-- ==================== 1. TEMEL PROGRESS BAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-bar-chart-steps"></i></div>
+            <div><h6>Temel Progress Bar</h6><p>Renk varyantları, boyutlar ve etiketli ilerleme çubukları</p></div>
+          </div>
+        </div>
+
+        <!-- Renk Varyantları -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Renk Varyantları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Teal</small><small class="text-secondary">75%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-teal" style="width:75%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Mavi</small><small class="text-secondary">60%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-blue" style="width:60%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Mor</small><small class="text-secondary">45%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-purple" style="width:45%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Pembe</small><small class="text-secondary">85%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-pink" style="width:85%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Yeşil</small><small class="text-secondary">90%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-green" style="width:90%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Turuncu</small><small class="text-secondary">35%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-orange" style="width:35%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Kırmızı</small><small class="text-secondary">20%</small></div>
+                  <div class="prg-bar"><div class="prg-fill prg-red" style="width:20%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boyutlar -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Boyut Varyantları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-4">
+                <div>
+                  <small class="text-secondary d-block mb-1">XS (2px)</small>
+                  <div class="prg-bar prg-xs"><div class="prg-fill prg-teal" style="width:80%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">SM (4px)</small>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-blue" style="width:65%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Default (8px)</small>
+                  <div class="prg-bar"><div class="prg-fill prg-purple" style="width:55%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">MD (12px)</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-pink" style="width:70%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">LG (18px)</small>
+                  <div class="prg-bar prg-lg"><div class="prg-fill prg-green" style="width:50%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">XL (24px) - Etiketli</small>
+                  <div class="prg-bar prg-xl"><div class="prg-fill prg-teal" style="width:68%"><span class="prg-label">68%</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etiketli & İkonlu -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Etiketli & İkonlu</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="d-flex align-items-center gap-2"><i class="bi bi-cloud-arrow-up text-neon-blue"></i> Yükleniyor</span>
+                    <span class="prg-percent prg-blue">73%</span>
+                  </div>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-blue" style="width:73%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="d-flex align-items-center gap-2"><i class="bi bi-hdd text-neon-orange"></i> Disk Kullanımı</span>
+                    <span class="prg-percent prg-orange">86%</span>
+                  </div>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-orange" style="width:86%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="d-flex align-items-center gap-2"><i class="bi bi-cpu text-neon-red"></i> CPU Yükü</span>
+                    <span class="prg-percent prg-red">94%</span>
+                  </div>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-red" style="width:94%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="d-flex align-items-center gap-2"><i class="bi bi-memory text-neon-green"></i> RAM</span>
+                    <span class="prg-percent prg-green">42%</span>
+                  </div>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-green" style="width:42%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gradient Progress -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Gradient Progress</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <small class="text-secondary d-block mb-1">Teal → Blue</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-gradient" style="--prg-from:var(--teal-primary);--prg-to:var(--neon-blue);width:80%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Purple → Pink</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-purple);--prg-to:var(--neon-pink);width:65%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Orange → Red</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-orange);--prg-to:var(--neon-red);width:55%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Green → Teal</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-green);--prg-to:var(--teal-primary);width:92%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Neon Rainbow</small>
+                  <div class="prg-bar prg-lg"><div class="prg-fill prg-rainbow" style="width:100%"><span class="prg-label">100%</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 2. ÇİZGİLİ & ANİMASYONLU ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-activity"></i></div>
+            <div><h6>Çizgili & Animasyonlu</h6><p>Hareketli çizgili barlar, pulse efektler ve canlı animasyonlar</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Çizgili (Striped)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <small class="text-secondary d-block mb-1">Statik Çizgili</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-striped prg-teal" style="width:70%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Animasyonlu Çizgili</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-striped prg-animated prg-blue" style="width:60%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Ters Yön Animasyon</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-striped prg-animated-reverse prg-purple" style="width:55%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Gradient + Çizgili</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-gradient prg-striped prg-animated" style="--prg-from:var(--neon-pink);--prg-to:var(--neon-orange);width:80%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Animasyonlu Efektler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <small class="text-secondary d-block mb-1">Pulse Glow</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-pulse prg-teal" style="width:65%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Shimmer Efekt</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-shimmer prg-blue" style="width:75%"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Belirsiz (Indeterminate)</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-indeterminate prg-purple"></div></div>
+                </div>
+                <div>
+                  <small class="text-secondary d-block mb-1">Dalga Efekt</small>
+                  <div class="prg-bar prg-md"><div class="prg-fill prg-wave prg-green" style="width:70%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Neon Glow Progress -->
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Neon Glow Progress</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <small class="text-secondary d-block mb-1">Neon Teal</small>
+                  <div class="prg-bar prg-md prg-neon prg-teal"><div class="prg-fill prg-neon-fill prg-teal" style="width:80%"></div></div>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-secondary d-block mb-1">Neon Purple</small>
+                  <div class="prg-bar prg-md prg-neon prg-purple"><div class="prg-fill prg-neon-fill prg-purple" style="width:60%"></div></div>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-secondary d-block mb-1">Neon Pink</small>
+                  <div class="prg-bar prg-md prg-neon prg-pink"><div class="prg-fill prg-neon-fill prg-pink" style="width:45%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 3. ÇOKLU & YIĞINLI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-layers-half"></i></div>
+            <div><h6>Çoklu & Yığınlı</h6><p>Stacked progress barlar ve segmentli ilerleme göstergeleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Yığınlı (Stacked)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-4">
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Proje İlerlemesi</small><small class="text-secondary">85%</small></div>
+                  <div class="prg-bar prg-md prg-stacked">
+                    <div class="prg-fill prg-green" style="width:40%"></div>
+                    <div class="prg-fill prg-teal" style="width:25%"></div>
+                    <div class="prg-fill prg-blue" style="width:20%"></div>
+                  </div>
+                  <div class="prg-legend">
+                    <span><i class="bi bi-circle-fill text-neon-green fs-8"></i> Tamamlanan (40%)</span>
+                    <span><i class="bi bi-circle-fill text-teal fs-8"></i> Devam Eden (25%)</span>
+                    <span><i class="bi bi-circle-fill text-neon-blue fs-8"></i> İnceleme (20%)</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1"><small class="text-secondary">Disk Alanı</small><small class="text-secondary">72 / 128 GB</small></div>
+                  <div class="prg-bar prg-md prg-stacked">
+                    <div class="prg-fill prg-purple" style="width:30%"></div>
+                    <div class="prg-fill prg-pink" style="width:15%"></div>
+                    <div class="prg-fill prg-orange" style="width:11%"></div>
+                  </div>
+                  <div class="prg-legend">
+                    <span><i class="bi bi-circle-fill text-neon-purple fs-8"></i> Sistem (38GB)</span>
+                    <span><i class="bi bi-circle-fill text-neon-pink fs-8"></i> Uygulama (19GB)</span>
+                    <span><i class="bi bi-circle-fill text-neon-orange fs-8"></i> Medya (15GB)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Segmentli Progress</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-4">
+                <div>
+                  <div class="d-flex justify-content-between mb-2"><small class="text-secondary">Güvenlik Puanı</small><span class="prg-percent prg-green">4/5</span></div>
+                  <div class="prg-segmented">
+                    <div class="prg-seg prg-seg-active prg-green"></div>
+                    <div class="prg-seg prg-seg-active prg-green"></div>
+                    <div class="prg-seg prg-seg-active prg-green"></div>
+                    <div class="prg-seg prg-seg-active prg-green"></div>
+                    <div class="prg-seg"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-2"><small class="text-secondary">Şifre Gücü</small><span class="prg-percent prg-orange">Orta</span></div>
+                  <div class="prg-segmented">
+                    <div class="prg-seg prg-seg-active prg-red"></div>
+                    <div class="prg-seg prg-seg-active prg-orange"></div>
+                    <div class="prg-seg prg-seg-active prg-orange"></div>
+                    <div class="prg-seg"></div>
+                    <div class="prg-seg"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-2"><small class="text-secondary">Profil Tamamlama</small><span class="prg-percent prg-teal">80%</span></div>
+                  <div class="prg-segmented prg-seg-10">
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg prg-seg-active prg-teal"></div>
+                    <div class="prg-seg"></div>
+                    <div class="prg-seg"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 4. DAİRESEL PROGRESS ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-pie-chart-fill"></i></div>
+            <div><h6>Dairesel Progress</h6><p>SVG tabanlı dairesel ilerleme göstergeleri ve gauge metreleri</p></div>
+          </div>
+        </div>
+
+        <!-- Dairesel - Renkler -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Temel Dairesel</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap justify-content-center gap-4">
+                <div class="prg-circle prg-teal" style="--prg-val:75;--prg-size:100px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text">75%</div>
+                </div>
+                <div class="prg-circle prg-blue" style="--prg-val:60;--prg-size:100px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="60, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text">60%</div>
+                </div>
+                <div class="prg-circle prg-purple" style="--prg-val:45;--prg-size:100px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="45, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text">45%</div>
+                </div>
+                <div class="prg-circle prg-pink" style="--prg-val:90;--prg-size:100px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="90, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text">90%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dairesel - Boyutlar -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Boyut Varyantları & İkon</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap align-items-end justify-content-center gap-4">
+                <div class="prg-circle prg-green" style="--prg-val:88;--prg-size:60px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="88, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text fs-11">88%</div>
+                </div>
+                <div class="prg-circle prg-orange" style="--prg-val:52;--prg-size:80px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="52, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text fs-13">52%</div>
+                </div>
+                <div class="prg-circle prg-teal" style="--prg-val:100;--prg-size:120px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text"><i class="bi bi-check-lg fs-28"></i></div>
+                </div>
+                <div class="prg-circle prg-circle-neon prg-purple" style="--prg-val:67;--prg-size:120px">
+                  <svg viewBox="0 0 36 36">
+                    <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="prg-circle-fill" stroke-dasharray="67, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="prg-circle-text">67%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yarı Dairesel Gauge -->
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Yarı Dairesel Gauge</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap justify-content-center gap-5">
+                <div class="prg-gauge prg-green" style="--gauge-val:82">
+                  <svg viewBox="0 0 36 20">
+                    <path class="prg-gauge-bg" d="M3 18 A 15 15 0 0 1 33 18"/>
+                    <path class="prg-gauge-fill" stroke-dasharray="41, 50" d="M3 18 A 15 15 0 0 1 33 18"/>
+                  </svg>
+                  <div class="prg-gauge-info">
+                    <span class="prg-gauge-value">82%</span>
+                    <span class="prg-gauge-label">Performans</span>
+                  </div>
+                </div>
+                <div class="prg-gauge prg-orange" style="--gauge-val:56">
+                  <svg viewBox="0 0 36 20">
+                    <path class="prg-gauge-bg" d="M3 18 A 15 15 0 0 1 33 18"/>
+                    <path class="prg-gauge-fill" stroke-dasharray="28, 50" d="M3 18 A 15 15 0 0 1 33 18"/>
+                  </svg>
+                  <div class="prg-gauge-info">
+                    <span class="prg-gauge-value">56%</span>
+                    <span class="prg-gauge-label">Verimlilik</span>
+                  </div>
+                </div>
+                <div class="prg-gauge prg-red" style="--gauge-val:94">
+                  <svg viewBox="0 0 36 20">
+                    <path class="prg-gauge-bg" d="M3 18 A 15 15 0 0 1 33 18"/>
+                    <path class="prg-gauge-fill" stroke-dasharray="47, 50" d="M3 18 A 15 15 0 0 1 33 18"/>
+                  </svg>
+                  <div class="prg-gauge-info">
+                    <span class="prg-gauge-value">94%</span>
+                    <span class="prg-gauge-label">CPU Yükü</span>
+                  </div>
+                </div>
+                <div class="prg-gauge prg-teal" style="--gauge-val:38">
+                  <svg viewBox="0 0 36 20">
+                    <path class="prg-gauge-bg" d="M3 18 A 15 15 0 0 1 33 18"/>
+                    <path class="prg-gauge-fill" stroke-dasharray="19, 50" d="M3 18 A 15 15 0 0 1 33 18"/>
+                  </svg>
+                  <div class="prg-gauge-info">
+                    <span class="prg-gauge-value">38%</span>
+                    <span class="prg-gauge-label">Bellek</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 5. ADIM İLERLEME (STEP PROGRESS) ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-orange"><i class="bi bi-signpost-split-fill"></i></div>
+            <div><h6>Adım İlerleme</h6><p>Wizard tarzı çok adımlı ilerleme göstergeleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Yatay Adımlar</h6>
+            </div>
+            <div class="card-body-custom">
+              <!-- Numaralı -->
+              <small class="text-secondary d-block mb-3">Numaralı Adımlar</small>
+              <div class="prg-steps">
+                <div class="prg-step prg-step-done">
+                  <div class="prg-step-dot">1</div>
+                  <span class="prg-step-label">Kayıt</span>
+                </div>
+                <div class="prg-step-line prg-step-line-done"></div>
+                <div class="prg-step prg-step-done">
+                  <div class="prg-step-dot">2</div>
+                  <span class="prg-step-label">Doğrulama</span>
+                </div>
+                <div class="prg-step-line prg-step-line-done"></div>
+                <div class="prg-step prg-step-active">
+                  <div class="prg-step-dot">3</div>
+                  <span class="prg-step-label">Profil</span>
+                </div>
+                <div class="prg-step-line"></div>
+                <div class="prg-step">
+                  <div class="prg-step-dot">4</div>
+                  <span class="prg-step-label">Ödeme</span>
+                </div>
+                <div class="prg-step-line"></div>
+                <div class="prg-step">
+                  <div class="prg-step-dot">5</div>
+                  <span class="prg-step-label">Onay</span>
+                </div>
+              </div>
+
+              <hr style="border-color:var(--border-color);margin:32px 0">
+
+              <!-- İkonlu -->
+              <small class="text-secondary d-block mb-3">İkonlu Adımlar</small>
+              <div class="prg-steps prg-steps-icon">
+                <div class="prg-step prg-step-done prg-green">
+                  <div class="prg-step-dot"><i class="bi bi-cart-check"></i></div>
+                  <span class="prg-step-label">Sepet</span>
+                </div>
+                <div class="prg-step-line prg-step-line-done prg-green"></div>
+                <div class="prg-step prg-step-done prg-green">
+                  <div class="prg-step-dot"><i class="bi bi-geo-alt"></i></div>
+                  <span class="prg-step-label">Adres</span>
+                </div>
+                <div class="prg-step-line prg-step-line-done prg-green"></div>
+                <div class="prg-step prg-step-active prg-blue">
+                  <div class="prg-step-dot"><i class="bi bi-credit-card"></i></div>
+                  <span class="prg-step-label">Ödeme</span>
+                </div>
+                <div class="prg-step-line"></div>
+                <div class="prg-step">
+                  <div class="prg-step-dot"><i class="bi bi-truck"></i></div>
+                  <span class="prg-step-label">Kargo</span>
+                </div>
+                <div class="prg-step-line"></div>
+                <div class="prg-step">
+                  <div class="prg-step-dot"><i class="bi bi-check2-circle"></i></div>
+                  <span class="prg-step-label">Tamamlandı</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dikey Adımlar -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Dikey Adımlar (Timeline)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="prg-steps-vertical">
+                <div class="prg-vstep prg-vstep-done">
+                  <div class="prg-vstep-dot"><i class="bi bi-check-lg"></i></div>
+                  <div class="prg-vstep-content">
+                    <h6>Sipariş Alındı</h6>
+                    <p>Siparişiniz başarıyla oluşturuldu</p>
+                    <small class="text-muted">10 Şubat 2026, 09:15</small>
+                  </div>
+                </div>
+                <div class="prg-vstep prg-vstep-done">
+                  <div class="prg-vstep-dot"><i class="bi bi-check-lg"></i></div>
+                  <div class="prg-vstep-content">
+                    <h6>Hazırlanıyor</h6>
+                    <p>Ürünleriniz paketleniyor</p>
+                    <small class="text-muted">10 Şubat 2026, 14:30</small>
+                  </div>
+                </div>
+                <div class="prg-vstep prg-vstep-active">
+                  <div class="prg-vstep-dot"><i class="bi bi-truck"></i></div>
+                  <div class="prg-vstep-content">
+                    <h6>Kargoya Verildi</h6>
+                    <p>Takip No: TR789456123</p>
+                    <small class="text-muted">11 Şubat 2026, 08:00</small>
+                  </div>
+                </div>
+                <div class="prg-vstep">
+                  <div class="prg-vstep-dot"><i class="bi bi-house-door"></i></div>
+                  <div class="prg-vstep-content">
+                    <h6>Teslim Edilecek</h6>
+                    <p>Tahmini teslimat: 12 Şubat</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Step Bars -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Mini Adım Barları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-4">
+                <div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <small class="text-secondary">Kurs İlerlemesi</small>
+                    <small class="text-teal">Ders 7/12</small>
+                  </div>
+                  <div class="prg-mini-steps">
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step prg-mini-done prg-teal"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <small class="text-secondary">Görev Durumu</small>
+                    <small class="text-neon-purple">3/8</small>
+                  </div>
+                  <div class="prg-mini-steps">
+                    <div class="prg-mini-step prg-mini-done prg-purple"></div>
+                    <div class="prg-mini-step prg-mini-done prg-purple"></div>
+                    <div class="prg-mini-step prg-mini-done prg-purple"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                    <div class="prg-mini-step"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <small class="text-secondary">Yükleme Süreci</small>
+                    <small class="text-neon-blue">10/10 ✓</small>
+                  </div>
+                  <div class="prg-mini-steps">
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                    <div class="prg-mini-step prg-mini-done prg-blue"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 6. SPINNERS & YÜKLEYİCİLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-arrow-repeat"></i></div>
+            <div><h6>Spinners & Yükleyiciler</h6><p>Çeşitli yükleme animasyonları, spinner varyantları ve loader efektleri</p></div>
+          </div>
+        </div>
+
+        <!-- Border Spinners -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Border Spinners</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap align-items-center gap-4">
+                <div class="spn-border" style="--spn-clr:var(--teal-primary);--spn-size:24px"></div>
+                <div class="spn-border" style="--spn-clr:var(--neon-blue);--spn-size:32px"></div>
+                <div class="spn-border" style="--spn-clr:var(--neon-purple);--spn-size:40px"></div>
+                <div class="spn-border" style="--spn-clr:var(--neon-pink);--spn-size:48px"></div>
+                <div class="spn-border spn-thick" style="--spn-clr:var(--neon-orange);--spn-size:40px"></div>
+                <div class="spn-border spn-thin" style="--spn-clr:var(--neon-green);--spn-size:48px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Growing Spinners -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Growing Spinners</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap align-items-center gap-4">
+                <div class="spn-grow" style="--spn-clr:var(--teal-primary);--spn-size:24px"></div>
+                <div class="spn-grow" style="--spn-clr:var(--neon-blue);--spn-size:32px"></div>
+                <div class="spn-grow" style="--spn-clr:var(--neon-purple);--spn-size:40px"></div>
+                <div class="spn-grow" style="--spn-clr:var(--neon-pink);--spn-size:48px"></div>
+                <div class="spn-grow" style="--spn-clr:var(--neon-orange);--spn-size:40px"></div>
+                <div class="spn-grow" style="--spn-clr:var(--neon-green);--spn-size:48px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dot Spinners -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Dot Spinner</h6>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center">
+              <div class="spn-dots" style="--spn-clr:var(--teal-primary)">
+                <div class="spn-dot"></div>
+                <div class="spn-dot"></div>
+                <div class="spn-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bounce Dots -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Bounce Dots</h6>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center">
+              <div class="spn-bounce" style="--spn-clr:var(--neon-purple)">
+                <div class="spn-bounce-dot"></div>
+                <div class="spn-bounce-dot"></div>
+                <div class="spn-bounce-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bar Spinner -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Bar Spinner</h6>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center">
+              <div class="spn-bars" style="--spn-clr:var(--neon-blue)">
+                <div class="spn-bar-item"></div>
+                <div class="spn-bar-item"></div>
+                <div class="spn-bar-item"></div>
+                <div class="spn-bar-item"></div>
+                <div class="spn-bar-item"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pulse -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Pulse Ring</h6>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center">
+              <div class="spn-pulse" style="--spn-clr:var(--neon-pink)">
+                <div class="spn-pulse-ring"></div>
+                <div class="spn-pulse-ring"></div>
+                <div class="spn-pulse-core"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orbit -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Orbit Spinner</h6>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center">
+              <div class="spn-orbit" style="--spn-clr:var(--neon-orange)">
+                <div class="spn-orbit-ring"></div>
+                <div class="spn-orbit-ring"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual Ring -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Dual Ring</h6>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center">
+              <div class="spn-dual" style="--spn-clr:var(--teal-primary);--spn-clr2:var(--neon-purple)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spinners with Text -->
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Metin İçeren Spinner'lar</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap justify-content-center gap-5">
+                <div class="spn-with-text">
+                  <div class="spn-border" style="--spn-clr:var(--teal-primary);--spn-size:40px"></div>
+                  <span>Yükleniyor...</span>
+                </div>
+                <div class="spn-with-text">
+                  <div class="spn-dots" style="--spn-clr:var(--neon-blue)">
+                    <div class="spn-dot"></div><div class="spn-dot"></div><div class="spn-dot"></div>
+                  </div>
+                  <span>Veriler getiriliyor</span>
+                </div>
+                <div class="spn-with-text">
+                  <div class="spn-grow" style="--spn-clr:var(--neon-purple);--spn-size:32px"></div>
+                  <span>İşleniyor...</span>
+                </div>
+                <div class="spn-with-text">
+                  <div class="spn-bars" style="--spn-clr:var(--neon-green)">
+                    <div class="spn-bar-item"></div><div class="spn-bar-item"></div><div class="spn-bar-item"></div><div class="spn-bar-item"></div><div class="spn-bar-item"></div>
+                  </div>
+                  <span>Analiz ediliyor</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 7. SKELETON LOADERS ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-red"><i class="bi bi-border-style"></i></div>
+            <div><h6>Skeleton Loaders</h6><p>İçerik yüklenirken gösterilen yer tutucu iskelet animasyonları</p></div>
+          </div>
+        </div>
+
+        <!-- Kart Skeleton -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Kart Skeleton</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="skel-card">
+                <div class="skel-img skel-shimmer"></div>
+                <div class="skel-body">
+                  <div class="skel-line skel-w80 skel-shimmer"></div>
+                  <div class="skel-line skel-w60 skel-shimmer"></div>
+                  <div class="skel-line skel-w100 skel-shimmer skel-h-8 mt-2"></div>
+                  <div class="skel-line skel-w40 skel-shimmer skel-h-8"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste Skeleton -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Liste Skeleton</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div class="skel-list-item">
+                  <div class="skel-avatar skel-shimmer"></div>
+                  <div class="skel-list-text">
+                    <div class="skel-line skel-w60 skel-shimmer"></div>
+                    <div class="skel-line skel-w80 skel-shimmer skel-h-8"></div>
+                  </div>
+                </div>
+                <div class="skel-list-item">
+                  <div class="skel-avatar skel-shimmer"></div>
+                  <div class="skel-list-text">
+                    <div class="skel-line skel-w80 skel-shimmer"></div>
+                    <div class="skel-line skel-w40 skel-shimmer skel-h-8"></div>
+                  </div>
+                </div>
+                <div class="skel-list-item">
+                  <div class="skel-avatar skel-shimmer"></div>
+                  <div class="skel-list-text">
+                    <div class="skel-line skel-w50 skel-shimmer"></div>
+                    <div class="skel-line skel-w100 skel-shimmer skel-h-8"></div>
+                  </div>
+                </div>
+                <div class="skel-list-item">
+                  <div class="skel-avatar skel-shimmer"></div>
+                  <div class="skel-list-text">
+                    <div class="skel-line skel-w70 skel-shimmer"></div>
+                    <div class="skel-line skel-w60 skel-shimmer skel-h-8"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablo Skeleton -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Tablo Skeleton</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="skel-table">
+                <div class="skel-table-head">
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-10"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-10"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-10"></div>
+                </div>
+                <div class="skel-table-row">
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                </div>
+                <div class="skel-table-row">
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                </div>
+                <div class="skel-table-row">
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                </div>
+                <div class="skel-table-row">
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                  <div class="skel-line skel-w30 skel-shimmer skel-h-8"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Skeleton -->
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Dashboard Skeleton</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="skel-stat-card skel-shimmer"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skel-stat-card skel-shimmer"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skel-stat-card skel-shimmer"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skel-stat-card skel-shimmer"></div>
+                </div>
+                <div class="col-md-8">
+                  <div class="skel-chart skel-shimmer"></div>
+                </div>
+                <div class="col-md-4">
+                  <div class="skel-chart skel-shimmer" style="height:150px"></div>
+                  <div class="skel-chart skel-shimmer" style="height:100px;margin-top:12px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 8. DOSYA YÜKLEME İLERLEMESİ ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+            <div><h6>Dosya Yükleme İlerlemesi</h6><p>Dosya yükleme simülasyonu ve indirme yöneticisi bileşenleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Dosya Yükleme</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <!-- Tamamlanan -->
+                <div class="prg-file">
+                  <div class="prg-file-icon bg-icon-green"><i class="bi bi-file-earmark-image"></i></div>
+                  <div class="prg-file-info">
+                    <div class="d-flex justify-content-between">
+                      <span class="prg-file-name">kapak-gorsel.png</span>
+                      <span class="prg-file-status text-neon-green"><i class="bi bi-check-circle-fill"></i> Tamamlandı</span>
+                    </div>
+                    <div class="prg-bar prg-sm mt-6px"><div class="prg-fill prg-green" style="width:100%"></div></div>
+                    <small class="text-muted">2.4 MB / 2.4 MB</small>
+                  </div>
+                </div>
+                <!-- Devam Eden -->
+                <div class="prg-file">
+                  <div class="prg-file-icon bg-icon-blue"><i class="bi bi-file-earmark-zip"></i></div>
+                  <div class="prg-file-info">
+                    <div class="d-flex justify-content-between">
+                      <span class="prg-file-name">proje-dosyalari.zip</span>
+                      <span class="prg-file-status text-neon-blue">67%</span>
+                    </div>
+                    <div class="prg-bar prg-sm mt-6px"><div class="prg-fill prg-striped prg-animated prg-blue" style="width:67%"></div></div>
+                    <small class="text-muted">34.5 MB / 51.2 MB • 12 sn kaldı</small>
+                  </div>
+                </div>
+                <!-- Bekleyen -->
+                <div class="prg-file">
+                  <div class="prg-file-icon text-clr-muted" style="background:rgba(100,116,139,0.1)"><i class="bi bi-file-earmark-pdf"></i></div>
+                  <div class="prg-file-info">
+                    <div class="d-flex justify-content-between">
+                      <span class="prg-file-name">rapor-2026.pdf</span>
+                      <span class="prg-file-status text-muted">Sırada</span>
+                    </div>
+                    <div class="prg-bar prg-sm mt-6px"><div class="prg-fill" style="--prg-clr:var(--text-muted);width:0%"></div></div>
+                    <small class="text-muted">0 / 8.1 MB</small>
+                  </div>
+                </div>
+                <!-- Hatalı -->
+                <div class="prg-file">
+                  <div class="prg-file-icon bg-icon-red"><i class="bi bi-file-earmark-music"></i></div>
+                  <div class="prg-file-info">
+                    <div class="d-flex justify-content-between">
+                      <span class="prg-file-name">sunum-muzik.mp3</span>
+                      <span class="prg-file-status text-neon-red"><i class="bi bi-exclamation-circle-fill"></i> Hata</span>
+                    </div>
+                    <div class="prg-bar prg-sm mt-6px"><div class="prg-fill prg-red" style="width:43%"></div></div>
+                    <small class="text-muted">Bağlantı zaman aşımına uğradı • <a href="#" class="text-neon-blue">Tekrar dene</a></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- İnteraktif Demo -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">İnteraktif Yükleme Demo</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="prg-upload-zone" id="uploadZone">
+                <i class="bi bi-cloud-arrow-up text-teal" style="font-size:48px"></i>
+                <h6 class="mt-2">Dosya Yükle</h6>
+                <p class="text-secondary mb-3">Dosyaları buraya sürükleyin veya butona tıklayın</p>
+                <button class="btn btn-sm" style="background:var(--teal-primary);color:#fff;border:none;padding:8px 24px;border-radius:8px" onclick="startUploadDemo()">Simüle Et</button>
+              </div>
+              <div id="uploadProgress" class="mt-3 d-none">
+                <div class="prg-file">
+                  <div class="prg-file-icon bg-icon-teal"><i class="bi bi-file-earmark-arrow-up"></i></div>
+                  <div class="prg-file-info">
+                    <div class="d-flex justify-content-between">
+                      <span class="prg-file-name">demo-dosya.zip</span>
+                      <span class="prg-file-status text-teal" id="uploadPercent">0%</span>
+                    </div>
+                    <div class="prg-bar prg-md mt-6px"><div class="prg-fill prg-striped prg-animated prg-teal" id="uploadBar" style="width:0%;transition:width 0.3s ease"></div></div>
+                    <small class="text-muted" id="uploadInfo">0 / 24.8 MB</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 9. OVERLAY & SAYFA YÜKLEYİCİLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-fullscreen"></i></div>
+            <div><h6>Overlay & Sayfa Yükleyiciler</h6><p>Tam sayfa ve bölge yükleyicileri, buton spinner'ları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Buton Spinner'ları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-wrap gap-3">
+                <button class="prg-btn-loading" style="--btn-clr:var(--teal-primary)" disabled>
+                  <div class="spn-border" style="--spn-clr:#fff;--spn-size:16px"></div>
+                  Yükleniyor...
+                </button>
+                <button class="prg-btn-loading" style="--btn-clr:var(--neon-blue)" disabled>
+                  <div class="spn-grow" style="--spn-clr:#fff;--spn-size:16px"></div>
+                  Kaydediliyor...
+                </button>
+                <button class="prg-btn-loading prg-btn-outline" style="--btn-clr:var(--neon-purple)" disabled>
+                  <div class="spn-border" style="--spn-clr:var(--neon-purple);--spn-size:16px"></div>
+                  İşleniyor...
+                </button>
+                <button class="prg-btn-loading" style="--btn-clr:var(--neon-green)" disabled>
+                  <div class="spn-dots" style="--spn-clr:#fff;--spn-size:6px">
+                    <div class="spn-dot"></div><div class="spn-dot"></div><div class="spn-dot"></div>
+                  </div>
+                  Gönderiliyor
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Bölge Yükleyici (Section Loader)</h6>
+            </div>
+            <div class="card-body-custom" style="position:relative;min-height:200px">
+              <p class="text-secondary">Bu alanın üzerinde bir yükleyici overlay gösterilmektedir.</p>
+              <p class="text-secondary">Gerçek uygulamada veri yüklenirken bu overlay gösterilir.</p>
+              <div class="prg-overlay-section">
+                <div class="spn-border" style="--spn-clr:var(--teal-primary);--spn-size:40px"></div>
+                <span class="text-clr-secondary fs-13 mt-2">Veriler yükleniyor...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Loading Bar -->
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Üst Yükleme Çubuğu (Top Loading Bar)</h6>
+              <button class="btn btn-sm" style="background:var(--teal-primary);color:#fff;border:none;padding:6px 16px;border-radius:6px" onclick="startTopBar()">Demo Başlat</button>
+            </div>
+            <div class="card-body-custom" style="position:relative;overflow:hidden;border-radius:0 0 12px 12px">
+              <div class="prg-top-bar" id="topBar"></div>
+              <div style="padding:20px;text-align:center">
+                <p class="text-secondary mb-0">Yukarıdaki butona tıklayarak üst yükleme çubuğu animasyonunu görebilirsiniz.</p>
+                <p class="text-muted fs-12">YouTube, GitHub gibi sitelerde sayfa geçişlerinde kullanılır</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 10. GERÇEK DÜNYA SENARYOLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-rocket-takeoff-fill"></i></div>
+            <div><h6>Gerçek Dünya Senaryoları</h6><p>Dashboard istatistikleri, beceri barları, indirme yöneticisi ve proje takibi</p></div>
+          </div>
+        </div>
+
+        <!-- Skill Bars -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Beceri Barları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div class="prg-skill">
+                  <div class="prg-skill-header">
+                    <span class="prg-skill-name"><i class="bi bi-filetype-html text-neon-orange"></i> HTML/CSS</span>
+                    <span class="prg-skill-val">95%</span>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-orange);--prg-to:var(--neon-red);width:95%"></div></div>
+                </div>
+                <div class="prg-skill">
+                  <div class="prg-skill-header">
+                    <span class="prg-skill-name"><i class="bi bi-filetype-js text-neon-blue"></i> JavaScript</span>
+                    <span class="prg-skill-val">88%</span>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-blue);--prg-to:var(--neon-purple);width:88%"></div></div>
+                </div>
+                <div class="prg-skill">
+                  <div class="prg-skill-header">
+                    <span class="prg-skill-name"><i class="bi bi-filetype-tsx text-teal"></i> React/Next.js</span>
+                    <span class="prg-skill-val">82%</span>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--teal-primary);--prg-to:var(--neon-green);width:82%"></div></div>
+                </div>
+                <div class="prg-skill">
+                  <div class="prg-skill-header">
+                    <span class="prg-skill-name"><i class="bi bi-database text-neon-purple"></i> Node.js/DB</span>
+                    <span class="prg-skill-val">75%</span>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-purple);--prg-to:var(--neon-pink);width:75%"></div></div>
+                </div>
+                <div class="prg-skill">
+                  <div class="prg-skill-header">
+                    <span class="prg-skill-name"><i class="bi bi-brush text-neon-pink"></i> UI/UX Design</span>
+                    <span class="prg-skill-val">70%</span>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-pink);--prg-to:var(--neon-orange);width:70%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proje Durumu -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Proje Durumu</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-4">
+                <div class="prg-project">
+                  <div class="prg-project-header">
+                    <div>
+                      <h6 class="mb-0 fs-14">E-Ticaret Redesign</h6>
+                      <small class="text-muted">Son: 15 Mart 2026</small>
+                    </div>
+                    <div class="prg-circle prg-green" style="--prg-val:92;--prg-size:50px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="92, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-10">92%</div>
+                    </div>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-green);--prg-to:var(--teal-primary);width:92%"></div></div>
+                  <div class="prg-project-meta">
+                    <span><i class="bi bi-people-fill"></i> 8 kişi</span>
+                    <span><i class="bi bi-check2-square"></i> 46/50 görev</span>
+                  </div>
+                </div>
+                <div class="prg-project">
+                  <div class="prg-project-header">
+                    <div>
+                      <h6 class="mb-0 fs-14">Mobil Uygulama v2</h6>
+                      <small class="text-muted">Son: 28 Şubat 2026</small>
+                    </div>
+                    <div class="prg-circle prg-blue" style="--prg-val:64;--prg-size:50px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="64, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-10">64%</div>
+                    </div>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-blue);--prg-to:var(--neon-purple);width:64%"></div></div>
+                  <div class="prg-project-meta">
+                    <span><i class="bi bi-people-fill"></i> 5 kişi</span>
+                    <span><i class="bi bi-check2-square"></i> 32/50 görev</span>
+                  </div>
+                </div>
+                <div class="prg-project">
+                  <div class="prg-project-header">
+                    <div>
+                      <h6 class="mb-0 fs-14">API Gateway</h6>
+                      <small class="text-muted">Son: 10 Nisan 2026</small>
+                    </div>
+                    <div class="prg-circle prg-orange" style="--prg-val:28;--prg-size:50px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="28, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-10">28%</div>
+                    </div>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-gradient" style="--prg-from:var(--neon-orange);--prg-to:var(--neon-red);width:28%"></div></div>
+                  <div class="prg-project-meta">
+                    <span><i class="bi bi-people-fill"></i> 3 kişi</span>
+                    <span><i class="bi bi-check2-square"></i> 14/50 görev</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- İndirme Yöneticisi -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">İndirme Yöneticisi</h6>
+              <span class="text-muted fs-12">3 aktif indirme</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="d-flex flex-column gap-3">
+                <div class="prg-download">
+                  <div class="prg-download-header">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-film text-neon-purple fs-18"></i>
+                      <div>
+                        <div class="prg-file-name">Eğitim Videosu - Bölüm 3.mp4</div>
+                        <small class="text-muted">1.2 GB / 2.4 GB • 5.2 MB/s • 3:52 kaldı</small>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                      <button class="prg-dl-btn"><i class="bi bi-pause-fill"></i></button>
+                      <button class="prg-dl-btn"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-striped prg-animated prg-purple" style="width:50%"></div></div>
+                </div>
+                <div class="prg-download">
+                  <div class="prg-download-header">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-file-earmark-code text-teal fs-18"></i>
+                      <div>
+                        <div class="prg-file-name">node-v22.4.0.pkg</div>
+                        <small class="text-muted">89 MB / 156 MB • 3.1 MB/s • 0:22 kaldı</small>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                      <button class="prg-dl-btn"><i class="bi bi-pause-fill"></i></button>
+                      <button class="prg-dl-btn"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-striped prg-animated prg-teal" style="width:57%"></div></div>
+                </div>
+                <div class="prg-download prg-download-paused">
+                  <div class="prg-download-header">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-file-earmark-zip text-neon-orange fs-18"></i>
+                      <div>
+                        <div class="prg-file-name">design-assets-2026.zip</div>
+                        <small class="text-muted">320 MB / 890 MB • Duraklatıldı</small>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                      <button class="prg-dl-btn"><i class="bi bi-play-fill"></i></button>
+                      <button class="prg-dl-btn"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                  </div>
+                  <div class="prg-bar prg-sm"><div class="prg-fill prg-orange" style="width:36%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sunucu Kaynakları -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Sunucu Kaynakları</h6>
+              <span class="text-neon-green fs-12"><i class="bi bi-circle-fill" style="font-size:6px"></i> Aktif</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="prg-resource-card">
+                    <div class="prg-circle prg-blue" style="--prg-val:67;--prg-size:80px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="67, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-12">67%</div>
+                    </div>
+                    <span class="prg-resource-label">CPU</span>
+                    <small class="text-muted">4 / 8 Core</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="prg-resource-card">
+                    <div class="prg-circle prg-green" style="--prg-val:45;--prg-size:80px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="45, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-12">45%</div>
+                    </div>
+                    <span class="prg-resource-label">RAM</span>
+                    <small class="text-muted">7.2 / 16 GB</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="prg-resource-card">
+                    <div class="prg-circle prg-orange" style="--prg-val:82;--prg-size:80px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="82, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-12">82%</div>
+                    </div>
+                    <span class="prg-resource-label">Disk</span>
+                    <small class="text-muted">410 / 500 GB</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="prg-resource-card">
+                    <div class="prg-circle prg-pink" style="--prg-val:23;--prg-size:80px">
+                      <svg viewBox="0 0 36 36">
+                        <path class="prg-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="prg-circle-fill" stroke-dasharray="23, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <div class="prg-circle-text fs-12">23%</div>
+                    </div>
+                    <span class="prg-resource-label">Ağ</span>
+                    <small class="text-muted">230 / 1000 Mbps</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- page-content -->
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Upload simulation
+let uploadInterval;
+function startUploadDemo(){
+  const zone=document.getElementById('uploadZone');
+  const prog=document.getElementById('uploadProgress');
+  const bar=document.getElementById('uploadBar');
+  const pct=document.getElementById('uploadPercent');
+  const info=document.getElementById('uploadInfo');
+
+  zone.classList.add('d-none');
+  prog.classList.remove('d-none');
+
+  let p=0;
+  clearInterval(uploadInterval);
+  uploadInterval=setInterval(()=>{
+    p+=Math.random()*5+1;
+    if(p>=100){
+      p=100;
+      clearInterval(uploadInterval);
+      pct.innerHTML='<i class="bi bi-check-circle-fill"></i> Tamamlandı';
+      pct.style.color='var(--neon-green)';
+      bar.style.setProperty('--prg-clr','var(--neon-green)');
+      bar.classList.remove('prg-striped','prg-animated');
+      info.textContent='24.8 MB / 24.8 MB';
+      setTimeout(()=>{
+        zone.classList.remove('d-none');
+        prog.classList.add('d-none');
+        bar.style.width='0%';
+        pct.textContent='0%';
+        pct.style.color='var(--teal-primary)';
+        bar.style.setProperty('--prg-clr','var(--teal-primary)');
+        bar.classList.add('prg-striped','prg-animated');
+        info.textContent='0 / 24.8 MB';
+      },2000);
+    }
+    bar.style.width=Math.min(p,100)+'%';
+    pct.textContent=Math.round(Math.min(p,100))+'%';
+    const mb=(24.8*Math.min(p,100)/100).toFixed(1);
+    info.textContent=mb+' MB / 24.8 MB';
+  },200);
+}
+
+// Top loading bar
+function startTopBar(){
+  const bar=document.getElementById('topBar');
+  bar.classList.remove('prg-top-active','prg-top-done');
+  void bar.offsetWidth;
+  bar.classList.add('prg-top-active');
+  setTimeout(()=>{
+    bar.classList.add('prg-top-done');
+    setTimeout(()=>{
+      bar.classList.remove('prg-top-active','prg-top-done');
+    },500);
+  },2000);
+}
+
+// Animate progress bars on scroll
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.animationPlayState='running';
+    }
+  });
+},{threshold:0.2});
+
+document.querySelectorAll('.prg-fill').forEach(el=>{
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Kartlar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Kartlar</h2>
+          <p>İstatistik, profil, ürün, fiyat, glass, neon ve daha fazla kart bileşeni</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+      <!-- ==================== 1. İSTATİSTİK KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-graph-up-arrow"></i></div>
+            <div><h6>İstatistik / KPI Kartları</h6><p>Dashboard'larda kullanılan istatistik ve metrik kartları</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon teal"><i class="bi bi-currency-dollar"></i></div>
+              <span class="stat-card-badge up"><i class="bi bi-arrow-up-short"></i>12.5%</span>
+            </div>
+            <div class="stat-card-value">₺284.500</div>
+            <div class="stat-card-label">Toplam Gelir</div>
+            <div class="stat-card-spark">
+              <svg viewBox="0 0 120 32" class="spark-line teal"><polyline points="0,28 15,24 30,26 45,18 60,20 75,12 90,14 105,6 120,8" /></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon purple"><i class="bi bi-people"></i></div>
+              <span class="stat-card-badge up"><i class="bi bi-arrow-up-short"></i>8.2%</span>
+            </div>
+            <div class="stat-card-value">12.847</div>
+            <div class="stat-card-label">Aktif Kullanıcı</div>
+            <div class="stat-card-spark">
+              <svg viewBox="0 0 120 32" class="spark-line purple"><polyline points="0,24 15,22 30,20 45,24 60,16 75,18 90,10 105,12 120,4" /></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon blue"><i class="bi bi-bag-check"></i></div>
+              <span class="stat-card-badge down"><i class="bi bi-arrow-down-short"></i>3.1%</span>
+            </div>
+            <div class="stat-card-value">3.264</div>
+            <div class="stat-card-label">Siparişler</div>
+            <div class="stat-card-spark">
+              <svg viewBox="0 0 120 32" class="spark-line blue"><polyline points="0,8 15,12 30,6 45,14 60,10 75,18 90,14 105,20 120,16" /></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon orange"><i class="bi bi-eye"></i></div>
+              <span class="stat-card-badge up"><i class="bi bi-arrow-up-short"></i>24.7%</span>
+            </div>
+            <div class="stat-card-value">89.120</div>
+            <div class="stat-card-label">Sayfa Görüntüleme</div>
+            <div class="stat-card-spark">
+              <svg viewBox="0 0 120 32" class="spark-line orange"><polyline points="0,28 15,20 30,24 45,14 60,18 75,8 90,12 105,4 120,6" /></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- Mini Stat Kartları ---- -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-2 col-md-4 col-6">
+          <div class="mini-stat">
+            <i class="bi bi-cart3 text-teal"></i>
+            <span class="mini-stat-val">1.248</span>
+            <span class="mini-stat-lbl">Satışlar</span>
+          </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-6">
+          <div class="mini-stat">
+            <i class="bi bi-heart text-neon-pink"></i>
+            <span class="mini-stat-val">4.592</span>
+            <span class="mini-stat-lbl">Favoriler</span>
+          </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-6">
+          <div class="mini-stat">
+            <i class="bi bi-chat-square-dots text-neon-blue"></i>
+            <span class="mini-stat-val">328</span>
+            <span class="mini-stat-lbl">Yorumlar</span>
+          </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-6">
+          <div class="mini-stat">
+            <i class="bi bi-share text-neon-purple"></i>
+            <span class="mini-stat-val">967</span>
+            <span class="mini-stat-lbl">Paylaşım</span>
+          </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-6">
+          <div class="mini-stat">
+            <i class="bi bi-download text-neon-green"></i>
+            <span class="mini-stat-val">2.105</span>
+            <span class="mini-stat-lbl">İndirme</span>
+          </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-6">
+          <div class="mini-stat">
+            <i class="bi bi-star text-neon-orange"></i>
+            <span class="mini-stat-val">4.8</span>
+            <span class="mini-stat-lbl">Puan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 2. PROFİL KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-person-badge"></i></div>
+            <div><h6>Profil Kartları</h6><p>Kullanıcı ve takım üyesi kartları</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="profile-card">
+            <div class="profile-card-cover teal"></div>
+            <div class="profile-card-avatar">OZ</div>
+            <div class="profile-card-body">
+              <h6>Ozan Sonar</h6>
+              <span class="text-muted">Full Stack Developer</span>
+              <div class="profile-card-stats">
+                <div><strong>128</strong><span>Proje</span></div>
+                <div><strong>1.4K</strong><span>Commit</span></div>
+                <div><strong>24</strong><span>Takım</span></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-teal flex-grow-1 btn-center-full"><i class="bi bi-person-plus me-1"></i>Takip Et</button>
+                <button class="btn-glass btn-icon-pad"><i class="bi bi-chat-dots"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="profile-card">
+            <div class="profile-card-cover purple"></div>
+            <div class="profile-card-avatar avatar-gradient-purple">EK</div>
+            <div class="profile-card-body">
+              <h6>Elif Kaya</h6>
+              <span class="text-muted">UI/UX Designer</span>
+              <div class="profile-card-stats">
+                <div><strong>87</strong><span>Tasarım</span></div>
+                <div><strong>2.1K</strong><span>Beğeni</span></div>
+                <div><strong>15</strong><span>Takım</span></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-neon purple flex-grow-1 btn-center-full"><i class="bi bi-person-plus me-1"></i>Takip Et</button>
+                <button class="btn-glass btn-icon-pad"><i class="bi bi-chat-dots"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="profile-card">
+            <div class="profile-card-cover blue"></div>
+            <div class="profile-card-avatar avatar-gradient-blue">AY</div>
+            <div class="profile-card-body">
+              <h6>Ahmet Yılmaz</h6>
+              <span class="text-muted">Backend Engineer</span>
+              <div class="profile-card-stats">
+                <div><strong>203</strong><span>API</span></div>
+                <div><strong>5.2K</strong><span>Commit</span></div>
+                <div><strong>8</strong><span>Takım</span></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-neon blue flex-grow-1 btn-center-full"><i class="bi bi-person-check me-1"></i>Takipte</button>
+                <button class="btn-glass btn-icon-pad"><i class="bi bi-chat-dots"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="profile-card">
+            <div class="profile-card-cover orange"></div>
+            <div class="profile-card-avatar avatar-gradient-orange">SD</div>
+            <div class="profile-card-body">
+              <h6>Selin Demir</h6>
+              <span class="text-muted">DevOps Specialist</span>
+              <div class="profile-card-stats">
+                <div><strong>56</strong><span>Pipeline</span></div>
+                <div><strong>890</strong><span>Deploy</span></div>
+                <div><strong>12</strong><span>Takım</span></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-neon orange flex-grow-1 btn-center-full"><i class="bi bi-person-plus me-1"></i>Takip Et</button>
+                <button class="btn-glass btn-icon-pad"><i class="bi bi-chat-dots"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 3. ÜRÜN KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-orange"><i class="bi bi-bag"></i></div>
+            <div><h6>Ürün Kartları</h6><p>E-ticaret ürün kartları - fiyat, puan, sepet</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="product-card">
+            <div class="product-card-img">
+              <div class="product-card-badge">Yeni</div>
+              <div class="product-card-icon"><i class="bi bi-laptop"></i></div>
+              <div class="product-card-actions">
+                <button class="product-action-btn" title="Favorilere Ekle" onclick="this.classList.toggle('liked')"><i class="bi bi-heart"></i></button>
+                <button class="product-action-btn" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <div class="product-card-body">
+              <span class="product-card-cat">Elektronik</span>
+              <h6>MacBook Pro 16" M4 Max</h6>
+              <div class="product-card-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i><span>(128)</span></div>
+              <div class="product-card-footer">
+                <div class="product-card-price"><span class="price-current">₺89.999</span><span class="price-old">₺99.999</span></div>
+                <button class="product-cart-btn"><i class="bi bi-cart-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="product-card">
+            <div class="product-card-img purple">
+              <div class="product-card-badge sale">-20%</div>
+              <div class="product-card-icon"><i class="bi bi-headphones"></i></div>
+              <div class="product-card-actions">
+                <button class="product-action-btn liked" title="Favorilerde"><i class="bi bi-heart-fill"></i></button>
+                <button class="product-action-btn" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <div class="product-card-body">
+              <span class="product-card-cat">Aksesuar</span>
+              <h6>AirPods Max 2</h6>
+              <div class="product-card-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><span>(256)</span></div>
+              <div class="product-card-footer">
+                <div class="product-card-price"><span class="price-current">₺17.999</span><span class="price-old">₺22.499</span></div>
+                <button class="product-cart-btn"><i class="bi bi-cart-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="product-card">
+            <div class="product-card-img blue">
+              <div class="product-card-icon"><i class="bi bi-watch"></i></div>
+              <div class="product-card-actions">
+                <button class="product-action-btn" title="Favorilere Ekle" onclick="this.classList.toggle('liked')"><i class="bi bi-heart"></i></button>
+                <button class="product-action-btn" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <div class="product-card-body">
+              <span class="product-card-cat">Giyilebilir</span>
+              <h6>Apple Watch Ultra 3</h6>
+              <div class="product-card-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i><span>(89)</span></div>
+              <div class="product-card-footer">
+                <div class="product-card-price"><span class="price-current">₺34.999</span></div>
+                <button class="product-cart-btn"><i class="bi bi-cart-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="product-card">
+            <div class="product-card-img green">
+              <div class="product-card-badge hot">Çok Satan</div>
+              <div class="product-card-icon"><i class="bi bi-phone"></i></div>
+              <div class="product-card-actions">
+                <button class="product-action-btn" title="Favorilere Ekle" onclick="this.classList.toggle('liked')"><i class="bi bi-heart"></i></button>
+                <button class="product-action-btn" title="Hızlı Bakış"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <div class="product-card-body">
+              <span class="product-card-cat">Telefon</span>
+              <h6>iPhone 17 Pro Max</h6>
+              <div class="product-card-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><span>(512)</span></div>
+              <div class="product-card-footer">
+                <div class="product-card-price"><span class="price-current">₺84.999</span><span class="price-old">₺89.999</span></div>
+                <button class="product-cart-btn"><i class="bi bi-cart-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 4. FİYATLANDIRMA KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-credit-card-2-front"></i></div>
+            <div><h6>Fiyatlandırma Kartları</h6><p>Abonelik planları ve fiyat karşılaştırma</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="pricing-card">
+            <div class="pricing-card-header">
+              <div class="pricing-icon"><i class="bi bi-rocket"></i></div>
+              <h5>Starter</h5>
+              <p>Bireysel kullanıcılar için</p>
+            </div>
+            <div class="pricing-card-price">
+              <span class="pricing-currency">₺</span>
+              <span class="pricing-amount">49</span>
+              <span class="pricing-period">/ay</span>
+            </div>
+            <ul class="pricing-features">
+              <li class="included"><i class="bi bi-check-circle-fill"></i>5 Proje</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>10 GB Depolama</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>E-posta Desteği</li>
+              <li class="excluded"><i class="bi bi-x-circle"></i>API Erişimi</li>
+              <li class="excluded"><i class="bi bi-x-circle"></i>Özel Domain</li>
+              <li class="excluded"><i class="bi bi-x-circle"></i>Öncelikli Destek</li>
+            </ul>
+            <button class="btn-glass w-100 btn-center-full">Başla</button>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="pricing-card popular">
+            <div class="pricing-popular-badge">En Popüler</div>
+            <div class="pricing-card-header">
+              <div class="pricing-icon popular"><i class="bi bi-lightning-charge-fill"></i></div>
+              <h5>Professional</h5>
+              <p>Büyüyen ekipler için</p>
+            </div>
+            <div class="pricing-card-price">
+              <span class="pricing-currency">₺</span>
+              <span class="pricing-amount">149</span>
+              <span class="pricing-period">/ay</span>
+            </div>
+            <ul class="pricing-features">
+              <li class="included"><i class="bi bi-check-circle-fill"></i>Sınırsız Proje</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>100 GB Depolama</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>Canlı Destek</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>API Erişimi</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>Özel Domain</li>
+              <li class="excluded"><i class="bi bi-x-circle"></i>Öncelikli Destek</li>
+            </ul>
+            <button class="btn-teal w-100 btn-center-full">Hemen Başla</button>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+          <div class="pricing-card enterprise">
+            <div class="pricing-card-header">
+              <div class="pricing-icon enterprise"><i class="bi bi-building"></i></div>
+              <h5>Enterprise</h5>
+              <p>Büyük organizasyonlar için</p>
+            </div>
+            <div class="pricing-card-price">
+              <span class="pricing-currency">₺</span>
+              <span class="pricing-amount">499</span>
+              <span class="pricing-period">/ay</span>
+            </div>
+            <ul class="pricing-features">
+              <li class="included"><i class="bi bi-check-circle-fill"></i>Sınırsız Her Şey</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>1 TB Depolama</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>7/24 Canlı Destek</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>Gelişmiş API</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>SSO & SAML</li>
+              <li class="included"><i class="bi bi-check-circle-fill"></i>Öncelikli Destek</li>
+            </ul>
+            <button class="btn-neon purple w-100 btn-center-full">İletişime Geç</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 5. GLASSMORPHISM KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-droplet-half"></i></div>
+            <div><h6>Glassmorphism Kartlar</h6><p>Buzlu cam efektli modern kartlar - 2026 trendi</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="glass-card">
+            <div class="glass-card-orb teal"></div>
+            <div class="glass-card-orb-2 purple"></div>
+            <div class="glass-card-content">
+              <div class="glass-card-icon"><i class="bi bi-shield-check"></i></div>
+              <h5>Güvenlik Durumu</h5>
+              <p>Tüm sistemler aktif ve güvenli. Son kontrol: 2 dakika önce.</p>
+              <div class="glass-card-bar"><div class="glass-bar-fill" style="width:96%"></div></div>
+              <div class="d-flex justify-content-between mt-2"><span class="text-muted fs-11">Güvenlik Puanı</span><span class="score-green-sm">96/100</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="glass-card">
+            <div class="glass-card-orb blue"></div>
+            <div class="glass-card-orb-2 pink"></div>
+            <div class="glass-card-content">
+              <div class="glass-card-icon bg-icon-blue"><i class="bi bi-cpu"></i></div>
+              <h5>Sunucu Durumu</h5>
+              <p>CPU kullanımı normal seviyede. Bellek yeterli kapasitede.</p>
+              <div class="d-flex gap-3 mt-3">
+                <div class="glass-metric"><span class="glass-metric-val">32%</span><span class="glass-metric-lbl">CPU</span></div>
+                <div class="glass-metric"><span class="glass-metric-val">4.2GB</span><span class="glass-metric-lbl">RAM</span></div>
+                <div class="glass-metric"><span class="glass-metric-val">67%</span><span class="glass-metric-lbl">Disk</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+          <div class="glass-card">
+            <div class="glass-card-orb orange"></div>
+            <div class="glass-card-orb-2 green"></div>
+            <div class="glass-card-content">
+              <div class="glass-card-icon bg-icon-orange"><i class="bi bi-graph-up"></i></div>
+              <h5>Performans</h5>
+              <p>Sayfa yükleme süresi ortalama 1.2s. Uptime: %99.98.</p>
+              <div class="glass-card-bar green"><div class="glass-bar-fill" style="width:99.98%"></div></div>
+              <div class="d-flex justify-content-between mt-2"><span class="text-muted fs-11">Uptime</span><span class="score-green-sm">99.98%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 6. NEON GLOW KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-stars"></i></div>
+            <div><h6>Neon Glow Kartlar</h6><p>Neon ışıltılı modern kartlar</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="neon-card teal">
+            <i class="bi bi-code-slash neon-card-bg-icon"></i>
+            <div class="neon-card-icon"><i class="bi bi-code-slash"></i></div>
+            <h6>Frontend</h6>
+            <p>React, Vue, Angular</p>
+            <span class="neon-card-count">24 Proje</span>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="neon-card purple">
+            <i class="bi bi-server neon-card-bg-icon"></i>
+            <div class="neon-card-icon"><i class="bi bi-server"></i></div>
+            <h6>Backend</h6>
+            <p>Node.js, Python, Go</p>
+            <span class="neon-card-count">18 Proje</span>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="neon-card blue">
+            <i class="bi bi-phone neon-card-bg-icon"></i>
+            <div class="neon-card-icon"><i class="bi bi-phone"></i></div>
+            <h6>Mobile</h6>
+            <p>Flutter, React Native</p>
+            <span class="neon-card-count">12 Proje</span>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="neon-card pink">
+            <i class="bi bi-palette neon-card-bg-icon"></i>
+            <div class="neon-card-icon"><i class="bi bi-palette"></i></div>
+            <h6>Tasarım</h6>
+            <p>Figma, Adobe XD</p>
+            <span class="neon-card-count">36 Proje</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 7. GRADIENT KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-palette2"></i></div>
+            <div><h6>Gradient Kartlar</h6><p>Degrade arka planlı renkli kartlar</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="gradient-card teal-blue">
+            <div class="gradient-card-pattern"></div>
+            <div class="gradient-card-content">
+              <div class="gradient-card-icon"><i class="bi bi-trophy"></i></div>
+              <h5>Tebrikler!</h5>
+              <p>Bu ay satış hedefinizin %142'sine ulaştınız.</p>
+              <button class="gradient-card-btn">Detayları Gör</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="gradient-card purple-pink">
+            <div class="gradient-card-pattern"></div>
+            <div class="gradient-card-content">
+              <div class="gradient-card-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+              <h5>Pro'ya Yükselt</h5>
+              <p>Premium özelliklerin kilidini açın ve ekibinizi güçlendirin.</p>
+              <button class="gradient-card-btn">Planları İncele</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+          <div class="gradient-card orange-red">
+            <div class="gradient-card-pattern"></div>
+            <div class="gradient-card-content">
+              <div class="gradient-card-icon"><i class="bi bi-fire"></i></div>
+              <h5>Trend Ürünler</h5>
+              <p>Bu haftanın en çok satan 10 ürününü keşfedin.</p>
+              <button class="gradient-card-btn">Keşfet</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 8. BLOG / MAKALE KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-newspaper"></i></div>
+            <div><h6>Blog / Makale Kartları</h6><p>İçerik ve makale kartları</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="blog-card">
+            <div class="blog-card-img"><i class="bi bi-braces-asterisk"></i><span class="blog-card-tag">Yazılım</span></div>
+            <div class="blog-card-body">
+              <div class="blog-card-meta"><span><i class="bi bi-calendar3 me-1"></i>5 Şub 2026</span><span><i class="bi bi-clock me-1"></i>8 dk okuma</span></div>
+              <h6>2026'da Web Geliştirmenin Geleceği</h6>
+              <p>Modern web teknolojileri, AI entegrasyonları ve yeni framework'ler hakkında kapsamlı bir analiz.</p>
+              <div class="blog-card-footer">
+                <div class="blog-card-author"><div class="blog-author-avatar">OZ</div><span>Ozan Sonar</span></div>
+                <div class="blog-card-stats"><span><i class="bi bi-heart"></i> 124</span><span><i class="bi bi-chat"></i> 18</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="blog-card">
+            <div class="blog-card-img blog-img-purple"><i class="bi bi-palette text-neon-purple"></i><span class="blog-card-tag blog-tag-purple">Tasarım</span></div>
+            <div class="blog-card-body">
+              <div class="blog-card-meta"><span><i class="bi bi-calendar3 me-1"></i>3 Şub 2026</span><span><i class="bi bi-clock me-1"></i>5 dk okuma</span></div>
+              <h6>Glassmorphism 2.0: Yeni Nesil UI Tasarım</h6>
+              <p>Buzlu cam efektinin evrimi ve modern dashboard tasarımlarında kullanımı.</p>
+              <div class="blog-card-footer">
+                <div class="blog-card-author"><div class="blog-author-avatar avatar-gradient-purple">EK</div><span>Elif Kaya</span></div>
+                <div class="blog-card-stats"><span><i class="bi bi-heart"></i> 89</span><span><i class="bi bi-chat"></i> 12</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+          <div class="blog-card">
+            <div class="blog-card-img blog-img-orange"><i class="bi bi-robot text-neon-orange"></i><span class="blog-card-tag blog-tag-orange">AI</span></div>
+            <div class="blog-card-body">
+              <div class="blog-card-meta"><span><i class="bi bi-calendar3 me-1"></i>1 Şub 2026</span><span><i class="bi bi-clock me-1"></i>12 dk okuma</span></div>
+              <h6>Claude ile Admin Panel Otomasyonu</h6>
+              <p>AI destekli admin panelleri oluşturma, akıllı veri analizi ve otomatik raporlama.</p>
+              <div class="blog-card-footer">
+                <div class="blog-card-author"><div class="blog-author-avatar avatar-gradient-orange">AY</div><span>Ahmet Yılmaz</span></div>
+                <div class="blog-card-stats"><span><i class="bi bi-heart"></i> 256</span><span><i class="bi bi-chat"></i> 34</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 9. TESTİMONİAL KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-chat-quote"></i></div>
+            <div><h6>Testimonial / Yorum Kartları</h6><p>Müşteri yorumları ve referans kartları</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="testimonial-card">
+            <div class="testimonial-quote"><i class="bi bi-quote"></i></div>
+            <p class="testimonial-text">Bu admin paneli inanılmaz! Glassmorphism tasarım hem modern hem de kullanışlı. Projemizin verimliliği %200 arttı.</p>
+            <div class="testimonial-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">MK</div>
+              <div><strong>Mehmet Koç</strong><span>CTO, TechVision</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="testimonial-card purple">
+            <div class="testimonial-quote"><i class="bi bi-quote"></i></div>
+            <p class="testimonial-text">Responsive tasarımı mükemmel. Mobilde de masaüstü kadar akıcı çalışıyor. Dark mode gece çalışırken göz yormadan harika.</p>
+            <div class="testimonial-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar avatar-gradient-purple">ZA</div>
+              <div><strong>Zeynep Akın</strong><span>Product Manager, StartupXYZ</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+          <div class="testimonial-card orange">
+            <div class="testimonial-quote"><i class="bi bi-quote"></i></div>
+            <p class="testimonial-text">Bileşen çeşitliliği muhteşem. Tablolardan kartlara, modallardan offcanvas'a kadar her şey düşünülmüş. Kesinlikle tavsiye ederim!</p>
+            <div class="testimonial-rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar avatar-gradient-orange">BT</div>
+              <div><strong>Burak Tekin</strong><span>Lead Developer, CloudBase</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 10. FLİP KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-arrow-repeat"></i></div>
+            <div><h6>3D Flip Kartlar</h6><p>Üzerine gelince dönen çift taraflı kartlar</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front teal">
+                <i class="bi bi-database"></i>
+                <h6>Veritabanı</h6>
+                <p>PostgreSQL & MongoDB</p>
+              </div>
+              <div class="flip-card-back">
+                <h6>Veritabanı Detay</h6>
+                <ul>
+                  <li>42 Tablo</li>
+                  <li>128 GB Veri</li>
+                  <li>99.9% Uptime</li>
+                  <li>Otomatik Yedekleme</li>
+                </ul>
+                <button class="btn-glass btn-sm-custom-alt">Yönet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front purple">
+                <i class="bi bi-cloud"></i>
+                <h6>Cloud</h6>
+                <p>AWS & Azure</p>
+              </div>
+              <div class="flip-card-back">
+                <h6>Cloud Detay</h6>
+                <ul>
+                  <li>12 Instance</li>
+                  <li>3 Region</li>
+                  <li>Auto Scaling</li>
+                  <li>CDN Aktif</li>
+                </ul>
+                <button class="btn-glass btn-sm-custom-alt">Yönet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front blue">
+                <i class="bi bi-shield-lock"></i>
+                <h6>Güvenlik</h6>
+                <p>SSL & Firewall</p>
+              </div>
+              <div class="flip-card-back">
+                <h6>Güvenlik Detay</h6>
+                <ul>
+                  <li>SSL A+ Grade</li>
+                  <li>WAF Aktif</li>
+                  <li>DDoS Koruması</li>
+                  <li>2FA Zorunlu</li>
+                </ul>
+                <button class="btn-glass btn-sm-custom-alt">Yönet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front orange">
+                <i class="bi bi-gear-wide-connected"></i>
+                <h6>CI/CD</h6>
+                <p>GitHub Actions</p>
+              </div>
+              <div class="flip-card-back">
+                <h6>CI/CD Detay</h6>
+                <ul>
+                  <li>245 Pipeline</li>
+                  <li>%98 Başarı</li>
+                  <li>Ort. 3.2 dk</li>
+                  <li>Auto Deploy</li>
+                </ul>
+                <button class="btn-glass btn-sm-custom-alt">Yönet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 11. YATAY KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-orange"><i class="bi bi-layout-split"></i></div>
+            <div><h6>Yatay Kartlar</h6><p>Yan yana düzenli içerik kartları</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-6">
+          <div class="horiz-card">
+            <div class="horiz-card-icon teal"><i class="bi bi-calendar-event"></i></div>
+            <div class="horiz-card-body">
+              <h6>Sprint Planning</h6>
+              <p class="text-muted mb-2">Yeni sprint planlaması ve görev dağılımı</p>
+              <div class="d-flex align-items-center gap-3">
+                <span class="status-badge active">Aktif</span>
+                <span class="text-muted fs-12"><i class="bi bi-clock me-1"></i>Bugün 14:00</span>
+                <div class="horiz-card-avatars">
+                  <div class="horiz-avatar avatar-gradient-teal">OZ</div>
+                  <div class="horiz-avatar avatar-gradient-purple">EK</div>
+                  <div class="horiz-avatar avatar-gradient-blue">AY</div>
+                  <div class="horiz-avatar more">+2</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-glass btn-icon-pad flex-shrink-0"><i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div class="col-xl-6">
+          <div class="horiz-card">
+            <div class="horiz-card-icon purple"><i class="bi bi-kanban"></i></div>
+            <div class="horiz-card-body">
+              <h6>Design Review</h6>
+              <p class="text-muted mb-2">Dashboard v3.0 tasarım inceleme toplantısı</p>
+              <div class="d-flex align-items-center gap-3">
+                <span class="status-badge pending">Bekliyor</span>
+                <span class="text-muted fs-12"><i class="bi bi-clock me-1"></i>Yarın 10:00</span>
+                <div class="horiz-card-avatars">
+                  <div class="horiz-avatar avatar-gradient-purple">EK</div>
+                  <div class="horiz-avatar avatar-gradient-teal">OZ</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-glass btn-icon-pad flex-shrink-0"><i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div class="col-xl-6">
+          <div class="horiz-card">
+            <div class="horiz-card-icon blue"><i class="bi bi-bug"></i></div>
+            <div class="horiz-card-body">
+              <h6>Bug Fix Sprint</h6>
+              <p class="text-muted mb-2">Kritik hata düzeltmeleri ve performans iyileştirmeleri</p>
+              <div class="d-flex align-items-center gap-3">
+                <span class="status-badge info">Devam Ediyor</span>
+                <span class="text-muted fs-12"><i class="bi bi-clock me-1"></i>6 Şub 2026</span>
+                <div class="horiz-card-avatars">
+                  <div class="horiz-avatar avatar-gradient-blue">AY</div>
+                  <div class="horiz-avatar avatar-gradient-orange">SD</div>
+                  <div class="horiz-avatar more">+3</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-glass btn-icon-pad flex-shrink-0"><i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div class="col-xl-6">
+          <div class="horiz-card">
+            <div class="horiz-card-icon orange"><i class="bi bi-rocket-takeoff"></i></div>
+            <div class="horiz-card-body">
+              <h6>Yeni Özellik Lansmanı</h6>
+              <p class="text-muted mb-2">E-ticaret modülü v2.0 canlıya alma</p>
+              <div class="d-flex align-items-center gap-3">
+                <span class="status-badge active">Onaylandı</span>
+                <span class="text-muted fs-12"><i class="bi bi-clock me-1"></i>10 Şub 2026</span>
+                <div class="horiz-card-avatars">
+                  <div class="horiz-avatar avatar-gradient-teal">OZ</div>
+                  <div class="horiz-avatar avatar-gradient-orange">SD</div>
+                  <div class="horiz-avatar avatar-gradient-purple">EK</div>
+                  <div class="horiz-avatar more">+4</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-glass btn-icon-pad flex-shrink-0"><i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 12. WİDGET KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-grid-3x3-gap"></i></div>
+            <div><h6>Widget Kartları</h6><p>Hava durumu, müzik çalar, görev listesi ve daha fazlası</p></div>
+          </div>
+        </div>
+
+        <!-- Hava Durumu -->
+        <div class="col-xl-3 col-md-6">
+          <div class="widget-card weather">
+            <div class="widget-weather-top">
+              <div><h5>İstanbul</h5><span>Parçalı Bulutlu</span></div>
+              <i class="bi bi-cloud-sun fs-40 text-neon-orange"></i>
+            </div>
+            <div class="widget-weather-temp">18°</div>
+            <div class="widget-weather-details">
+              <div><i class="bi bi-droplet"></i> %62</div>
+              <div><i class="bi bi-wind"></i> 14 km/s</div>
+              <div><i class="bi bi-eye"></i> 10 km</div>
+            </div>
+            <div class="widget-weather-forecast">
+              <div><span>Pzt</span><i class="bi bi-sun text-neon-orange"></i><span>22°</span></div>
+              <div><span>Sal</span><i class="bi bi-cloud-rain text-neon-blue"></i><span>15°</span></div>
+              <div><span>Çar</span><i class="bi bi-cloud-sun text-neon-orange"></i><span>19°</span></div>
+              <div><span>Per</span><i class="bi bi-sun text-neon-orange"></i><span>24°</span></div>
+              <div><span>Cum</span><i class="bi bi-cloud text-clr-muted"></i><span>17°</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Müzik Çalar -->
+        <div class="col-xl-3 col-md-6">
+          <div class="widget-card music">
+            <div class="music-cover"><i class="bi bi-music-note-beamed"></i><div class="music-wave"><span></span><span></span><span></span><span></span><span></span></div></div>
+            <div class="music-info">
+              <h6>Moonlight Sonata</h6>
+              <span>Beethoven</span>
+            </div>
+            <div class="music-progress"><div class="music-progress-bar" style="width:65%"></div></div>
+            <div class="d-flex justify-content-between text-fs-10-muted"><span>2:34</span><span>3:52</span></div>
+            <div class="music-controls">
+              <button><i class="bi bi-shuffle"></i></button>
+              <button><i class="bi bi-skip-start-fill"></i></button>
+              <button class="music-play"><i class="bi bi-pause-fill"></i></button>
+              <button><i class="bi bi-skip-end-fill"></i></button>
+              <button><i class="bi bi-repeat"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Görev Listesi -->
+        <div class="col-xl-3 col-md-6">
+          <div class="widget-card tasks">
+            <div class="widget-tasks-header"><h6><i class="bi bi-check2-square me-2 text-teal"></i>Görevlerim</h6><span class="tab-badge teal">3/5</span></div>
+            <div class="widget-task-list">
+              <label class="widget-task done"><input type="checkbox" checked><span>Dashboard tasarımını tamamla</span></label>
+              <label class="widget-task done"><input type="checkbox" checked><span>API entegrasyonu</span></label>
+              <label class="widget-task done"><input type="checkbox" checked><span>Responsive testleri</span></label>
+              <label class="widget-task"><input type="checkbox"><span>Performans optimizasyonu</span></label>
+              <label class="widget-task"><input type="checkbox"><span>Dokümantasyon yazımı</span></label>
+            </div>
+            <div class="widget-task-progress"><div class="widget-task-bar" style="width:60%"></div></div>
+            <span class="text-sm-muted">%60 tamamlandı</span>
+          </div>
+        </div>
+
+        <!-- Anlık Aktivite -->
+        <div class="col-xl-3 col-md-6">
+          <div class="widget-card live">
+            <div class="widget-live-header"><h6><span class="widget-live-dot"></span>Canlı Aktivite</h6></div>
+            <div class="widget-live-list">
+              <div class="widget-live-item"><div class="widget-live-avatar avatar-gradient-teal">AY</div><div class="widget-live-info"><strong>Ahmet Y.</strong> yeni sipariş oluşturdu<span>az önce</span></div></div>
+              <div class="widget-live-item"><div class="widget-live-avatar avatar-gradient-purple">EK</div><div class="widget-live-info"><strong>Elif K.</strong> tasarım güncelledi<span>2 dk önce</span></div></div>
+              <div class="widget-live-item"><div class="widget-live-avatar avatar-gradient-orange">SD</div><div class="widget-live-info"><strong>Selin D.</strong> deploy başlattı<span>5 dk önce</span></div></div>
+              <div class="widget-live-item"><div class="widget-live-avatar avatar-gradient-green">MK</div><div class="widget-live-info"><strong>Mehmet K.</strong> ödeme aldı<span>8 dk önce</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 13. ETKİLEŞİMLİ KARTLAR ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-red"><i class="bi bi-hand-index"></i></div>
+            <div><h6>Etkileşimli Kartlar</h6><p>Genişleyen, kapanabilen ve tıklanabilir kartlar</p></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="expand-card" onclick="this.classList.toggle('expanded')">
+            <div class="expand-card-header">
+              <div class="d-flex align-items-center gap-3">
+                <div class="stat-card-icon teal icon-40"><i class="bi bi-hdd-stack"></i></div>
+                <div><h6 class="expand-title">Sistem Kaynakları</h6><span class="text-muted expand-subtitle">Detayları görmek için tıkla</span></div>
+              </div>
+              <i class="bi bi-chevron-down expand-arrow"></i>
+            </div>
+            <div class="expand-card-body">
+              <div class="expand-metric"><span>CPU Kullanımı</span><div class="expand-bar"><div class="expand-bar-fill teal" style="width:45%"></div></div><span>45%</span></div>
+              <div class="expand-metric"><span>RAM Kullanımı</span><div class="expand-bar"><div class="expand-bar-fill purple" style="width:72%"></div></div><span>72%</span></div>
+              <div class="expand-metric"><span>Disk Kullanımı</span><div class="expand-bar"><div class="expand-bar-fill blue" style="width:58%"></div></div><span>58%</span></div>
+              <div class="expand-metric"><span>Ağ Trafiği</span><div class="expand-bar"><div class="expand-bar-fill orange" style="width:33%"></div></div><span>33%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+          <div class="expand-card" onclick="this.classList.toggle('expanded')">
+            <div class="expand-card-header">
+              <div class="d-flex align-items-center gap-3">
+                <div class="stat-card-icon purple icon-40"><i class="bi bi-graph-up-arrow"></i></div>
+                <div><h6 class="expand-title">Satış Analizi</h6><span class="text-muted expand-subtitle">Detayları görmek için tıkla</span></div>
+              </div>
+              <i class="bi bi-chevron-down expand-arrow"></i>
+            </div>
+            <div class="expand-card-body">
+              <div class="expand-metric"><span>Elektronik</span><div class="expand-bar"><div class="expand-bar-fill teal" style="width:85%"></div></div><span>₺128K</span></div>
+              <div class="expand-metric"><span>Giyim</span><div class="expand-bar"><div class="expand-bar-fill purple" style="width:62%"></div></div><span>₺87K</span></div>
+              <div class="expand-metric"><span>Aksesuar</span><div class="expand-bar"><div class="expand-bar-fill blue" style="width:45%"></div></div><span>₺56K</span></div>
+              <div class="expand-metric"><span>Ev & Yaşam</span><div class="expand-bar"><div class="expand-bar-fill orange" style="width:28%"></div></div><span>₺34K</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+          <div class="dismiss-card" id="dismissCard1">
+            <button class="dismiss-card-close" onclick="event.stopPropagation();document.getElementById('dismissCard1').classList.add('d-none')"><i class="bi bi-x-lg"></i></button>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="stat-card-icon green icon-44"><i class="bi bi-megaphone"></i></div>
+              <div><h6 class="expand-title">Yeni Güncelleme!</h6><span class="text-muted expand-subtitle">Admin Panel v3.0</span></div>
+            </div>
+            <p class="text-secondary-desc">Yeni özellikler eklendi: Gelişmiş grafikler, AI destekli raporlama ve tema özelleştirme. Hemen keşfetmek ister misiniz?</p>
+            <div class="d-flex gap-2">
+              <button class="btn-teal btn-sm-pad">Keşfet</button>
+              <button class="btn-glass btn-sm-pad" onclick="event.stopPropagation();document.getElementById('dismissCard1').classList.add('d-none')">Daha Sonra</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Animasyonlu sayılar
+function animateCounters() {
+  document.querySelectorAll('.stat-card-value').forEach(el => {
+    const text = el.textContent;
+    const num = parseFloat(text.replace(/[^0-9.]/g, ''));
+    const prefix = text.match(/^[^0-9]*/)[0];
+    const suffix = text.match(/[^0-9]*$/)[0];
+    const decimals = text.includes('.') ? text.split('.')[1].replace(/[^0-9]/g, '').length : 0;
+    let current = 0;
+    const step = num / 40;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= num) { current = num; clearInterval(timer); }
+      el.textContent = prefix + current.toLocaleString('tr-TR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + (decimals === 0 && !suffix ? '' : suffix);
+    }, 25);
+  });
+}
+
+// IntersectionObserver ile görünür olunca animasyon
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { animateCounters(); observer.disconnect(); } });
+}, { threshold: 0.3 });
+const firstStat = document.querySelector('.stat-card');
+if (firstStat) observer.observe(firstStat);
+
+// Like toggle
+document.querySelectorAll('.product-action-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (this.querySelector('.bi-heart')) {
+      this.classList.toggle('liked');
+      const icon = this.querySelector('i');
+      if (this.classList.contains('liked')) {
+        icon.className = 'bi bi-heart-fill';
+      } else {
+        icon.className = 'bi bi-heart';
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

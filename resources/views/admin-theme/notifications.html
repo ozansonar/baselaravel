@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Bildirimler</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+          <h1 class="page-title">Bildirimler</h1>
+          <p class="page-subtitle">Sistem bildirimleri, uyarılar ve güncellemelerinizi takip edin</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-glass" onclick="markAllRead()"><i class="bi bi-check-all me-1"></i> Tümünü Okundu Yap</button>
+          <button class="btn-glass danger" onclick="clearAllNotifications()"><i class="bi bi-trash me-1"></i> Tümünü Temizle</button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STATS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-sm-6">
+          <div class="nt-stat-card accent-blue">
+            <div class="nt-stat-icon"><i class="bi bi-bell-fill"></i></div>
+            <div class="nt-stat-info">
+              <span class="nt-stat-label">Toplam Bildirim</span>
+              <h3 class="nt-stat-value">156</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="nt-stat-card accent-orange">
+            <div class="nt-stat-icon"><i class="bi bi-envelope-fill"></i></div>
+            <div class="nt-stat-info">
+              <span class="nt-stat-label">Okunmamış</span>
+              <h3 class="nt-stat-value">23</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="nt-stat-card accent-green">
+            <div class="nt-stat-icon"><i class="bi bi-calendar-check"></i></div>
+            <div class="nt-stat-info">
+              <span class="nt-stat-label">Bugünkü</span>
+              <h3 class="nt-stat-value">8</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="nt-stat-card accent-pink">
+            <div class="nt-stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="nt-stat-info">
+              <span class="nt-stat-label">Kritik Uyarı</span>
+              <h3 class="nt-stat-value">3</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: FILTER TABS ==================== -->
+      <div class="nt-filter-bar mb-4">
+        <div class="nt-tabs-wrap">
+          <button class="nt-tab active" onclick="filterNotifs('all', this)">
+            <i class="bi bi-grid"></i> Tümü <span class="nt-tab-badge">156</span>
+          </button>
+          <button class="nt-tab" onclick="filterNotifs('unread', this)">
+            <i class="bi bi-envelope"></i> Okunmamış <span class="nt-tab-badge warn">23</span>
+          </button>
+          <button class="nt-tab" onclick="filterNotifs('system', this)">
+            <i class="bi bi-gear"></i> Sistem
+          </button>
+          <button class="nt-tab" onclick="filterNotifs('security', this)">
+            <i class="bi bi-shield"></i> Güvenlik
+          </button>
+          <button class="nt-tab" onclick="filterNotifs('user', this)">
+            <i class="bi bi-person"></i> Kullanıcı
+          </button>
+          <button class="nt-tab" onclick="filterNotifs('content', this)">
+            <i class="bi bi-journal"></i> İçerik
+          </button>
+          <button class="nt-tab" onclick="filterNotifs('update', this)">
+            <i class="bi bi-arrow-repeat"></i> Güncelleme
+          </button>
+        </div>
+        <div class="nt-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Bildirimlerde ara..." oninput="searchNotifs(this.value)">
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 3: NOTIFICATION LIST ==================== -->
+      <div class="nt-list" id="notifList">
+
+        <!-- Zaman Başlığı - Bugün -->
+        <div class="nt-time-header">
+          <span>Bugün</span>
+          <span class="nt-time-line"></span>
+        </div>
+
+        <!-- Kritik - Güvenlik -->
+        <div class="nt-item unread critical" data-type="security" data-read="false">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon critical"><i class="bi bi-shield-exclamation"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Şüpheli Giriş Denemesi Tespit Edildi</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>5 dk önce</span>
+            </div>
+            <p class="nt-item-desc">Bilinmeyen bir IP adresinden (185.42.xx.xx - Rusya) 3 başarısız giriş denemesi algılandı. Hesap geçici olarak kilitlendi.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag critical"><i class="bi bi-exclamation-circle"></i> Kritik</span>
+                <span class="nt-tag security"><i class="bi bi-shield"></i> Güvenlik</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okundu yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope-open"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sistem -->
+        <div class="nt-item unread" data-type="system" data-read="false">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon system"><i class="bi bi-gear-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Veritabanı Yedekleme Tamamlandı</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>32 dk önce</span>
+            </div>
+            <p class="nt-item-desc">Günlük otomatik yedekleme başarıyla tamamlandı. Yedek boyutu: 2.4 GB. Sonraki yedekleme: yarın 03:00.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag system"><i class="bi bi-gear"></i> Sistem</span>
+                <span class="nt-tag success"><i class="bi bi-check-circle"></i> Başarılı</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okundu yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope-open"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kullanıcı -->
+        <div class="nt-item unread" data-type="user" data-read="false">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon user"><i class="bi bi-person-plus-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Yeni Kullanıcı Kayıt Oldu - Onay Bekliyor</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>1 saat önce</span>
+            </div>
+            <p class="nt-item-desc"><strong>Emre Aksoy</strong> (emre@example.com) sisteme kayıt oldu ve onayınızı bekliyor.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag user"><i class="bi bi-person"></i> Kullanıcı</span>
+                <span class="nt-tag pending"><i class="bi bi-clock"></i> Onay Bekliyor</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn approve" title="Onayla" onclick="event.stopPropagation(); approveAction('Emre Aksoy')"><i class="bi bi-check-lg"></i></button>
+                <button class="nt-act-btn danger" title="Reddet" onclick="event.stopPropagation(); rejectAction('Emre Aksoy')"><i class="bi bi-x-lg"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Güvenlik -->
+        <div class="nt-item unread" data-type="security" data-read="false">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon security"><i class="bi bi-shield-lock-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">İki Faktörlü Doğrulama Hatırlatması</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>2 saat önce</span>
+            </div>
+            <p class="nt-item-desc">12 kullanıcının 2FA'sı aktif değil. Güvenlik politikası gereği tüm editör ve üzeri rollerde 2FA zorunlu olmalıdır.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag security"><i class="bi bi-shield"></i> Güvenlik</span>
+                <span class="nt-tag warning"><i class="bi bi-exclamation-triangle"></i> Uyarı</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okundu yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope-open"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- İçerik -->
+        <div class="nt-item unread" data-type="content" data-read="false">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon content"><i class="bi bi-journal-check"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Yeni İçerik Onay Bekliyor</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>3 saat önce</span>
+            </div>
+            <p class="nt-item-desc"><strong>Ayşe Yılmaz</strong> "React ile Modern Web Geliştirme" başlıklı makaleyi yayın onayına gönderdi.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag content"><i class="bi bi-journal"></i> İçerik</span>
+                <span class="nt-tag pending"><i class="bi bi-clock"></i> Onay Bekliyor</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn approve" title="Yayınla" onclick="event.stopPropagation(); approveAction('Makale')"><i class="bi bi-check-lg"></i></button>
+                <button class="nt-act-btn" title="Önizle" onclick="event.stopPropagation(); showToast('Makale önizleniyor...')"><i class="bi bi-eye"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Güncelleme -->
+        <div class="nt-item" data-type="update" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon update"><i class="bi bi-arrow-repeat"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Sistem Güncellemesi v3.2.1 Yüklendi</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>5 saat önce</span>
+            </div>
+            <p class="nt-item-desc">Performans iyileştirmeleri ve hata düzeltmeleri içeren yeni güncelleme başarıyla yüklendi.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag update"><i class="bi bi-arrow-repeat"></i> Güncelleme</span>
+                <span class="nt-tag success"><i class="bi bi-check-circle"></i> Tamamlandı</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Zaman Başlığı - Dün -->
+        <div class="nt-time-header">
+          <span>Dün</span>
+          <span class="nt-time-line"></span>
+        </div>
+
+        <!-- Okunmuş - Kullanıcı -->
+        <div class="nt-item" data-type="user" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon user"><i class="bi bi-person-dash-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Kullanıcı Hesabı Askıya Alındı</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>Dün 16:30</span>
+            </div>
+            <p class="nt-item-desc"><strong>Fatma Çelik</strong> hesabı şüpheli aktivite nedeniyle otomatik olarak askıya alındı.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag user"><i class="bi bi-person"></i> Kullanıcı</span>
+                <span class="nt-tag warning"><i class="bi bi-exclamation-triangle"></i> Uyarı</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Okunmuş - Sistem -->
+        <div class="nt-item" data-type="system" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon system"><i class="bi bi-hdd-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Disk Alanı Uyarısı</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>Dün 14:15</span>
+            </div>
+            <p class="nt-item-desc">Sunucu disk kullanımı %85'e ulaştı. Gereksiz dosyaları temizlemeyi veya disk kapasitesini artırmayı düşünün.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag system"><i class="bi bi-gear"></i> Sistem</span>
+                <span class="nt-tag warning"><i class="bi bi-exclamation-triangle"></i> Uyarı</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Okunmuş - İçerik -->
+        <div class="nt-item" data-type="content" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon content"><i class="bi bi-chat-left-text-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">İçeriğe Yeni Yorum Yapıldı</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>Dün 11:20</span>
+            </div>
+            <p class="nt-item-desc"><strong>Burak Yıldız</strong> "API Entegrasyonu Rehberi" makalesine yorum bıraktı: "Çok faydalı bir yazı olmuş, teşekkürler!"</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag content"><i class="bi bi-journal"></i> İçerik</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Güvenlik -->
+        <div class="nt-item" data-type="security" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon security"><i class="bi bi-key-fill"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Şifre Değişikliği Bildirimi</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>Dün 09:45</span>
+            </div>
+            <p class="nt-item-desc"><strong>Mehmet Demir</strong> şifresini başarıyla değiştirdi. Eğer bu işlemi siz yapmadıysanız hemen iletişime geçin.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag security"><i class="bi bi-shield"></i> Güvenlik</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Zaman Başlığı - Bu Hafta -->
+        <div class="nt-time-header">
+          <span>Bu Hafta</span>
+          <span class="nt-time-line"></span>
+        </div>
+
+        <div class="nt-item" data-type="update" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon update"><i class="bi bi-stars"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Yeni Özellik: Gelişmiş Raporlama Modülü</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>3 gün önce</span>
+            </div>
+            <p class="nt-item-desc">Yeni raporlama modülü aktif edildi. Özel tarih aralığı, karşılaştırmalı analiz ve otomatik rapor gönderimi özellikleri eklendi.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag update"><i class="bi bi-arrow-repeat"></i> Güncelleme</span>
+                <span class="nt-tag info"><i class="bi bi-info-circle"></i> Bilgi</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nt-item" data-type="system" data-read="true">
+          <div class="nt-item-left">
+            <input type="checkbox" class="nt-check" onchange="updateBulkActions()">
+            <div class="nt-item-icon system"><i class="bi bi-speedometer2"></i></div>
+          </div>
+          <div class="nt-item-body" onclick="openNotifDetail(this)">
+            <div class="nt-item-row">
+              <span class="nt-item-title">Performans Raporu - Haftalık Özet</span>
+              <span class="nt-item-time"><i class="bi bi-clock me-1"></i>5 gün önce</span>
+            </div>
+            <p class="nt-item-desc">Bu hafta: %99.8 uptime, ortalama yanıt süresi 142ms, 24.5K API çağrısı, 0 kritik hata.</p>
+            <div class="nt-item-footer">
+              <div class="nt-item-tags">
+                <span class="nt-tag system"><i class="bi bi-gear"></i> Sistem</span>
+                <span class="nt-tag success"><i class="bi bi-check-circle"></i> İyi</span>
+              </div>
+              <div class="nt-item-actions">
+                <button class="nt-act-btn" title="Okunmadı yap" onclick="event.stopPropagation(); toggleRead(this)"><i class="bi bi-envelope"></i></button>
+                <button class="nt-act-btn" title="Sabitle" onclick="event.stopPropagation(); pinNotif(this)"><i class="bi bi-pin"></i></button>
+                <button class="nt-act-btn danger" title="Sil" onclick="event.stopPropagation(); deleteNotif(this)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bulk Actions Bar -->
+      <div class="nt-bulk-bar d-none" id="bulkBar">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-check2-square text-teal fs-5"></i>
+          <span><strong id="bulkCount">0</strong> bildirim seçildi</span>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-glass sm" onclick="bulkMarkRead()"><i class="bi bi-envelope-open me-1"></i> Okundu Yap</button>
+          <button class="btn-glass sm danger" onclick="bulkDelete()"><i class="bi bi-trash me-1"></i> Sil</button>
+        </div>
+      </div>
+
+      <!-- Load More -->
+      <div class="text-center my-4">
+        <button class="btn-glass" onclick="loadMore()"><i class="bi bi-arrow-down-circle me-2"></i>Daha Fazla Yükle (146 bildirim daha)</button>
+      </div>
+
+
+      <!-- ==================== SECTION 4: BOTTOM CARDS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+          <div class="nt-card">
+            <div class="nt-card-header">
+              <div class="nt-card-icon c-teal"><i class="bi bi-sliders"></i></div>
+              <h6>Bildirim Tercihleri</h6>
+            </div>
+            <div class="nt-card-body">
+              <div class="nt-pref-item">
+                <div class="nt-pref-info">
+                  <span>Masaüstü Bildirimleri</span>
+                  <small>Tarayıcı push bildirimleri göster</small>
+                </div>
+                <label class="nt-switch"><input type="checkbox" checked><span class="nt-switch-track"></span></label>
+              </div>
+              <div class="nt-pref-item">
+                <div class="nt-pref-info">
+                  <span>E-posta Bildirimleri</span>
+                  <small>Kritik bildirimler için e-posta gönder</small>
+                </div>
+                <label class="nt-switch"><input type="checkbox" checked><span class="nt-switch-track"></span></label>
+              </div>
+              <div class="nt-pref-item">
+                <div class="nt-pref-info">
+                  <span>Ses Bildirimi</span>
+                  <small>Yeni bildirim geldiğinde ses çal</small>
+                </div>
+                <label class="nt-switch"><input type="checkbox"><span class="nt-switch-track"></span></label>
+              </div>
+              <div class="nt-pref-item">
+                <div class="nt-pref-info">
+                  <span>Güvenlik Uyarıları</span>
+                  <small>Giriş ve şüpheli aktivite bildirimleri</small>
+                </div>
+                <label class="nt-switch"><input type="checkbox" checked><span class="nt-switch-track"></span></label>
+              </div>
+              <div class="nt-pref-item">
+                <div class="nt-pref-info">
+                  <span>Sistem Güncellemeleri</span>
+                  <small>Yeni özellik ve bakım duyuruları</small>
+                </div>
+                <label class="nt-switch"><input type="checkbox" checked><span class="nt-switch-track"></span></label>
+              </div>
+              <div class="nt-pref-item">
+                <div class="nt-pref-info">
+                  <span>Rahatsız Etme Modu</span>
+                  <small>Belirli saatlerde bildirimleri sustur</small>
+                </div>
+                <label class="nt-switch"><input type="checkbox"><span class="nt-switch-track"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="nt-card">
+            <div class="nt-card-header">
+              <div class="nt-card-icon c-purple"><i class="bi bi-bar-chart"></i></div>
+              <h6>Bildirim Özeti</h6>
+            </div>
+            <div class="nt-card-body">
+              <div class="nt-summary-list">
+                <div class="nt-summary-row">
+                  <div class="nt-summary-dot c-blue"></div>
+                  <span class="nt-summary-label">Sistem</span>
+                  <div class="nt-summary-bar"><div class="nt-summary-fill c-blue" style="width:35%"></div></div>
+                  <span class="nt-summary-num">54</span>
+                </div>
+                <div class="nt-summary-row">
+                  <div class="nt-summary-dot c-red"></div>
+                  <span class="nt-summary-label">Güvenlik</span>
+                  <div class="nt-summary-bar"><div class="nt-summary-fill c-red" style="width:18%"></div></div>
+                  <span class="nt-summary-num">28</span>
+                </div>
+                <div class="nt-summary-row">
+                  <div class="nt-summary-dot c-green"></div>
+                  <span class="nt-summary-label">Kullanıcı</span>
+                  <div class="nt-summary-bar"><div class="nt-summary-fill c-green" style="width:25%"></div></div>
+                  <span class="nt-summary-num">39</span>
+                </div>
+                <div class="nt-summary-row">
+                  <div class="nt-summary-dot c-purple"></div>
+                  <span class="nt-summary-label">İçerik</span>
+                  <div class="nt-summary-bar"><div class="nt-summary-fill c-purple" style="width:15%"></div></div>
+                  <span class="nt-summary-num">23</span>
+                </div>
+                <div class="nt-summary-row">
+                  <div class="nt-summary-dot c-orange"></div>
+                  <span class="nt-summary-label">Güncelleme</span>
+                  <div class="nt-summary-bar"><div class="nt-summary-fill c-orange" style="width:8%"></div></div>
+                  <span class="nt-summary-num">12</span>
+                </div>
+              </div>
+
+              <div class="nt-auto-clean">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <span class="nt-auto-clean-title"><i class="bi bi-recycle me-2"></i>Otomatik Temizlik</span>
+                    <small>30 günden eski okunan bildirimleri otomatik sil</small>
+                  </div>
+                  <label class="nt-switch"><input type="checkbox" checked><span class="nt-switch-track"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3 nt-toast-wrap">
+  <div class="toast align-items-center border-0 nt-toast-card" id="ntToast" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center gap-2" id="ntToastBody">
+        <i class="bi bi-check-circle-fill text-neon-green"></i>
+        <span>İşlem başarıyla tamamlandı</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script>
+// ========== Filter Tabs ==========
+function filterNotifs(type, btn) {
+  document.querySelectorAll('.nt-tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+
+  var items = document.querySelectorAll('.nt-item');
+  var headers = document.querySelectorAll('.nt-time-header');
+
+  items.forEach(function(item) {
+    if (type === 'all') {
+      item.classList.remove('d-none');
+    } else if (type === 'unread') {
+      item.classList.toggle('d-none', item.dataset.read !== 'false');
+    } else {
+      item.classList.toggle('d-none', item.dataset.type !== type);
+    }
+  });
+
+  headers.forEach(function(h) {
+    if (type === 'all') { h.classList.remove('d-none'); return; }
+    var next = h.nextElementSibling;
+    var hasVisible = false;
+    while (next && !next.classList.contains('nt-time-header')) {
+      if (!next.classList.contains('d-none') && next.classList.contains('nt-item')) hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    h.classList.toggle('d-none', !hasVisible);
+  });
+}
+
+// ========== Search ==========
+function searchNotifs(query) {
+  var q = query.toLowerCase();
+  document.querySelectorAll('.nt-item').forEach(function(item) {
+    var text = item.textContent.toLowerCase();
+    item.classList.toggle('d-none', !text.includes(q));
+  });
+}
+
+// ========== Toggle Read ==========
+function toggleRead(btn) {
+  var item = btn.closest('.nt-item');
+  var isUnread = item.classList.contains('unread');
+  item.classList.toggle('unread');
+  item.dataset.read = isUnread ? 'true' : 'false';
+  var icon = btn.querySelector('i');
+  icon.className = isUnread ? 'bi bi-envelope' : 'bi bi-envelope-open';
+  btn.title = isUnread ? 'Okunmadı yap' : 'Okundu yap';
+  showToast(isUnread ? 'Bildirim okundu olarak işaretlendi' : 'Bildirim okunmadı olarak işaretlendi');
+}
+
+// ========== Pin ==========
+function pinNotif(btn) {
+  var item = btn.closest('.nt-item');
+  var pinned = item.classList.toggle('pinned');
+  var icon = btn.querySelector('i');
+  icon.className = pinned ? 'bi bi-pin-fill' : 'bi bi-pin';
+  showToast(pinned ? 'Bildirim sabitlendi' : 'Sabitleme kaldırıldı');
+}
+
+// ========== Delete ==========
+function deleteNotif(btn) {
+  var item = btn.closest('.nt-item');
+  item.style.opacity = '0';
+  item.style.transform = 'translateX(40px)';
+  setTimeout(function() {
+    item.style.height = item.offsetHeight + 'px';
+    requestAnimationFrame(function() {
+      item.style.height = '0';
+      item.style.padding = '0';
+      item.style.margin = '0';
+      item.style.overflow = 'hidden';
+      setTimeout(function() { item.remove(); }, 300);
+    });
+  }, 200);
+  showToast('Bildirim silindi');
+}
+
+// ========== Mark All Read ==========
+function markAllRead() {
+  document.querySelectorAll('.nt-item.unread').forEach(function(item) {
+    item.classList.remove('unread');
+    item.dataset.read = 'true';
+  });
+  showToast('Tüm bildirimler okundu olarak işaretlendi');
+}
+
+// ========== Clear All ==========
+function clearAllNotifications() {
+  if (!confirm('Tüm bildirimleri silmek istediğinizden emin misiniz?')) return;
+  document.querySelectorAll('.nt-item').forEach(function(item) { item.remove(); });
+  document.querySelectorAll('.nt-time-header').forEach(function(h) { h.remove(); });
+  showToast('Tüm bildirimler temizlendi');
+}
+
+// ========== Bulk Actions ==========
+function updateBulkActions() {
+  var checked = document.querySelectorAll('.nt-check:checked').length;
+  var bar = document.getElementById('bulkBar');
+  document.getElementById('bulkCount').textContent = checked;
+  bar.classList.toggle('d-none', checked === 0);
+}
+
+function bulkMarkRead() {
+  document.querySelectorAll('.nt-check:checked').forEach(function(cb) {
+    var item = cb.closest('.nt-item');
+    item.classList.remove('unread');
+    item.dataset.read = 'true';
+    cb.checked = false;
+  });
+  updateBulkActions();
+  showToast('Seçili bildirimler okundu olarak işaretlendi');
+}
+
+function bulkDelete() {
+  document.querySelectorAll('.nt-check:checked').forEach(function(cb) {
+    cb.closest('.nt-item').remove();
+  });
+  updateBulkActions();
+  showToast('Seçili bildirimler silindi');
+}
+
+// ========== Actions ==========
+function approveAction(name) { showToast(name + ' onaylandı'); }
+function rejectAction(name) { showToast(name + ' reddedildi', 'warning'); }
+
+function openNotifDetail(el) {
+  var item = el.closest('.nt-item');
+  if (item.classList.contains('unread')) {
+    item.classList.remove('unread');
+    item.dataset.read = 'true';
+  }
+  showToast('Bildirim detayı görüntüleniyor');
+}
+
+function loadMore() { showToast('Daha fazla bildirim yükleniyor...'); }
+
+// ========== Toast ==========
+function showToast(message, type) {
+  var toast = document.getElementById('ntToast');
+  var body = document.getElementById('ntToastBody');
+  var icons = { danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', default: 'bi-check-circle-fill' };
+  var classes = { danger: 'text-neon-red', warning: 'text-neon-orange', default: 'text-neon-green' };
+  body.innerHTML = '<i class="bi ' + (icons[type] || icons.default) + ' ' + (classes[type] || classes.default) + '"></i><span>' + message + '</span>';
+  new bootstrap.Toast(toast, { delay: 3000 }).show();
+}
+</script>
+</body>
+</html>

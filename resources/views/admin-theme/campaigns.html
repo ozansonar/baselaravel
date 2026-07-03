@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Kampanyalar</title>
+  <meta name="description" content="OZAN Admin Panel kampanya yönetimi — indirim, kupon, flash sale ve ücretsiz kargo kampanyaları">
+  <link rel="canonical" href="https://admin.ozan.dev/campaigns.html">
+  <meta property="og:title" content="OZAN Admin - Kampanyalar">
+  <meta property="og:description" content="Kampanyaları oluşturun, takip edin ve yönetin">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Kampanyalar</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Kampanyalar</h1>
+          <p class="page-subtitle">İndirim, kupon kodu ve kampanyaları oluşturun ve yönetin</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn-glass" onclick="openCalendarModal()">
+            <i class="bi bi-calendar3 me-1"></i> Takvim
+          </button>
+          <button class="btn-teal" onclick="openCreateCampaignModal()">
+            <i class="bi bi-plus-lg me-1"></i> Yeni Kampanya
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STAT CARDS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-blue">
+              <i class="bi bi-megaphone-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Kampanya</span>
+              <h3 class="usr-stat-value">47</h3>
+              <span class="usr-stat-change positive">
+                <i class="bi bi-arrow-up-short"></i> 8 bu ay oluşturuldu
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="50">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-green">
+              <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Aktif Kampanya</span>
+              <h3 class="usr-stat-value">12</h3>
+              <span class="usr-stat-change positive">
+                <i class="bi bi-arrow-up-short"></i> 3 kampanya dün başladı
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-orange">
+              <i class="bi bi-ticket-perforated-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Kullanılan Kupon</span>
+              <h3 class="usr-stat-value">3,248</h3>
+              <span class="usr-stat-change positive">
+                <i class="bi bi-arrow-up-short"></i> %12.5 artış
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="150">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-purple">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam İndirim</span>
+              <h3 class="usr-stat-value">₺284,920</h3>
+              <span class="usr-stat-change negative">
+                <i class="bi bi-arrow-up-short"></i> %18.3 artış (maliyet)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: STATUS TABS ==================== -->
+      <div class="cl-status-tabs mb-4" data-aos="fade-up" data-aos-delay="100">
+        <button class="cl-status-tab active" onclick="filterByStatus('all', this)">
+          <i class="bi bi-grid me-1"></i> Tümü <span class="cl-tab-count">47</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByStatus('active', this)">
+          <i class="bi bi-lightning-charge me-1"></i> Aktif <span class="cl-tab-count">12</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByStatus('scheduled', this)">
+          <i class="bi bi-calendar-event me-1"></i> Planlanmış <span class="cl-tab-count">8</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByStatus('paused', this)">
+          <i class="bi bi-pause-circle me-1"></i> Duraklatılmış <span class="cl-tab-count">5</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByStatus('ended', this)">
+          <i class="bi bi-check-circle me-1"></i> Tamamlanmış <span class="cl-tab-count">18</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByStatus('draft', this)">
+          <i class="bi bi-pencil me-1"></i> Taslak <span class="cl-tab-count">4</span>
+        </button>
+      </div>
+
+
+      <!-- ==================== SECTION 3: TOOLBAR ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
+        <div class="card-body-custom">
+          <div class="cl-toolbar">
+            <div class="cl-search">
+              <i class="bi bi-search"></i>
+              <input type="text" id="campaignSearch" placeholder="Kampanya ara (isim, kupon kodu)..." oninput="filterCampaigns()">
+            </div>
+            <div class="cl-filters">
+              <select class="cl-filter-select" id="filterType" onchange="filterCampaigns()">
+                <option value="">Tür: Tümü</option>
+                <option value="percentage">Yüzde İndirim</option>
+                <option value="fixed">Sabit İndirim</option>
+                <option value="coupon">Kupon Kodu</option>
+                <option value="freeShipping">Ücretsiz Kargo</option>
+                <option value="bogo">Al-Öde</option>
+                <option value="flash">Flash Sale</option>
+              </select>
+              <select class="cl-filter-select" id="filterSort" onchange="sortCampaigns()">
+                <option value="newest">En Yeni</option>
+                <option value="oldest">En Eski</option>
+                <option value="name-asc">İsim A-Z</option>
+                <option value="name-desc">İsim Z-A</option>
+                <option value="discount-high">İndirim: Yüksek-Düşük</option>
+                <option value="usage-high">Kullanım: Yüksek-Düşük</option>
+              </select>
+            </div>
+            <div class="cl-toolbar-actions">
+              <button class="cl-filter-reset" onclick="resetFilters()" title="Filtreleri sıfırla">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+              <div class="prd-view-toggle">
+                <button class="prd-view-btn active" id="viewGrid" onclick="switchView('grid')">
+                  <i class="bi bi-grid-3x3-gap-fill"></i>
+                </button>
+                <button class="prd-view-btn" id="viewTable" onclick="switchView('table')">
+                  <i class="bi bi-list-ul"></i>
+                </button>
+              </div>
+              <div class="cl-bulk-actions d-none" id="bulkActions">
+                <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
+                <button class="usr-action-btn success" onclick="bulkAction('activate')" title="Aktif yap">
+                  <i class="bi bi-lightning-charge"></i>
+                </button>
+                <button class="usr-action-btn" onclick="bulkAction('pause')" title="Duraklat">
+                  <i class="bi bi-pause-circle"></i>
+                </button>
+                <button class="usr-action-btn danger" onclick="bulkAction('delete')" title="Sil">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 4A: GRID VIEW ==================== -->
+      <div id="campaignGridView" class="row g-4 mb-4">
+        <!-- JS tarafından doldurulur -->
+      </div>
+
+
+      <!-- ==================== SECTION 4B: TABLE VIEW ==================== -->
+      <div id="campaignTableView" class="card-dark mb-4 d-none">
+        <div class="card-body-custom p-0">
+          <div class="table-responsive">
+            <table class="table table-hover cl-table mb-0">
+              <thead>
+                <tr>
+                  <th class="cl-th-checkbox">
+                    <input type="checkbox" class="usr-checkbox" id="selectAllTable" onchange="toggleSelectAllTable(this)">
+                  </th>
+                  <th class="cl-th-sortable" onclick="sortCampaignsBy('name')">Kampanya <i class="bi bi-arrow-down-up"></i></th>
+                  <th>Tür</th>
+                  <th>İndirim</th>
+                  <th class="d-none d-lg-table-cell">Tarih Aralığı</th>
+                  <th>Kullanım</th>
+                  <th>Durum</th>
+                  <th class="d-none d-xl-table-cell">Gelir Etkisi</th>
+                  <th class="cl-th-actions">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="campaignTableBody">
+                <!-- JS tarafından doldurulur -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== PAGINATION ==================== -->
+      <div class="cl-pagination-wrapper" data-aos="fade-up">
+        <div class="cl-pagination-info">
+          <span>Gösterilen: <strong>1–12</strong> / <strong>47</strong> kampanya</span>
+        </div>
+        <nav class="cl-pagination">
+          <button class="cl-page-btn" disabled><i class="bi bi-chevron-double-left"></i></button>
+          <button class="cl-page-btn" disabled><i class="bi bi-chevron-left"></i></button>
+          <button class="cl-page-btn active">1</button>
+          <button class="cl-page-btn" onclick="showToast('Sayfa 2 yükleniyor...','info')">2</button>
+          <button class="cl-page-btn" onclick="showToast('Sayfa 3 yükleniyor...','info')">3</button>
+          <button class="cl-page-btn" onclick="showToast('Sayfa 4 yükleniyor...','info')">4</button>
+          <button class="cl-page-btn" onclick="showToast('Sayfa 2 yükleniyor...','info')"><i class="bi bi-chevron-right"></i></button>
+          <button class="cl-page-btn" onclick="showToast('Son sayfa yükleniyor...','info')"><i class="bi bi-chevron-double-right"></i></button>
+        </nav>
+        <div class="cl-page-jump">
+          <span>Git:</span>
+          <input type="number" min="1" max="4" value="1">
+          <button onclick="showToast('Sayfa yükleniyor...','info')"><i class="bi bi-arrow-return-left"></i></button>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== MODAL: YENİ KAMPANYA OLUŞTUR ==================== -->
+<div class="modal fade" id="createCampaignModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-plus-circle me-2"></i>Yeni Kampanya Oluştur</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Wizard Steps -->
+        <div class="cmp-wizard-steps mb-4">
+          <div class="cmp-wizard-step active" id="wizStep1">
+            <div class="cmp-wizard-dot">1</div>
+            <span>Temel Bilgiler</span>
+          </div>
+          <div class="cmp-wizard-line"></div>
+          <div class="cmp-wizard-step" id="wizStep2">
+            <div class="cmp-wizard-dot">2</div>
+            <span>Koşullar</span>
+          </div>
+          <div class="cmp-wizard-line"></div>
+          <div class="cmp-wizard-step" id="wizStep3">
+            <div class="cmp-wizard-dot">3</div>
+            <span>Önizleme</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Temel Bilgiler -->
+        <div id="wizardPanel1">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Kampanya Adı <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cmpName" placeholder="Örn: Kış İndirimi 2026">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Kampanya Türü <span class="text-danger">*</span></label>
+              <select class="form-select" id="cmpType" onchange="toggleDiscountFields()">
+                <option value="percentage">Yüzde İndirim (%)</option>
+                <option value="fixed">Sabit İndirim (₺)</option>
+                <option value="coupon">Kupon Kodu</option>
+                <option value="freeShipping">Ücretsiz Kargo</option>
+                <option value="bogo">Al X Öde Y</option>
+                <option value="flash">Flash Sale</option>
+              </select>
+            </div>
+            <div class="col-md-4" id="discountValueWrap">
+              <label class="form-label">İndirim Değeri <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="cmpDiscount" placeholder="15" min="0">
+                <span class="input-group-text" id="discountUnit">%</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Başlangıç Tarihi <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="cmpStartDate">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Bitiş Tarihi <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="cmpEndDate">
+            </div>
+            <div class="col-md-6 d-none" id="couponCodeWrap">
+              <label class="form-label">Kupon Kodu</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="cmpCouponCode" placeholder="WINTER2026" maxlength="20">
+                <button class="btn-glass" type="button" onclick="generateCouponCode()"><i class="bi bi-shuffle"></i></button>
+              </div>
+            </div>
+            <div class="col-md-6 d-none" id="bogoWrap">
+              <label class="form-label">Al X Öde Y</label>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="number" class="form-control" id="cmpBuyX" placeholder="3" min="1" max="99">
+                <span class="text-muted">al</span>
+                <input type="number" class="form-control" id="cmpPayY" placeholder="2" min="1" max="99">
+                <span class="text-muted">öde</span>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Açıklama</label>
+              <textarea class="form-control" id="cmpDescription" rows="2" placeholder="Kampanya açıklaması (opsiyonel)..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Koşullar -->
+        <div id="wizardPanel2" class="d-none">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Minimum Sepet Tutarı</label>
+              <div class="input-group">
+                <span class="input-group-text">₺</span>
+                <input type="number" class="form-control" id="cmpMinOrder" placeholder="100" min="0">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Maksimum İndirim Tutarı</label>
+              <div class="input-group">
+                <span class="input-group-text">₺</span>
+                <input type="number" class="form-control" id="cmpMaxDiscount" placeholder="500" min="0">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Toplam Kullanım Limiti</label>
+              <input type="number" class="form-control" id="cmpTotalLimit" placeholder="1000 (0 = sınırsız)" min="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Kişi Başı Kullanım</label>
+              <input type="number" class="form-control" id="cmpPerUserLimit" placeholder="1" min="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Uygulanacak Kategoriler</label>
+              <select class="form-select" id="cmpCategories" multiple>
+                <option value="all" selected>Tüm Kategoriler</option>
+                <option value="electronics">Elektronik</option>
+                <option value="fashion">Moda</option>
+                <option value="home">Ev & Yaşam</option>
+                <option value="sports">Spor</option>
+                <option value="cosmetics">Kozmetik</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Hedef Kullanıcı Grubu</label>
+              <select class="form-select" id="cmpTargetGroup">
+                <option value="all">Tüm Kullanıcılar</option>
+                <option value="new">Yeni Üyeler</option>
+                <option value="vip">VIP Müşteriler</option>
+                <option value="inactive">İnaktif Kullanıcılar</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch cmp-switch">
+                <input class="form-check-input" type="checkbox" id="cmpStackable">
+                <label class="form-check-label" for="cmpStackable">Diğer kampanyalarla birleştirilebilir</label>
+              </div>
+              <div class="form-check form-switch cmp-switch">
+                <input class="form-check-input" type="checkbox" id="cmpAutoApply">
+                <label class="form-check-label" for="cmpAutoApply">Otomatik uygulansın (kupon kodu gerekmeden)</label>
+              </div>
+              <div class="form-check form-switch cmp-switch">
+                <input class="form-check-input" type="checkbox" id="cmpNotify" checked>
+                <label class="form-check-label" for="cmpNotify">Kullanıcılara bildirim gönder</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Önizleme -->
+        <div id="wizardPanel3" class="d-none">
+          <div class="cmp-preview-card">
+            <div class="cmp-preview-header">
+              <div class="cmp-preview-badge" id="prevTypeBadge">Yüzde İndirim</div>
+              <h5 class="cmp-preview-title" id="prevName">Kampanya Adı</h5>
+              <p class="cmp-preview-desc" id="prevDesc">Açıklama buraya gelecek</p>
+            </div>
+            <div class="cmp-preview-body">
+              <div class="cmp-preview-row">
+                <span><i class="bi bi-percent me-1"></i>İndirim</span>
+                <strong id="prevDiscount">%15</strong>
+              </div>
+              <div class="cmp-preview-row">
+                <span><i class="bi bi-calendar3 me-1"></i>Tarih Aralığı</span>
+                <strong id="prevDates">22 Şub - 22 Mar 2026</strong>
+              </div>
+              <div class="cmp-preview-row">
+                <span><i class="bi bi-cart me-1"></i>Min. Sepet</span>
+                <strong id="prevMinOrder">₺100</strong>
+              </div>
+              <div class="cmp-preview-row">
+                <span><i class="bi bi-people me-1"></i>Hedef Grup</span>
+                <strong id="prevTarget">Tüm Kullanıcılar</strong>
+              </div>
+              <div class="cmp-preview-row">
+                <span><i class="bi bi-hash me-1"></i>Kullanım Limiti</span>
+                <strong id="prevLimit">1,000</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard Navigation -->
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn-glass d-none" id="wizPrevBtn" onclick="wizardPrev()">
+            <i class="bi bi-arrow-left me-1"></i> Geri
+          </button>
+          <div class="ms-auto d-flex gap-2">
+            <button class="btn-glass" id="wizDraftBtn" onclick="saveDraft()">
+              <i class="bi bi-floppy me-1"></i> Taslak Kaydet
+            </button>
+            <button class="btn-teal" id="wizNextBtn" onclick="wizardNext()">
+              İleri <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: KAMPANYA DETAY ==================== -->
+<div class="modal fade" id="campaignDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-megaphone me-2"></i><span id="detailCmpName">Kampanya Detayı</span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="detailModalBody">
+        <!-- JS tarafından doldurulur -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: KAMPANYA DÜZENLE ==================== -->
+<div class="modal fade" id="editCampaignModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-pencil-square me-2"></i>Kampanyayı Düzenle</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Kampanya Adı</label>
+            <input type="text" class="form-control" id="editCmpName">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Durum</label>
+            <select class="form-select" id="editCmpStatus">
+              <option value="active">Aktif</option>
+              <option value="paused">Duraklatılmış</option>
+              <option value="scheduled">Planlanmış</option>
+              <option value="draft">Taslak</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">İndirim Değeri</label>
+            <input type="number" class="form-control" id="editCmpDiscount">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Başlangıç</label>
+            <input type="date" class="form-control" id="editCmpStart">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Bitiş</label>
+            <input type="date" class="form-control" id="editCmpEnd">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Min. Sepet Tutarı</label>
+            <div class="input-group">
+              <span class="input-group-text">₺</span>
+              <input type="number" class="form-control" id="editCmpMinOrder">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Kullanım Limiti</label>
+            <input type="number" class="form-control" id="editCmpLimit">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Açıklama</label>
+            <textarea class="form-control" id="editCmpDesc" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end mt-4">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" onclick="saveEditCampaign()">
+            <i class="bi bi-check-lg me-1"></i> Kaydet
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: SİLME ONAY ==================== -->
+<div class="modal fade" id="deleteCampaignModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon danger">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h5 class="cl-modal-heading">Kampanyayı Sil</h5>
+        <p class="cl-modal-body-text"><strong id="deleteCmpName"></strong> kampanyası silinecek.</p>
+        <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal btn-danger-gradient" onclick="confirmDeleteCampaign()">
+            <i class="bi bi-trash me-1"></i> Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: TAKVİM ==================== -->
+<div class="modal fade" id="calendarModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-calendar3 me-2"></i>Kampanya Takvimi — Şubat 2026</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="cmp-calendar" id="campaignCalendar">
+          <!-- JS tarafından doldurulur -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: KUPON KOPYALA ==================== -->
+<div class="modal fade" id="couponModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="cmp-coupon-display">
+          <i class="bi bi-ticket-perforated cmp-coupon-icon"></i>
+          <div class="cmp-coupon-code" id="couponModalCode">WINTER2026</div>
+          <button class="btn-teal w-100 mt-3" onclick="copyCouponCode()">
+            <i class="bi bi-clipboard me-1"></i> Kodu Kopyala
+          </button>
+          <p class="text-muted mt-2 mb-0 small">Kupon kodunu panoya kopyala</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="campaigns.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

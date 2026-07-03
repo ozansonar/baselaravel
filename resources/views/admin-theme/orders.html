@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Sipariş Yönetimi</title>
+  <meta name="description" content="OZAN Admin Panel - Sipariş listesi, takip ve yönetim sayfası">
+  <link rel="canonical" href="https://admin.ozan.dev/orders.html">
+  <meta property="og:title" content="OZAN Admin - Sipariş Yönetimi">
+  <meta property="og:description" content="Tüm siparişleri listeleyin, takip edin ve yönetin">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Siparişler</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Sipariş Yönetimi</h1>
+          <p class="page-subtitle">Tüm siparişleri takip edin, durumlarını güncelleyin ve yönetin</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="dropdown">
+            <button class="btn-glass dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-download"></i> Dışa Aktar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-theme">
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportOrders('csv')"><i class="bi bi-filetype-csv me-2 text-neon-blue"></i>CSV olarak indir</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportOrders('excel')"><i class="bi bi-file-earmark-excel me-2 text-neon-green"></i>Excel olarak indir</a></li>
+              <li><hr class="dropdown-divider dropdown-divider-theme"></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportOrders('pdf')"><i class="bi bi-filetype-pdf me-2 text-neon-red"></i>PDF olarak indir</a></li>
+            </ul>
+          </div>
+          <button class="btn-teal" onclick="openNewOrderModal()">
+            <i class="bi bi-plus-lg"></i> Yeni Sipariş
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STATS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-blue">
+              <i class="bi bi-cart-check-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Sipariş</span>
+              <h3 class="usr-stat-value">8.432</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 14.2% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-green">
+              <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Gelir</span>
+              <h3 class="usr-stat-value">2.84M</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 22.5% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-orange">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Bekleyen</span>
+              <h3 class="usr-stat-value">127</h3>
+              <span class="usr-stat-change negative"><i class="bi bi-arrow-up-short"></i> 8.3% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-purple">
+              <i class="bi bi-arrow-return-left"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">İade Oranı</span>
+              <h3 class="usr-stat-value">3.2%</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-down-short"></i> 1.1% bu ay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: STATUS TABS ==================== -->
+      <div class="cl-status-tabs mb-4" data-aos="fade-up" data-aos-delay="100">
+        <button class="cl-status-tab active" onclick="filterByOrderStatus('all', this)">
+          <span>Tümü</span>
+          <span class="cl-tab-count">48</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByOrderStatus('pending', this)">
+          <i class="bi bi-clock text-neon-orange"></i>
+          <span>Bekleyen</span>
+          <span class="cl-tab-count">12</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByOrderStatus('processing', this)">
+          <i class="bi bi-gear text-neon-blue"></i>
+          <span>Hazırlanıyor</span>
+          <span class="cl-tab-count">8</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByOrderStatus('shipped', this)">
+          <i class="bi bi-truck text-neon-purple"></i>
+          <span>Kargoda</span>
+          <span class="cl-tab-count">15</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByOrderStatus('delivered', this)">
+          <i class="bi bi-check-circle text-neon-green"></i>
+          <span>Teslim Edildi</span>
+          <span class="cl-tab-count">10</span>
+        </button>
+        <button class="cl-status-tab" onclick="filterByOrderStatus('cancelled', this)">
+          <i class="bi bi-x-circle text-neon-red"></i>
+          <span>İptal</span>
+          <span class="cl-tab-count">3</span>
+        </button>
+      </div>
+
+
+      <!-- ==================== SECTION 3: FILTERS & TOOLBAR ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
+        <div class="card-body-custom">
+          <div class="cl-toolbar">
+            <div class="cl-search">
+              <i class="bi bi-search"></i>
+              <input type="text" id="orderSearch" placeholder="Sipariş no, müşteri adı veya e-posta ile ara..." oninput="filterOrders()">
+            </div>
+            <div class="cl-filters">
+              <select class="cl-filter-select" id="filterPayment" onchange="filterOrders()">
+                <option value="">Tüm Ödemeler</option>
+                <option value="credit_card">Kredi Kartı</option>
+                <option value="bank_transfer">Havale/EFT</option>
+                <option value="cash_on_delivery">Kapıda Ödeme</option>
+                <option value="digital_wallet">Dijital Cüzdan</option>
+              </select>
+              <select class="cl-filter-select" id="filterDate" onchange="filterOrders()">
+                <option value="">Tüm Tarihler</option>
+                <option value="today">Bugün</option>
+                <option value="week">Bu Hafta</option>
+                <option value="month">Bu Ay</option>
+                <option value="quarter">Son 3 Ay</option>
+              </select>
+              <select class="cl-filter-select" id="filterAmount" onchange="filterOrders()">
+                <option value="">Tüm Tutarlar</option>
+                <option value="0-500">0 - 500 TL</option>
+                <option value="500-2000">500 - 2.000 TL</option>
+                <option value="2000-10000">2.000 - 10.000 TL</option>
+                <option value="10000+">10.000 TL +</option>
+              </select>
+            </div>
+            <div class="cl-toolbar-actions">
+              <button class="cl-filter-reset" onclick="resetOrderFilters()" title="Filtreleri Sıfırla">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+              <div class="cl-per-page">
+                <label>Göster:</label>
+                <select id="perPage" onchange="changePerPage()">
+                  <option value="10">10</option>
+                  <option value="25" selected>25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+              <div class="cl-bulk-actions d-none" id="bulkActions">
+                <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
+                <button class="usr-action-btn success" onclick="bulkOrderAction('processing')" title="Hazırlanıyor"><i class="bi bi-gear"></i></button>
+                <button class="usr-action-btn" onclick="bulkOrderAction('shipped')" title="Kargoya Ver"><i class="bi bi-truck"></i></button>
+                <button class="usr-action-btn danger" onclick="bulkOrderAction('cancel')" title="İptal Et"><i class="bi bi-x-circle"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 4: ORDERS TABLE ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-body-custom p-0">
+          <div class="table-responsive">
+            <table class="table table-hover cl-table mb-0">
+              <thead>
+                <tr>
+                  <th class="cl-th-checkbox">
+                    <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                  </th>
+                  <th class="cl-th-sortable" onclick="sortOrders('id')">
+                    Sipariş <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-sortable" onclick="sortOrders('customer')">
+                    Müşteri <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-sortable d-none d-lg-table-cell" onclick="sortOrders('products')">
+                    Ürünler <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-sortable" onclick="sortOrders('total')">
+                    Tutar <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-sortable" onclick="sortOrders('status')">
+                    Durum <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-sortable d-none d-xl-table-cell" onclick="sortOrders('payment')">
+                    Ödeme <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-sortable d-none d-xxl-table-cell" onclick="sortOrders('date')">
+                    Tarih <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="cl-th-actions">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+
+                <!-- Row 1 -->
+                <tr data-status="delivered" data-payment="credit_card" data-amount="54999" data-aos="fade-right" data-aos-delay="0">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş">
+                    <span class="ord-id">#ORD-2847</span>
+                  </td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Ahmet+Y&background=14b8a6&color=fff&size=32" alt="Ahmet Yılmaz">
+                      <div>
+                        <span class="ord-customer-name">Ahmet Yılmaz</span>
+                        <span class="ord-customer-email">ahmet@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod1/28/28" alt="iPhone 16" class="ord-product-thumb" title="iPhone 16 Pro Max">
+                      <span class="ord-product-count">1 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar">
+                    <span class="ord-amount">54.999 TL</span>
+                  </td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-delivered"><i class="bi bi-check-circle-fill"></i> Teslim Edildi</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-credit-card me-1"></i> Kredi Kartı</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">22 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(1)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(1)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Durum" onclick="openStatusModal(1)"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 2 -->
+                <tr data-status="pending" data-payment="bank_transfer" data-amount="44999" data-aos="fade-right" data-aos-delay="50">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2846</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Elif+K&background=a855f7&color=fff&size=32" alt="Elif Kaya">
+                      <div>
+                        <span class="ord-customer-name">Elif Kaya</span>
+                        <span class="ord-customer-email">elif@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod2/28/28" alt="Galaxy S25" class="ord-product-thumb" title="Samsung Galaxy S25 Ultra">
+                      <img src="https://picsum.photos/seed/prod4/28/28" alt="Sony WH" class="ord-product-thumb" title="Sony WH-1000XM6">
+                      <span class="ord-product-count">2 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount">69.998 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-pending"><i class="bi bi-clock-fill"></i> Bekleyen</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-bank me-1"></i> Havale/EFT</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">21 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(2)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(2)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Durum" onclick="openStatusModal(2)"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 3 -->
+                <tr data-status="shipped" data-payment="credit_card" data-amount="4299" data-aos="fade-right" data-aos-delay="100">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2845</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Mehmet+D&background=3b82f6&color=fff&size=32" alt="Mehmet Demir">
+                      <div>
+                        <span class="ord-customer-name">Mehmet Demir</span>
+                        <span class="ord-customer-email">mehmet@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod3/28/28" alt="Nike Air Max" class="ord-product-thumb" title="Nike Air Max 2026">
+                      <span class="ord-product-count">1 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount">4.299 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-shipped"><i class="bi bi-truck"></i> Kargoda</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-credit-card me-1"></i> Kredi Kartı</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">20 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(3)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(3)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Kargo Takip" onclick="trackShipment(3)"><i class="bi bi-geo-alt"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 4 -->
+                <tr data-status="processing" data-payment="digital_wallet" data-amount="89999" data-aos="fade-right" data-aos-delay="150">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2844</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Zeynep+A&background=22c55e&color=fff&size=32" alt="Zeynep Arslan">
+                      <div>
+                        <span class="ord-customer-name">Zeynep Arslan</span>
+                        <span class="ord-customer-email">zeynep@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod6/28/28" alt="MacBook Pro" class="ord-product-thumb" title="MacBook Pro M4 Max">
+                      <span class="ord-product-count">1 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount">89.999 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-processing"><i class="bi bi-gear-fill"></i> Hazırlanıyor</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-wallet2 me-1"></i> Dijital Cüzdan</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">19 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(4)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(4)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Durum" onclick="openStatusModal(4)"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 5 -->
+                <tr data-status="cancelled" data-payment="credit_card" data-amount="18999" data-aos="fade-right" data-aos-delay="200">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2843</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Burak+C&background=ef4444&color=fff&size=32" alt="Burak Can">
+                      <div>
+                        <span class="ord-customer-name">Burak Can</span>
+                        <span class="ord-customer-email">burak@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod8/28/28" alt="Dyson V15" class="ord-product-thumb" title="Dyson V15 Detect">
+                      <span class="ord-product-count">1 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount ord-amount-cancelled">18.999 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-cancelled"><i class="bi bi-x-circle-fill"></i> İptal</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-credit-card me-1"></i> Kredi Kartı</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">18 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(5)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(5)"><i class="bi bi-receipt"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 6 -->
+                <tr data-status="shipped" data-payment="cash_on_delivery" data-amount="3599" data-aos="fade-right" data-aos-delay="250">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2842</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Selin+O&background=ec4899&color=fff&size=32" alt="Selin Öztürk">
+                      <div>
+                        <span class="ord-customer-name">Selin Öztürk</span>
+                        <span class="ord-customer-email">selin@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod5/28/28" alt="Adidas" class="ord-product-thumb" title="Adidas Ultraboost 24">
+                      <span class="ord-product-count">1 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount">3.599 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-shipped"><i class="bi bi-truck"></i> Kargoda</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-cash-stack me-1"></i> Kapıda Ödeme</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">17 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(6)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(6)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Kargo Takip" onclick="trackShipment(6)"><i class="bi bi-geo-alt"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 7 -->
+                <tr data-status="delivered" data-payment="credit_card" data-amount="899" data-aos="fade-right" data-aos-delay="300">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2841</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Deniz+Y&background=f97316&color=fff&size=32" alt="Deniz Yıldız">
+                      <div>
+                        <span class="ord-customer-name">Deniz Yıldız</span>
+                        <span class="ord-customer-email">deniz@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod7/28/28" alt="Serum" class="ord-product-thumb" title="L'Oréal Revitalift Serum">
+                      <img src="https://picsum.photos/seed/prod7b/28/28" alt="Krem" class="ord-product-thumb" title="Revitalift Gece Kremi">
+                      <img src="https://picsum.photos/seed/prod7c/28/28" alt="Tonik" class="ord-product-thumb" title="Revitalift Tonik">
+                      <span class="ord-product-count">3 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount">2.697 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-delivered"><i class="bi bi-check-circle-fill"></i> Teslim Edildi</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-credit-card me-1"></i> Kredi Kartı</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">16 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(7)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(7)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Durum" onclick="openStatusModal(7)"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 8 -->
+                <tr data-status="pending" data-payment="bank_transfer" data-amount="24999" data-aos="fade-right" data-aos-delay="350">
+                  <td data-label="Seç"><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td data-label="Sipariş"><span class="ord-id">#ORD-2840</span></td>
+                  <td data-label="Müşteri">
+                    <div class="cl-author-cell">
+                      <img src="https://ui-avatars.com/api/?name=Can+A&background=14b8a6&color=fff&size=32" alt="Can Akın">
+                      <div>
+                        <span class="ord-customer-name">Can Akın</span>
+                        <span class="ord-customer-email">can@email.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Ürünler" class="d-none d-lg-table-cell">
+                    <div class="ord-products">
+                      <img src="https://picsum.photos/seed/prod4/28/28" alt="Sony" class="ord-product-thumb" title="Sony WH-1000XM6">
+                      <span class="ord-product-count">1 ürün</span>
+                    </div>
+                  </td>
+                  <td data-label="Tutar"><span class="ord-amount">24.999 TL</span></td>
+                  <td data-label="Durum">
+                    <span class="ord-status-badge ord-status-pending"><i class="bi bi-clock-fill"></i> Bekleyen</span>
+                  </td>
+                  <td data-label="Ödeme" class="d-none d-xl-table-cell">
+                    <div class="ord-payment"><i class="bi bi-bank me-1"></i> Havale/EFT</div>
+                  </td>
+                  <td data-label="Tarih" class="d-none d-xxl-table-cell"><span class="usr-meta">15 Şub 2026</span></td>
+                  <td data-label="İşlem">
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Detay" onclick="openOrderDetail(8)"><i class="bi bi-eye"></i></button>
+                      <button class="usr-action-btn" title="Fatura" onclick="openInvoiceModal(8)"><i class="bi bi-receipt"></i></button>
+                      <button class="usr-action-btn" title="Durum" onclick="openStatusModal(8)"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="cl-pagination-wrapper" data-aos="fade-up">
+          <div class="cl-pagination-info">
+            <span>Toplam <strong>8.432</strong> siparişten <strong>1-8</strong> arası gösteriliyor</span>
+          </div>
+          <nav class="cl-pagination">
+            <button class="cl-page-btn" disabled title="İlk Sayfa"><i class="bi bi-chevron-double-left"></i></button>
+            <button class="cl-page-btn" disabled title="Önceki"><i class="bi bi-chevron-left"></i></button>
+            <button class="cl-page-btn active">1</button>
+            <button class="cl-page-btn" onclick="goToPage(2)">2</button>
+            <button class="cl-page-btn" onclick="goToPage(3)">3</button>
+            <span class="cl-page-ellipsis">...</span>
+            <button class="cl-page-btn" onclick="goToPage(338)">338</button>
+            <button class="cl-page-btn" onclick="goToPage(2)" title="Sonraki"><i class="bi bi-chevron-right"></i></button>
+            <button class="cl-page-btn" onclick="goToPage(338)" title="Son Sayfa"><i class="bi bi-chevron-double-right"></i></button>
+          </nav>
+          <div class="cl-page-jump">
+            <label>Sayfaya git:</label>
+            <input type="number" min="1" max="338" value="1" onchange="goToPage(this.value)">
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== ORDER DETAIL MODAL ==================== -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-receipt-cutoff me-2"></i>Sipariş Detayı</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Order Header -->
+        <div class="ord-detail-header">
+          <div class="ord-detail-id">
+            <h4 id="detailOrderId">#ORD-2847</h4>
+            <span class="ord-status-badge ord-status-delivered" id="detailOrderStatus"><i class="bi bi-check-circle-fill"></i> Teslim Edildi</span>
+          </div>
+          <span class="ord-detail-date" id="detailOrderDate">22 Şubat 2026 - 14:32</span>
+        </div>
+
+        <!-- Timeline -->
+        <div class="ord-timeline">
+          <div class="ord-timeline-step completed">
+            <div class="ord-timeline-dot"><i class="bi bi-check"></i></div>
+            <div class="ord-timeline-info">
+              <span class="ord-timeline-title">Sipariş Alındı</span>
+              <span class="ord-timeline-time">22 Şub, 14:32</span>
+            </div>
+          </div>
+          <div class="ord-timeline-line completed"></div>
+          <div class="ord-timeline-step completed">
+            <div class="ord-timeline-dot"><i class="bi bi-check"></i></div>
+            <div class="ord-timeline-info">
+              <span class="ord-timeline-title">Ödeme Onaylandı</span>
+              <span class="ord-timeline-time">22 Şub, 14:35</span>
+            </div>
+          </div>
+          <div class="ord-timeline-line completed"></div>
+          <div class="ord-timeline-step completed">
+            <div class="ord-timeline-dot"><i class="bi bi-check"></i></div>
+            <div class="ord-timeline-info">
+              <span class="ord-timeline-title">Hazırlanıyor</span>
+              <span class="ord-timeline-time">22 Şub, 15:10</span>
+            </div>
+          </div>
+          <div class="ord-timeline-line completed"></div>
+          <div class="ord-timeline-step completed">
+            <div class="ord-timeline-dot"><i class="bi bi-check"></i></div>
+            <div class="ord-timeline-info">
+              <span class="ord-timeline-title">Kargoya Verildi</span>
+              <span class="ord-timeline-time">23 Şub, 09:20</span>
+            </div>
+          </div>
+          <div class="ord-timeline-line completed"></div>
+          <div class="ord-timeline-step completed active">
+            <div class="ord-timeline-dot"><i class="bi bi-check"></i></div>
+            <div class="ord-timeline-info">
+              <span class="ord-timeline-title">Teslim Edildi</span>
+              <span class="ord-timeline-time">24 Şub, 11:45</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Customer Info -->
+          <div class="col-md-6">
+            <div class="ord-detail-section">
+              <h6 class="ord-section-title"><i class="bi bi-person me-2"></i>Müşteri Bilgileri</h6>
+              <div class="ord-info-row"><span>Ad Soyad</span><strong id="detailCustomerName">Ahmet Yılmaz</strong></div>
+              <div class="ord-info-row"><span>E-posta</span><strong id="detailCustomerEmail">ahmet@email.com</strong></div>
+              <div class="ord-info-row"><span>Telefon</span><strong id="detailCustomerPhone">+90 532 123 4567</strong></div>
+            </div>
+          </div>
+          <!-- Shipping Info -->
+          <div class="col-md-6">
+            <div class="ord-detail-section">
+              <h6 class="ord-section-title"><i class="bi bi-geo-alt me-2"></i>Teslimat Adresi</h6>
+              <p class="ord-address" id="detailAddress">Atatürk Mah. Cumhuriyet Cad. No:42/A Daire:5, Kadıköy, İstanbul, 34710</p>
+              <div class="ord-info-row"><span>Kargo</span><strong id="detailShipping">Yurtiçi Kargo</strong></div>
+              <div class="ord-info-row"><span>Takip No</span><strong class="text-teal" id="detailTrackingNo">YK-789456123</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products -->
+        <div class="ord-detail-section mt-4">
+          <h6 class="ord-section-title"><i class="bi bi-box-seam me-2"></i>Sipariş Kalemleri</h6>
+          <div class="table-responsive">
+            <table class="table cl-table mb-0" id="detailProductsTable">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Birim Fiyat</th>
+                  <th>Adet</th>
+                  <th class="text-end">Toplam</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img src="https://picsum.photos/seed/prod1/36/36" alt="iPhone 16 Pro Max" class="ord-product-thumb-lg">
+                      <div>
+                        <span class="ord-product-name">iPhone 16 Pro Max</span>
+                        <span class="ord-product-variant">256GB, Siyah Titanyum</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>54.999 TL</td>
+                  <td>1</td>
+                  <td class="text-end"><strong>54.999 TL</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Order Summary -->
+          <div class="ord-summary">
+            <div class="ord-summary-row"><span>Ara Toplam</span><span id="detailSubtotal">54.999 TL</span></div>
+            <div class="ord-summary-row"><span>Kargo</span><span class="text-neon-green" id="detailShippingCost">Ücretsiz</span></div>
+            <div class="ord-summary-row"><span>KDV (%20)</span><span id="detailTax">9.166 TL</span></div>
+            <div class="ord-summary-row ord-summary-total"><span>Genel Toplam</span><span id="detailTotal">54.999 TL</span></div>
+          </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="ord-detail-section mt-3">
+          <h6 class="ord-section-title"><i class="bi bi-credit-card me-2"></i>Ödeme Bilgileri</h6>
+          <div class="ord-info-row"><span>Yöntem</span><strong id="detailPaymentMethod">Kredi Kartı</strong></div>
+          <div class="ord-info-row"><span>Durum</span><strong class="text-neon-green" id="detailPaymentStatus">Ödendi</strong></div>
+          <div class="ord-info-row"><span>İşlem ID</span><strong id="detailTransactionId">TXN-8847291034</strong></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex gap-2 mt-4 flex-wrap">
+          <button class="btn-teal" onclick="openInvoiceModal(1)"><i class="bi bi-receipt me-1"></i> Fatura Görüntüle</button>
+          <button class="btn-glass" onclick="openStatusModal(1)"><i class="bi bi-arrow-repeat me-1"></i> Durum Güncelle</button>
+          <button class="btn-glass" onclick="printOrder()"><i class="bi bi-printer me-1"></i> Yazdır</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== STATUS CHANGE MODAL ==================== -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title">Durum Güncelle</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <p class="cl-modal-body-text mb-3">Sipariş <strong id="statusOrderId">#ORD-2847</strong> için yeni durum seçin:</p>
+        <div class="ord-status-options">
+          <label class="ord-status-option">
+            <input type="radio" name="orderStatus" value="pending">
+            <span class="ord-status-option-label"><i class="bi bi-clock text-neon-orange"></i> Bekleyen</span>
+          </label>
+          <label class="ord-status-option">
+            <input type="radio" name="orderStatus" value="processing">
+            <span class="ord-status-option-label"><i class="bi bi-gear text-neon-blue"></i> Hazırlanıyor</span>
+          </label>
+          <label class="ord-status-option">
+            <input type="radio" name="orderStatus" value="shipped">
+            <span class="ord-status-option-label"><i class="bi bi-truck text-neon-purple"></i> Kargoda</span>
+          </label>
+          <label class="ord-status-option">
+            <input type="radio" name="orderStatus" value="delivered">
+            <span class="ord-status-option-label"><i class="bi bi-check-circle text-neon-green"></i> Teslim Edildi</span>
+          </label>
+          <label class="ord-status-option">
+            <input type="radio" name="orderStatus" value="cancelled">
+            <span class="ord-status-option-label"><i class="bi bi-x-circle text-neon-red"></i> İptal</span>
+          </label>
+        </div>
+        <div class="mb-3 mt-3">
+          <label class="form-label">Not (Opsiyonel)</label>
+          <textarea class="form-control" id="statusNote" rows="2" placeholder="Durum değişikliği hakkında not ekleyin..."></textarea>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" onclick="updateOrderStatus()">
+            <i class="bi bi-check-lg me-1"></i> Güncelle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== INVOICE MODAL ==================== -->
+<div class="modal fade" id="invoiceModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-receipt me-2"></i>Fatura</h5>
+        <div class="d-flex gap-2">
+          <button class="btn-glass btn-sm" onclick="printInvoice()"><i class="bi bi-printer me-1"></i>Yazdır</button>
+          <button class="btn-glass btn-sm" onclick="downloadInvoice()"><i class="bi bi-download me-1"></i>PDF</button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="ord-invoice">
+          <!-- Invoice Header -->
+          <div class="ord-invoice-header">
+            <div>
+              <h3 class="ord-invoice-brand">OZAN</h3>
+              <p class="ord-invoice-company">OZAN Teknoloji A.Ş.<br>Levent, Büyükdere Cad. No:185<br>İstanbul, 34394<br>info@ozan.dev</p>
+            </div>
+            <div class="text-end">
+              <h4 class="ord-invoice-title">FATURA</h4>
+              <div class="ord-invoice-meta">
+                <div class="ord-info-row"><span>Fatura No</span><strong id="invoiceNo">FTR-2026-2847</strong></div>
+                <div class="ord-info-row"><span>Tarih</span><strong id="invoiceDate">22 Şubat 2026</strong></div>
+                <div class="ord-info-row"><span>Sipariş</span><strong id="invoiceOrderId">#ORD-2847</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bill To -->
+          <div class="ord-invoice-billing">
+            <div>
+              <h6>Fatura Adresi</h6>
+              <p id="invoiceBillTo"><strong>Ahmet Yılmaz</strong><br>Atatürk Mah. Cumhuriyet Cad. No:42/A<br>Kadıköy, İstanbul 34710<br>ahmet@email.com</p>
+            </div>
+            <div>
+              <h6>Teslimat Adresi</h6>
+              <p id="invoiceShipTo"><strong>Ahmet Yılmaz</strong><br>Atatürk Mah. Cumhuriyet Cad. No:42/A<br>Kadıköy, İstanbul 34710</p>
+            </div>
+          </div>
+
+          <!-- Invoice Table -->
+          <div class="table-responsive">
+            <table class="table cl-table ord-invoice-table mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ürün</th>
+                  <th>Birim Fiyat</th>
+                  <th>Adet</th>
+                  <th class="text-end">Toplam</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTableBody">
+                <tr>
+                  <td>1</td>
+                  <td>iPhone 16 Pro Max - 256GB, Siyah Titanyum</td>
+                  <td>54.999 TL</td>
+                  <td>1</td>
+                  <td class="text-end">54.999 TL</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Invoice Summary -->
+          <div class="ord-invoice-summary">
+            <div class="ord-summary-row"><span>Ara Toplam</span><span>54.999 TL</span></div>
+            <div class="ord-summary-row"><span>Kargo</span><span>Ücretsiz</span></div>
+            <div class="ord-summary-row"><span>KDV (%20)</span><span>9.166 TL</span></div>
+            <div class="ord-summary-row ord-summary-total"><span>GENEL TOPLAM</span><span>54.999 TL</span></div>
+          </div>
+
+          <!-- Invoice Footer -->
+          <div class="ord-invoice-footer">
+            <p>Ödeme Yöntemi: Kredi Kartı | İşlem ID: TXN-8847291034</p>
+            <p class="ord-invoice-note">Bu fatura elektronik ortamda oluşturulmuştur. İmza ve kaşe gerektirmez.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== TRACKING MODAL ==================== -->
+<div class="modal fade" id="trackingModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-geo-alt me-2"></i>Kargo Takip</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="ord-tracking-header mb-4">
+          <div class="ord-info-row"><span>Kargo Firması</span><strong>Yurtiçi Kargo</strong></div>
+          <div class="ord-info-row"><span>Takip No</span><strong class="text-teal" id="trackingNo">YK-789456123</strong></div>
+          <div class="ord-info-row"><span>Tahmini Teslimat</span><strong>25 Şubat 2026</strong></div>
+        </div>
+        <div class="ord-tracking-steps">
+          <div class="ord-tracking-step completed">
+            <div class="ord-tracking-dot"></div>
+            <div class="ord-tracking-info">
+              <strong>Kargoya verildi</strong>
+              <span>İstanbul Dağıtım Merkezi</span>
+              <small>20 Şub 2026, 09:20</small>
+            </div>
+          </div>
+          <div class="ord-tracking-step completed">
+            <div class="ord-tracking-dot"></div>
+            <div class="ord-tracking-info">
+              <strong>Transfer merkezinde</strong>
+              <span>Ankara Aktarma Merkezi</span>
+              <small>21 Şub 2026, 03:15</small>
+            </div>
+          </div>
+          <div class="ord-tracking-step active">
+            <div class="ord-tracking-dot"></div>
+            <div class="ord-tracking-info">
+              <strong>Dağıtıma çıktı</strong>
+              <span>Ankara Çankaya Şubesi</span>
+              <small>22 Şub 2026, 08:40</small>
+            </div>
+          </div>
+          <div class="ord-tracking-step">
+            <div class="ord-tracking-dot"></div>
+            <div class="ord-tracking-info">
+              <strong>Teslim edildi</strong>
+              <span>Bekleniyor...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== BULK CANCEL MODAL ==================== -->
+<div class="modal fade" id="bulkCancelModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon danger">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <h5 class="cl-modal-heading">Toplu İptal Onayı</h5>
+        <p class="cl-modal-body-text"><strong id="bulkCancelCount">0</strong> siparişi iptal etmek istediğinizden emin misiniz?</p>
+        <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmBulkCancel()">
+            <i class="bi bi-x-circle"></i> Evet, İptal Et
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="orders.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

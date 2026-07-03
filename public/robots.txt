@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /hesabim/
+Disallow: /siparis/
+Disallow: /sepet
+Disallow: /giris
+Disallow: /kayit
+Disallow: /sifremi-unuttum
+Disallow: /sifre-sifirla/
+Disallow: /cikis
+
+Sitemap: https://orhanbabaninciftligi.com/sitemap.xml

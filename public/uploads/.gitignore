@@ -1,0 +1,12 @@
+*
+!.gitignore
+!settings/
+!products/
+!categories/
+!blog/
+!gallery/
+!sliders/
+!testimonials/
+!users/
+!pages/
+!temp/

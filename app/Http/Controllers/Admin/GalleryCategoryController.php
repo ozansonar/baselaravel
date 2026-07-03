@@ -1,0 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreGalleryCategoryRequest;
+use App\Http\Requests\UpdateGalleryCategoryRequest;
+use App\Models\GalleryCategory;
+use App\Services\GalleryCategoryService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+final class GalleryCategoryController extends Controller
+{
+    public function __construct(
+        private readonly GalleryCategoryService $galleryCategoryService,
+    ) {}
+
+    public function index(Request $request): View
+    {
+        $this->authorize('viewAny', GalleryCategory::class);
+
+        $perPage = in_array((int) $request->input('per_page', 25), [10, 25, 50, 100], true)
+            ? (int) $request->input('per_page', 25)
+            : 25;
+
+        $filters = $request->only(['status', 'search']);
+
+        return view('admin.gallery-categories.index', [
+            'categories'   => $this->galleryCategoryService->paginate($perPage, $filters),
+            'stats'        => $this->galleryCategoryService->getAdminStats(),
+            'statusCounts' => $this->galleryCategoryService->statusCounts(),
+            'perPage'      => $perPage,
+        ]);
+    }
+
+    public function create(): View
+    {
+        $this->authorize('create', GalleryCategory::class);
+
+        return view('admin.gallery-categories.create');
+    }
+
+    public function store(StoreGalleryCategoryRequest $request): RedirectResponse
+    {
+        $this->authorize('create', GalleryCategory::class);
+
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active');
+
+        $this->galleryCategoryService->create($data);
+
+        return redirect()
+            ->route('admin.gallery-categories.index')
+            ->with('success', 'Galeri kategorisi başarıyla oluşturuldu.');
+    }
+
+    public function edit(GalleryCategory $galleryCategory): View
+    {
+        $this->authorize('update', $galleryCategory);
+
+        return view('admin.gallery-categories.edit', [
+            'category' => $galleryCategory,
+        ]);
+    }
+
+    public function update(UpdateGalleryCategoryRequest $request, GalleryCategory $galleryCategory): RedirectResponse
+    {
+        $this->authorize('update', $galleryCategory);
+
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active');
+
+        $this->galleryCategoryService->update($galleryCategory, $data);
+
+        return redirect()
+            ->route('admin.gallery-categories.index')
+            ->with('success', 'Galeri kategorisi başarıyla güncellendi.');
+    }
+
+    public function destroy(GalleryCategory $galleryCategory): RedirectResponse
+    {
+        $this->authorize('delete', $galleryCategory);
+
+        $this->galleryCategoryService->delete($galleryCategory);
+
+        return redirect()
+            ->route('admin.gallery-categories.index')
+            ->with('success', 'Galeri kategorisi başarıyla silindi.');
+    }
+
+    public function restore(int $id): RedirectResponse
+    {
+        $category = GalleryCategory::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $category);
+
+        $this->galleryCategoryService->restore($id);
+
+        return redirect()
+            ->route('admin.gallery-categories.index')
+            ->with('success', 'Galeri kategorisi başarıyla geri yüklendi.');
+    }
+}

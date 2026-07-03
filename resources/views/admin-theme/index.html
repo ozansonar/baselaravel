@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin Panel</title>
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+
+    <div id="navbar-container"></div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Hoş geldiniz, Ozan. Bugün harika bir gün!</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-glass" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="bi bi-download"></i> Rapor
+          </button>
+          <button class="btn-teal" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="bi bi-plus-lg"></i> Yeni Ekle
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat Cards Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card teal animate-in">
+            <div class="stat-card-header">
+              <div class="stat-icon teal"><i class="bi bi-currency-dollar"></i></div>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>12.5%</span>
+            </div>
+            <div class="stat-value">$48,290</div>
+            <div class="stat-label">Toplam Gelir</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card purple animate-in anim-delay-1">
+            <div class="stat-card-header">
+              <div class="stat-icon purple"><i class="bi bi-people-fill"></i></div>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>8.1%</span>
+            </div>
+            <div class="stat-value">2,847</div>
+            <div class="stat-label">Aktif Kullanıcı</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card blue animate-in anim-delay-2">
+            <div class="stat-card-header">
+              <div class="stat-icon blue"><i class="bi bi-cart-check-fill"></i></div>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>23.7%</span>
+            </div>
+            <div class="stat-value">1,432</div>
+            <div class="stat-label">Siparişler</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card orange animate-in anim-delay-3">
+            <div class="stat-card-header">
+              <div class="stat-icon orange"><i class="bi bi-graph-up-arrow"></i></div>
+              <span class="stat-trend down"><i class="bi bi-arrow-down-short"></i>2.3%</span>
+            </div>
+            <div class="stat-value">64.8%</div>
+            <div class="stat-label">Dönüşüm Oranı</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-8">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-activity me-2 text-teal"></i>Gelir Analizi</h6>
+              <div class="d-flex gap-2">
+                <button class="btn-glass btn-sm active" onclick="updateRevenueChart('weekly')">Haftalık</button>
+                <button class="btn-glass btn-sm" onclick="updateRevenueChart('monthly')">Aylık</button>
+                <button class="btn-glass btn-sm" onclick="updateRevenueChart('yearly')">Yıllık</button>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-pie-chart me-2 text-neon-purple"></i>Trafik Kaynakları</h6>
+              <button class="btn-icon" type="button" aria-label="Tam ekran" data-bs-toggle="modal" data-bs-target="#analyticsModal"><i class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container"><canvas id="trafficChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second Charts Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-bar-chart me-2 text-neon-blue"></i>Haftalık Siparişler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container chart-container-sm"><canvas id="ordersChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-speedometer2 me-2 text-neon-orange"></i>Performans</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container chart-container-sm"><canvas id="performanceChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-clock-history me-2 text-neon-green"></i>Son Aktiviteler</h6>
+              <button class="btn-icon" type="button" aria-label="Tam ekran" data-bs-toggle="modal" data-bs-target="#activityModal"><i class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+            <div class="card-body-custom pt-2">
+              <div class="activity-item">
+                <div class="activity-icon bg-icon-green-strong"><i class="bi bi-check-circle"></i></div>
+                <div class="activity-content">
+                  <h6>Yeni sipariş alındı</h6>
+                  <p>2 dakika önce - #ORD-2847</p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon bg-icon-blue-strong"><i class="bi bi-person-plus"></i></div>
+                <div class="activity-content">
+                  <h6>Yeni kullanıcı kaydı</h6>
+                  <p>15 dakika önce - Ahmet Y.</p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon bg-icon-purple-strong"><i class="bi bi-star"></i></div>
+                <div class="activity-content">
+                  <h6>Ürün değerlendirmesi</h6>
+                  <p>1 saat önce - 5 yıldız</p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon bg-icon-orange-strong"><i class="bi bi-exclamation-triangle"></i></div>
+                <div class="activity-content">
+                  <h6>Stok uyarısı</h6>
+                  <p>2 saat önce - 3 ürün</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-table me-2 text-teal"></i>Son Siparişler</h6>
+              <div class="d-flex gap-2">
+                <button class="btn-glass" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-funnel"></i> Filtre</button>
+                <button class="btn-glass" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="bi bi-download"></i> Dışarı Aktar</button>
+              </div>
+            </div>
+            <div class="card-body-custom card-body-flush">
+              <table class="table-dark-custom">
+                <thead>
+                  <tr>
+                    <th>Sipariş ID</th>
+                    <th>Müşteri</th>
+                    <th>Ürün</th>
+                    <th>Tutar</th>
+                    <th>Durum</th>
+                    <th>Tarih</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-teal-semibold">#ORD-2847</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-10">
+                        <div class="user-avatar-sm avatar-gradient-teal">AY</div>
+                        <div><div class="fw-600-primary">Ahmet Yılmaz</div><div class="text-sm-muted">ahmet@email.com</div></div>
+                      </div>
+                    </td>
+                    <td>MacBook Pro 16"</td>
+                    <td class="fw-600-primary">$2,499</td>
+                    <td><span class="status-badge active">Tamamlandı</span></td>
+                    <td>06 Sub 2026</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn-icon" type="button" aria-label="Görüntüle" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="bi bi-eye"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Düzenle" data-bs-toggle="modal" data-bs-target="#editOrderModal"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Sil" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-teal-semibold">#ORD-2846</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-10">
+                        <div class="user-avatar-sm avatar-gradient-purple">EK</div>
+                        <div><div class="fw-600-primary">Elif Kaya</div><div class="text-sm-muted">elif@email.com</div></div>
+                      </div>
+                    </td>
+                    <td>iPhone 17 Pro</td>
+                    <td class="fw-600-primary">$1,199</td>
+                    <td><span class="status-badge pending">Beklemede</span></td>
+                    <td>05 Sub 2026</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn-icon" type="button" aria-label="Görüntüle" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="bi bi-eye"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Düzenle" data-bs-toggle="modal" data-bs-target="#editOrderModal"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Sil" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-teal-semibold">#ORD-2845</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-10">
+                        <div class="user-avatar-sm avatar-gradient-orange">MD</div>
+                        <div><div class="fw-600-primary">Mehmet Demir</div><div class="text-sm-muted">mehmet@email.com</div></div>
+                      </div>
+                    </td>
+                    <td>Samsung Galaxy S26</td>
+                    <td class="fw-600-primary">$899</td>
+                    <td><span class="status-badge active">Tamamlandı</span></td>
+                    <td>04 Sub 2026</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn-icon" type="button" aria-label="Görüntüle" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="bi bi-eye"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Düzenle" data-bs-toggle="modal" data-bs-target="#editOrderModal"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Sil" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-teal-semibold">#ORD-2844</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-10">
+                        <div class="user-avatar-sm avatar-gradient-green">ZA</div>
+                        <div><div class="fw-600-primary">Zeynep Arslan</div><div class="text-sm-muted">zeynep@email.com</div></div>
+                      </div>
+                    </td>
+                    <td>iPad Air M3</td>
+                    <td class="fw-600-primary">$749</td>
+                    <td><span class="status-badge inactive">İptal</span></td>
+                    <td>03 Sub 2026</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn-icon" type="button" aria-label="Görüntüle" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="bi bi-eye"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Düzenle" data-bs-toggle="modal" data-bs-target="#editOrderModal"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Sil" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-teal-semibold">#ORD-2843</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-10">
+                        <div class="user-avatar-sm avatar-gradient-blue">BC</div>
+                        <div><div class="fw-600-primary">Burak Can</div><div class="text-sm-muted">burak@email.com</div></div>
+                      </div>
+                    </td>
+                    <td>AirPods Max 2</td>
+                    <td class="fw-600-primary">$549</td>
+                    <td><span class="status-badge info">Kargoda</span></td>
+                    <td>02 Sub 2026</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn-icon" type="button" aria-label="Görüntüle" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="bi bi-eye"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Düzenle" data-bs-toggle="modal" data-bs-target="#editOrderModal"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-icon" type="button" aria-label="Sil" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+<!-- ==================== MODALLAR ==================== -->
+
+<!-- ==================== MODAL 1: Yeni Kullanıcı Ekleme (Multi-Step Wizard) ==================== -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person-plus text-teal"></i> Yeni Kullanıcı Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Steps Indicator -->
+      <div class="modal-steps">
+        <div class="modal-step active" id="step1-ind">
+          <div class="modal-step-number">1</div>
+          <span class="modal-step-label">Kişisel Bilgiler</span>
+        </div>
+        <div class="modal-step-divider"></div>
+        <div class="modal-step" id="step2-ind">
+          <div class="modal-step-number">2</div>
+          <span class="modal-step-label">Rol & İzinler</span>
+        </div>
+        <div class="modal-step-divider"></div>
+        <div class="modal-step" id="step3-ind">
+          <div class="modal-step-number">3</div>
+          <span class="modal-step-label">Onay</span>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Step 1: Personal Info -->
+        <div id="wizard-step-1">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Ad</label>
+              <input type="text" class="form-control" placeholder="Adı girin">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Soyad</label>
+              <input type="text" class="form-control" placeholder="Soyadı girin">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">E-posta</label>
+              <input type="email" class="form-control" placeholder="email@ornek.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefon</label>
+              <input type="tel" class="form-control" placeholder="+90 5xx xxx xx xx">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Profil Fotoğrafı</label>
+              <div class="upload-zone" onclick="this.querySelector('input')?.click()">
+                <i class="bi bi-cloud-arrow-up d-block"></i>
+                <h6>Dosya yüklemek için tıklayın</h6>
+                <p>PNG, JPG - Maks. 5MB</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Role & Permissions -->
+        <div id="wizard-step-2" class="d-none">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Rol</label>
+              <select class="form-select">
+                <option>Super Admin</option>
+                <option>Admin</option>
+                <option>Editor</option>
+                <option>Moderator</option>
+                <option>Viewer</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Departman</label>
+              <select class="form-select">
+                <option>Yazılım</option>
+                <option>Pazarlama</option>
+                <option>Satış</option>
+                <option>Destek</option>
+                <option>İnsan Kaynakları</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">İzin Matrisi</label>
+              <div class="perm-grid">
+                <div class="perm-grid-header">Modül</div>
+                <div class="perm-grid-header">Görüntüle</div>
+                <div class="perm-grid-header">Oluştur</div>
+                <div class="perm-grid-header">Düzenle</div>
+                <div class="perm-grid-header">Sil</div>
+
+                <div class="perm-grid-cell">Dashboard</div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+
+                <div class="perm-grid-cell">Kullanıcılar</div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+
+                <div class="perm-grid-cell">Siparişler</div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+
+                <div class="perm-grid-cell">Ürünler</div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+
+                <div class="perm-grid-cell">Raporlar</div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox" checked></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+                <div class="perm-grid-cell"><input class="form-check-input" type="checkbox"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Confirmation -->
+        <div id="wizard-step-3" class="d-none">
+          <div class="text-center mb-4">
+            <div class="confirm-icon-lg confirm-icon-teal">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <h5>Kullanıcı Bilgilerini Onaylayın</h5>
+            <p class="text-md-muted">Aşağıdaki bilgileri kontrol edin ve onayla butonuna basın</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="info-box-md">
+                <div class="info-label-spaced">Ad Soyad</div>
+                <div class="fw-600" id="confirm-name">-</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box-md">
+                <div class="info-label-spaced">E-posta</div>
+                <div class="fw-600" id="confirm-email">-</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box-md">
+                <div class="info-label-spaced">Rol</div>
+                <div class="fw-600" id="confirm-role">-</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box-md">
+                <div class="info-label-spaced">Departman</div>
+                <div class="fw-600" id="confirm-dept">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-glass d-none" id="wizardPrevBtn" onclick="wizardPrev()">
+          <i class="bi bi-arrow-left"></i> Geri
+        </button>
+        <button type="button" class="btn-glass" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn-teal" id="wizardNextBtn" onclick="wizardNext()">
+          İleri <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 2: Sipariş Detay (Tabbed Modal) ==================== -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-receipt text-neon-blue"></i> Sipariş Detayları - #ORD-2847</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <ul class="nav nav-tabs px-3 pt-2" id="orderTabs" role="tablist">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#orderOverview">Genel Bakış</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#orderProducts">Ürünler</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#orderTimeline">Zaman Çizelgesi</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#orderNotes">Notlar</a></li>
+        </ul>
+        <div class="tab-content p-4">
+          <div class="tab-pane fade show active" id="orderOverview">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="info-box-lg">
+                  <h6 class="text-muted-subtitle">Müşteri Bilgileri</h6>
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="user-avatar-sm avatar-gradient-teal avatar-md-48">AY</div>
+                    <div>
+                      <div class="text-bold-lg">Ahmet Yılmaz</div>
+                      <div class="text-xs-muted">ahmet@email.com</div>
+                    </div>
+                  </div>
+                  <div class="text-md-secondary">
+                    <div class="d-flex justify-content-between py-2 border-bottom-custom">
+                      <span>Telefon</span><span class="text-clr-primary">+90 532 XXX XX XX</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2">
+                      <span>Adres</span><span class="text-clr-primary">İstanbul, Türkiye</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-box-lg">
+                  <h6 class="text-muted-subtitle">Sipariş Özeti</h6>
+                  <div class="text-md-secondary">
+                    <div class="d-flex justify-content-between py-2 border-bottom-custom">
+                      <span>Ara Toplam</span><span class="text-clr-primary">$2,499.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 border-bottom-custom">
+                      <span>Kargo</span><span class="text-neon-green">Ücretsiz</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 border-bottom-custom">
+                      <span>Vergi (KDV %20)</span><span class="text-clr-primary">$499.80</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 text-bold-lg">
+                      <span>Toplam</span><span class="text-teal">$2,998.80</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="info-box-lg">
+                  <h6 class="text-muted-subtitle">Ödeme Bilgileri</h6>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="visa-badge">VISA</div>
+                    <div>
+                      <div class="text-md-semibold">**** **** **** 4532</div>
+                      <div class="text-sm-muted">Son kullanma: 12/27</div>
+                    </div>
+                    <span class="status-badge active ms-auto">Ödendi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="orderProducts">
+            <table class="table-dark-custom">
+              <thead><tr><th>Ürün</th><th>Birim Fiyat</th><th>Adet</th><th>Toplam</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="d-flex align-items-center gap-3"><div class="product-thumb"><i class="bi bi-laptop fs-20 text-clr-muted"></i></div><div><div class="fw-600-primary">MacBook Pro 16"</div><div class="text-sm-muted">M4 Max, 36GB RAM, 1TB SSD</div></div></div></td>
+                  <td>$2,499</td><td>1</td><td class="fw-600-primary">$2,499</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="orderTimeline">
+            <div class="timeline-item"><div class="timeline-dot bg-icon-green-strong"><i class="bi bi-check"></i></div><div class="timeline-content"><h6>Sipariş tamamlandı</h6><p>06 Şub 2026, 14:30</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot bg-icon-blue-strong"><i class="bi bi-truck"></i></div><div class="timeline-content"><h6>Kargoya verildi</h6><p>05 Şub 2026, 09:15 - Kargo No: TR123456789</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot bg-icon-purple-strong"><i class="bi bi-box-seam"></i></div><div class="timeline-content"><h6>Hazırlanıyor</h6><p>04 Şub 2026, 16:45</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot bg-icon-orange-strong"><i class="bi bi-credit-card"></i></div><div class="timeline-content"><h6>Ödeme alındı</h6><p>04 Şub 2026, 14:22</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot bg-icon-teal-strong"><i class="bi bi-cart"></i></div><div class="timeline-content"><h6>Sipariş oluşturuldu</h6><p>04 Şub 2026, 14:20</p></div></div>
+          </div>
+          <div class="tab-pane fade" id="orderNotes">
+            <div class="mb-3"><textarea class="form-control" placeholder="Sipariş notu ekleyin..."></textarea></div>
+            <button class="btn-teal btn-sm mb-4"><i class="bi bi-plus-lg"></i> Not Ekle</button>
+            <div class="activity-item"><div class="activity-icon bg-icon-teal-strong"><i class="bi bi-chat-text"></i></div><div class="activity-content"><h6>Müşteri hızlı kargo istedi</h6><p>Admin - 04 Şub 2026, 15:00</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">Kapat</button>
+        <button class="btn-glass"><i class="bi bi-printer"></i> Yazdır</button>
+        <button class="btn-teal"><i class="bi bi-pencil"></i> Düzenle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 3: Sipariş Düzenle ==================== -->
+<div class="modal fade" id="editOrderModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil-square text-neon-orange"></i> Sipariş Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Sipariş Durumu</label>
+            <select class="form-select">
+              <option>Beklemede</option>
+              <option>İşleniyor</option>
+              <option>Kargoda</option>
+              <option selected>Tamamlandı</option>
+              <option>İptal Edildi</option>
+              <option>İade</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Kargo Firması</label>
+            <select class="form-select">
+              <option>Yurtiçi Kargo</option>
+              <option>Aras Kargo</option>
+              <option>MNG Kargo</option>
+              <option>PTT Kargo</option>
+              <option>UPS</option>
+              <option>DHL</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Takip Numarası</label>
+            <input type="text" class="form-control" value="TR123456789">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Dahili Not</label>
+            <textarea class="form-control" rows="3" placeholder="Sipariş ile ilgili not ekleyin..."></textarea>
+          </div>
+          <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between info-box">
+              <div>
+                <div class="text-md-semibold">Müşteriye E-posta Gönder</div>
+                <div class="text-sm-muted">Durum değişikliğinde bildirim gönder</div>
+              </div>
+              <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-teal"><i class="bi bi-check-lg"></i> Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 4: Silme Onay ==================== -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="confirm-icon confirm-icon-red"><i class="bi bi-exclamation-triangle"></i></div>
+        <h5 class="fw-700-mb">Silme Onay</h5>
+        <p class="text-muted-label">Bu kaydı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">İptal</button>
+          <button class="btn-teal avatar-gradient-red" data-bs-dismiss="modal"><i class="bi bi-trash"></i> Sil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 5: Bildirimler ==================== -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-bell text-neon-orange"></i> Bildirimler</h5>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-sm-muted">3 okunmamış</span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+      <div class="modal-body p-0 modal-scroll">
+        <div class="notification-item unread"><div class="notification-dot"></div><div class="flex-grow-1"><div class="text-md-semibold-mb">Yeni sipariş alındı</div><div class="text-xs-muted">Ahmet Yılmaz $2,499 değerinde sipariş verdi.</div><div class="text-teal-hint">2 dakika önce</div></div></div>
+        <div class="notification-item unread"><div class="notification-dot"></div><div class="flex-grow-1"><div class="text-md-semibold-mb">Stok uyarısı</div><div class="text-xs-muted">3 ürün kritik stok seviyesine düştü.</div><div class="text-teal-hint">30 dakika önce</div></div></div>
+        <div class="notification-item unread"><div class="notification-dot"></div><div class="flex-grow-1"><div class="text-md-semibold-mb">Sistem güncellendi</div><div class="text-xs-muted">v2.4.1 başarıyla yüklendi.</div><div class="text-teal-hint">1 saat önce</div></div></div>
+        <div class="notification-item"><div class="w-8px"></div><div class="flex-grow-1"><div class="text-md-semibold-mb">Yeni kullanıcı kaydı</div><div class="text-xs-muted">Elif Kaya sisteme kayıt oldu.</div><div class="text-muted-hint-sm">3 saat önce</div></div></div>
+        <div class="notification-item"><div class="w-8px"></div><div class="flex-grow-1"><div class="text-md-semibold-mb">Rapor hazır</div><div class="text-xs-muted">Ocak 2026 raporu indirilmeye hazır.</div><div class="text-muted-hint-sm">5 saat önce</div></div></div>
+      </div>
+      <div class="modal-footer"><button class="btn-glass w-100"><i class="bi bi-check-all"></i> Tümünü Okundu İşaretle</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 6: Gelişmiş Filtre ==================== -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-funnel text-neon-blue"></i> Gelişmiş Filtre</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">Durum</label><select class="form-select"><option>Tümü</option><option>Tamamlandı</option><option>Beklemede</option><option>Kargoda</option><option>İptal</option></select></div>
+          <div class="col-md-6"><label class="form-label">Tarih Aralığı</label><select class="form-select"><option>Son 7 gün</option><option>Son 30 gün</option><option>Son 90 gün</option><option>Bu yıl</option><option>Özel aralık</option></select></div>
+          <div class="col-md-6"><label class="form-label">Minimum Tutar</label><input type="number" class="form-control" placeholder="0"></div>
+          <div class="col-md-6"><label class="form-label">Maksimum Tutar</label><input type="number" class="form-control" placeholder="10000"></div>
+          <div class="col-12"><label class="form-label">Kategori</label><div class="d-flex flex-wrap gap-2"><span class="tag-chip">Elektronik <i class="bi bi-x remove-tag"></i></span><span class="tag-chip">Bilgisayar <i class="bi bi-x remove-tag"></i></span><span class="tag-chip tag-chip-purple">+ Ekle</span></div></div>
+          <div class="col-12"><label class="form-label">Sıralama</label><select class="form-select"><option>Tarih (Yeniden Eskiye)</option><option>Tarih (Eskiden Yeniye)</option><option>Tutar (Yüksekten Düşüğe)</option><option>Tutar (Düşükten Yükseğe)</option></select></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass">Sıfırla</button>
+        <button class="btn-teal" data-bs-dismiss="modal"><i class="bi bi-funnel-fill"></i> Filtrele</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 7: Dışarı Aktarma ==================== -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-download text-neon-green"></i> Rapor Dışarı Aktar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Format Seç</label>
+            <div class="row g-2">
+              <div class="col-6"><div class="selectable-card active"><i class="bi bi-filetype-xlsx d-block mb-2 fs-28 text-neon-green"></i><div class="text-md-semibold">Excel (.xlsx)</div><div class="text-sm-muted">Tablo formatı</div></div></div>
+              <div class="col-6"><div class="selectable-card"><i class="bi bi-filetype-pdf d-block mb-2 fs-28 text-neon-red"></i><div class="text-md-semibold">PDF</div><div class="text-sm-muted">Rapor formatı</div></div></div>
+              <div class="col-6"><div class="selectable-card"><i class="bi bi-filetype-csv d-block mb-2 fs-28 text-neon-blue"></i><div class="text-md-semibold">CSV</div><div class="text-sm-muted">Ham veri</div></div></div>
+              <div class="col-6"><div class="selectable-card"><i class="bi bi-filetype-json d-block mb-2 fs-28 text-neon-orange"></i><div class="text-md-semibold">JSON</div><div class="text-sm-muted">API formatı</div></div></div>
+            </div>
+          </div>
+          <div class="col-md-6"><label class="form-label">Başlangıç Tarihi</label><input type="date" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">Bitiş Tarihi</label><input type="date" class="form-control"></div>
+          <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">E-posta ile Gönder</div><div class="text-sm-muted">Raporu e-posta adresinize gönderin</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-teal"><i class="bi bi-download"></i> İndir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 8: Ayarlar ==================== -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-gear text-clr-secondary"></i> Sistem Ayarları</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <ul class="nav nav-tabs px-3 pt-2">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#settingsGeneral">Genel</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#settingsAppearance">Görünüm</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#settingsNotif">Bildirimler</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#settingsSecurity">Güvenlik</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#settingsApi">API</a></li>
+        </ul>
+        <div class="tab-content p-4">
+          <div class="tab-pane fade show active" id="settingsGeneral">
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label">Site Adı</label><input type="text" class="form-control" value="OZAN Admin"></div>
+              <div class="col-md-6"><label class="form-label">Site URL</label><input type="text" class="form-control" value="https://admin.ozan.dev"></div>
+              <div class="col-md-6"><label class="form-label">Dil</label><select class="form-select"><option>Türkçe</option><option>English</option><option>Deutsch</option></select></div>
+              <div class="col-md-6"><label class="form-label">Saat Dilimi</label><select class="form-select"><option>UTC+3 (Istanbul)</option><option>UTC+0 (London)</option><option>UTC-5 (New York)</option></select></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Bakım Modu</div><div class="text-sm-muted">Siteyi geçici olarak bakım moduna alın</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Yeni Kayıt</div><div class="text-sm-muted">Yeni kullanıcı kayıtlarına izin ver</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="settingsAppearance">
+            <div class="row g-3">
+              <div class="col-12"><label class="form-label">Tema</label><div class="d-flex gap-3"><div class="selectable-card-wide active"><i class="bi bi-moon-stars d-block mb-2 fs-24 text-neon-purple"></i><div class="text-md-semibold">Karanlık</div></div><div class="selectable-card-wide"><i class="bi bi-sun d-block mb-2 fs-24 text-neon-orange"></i><div class="text-md-semibold">Aydınlık</div></div><div class="selectable-card-wide"><i class="bi bi-circle-half d-block mb-2 fs-24 text-neon-blue"></i><div class="text-md-semibold">Sistem</div></div></div></div>
+              <div class="col-12"><label class="form-label">Vurgu Rengi</label><div class="d-flex gap-3"><div class="color-swatch active swatch-teal"></div><div class="color-swatch swatch-purple"></div><div class="color-swatch swatch-blue"></div><div class="color-swatch swatch-orange"></div><div class="color-swatch swatch-pink"></div><div class="color-swatch swatch-green"></div></div></div>
+              <div class="col-12"><label class="form-label">Yazı Boyutu</label><input type="range" class="form-range" min="12" max="18" value="14"><div class="d-flex justify-content-between text-sm-muted"><span>Küçük</span><span>Orta</span><span>Büyük</span></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Kompakt Mod</div><div class="text-sm-muted">Daha sıkı arayüz elemanları</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Animasyonlar</div><div class="text-sm-muted">UI geçiş animasyonlarını etkinleştir</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="settingsNotif">
+            <div class="row g-3">
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">E-posta Bildirimleri</div><div class="text-sm-muted">Önemli olaylarda e-posta al</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Push Bildirimleri</div><div class="text-sm-muted">Tarayıcı bildirimlerini etkinleştir</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Sipariş Bildirimleri</div><div class="text-sm-muted">Yeni sipariş geldiğinde bildir</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Stok Uyarıları</div><div class="text-sm-muted">Düşük stok seviyesinde uyar</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">Pazarlama E-postaları</div><div class="text-sm-muted">Promosyon ve güncellemeler</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="settingsSecurity">
+            <div class="row g-3">
+              <div class="col-12"><div class="d-flex align-items-center justify-content-between info-box"><div><div class="text-md-semibold">İki Faktörlü Doğrulama (2FA)</div><div class="text-sm-muted">Hesabınızı ek güvenlik katmanıyla koruyun</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+              <div class="col-12"><label class="form-label">Oturum Süresi</label><select class="form-select"><option>30 dakika</option><option selected>1 saat</option><option>4 saat</option><option>24 saat</option></select></div>
+              <div class="col-12"><label class="form-label">IP Beyaz Listesi</label><textarea class="form-control" rows="2" placeholder="Her satıra bir IP adresi girin..."></textarea></div>
+              <div class="col-12">
+                <label class="form-label mb-2">Aktif Oturumlar</label>
+                <div class="session-box mb-2"><div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-3"><i class="bi bi-laptop fs-20 text-teal"></i><div><div class="text-md-semibold">MacBook Pro - Chrome</div><div class="text-sm-muted">İstanbul, TR - Şimdi aktif</div></div></div><span class="status-badge active">Aktif</span></div></div>
+                <div class="session-box"><div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-3"><i class="bi bi-phone fs-20 text-neon-purple"></i><div><div class="text-md-semibold">iPhone 17 - Safari</div><div class="text-sm-muted">İstanbul, TR - 2 saat önce</div></div></div><button class="btn-glass btn-sm fs-11">Sonlandır</button></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="settingsApi">
+            <div class="row g-3">
+              <div class="col-12"><label class="form-label">API Anahtarı</label><div class="d-flex gap-2"><input type="text" class="form-control text-monospace" value="sk_live_xxxxxxxxxxxxxxxxxxxx" readonly><button class="btn-glass" type="button" aria-label="Kopyala"><i class="bi bi-clipboard"></i></button><button class="btn-glass" type="button" aria-label="Yenile"><i class="bi bi-arrow-clockwise"></i></button></div></div>
+              <div class="col-12"><label class="form-label">Webhook URL</label><input type="text" class="form-control" placeholder="https://yourdomain.com/webhook"></div>
+              <div class="col-12"><label class="form-label">API Kullanım Limiti</label><div class="d-flex align-items-center gap-3"><div class="flex-grow-1"><div class="progress-custom"><div class="bar" style="width:68%;background:linear-gradient(90deg,var(--teal-primary),var(--neon-blue))"></div></div></div><span class="text-md-semibold text-nowrap">6,800 / 10,000</span></div><div class="text-muted-daily">Günlük istek limiti</div></div>
+              <div class="col-12"><label class="form-label">Örnek API Çağrısı</label><div class="code-block"><span class="text-neon-purple">curl</span> -X GET \
+  https://api.ozan.dev/v1/orders \
+  -H <span class="text-neon-green">"Authorization: Bearer sk_live_xxx"</span> \
+  -H <span class="text-neon-green">"Content-Type: application/json"</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-teal"><i class="bi bi-check-lg"></i> Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 9: Profil ==================== -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="confirm-icon-xl avatar-gradient-purple">OZ</div>
+        <h4 class="fw-800-profile">Ozan Sonar</h4>
+        <p class="text-muted-sm-role">Super Admin</p>
+        <div class="d-flex justify-content-center gap-4 mb-4">
+          <div><div class="stat-number-md">248</div><div class="text-sm-muted">Sipariş</div></div>
+          <div class="divider-vertical"></div>
+          <div><div class="stat-number-md">12</div><div class="text-sm-muted">Proje</div></div>
+          <div class="divider-vertical"></div>
+          <div><div class="stat-number-md">4.9</div><div class="text-sm-muted">Puan</div></div>
+        </div>
+        <div class="text-start">
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Ad</label><input type="text" class="form-control" value="Ozan"></div>
+            <div class="col-md-6"><label class="form-label">Soyad</label><input type="text" class="form-control" value="Sonar"></div>
+            <div class="col-12"><label class="form-label">E-posta</label><input type="email" class="form-control" value="ozan@admin.dev"></div>
+            <div class="col-12"><label class="form-label">Biyografi</label><textarea class="form-control" rows="2">Full-stack developer & admin panel architect.</textarea></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">Kapat</button>
+        <button class="btn-teal"><i class="bi bi-check-lg"></i> Güncelle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 10: Analitik Detay ==================== -->
+<div class="modal fade" id="analyticsModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-graph-up text-neon-purple"></i> Detaylı Analitik</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <div class="col-md-3"><div class="info-box-center"><div class="text-sm-muted text-stat-label">Toplam Ziyaret</div><div class="stat-number-lg">128,430</div><span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>18.2%</span></div></div>
+          <div class="col-md-3"><div class="info-box-center"><div class="text-sm-muted text-stat-label">Tekil Ziyaretçi</div><div class="stat-number-lg">84,219</div><span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>12.5%</span></div></div>
+          <div class="col-md-3"><div class="info-box-center"><div class="text-sm-muted text-stat-label">Ort. Süre</div><div class="stat-number-lg">4:32</div><span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>8.7%</span></div></div>
+          <div class="col-md-3"><div class="info-box-center"><div class="text-sm-muted text-stat-label">Hemen Çıkma</div><div class="stat-number-lg">32.1%</div><span class="stat-trend down"><i class="bi bi-arrow-down-short"></i>5.3%</span></div></div>
+        </div>
+        <div class="chart-container chart-container-lg"><canvas id="analyticsDetailChart"></canvas></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">Kapat</button>
+        <button class="btn-teal"><i class="bi bi-download"></i> Raporu İndir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 11: Aktivite Geçmişi ==================== -->
+<div class="modal fade" id="activityModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-clock-history text-neon-green"></i> Aktivite Geçmişi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="timeline-item"><div class="timeline-dot bg-icon-green"><i class="bi bi-cart-check"></i></div><div class="timeline-content"><h6>Sipariş #ORD-2847 tamamlandı</h6><p>Bugün, 14:30</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-blue"><i class="bi bi-person-plus"></i></div><div class="timeline-content"><h6>Yeni kullanıcı: Elif Kaya</h6><p>Bugün, 13:15</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-purple"><i class="bi bi-box-seam"></i></div><div class="timeline-content"><h6>5 yeni ürün eklendi</h6><p>Bugün, 11:00</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-orange"><i class="bi bi-megaphone"></i></div><div class="timeline-content"><h6>Kampanya "Kış İndirimi" başladı</h6><p>Dün, 18:00</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-red"><i class="bi bi-exclamation-triangle"></i></div><div class="timeline-content"><h6>3 ürün stok uyarısı</h6><p>Dün, 15:30</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-teal"><i class="bi bi-shield-check"></i></div><div class="timeline-content"><h6>Güvenlik taraması tamamlandı</h6><p>Dün, 09:00</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-green"><i class="bi bi-arrow-clockwise"></i></div><div class="timeline-content"><h6>Sistem v2.4.1 güncellendi</h6><p>2 gün önce, 22:00</p></div></div>
+        <div class="timeline-item"><div class="timeline-dot bg-icon-blue"><i class="bi bi-file-earmark-bar-graph"></i></div><div class="timeline-content"><h6>Ocak raporu oluşturuldu</h6><p>3 gün önce, 10:00</p></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-glass" data-bs-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

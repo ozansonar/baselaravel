@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Yardım Merkezi</title>
+  <meta name="description" content="OZAN Admin Panel yardım merkezi - SSS, kılavuzlar, video dersler ve destek talebi">
+  <link rel="canonical" href="https://admin.ozan.dev/help.html">
+  <meta property="og:title" content="OZAN Admin - Yardım Merkezi">
+  <meta property="og:description" content="Sık sorulan sorular, kullanım kılavuzları ve destek">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Yardım</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Yardım Merkezi</h1>
+          <p class="page-subtitle">Sorularınıza hızlı cevap bulun, kılavuzları inceleyin veya destek alın</p>
+        </div>
+        <button class="btn-teal" onclick="openTicketModal()">
+          <i class="bi bi-headset me-1"></i> Destek Talebi Aç
+        </button>
+      </div>
+
+
+      <!-- ==================== HERO SEARCH ==================== -->
+      <div class="hlp-search-hero" data-aos="fade-up" data-aos-delay="0">
+        <div class="hlp-search-inner">
+          <i class="bi bi-search hlp-search-icon"></i>
+          <h2 class="hlp-search-title">Size nasıl yardımcı olabiliriz?</h2>
+          <p class="hlp-search-sub">Kılavuzları, SSS'leri ve belgeleri arayın</p>
+          <div class="hlp-search-bar">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              id="helpSearch"
+              placeholder="Örn: fatura nasıl indirilir, kullanıcı nasıl eklenir..."
+              oninput="searchHelp()"
+              autocomplete="off"
+            >
+            <button class="hlp-search-btn" onclick="submitSearch()">Ara</button>
+          </div>
+          <div class="hlp-search-tags">
+            <span class="hlp-tag" onclick="quickSearch('sipariş')">Sipariş yönetimi</span>
+            <span class="hlp-tag" onclick="quickSearch('ürün ekleme')">Ürün ekleme</span>
+            <span class="hlp-tag" onclick="quickSearch('rapor')">Rapor oluşturma</span>
+            <span class="hlp-tag" onclick="quickSearch('kullanıcı')">Kullanıcı ayarları</span>
+            <span class="hlp-tag" onclick="quickSearch('fatura')">Fatura</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STAT CARDS ==================== -->
+      <div class="row g-4 mb-4 mt-1">
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="hlp-stat-card" onclick="scrollToSection('faq')">
+            <div class="hlp-stat-icon hlp-stat-teal"><i class="bi bi-patch-question"></i></div>
+            <span class="hlp-stat-num">48</span>
+            <span class="hlp-stat-label">Sık Sorulan Soru</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="80">
+          <div class="hlp-stat-card" onclick="scrollToSection('guides')">
+            <div class="hlp-stat-icon hlp-stat-blue"><i class="bi bi-book"></i></div>
+            <span class="hlp-stat-num">24</span>
+            <span class="hlp-stat-label">Kullanım Kılavuzu</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="160">
+          <div class="hlp-stat-card" onclick="scrollToSection('videos')">
+            <div class="hlp-stat-icon hlp-stat-purple"><i class="bi bi-play-circle"></i></div>
+            <span class="hlp-stat-num">12</span>
+            <span class="hlp-stat-label">Video Ders</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="240">
+          <div class="hlp-stat-card" onclick="openTicketModal()">
+            <div class="hlp-stat-icon hlp-stat-green"><i class="bi bi-headset"></i></div>
+            <span class="hlp-stat-num">7/24</span>
+            <span class="hlp-stat-label">Destek Hattı</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: POPULAR GUIDES ==================== -->
+      <section id="guides">
+        <div class="d-flex align-items-center justify-content-between mb-3" data-aos="fade-up">
+          <h2 class="rpr-section-title">Popüler Kılavuzlar</h2>
+          <button class="hlp-view-all" onclick="openGuidesModal()">Tümünü Gör <i class="bi bi-arrow-right"></i></button>
+        </div>
+
+        <div class="row g-4 mb-4">
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+            <div class="hlp-guide-card" onclick="openGuideModal('orders')">
+              <div class="hlp-guide-cover hlp-cover-teal">
+                <i class="bi bi-cart-check"></i>
+                <span class="hlp-guide-badge">Başlangıç</span>
+              </div>
+              <div class="hlp-guide-body">
+                <h5 class="hlp-guide-title">Sipariş Yönetimi</h5>
+                <p class="hlp-guide-desc">Siparişleri listeleme, durumlarını güncelleme, fatura oluşturma ve kargo takibi yapma.</p>
+                <div class="hlp-guide-meta">
+                  <span><i class="bi bi-clock me-1"></i>5 dk okuma</span>
+                  <span><i class="bi bi-eye me-1"></i>2.4K görüntüleme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="80">
+            <div class="hlp-guide-card" onclick="openGuideModal('products')">
+              <div class="hlp-guide-cover hlp-cover-purple">
+                <i class="bi bi-box-seam"></i>
+                <span class="hlp-guide-badge">Orta</span>
+              </div>
+              <div class="hlp-guide-body">
+                <h5 class="hlp-guide-title">Ürün Ekleme ve Yönetimi</h5>
+                <p class="hlp-guide-desc">Yeni ürün oluşturma, varyant tanımlama, fiyatlandırma ve stok yönetimi.</p>
+                <div class="hlp-guide-meta">
+                  <span><i class="bi bi-clock me-1"></i>8 dk okuma</span>
+                  <span><i class="bi bi-eye me-1"></i>1.8K görüntüleme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="160">
+            <div class="hlp-guide-card" onclick="openGuideModal('reports')">
+              <div class="hlp-guide-cover hlp-cover-blue">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                <span class="hlp-guide-badge">Orta</span>
+              </div>
+              <div class="hlp-guide-body">
+                <h5 class="hlp-guide-title">Rapor Oluşturma</h5>
+                <p class="hlp-guide-desc">Satış, müşteri ve finansal raporları hazırlama, planlama ve dışa aktarma.</p>
+                <div class="hlp-guide-meta">
+                  <span><i class="bi bi-clock me-1"></i>6 dk okuma</span>
+                  <span><i class="bi bi-eye me-1"></i>1.2K görüntüleme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+            <div class="hlp-guide-card" onclick="openGuideModal('users')">
+              <div class="hlp-guide-cover hlp-cover-orange">
+                <i class="bi bi-people"></i>
+                <span class="hlp-guide-badge">Başlangıç</span>
+              </div>
+              <div class="hlp-guide-body">
+                <h5 class="hlp-guide-title">Kullanıcı ve Yetki Yönetimi</h5>
+                <p class="hlp-guide-desc">Yeni kullanıcı davet etme, rol atama ve erişim izinlerini düzenleme.</p>
+                <div class="hlp-guide-meta">
+                  <span><i class="bi bi-clock me-1"></i>4 dk okuma</span>
+                  <span><i class="bi bi-eye me-1"></i>987 görüntüleme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="80">
+            <div class="hlp-guide-card" onclick="openGuideModal('analytics')">
+              <div class="hlp-guide-cover hlp-cover-green">
+                <i class="bi bi-bar-chart-line"></i>
+                <span class="hlp-guide-badge">İleri</span>
+              </div>
+              <div class="hlp-guide-body">
+                <h5 class="hlp-guide-title">Analitik Dashboard</h5>
+                <p class="hlp-guide-desc">Grafikleri okuma, KPI'ları yorumlama ve satış trendlerini analiz etme.</p>
+                <div class="hlp-guide-meta">
+                  <span><i class="bi bi-clock me-1"></i>10 dk okuma</span>
+                  <span><i class="bi bi-eye me-1"></i>743 görüntüleme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="160">
+            <div class="hlp-guide-card" onclick="openGuideModal('settings')">
+              <div class="hlp-guide-cover hlp-cover-pink">
+                <i class="bi bi-gear-wide-connected"></i>
+                <span class="hlp-guide-badge">Başlangıç</span>
+              </div>
+              <div class="hlp-guide-body">
+                <h5 class="hlp-guide-title">Panel Ayarları</h5>
+                <p class="hlp-guide-desc">Profil güncelleme, bildirim tercihleri, tema değiştirme ve güvenlik ayarları.</p>
+                <div class="hlp-guide-meta">
+                  <span><i class="bi bi-clock me-1"></i>3 dk okuma</span>
+                  <span><i class="bi bi-eye me-1"></i>621 görüntüleme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ==================== SECTION 3: VIDEO LESSONS ==================== -->
+      <section id="videos">
+        <div class="d-flex align-items-center justify-content-between mb-3" data-aos="fade-up">
+          <h2 class="rpr-section-title">Video Dersler</h2>
+          <span class="rpr-section-sub">12 ders · 2 saat 48 dk</span>
+        </div>
+
+        <div class="row g-4 mb-4">
+
+          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
+            <div class="hlp-video-card" onclick="openVideoModal('intro')">
+              <div class="hlp-video-thumb hlp-vthumb-teal">
+                <i class="bi bi-play-circle-fill hlp-video-play"></i>
+                <span class="hlp-video-dur">12:34</span>
+              </div>
+              <div class="hlp-video-info">
+                <span class="hlp-video-num">01</span>
+                <h6 class="hlp-video-title">Panel'e Giriş</h6>
+                <p class="hlp-video-sub">Temel navigasyon ve arayüz tanıtımı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="60">
+            <div class="hlp-video-card" onclick="openVideoModal('orders')">
+              <div class="hlp-video-thumb hlp-vthumb-blue">
+                <i class="bi bi-play-circle-fill hlp-video-play"></i>
+                <span class="hlp-video-dur">18:22</span>
+              </div>
+              <div class="hlp-video-info">
+                <span class="hlp-video-num">02</span>
+                <h6 class="hlp-video-title">Sipariş Akışı</h6>
+                <p class="hlp-video-sub">Sipariş alma'dan teslimata tam süreç</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="120">
+            <div class="hlp-video-card" onclick="openVideoModal('products')">
+              <div class="hlp-video-thumb hlp-vthumb-purple">
+                <i class="bi bi-play-circle-fill hlp-video-play"></i>
+                <span class="hlp-video-dur">24:17</span>
+              </div>
+              <div class="hlp-video-info">
+                <span class="hlp-video-num">03</span>
+                <h6 class="hlp-video-title">Ürün Kataloğu</h6>
+                <p class="hlp-video-sub">Ürün ekleme, varyant ve stok yönetimi</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="180">
+            <div class="hlp-video-card" onclick="openVideoModal('analytics')">
+              <div class="hlp-video-thumb hlp-vthumb-orange">
+                <i class="bi bi-play-circle-fill hlp-video-play"></i>
+                <span class="hlp-video-dur">31:08</span>
+              </div>
+              <div class="hlp-video-info">
+                <span class="hlp-video-num">04</span>
+                <h6 class="hlp-video-title">Veri Analizi</h6>
+                <p class="hlp-video-sub">Grafikleri okuma ve karar almak</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ==================== SECTION 4: FAQ ==================== -->
+      <section id="faq">
+        <div class="d-flex align-items-center justify-content-between mb-3" data-aos="fade-up">
+          <h2 class="rpr-section-title">Sık Sorulan Sorular</h2>
+          <div class="d-flex gap-2">
+            <button class="hlp-faq-tab active" onclick="switchFaqCategory('all', this)">Tümü</button>
+            <button class="hlp-faq-tab" onclick="switchFaqCategory('orders', this)">Siparişler</button>
+            <button class="hlp-faq-tab" onclick="switchFaqCategory('products', this)">Ürünler</button>
+            <button class="hlp-faq-tab" onclick="switchFaqCategory('account', this)">Hesap</button>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <div class="col-xl-6" data-aos="fade-up" data-aos-delay="0">
+            <div class="accordion hlp-accordion" id="faqLeft">
+
+              <div class="accordion-item hlp-accordion-item" data-category="orders">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq1">
+                    <i class="bi bi-cart3 me-2 text-teal"></i>
+                    Sipariş durumunu nasıl güncellerim?
+                  </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqLeft">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Siparişler sayfasında ilgili siparişin satırındaki <strong>döngü ikonuna</strong> tıklayın. Açılan modalda yeni durumu seçip "Güncelle" butonuna basın.</p>
+                    <p>Toplu güncelleme için birden fazla sipariş seçip üstteki bulk action butonlarını kullanabilirsiniz.</p>
+                    <a href="orders.html" class="hlp-faq-link"><i class="bi bi-arrow-right me-1"></i>Siparişler sayfasına git</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="orders">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq2">
+                    <i class="bi bi-receipt me-2 text-neon-blue"></i>
+                    Fatura nasıl oluşturulur ve indirilir?
+                  </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqLeft">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Sipariş listesinde fatura ikonuna <i class="bi bi-receipt"></i> tıkladığınızda fatura önizlemesi açılır. Modalın içinde <strong>"Yazdır"</strong> veya <strong>"PDF İndir"</strong> butonlarını kullanabilirsiniz.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="products">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq3">
+                    <i class="bi bi-box-seam me-2 text-neon-purple"></i>
+                    Ürüne varyant (renk, beden) nasıl eklenir?
+                  </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqLeft">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Ürün ekleme sayfasında <strong>"Varyantlar"</strong> bölümüne gidin. "Varyant seçenekleri kullan" toggle'ını aktifleştirin. Renk, Beden vb. seçenekler ekleyip değerleri girin. Tablo otomatik oluşturulur.</p>
+                    <a href="product-add.html" class="hlp-faq-link"><i class="bi bi-arrow-right me-1"></i>Ürün ekleme sayfasına git</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="products">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq4">
+                    <i class="bi bi-image me-2 text-neon-orange"></i>
+                    Ürün görseli hangi formatta olmalı?
+                  </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqLeft">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Desteklenen formatlar: <strong>JPG, PNG, WebP, AVIF</strong>. Önerilen boyut: <strong>800×800 piksel</strong> ve üzeri, kare oran. Maksimum dosya boyutu 5 MB. WebP formatı daha hızlı yükleme için önerilir.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="account">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq5">
+                    <i class="bi bi-shield-lock me-2 text-neon-green"></i>
+                    İki faktörlü doğrulama nasıl aktifleştirilir?
+                  </button>
+                </h2>
+                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqLeft">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Ayarlar &gt; Güvenlik bölümünden "İki Faktörlü Doğrulama" toggle'ını aktifleştirin. QR kodu Google Authenticator veya Authy ile tarayın. Yedek kodlarınızı güvenli bir yerde saklayın.</p>
+                    <a href="settings.html" class="hlp-faq-link"><i class="bi bi-arrow-right me-1"></i>Ayarlar sayfasına git</a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col-xl-6" data-aos="fade-up" data-aos-delay="80">
+            <div class="accordion hlp-accordion" id="faqRight">
+
+              <div class="accordion-item hlp-accordion-item" data-category="orders">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq6">
+                    <i class="bi bi-geo-alt me-2 text-neon-purple"></i>
+                    Kargo takip numarasını nereden görürüm?
+                  </button>
+                </h2>
+                <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqRight">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Sipariş detay modalında <strong>"Teslimat Adresi"</strong> kartında takip numarası gösterilir. Ayrıca tablodaki <i class="bi bi-geo-alt"></i> butonuyla doğrudan kargo takip modalına ulaşabilirsiniz.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="products">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq7">
+                    <i class="bi bi-tags me-2 text-teal"></i>
+                    Toplu ürün fiyat güncellemesi yapılabilir mi?
+                  </button>
+                </h2>
+                <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqRight">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Ürünler listesinde birden fazla ürün seçip <strong>toplu işlem</strong> araç çubuğundaki ilgili seçeneği kullanabilirsiniz. CSV ile toplu import da Raporlar sayfasından desteklenmektedir.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="account">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq8">
+                    <i class="bi bi-person-plus me-2 text-neon-blue"></i>
+                    Yeni ekip üyesi nasıl davet edilir?
+                  </button>
+                </h2>
+                <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqRight">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Kullanıcılar &gt; <strong>"Kullanıcı Davet Et"</strong> butonuna tıklayın. E-posta adresini girin, rolü seçin ve "Davet Gönder"e basın. Kullanıcı e-postasındaki bağlantıyla hesap oluşturabilir.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="account">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq9">
+                    <i class="bi bi-moon-stars me-2 text-neon-purple"></i>
+                    Karanlık/aydınlık tema nasıl değiştirilir?
+                  </button>
+                </h2>
+                <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqRight">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Sağ üst köşedeki navbar'da güneş/ay ikonuna tıklayarak temayı anlık değiştirebilirsiniz. Tercih otomatik olarak tarayıcıya kaydedilir.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item hlp-accordion-item" data-category="orders">
+                <h2 class="accordion-header">
+                  <button class="accordion-button hlp-accordion-btn collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq10">
+                    <i class="bi bi-arrow-return-left me-2 text-neon-red"></i>
+                    İade talebi nasıl işlenir?
+                  </button>
+                </h2>
+                <div id="faq10" class="accordion-collapse collapse" data-bs-parent="#faqRight">
+                  <div class="accordion-body hlp-accordion-body">
+                    <p>Siparişi bulun ve durum güncelleme modalından <strong>"İade"</strong> seçeneğini belirleyin. Not alanına iade gerekçesini girin. İade onaylandığında müşteriye otomatik bildirim gönderilir.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== SECTION 5: CONTACT & STATUS ==================== -->
+      <div class="row g-4 mb-4">
+
+        <!-- Contact Options -->
+        <div class="col-xl-8" data-aos="fade-up" data-aos-delay="0">
+          <div class="card-dark h-100">
+            <div class="card-body-custom">
+              <h5 class="rpr-chart-title mb-1">Bize Ulaşın</h5>
+              <p class="rpr-chart-sub mb-4">Size en uygun iletişim kanalını seçin</p>
+              <div class="row g-3">
+
+                <div class="col-md-6">
+                  <div class="hlp-contact-card" onclick="openTicketModal()">
+                    <div class="hlp-contact-icon hlp-contact-teal"><i class="bi bi-ticket-detailed"></i></div>
+                    <div>
+                      <strong class="hlp-contact-title">Destek Talebi</strong>
+                      <p class="hlp-contact-desc">Detaylı sorunlarınız için bilet açın, ekibimiz 4 saat içinde yanıt verir.</p>
+                      <span class="hlp-contact-badge">Yanıt: ~4 saat</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="hlp-contact-card" onclick="openLiveChatModal()">
+                    <div class="hlp-contact-icon hlp-contact-blue"><i class="bi bi-chat-dots"></i></div>
+                    <div>
+                      <strong class="hlp-contact-title">Canlı Destek</strong>
+                      <p class="hlp-contact-desc">Anlık sorularınız için canlı chat. Mesai saatlerinde aktif.</p>
+                      <span class="hlp-contact-badge hlp-badge-green">Şu an aktif</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="hlp-contact-card" onclick="openEmailModal()">
+                    <div class="hlp-contact-icon hlp-contact-purple"><i class="bi bi-envelope"></i></div>
+                    <div>
+                      <strong class="hlp-contact-title">E-posta</strong>
+                      <p class="hlp-contact-desc">destek@ozan.dev adresine yazın. Tüm saatlerde yanıt verilir.</p>
+                      <span class="hlp-contact-badge">Yanıt: ~12 saat</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="hlp-contact-card">
+                    <div class="hlp-contact-icon hlp-contact-green"><i class="bi bi-telephone"></i></div>
+                    <div>
+                      <strong class="hlp-contact-title">Telefon</strong>
+                      <p class="hlp-contact-desc">0850 000 00 00 numarasını arayın. Hafta içi 09:00-18:00.</p>
+                      <span class="hlp-contact-badge">Pzt-Cum 09-18</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-dark h-100">
+            <div class="card-body-custom">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="rpr-chart-title mb-0">Sistem Durumu</h5>
+                <span class="hlp-status-all-ok"><i class="bi bi-check-circle-fill me-1"></i>Tüm sistemler çalışıyor</span>
+              </div>
+              <div class="hlp-status-list">
+                <div class="hlp-status-item">
+                  <div class="hlp-status-dot active"></div>
+                  <span class="hlp-status-name">API Servisi</span>
+                  <span class="hlp-status-uptime">99.98%</span>
+                </div>
+                <div class="hlp-status-item">
+                  <div class="hlp-status-dot active"></div>
+                  <span class="hlp-status-name">Ödeme Altyapısı</span>
+                  <span class="hlp-status-uptime">99.95%</span>
+                </div>
+                <div class="hlp-status-item">
+                  <div class="hlp-status-dot active"></div>
+                  <span class="hlp-status-name">Kargo Entegrasyonu</span>
+                  <span class="hlp-status-uptime">99.91%</span>
+                </div>
+                <div class="hlp-status-item">
+                  <div class="hlp-status-dot active"></div>
+                  <span class="hlp-status-name">E-posta Bildirimleri</span>
+                  <span class="hlp-status-uptime">100%</span>
+                </div>
+                <div class="hlp-status-item">
+                  <div class="hlp-status-dot maintenance"></div>
+                  <span class="hlp-status-name">CDN / Görseller</span>
+                  <span class="hlp-status-uptime hlp-maintenance">Bakım</span>
+                </div>
+                <div class="hlp-status-item">
+                  <div class="hlp-status-dot active"></div>
+                  <span class="hlp-status-name">Raporlama Motoru</span>
+                  <span class="hlp-status-uptime">99.87%</span>
+                </div>
+              </div>
+              <p class="hlp-status-updated"><i class="bi bi-arrow-clockwise me-1"></i>Son güncelleme: 22 Şub 2026, 14:32</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== MODAL: DESTEK TALEBİ ==================== -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-headset me-2"></i>Destek Talebi Oluştur</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label">Konu Kategorisi <span class="text-danger">*</span></label>
+            <select class="form-select" id="ticketCategory">
+              <option value="">Seçin...</option>
+              <option value="order">Sipariş Sorunu</option>
+              <option value="product">Ürün Sorunu</option>
+              <option value="payment">Ödeme Sorunu</option>
+              <option value="account">Hesap / Erişim</option>
+              <option value="technical">Teknik Hata</option>
+              <option value="other">Diğer</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Öncelik</label>
+            <select class="form-select" id="ticketPriority">
+              <option value="low">Düşük</option>
+              <option value="medium" selected>Orta</option>
+              <option value="high">Yüksek</option>
+              <option value="critical">Kritik</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Konu Başlığı <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="ticketSubject" placeholder="Sorununuzu kısaca özetleyin...">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Detaylı Açıklama <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="ticketDescription" rows="5"
+              placeholder="Sorununuzu mümkün olduğunca detaylı açıklayın. Hata mesajı, adımlar ve beklenen sonuç bilgisini ekleyin..."></textarea>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">İlgili Sipariş/Ürün No (Opsiyonel)</label>
+            <input type="text" class="form-control" id="ticketRef" placeholder="#ORD-2847 veya SKU...">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">İletişim E-postası</label>
+            <input type="email" class="form-control" id="ticketEmail" placeholder="yanit@email.com" value="admin@ozan.dev">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Ekran Görüntüsü / Dosya (Opsiyonel)</label>
+            <div class="hlp-upload-area" onclick="document.getElementById('ticketFile').click()">
+              <i class="bi bi-cloud-upload hlp-upload-icon"></i>
+              <span>Dosya seçin veya sürükleyip bırakın</span>
+              <small>PNG, JPG, PDF — Maks. 10 MB</small>
+              <input type="file" id="ticketFile" accept=".png,.jpg,.jpeg,.pdf" class="d-none" onchange="previewTicketFile(this)">
+            </div>
+            <div id="ticketFilePreview" class="d-none mt-2"></div>
+          </div>
+
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" onclick="submitTicket()">
+            <i class="bi bi-send me-1"></i> Talebi Gönder
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: KILAVUZ DETAY ==================== -->
+<div class="modal fade" id="guideModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title" id="guideModalTitle"><i class="bi bi-book me-2"></i>Kılavuz</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="guideModalBody">
+        <!-- JS tarafından doldurulur -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: VİDEO ==================== -->
+<div class="modal fade" id="videoModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title" id="videoModalTitle"><i class="bi bi-play-circle me-2"></i>Video Ders</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="hlp-video-placeholder">
+          <div class="hlp-video-placeholder-inner">
+            <i class="bi bi-play-circle-fill hlp-vp-icon"></i>
+            <h4 id="videoPlaceholderTitle">Panel'e Giriş</h4>
+            <p class="text-muted">Video içeriği demo ortamında mevcut değil.</p>
+            <span class="hlp-vp-dur" id="videoPlaceholderDur">12:34</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: CANLÜ DESTEK ==================== -->
+<div class="modal fade" id="liveChatModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-chat-dots me-2"></i>Canlı Destek</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body text-center py-3">
+        <div class="hlp-chat-avatar-wrap mb-3">
+          <img src="https://ui-avatars.com/api/?name=Destek+Ekibi&background=14b8a6&color=fff&size=56" alt="Destek" class="hlp-chat-avatar">
+          <span class="hlp-chat-online"></span>
+        </div>
+        <h6 class="fw-bold mb-1">Destek Ekibi</h6>
+        <p class="text-muted small mb-3">Ortalama yanıt süresi: <strong class="text-neon-green">2 dakika</strong></p>
+        <div class="hlp-chat-preview">
+          <div class="hlp-chat-bubble">Merhaba! Size nasıl yardımcı olabilirim? 👋</div>
+        </div>
+        <button class="btn-teal w-100 mt-3" onclick="startLiveChat()">
+          <i class="bi bi-chat-dots me-1"></i> Sohbete Başla
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="help.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

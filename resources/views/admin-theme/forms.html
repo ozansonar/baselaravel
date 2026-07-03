@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Form Elemanları</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Form Elemanları</h2>
+          <p>Bootstrap 5.3 ile gelişmiş, interaktif form bileşenleri</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+      <!-- ==================== 1. FORM KONTROL ==================== -->
+      <div id="form-kontrol" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-input-cursor-text me-2 text-teal"></i>Form Kontrol</h6>
+              <span class="status-badge info">Gelişmiş Girdiler</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- İkonlu Girdiler -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-cursor-text"></i></div>
+                <div><h6>İkonlu Girdiler</h6><p>Sol veya sağ tarafında ikon bulunan gelişmiş girdi alanları</p></div>
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Ad Soyad</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-person input-icon"></i>
+                    <input type="text" class="form-control" placeholder="Adınız ve soyadınız">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">E-posta Adresi</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input type="email" class="form-control" placeholder="ornek@email.com">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Şifre</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input type="password" class="form-control" id="passwordInput" placeholder="Güçlü bir şifre girin" oninput="updatePasswordStrength(this.value)">
+                    <i class="bi bi-eye input-icon-right" onclick="togglePassword()" id="togglePassIcon" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-muted);font-size:16px;z-index:2"></i>
+                  </div>
+                  <div class="password-strength" id="passwordStrength">
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                  </div>
+                  <div class="password-strength-text" id="passwordStrengthText"></div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Telefon</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-telephone input-icon"></i>
+                    <input type="tel" class="form-control" placeholder="+90 5xx xxx xx xx">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Web Sitesi</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-globe input-icon"></i>
+                    <input type="url" class="form-control" placeholder="https://siteadi.com">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Arama</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-search input-icon"></i>
+                    <input type="search" class="form-control" placeholder="Ne aramıştınız?">
+                  </div>
+                </div>
+              </div>
+
+              <!-- İkonsuz Girdiler -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-input-cursor-text"></i></div>
+                <div><h6>İkonsuz Girdiler</h6><p>Sade ve minimal tasarımlı standart girdi alanları</p></div>
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Ad Soyad</label>
+                  <input type="text" class="form-control" placeholder="Adınız ve soyadınız">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">E-posta Adresi</label>
+                  <input type="email" class="form-control" placeholder="ornek@email.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Şifre</label>
+                  <input type="password" class="form-control" placeholder="Şifrenizi girin">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Telefon Numarası</label>
+                  <input type="tel" class="form-control" placeholder="+90 5xx xxx xx xx">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Web Adresi</label>
+                  <input type="url" class="form-control" placeholder="https://siteadi.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Numara</label>
+                  <input type="number" class="form-control" placeholder="0" min="0" max="1000">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tarih</label>
+                  <input type="date" class="form-control">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Saat</label>
+                  <input type="time" class="form-control">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tarih ve Saat</label>
+                  <input type="datetime-local" class="form-control">
+                </div>
+              </div>
+
+              <!-- Metin Alanı ve Karakter Sayacı -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-textarea-resize"></i></div>
+                <div><h6>Metin Alanı</h6><p>Karakter sayacı ve sınır ile zenginleştirilmiş metin alanı</p></div>
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Açıklama</label>
+                  <textarea class="form-control" rows="4" maxlength="250" placeholder="Detaylı açıklama yazın..." oninput="updateCharCounter(this, 250)"></textarea>
+                  <div class="char-counter"><span id="charCount">0</span> / 250 karakter</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Etiketler</label>
+                  <div class="tags-input-wrapper" onclick="this.querySelector('input').focus()">
+                    <div class="tag-item" style="background:rgba(20,184,166,0.12);color:var(--teal-light)">
+                      Bootstrap <span class="tag-remove" onclick="this.parentElement.remove()">&times;</span>
+                    </div>
+                    <div class="tag-item" style="background:rgba(168,85,247,0.12);color:#c084fc">
+                      CSS <span class="tag-remove" onclick="this.parentElement.remove()">&times;</span>
+                    </div>
+                    <div class="tag-item" style="background:rgba(59,130,246,0.12);color:#60a5fa">
+                      Admin <span class="tag-remove" onclick="this.parentElement.remove()">&times;</span>
+                    </div>
+                    <input type="text" placeholder="Etiket ekle (Enter)..." onkeydown="addTag(event, this)">
+                  </div>
+                  <div class="form-text text-muted-hint">Enter tuşuna basarak yeni etiket ekleyin.</div>
+                </div>
+              </div>
+
+              <!-- Tarih, Renk ve Dosya -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-palette"></i></div>
+                <div><h6>Özel Girdi Türleri</h6><p>Tarih, renk seçici, dosya yükleme ve daha fazlası</p></div>
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <label class="form-label">Tarih</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-calendar3 input-icon"></i>
+                    <input type="date" class="form-control">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Saat</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-clock input-icon"></i>
+                    <input type="time" class="form-control">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Renk Seçici</label>
+                  <div class="d-flex align-items-center gap-3">
+                    <input type="color" class="form-control form-control-color" value="#14b8a6" id="colorPicker" oninput="document.getElementById('colorVal').textContent = this.value">
+                    <span class="text-md-secondary text-monospace fw-600" id="colorVal">#14b8a6</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Tekli Dosya Seçimi</label>
+                  <input type="file" class="form-control" id="singleFileInput" accept="image/*,.pdf,.doc,.docx">
+                  <div class="single-file-preview" id="singleFilePreview"></div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Çoklu Dosya Seçimi</label>
+                  <input type="file" class="form-control" id="multiFileInput" multiple accept="image/*,.pdf,.doc,.docx">
+                  <div class="multi-file-list" id="multiFileList"></div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Sürükle & Bırak Yükleme <span class="text-sm-muted">(Dropzone.js + Sıralama)</span></label>
+                  <form action="upload.php" class="dropzone" id="ozanDropzone"></form>
+                  <div class="form-text text-muted-hint"><i class="bi bi-arrows-move me-1"></i>Yüklenen dosyaları sürükleyerek sırasını değiştirebilirsiniz.</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Datalist (Otomatik Tamamlama)</label>
+                  <div class="input-icon-wrapper">
+                    <i class="bi bi-geo-alt input-icon"></i>
+                    <input class="form-control" list="cityList" placeholder="Şehir yazarak arayın...">
+                  </div>
+                  <datalist id="cityList">
+                    <option value="İstanbul">
+                    <option value="Ankara">
+                    <option value="İzmir">
+                    <option value="Bursa">
+                    <option value="Antalya">
+                    <option value="Adana">
+                    <option value="Konya">
+                    <option value="Trabzon">
+                  </datalist>
+                  <div class="form-text text-muted-hint">Yazarak filtreleyebilirsiniz.</div>
+
+                  <label class="form-label mt-3">Boyutlar</label>
+                  <div class="row g-2">
+                    <div class="col-4">
+                      <input type="text" class="form-control form-control-sm" placeholder="Küçük (sm)">
+                    </div>
+                    <div class="col-4">
+                      <input type="text" class="form-control" placeholder="Normal">
+                    </div>
+                    <div class="col-4">
+                      <input type="text" class="form-control form-control-lg" placeholder="Büyük (lg)">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Durumlar -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-orange"><i class="bi bi-info-circle"></i></div>
+                <div><h6>Girdi Durumları</h6><p>Devre dışı, salt okunur ve yardım metni durumları</p></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Devre Dışı</label>
+                  <input type="text" class="form-control" placeholder="Düzenlenemez" disabled>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Salt Okunur</label>
+                  <input type="text" class="form-control" value="Salt okunur alan" readonly>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Yardım Metni</label>
+                  <input type="text" class="form-control" placeholder="Kullanıcı adı">
+                  <div class="form-text text-muted-hint"><i class="bi bi-info-circle me-1"></i>Herkes tarafından görülebilir.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 2. SELECT ==================== -->
+      <div id="select" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-menu-button-wide me-2 text-neon-purple"></i>Select (Seçim Kutusu)</h6>
+              <span class="status-badge pending">Seçim</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Kart Tarzı Seçim -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-grid-3x3-gap"></i></div>
+                <div><h6>Kart Tarzı Seçim</h6><p>Görsel olarak zengin, tıklanabilir seçim kartları</p></div>
+              </div>
+              <div class="select-card-group mb-4">
+                <div class="select-card selected" onclick="selectCard(this)">
+                  <i class="bi bi-phone select-card-icon text-teal"></i>
+                  <div class="select-card-label">Mobil</div>
+                  <div class="select-card-desc">iOS & Android</div>
+                </div>
+                <div class="select-card" onclick="selectCard(this)">
+                  <i class="bi bi-laptop select-card-icon text-neon-purple"></i>
+                  <div class="select-card-label">Masaüstü</div>
+                  <div class="select-card-desc">Windows & Mac</div>
+                </div>
+                <div class="select-card" onclick="selectCard(this)">
+                  <i class="bi bi-tablet select-card-icon text-neon-blue"></i>
+                  <div class="select-card-label">Tablet</div>
+                  <div class="select-card-desc">iPad & Android</div>
+                </div>
+                <div class="select-card" onclick="selectCard(this)">
+                  <i class="bi bi-smartwatch select-card-icon text-neon-orange"></i>
+                  <div class="select-card-label">Giyilebilir</div>
+                  <div class="select-card-desc">Watch & Band</div>
+                </div>
+              </div>
+
+              <!-- Klasik Select -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-chevron-bar-expand"></i></div>
+                <div><h6>Klasik Select Kutuları</h6><p>Standart, gruplu, çoklu ve boyut varyantları</p></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Kategori</label>
+                  <select class="form-select">
+                    <option selected>Kategori seçin</option>
+                    <optgroup label="Elektronik">
+                      <option>Telefon</option>
+                      <option>Bilgisayar</option>
+                      <option>Tablet</option>
+                    </optgroup>
+                    <optgroup label="Giyim">
+                      <option>Tişört</option>
+                      <option>Pantolon</option>
+                      <option>Ayakkabı</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Çoklu Seçim</label>
+                  <select class="form-select" multiple size="4">
+                    <option>İstanbul</option>
+                    <option>Ankara</option>
+                    <option>İzmir</option>
+                    <option>Antalya</option>
+                    <option>Bursa</option>
+                  </select>
+                  <div class="form-text text-muted-hint"><i class="bi bi-info-circle me-1"></i>Ctrl/Cmd ile birden fazla seçin.</div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Küçük (sm)</label>
+                  <select class="form-select form-select-sm"><option>Küçük select</option><option>Seçenek 2</option></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Normal</label>
+                  <select class="form-select"><option>Normal select</option><option>Seçenek 2</option></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Büyük (lg)</label>
+                  <select class="form-select form-select-lg"><option>Büyük select</option><option>Seçenek 2</option></select>
+                </div>
+              </div>
+
+              <!-- Gelişmiş Seçim Alanları -->
+              <div class="form-section-header mt-4">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-ui-checks-grid"></i></div>
+                <div><h6>Gelişmiş Seçim Alanları</h6><p>Tekli, çoklu, gruplu, devre dışı ve temizlenebilir Bootstrap form-select bileşenleri</p></div>
+              </div>
+              <div class="row g-3">
+
+                <!-- Tekli Seçim + Datalist -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selBasic">Tekli Seçim</label>
+                  <select class="form-select" id="selBasic">
+                    <option value="">Şehir seçin...</option>
+                    <option value="istanbul">İstanbul</option>
+                    <option value="ankara">Ankara</option>
+                    <option value="izmir">İzmir</option>
+                    <option value="antalya">Antalya</option>
+                    <option value="bursa">Bursa</option>
+                    <option value="adana">Adana</option>
+                    <option value="gaziantep">Gaziantep</option>
+                    <option value="konya">Konya</option>
+                    <option value="trabzon">Trabzon</option>
+                    <option value="eskisehir">Eskişehir</option>
+                    <option value="samsun">Samsun</option>
+                    <option value="diyarbakir">Diyarbakır</option>
+                  </select>
+                  <div class="form-text"><i class="bi bi-info-circle me-1"></i>Listeden şehir seçin.</div>
+                </div>
+
+                <!-- Çoklu Seçim -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selMultiple">Çoklu Seçim</label>
+                  <select class="form-select" id="selMultiple" multiple size="5">
+                    <option value="html" selected>HTML</option>
+                    <option value="css" selected>CSS</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="react">React</option>
+                    <option value="vue">Vue.js</option>
+                    <option value="angular">Angular</option>
+                    <option value="svelte">Svelte</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="python">Python</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                  </select>
+                  <div class="form-text"><i class="bi bi-info-circle me-1"></i>Ctrl/Cmd ile birden fazla seçim yapabilirsiniz.</div>
+                </div>
+
+                <!-- Gruplu Seçim -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selGrouped">Gruplu Seçim</label>
+                  <select class="form-select" id="selGrouped">
+                    <option value="">Framework seçin...</option>
+                    <optgroup label="Frontend">
+                      <option value="react">React</option>
+                      <option value="vue">Vue.js</option>
+                      <option value="angular">Angular</option>
+                      <option value="svelte">Svelte</option>
+                    </optgroup>
+                    <optgroup label="Backend">
+                      <option value="nodejs">Node.js</option>
+                      <option value="django">Django</option>
+                      <option value="laravel">Laravel</option>
+                      <option value="spring">Spring Boot</option>
+                    </optgroup>
+                    <optgroup label="Mobil">
+                      <option value="flutter">Flutter</option>
+                      <option value="reactnative">React Native</option>
+                      <option value="swift">Swift</option>
+                      <option value="kotlin">Kotlin</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <!-- Serbest Etiketleme (vanilla JS tags input) -->
+                <div class="col-md-6">
+                  <label class="form-label">Serbest Etiketleme</label>
+                  <div class="fs-tags-wrapper" id="fsTagsWrapper">
+                    <span class="fs-tag">tasarım <button type="button" class="fs-tag-remove" onclick="fsRemoveTag(this)">×</button></span>
+                    <span class="fs-tag">yazılım <button type="button" class="fs-tag-remove" onclick="fsRemoveTag(this)">×</button></span>
+                    <input type="text" class="fs-tag-input form-control-plaintext" id="fsTagInput" placeholder="Etiket yazıp Enter'a basın...">
+                  </div>
+                  <div class="form-text"><i class="bi bi-info-circle me-1"></i>Yazıp Enter tuşuna basarak yeni etiket ekleyin.</div>
+                </div>
+
+                <!-- Kullanıcı Seçimi -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selUsers">Kullanıcı Seçimi</label>
+                  <select class="form-select" id="selUsers">
+                    <option value="">Kullanıcı seçin...</option>
+                    <option value="ozan">Ozan Sonar — Super Admin</option>
+                    <option value="ayse">Ayşe Yılmaz — Editör</option>
+                    <option value="mehmet">Mehmet Demir — Moderatör</option>
+                    <option value="zeynep">Zeynep Kaya — Kullanıcı</option>
+                    <option value="ali">Ali Öztürk — Admin</option>
+                    <option value="fatma">Fatma Çelik — Editör</option>
+                  </select>
+                </div>
+
+                <!-- Devre Dışı -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selDisabled">Devre Dışı</label>
+                  <select class="form-select" id="selDisabled" disabled>
+                    <option selected>Düzenleme kapalı</option>
+                    <option>Seçenek 2</option>
+                  </select>
+                </div>
+
+                <!-- Maksimum 3 Seçim -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selMax">En Fazla 3 Seçim</label>
+                  <select class="form-select" id="selMax" multiple size="5" data-max-select="3">
+                    <option value="red">Kırmızı</option>
+                    <option value="blue">Mavi</option>
+                    <option value="green">Yeşil</option>
+                    <option value="yellow">Sarı</option>
+                    <option value="purple">Mor</option>
+                    <option value="orange">Turuncu</option>
+                    <option value="pink">Pembe</option>
+                    <option value="cyan">Turkuaz</option>
+                  </select>
+                  <div class="form-text" id="selMaxHint"><i class="bi bi-info-circle me-1"></i>En fazla 3 renk seçebilirsiniz.</div>
+                </div>
+
+                <!-- Temizlenebilir Seçim -->
+                <div class="col-md-6">
+                  <label class="form-label" for="selClearable">Temizlenebilir Seçim</label>
+                  <div class="input-group">
+                    <select class="form-select" id="selClearable">
+                      <option value="">Öncelik seçin...</option>
+                      <option value="low">Düşük Öncelik</option>
+                      <option value="normal" selected>Normal Öncelik</option>
+                      <option value="high">Yüksek Öncelik</option>
+                      <option value="critical">Kritik Öncelik</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('selClearable').selectedIndex=0" title="Temizle">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 3. CHECKS & RADIOS ==================== -->
+      <div id="checks-radios" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-ui-checks me-2 text-neon-green"></i>Onay Kutusu & Radio Düğmeleri</h6>
+              <span class="status-badge active">Seçim</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Option Card Seçimi -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-green"><i class="bi bi-check2-square"></i></div>
+                <div><h6>Seçenek Kartları</h6><p>Görsel olarak zenginleştirilmiş, tıklanabilir seçenek kartları</p></div>
+              </div>
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <div class="option-card selected" onclick="toggleOptionCard(this)">
+                    <div class="option-icon bg-icon-green"><i class="bi bi-rocket-takeoff"></i></div>
+                    <div class="option-content">
+                      <h6>Başlangıç</h6>
+                      <p>Temel özellikler ile hızlı başla</p>
+                    </div>
+                    <div class="option-check"><i class="bi bi-check-lg"></i></div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="option-card" onclick="toggleOptionCard(this)">
+                    <div class="option-icon bg-icon-purple"><i class="bi bi-lightning-charge"></i></div>
+                    <div class="option-content">
+                      <h6>Profesyonel</h6>
+                      <p>Gelişmiş araçlar ve analitik</p>
+                    </div>
+                    <div class="option-check"><i class="bi bi-check-lg"></i></div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="option-card" onclick="toggleOptionCard(this)">
+                    <div class="option-icon bg-icon-blue"><i class="bi bi-building"></i></div>
+                    <div class="option-content">
+                      <h6>Kurumsal</h6>
+                      <p>Sınırsız erişim ve destek</p>
+                    </div>
+                    <div class="option-check"><i class="bi bi-check-lg"></i></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Checkbox & Radio -->
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-teal"><i class="bi bi-check-square"></i></div>
+                    <div><h6>Onay Kutuları</h6><p>Standart ve özel durumlar</p></div>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ck1" checked>
+                    <label class="form-check-label" for="ck1">E-posta bildirimleri al</label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ck2">
+                    <label class="form-check-label" for="ck2">Haftalık rapor gönder</label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ck3" checked>
+                    <label class="form-check-label" for="ck3">Yeni kullanıcı bildirimi</label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ck4" disabled>
+                    <label class="form-check-label" for="ck4">Bakım bildirimi (devre dışı)</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-purple"><i class="bi bi-record-circle"></i></div>
+                    <div><h6>Radio Düğmeleri</h6><p>Tek seçimlik gruplar</p></div>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="plan" id="rd1" checked>
+                    <label class="form-check-label" for="rd1">Ücretsiz Plan</label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="plan" id="rd2">
+                    <label class="form-check-label" for="rd2">Standart Plan - $9/ay</label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="plan" id="rd3">
+                    <label class="form-check-label" for="rd3">Premium Plan - $29/ay</label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="plan" id="rd4" disabled>
+                    <label class="form-check-label" for="rd4">Kurumsal (yakında)</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Switches & Buttons -->
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-orange"><i class="bi bi-toggles"></i></div>
+                    <div><h6>Toggle Anahtarları</h6><p>Açma/kapama anahtarları</p></div>
+                  </div>
+                  <div style="background:var(--bg-input);border-radius:var(--radius-md);border:1px solid var(--border-color);overflow:hidden">
+                    <div class="d-flex align-items-center justify-content-between p-3 border-bottom-custom">
+                      <div><div class="text-md-semibold">Karanlık Mod</div><div class="text-sm-muted">Koyu tema kullan</div></div>
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="sw1" checked></div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between p-3 border-bottom-custom">
+                      <div><div class="text-md-semibold">Bildirimler</div><div class="text-sm-muted">Push bildirimleri al</div></div>
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="sw2" checked></div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between p-3 border-bottom-custom">
+                      <div><div class="text-md-semibold">İki Faktörlü Doğrulama</div><div class="text-sm-muted">Ekstra güvenlik katmanı</div></div>
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="sw3"></div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between p-3">
+                      <div><div class="text-md-semibold">Otomatik Güncelleme</div><div class="text-sm-muted">Sistemi güncel tut</div></div>
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="sw4" checked></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-pink"><i class="bi bi-star"></i></div>
+                    <div><h6>Yıldız Derecelendirme & Düğmeler</h6><p>Puan verme ve düğme stili seçimler</p></div>
+                  </div>
+                  <label class="form-label mb-2">Puan Verin</label>
+                  <div class="star-rating mb-4">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star3" name="rating" value="3" checked><label for="star3"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1"><i class="bi bi-star-fill"></i></label>
+                  </div>
+
+                  <label class="form-label mb-2">Beceri Seçimi</label>
+                  <div class="d-flex flex-wrap gap-2 mb-4">
+                    <input type="checkbox" class="btn-check" id="skill1" checked><label class="btn btn-outline-success btn-sm" for="skill1"><i class="bi bi-filetype-html me-1"></i>HTML</label>
+                    <input type="checkbox" class="btn-check" id="skill2" checked><label class="btn btn-outline-info btn-sm" for="skill2"><i class="bi bi-filetype-css me-1"></i>CSS</label>
+                    <input type="checkbox" class="btn-check" id="skill3"><label class="btn btn-outline-warning btn-sm" for="skill3"><i class="bi bi-filetype-js me-1"></i>JavaScript</label>
+                    <input type="checkbox" class="btn-check" id="skill4"><label class="btn btn-outline-danger btn-sm" for="skill4"><i class="bi bi-filetype-py me-1"></i>Python</label>
+                    <input type="checkbox" class="btn-check" id="skill5"><label class="btn btn-outline-primary btn-sm" for="skill5"><i class="bi bi-filetype-tsx me-1"></i>React</label>
+                  </div>
+
+                  <label class="form-label mb-2">Hizalama</label>
+                  <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="align" id="alignL" checked><label class="btn btn-outline-primary btn-sm" for="alignL"><i class="bi bi-text-left"></i></label>
+                    <input type="radio" class="btn-check" name="align" id="alignC"><label class="btn btn-outline-primary btn-sm" for="alignC"><i class="bi bi-text-center"></i></label>
+                    <input type="radio" class="btn-check" name="align" id="alignR"><label class="btn btn-outline-primary btn-sm" for="alignR"><i class="bi bi-text-right"></i></label>
+                    <input type="radio" class="btn-check" name="align" id="alignJ"><label class="btn btn-outline-primary btn-sm" for="alignJ"><i class="bi bi-justify"></i></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 4. RANGE ==================== -->
+      <div id="range" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-sliders me-2 text-neon-orange"></i>Aralık (Range)</h6>
+              <span class="status-badge pending">Kaydırıcı</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-4">
+                <!-- Ses Seviyesi -->
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-teal"><i class="bi bi-volume-up"></i></div>
+                    <div><h6>Ses Seviyesi</h6><p>Canlı değer gösterimli kaydırıcı</p></div>
+                  </div>
+                  <div class="range-enhanced">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <i class="bi bi-volume-mute text-clr-muted"></i>
+                      <div class="range-value-bubble" id="volumeBubble">65%</div>
+                      <i class="bi bi-volume-up text-teal"></i>
+                    </div>
+                    <input type="range" class="form-range" min="0" max="100" value="65" oninput="document.getElementById('volumeBubble').textContent = this.value + '%'">
+                  </div>
+                </div>
+                <!-- Fiyat Aralığı -->
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-purple"><i class="bi bi-currency-dollar"></i></div>
+                    <div><h6>Bütçe Aralığı</h6><p>Adımlı ve etiketli kaydırıcı</p></div>
+                  </div>
+                  <div class="range-enhanced">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="text-xs-muted">$0</span>
+                      <div class="range-value-bubble" id="budgetBubble" style="background:var(--neon-purple)">$5,000</div>
+                      <span class="text-xs-muted">$10,000</span>
+                    </div>
+                    <input type="range" class="form-range" min="0" max="10000" step="500" value="5000" oninput="document.getElementById('budgetBubble').textContent = '$' + parseInt(this.value).toLocaleString()">
+                    <div class="range-labels">
+                      <span>Düşük</span><span>Orta</span><span>Yüksek</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Parlaklık -->
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-orange"><i class="bi bi-brightness-high"></i></div>
+                    <div><h6>Parlaklık</h6><p>Canlı önizlemeli kaydırıcı</p></div>
+                  </div>
+                  <div class="range-enhanced">
+                    <input type="range" class="form-range" min="0" max="100" value="70" id="brightnessRange" oninput="document.getElementById('brightnessPreview').style.opacity = this.value/100; document.getElementById('brightnessVal').textContent = this.value + '%'">
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <span class="text-sm-muted"><i class="bi bi-moon me-1"></i>Karanlık</span>
+                      <span class="fs-13 fw-700 text-neon-orange" id="brightnessVal">70%</span>
+                      <span class="text-sm-muted"><i class="bi bi-sun me-1"></i>Parlak</span>
+                    </div>
+                    <div id="brightnessPreview" style="margin-top:12px;padding:16px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--teal-primary),var(--neon-blue));text-align:center;font-weight:700;font-size:13px;color:white;opacity:0.7;transition:opacity 0.2s">
+                      Parlaklık Önizleme
+                    </div>
+                  </div>
+                </div>
+                <!-- Yazı Boyutu -->
+                <div class="col-md-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-blue"><i class="bi bi-fonts"></i></div>
+                    <div><h6>Yazı Boyutu</h6><p>Canlı metin önizlemesi ile boyut ayarı</p></div>
+                  </div>
+                  <div class="range-enhanced">
+                    <input type="range" class="form-range" min="10" max="32" value="16" oninput="document.getElementById('fontPreview').style.fontSize=this.value+'px';document.getElementById('fontVal').textContent=this.value+'px'">
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <span class="fs-10 text-clr-muted">A</span>
+                      <span class="fs-13 fw-700 text-neon-blue" id="fontVal">16px</span>
+                      <span class="text-clr-muted fs-18">A</span>
+                    </div>
+                    <div id="fontPreview" style="margin-top:12px;padding:16px;border-radius:var(--radius-sm);background:var(--bg-input);border:1px solid var(--border-color);font-size:16px;color:var(--text-primary);transition:font-size 0.15s">
+                      Merhaba! Bu metin boyutu ayarlanabilir. Kaydırıcıyı hareket ettirerek deneyin.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 5. INPUT GROUP ==================== -->
+      <div id="input-group" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-input-cursor me-2 text-neon-blue"></i>Girdi Grubu (Input Group)</h6>
+              <span class="status-badge info">Birleşik</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-puzzle"></i></div>
+                <div><h6>Birleşik Girdi Grupları</h6><p>Ön ek, son ek, düğme ve diğer elemanlar ile birleştirilmiş girdiler</p></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Kullanıcı Adı</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-at"></i></span>
+                    <input type="text" class="form-control" placeholder="kullaniciadi">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">E-posta</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="kullanici">
+                    <span class="input-group-text">@ozan.dev</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Web Sitesi</label>
+                  <div class="input-group">
+                    <span class="input-group-text text-teal fw-600">https://</span>
+                    <input type="text" class="form-control" placeholder="siteadi.com">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Fiyat</label>
+                  <div class="input-group">
+                    <span class="input-group-text text-neon-green fw-700">₺</span>
+                    <input type="number" class="form-control" placeholder="0.00">
+                    <span class="input-group-text">.00</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Arama</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Arama yapın...">
+                    <button class="btn-teal" type="button" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0">Ara</button>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Telefon</label>
+                  <div class="input-group">
+                    <select class="form-select" style="max-width:100px">
+                      <option>+90</option>
+                      <option>+1</option>
+                      <option>+44</option>
+                    </select>
+                    <input type="tel" class="form-control" placeholder="5xx xxx xx xx">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Ad Soyad</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control" placeholder="Ad">
+                    <input type="text" class="form-control" placeholder="Soyad">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Onay ile Girdi</label>
+                  <div class="input-group">
+                    <div class="input-group-text">
+                      <input class="form-check-input mt-0" type="checkbox" checked>
+                    </div>
+                    <input type="text" class="form-control" value="Onaylandı">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 6. FLOATING LABELS ==================== -->
+      <div id="floating-labels" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-badge-tm me-2 text-neon-pink"></i>Yüzen Etiketler (Floating Labels)</h6>
+              <span class="status-badge active">Animasyonlu</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-pink"><i class="bi bi-badge-ar"></i></div>
+                <div><h6>Yüzen Etiketli Form</h6><p>Odaklandığında yukarı kayan etiketler ile modern form deneyimi</p></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="fl1" placeholder="Ad Soyad">
+                    <label for="fl1">Ad Soyad</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="email" class="form-control" id="fl2" placeholder="E-posta">
+                    <label for="fl2">E-posta Adresi</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="password" class="form-control" id="fl3" placeholder="Şifre">
+                    <label for="fl3">Şifre</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="fl4" placeholder="Telefon" value="+90 532 xxx xx xx">
+                    <label for="fl4">Telefon Numarası</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <textarea class="form-control" id="fl5" placeholder="Açıklama" style="height:120px"></textarea>
+                    <label for="fl5">Detaylı Açıklama</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-select" id="fl6">
+                      <option selected>Seçin...</option>
+                      <option>Yazılım Geliştirici</option>
+                      <option>Tasarımcı</option>
+                      <option>Proje Yöneticisi</option>
+                    </select>
+                    <label for="fl6">Pozisyon</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 7. LAYOUT ==================== -->
+      <div id="layout" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-layout-text-window me-2 text-teal"></i>Form Düzeni (Layout)</h6>
+              <span class="status-badge info">Düzen</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Yatay Form -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-distribute-horizontal"></i></div>
+                <div><h6>Yatay Form (Horizontal)</h6><p>Etiketler ve girdiler yan yana konumlandırılmış</p></div>
+              </div>
+              <div style="background:var(--bg-input);padding:24px;border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:32px">
+                <div class="row mb-3">
+                  <label class="col-sm-3 col-form-label text-md-semibold text-clr-secondary">Ad Soyad</label>
+                  <div class="col-sm-9"><input type="text" class="form-control" placeholder="Adınız ve soyadınız"></div>
+                </div>
+                <div class="row mb-3">
+                  <label class="col-sm-3 col-form-label text-md-semibold text-clr-secondary">E-posta</label>
+                  <div class="col-sm-9"><input type="email" class="form-control" placeholder="ornek@email.com"></div>
+                </div>
+                <div class="row mb-3">
+                  <label class="col-sm-3 col-form-label text-md-semibold text-clr-secondary">Departman</label>
+                  <div class="col-sm-9">
+                    <select class="form-select"><option>Seçin...</option><option>Yazılım</option><option>Pazarlama</option><option>Satış</option></select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-9 offset-sm-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="hzCheck">
+                      <label class="form-check-label fs-13 text-clr-secondary" for="hzCheck">Koşulları kabul ediyorum</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Grid Form -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-grid-3x3"></i></div>
+                <div><h6>Grid Tabanlı Adres Formu</h6><p>Responsive grid sistemi ile çok sütunlu form</p></div>
+              </div>
+              <div style="background:var(--bg-input);padding:24px;border-radius:var(--radius-md);border:1px solid var(--border-color);margin-bottom:32px">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Ad</label>
+                    <div class="input-icon-wrapper"><i class="bi bi-person input-icon"></i><input type="text" class="form-control" placeholder="Adınız"></div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Soyad</label>
+                    <div class="input-icon-wrapper"><i class="bi bi-person input-icon"></i><input type="text" class="form-control" placeholder="Soyadınız"></div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Adres</label>
+                    <div class="input-icon-wrapper"><i class="bi bi-geo-alt input-icon"></i><input type="text" class="form-control" placeholder="Sokak adı, bina no, daire no"></div>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label">Şehir</label>
+                    <select class="form-select"><option>Seçin...</option><option>İstanbul</option><option>Ankara</option><option>İzmir</option></select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">İlçe</label>
+                    <select class="form-select"><option>Seçin...</option><option>Kadıköy</option><option>Beşiktaş</option><option>Üsküdar</option></select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Posta Kodu</label>
+                    <input type="text" class="form-control" placeholder="34000">
+                  </div>
+                  <div class="col-12">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="gridCk">
+                      <label class="form-check-label fs-13 text-clr-secondary" for="gridCk">Fatura adresi teslimat adresi ile aynı</label>
+                    </div>
+                  </div>
+                  <div class="col-12 d-flex gap-2">
+                    <button class="btn-teal"><i class="bi bi-send"></i> Kaydet</button>
+                    <button class="btn-glass"><i class="bi bi-arrow-counterclockwise"></i> Sıfırla</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Satır İçi Form -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-layout-text-sidebar-reverse"></i></div>
+                <div><h6>Satır İçi Form (Inline)</h6><p>Tek satırda giriş ve gönderim</p></div>
+              </div>
+              <div style="background:var(--bg-input);padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-color)">
+                <div class="row g-3 align-items-center">
+                  <div class="col-auto">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-at"></i></span>
+                      <input type="text" class="form-control" placeholder="Kullanıcı adı">
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <input type="email" class="form-control" placeholder="E-posta">
+                  </div>
+                  <div class="col-auto">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="inlineRem">
+                      <label class="form-check-label fs-13 text-clr-secondary" for="inlineRem">Hatırla</label>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn-teal"><i class="bi bi-check-lg"></i> Abone Ol</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 8. VALIDATION ==================== -->
+      <div id="validation" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-shield-check me-2 text-neon-red"></i>Form Doğrulama (Validation)</h6>
+              <span class="status-badge inactive">Doğrulama</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- Geçerli Durumlar -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-green"><i class="bi bi-check-circle"></i></div>
+                <div><h6>Geçerli Durumlar</h6><p>Doğrulama başarılı olan alanlar</p></div>
+              </div>
+              <div style="background:var(--bg-input);padding:24px;border-radius:var(--radius-md);border:1px solid rgba(34,197,94,0.15);margin-bottom:32px">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Ad</label>
+                    <input type="text" class="form-control is-valid" value="Ozan">
+                    <div class="valid-feedback"><i class="bi bi-check-circle me-1"></i>Harika görünüyor!</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" class="form-control is-valid" value="ozan@admin.dev">
+                    <div class="valid-feedback"><i class="bi bi-check-circle me-1"></i>Geçerli e-posta adresi.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Geçersiz Durumlar -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-red"><i class="bi bi-exclamation-circle"></i></div>
+                <div><h6>Geçersiz Durumlar</h6><p>Doğrulama başarısız olan alanlar</p></div>
+              </div>
+              <div style="background:var(--bg-input);padding:24px;border-radius:var(--radius-md);border:1px solid rgba(239,68,68,0.15);margin-bottom:32px">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Ad</label>
+                    <input type="text" class="form-control is-invalid" value="">
+                    <div class="invalid-feedback"><i class="bi bi-exclamation-circle me-1"></i>Lütfen adınızı girin.</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" class="form-control is-invalid" value="gecersiz-email">
+                    <div class="invalid-feedback"><i class="bi bi-exclamation-circle me-1"></i>Geçerli bir e-posta girin.</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Şifre</label>
+                    <input type="password" class="form-control is-invalid" value="123">
+                    <div class="invalid-feedback"><i class="bi bi-exclamation-circle me-1"></i>En az 8 karakter olmalıdır.</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Şehir</label>
+                    <select class="form-select is-invalid"><option selected>Seçin...</option></select>
+                    <div class="invalid-feedback"><i class="bi bi-exclamation-circle me-1"></i>Lütfen bir şehir seçin.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Canlı Doğrulama Formu -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-lightning-charge"></i></div>
+                <div><h6>Canlı Doğrulamalı Kayıt Formu</h6><p>Gönderildiğinde tüm alanları doğrulayan interaktif form</p></div>
+              </div>
+              <div style="background:var(--bg-input);padding:24px;border-radius:var(--radius-md);border:1px solid var(--border-color)">
+                <form class="needs-validation" novalidate id="validationForm">
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Ad</label>
+                      <div class="input-icon-wrapper">
+                        <i class="bi bi-person input-icon"></i>
+                        <input type="text" class="form-control" required placeholder="Adınız">
+                      </div>
+                      <div class="invalid-feedback">Ad alanı zorunludur.</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Soyad</label>
+                      <div class="input-icon-wrapper">
+                        <i class="bi bi-person input-icon"></i>
+                        <input type="text" class="form-control" required placeholder="Soyadınız">
+                      </div>
+                      <div class="invalid-feedback">Soyad alanı zorunludur.</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Kullanıcı Adı</label>
+                      <div class="input-group has-validation">
+                        <span class="input-group-text"><i class="bi bi-at"></i></span>
+                        <input type="text" class="form-control" required placeholder="kullaniciadi">
+                        <div class="invalid-feedback">Kullanıcı adı zorunludur.</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">E-posta</label>
+                      <div class="input-icon-wrapper">
+                        <i class="bi bi-envelope input-icon"></i>
+                        <input type="email" class="form-control" required placeholder="ornek@email.com">
+                      </div>
+                      <div class="invalid-feedback">Geçerli bir e-posta girin.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Şehir</label>
+                      <select class="form-select" required>
+                        <option value="">Seçin...</option>
+                        <option>İstanbul</option>
+                        <option>Ankara</option>
+                        <option>İzmir</option>
+                      </select>
+                      <div class="invalid-feedback">Lütfen bir şehir seçin.</div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" required id="liveChk">
+                        <label class="form-check-label fs-13 text-clr-secondary" for="liveChk">Gizlilik politikasını okudum ve kabul ediyorum</label>
+                        <div class="invalid-feedback">Devam etmek için kabul etmelisiniz.</div>
+                      </div>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                      <button class="btn-teal" type="submit"><i class="bi bi-check-lg"></i> Formu Doğrula ve Gönder</button>
+                      <button class="btn-glass" type="reset"><i class="bi bi-arrow-counterclockwise"></i> Temizle</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 9. EDİTÖRLER ==================== -->
+      <div id="editors" class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-pencil-square me-2 text-neon-purple"></i>Zengin Metin & Markdown Editörü</h6>
+              <span class="status-badge active">Editor</span>
+            </div>
+            <div class="card-body-custom">
+
+              <!-- WYSIWYG Editor -->
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-type-bold"></i></div>
+                <div><h6>Zengin Metin Editörü (WYSIWYG)</h6><p>Biçimlendirme araç çubuğu ile görsel metin düzenleme</p></div>
+              </div>
+              <div class="rich-editor" id="richEditor">
+                <div class="rich-editor-toolbar">
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="reCmd('undo')" title="Geri Al (Ctrl+Z)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    <button class="re-btn" onclick="reCmd('redo')" title="İleri Al (Ctrl+Y)"><i class="bi bi-arrow-clockwise"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <select class="re-select" onchange="reCmd('formatBlock',this.value);this.selectedIndex=0" title="Başlık">
+                      <option value="" disabled selected>Başlık</option>
+                      <option value="p">Normal</option>
+                      <option value="h1">Başlık 1</option>
+                      <option value="h2">Başlık 2</option>
+                      <option value="h3">Başlık 3</option>
+                      <option value="h4">Başlık 4</option>
+                      <option value="blockquote">Alıntı</option>
+                    </select>
+                    <select class="re-select" onchange="reCmd('fontName',this.value)" title="Yazı Tipi">
+                      <option value="" disabled selected>Font</option>
+                      <option value="Inter" style="font-family:Inter">Inter</option>
+                      <option value="DM Serif Display" style="font-family:'DM Serif Display'">DM Serif</option>
+                      <option value="Georgia" style="font-family:Georgia">Georgia</option>
+                      <option value="monospace" style="font-family:monospace">Monospace</option>
+                    </select>
+                    <select class="re-select re-select-sm" onchange="reCmd('fontSize',this.value);this.selectedIndex=0" title="Boyut">
+                      <option value="" disabled selected>Boyut</option>
+                      <option value="1">Küçük</option>
+                      <option value="3">Normal</option>
+                      <option value="5">Büyük</option>
+                      <option value="7">Dev</option>
+                    </select>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="reCmd('bold')" title="Kalın (Ctrl+B)"><i class="bi bi-type-bold"></i></button>
+                    <button class="re-btn" onclick="reCmd('italic')" title="İtalik (Ctrl+I)"><i class="bi bi-type-italic"></i></button>
+                    <button class="re-btn" onclick="reCmd('underline')" title="Altı Çizili (Ctrl+U)"><i class="bi bi-type-underline"></i></button>
+                    <button class="re-btn" onclick="reCmd('strikeThrough')" title="Üstü Çizili"><i class="bi bi-type-strikethrough"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn re-color-btn" title="Yazı Rengi">
+                      <i class="bi bi-palette"></i>
+                      <input type="color" class="re-color-input" value="#14b8a6" onchange="reCmd('foreColor',this.value)">
+                      <div class="re-color-bar" style="background:#14b8a6"></div>
+                    </button>
+                    <button class="re-btn re-color-btn" title="Arka Plan Rengi">
+                      <i class="bi bi-paint-bucket"></i>
+                      <input type="color" class="re-color-input" value="#1e2540" onchange="reCmd('hiliteColor',this.value)">
+                      <div class="re-color-bar" style="background:#1e2540"></div>
+                    </button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="reCmd('justifyLeft')" title="Sola Hizala"><i class="bi bi-text-left"></i></button>
+                    <button class="re-btn" onclick="reCmd('justifyCenter')" title="Ortala"><i class="bi bi-text-center"></i></button>
+                    <button class="re-btn" onclick="reCmd('justifyRight')" title="Sağa Hizala"><i class="bi bi-text-right"></i></button>
+                    <button class="re-btn" onclick="reCmd('justifyFull')" title="İki Yana Yasla"><i class="bi bi-justify"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="reCmd('insertUnorderedList')" title="Madde İşareti"><i class="bi bi-list-ul"></i></button>
+                    <button class="re-btn" onclick="reCmd('insertOrderedList')" title="Numaralı Liste"><i class="bi bi-list-ol"></i></button>
+                    <button class="re-btn" onclick="reCmd('indent')" title="Girinti"><i class="bi bi-text-indent-left"></i></button>
+                    <button class="re-btn" onclick="reCmd('outdent')" title="Girintiyi Azalt"><i class="bi bi-text-indent-right"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="reInsertLink()" title="Bağlantı Ekle"><i class="bi bi-link-45deg"></i></button>
+                    <button class="re-btn" onclick="reCmd('unlink')" title="Bağlantıyı Kaldır"><i class="bi bi-link"></i></button>
+                    <button class="re-btn" onclick="reInsertImage()" title="Görsel Ekle"><i class="bi bi-image"></i></button>
+                    <button class="re-btn" onclick="reCmd('insertHorizontalRule')" title="Yatay Çizgi"><i class="bi bi-hr"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="reCmd('removeFormat')" title="Biçimlendirmeyi Kaldır"><i class="bi bi-eraser"></i></button>
+                    <button class="re-btn" onclick="reToggleCode()" title="HTML Kodu" id="reCodeBtn"><i class="bi bi-code-slash"></i></button>
+                    <button class="re-btn" onclick="reFullscreen()" title="Tam Ekran" id="reFullBtn"><i class="bi bi-arrows-fullscreen"></i></button>
+                  </div>
+                </div>
+                <div class="rich-editor-body" contenteditable="true" id="reBody">
+                  <h2 class="text-teal">OZAN Admin Panel</h2>
+                  <p>Bu bir <strong>zengin metin editörü</strong> örneğidir. Yukarıdaki araç çubuğunu kullanarak metni <em>biçimlendirebilirsiniz</em>.</p>
+                  <p>Desteklenen özellikler:</p>
+                  <ul>
+                    <li><strong>Kalın</strong>, <em>İtalik</em>, <u>Altı Çizili</u>, <s>Üstü Çizili</s></li>
+                    <li>Başlık seviyeleri (H1-H4)</li>
+                    <li>Yazı tipi ve boyut değişikliği</li>
+                    <li>Metin ve arka plan rengi</li>
+                    <li>Hizalama seçenekleri</li>
+                    <li>Madde işareti ve numaralı listeler</li>
+                    <li>Bağlantı ve görsel ekleme</li>
+                  </ul>
+                  <blockquote style="border-left:3px solid var(--teal-primary);padding-left:16px;color:var(--text-secondary);font-style:italic">
+                    "İyi bir editör, yazarın düşüncelerini kolayca ifade etmesini sağlar."
+                  </blockquote>
+                </div>
+                <div class="rich-editor-footer">
+                  <span class="re-word-count" id="reWordCount">Kelime: 0 | Karakter: 0</span>
+                  <div class="d-flex gap-2">
+                    <button class="btn-glass" style="padding:6px 14px;font-size:12px" onclick="document.getElementById('reBody').innerHTML='';reUpdateCount()"><i class="bi bi-trash3 me-1"></i>Temizle</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Markdown Editor -->
+              <div class="form-section-header mt-4">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-markdown"></i></div>
+                <div><h6>Markdown Editörü</h6><p>Bölünmüş görünüm ile anlık önizlemeli markdown düzenleme</p></div>
+              </div>
+              <div class="md-editor" id="mdEditor">
+                <div class="md-editor-toolbar">
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="mdInsert('**','**')" title="Kalın"><i class="bi bi-type-bold"></i></button>
+                    <button class="re-btn" onclick="mdInsert('*','*')" title="İtalik"><i class="bi bi-type-italic"></i></button>
+                    <button class="re-btn" onclick="mdInsert('~~','~~')" title="Üstü Çizili"><i class="bi bi-type-strikethrough"></i></button>
+                    <button class="re-btn" onclick="mdInsert('`','`')" title="Satır İçi Kod"><i class="bi bi-code"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="mdLine('# ')" title="Başlık 1"><b>H1</b></button>
+                    <button class="re-btn" onclick="mdLine('## ')" title="Başlık 2"><b>H2</b></button>
+                    <button class="re-btn" onclick="mdLine('### ')" title="Başlık 3"><b>H3</b></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="mdLine('- ')" title="Madde İşareti"><i class="bi bi-list-ul"></i></button>
+                    <button class="re-btn" onclick="mdLine('1. ')" title="Numaralı Liste"><i class="bi bi-list-ol"></i></button>
+                    <button class="re-btn" onclick="mdLine('- [ ] ')" title="Görev Listesi"><i class="bi bi-check2-square"></i></button>
+                    <button class="re-btn" onclick="mdLine('> ')" title="Alıntı"><i class="bi bi-quote"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="mdInsert('[','](url)')" title="Bağlantı"><i class="bi bi-link-45deg"></i></button>
+                    <button class="re-btn" onclick="mdInsert('![alt](',')')" title="Görsel"><i class="bi bi-image"></i></button>
+                    <button class="re-btn" onclick="mdBlock('```\n','```')" title="Kod Bloğu"><i class="bi bi-code-slash"></i></button>
+                    <button class="re-btn" onclick="mdLine('---')" title="Yatay Çizgi"><i class="bi bi-hr"></i></button>
+                  </div>
+                  <div class="re-toolbar-sep"></div>
+                  <div class="re-toolbar-group">
+                    <button class="re-btn" onclick="mdInsert('| Başlık 1 | Başlık 2 |\n|---|---|\n| Hücre | Hücre |','')" title="Tablo"><i class="bi bi-table"></i></button>
+                  </div>
+                  <div class="re-toolbar-group ms-auto">
+                    <button class="re-btn" onclick="mdToggleView('edit')" title="Düzenle" id="mdEditBtn"><i class="bi bi-pencil"></i></button>
+                    <button class="re-btn active" onclick="mdToggleView('split')" title="Bölünmüş" id="mdSplitBtn"><i class="bi bi-layout-split"></i></button>
+                    <button class="re-btn" onclick="mdToggleView('preview')" title="Önizleme" id="mdPreviewBtn"><i class="bi bi-eye"></i></button>
+                  </div>
+                </div>
+                <div class="md-editor-body">
+                  <div class="md-editor-pane md-edit-pane" id="mdEditPane">
+                    <div class="md-line-numbers" id="mdLineNumbers"></div>
+                    <textarea class="md-textarea" id="mdTextarea" oninput="mdRender()" onscroll="mdSyncScroll(this)">
+# OZAN Admin Panel
+
+Modern ve güçlü bir **admin paneli** çözümü.
+
+## Özellikler
+
+- 🎨 **Dark Mode** tasarım
+- ✨ Glassmorphism efektleri
+- 📱 Tam responsive yapı
+- 🚀 Hızlı ve performanslı
+
+## Kod Örneği
+
+```javascript
+const admin = {
+  name: 'OZAN',
+  version: '3.0',
+  theme: 'dark',
+  features: ['charts', 'tables', 'forms']
+};
+```
+
+## Görev Listesi
+
+- [x] Dashboard tasarımı
+- [x] Form bileşenleri
+- [x] Tablo bileşenleri
+- [ ] Grafik entegrasyonu
+- [ ] API bağlantıları
+
+## Tablo
+
+| Bileşen | Durum | Versiyon |
+|---------|-------|----------|
+| Formlar | ✅ Hazır | v3.0 |
+| Tablolar | ✅ Hazır | v3.0 |
+| Kartlar | ✅ Hazır | v3.0 |
+
+> **Not:** Bu editör Markdown sözdizimini destekler ve anlık önizleme sunar.
+
+---
+
+Daha fazla bilgi için [dökümantasyon](https://example.com) sayfasını ziyaret edin.</textarea>
+                  </div>
+                  <div class="md-editor-pane md-preview-pane" id="mdPreviewPane"></div>
+                </div>
+                <div class="rich-editor-footer">
+                  <span class="re-word-count" id="mdWordCount">Satır: 0 | Kelime: 0</span>
+                  <div class="md-syntax-badge"><i class="bi bi-markdown me-1"></i>Markdown Destekli</div>
+                </div>
+              </div>
+
+              <!-- Inline Editor -->
+              <div class="form-section-header mt-4">
+                <div class="form-section-icon bg-icon-green"><i class="bi bi-cursor-text"></i></div>
+                <div><h6>Satır İçi Editör (Inline)</h6><p>Metne tıklayarak anında düzenleme</p></div>
+              </div>
+              <div class="inline-editor-demo">
+                <div class="inline-edit-card">
+                  <div class="inline-edit-label">Başlık</div>
+                  <div class="inline-edit-value" contenteditable="true" data-placeholder="Tıklayarak düzenleyin...">OZAN Admin Panel - Dashboard Tasarımı</div>
+                  <i class="bi bi-pencil inline-edit-icon"></i>
+                </div>
+                <div class="inline-edit-card">
+                  <div class="inline-edit-label">Açıklama</div>
+                  <div class="inline-edit-value" contenteditable="true" data-placeholder="Tıklayarak düzenleyin...">Modern, responsive ve kullanıcı dostu admin paneli. Dark mode tasarım ile göz yormayan deneyim.</div>
+                  <i class="bi bi-pencil inline-edit-icon"></i>
+                </div>
+                <div class="inline-edit-card">
+                  <div class="inline-edit-label">Yazar</div>
+                  <div class="inline-edit-value" contenteditable="true" data-placeholder="Tıklayarak düzenleyin...">Ozan Sonar</div>
+                  <i class="bi bi-pencil inline-edit-icon"></i>
+                </div>
+              </div>
+
+              <!-- Kod Editörü -->
+              <div class="form-section-header mt-4">
+                <div class="form-section-icon bg-icon-orange"><i class="bi bi-braces"></i></div>
+                <div><h6>Kod Editörü</h6><p>Satır numaralı, sözdizimi vurgulu kod düzenleme alanı</p></div>
+              </div>
+              <div class="code-editor">
+                <div class="code-editor-header">
+                  <div class="code-editor-dots"><span style="background:#ef4444"></span><span style="background:#f59e0b"></span><span style="background:#22c55e"></span></div>
+                  <span class="code-editor-title">app.js</span>
+                  <div class="d-flex gap-2 ms-auto">
+                    <select class="re-select re-select-sm" id="codeLang" onchange="codeHighlight()">
+                      <option value="javascript">JavaScript</option>
+                      <option value="html">HTML</option>
+                      <option value="css">CSS</option>
+                    </select>
+                    <button class="re-btn" onclick="codeCopy()" title="Kopyala"><i class="bi bi-clipboard"></i></button>
+                  </div>
+                </div>
+                <div class="code-editor-body">
+                  <div class="code-line-numbers" id="codeLineNumbers"></div>
+                  <textarea class="code-textarea" id="codeTextarea" oninput="codeUpdate()" spellcheck="false">// OZAN Admin Panel - Ana Modül
+class AdminPanel {
+  constructor(config) {
+    this.name = config.name || 'OZAN';
+    this.version = config.version || '3.0';
+    this.theme = config.theme || 'dark';
+    this.modules = new Map();
+  }
+
+  registerModule(name, module) {
+    this.modules.set(name, module);
+    console.log(`✅ Modül yüklendi: ${name}`);
+  }
+
+  init() {
+    console.log(`🚀 ${this.name} Admin v${this.version}`);
+    this.modules.forEach((mod, name) => {
+      mod.initialize();
+    });
+  }
+
+  getStats() {
+    return {
+      modules: this.modules.size,
+      theme: this.theme,
+      uptime: process.uptime()
+    };
+  }
+}
+
+const panel = new AdminPanel({
+  name: 'OZAN',
+  version: '3.0',
+  theme: 'dark'
+});
+
+panel.init();</textarea>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+
+<script>
+// ---- Dropzone.js Yapılandırması ----
+Dropzone.options.ozanDropzone = {
+  url: 'upload.php',
+  method: 'post',
+  paramName: 'file',
+  maxFilesize: 10,
+  maxFiles: 10,
+  acceptedFiles: 'image/*,.pdf,.doc,.docx,.xls,.xlsx',
+  addRemoveLinks: false,
+  thumbnailWidth: 120,
+  thumbnailHeight: 120,
+  thumbnailMethod: 'crop',
+  dictDefaultMessage: '<div class="dz-custom-message"><i class="bi bi-cloud-arrow-up"></i><h6>Dosyaları sürükleyin veya tıklayın</h6><p>PNG, JPG, GIF, PDF, DOC, XLS - Maks. 10MB</p></div>',
+  dictCancelUpload: 'İptal',
+  dictFileTooBig: 'Dosya çok büyük ({{filesize}}MB). Maksimum: {{maxFilesize}}MB.',
+  dictInvalidFileType: 'Bu dosya türü desteklenmiyor.',
+  dictMaxFilesExceeded: 'En fazla {{maxFiles}} dosya yükleyebilirsiniz.',
+  dictResponseError: 'Sunucu hatası: {{statusCode}}',
+  init: function() {
+    var dzInstance = this;
+
+    // SortableJS ile sürükle-bırak sıralama
+    var previewContainer = this.element.querySelector('.dz-preview') ? this.element : this.element;
+    this.on('addedfile', function(file) {
+      // Özel silme butonu ekle (görselin ortasında)
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'dz-remove-btn';
+      removeBtn.innerHTML = '<i class="bi bi-trash3-fill"></i>';
+      removeBtn.title = 'Dosyayı kaldır';
+      removeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dzInstance.removeFile(file);
+      });
+      file.previewElement.appendChild(removeBtn);
+      console.log('Dosya eklendi:', file.name);
+
+      // SortableJS'i ilk dosya eklendiğinde başlat
+      if (!dzInstance.sortableInitialized) {
+        dzInstance.sortableInitialized = true;
+        setTimeout(function() {
+          new Sortable(dzInstance.previewsContainer, {
+            animation: 200,
+            ghostClass: 'dz-sortable-ghost',
+            chosenClass: 'dz-sortable-chosen',
+            dragClass: 'dz-sortable-drag',
+            filter: '.dz-message',
+            draggable: '.dz-preview',
+            onEnd: function() {
+              // Sıralama değiştiğinde dosya dizisini güncelle
+              var newOrder = [];
+              dzInstance.previewsContainer.querySelectorAll('.dz-preview').forEach(function(el) {
+                var matchedFile = dzInstance.files.find(function(f) { return f.previewElement === el; });
+                if (matchedFile) newOrder.push(matchedFile);
+              });
+              dzInstance.files = newOrder;
+              console.log('Sıralama güncellendi:', newOrder.map(function(f) { return f.name; }));
+            }
+          });
+        }, 100);
+      }
+    });
+    this.on('success', function(file, response) {
+      file.previewElement.classList.add('dz-success');
+      console.log('Yükleme başarılı:', file.name, response);
+    });
+    this.on('error', function(file, errorMessage) {
+      console.error('Yükleme hatası:', file.name, errorMessage);
+    });
+    this.on('removedfile', function(file) {
+      console.log('Dosya kaldırıldı:', file.name);
+    });
+  }
+};
+
+// ---- Tekli Dosya Seçimi Önizleme ----
+document.getElementById('singleFileInput').addEventListener('change', function() {
+  var preview = document.getElementById('singleFilePreview');
+  preview.innerHTML = '';
+  if (this.files.length === 0) return;
+  var file = this.files[0];
+  var item = document.createElement('div');
+  item.className = 'single-file-item';
+
+  if (file.type.startsWith('image/')) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      item.innerHTML = '<div class="single-file-thumb"><img src="' + e.target.result + '" alt=""><button class="single-file-remove" onclick="clearSingleFile()"><i class="bi bi-x-lg"></i></button></div>' +
+        '<div class="single-file-info"><span class="single-file-name">' + file.name + '</span><span class="single-file-size">' + formatFileSize(file.size) + '</span></div>';
+      preview.appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    var icon = file.name.match(/\.pdf$/i) ? 'bi-file-earmark-pdf' : 'bi-file-earmark-text';
+    item.innerHTML = '<div class="single-file-thumb file-icon-thumb"><i class="bi ' + icon + '"></i><button class="single-file-remove" onclick="clearSingleFile()"><i class="bi bi-x-lg"></i></button></div>' +
+      '<div class="single-file-info"><span class="single-file-name">' + file.name + '</span><span class="single-file-size">' + formatFileSize(file.size) + '</span></div>';
+    preview.appendChild(item);
+  }
+});
+
+function clearSingleFile() {
+  document.getElementById('singleFileInput').value = '';
+  document.getElementById('singleFilePreview').innerHTML = '';
+}
+
+// ---- Çoklu Dosya Seçimi Listesi ----
+document.getElementById('multiFileInput').addEventListener('change', function() {
+  var list = document.getElementById('multiFileList');
+  list.innerHTML = '';
+  if (this.files.length === 0) return;
+  Array.from(this.files).forEach(function(file, i) {
+    var icon = file.type.startsWith('image/') ? 'bi-file-earmark-image' : (file.name.match(/\.pdf$/i) ? 'bi-file-earmark-pdf' : 'bi-file-earmark-text');
+    var color = file.type.startsWith('image/') ? 'var(--teal-primary)' : (file.name.match(/\.pdf$/i) ? 'var(--neon-red)' : 'var(--neon-blue)');
+    var row = document.createElement('div');
+    row.className = 'multi-file-row';
+    row.innerHTML = '<i class="bi ' + icon + '" style="color:' + color + ';font-size:18px"></i>' +
+      '<span class="multi-file-name">' + file.name + '</span>' +
+      '<span class="multi-file-size">' + formatFileSize(file.size) + '</span>';
+    list.appendChild(row);
+  });
+});
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+// ---- Şifre Görünürlük Toggle ----
+function togglePassword() {
+  const input = document.getElementById('passwordInput');
+  const icon = document.getElementById('togglePassIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('bi-eye', 'bi-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('bi-eye-slash', 'bi-eye');
+  }
+}
+
+// ---- Şifre Güç Ölçer ----
+function updatePasswordStrength(val) {
+  const bars = document.querySelectorAll('#passwordStrength .strength-bar');
+  const text = document.getElementById('passwordStrengthText');
+  let strength = 0;
+  if (val.length >= 4) strength++;
+  if (val.length >= 8) strength++;
+  if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+  const levels = ['', 'Zayıf', 'Orta', 'İyi', 'Güçlü'];
+  const classes = ['', 'weak', 'medium', 'strong', 'strong'];
+  const colors = ['', 'var(--neon-red)', 'var(--neon-orange)', 'var(--neon-green)', 'var(--neon-green)'];
+
+  bars.forEach(function(bar, i) {
+    bar.classList.remove('active', 'weak', 'medium', 'strong');
+    if (i < strength) {
+      bar.classList.add('active', classes[strength]);
+    }
+  });
+
+  text.textContent = val.length > 0 ? levels[strength] : '';
+  text.style.color = colors[strength];
+}
+
+// ---- Karakter Sayacı ----
+function updateCharCounter(textarea, max) {
+  const counter = textarea.parentElement.querySelector('.char-counter');
+  const span = counter.querySelector('span') || counter;
+  const len = textarea.value.length;
+  if (counter.querySelector('span')) {
+    counter.querySelector('span').textContent = len;
+  }
+  counter.classList.remove('warning', 'danger');
+  if (len > max * 0.9) counter.classList.add('danger');
+  else if (len > max * 0.7) counter.classList.add('warning');
+}
+
+// ---- Etiket Ekleme ----
+function addTag(e, input) {
+  if (e.key === 'Enter' && input.value.trim()) {
+    e.preventDefault();
+    var wrapper = input.closest('.tags-input-wrapper');
+    var colors = [
+      {bg:'rgba(20,184,166,0.12)',color:'var(--teal-light)'},
+      {bg:'rgba(168,85,247,0.12)',color:'#c084fc'},
+      {bg:'rgba(59,130,246,0.12)',color:'#60a5fa'},
+      {bg:'rgba(249,115,22,0.12)',color:'#fb923c'},
+      {bg:'rgba(236,72,153,0.12)',color:'#f472b6'}
+    ];
+    var rnd = colors[Math.floor(Math.random() * colors.length)];
+    var tag = document.createElement('div');
+    tag.className = 'tag-item';
+    tag.style.background = rnd.bg;
+    tag.style.color = rnd.color;
+    tag.innerHTML = input.value.trim() + ' <span class="tag-remove" onclick="this.parentElement.remove()">&times;</span>';
+    wrapper.insertBefore(tag, input);
+    input.value = '';
+  }
+}
+
+// ---- Kart Seçimi ----
+function selectCard(el) {
+  el.closest('.select-card-group').querySelectorAll('.select-card').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+}
+
+// ---- Option Kart Toggle ----
+function toggleOptionCard(el) {
+  el.classList.toggle('selected');
+}
+
+// ---- Form Doğrulama ----
+(function() {
+  var form = document.getElementById('validationForm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+    });
+    form.addEventListener('reset', function() {
+      form.classList.remove('was-validated');
+    });
+  }
+})();
+
+// ==================== EDITOR FUNCTIONS ====================
+
+// ---- Rich Text Editor ----
+function reCmd(cmd, val) {
+  document.execCommand(cmd, false, val || null);
+  document.getElementById('reBody').focus();
+  reUpdateCount();
+}
+
+function reInsertLink() {
+  const url = prompt('Bağlantı URL:', 'https://');
+  if (url) reCmd('createLink', url);
+}
+
+function reInsertImage() {
+  const url = prompt('Görsel URL:', 'https://');
+  if (url) reCmd('insertImage', url);
+}
+
+function reToggleCode() {
+  const body = document.getElementById('reBody');
+  const btn = document.getElementById('reCodeBtn');
+  if (body.contentEditable === 'true') {
+    const html = body.innerHTML;
+    body.textContent = html;
+    body.contentEditable = 'false';
+    body.style.fontFamily = 'monospace';
+    body.style.fontSize = '12px';
+    body.style.whiteSpace = 'pre-wrap';
+    btn.classList.add('active');
+  } else {
+    const text = body.textContent;
+    body.innerHTML = text;
+    body.contentEditable = 'true';
+    body.style.fontFamily = '';
+    body.style.fontSize = '';
+    body.style.whiteSpace = '';
+    btn.classList.remove('active');
+  }
+}
+
+function reFullscreen() {
+  const editor = document.getElementById('richEditor');
+  editor.classList.toggle('re-fullscreen');
+  const btn = document.getElementById('reFullBtn');
+  const icon = btn.querySelector('i');
+  if (editor.classList.contains('re-fullscreen')) {
+    icon.className = 'bi bi-fullscreen-exit';
+    document.body.style.overflow = 'hidden';
+  } else {
+    icon.className = 'bi bi-arrows-fullscreen';
+    document.body.style.overflow = '';
+  }
+}
+
+function reUpdateCount() {
+  const body = document.getElementById('reBody');
+  const text = body.innerText || '';
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.length;
+  document.getElementById('reWordCount').textContent = 'Kelime: ' + words + ' | Karakter: ' + chars;
+}
+
+document.getElementById('reBody').addEventListener('input', reUpdateCount);
+reUpdateCount();
+
+// ---- Markdown Editor ----
+function mdRender() {
+  const text = document.getElementById('mdTextarea').value;
+  let html = text
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+    .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/~~(.*?)~~/g, '<del>$1</del>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="lang-$1">$2</code></pre>')
+    .replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--teal-primary)">$1</a>')
+    .replace(/^- \[x\] (.*$)/gm, '<label class="md-task done"><input type="checkbox" checked disabled> $1</label>')
+    .replace(/^- \[ \] (.*$)/gm, '<label class="md-task"><input type="checkbox" disabled> $1</label>')
+    .replace(/^\|(.+)\|$/gm, function(match) { return '<tr>' + match.replace(/^\||\|$/g, '').split('|').map(function(c) { return '<td>' + c.trim() + '</td>'; }).join('') + '</tr>'; })
+    .replace(/^- (.*$)/gm, '<li>$1</li>')
+    .replace(/^\d+\. (.*$)/gm, '<li class="ordered">$1</li>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
+    .replace(/<\/ul>\s*<ul>/g, '')
+    .replace(/(<tr>[\s\S]*?<\/tr>)/g, '<table class="md-table">$1</table>')
+    .replace(/<\/table>\s*<table class="md-table">/g, '')
+    .replace(/<table class="md-table"><tr>(<td>[^<]*<\/td>)+<\/tr>/,function(m){return m.replace(/<td>-+<\/td>/g,'').replace(/<tr><\/tr>/,'');});
+
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p><(h[1-3]|blockquote|hr|pre|ul|table|label)/g, '<$1')
+    .replace(/<\/(h[1-3]|blockquote|pre|ul|table|label)><\/p>/g, '</$1>');
+
+  document.getElementById('mdPreviewPane').innerHTML = html;
+  mdUpdateLineNumbers();
+  mdUpdateCount();
+}
+
+function mdUpdateLineNumbers() {
+  const textarea = document.getElementById('mdTextarea');
+  const lines = textarea.value.split('\n').length;
+  const nums = [];
+  for (let i = 1; i <= lines; i++) nums.push(i);
+  document.getElementById('mdLineNumbers').innerHTML = nums.join('<br>');
+}
+
+function mdUpdateCount() {
+  const text = document.getElementById('mdTextarea').value;
+  const lines = text.split('\n').length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  document.getElementById('mdWordCount').textContent = 'Satır: ' + lines + ' | Kelime: ' + words;
+}
+
+function mdSyncScroll(el) {
+  document.getElementById('mdLineNumbers').style.transform = 'translateY(-' + el.scrollTop + 'px)';
+}
+
+function mdInsert(before, after) {
+  const ta = document.getElementById('mdTextarea');
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const sel = ta.value.substring(start, end);
+  ta.value = ta.value.substring(0, start) + before + sel + after + ta.value.substring(end);
+  ta.selectionStart = start + before.length;
+  ta.selectionEnd = start + before.length + sel.length;
+  ta.focus();
+  mdRender();
+}
+
+function mdLine(prefix) {
+  const ta = document.getElementById('mdTextarea');
+  const start = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+  ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
+  ta.selectionStart = ta.selectionEnd = start + prefix.length;
+  ta.focus();
+  mdRender();
+}
+
+function mdBlock(before, after) {
+  const ta = document.getElementById('mdTextarea');
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const sel = ta.value.substring(start, end) || 'code here';
+  ta.value = ta.value.substring(0, start) + before + sel + '\n' + after + ta.value.substring(end);
+  ta.focus();
+  mdRender();
+}
+
+function mdToggleView(mode) {
+  const edit = document.getElementById('mdEditPane');
+  const preview = document.getElementById('mdPreviewPane');
+  document.querySelectorAll('#mdEditBtn,#mdSplitBtn,#mdPreviewBtn').forEach(function(b) { b.classList.remove('active'); });
+
+  if (mode === 'edit') {
+    edit.classList.remove('d-none'); edit.classList.add('md-pane-edit');
+    preview.classList.add('d-none'); preview.classList.remove('md-pane-preview');
+    document.getElementById('mdEditBtn').classList.add('active');
+  } else if (mode === 'preview') {
+    edit.classList.add('d-none'); edit.classList.remove('md-pane-edit');
+    preview.classList.remove('d-none'); preview.classList.add('md-pane-preview');
+    document.getElementById('mdPreviewBtn').classList.add('active');
+  } else {
+    edit.classList.remove('d-none'); edit.classList.add('md-pane-edit');
+    preview.classList.remove('d-none'); preview.classList.add('md-pane-preview');
+    document.getElementById('mdSplitBtn').classList.add('active');
+  }
+}
+
+// Init markdown
+mdRender();
+
+// Markdown Tab desteği
+document.getElementById('mdTextarea').addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = this.selectionStart;
+    this.value = this.value.substring(0, start) + '  ' + this.value.substring(this.selectionEnd);
+    this.selectionStart = this.selectionEnd = start + 2;
+    mdRender();
+  }
+});
+
+// ---- Code Editor ----
+function codeUpdate() {
+  const ta = document.getElementById('codeTextarea');
+  const lines = ta.value.split('\n').length;
+  const nums = [];
+  for (let i = 1; i <= lines; i++) nums.push(i);
+  document.getElementById('codeLineNumbers').innerHTML = nums.join('<br>');
+}
+
+function codeCopy() {
+  const ta = document.getElementById('codeTextarea');
+  navigator.clipboard.writeText(ta.value).then(function() {
+    const btn = document.querySelector('.code-editor .re-btn[onclick="codeCopy()"] i');
+    btn.className = 'bi bi-check-lg';
+    setTimeout(function() { btn.className = 'bi bi-clipboard'; }, 1500);
+  });
+}
+
+codeUpdate();
+
+// ---- Tags Input (vanilla JS) ----
+function fsRemoveTag(btn) {
+  btn.closest('.fs-tag').remove();
+}
+document.getElementById('fsTagInput').addEventListener('keydown', function(e) {
+  if ((e.key === 'Enter' || e.key === ',') && this.value.trim()) {
+    e.preventDefault();
+    var tag = document.createElement('span');
+    tag.className = 'fs-tag';
+    tag.innerHTML = this.value.trim() + ' <button type="button" class="fs-tag-remove" onclick="fsRemoveTag(this)">×</button>';
+    this.parentNode.insertBefore(tag, this);
+    this.value = '';
+  }
+});
+document.getElementById('fsTagsWrapper').addEventListener('click', function() {
+  document.getElementById('fsTagInput').focus();
+});
+
+// ---- Max Selection Limiter ----
+document.getElementById('selMax').addEventListener('change', function() {
+  var max = parseInt(this.dataset.maxSelect) || 3;
+  var selected = Array.from(this.selectedOptions);
+  if (selected.length > max) {
+    selected[selected.length - 1].selected = false;
+    document.getElementById('selMaxHint').innerHTML = '<i class="bi bi-exclamation-triangle me-1 text-warning"></i>En fazla ' + max + ' renk seçebilirsiniz.';
+  } else {
+    document.getElementById('selMaxHint').innerHTML = '<i class="bi bi-info-circle me-1"></i>En fazla ' + max + ' renk seçebilirsiniz.';
+  }
+});
+
+// ---- Smooth Scroll ----
+document.querySelectorAll('.nav-dropdown-menu .nav-link').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    var href = this.getAttribute('href');
+    if (window.location.pathname.includes('forms.html') && href && href.includes('#')) {
+      e.preventDefault();
+      var hash = href.split('#')[1];
+      var target = document.getElementById(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, null, '#' + hash);
+      }
+      document.querySelectorAll('.nav-dropdown-menu .nav-link').forEach(function(l) { l.classList.remove('active'); });
+      this.classList.add('active');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

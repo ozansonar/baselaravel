@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Giriş Yap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body class="auth-body">
+
+<!-- Animated Background -->
+<div class="auth-bg">
+  <div class="auth-orb orb-1"></div>
+  <div class="auth-orb orb-2"></div>
+  <div class="auth-orb orb-3"></div>
+  <div class="auth-grid"></div>
+</div>
+
+<div class="auth-wrapper">
+
+  <!-- ===== SOL PANEL (Branding) ===== -->
+  <div class="auth-brand-panel">
+    <div class="auth-brand-content">
+      <div class="auth-brand-logo">O</div>
+      <h1>OZAN <span>Admin</span></h1>
+      <p>Modern, güçlü ve güvenli admin paneli ile işletmenizi yönetin.</p>
+
+      <div class="auth-features">
+        <div class="auth-feature">
+          <div class="auth-feature-icon"><i class="bi bi-shield-check"></i></div>
+          <div><strong>Güvenli Erişim</strong><span>256-bit şifreleme ile korunur</span></div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon"><i class="bi bi-speedometer2"></i></div>
+          <div><strong>Hızlı Yönetim</strong><span>Anlık veri analizi ve raporlama</span></div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon"><i class="bi bi-phone"></i></div>
+          <div><strong>Responsive Tasarım</strong><span>Her cihazdan erişim imkanı</span></div>
+        </div>
+      </div>
+
+      <div class="auth-brand-stats">
+        <div><span class="auth-stat-val">12K+</span><span class="auth-stat-lbl">Kullanıcı</span></div>
+        <div><span class="auth-stat-val">99.9%</span><span class="auth-stat-lbl">Uptime</span></div>
+        <div><span class="auth-stat-val">50+</span><span class="auth-stat-lbl">Bileşen</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SAĞ PANEL (Form) ===== -->
+  <div class="auth-form-panel">
+    <div class="auth-form-container">
+
+      <div class="auth-form-header">
+        <div class="auth-mobile-logo">O</div>
+        <h2>Hoş Geldiniz!</h2>
+        <p>Hesabınıza giriş yapın</p>
+      </div>
+
+      <!-- Social Login -->
+      <div class="auth-social">
+        <button class="auth-social-btn google"><i class="bi bi-google"></i> Google</button>
+        <button class="auth-social-btn github"><i class="bi bi-github"></i> GitHub</button>
+        <button class="auth-social-btn apple"><i class="bi bi-apple"></i> Apple</button>
+      </div>
+
+      <div class="auth-divider"><span>veya e-posta ile giriş yapın</span></div>
+
+      <!-- Login Form -->
+      <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="auth-field">
+          <label for="loginEmail">E-posta Adresi</label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-envelope"></i>
+            <input type="email" placeholder="ornek@email.com" required id="loginEmail">
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <div class="d-flex justify-content-between">
+            <label for="loginPass">Şifre</label>
+            <a href="forgot-password.html" class="auth-link">Şifremi Unuttum</a>
+          </div>
+          <div class="auth-input-wrap">
+            <i class="bi bi-lock"></i>
+            <input type="password" placeholder="••••••••" required id="loginPass">
+            <button type="button" class="auth-eye" onclick="togglePass(this)" aria-label="Şifreyi göster/gizle"><i class="bi bi-eye-slash"></i></button>
+          </div>
+        </div>
+
+        <div class="auth-options">
+          <label class="auth-remember">
+            <input type="checkbox" checked>
+            <span class="auth-checkbox"></span>
+            Beni Hatırla
+          </label>
+        </div>
+
+        <button type="submit" class="auth-submit" id="loginBtn">
+          <span>Giriş Yap</span>
+          <div class="auth-btn-loader d-none"><div class="auth-spinner"></div></div>
+        </button>
+      </form>
+
+      <p class="auth-switch">Hesabınız yok mu? <a href="register.html">Kayıt Olun</a></p>
+
+      <div class="auth-footer">
+        <span>&copy; 2026 OZAN Admin Panel</span>
+        <div class="auth-footer-links">
+          <a href="#">Gizlilik</a>
+          <a href="#">Şartlar</a>
+          <a href="#">Destek</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Toggle password visibility
+function togglePass(btn) {
+  const wrap = btn.closest('.auth-input-wrap');
+  const input = wrap.querySelector('input');
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye';
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye-slash';
+  }
+}
+
+// Login handler
+function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  const span = btn.querySelector('span');
+  const loader = btn.querySelector('.auth-btn-loader');
+  span.classList.add('d-none');
+  loader.classList.remove('d-none');
+  btn.disabled = true;
+
+  setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 1500);
+}
+
+// Input focus animations
+document.querySelectorAll('.auth-input-wrap input').forEach(input => {
+  input.addEventListener('focus', () => input.closest('.auth-input-wrap').classList.add('focused'));
+  input.addEventListener('blur', () => { if (!input.value) input.closest('.auth-input-wrap').classList.remove('focused'); });
+  if (input.value) input.closest('.auth-input-wrap').classList.add('focused');
+});
+</script>
+</body>
+</html>

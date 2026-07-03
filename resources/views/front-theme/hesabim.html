@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesabım | Orhan Baba'nın Çiftliği</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Hesap bilgileriniz, siparişleriniz ve adreslerinizi yönetin. Orhan Baba'nın Çiftliği.">
+    <meta name="keywords" content="hesabım, siparişlerim, profil">
+    <meta name="author" content="Orhan Baba'nın Çiftliği">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://orhanbabaciftlik.com/hesabim.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Hesabım | Orhan Baba'nın Çiftliği">
+    <meta property="og:description" content="Hesap bilgileriniz, siparişleriniz ve adreslerinizi yönetin. Orhan Baba'nın Çiftliği.">
+    <meta property="og:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+    <meta property="og:url" content="https://orhanbabaciftlik.com/hesabim.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Orhan Baba'nın Çiftliği">
+    <meta property="og:locale" content="tr_TR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Hesabım | Orhan Baba'nın Çiftliği">
+    <meta name="twitter:description" content="Hesap bilgileriniz, siparişleriniz ve adreslerinizi yönetin. Orhan Baba'nın Çiftliği.">
+    <meta name="twitter:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+
+    <!-- Preconnect & DNS Prefetch -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        
+
+        /* Dashboard Section */
+        .dashboard-section {
+            padding: 50px 0 100px;
+        }
+
+        /* Sidebar */
+        .dashboard-sidebar {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            padding: 30px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .user-info {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--green-mist);
+            margin-bottom: 25px;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5rem;
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .user-info h4 {
+            font-size: 1.4rem;
+            color: var(--green-dark);
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: var(--brown);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--green-mist);
+            color: var(--green-primary);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            width: 24px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-menu .logout-btn {
+            color: var(--red);
+            margin-top: 20px;
+            border-top: 2px solid var(--green-mist);
+            padding-top: 28px;
+        }
+
+        .sidebar-menu .logout-btn:hover {
+            background: #fee;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            padding: 40px;
+            min-height: 600px;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--green-mist);
+        }
+
+        .content-header h3 {
+            font-size: 1.8rem;
+            color: var(--green-dark);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 0;
+        }
+
+        .content-header h3 i {
+            color: var(--green-primary);
+        }
+
+        /* Tab Content */
+        .tab-content-panel {
+            display: none;
+        }
+
+        .tab-content-panel.active {
+            display: block;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--green-mist);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--green-primary);
+            margin-bottom: 15px;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--green-dark);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-card .label {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+        }
+
+        /* Orders Table */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th {
+            background: var(--green-mist);
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .orders-table th:first-child {
+            border-radius: 15px 0 0 15px;
+        }
+
+        .orders-table th:last-child {
+            border-radius: 0 15px 15px 0;
+        }
+
+        .orders-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--green-mist);
+        }
+
+        .orders-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .order-status.delivered {
+            background: #d4edda;
+            color: var(--green-dark);
+        }
+
+        .order-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .order-status.shipped {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .order-status.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-view {
+            padding: 8px 18px;
+            background: var(--green-mist);
+            color: var(--green-primary);
+            border: none;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view:hover {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        /* Address Cards */
+        .address-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .address-card {
+            background: var(--green-mist);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+        }
+
+        .address-card.default {
+            border: 2px solid var(--green-primary);
+        }
+
+        .address-card .default-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--green-primary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .address-card h5 {
+            color: var(--green-dark);
+            margin-bottom: 10px;
+        }
+
+        .address-card p {
+            color: var(--brown);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .address-card .phone {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .address-actions button {
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: white;
+            border: 2px solid var(--green-primary);
+            color: var(--green-primary);
+        }
+
+        .btn-edit:hover {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: white;
+            border: 2px solid var(--red);
+            color: var(--red);
+        }
+
+        .btn-delete:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        .btn-add-address {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px;
+            background: white;
+            border: 2px dashed var(--green-pale);
+            border-radius: 20px;
+            color: var(--green-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-address:hover {
+            border-color: var(--green-primary);
+            background: var(--green-mist);
+        }
+
+        /* Profile Form */
+        .profile-form {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--green-dark);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-control {
+            padding: 15px 20px;
+            border: 2px solid var(--green-pale);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--green-primary);
+            box-shadow: 0 0 0 4px rgba(74, 124, 67, 0.1);
+        }
+
+        .form-control:disabled {
+            background: var(--green-mist);
+            cursor: not-allowed;
+        }
+
+        .btn-save {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(74, 124, 67, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(74, 124, 67, 0.4);
+        }
+
+        /* Favorites */
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .favorite-card {
+            background: var(--green-mist);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .favorite-card .icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.5rem;
+        }
+
+        .favorite-card h5 {
+            color: var(--green-dark);
+            margin-bottom: 5px;
+        }
+
+        .favorite-card .price {
+            color: var(--green-primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .favorite-card .btn-remove-fav {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-card .btn-remove-fav:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--green-pale);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: var(--green-dark);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--brown-light);
+            margin-bottom: 25px;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--green-mist);
+        }
+
+        .pagination-btn {
+            padding: 10px 18px;
+            background: var(--green-mist);
+            border: none;
+            border-radius: 10px;
+            color: var(--green-dark);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        .pagination-info {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 2px solid var(--green-mist);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--green-dark);
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-header h3 i {
+            color: var(--green-primary);
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--green-mist);
+            border: none;
+            color: var(--green-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        .modal-
+
+        /* Order Detail Modal */
+        .order-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--green-mist);
+        }
+
+        .order-detail-header h4 {
+            color: var(--green-dark);
+            margin: 0;
+        }
+
+        .order-detail-header .order-date {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+        }
+
+        .order-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .order-timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: var(--green-mist);
+            z-index: 0;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--green-mist);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brown-light);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-step.completed .timeline-icon {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        .timeline-step.active .timeline-icon {
+            background: var(--gold);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 75, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(212, 168, 75, 0); }
+        }
+
+        .timeline-label {
+            font-size: 0.8rem;
+            color: var(--brown-light);
+            text-align: center;
+        }
+
+        .timeline-step.completed .timeline-label,
+        .timeline-step.active .timeline-label {
+            color: var(--green-dark);
+            font-weight: 600;
+        }
+
+        .order-products {
+            margin-bottom: 25px;
+        }
+
+        .order-products h5 {
+            color: var(--green-dark);
+            margin-bottom: 15px;
+        }
+
+        .order-product-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--green-mist);
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+
+        .order-product-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .order-product-info {
+            flex: 1;
+        }
+
+        .order-product-name {
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .order-product-qty {
+            font-size: 0.9rem;
+            color: var(--brown-light);
+        }
+
+        .order-product-price {
+            font-weight: 700;
+            color: var(--green-primary);
+        }
+
+        .order-summary-section {
+            background: var(--green-mist);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-summary-section h5 {
+            color: var(--green-dark);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .order-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: var(--brown);
+        }
+
+        .order-summary-row.total {
+            border-top: 2px solid var(--green-pale);
+            margin-top: 10px;
+            padding-top: 15px;
+            font-weight: 700;
+            color: var(--green-dark);
+            font-size: 1.1rem;
+        }
+
+        .order-address-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .order-address-box {
+            background: var(--green-mist);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .order-address-box h5 {
+            color: var(--green-dark);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .order-address-box p {
+            color: var(--brown);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Address Form Modal */
+        .address-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .address-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .address-form .form-label {
+            font-weight: 600;
+            color: var(--green-dark);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .address-form .form-control,
+        .address-form .form-select {
+            padding: 12px 15px;
+            border: 2px solid var(--green-pale);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .address-form .form-control:focus,
+        .address-form .form-select:focus {
+            outline: none;
+            border-color: var(--green-primary);
+            box-shadow: 0 0 0 4px rgba(74, 124, 67, 0.1);
+        }
+
+        .address-form textarea.form-control {
+            min-height: 80px;
+            resize: none;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid var(--green-mist);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn-modal-cancel {
+            padding: 12px 25px;
+            background: var(--green-mist);
+            border: none;
+            border-radius: 12px;
+            color: var(--green-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #ddd;
+        }
+
+        .btn-modal-save {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 124, 67, 0.3);
+        }
+
+        .btn-modal-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 124, 67, 0.4);
+        }
+
+        .form-check-custom {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .form-check-custom input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .form-check-custom label {
+            cursor: pointer;
+            color: var(--brown);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--green-dark);
+            color: white;
+            padding: 80px 0 30px;
+        }
+
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-brand .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--green-light), var(--green-pale));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green-dark);
+            font-size: 1.2rem;
+        }
+
+        .footer-text {
+            color: rgba(255,255,255,0.7);
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            background: var(--green-light);
+            color: var(--green-dark);
+            transform: translateY(-5px);
+        }
+
+        .footer-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--green-light);
+        }
+
+        .footer-bottom {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1199px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .favorites-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 991px) {
+
+            .dashboard-sidebar {
+                position: relative;
+                top: 0;
+                margin-bottom: 30px;
+            }
+
+            .address-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 767px) {
+
+            .dashboard-content {
+                padding: 25px;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .favorites-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Navigation - Accessibility -->
+    <a href="#main-content" class="skip-nav">Ana içeriğe geç</a>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top" role="navigation" aria-label="Ana Navigasyon">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                Orhan Baba'nın Çiftliği
+            </a>
+            <button class="navbar-toggler" type="button" aria-label="Menüyü aç/kapat" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="urunler.html">Ürünlerimiz</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="hakkimizda.html">Hakkımızda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="blog.html">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="galeri.html">Galeri</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="iletisim.html">İletişim</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-custom" href="sepet.html">
+                            <i class="fas fa-shopping-basket"></i>
+                            Sepetim
+                            <span class="cart-count" id="cartCount">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <main id="main-content">
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb-custom animate-fade-up">
+                <a href="index.html"><i class="fas fa-home"></i> Ana Sayfa</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Hesabım</span>
+            </div>
+            <h1 class="page-title animate-fade-up delay-1">Hesabım</h1>
+            <p class="page-subtitle animate-fade-up delay-2">Hesap bilgilerinizi ve siparişlerinizi yönetin</p>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-lg-3">
+                    <div class="dashboard-sidebar animate-fade-up">
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">OB</div>
+                            <h4 id="userName">Kullanıcı</h4>
+                            <p id="userEmail">user@email.com</p>
+                        </div>
+
+                        <ul class="sidebar-menu">
+                            <li>
+                                <a href="#" class="active" data-tab="dashboard">
+                                    <i class="fas fa-th-large"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-tab="orders">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Siparişlerim
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-tab="addresses">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Adreslerim
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-tab="favorites">
+                                    <i class="fas fa-heart"></i>
+                                    Favorilerim
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-tab="profile">
+                                    <i class="fas fa-user-edit"></i>
+                                    Profil Düzenle
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-tab="security">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Güvenlik
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="logout-btn" id="logoutBtn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Çıkış Yap
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="col-lg-9">
+                    <div class="dashboard-content animate-fade-up delay-1">
+                        <!-- Dashboard Tab -->
+                        <div class="tab-content-panel active" id="dashboard">
+                            <div class="content-header">
+                                <h3><i class="fas fa-th-large"></i> Dashboard</h3>
+                            </div>
+
+                            <div class="stats-cards">
+                                <div class="stat-card">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    <div class="number">12</div>
+                                    <div class="label">Toplam Sipariş</div>
+                                </div>
+                                <div class="stat-card">
+                                    <i class="fas fa-truck"></i>
+                                    <div class="number">2</div>
+                                    <div class="label">Aktif Sipariş</div>
+                                </div>
+                                <div class="stat-card">
+                                    <i class="fas fa-heart"></i>
+                                    <div class="number">5</div>
+                                    <div class="label">Favori Ürün</div>
+                                </div>
+                                <div class="stat-card">
+                                    <i class="fas fa-star"></i>
+                                    <div class="number">8</div>
+                                    <div class="label">Değerlendirme</div>
+                                </div>
+                            </div>
+
+                            <h4 class="text-green-dark mb-4">Son Siparişler</h4>
+                            <table class="orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sipariş No</th>
+                                        <th>Tarih</th>
+                                        <th>Tutar</th>
+                                        <th>Durum</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#ORH-2024-1234</td>
+                                        <td>15 Ocak 2026</td>
+                                        <td>₺485</td>
+                                        <td><span class="order-status shipped">Kargoda</span></td>
+                                        <td><button class="btn-view">Detay</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#ORH-2024-1233</td>
+                                        <td>10 Ocak 2026</td>
+                                        <td>₺320</td>
+                                        <td><span class="order-status delivered">Teslim Edildi</span></td>
+                                        <td><button class="btn-view">Detay</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#ORH-2024-1232</td>
+                                        <td>5 Ocak 2026</td>
+                                        <td>₺210</td>
+                                        <td><span class="order-status delivered">Teslim Edildi</span></td>
+                                        <td><button class="btn-view">Detay</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Orders Tab -->
+                        <div class="tab-content-panel" id="orders">
+                            <div class="content-header">
+                                <h3><i class="fas fa-shopping-bag"></i> Siparişlerim</h3>
+                            </div>
+
+                            <table class="orders-table" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Sipariş No</th>
+                                        <th>Tarih</th>
+                                        <th>Ürün Sayısı</th>
+                                        <th>Tutar</th>
+                                        <th>Durum</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <!-- Orders will be loaded dynamically -->
+                                </tbody>
+                            </table>
+
+                            <div class="pagination-container" id="ordersPagination">
+                                <button class="pagination-btn" id="prevPageBtn" onclick="changePage(-1)">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <div id="paginationNumbers"></div>
+                                <button class="pagination-btn" id="nextPageBtn" onclick="changePage(1)">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <span class="pagination-info" id="paginationInfo"></span>
+                            </div>
+                        </div>
+
+                        <!-- Addresses Tab -->
+                        <div class="tab-content-panel" id="addresses">
+                            <div class="content-header">
+                                <h3><i class="fas fa-map-marker-alt"></i> Adreslerim</h3>
+                            </div>
+
+                            <div class="address-cards">
+                                <div class="address-card default">
+                                    <span class="default-badge">Varsayılan</span>
+                                    <h5><i class="fas fa-home me-2"></i>Ev Adresi</h5>
+                                    <p>
+                                        Atatürk Mah. Cumhuriyet Cad.<br>
+                                        No: 123 D: 4<br>
+                                        Kadıköy / İstanbul
+                                    </p>
+                                    <div class="phone">
+                                        <i class="fas fa-phone me-2"></i>0532 123 45 67
+                                    </div>
+                                    <div class="address-actions">
+                                        <button class="btn-edit"><i class="fas fa-edit me-1"></i> Düzenle</button>
+                                        <button class="btn-delete"><i class="fas fa-trash me-1"></i> Sil</button>
+                                    </div>
+                                </div>
+
+                                <div class="address-card">
+                                    <h5><i class="fas fa-briefcase me-2"></i>İş Adresi</h5>
+                                    <p>
+                                        Levent Mah. Büyükdere Cad.<br>
+                                        No: 456 K: 8<br>
+                                        Şişli / İstanbul
+                                    </p>
+                                    <div class="phone">
+                                        <i class="fas fa-phone me-2"></i>0533 987 65 43
+                                    </div>
+                                    <div class="address-actions">
+                                        <button class="btn-edit"><i class="fas fa-edit me-1"></i> Düzenle</button>
+                                        <button class="btn-delete"><i class="fas fa-trash me-1"></i> Sil</button>
+                                    </div>
+                                </div>
+
+                                <button class="btn-add-address">
+                                    <i class="fas fa-plus"></i>
+                                    Yeni Adres Ekle
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Favorites Tab -->
+                        <div class="tab-content-panel" id="favorites">
+                            <div class="content-header">
+                                <h3><i class="fas fa-heart"></i> Favorilerim</h3>
+                            </div>
+
+                            <div class="favorites-grid">
+                                <div class="favorite-card">
+                                    <button class="btn-remove-fav"><i class="fas fa-times"></i></button>
+                                    <div class="icon">🧀</div>
+                                    <h5>Köy Peyniri</h5>
+                                    <div class="price">₺180 / kg</div>
+                                </div>
+                                <div class="favorite-card">
+                                    <button class="btn-remove-fav"><i class="fas fa-times"></i></button>
+                                    <div class="icon">🍯</div>
+                                    <h5>Süzme Bal</h5>
+                                    <div class="price">₺350 / kg</div>
+                                </div>
+                                <div class="favorite-card">
+                                    <button class="btn-remove-fav"><i class="fas fa-times"></i></button>
+                                    <div class="icon">🧈</div>
+                                    <h5>Köy Tereyağı</h5>
+                                    <div class="price">₺280 / kg</div>
+                                </div>
+                                <div class="favorite-card">
+                                    <button class="btn-remove-fav"><i class="fas fa-times"></i></button>
+                                    <div class="icon">🥚</div>
+                                    <h5>Köy Yumurtası</h5>
+                                    <div class="price">₺120 / 30'lu</div>
+                                </div>
+                                <div class="favorite-card">
+                                    <button class="btn-remove-fav"><i class="fas fa-times"></i></button>
+                                    <div class="icon">🫒</div>
+                                    <h5>Zeytinyağı</h5>
+                                    <div class="price">₺320 / lt</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Tab -->
+                        <div class="tab-content-panel" id="profile">
+                            <div class="content-header">
+                                <h3><i class="fas fa-user-edit"></i> Profil Düzenle</h3>
+                            </div>
+
+                            <form class="profile-form" id="profileForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Ad</label>
+                                            <input type="text" class="form-control" id="profileFirstName" value="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Soyad</label>
+                                            <input type="text" class="form-control" id="profileLastName" value="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">E-posta</label>
+                                    <input type="email" class="form-control" id="profileEmail" value="" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Telefon</label>
+                                    <input type="tel" class="form-control" id="profilePhone" value="">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Doğum Tarihi</label>
+                                    <input type="date" class="form-control" id="profileBirthdate">
+                                </div>
+
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-save me-2"></i>Değişiklikleri Kaydet
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-content-panel" id="security">
+                            <div class="content-header">
+                                <h3><i class="fas fa-shield-alt"></i> Güvenlik</h3>
+                            </div>
+
+                            <form class="profile-form" id="securityForm">
+                                <h5 class="text-green-dark mb-4">Şifre Değiştir</h5>
+
+                                <div class="form-group">
+                                    <label class="form-label">Mevcut Şifre</label>
+                                    <input type="password" class="form-control" id="currentPassword" autocomplete="current-password" placeholder="Mevcut şifreniz">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Yeni Şifre</label>
+                                    <input type="password" class="form-control" id="newPassword" autocomplete="new-password" placeholder="Yeni şifreniz">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Yeni Şifre Tekrar</label>
+                                    <input type="password" class="form-control" id="confirmNewPassword" autocomplete="new-password" placeholder="Yeni şifrenizi tekrar girin">
+                                </div>
+
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-lock me-2"></i>Şifreyi Güncelle
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Detail Modal -->
+    <div class="modal-overlay" id="orderDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt"></i> Sipariş Detayı</h3>
+                <button class="modal-close" onclick="closeModal('orderDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="order-detail-header">
+                    <div>
+                        <h4 id="modalOrderNo">#ORH-2024-1234</h4>
+                        <span class="order-date" id="modalOrderDate">15 Ocak 2026</span>
+                    </div>
+                    <span class="order-status shipped" id="modalOrderStatus">Kargoda</span>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="order-timeline">
+                    <div class="timeline-step completed">
+                        <div class="timeline-icon"><i class="fas fa-check"></i></div>
+                        <span class="timeline-label">Sipariş Alındı</span>
+                    </div>
+                    <div class="timeline-step completed">
+                        <div class="timeline-icon"><i class="fas fa-box"></i></div>
+                        <span class="timeline-label">Hazırlanıyor</span>
+                    </div>
+                    <div class="timeline-step active" id="timelineShipped">
+                        <div class="timeline-icon"><i class="fas fa-truck"></i></div>
+                        <span class="timeline-label">Kargoda</span>
+                    </div>
+                    <div class="timeline-step" id="timelineDelivered">
+                        <div class="timeline-icon"><i class="fas fa-home"></i></div>
+                        <span class="timeline-label">Teslim Edildi</span>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div class="order-products">
+                    <h5><i class="fas fa-shopping-bag me-2"></i>Sipariş Ürünleri</h5>
+                    <div id="modalOrderProducts">
+                        <div class="order-product-item">
+                            <div class="order-product-icon">🧀</div>
+                            <div class="order-product-info">
+                                <div class="order-product-name">Köy Peyniri</div>
+                                <div class="order-product-qty">2 kg x ₺180</div>
+                            </div>
+                            <div class="order-product-price">₺360</div>
+                        </div>
+                        <div class="order-product-item">
+                            <div class="order-product-icon">🍯</div>
+                            <div class="order-product-info">
+                                <div class="order-product-name">Süzme Bal</div>
+                                <div class="order-product-qty">500g x ₺175</div>
+                            </div>
+                            <div class="order-product-price">₺175</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="order-summary-section">
+                    <h5><i class="fas fa-calculator me-2"></i>Sipariş Özeti</h5>
+                    <div class="order-summary-row">
+                        <span>Ara Toplam</span>
+                        <span id="modalSubtotal">₺535</span>
+                    </div>
+                    <div class="order-summary-row">
+                        <span>Kargo</span>
+                        <span id="modalShipping">Ücretsiz</span>
+                    </div>
+                    <div class="order-summary-row total">
+                        <span>Toplam</span>
+                        <span id="modalTotal">₺535</span>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div class="order-address-section">
+                    <div class="order-address-box">
+                        <h5><i class="fas fa-map-marker-alt me-2"></i>Teslimat Adresi</h5>
+                        <p id="modalDeliveryAddress">
+                            Atatürk Mah. Cumhuriyet Cad.<br>
+                            No: 123 D: 4<br>
+                            Kadıköy / İstanbul<br>
+                            0532 123 45 67
+                        </p>
+                    </div>
+                    <div class="order-address-box">
+                        <h5><i class="fas fa-credit-card me-2"></i>Ödeme Bilgisi</h5>
+                        <p id="modalPaymentInfo">
+                            Kredi Kartı<br>
+                            **** **** **** 1234<br>
+                            Tek Çekim
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Add/Edit Modal -->
+    <div class="modal-overlay" id="addressModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-map-marker-alt"></i> <span id="addressModalTitle">Yeni Adres Ekle</span></h3>
+                <button class="modal-close" onclick="closeModal('addressModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="address-form" id="addressForm">
+                    <input type="hidden" id="addressId" value="">
+
+                    <div class="form-group">
+                        <label class="form-label">Adres Başlığı *</label>
+                        <input type="text" class="form-control" id="addressTitle" placeholder="Örn: Ev, İş, Yazlık" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Ad *</label>
+                            <input type="text" class="form-control" id="addressFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Soyad *</label>
+                            <input type="text" class="form-control" id="addressLastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Telefon *</label>
+                        <input type="tel" class="form-control" id="addressPhone" placeholder="05XX XXX XX XX" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">İl *</label>
+                            <select class="form-select" id="addressCity" required>
+                                <option value="">İl Seçin</option>
+                                <option value="istanbul">İstanbul</option>
+                                <option value="ankara">Ankara</option>
+                                <option value="izmir">İzmir</option>
+                                <option value="Çorum">Çorum</option>
+                                <option value="bursa">Bursa</option>
+                                <option value="antalya">Antalya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">İlçe *</label>
+                            <select class="form-select" id="addressDistrict" required>
+                                <option value="">Önce il seçin</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mahalle / Sokak *</label>
+                        <input type="text" class="form-control" id="addressStreet" placeholder="Mahalle, Sokak adı" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Adres Detayı *</label>
+                        <textarea class="form-control" id="addressDetail" placeholder="Bina No, Daire No, Kat vb." required></textarea>
+                    </div>
+
+                    <div class="form-check-custom">
+                        <input type="checkbox" id="addressDefault">
+                        <label for="addressDefault">Bu adresi varsayılan olarak ayarla</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancel" onclick="closeModal('addressModal')">İptal</button>
+                <button class="btn-modal-save" onclick="saveAddress()">
+                    <i class="fas fa-save me-2"></i>Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <div class="logo-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        Orhan Baba'nın Çiftliği
+                    </div>
+                    <p class="footer-text">
+                        1975'ten bu yana, geleneksel yöntemlerle üretilen doğal köy ürünlerini sofralarınıza ulaştırıyoruz.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="footer-title">Hızlı Linkler</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="urunler.html">Ürünlerimiz</a></li>
+                        <li><a href="hakkimizda.html">Hakkımızda</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="galeri.html">Galeri</a></li>
+                        <li><a href="iletisim.html">İletişim</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="footer-title">Hesabım</h5>
+                    <ul class="footer-links">
+                        <li><a href="giris.html">Giriş Yap</a></li>
+                        <li><a href="kayit.html">Kayıt Ol</a></li>
+                        <li><a href="hesabim.html">Hesabım</a></li>
+                        <li><a href="sepet.html">Sepetim</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="footer-title">İletişim</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Orhan Köyü, Çorum / Türkiye</li>
+                        <li><i class="fas fa-phone me-2"></i> +90 532 XXX XX XX</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@orhanbabaciftlik.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Orhan Baba'nın Çiftliği. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="app.js" defer></script>
+    <script>
+        // Sample orders data
+        const ordersData = [
+            { id: '#ORH-2024-1234', date: '15 Ocak 2026', itemCount: 4, total: 485, status: 'shipped', statusText: 'Kargoda',
+              products: [
+                { name: 'Köy Peyniri', icon: '🧀', qty: '2 kg', unitPrice: 180, total: 360 },
+                { name: 'Süzme Bal', icon: '🍯', qty: '500g', unitPrice: 175, total: 175 }
+              ],
+              subtotal: 535, shipping: 0, address: 'Atatürk Mah. Cumhuriyet Cad.<br>No: 123 D: 4<br>Kadıköy / İstanbul<br>0532 123 45 67'
+            },
+            { id: '#ORH-2024-1233', date: '10 Ocak 2026', itemCount: 2, total: 320, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Köy Tereyağı', icon: '🧈', qty: '1 kg', unitPrice: 280, total: 280 },
+                { name: 'Köy Yumurtası', icon: '🥚', qty: '30\'lu', unitPrice: 120, total: 120 }
+              ],
+              subtotal: 400, shipping: 0, address: 'Atatürk Mah. Cumhuriyet Cad.<br>No: 123 D: 4<br>Kadıköy / İstanbul<br>0532 123 45 67'
+            },
+            { id: '#ORH-2024-1232', date: '5 Ocak 2026', itemCount: 1, total: 210, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Zeytinyağı', icon: '🫒', qty: '1 lt', unitPrice: 320, total: 320 }
+              ],
+              subtotal: 320, shipping: 25, address: 'Levent Mah. Büyükdere Cad.<br>No: 456 K: 8<br>Şişli / İstanbul<br>0533 987 65 43'
+            },
+            { id: '#ORH-2024-1231', date: '28 Aralık 2025', itemCount: 3, total: 425, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Köy Peyniri', icon: '🧀', qty: '1 kg', unitPrice: 180, total: 180 },
+                { name: 'Ev Yoğurdu', icon: '🥛', qty: '2 kg', unitPrice: 90, total: 180 },
+                { name: 'Ev Reçeli', icon: '🍓', qty: '500g', unitPrice: 85, total: 85 }
+              ],
+              subtotal: 445, shipping: 0, address: 'Atatürk Mah. Cumhuriyet Cad.<br>No: 123 D: 4<br>Kadıköy / İstanbul<br>0532 123 45 67'
+            },
+            { id: '#ORH-2024-1230', date: '20 Aralık 2025', itemCount: 5, total: 680, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Süzme Bal', icon: '🍯', qty: '1 kg', unitPrice: 350, total: 350 },
+                { name: 'Köy Peyniri', icon: '🧀', qty: '2 kg', unitPrice: 180, total: 360 }
+              ],
+              subtotal: 710, shipping: 0, address: 'Atatürk Mah. Cumhuriyet Cad.<br>No: 123 D: 4<br>Kadıköy / İstanbul<br>0532 123 45 67'
+            },
+            { id: '#ORH-2024-1229', date: '15 Aralık 2025', itemCount: 2, total: 290, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Köy Tereyağı', icon: '🧈', qty: '1 kg', unitPrice: 280, total: 280 },
+                { name: 'Taze Süt', icon: '🥛', qty: '2 lt', unitPrice: 30, total: 60 }
+              ],
+              subtotal: 340, shipping: 0, address: 'Atatürk Mah. Cumhuriyet Cad.<br>No: 123 D: 4<br>Kadıköy / İstanbul<br>0532 123 45 67'
+            },
+            { id: '#ORH-2024-1228', date: '10 Aralık 2025', itemCount: 3, total: 520, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Kaşar Peyniri', icon: '🧀', qty: '1 kg', unitPrice: 220, total: 220 },
+                { name: 'Süzme Bal', icon: '🍯', qty: '500g', unitPrice: 175, total: 175 },
+                { name: 'Köy Yumurtası', icon: '🥚', qty: '30\'lu', unitPrice: 120, total: 120 }
+              ],
+              subtotal: 515, shipping: 25, address: 'Levent Mah. Büyükdere Cad.<br>No: 456 K: 8<br>Şişli / İstanbul<br>0533 987 65 43'
+            },
+            { id: '#ORH-2024-1227', date: '5 Aralık 2025', itemCount: 4, total: 445, status: 'delivered', statusText: 'Teslim Edildi',
+              products: [
+                { name: 'Köy Peyniri', icon: '🧀', qty: '2 kg', unitPrice: 180, total: 360 },
+                { name: 'Ev Reçeli', icon: '🍓', qty: '1 kg', unitPrice: 150, total: 150 }
+              ],
+              subtotal: 510, shipping: 0, address: 'Atatürk Mah. Cumhuriyet Cad.<br>No: 123 D: 4<br>Kadıköy / İstanbul<br>0532 123 45 67'
+            }
+        ];
+
+        // Addresses data
+        let addressesData = [
+            { id: 1, title: 'Ev Adresi', firstName: 'Orhan', lastName: 'Yılmaz', phone: '0532 123 45 67', city: 'istanbul', district: 'kadikoy', street: 'Atatürk Mah. Cumhuriyet Cad.', detail: 'No: 123 D: 4', isDefault: true },
+            { id: 2, title: 'İş Adresi', firstName: 'Orhan', lastName: 'Yılmaz', phone: '0533 987 65 43', city: 'istanbul', district: 'sisli', street: 'Levent Mah. Büyükdere Cad.', detail: 'No: 456 K: 8', isDefault: false }
+        ];
+
+        // Pagination state
+        const ITEMS_PER_PAGE = 5;
+        let currentPage = 1;
+        let totalPages = Math.ceil(ordersData.length / ITEMS_PER_PAGE);
+
+        // Check login status
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn !== 'true') {
+                window.location.href = 'giris.html';
+                return;
+            }
+
+            loadUserData();
+            updateCartCount();
+            setupTabs();
+            renderOrders();
+            setupOrderDetailButtons();
+            setupAddressButtons();
+        });
+
+        // Load user data
+        function loadUserData() {
+            const user = safeJsonParse('user', null);
+            if (user) {
+                // Update sidebar
+                document.getElementById('userName').textContent = `${user.firstName} ${user.lastName}`;
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userAvatar').textContent = user.firstName.charAt(0) + user.lastName.charAt(0);
+
+                // Update profile form
+                document.getElementById('profileFirstName').value = user.firstName || '';
+                document.getElementById('profileLastName').value = user.lastName || '';
+                document.getElementById('profileEmail').value = user.email || '';
+                document.getElementById('profilePhone').value = user.phone || '';
+            }
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = safeJsonParse('cart', []);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+
+        // Tab navigation
+        function setupTabs() {
+            const menuLinks = document.querySelectorAll('.sidebar-menu a[data-tab]');
+            const tabPanels = document.querySelectorAll('.tab-content-panel');
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+
+                    // Update active menu
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Show corresponding panel
+                    tabPanels.forEach(panel => {
+                        panel.classList.remove('active');
+                        if (panel.id === tabId) {
+                            panel.classList.add('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Render orders with pagination
+        function renderOrders() {
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const paginatedOrders = ordersData.slice(startIndex, endIndex);
+
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = paginatedOrders.map((order, index) => `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.date}</td>
+                    <td>${order.itemCount} ürün</td>
+                    <td>₺${order.total}</td>
+                    <td><span class="order-status ${order.status}">${order.statusText}</span></td>
+                    <td><button class="btn-view" data-order-index="${startIndex + index}">Detay</button></td>
+                </tr>
+            `).join('');
+
+            renderPagination();
+            setupOrderDetailButtons();
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const numbersContainer = document.getElementById('paginationNumbers');
+            let numbersHtml = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                numbersHtml += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            numbersContainer.innerHTML = numbersHtml;
+
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+
+            const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const endItem = Math.min(currentPage * ITEMS_PER_PAGE, ordersData.length);
+            document.getElementById('paginationInfo').textContent = `${startItem}-${endItem} / ${ordersData.length} sipariş`;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderOrders();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderOrders();
+        }
+
+        // Setup order detail buttons
+        function setupOrderDetailButtons() {
+            document.querySelectorAll('.btn-view').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderIndex = parseInt(this.getAttribute('data-order-index'));
+                    showOrderDetail(ordersData[orderIndex]);
+                });
+            });
+        }
+
+        // Show order detail modal
+        function showOrderDetail(order) {
+            document.getElementById('modalOrderNo').textContent = order.id;
+            document.getElementById('modalOrderDate').textContent = order.date;
+
+            const statusEl = document.getElementById('modalOrderStatus');
+            statusEl.textContent = order.statusText;
+            statusEl.className = `order-status ${order.status}`;
+
+            // Update timeline
+            const timelineShipped = document.getElementById('timelineShipped');
+            const timelineDelivered = document.getElementById('timelineDelivered');
+
+            if (order.status === 'delivered') {
+                timelineShipped.classList.remove('active');
+                timelineShipped.classList.add('completed');
+                timelineDelivered.classList.add('completed');
+            } else if (order.status === 'shipped') {
+                timelineShipped.classList.add('active');
+                timelineShipped.classList.remove('completed');
+                timelineDelivered.classList.remove('completed', 'active');
+            }
+
+            // Products
+            const productsHtml = order.products.map(p => `
+                <div class="order-product-item">
+                    <div class="order-product-icon">${p.icon}</div>
+                    <div class="order-product-info">
+                        <div class="order-product-name">${p.name}</div>
+                        <div class="order-product-qty">${p.qty} x ₺${p.unitPrice}</div>
+                    </div>
+                    <div class="order-product-price">₺${p.total}</div>
+                </div>
+            `).join('');
+            document.getElementById('modalOrderProducts').innerHTML = productsHtml;
+
+            // Summary
+            document.getElementById('modalSubtotal').textContent = `₺${order.subtotal}`;
+            document.getElementById('modalShipping').textContent = order.shipping === 0 ? 'Ücretsiz' : `₺${order.shipping}`;
+            document.getElementById('modalTotal').textContent = `₺${order.subtotal + order.shipping}`;
+
+            // Address
+            document.getElementById('modalDeliveryAddress').innerHTML = order.address;
+
+            openModal('orderDetailModal');
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // Address functions
+        function setupAddressButtons() {
+            // Add new address button
+            document.querySelector('.btn-add-address').addEventListener('click', function() {
+                openAddressModal();
+            });
+
+            // Edit buttons
+            document.querySelectorAll('.address-card .btn-edit').forEach((btn, index) => {
+                btn.addEventListener('click', function() {
+                    openAddressModal(addressesData[index]);
+                });
+            });
+
+            // Delete buttons
+            document.querySelectorAll('.address-card .btn-delete').forEach((btn, index) => {
+                btn.addEventListener('click', function() {
+                    if (confirm('Bu adresi silmek istediğinize emin misiniz?')) {
+                        addressesData.splice(index, 1);
+                        renderAddresses();
+                        alert('Adres silindi!');
+                    }
+                });
+            });
+        }
+
+        function openAddressModal(address = null) {
+            const form = document.getElementById('addressForm');
+            form.reset();
+
+            if (address) {
+                document.getElementById('addressModalTitle').textContent = 'Adresi Düzenle';
+                document.getElementById('addressId').value = address.id;
+                document.getElementById('addressTitle').value = address.title;
+                document.getElementById('addressFirstName').value = address.firstName;
+                document.getElementById('addressLastName').value = address.lastName;
+                document.getElementById('addressPhone').value = address.phone;
+                document.getElementById('addressCity').value = address.city;
+                document.getElementById('addressStreet').value = address.street;
+                document.getElementById('addressDetail').value = address.detail;
+                document.getElementById('addressDefault').checked = address.isDefault;
+            } else {
+                document.getElementById('addressModalTitle').textContent = 'Yeni Adres Ekle';
+                document.getElementById('addressId').value = '';
+            }
+
+            openModal('addressModal');
+        }
+
+        function saveAddress() {
+            const form = document.getElementById('addressForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const addressId = document.getElementById('addressId').value;
+            const newAddress = {
+                id: addressId ? parseInt(addressId) : Date.now(),
+                title: document.getElementById('addressTitle').value,
+                firstName: document.getElementById('addressFirstName').value,
+                lastName: document.getElementById('addressLastName').value,
+                phone: document.getElementById('addressPhone').value,
+                city: document.getElementById('addressCity').value,
+                district: document.getElementById('addressDistrict').value,
+                street: document.getElementById('addressStreet').value,
+                detail: document.getElementById('addressDetail').value,
+                isDefault: document.getElementById('addressDefault').checked
+            };
+
+            if (newAddress.isDefault) {
+                addressesData.forEach(a => a.isDefault = false);
+            }
+
+            if (addressId) {
+                const index = addressesData.findIndex(a => a.id === parseInt(addressId));
+                addressesData[index] = newAddress;
+            } else {
+                addressesData.push(newAddress);
+            }
+
+            renderAddresses();
+            closeModal('addressModal');
+            alert(addressId ? 'Adres güncellendi!' : 'Yeni adres eklendi!');
+        }
+
+        function renderAddresses() {
+            const container = document.querySelector('.address-cards');
+            const addressesHtml = addressesData.map((address, index) => `
+                <div class="address-card ${address.isDefault ? 'default' : ''}">
+                    ${address.isDefault ? '<span class="default-badge">Varsayılan</span>' : ''}
+                    <h5><i class="fas fa-${address.title.toLowerCase().includes('iş') ? 'briefcase' : 'home'} me-2"></i>${address.title}</h5>
+                    <p>
+                        ${address.street}<br>
+                        ${address.detail}<br>
+                        ${address.district} / ${getCityName(address.city)}
+                    </p>
+                    <div class="phone">
+                        <i class="fas fa-phone me-2"></i>${address.phone}
+                    </div>
+                    <div class="address-actions">
+                        <button class="btn-edit"><i class="fas fa-edit me-1"></i> Düzenle</button>
+                        <button class="btn-delete"><i class="fas fa-trash me-1"></i> Sil</button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = addressesHtml + `
+                <button class="btn-add-address">
+                    <i class="fas fa-plus"></i>
+                    Yeni Adres Ekle
+                </button>
+            `;
+
+            setupAddressButtons();
+        }
+
+        function getCityName(cityCode) {
+            const cities = {
+                'istanbul': 'İstanbul',
+                'ankara': 'Ankara',
+                'izmir': 'İzmir',
+                'Çorum': 'Çorum',
+                'bursa': 'Bursa',
+                'antalya': 'Antalya'
+            };
+            return cities[cityCode] || cityCode;
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Çıkış yapmak istediğinize emin misiniz?')) {
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Profile form
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const user = safeJsonParse('user', {});
+            user.firstName = document.getElementById('profileFirstName').value;
+            user.lastName = document.getElementById('profileLastName').value;
+            user.phone = document.getElementById('profilePhone').value;
+
+            localStorage.setItem('user', JSON.stringify(user));
+            loadUserData();
+            alert('Profil bilgileriniz güncellendi!');
+        });
+
+        // Security form
+        document.getElementById('securityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alert('Şifreler eşleşmiyor!');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                alert('Şifre en az 8 karakter olmalıdır!');
+                return;
+            }
+
+            const user = safeJsonParse('user', {});
+            user.password = newPassword;
+            localStorage.setItem('user', JSON.stringify(user));
+
+            alert('Şifreniz başarıyla güncellendi!');
+            this.reset();
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ESC key to close modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

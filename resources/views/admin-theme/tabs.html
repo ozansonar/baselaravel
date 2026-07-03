@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Sekmeler</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Sekmeler (Tabs)</h2>
+          <p>Bootstrap 5.3 sekme bileşenleri ve gelişmiş özel varyantlar</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+      <!-- ==================== 1. TEMEL SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-segmented-nav me-2 text-teal"></i>Temel Sekmeler</h6>
+              <span class="status-badge info">Default</span>
+            </div>
+            <div class="card-body-custom">
+              <ul class="nav nav-tabs nav-tabs-dark mb-3" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic1">Genel</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#basic2">Profil</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#basic3">Mesajlar</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#basic4" disabled>Devre Dışı</button></li>
+              </ul>
+              <div class="tab-content tab-content-dark">
+                <div class="tab-pane fade show active" id="basic1">
+                  <h6>Genel Bilgiler</h6>
+                  <p class="text-muted mb-0">Bu temel Bootstrap sekme yapısıdır. İçerik alanları arasında kolay geçiş sağlar. Her sekme kendi içeriğini barındırır.</p>
+                </div>
+                <div class="tab-pane fade" id="basic2">
+                  <h6>Profil Ayarları</h6>
+                  <p class="text-muted mb-0">Kullanıcı profili düzenleme alanı. Ad, soyad, e-posta ve avatar gibi bilgiler buradan yönetilir.</p>
+                </div>
+                <div class="tab-pane fade" id="basic3">
+                  <h6>Mesaj Kutusu</h6>
+                  <p class="text-muted mb-0">Gelen, giden ve taslak mesajlarınızı bu bölümden görüntüleyebilirsiniz.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== 2. PILL SEKMELER ==================== -->
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-capsule me-2 text-neon-purple"></i>Pill Sekmeler</h6>
+              <span class="status-badge pending">Pills</span>
+            </div>
+            <div class="card-body-custom">
+              <ul class="nav nav-pills nav-pills-dark mb-3" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pill1">Tümü</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pill2">Aktif</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pill3">Beklemede</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pill4">Pasif</button></li>
+              </ul>
+              <div class="tab-content tab-content-dark">
+                <div class="tab-pane fade show active" id="pill1">
+                  <h6>Tüm Kayıtlar</h6>
+                  <p class="text-muted mb-0">Sistemdeki tüm kayıtlar burada listelenir. Pill sekmeler yuvarlak köşeli, daha modern bir görünüm sunar.</p>
+                </div>
+                <div class="tab-pane fade" id="pill2">
+                  <h6>Aktif Kayıtlar</h6>
+                  <p class="text-muted mb-0">Şu anda aktif olan ve kullanımda bulunan kayıtların listesi.</p>
+                </div>
+                <div class="tab-pane fade" id="pill3">
+                  <h6>Bekleyen Kayıtlar</h6>
+                  <p class="text-muted mb-0">Onay sürecinde olan veya işleme alınmayı bekleyen kayıtlar.</p>
+                </div>
+                <div class="tab-pane fade" id="pill4">
+                  <h6>Pasif Kayıtlar</h6>
+                  <p class="text-muted mb-0">Devre dışı bırakılmış veya arşivlenmiş kayıtların listesi.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 3. İKONLU & BADGE'Lİ SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-stars me-2 text-neon-blue"></i>İkonlu Sekmeler</h6>
+              <span class="status-badge active">Icons</span>
+            </div>
+            <div class="card-body-custom">
+              <ul class="nav nav-tabs nav-tabs-dark mb-3" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#icon1"><i class="bi bi-house-door me-2"></i>Ana Sayfa</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#icon2"><i class="bi bi-person me-2"></i>Kullanıcılar</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#icon3"><i class="bi bi-gear me-2"></i>Ayarlar</button></li>
+              </ul>
+              <div class="tab-content tab-content-dark">
+                <div class="tab-pane fade show active" id="icon1">
+                  <div class="d-flex align-items-center gap-3 mb-2"><div class="form-section-icon bg-icon-teal form-section-icon-sm"><i class="bi bi-house-door-fill"></i></div><h6 class="mb-0">Dashboard Görünümü</h6></div>
+                  <p class="text-muted mb-0">İkonlu sekmeler sayesinde her sekmenin amacı görsel olarak da hemen anlaşılır. UX açısından kritik bir bileşendir.</p>
+                </div>
+                <div class="tab-pane fade" id="icon2">
+                  <div class="d-flex align-items-center gap-3 mb-2"><div class="form-section-icon bg-icon-purple form-section-icon-sm"><i class="bi bi-people-fill"></i></div><h6 class="mb-0">Kullanıcı Yönetimi</h6></div>
+                  <p class="text-muted mb-0">Sistemdeki tüm kullanıcıları yönetebilir, yeni kullanıcı ekleyebilir veya mevcut kullanıcıları düzenleyebilirsiniz.</p>
+                </div>
+                <div class="tab-pane fade" id="icon3">
+                  <div class="d-flex align-items-center gap-3 mb-2"><div class="form-section-icon bg-icon-blue form-section-icon-sm"><i class="bi bi-gear-fill"></i></div><h6 class="mb-0">Sistem Ayarları</h6></div>
+                  <p class="text-muted mb-0">Uygulama genel ayarları, tema tercihleri, bildirim yapılandırması ve API anahtarları.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-bell me-2 text-neon-orange"></i>Badge'li Sekmeler</h6>
+              <span class="status-badge pending">Badges</span>
+            </div>
+            <div class="card-body-custom">
+              <ul class="nav nav-pills nav-pills-dark mb-3" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#badge1">Gelen Kutusu <span class="tab-badge teal">24</span></button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#badge2">Gönderilenler <span class="tab-badge purple">8</span></button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#badge3">Spam <span class="tab-badge red">3</span></button></li>
+              </ul>
+              <div class="tab-content tab-content-dark">
+                <div class="tab-pane fade show active" id="badge1">
+                  <div class="tab-list-item"><div class="tab-list-dot teal"></div><div><strong>Yeni sipariş bildirimi</strong><p class="text-muted mb-0">2 dakika önce - Sipariş #ORD-3045 oluşturuldu</p></div></div>
+                  <div class="tab-list-item"><div class="tab-list-dot purple"></div><div><strong>Toplantı hatırlatması</strong><p class="text-muted mb-0">15 dakika önce - Sprint planlama toplantısı</p></div></div>
+                  <div class="tab-list-item"><div class="tab-list-dot blue"></div><div><strong>Sistem güncellemesi</strong><p class="text-muted mb-0">1 saat önce - v2.4.1 yayınlandı</p></div></div>
+                </div>
+                <div class="tab-pane fade" id="badge2">
+                  <p class="text-muted mb-0">Gönderilen 8 mesaj burada listelenir.</p>
+                </div>
+                <div class="tab-pane fade" id="badge3">
+                  <p class="text-muted mb-0">Spam olarak işaretlenen 3 mesaj.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 4. ALTI ÇİZGİLİ SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-distribute-horizontal me-2 text-teal-light"></i>Altı Çizgili Sekmeler (Underline)</h6>
+              <span class="status-badge active">Custom</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-border-bottom"></i></div>
+                <div><h6>Kayan Çizgi Efekti</h6><p>Aktif sekme değiştiğinde alt çizgi akıcı bir animasyonla kayar</p></div>
+              </div>
+              <div class="tabs-underline" id="underlineTabs1">
+                <div class="tabs-underline-nav">
+                  <button class="tabs-underline-btn active" onclick="switchUnderlineTab(this, 'uContent1')"><i class="bi bi-grid-1x2 me-2"></i>Genel Bakış</button>
+                  <button class="tabs-underline-btn" onclick="switchUnderlineTab(this, 'uContent2')"><i class="bi bi-bar-chart me-2"></i>Analitik</button>
+                  <button class="tabs-underline-btn" onclick="switchUnderlineTab(this, 'uContent3')"><i class="bi bi-people me-2"></i>Ekip</button>
+                  <button class="tabs-underline-btn" onclick="switchUnderlineTab(this, 'uContent4')"><i class="bi bi-clock-history me-2"></i>Aktivite</button>
+                  <div class="tabs-underline-indicator"></div>
+                </div>
+                <div class="tabs-underline-content">
+                  <div class="tabs-underline-pane active" id="uContent1">
+                    <div class="row g-3">
+                      <div class="col-md-4"><div class="tab-stat-card"><div class="tab-stat-icon teal"><i class="bi bi-people-fill"></i></div><div class="tab-stat-value">1.284</div><div class="tab-stat-label">Aktif Kullanıcı</div></div></div>
+                      <div class="col-md-4"><div class="tab-stat-card"><div class="tab-stat-icon purple"><i class="bi bi-cart-check"></i></div><div class="tab-stat-value">356</div><div class="tab-stat-label">Bugünkü Sipariş</div></div></div>
+                      <div class="col-md-4"><div class="tab-stat-card"><div class="tab-stat-icon blue"><i class="bi bi-currency-dollar"></i></div><div class="tab-stat-value">₺48.2K</div><div class="tab-stat-label">Günlük Gelir</div></div></div>
+                    </div>
+                  </div>
+                  <div class="tabs-underline-pane" id="uContent2">
+                    <p class="text-muted">Analitik verileri ve grafikler bu sekmede gösterilir. Trafik kaynakları, dönüşüm oranları ve kullanıcı davranış analizleri.</p>
+                  </div>
+                  <div class="tabs-underline-pane" id="uContent3">
+                    <p class="text-muted">Ekip üyeleri listesi, rolleri ve performans metrikleri burada yer alır.</p>
+                  </div>
+                  <div class="tabs-underline-pane" id="uContent4">
+                    <p class="text-muted">Son aktiviteler ve olay günlüğü bu sekmede gösterilir.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 5. DİKEY SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-layout-sidebar me-2 text-neon-purple"></i>Dikey Sekmeler</h6>
+              <span class="status-badge pending">Vertical</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="tabs-vertical">
+                <div class="tabs-vertical-nav">
+                  <button class="tabs-vertical-btn active" onclick="switchVerticalTab(this, 'vContent1')"><i class="bi bi-person-circle me-2"></i>Hesap</button>
+                  <button class="tabs-vertical-btn" onclick="switchVerticalTab(this, 'vContent2')"><i class="bi bi-shield-lock me-2"></i>Güvenlik</button>
+                  <button class="tabs-vertical-btn" onclick="switchVerticalTab(this, 'vContent3')"><i class="bi bi-bell me-2"></i>Bildirimler</button>
+                  <button class="tabs-vertical-btn" onclick="switchVerticalTab(this, 'vContent4')"><i class="bi bi-palette me-2"></i>Görünüm</button>
+                  <button class="tabs-vertical-btn" onclick="switchVerticalTab(this, 'vContent5')"><i class="bi bi-plug me-2"></i>Entegrasyonlar</button>
+                </div>
+                <div class="tabs-vertical-content">
+                  <div class="tabs-vertical-pane active" id="vContent1">
+                    <h6>Hesap Bilgileri</h6>
+                    <p class="text-muted">Ad, soyad, e-posta adresi ve profil fotoğrafı gibi temel bilgilerinizi bu bölümden düzenleyebilirsiniz.</p>
+                    <div class="d-flex gap-2">
+                      <button class="btn-teal btn-sm-custom">Kaydet</button>
+                      <button class="btn-glass btn-sm-custom">İptal</button>
+                    </div>
+                  </div>
+                  <div class="tabs-vertical-pane" id="vContent2">
+                    <h6>Güvenlik Ayarları</h6>
+                    <p class="text-muted">Şifre değiştirme, iki faktörlü doğrulama ve oturum yönetimi.</p>
+                  </div>
+                  <div class="tabs-vertical-pane" id="vContent3">
+                    <h6>Bildirim Tercihleri</h6>
+                    <p class="text-muted">E-posta, push ve SMS bildirim ayarlarınızı yapılandırın.</p>
+                  </div>
+                  <div class="tabs-vertical-pane" id="vContent4">
+                    <h6>Görünüm Ayarları</h6>
+                    <p class="text-muted">Tema rengi, font boyutu ve karanlık/aydınlık mod tercihleri.</p>
+                  </div>
+                  <div class="tabs-vertical-pane" id="vContent5">
+                    <h6>Entegrasyonlar</h6>
+                    <p class="text-muted">Slack, GitHub, Jira ve diğer üçüncü parti araçlar.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== 6. SEGMENT KONTROL ==================== -->
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-toggles me-2 text-neon-green"></i>Segment Kontrol</h6>
+              <span class="status-badge active">Custom</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-green"><i class="bi bi-phone"></i></div>
+                <div><h6>iOS Tarzı Segment</h6><p>Kayan arka plan animasyonlu, modern segment kontrol</p></div>
+              </div>
+              <div class="segment-control mb-4" id="segment1">
+                <div class="segment-slider"></div>
+                <button class="segment-btn active" onclick="switchSegment(this, 'seg1')">Günlük</button>
+                <button class="segment-btn" onclick="switchSegment(this, 'seg2')">Haftalık</button>
+                <button class="segment-btn" onclick="switchSegment(this, 'seg3')">Aylık</button>
+              </div>
+              <div class="segment-content">
+                <div class="segment-pane active" id="seg1">
+                  <div class="tab-stat-card"><div class="d-flex justify-content-between align-items-center"><span class="text-muted fs-13">Bugünkü Ziyaretçi</span><span class="text-neon-green fs-12 fw-600"><i class="bi bi-arrow-up-short"></i>+12%</span></div><div class="tab-stat-value mt-2">3.842</div></div>
+                </div>
+                <div class="segment-pane" id="seg2">
+                  <div class="tab-stat-card"><div class="d-flex justify-content-between align-items-center"><span class="text-muted fs-13">Haftalık Ziyaretçi</span><span class="text-neon-green fs-12 fw-600"><i class="bi bi-arrow-up-short"></i>+8%</span></div><div class="tab-stat-value mt-2">24.156</div></div>
+                </div>
+                <div class="segment-pane" id="seg3">
+                  <div class="tab-stat-card"><div class="d-flex justify-content-between align-items-center"><span class="text-muted fs-13">Aylık Ziyaretçi</span><span class="text-neon-orange fs-12 fw-600"><i class="bi bi-arrow-down-short"></i>-3%</span></div><div class="tab-stat-value mt-2">98.430</div></div>
+                </div>
+              </div>
+
+              <div class="form-section-header mt-4">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-grid"></i></div>
+                <div><h6>İkonlu Segment</h6><p>Sadece ikon kullanan minimal segment kontrol</p></div>
+              </div>
+              <div class="segment-control segment-icon-only mb-3" id="segment2">
+                <div class="segment-slider"></div>
+                <button class="segment-btn active" onclick="switchSegment(this, 'segV1')" title="Liste"><i class="bi bi-list-ul"></i></button>
+                <button class="segment-btn" onclick="switchSegment(this, 'segV2')" title="Izgara"><i class="bi bi-grid-3x3-gap"></i></button>
+                <button class="segment-btn" onclick="switchSegment(this, 'segV3')" title="Kanban"><i class="bi bi-kanban"></i></button>
+                <button class="segment-btn" onclick="switchSegment(this, 'segV4')" title="Takvim"><i class="bi bi-calendar3"></i></button>
+              </div>
+              <div class="segment-content">
+                <div class="segment-pane active" id="segV1"><p class="text-muted mb-0"><i class="bi bi-list-ul me-2 text-teal"></i>Liste görünümü aktif</p></div>
+                <div class="segment-pane" id="segV2"><p class="text-muted mb-0"><i class="bi bi-grid-3x3-gap me-2 text-teal"></i>Izgara görünümü aktif</p></div>
+                <div class="segment-pane" id="segV3"><p class="text-muted mb-0"><i class="bi bi-kanban me-2 text-teal"></i>Kanban görünümü aktif</p></div>
+                <div class="segment-pane" id="segV4"><p class="text-muted mb-0"><i class="bi bi-calendar3 me-2 text-teal"></i>Takvim görünümü aktif</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 7. GRADIENT & GLOW SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-rainbow me-2 text-neon-pink"></i>Gradient & Neon Sekmeler</h6>
+              <span class="status-badge active">Custom</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-4">
+                <div class="col-lg-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-pink"><i class="bi bi-palette2"></i></div>
+                    <div><h6>Gradient Pill Sekmeler</h6><p>Renk geçişli, aktif sekme parlayan pill tasarım</p></div>
+                  </div>
+                  <div class="tabs-gradient-pills mb-3">
+                    <button class="tab-gradient-pill active" onclick="switchGradientTab(this, 'gContent1')"><i class="bi bi-rocket-takeoff me-1"></i>Başlangıç</button>
+                    <button class="tab-gradient-pill" onclick="switchGradientTab(this, 'gContent2')"><i class="bi bi-graph-up me-1"></i>Büyüme</button>
+                    <button class="tab-gradient-pill" onclick="switchGradientTab(this, 'gContent3')"><i class="bi bi-trophy me-1"></i>Pro</button>
+                    <button class="tab-gradient-pill" onclick="switchGradientTab(this, 'gContent4')"><i class="bi bi-gem me-1"></i>Kurumsal</button>
+                  </div>
+                  <div class="tabs-gradient-content">
+                    <div class="tabs-gradient-pane active" id="gContent1"><p class="text-muted mb-0">Bireysel kullanıcılar için temel özellikler. Ücretsiz plan ile başlayın.</p></div>
+                    <div class="tabs-gradient-pane" id="gContent2"><p class="text-muted mb-0">Büyüyen takımlar için gelişmiş özellikler ve analitik araçları.</p></div>
+                    <div class="tabs-gradient-pane" id="gContent3"><p class="text-muted mb-0">Profesyonel ekipler için tam özellik seti ve öncelikli destek.</p></div>
+                    <div class="tabs-gradient-pane" id="gContent4"><p class="text-muted mb-0">Kurumsal müşteriler için özel çözümler ve SLA garantisi.</p></div>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-teal-light"><i class="bi bi-lightbulb"></i></div>
+                    <div><h6>Neon Glow Sekmeler</h6><p>Karanlık temada neon parlaklık efektli sekmeler</p></div>
+                  </div>
+                  <div class="tabs-neon mb-3">
+                    <button class="tab-neon active teal" onclick="switchNeonTab(this, 'nContent1')">Dashboard</button>
+                    <button class="tab-neon purple" onclick="switchNeonTab(this, 'nContent2')">Rapor</button>
+                    <button class="tab-neon blue" onclick="switchNeonTab(this, 'nContent3')">Analiz</button>
+                    <button class="tab-neon pink" onclick="switchNeonTab(this, 'nContent4')">Canlı</button>
+                  </div>
+                  <div class="tabs-neon-content">
+                    <div class="tabs-neon-pane active" id="nContent1"><p class="text-muted mb-0">Neon teal glow - ana gösterge paneli içeriği gösterilir.</p></div>
+                    <div class="tabs-neon-pane" id="nContent2"><p class="text-muted mb-0">Neon purple glow - detaylı raporlama modülü.</p></div>
+                    <div class="tabs-neon-pane" id="nContent3"><p class="text-muted mb-0">Neon blue glow - derinlemesine veri analizi.</p></div>
+                    <div class="tabs-neon-pane" id="nContent4"><p class="text-muted mb-0">Neon pink glow - gerçek zamanlı veri akışı.</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 8. WIZARD SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-signpost-split me-2 text-neon-blue"></i>Wizard (Adım) Sekmeler</h6>
+              <span class="status-badge info">Wizard</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="form-section-header">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-diagram-3"></i></div>
+                <div><h6>Çok Adımlı Form Sihirbazı</h6><p>Uzun formları adımlara bölerek kullanıcı deneyimini iyileştiren wizard yapısı</p></div>
+              </div>
+              <div class="wizard-tabs" id="wizardTabs">
+                <div class="wizard-steps">
+                  <div class="wizard-step active" data-step="1">
+                    <div class="wizard-step-circle">1</div>
+                    <span class="wizard-step-label">Kişisel Bilgiler</span>
+                  </div>
+                  <div class="wizard-step-line"></div>
+                  <div class="wizard-step" data-step="2">
+                    <div class="wizard-step-circle">2</div>
+                    <span class="wizard-step-label">İletişim</span>
+                  </div>
+                  <div class="wizard-step-line"></div>
+                  <div class="wizard-step" data-step="3">
+                    <div class="wizard-step-circle">3</div>
+                    <span class="wizard-step-label">Tercihler</span>
+                  </div>
+                  <div class="wizard-step-line"></div>
+                  <div class="wizard-step" data-step="4">
+                    <div class="wizard-step-circle"><i class="bi bi-check-lg"></i></div>
+                    <span class="wizard-step-label">Onay</span>
+                  </div>
+                </div>
+
+                <div class="wizard-content">
+                  <div class="wizard-pane active" id="wizStep1">
+                    <div class="row g-3">
+                      <div class="col-md-6"><label class="form-label">Ad</label><input type="text" class="form-control" placeholder="Adınız" value="Ozan"></div>
+                      <div class="col-md-6"><label class="form-label">Soyad</label><input type="text" class="form-control" placeholder="Soyadınız" value="Sonar"></div>
+                      <div class="col-md-6"><label class="form-label">Doğum Tarihi</label><input type="date" class="form-control" value="1995-06-15"></div>
+                      <div class="col-md-6"><label class="form-label">Cinsiyet</label><select class="form-select"><option>Erkek</option><option>Kadın</option><option>Belirtmek İstemiyorum</option></select></div>
+                    </div>
+                  </div>
+                  <div class="wizard-pane" id="wizStep2">
+                    <div class="row g-3">
+                      <div class="col-md-6"><label class="form-label">E-posta</label><input type="email" class="form-control" placeholder="ornek@email.com" value="ozan@email.com"></div>
+                      <div class="col-md-6"><label class="form-label">Telefon</label><input type="tel" class="form-control" placeholder="+90 5xx" value="+90 555 123 4567"></div>
+                      <div class="col-12"><label class="form-label">Adres</label><textarea class="form-control" rows="2" placeholder="Adresiniz">Kadıköy, İstanbul</textarea></div>
+                    </div>
+                  </div>
+                  <div class="wizard-pane" id="wizStep3">
+                    <div class="row g-3">
+                      <div class="col-md-6"><label class="form-label">Dil</label><select class="form-select"><option>Türkçe</option><option>English</option></select></div>
+                      <div class="col-md-6"><label class="form-label">Zaman Dilimi</label><select class="form-select"><option>UTC+3 (İstanbul)</option><option>UTC+0 (Londra)</option></select></div>
+                      <div class="col-12">
+                        <label class="form-label">Bildirim Tercihleri</label>
+                        <div class="d-flex flex-wrap gap-3">
+                          <div class="form-check"><input class="form-check-input" type="checkbox" checked id="notifEmail"><label class="form-check-label" for="notifEmail">E-posta</label></div>
+                          <div class="form-check"><input class="form-check-input" type="checkbox" checked id="notifSms"><label class="form-check-label" for="notifSms">SMS</label></div>
+                          <div class="form-check"><input class="form-check-input" type="checkbox" id="notifPush"><label class="form-check-label" for="notifPush">Push</label></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="wizard-pane" id="wizStep4">
+                    <div class="wizard-success">
+                      <div class="wizard-success-icon"><i class="bi bi-check-circle-fill"></i></div>
+                      <h5>Her Şey Hazır!</h5>
+                      <p class="text-muted">Tüm bilgiler doğrulandı. Hesabınız başarıyla oluşturulacak.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="wizard-footer">
+                  <button class="btn-glass" id="wizPrev" onclick="wizardNav(-1)" disabled><i class="bi bi-arrow-left me-2"></i>Geri</button>
+                  <div class="wizard-progress-text" id="wizProgressText">Adım 1 / 4</div>
+                  <button class="btn-teal" id="wizNext" onclick="wizardNav(1)">İleri <i class="bi bi-arrow-right ms-2"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 9. KAPATILABİLİR & DİNAMİK SEKMELER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-x-circle me-2 text-neon-red"></i>Kapatılabilir Sekmeler</h6>
+              <span class="status-badge inactive">Closable</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="tabs-closable" id="closableTabs">
+                <div class="tabs-closable-nav">
+                  <button class="tab-closable active" data-tab="close1" onclick="switchClosableTab(this)"><i class="bi bi-file-earmark me-1"></i>index.html <span class="tab-close" onclick="closeTab(event, this)"><i class="bi bi-x"></i></span></button>
+                  <button class="tab-closable" data-tab="close2" onclick="switchClosableTab(this)"><i class="bi bi-filetype-css me-1"></i>styles.css <span class="tab-close" onclick="closeTab(event, this)"><i class="bi bi-x"></i></span></button>
+                  <button class="tab-closable" data-tab="close3" onclick="switchClosableTab(this)"><i class="bi bi-filetype-js me-1"></i>app.js <span class="tab-close" onclick="closeTab(event, this)"><i class="bi bi-x"></i></span></button>
+                  <button class="tab-add" onclick="addClosableTab()" title="Yeni Sekme"><i class="bi bi-plus"></i></button>
+                </div>
+                <div class="tabs-closable-content">
+                  <div class="tabs-closable-pane active" id="close1">
+                    <div class="code-block">&lt;!DOCTYPE html&gt;<br>&lt;html lang="tr"&gt;<br>&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;OZAN Admin&lt;/title&gt;<br>&nbsp;&nbsp;&lt;/head&gt;<br>&lt;/html&gt;</div>
+                  </div>
+                  <div class="tabs-closable-pane" id="close2">
+                    <div class="code-block">:root {<br>&nbsp;&nbsp;--bg-primary: #0a0e1a;<br>&nbsp;&nbsp;--teal-primary: #14b8a6;<br>}</div>
+                  </div>
+                  <div class="tabs-closable-pane" id="close3">
+                    <div class="code-block">function init() {<br>&nbsp;&nbsp;console.log('Ready!');<br>}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== 10. KART SEKMELER ==================== -->
+        <div class="col-xl-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-card-heading me-2 text-neon-orange"></i>Kart Sekmeler</h6>
+              <span class="status-badge pending">Cards</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="tabs-card-nav mb-3">
+                <button class="tab-card active" onclick="switchCardTab(this, 'card1')">
+                  <div class="tab-card-icon teal"><i class="bi bi-box-seam"></i></div>
+                  <div class="tab-card-info"><strong>Ürünler</strong><small>124 ürün</small></div>
+                </button>
+                <button class="tab-card" onclick="switchCardTab(this, 'card2')">
+                  <div class="tab-card-icon purple"><i class="bi bi-cart3"></i></div>
+                  <div class="tab-card-info"><strong>Siparişler</strong><small>56 sipariş</small></div>
+                </button>
+                <button class="tab-card" onclick="switchCardTab(this, 'card3')">
+                  <div class="tab-card-icon blue"><i class="bi bi-people"></i></div>
+                  <div class="tab-card-info"><strong>Müşteriler</strong><small>892 kişi</small></div>
+                </button>
+              </div>
+              <div class="tabs-card-content">
+                <div class="tabs-card-pane active" id="card1">
+                  <div class="d-flex justify-content-between align-items-center mb-2"><h6 class="mb-0 fs-14">Son Eklenen Ürünler</h6><span class="status-badge active">Güncel</span></div>
+                  <div class="tab-list-item"><div class="tab-list-dot teal"></div><div><strong>MacBook Pro M4</strong><p class="text-muted mb-0">Elektronik - ₺89.999</p></div></div>
+                  <div class="tab-list-item"><div class="tab-list-dot purple"></div><div><strong>AirPods Max 2</strong><p class="text-muted mb-0">Aksesuar - ₺17.999</p></div></div>
+                </div>
+                <div class="tabs-card-pane" id="card2"><p class="text-muted mb-0">Son siparişler burada listelenir.</p></div>
+                <div class="tabs-card-pane" id="card3"><p class="text-muted mb-0">Müşteri listesi burada gösterilir.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 11. RENK VARIANTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-palette me-2 text-teal"></i>Renk Varyantları & Bordered</h6>
+              <span class="status-badge info">Variants</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-4">
+                <div class="col-lg-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-teal"><i class="bi bi-border-all"></i></div>
+                    <div><h6>Çerçeveli Sekmeler</h6><p>Aktif sekme renkli üst kenarlık ile vurgulanır</p></div>
+                  </div>
+                  <div class="tabs-bordered">
+                    <button class="tab-bordered active teal" onclick="switchBorderedTab(this, 'bContent1')">Genel</button>
+                    <button class="tab-bordered purple" onclick="switchBorderedTab(this, 'bContent2')">Güvenlik</button>
+                    <button class="tab-bordered blue" onclick="switchBorderedTab(this, 'bContent3')">API</button>
+                    <button class="tab-bordered orange" onclick="switchBorderedTab(this, 'bContent4')">Logs</button>
+                  </div>
+                  <div class="tabs-bordered-content">
+                    <div class="tabs-bordered-pane active" id="bContent1"><p class="text-muted mb-0">Genel sistem ayarları ve yapılandırma seçenekleri.</p></div>
+                    <div class="tabs-bordered-pane" id="bContent2"><p class="text-muted mb-0">Güvenlik politikaları, firewall kuralları, şifreleme ayarları.</p></div>
+                    <div class="tabs-bordered-pane" id="bContent3"><p class="text-muted mb-0">API anahtarları, webhook URL'leri, rate limiting yapılandırması.</p></div>
+                    <div class="tabs-bordered-pane" id="bContent4"><p class="text-muted mb-0">Sistem logları, hata kayıtları, erişim geçmişi.</p></div>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="form-section-header">
+                    <div class="form-section-icon bg-icon-orange"><i class="bi bi-collection"></i></div>
+                    <div><h6>Minimal Sekmeler</h6><p>Sadece metin ve alt çizgiden oluşan sade tasarım</p></div>
+                  </div>
+                  <div class="tabs-minimal mb-3">
+                    <button class="tab-minimal active" onclick="switchMinimalTab(this, 'mContent1')">Hepsi</button>
+                    <button class="tab-minimal" onclick="switchMinimalTab(this, 'mContent2')">Yayında</button>
+                    <button class="tab-minimal" onclick="switchMinimalTab(this, 'mContent3')">Taslak</button>
+                    <button class="tab-minimal" onclick="switchMinimalTab(this, 'mContent4')">Arşiv</button>
+                  </div>
+                  <div class="tabs-minimal-content">
+                    <div class="tabs-minimal-pane active" id="mContent1"><p class="text-muted mb-0">Tüm içerikler listelenir - toplam 48 kayıt.</p></div>
+                    <div class="tabs-minimal-pane" id="mContent2"><p class="text-muted mb-0">Yayında olan 32 aktif içerik.</p></div>
+                    <div class="tabs-minimal-pane" id="mContent3"><p class="text-muted mb-0">Taslak olarak kaydedilen 11 içerik.</p></div>
+                    <div class="tabs-minimal-pane" id="mContent4"><p class="text-muted mb-0">Arşivlenen 5 eski içerik.</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// ---- Generic Tab Switcher ----
+function genericSwitch(btn, targetId, navSelector, paneSelector) {
+  const nav = btn.closest(navSelector);
+  nav.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const content = nav.nextElementSibling || nav.parentElement.querySelector(paneSelector ? '' : '.nope');
+  let container = btn.closest('.card-body-custom') || btn.closest('.col-lg-6') || document.body;
+  container.querySelectorAll(paneSelector).forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(targetId);
+  if (target) target.classList.add('active');
+}
+
+// ---- Underline Tabs ----
+function switchUnderlineTab(btn, targetId) {
+  const nav = btn.closest('.tabs-underline-nav');
+  nav.querySelectorAll('.tabs-underline-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateUnderlineIndicator(nav);
+  const wrapper = btn.closest('.tabs-underline');
+  wrapper.querySelectorAll('.tabs-underline-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+function updateUnderlineIndicator(nav) {
+  const active = nav.querySelector('.tabs-underline-btn.active');
+  const indicator = nav.querySelector('.tabs-underline-indicator');
+  if (active && indicator) {
+    indicator.style.left = active.offsetLeft + 'px';
+    indicator.style.width = active.offsetWidth + 'px';
+  }
+}
+
+// Init underline indicators on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tabs-underline-nav').forEach(nav => updateUnderlineIndicator(nav));
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.tabs-underline-nav').forEach(nav => updateUnderlineIndicator(nav));
+  });
+});
+
+// ---- Vertical Tabs ----
+function switchVerticalTab(btn, targetId) {
+  const nav = btn.closest('.tabs-vertical-nav');
+  nav.querySelectorAll('.tabs-vertical-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const wrapper = btn.closest('.tabs-vertical');
+  wrapper.querySelectorAll('.tabs-vertical-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ---- Segment Control ----
+function switchSegment(btn, targetId) {
+  const control = btn.closest('.segment-control');
+  const btns = control.querySelectorAll('.segment-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Move slider
+  const slider = control.querySelector('.segment-slider');
+  const idx = [...btns].indexOf(btn);
+  slider.style.left = (idx * (100 / btns.length)) + '%';
+  slider.style.width = (100 / btns.length) + '%';
+  // Content
+  const container = control.closest('.card-body-custom') || control.closest('.col-xl-6');
+  const contentWrapper = control.nextElementSibling;
+  if (contentWrapper && contentWrapper.classList.contains('segment-content')) {
+    contentWrapper.querySelectorAll('.segment-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById(targetId).classList.add('active');
+  }
+}
+
+// Init segments on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.segment-control').forEach(control => {
+    const btns = control.querySelectorAll('.segment-btn');
+    const slider = control.querySelector('.segment-slider');
+    const activeIdx = [...btns].findIndex(b => b.classList.contains('active'));
+    slider.style.left = (activeIdx * (100 / btns.length)) + '%';
+    slider.style.width = (100 / btns.length) + '%';
+  });
+});
+
+// ---- Gradient Tabs ----
+function switchGradientTab(btn, targetId) {
+  const nav = btn.closest('.tabs-gradient-pills');
+  nav.querySelectorAll('.tab-gradient-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const container = btn.closest('.col-lg-6');
+  container.querySelectorAll('.tabs-gradient-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ---- Neon Tabs ----
+function switchNeonTab(btn, targetId) {
+  const nav = btn.closest('.tabs-neon');
+  nav.querySelectorAll('.tab-neon').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const container = btn.closest('.col-lg-6');
+  container.querySelectorAll('.tabs-neon-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ---- Wizard ----
+let wizardStep = 1;
+const wizardTotal = 4;
+
+function wizardNav(dir) {
+  wizardStep += dir;
+  if (wizardStep < 1) wizardStep = 1;
+  if (wizardStep > wizardTotal) wizardStep = wizardTotal;
+
+  // Update steps
+  document.querySelectorAll('.wizard-step').forEach(s => {
+    const step = parseInt(s.dataset.step);
+    s.classList.remove('active', 'completed');
+    if (step < wizardStep) s.classList.add('completed');
+    if (step === wizardStep) s.classList.add('active');
+  });
+
+  // Update lines
+  document.querySelectorAll('.wizard-step-line').forEach((line, i) => {
+    line.classList.toggle('completed', i + 1 < wizardStep);
+  });
+
+  // Update panes
+  document.querySelectorAll('.wizard-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('wizStep' + wizardStep).classList.add('active');
+
+  // Update buttons
+  document.getElementById('wizPrev').disabled = wizardStep <= 1;
+  const nextBtn = document.getElementById('wizNext');
+  if (wizardStep >= wizardTotal) {
+    nextBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Tamamla';
+    nextBtn.onclick = () => { showTabToast('Kayıt başarıyla tamamlandı!', 'success'); };
+  } else {
+    nextBtn.innerHTML = 'İleri <i class="bi bi-arrow-right ms-2"></i>';
+    nextBtn.onclick = () => wizardNav(1);
+  }
+
+  document.getElementById('wizProgressText').textContent = 'Adım ' + wizardStep + ' / ' + wizardTotal;
+}
+
+// ---- Closable Tabs ----
+let closableCounter = 3;
+function switchClosableTab(btn) {
+  const nav = btn.closest('.tabs-closable-nav');
+  nav.querySelectorAll('.tab-closable').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const tabId = btn.dataset.tab;
+  const container = btn.closest('.tabs-closable');
+  container.querySelectorAll('.tabs-closable-pane').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(tabId);
+  if (target) target.classList.add('active');
+}
+
+function closeTab(event, el) {
+  event.stopPropagation();
+  const tab = el.closest('.tab-closable');
+  const tabId = tab.dataset.tab;
+  const wasActive = tab.classList.contains('active');
+  const nav = tab.closest('.tabs-closable-nav');
+  const pane = document.getElementById(tabId);
+
+  tab.remove();
+  if (pane) pane.remove();
+
+  if (wasActive) {
+    const first = nav.querySelector('.tab-closable');
+    if (first) { first.classList.add('active'); switchClosableTab(first); }
+  }
+}
+
+function addClosableTab() {
+  closableCounter++;
+  const id = 'closeNew' + closableCounter;
+  const nav = document.querySelector('.tabs-closable-nav');
+  const addBtn = nav.querySelector('.tab-add');
+  const newTab = document.createElement('button');
+  newTab.className = 'tab-closable';
+  newTab.dataset.tab = id;
+  newTab.onclick = function() { switchClosableTab(this); };
+  newTab.innerHTML = '<i class="bi bi-file-earmark me-1"></i>yeni-' + closableCounter + '.js <span class="tab-close" onclick="closeTab(event, this)"><i class="bi bi-x"></i></span>';
+  nav.insertBefore(newTab, addBtn);
+
+  const content = document.querySelector('.tabs-closable-content');
+  const newPane = document.createElement('div');
+  newPane.className = 'tabs-closable-pane';
+  newPane.id = id;
+  newPane.innerHTML = '<div class="code-block">// yeni-' + closableCounter + '.js<br>export default function() {<br>&nbsp;&nbsp;return "Yeni dosya";<br>}</div>';
+  content.appendChild(newPane);
+
+  switchClosableTab(newTab);
+}
+
+// ---- Card Tabs ----
+function switchCardTab(btn, targetId) {
+  const nav = btn.closest('.tabs-card-nav');
+  nav.querySelectorAll('.tab-card').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const container = btn.closest('.card-body-custom');
+  container.querySelectorAll('.tabs-card-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ---- Bordered Tabs ----
+function switchBorderedTab(btn, targetId) {
+  const nav = btn.closest('.tabs-bordered');
+  nav.querySelectorAll('.tab-bordered').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const container = btn.closest('.col-lg-6');
+  container.querySelectorAll('.tabs-bordered-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ---- Minimal Tabs ----
+function switchMinimalTab(btn, targetId) {
+  const nav = btn.closest('.tabs-minimal');
+  nav.querySelectorAll('.tab-minimal').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const container = btn.closest('.col-lg-6');
+  container.querySelectorAll('.tabs-minimal-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ---- Toast ----
+function showTabToast(msg, type) {
+  const classes = { success: 'text-neon-green', info: 'text-neon-blue' };
+  const icons = { success: 'bi-check-circle-fill', info: 'bi-info-circle-fill' };
+  const toast = document.createElement('div');
+  toast.className = 'table-toast';
+  toast.innerHTML = '<i class="bi ' + (icons[type]||icons.info) + ' ' + (classes[type]||classes.info) + '"></i> ' + msg;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+</script>
+</body>
+</html>

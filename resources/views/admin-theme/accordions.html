@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Accordions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Accordions</h2>
+          <p>Klasik, modern, ikonlu, iç içe, timeline ve daha fazla accordion bileşeni</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+
+      <!-- ==================== 1. KLASİK ACCORDION ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-chevron-bar-expand"></i></div>
+            <div><h6>Klasik Accordion</h6><p>Temel açılır-kapanır paneller, tek açık ve çoklu açık modları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Tek Açık (Exclusive)</h6>
+              <span class="bdg bdg-soft-teal bdg-xs bdg-pill">Default</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-question-circle"></i>
+                      <span>Admin Panel nedir?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Admin Panel, web uygulamalarının yönetim arayüzüdür. Kullanıcı yönetimi, içerik kontrolü, analitik ve sistem ayarları gibi işlevleri tek bir yerden yönetmenizi sağlar. Modern admin panelleri, responsive tasarım ve sezgisel arayüzler ile geliştiricilerin işini kolaylaştırır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-palette"></i>
+                      <span>Hangi teknolojiler kullanılıyor?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Bu admin panel Bootstrap 5.3.3, Bootstrap Icons 1.11.3, CSS Custom Properties ve vanilla JavaScript kullanılarak geliştirilmiştir. Herhangi bir build tool veya framework gerektirmez. Tamamen saf HTML, CSS ve JS ile çalışır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-phone"></i>
+                      <span>Responsive tasarım destekliyor mu?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Evet, tüm bileşenler masaüstü, tablet ve mobil cihazlarda sorunsuz çalışacak şekilde tasarlanmıştır. CSS media queries ve Bootstrap'in grid sistemi kullanılarak tam responsive uyumluluk sağlanmıştır.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Çoklu Açık (Multiple)</h6>
+              <span class="bdg bdg-soft-purple bdg-xs bdg-pill">Multi</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-lightning-charge"></i>
+                      <span>Performans optimizasyonu</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>CSS animasyonları GPU-hızlandırmalı çalışır. JavaScript event delegation kullanılarak DOM manipülasyonu minimumda tutulur. Lazy loading ve IntersectionObserver ile gereksiz render engellenir.</p>
+                  </div>
+                </div>
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-shield-lock"></i>
+                      <span>Güvenlik önlemleri</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>XSS koruması, CSRF token desteği, input sanitizasyon ve Content Security Policy uygulanmıştır. Tüm kullanıcı girdileri sunucu tarafında doğrulanır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-translate"></i>
+                      <span>Çoklu dil desteği</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>i18n altyapısı ile Türkçe, İngilizce ve diğer dillerde kullanılabilir. RTL desteği ile Arapça gibi sağdan sola okunan diller de desteklenmektedir.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 2. BORDERED & SEPARATED ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-border-outer"></i></div>
+            <div><h6>Bordered & Separated</h6><p>Kenarlıklı, ayrılmış ve flush stillerinde accordion varyantları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Bordered Style</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-bordered" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-number">01</span>
+                      <span>Planlama Aşaması</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Proje gereksinimleri analiz edilir, kullanıcı hikayeleri oluşturulur ve teknik mimari kararları alınır. Sprint planlama toplantıları düzenlenir.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-number">02</span>
+                      <span>Geliştirme Aşaması</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Frontend ve backend geliştirme paralel olarak ilerler. Code review, unit testler ve CI/CD pipeline kurulumu bu aşamada gerçekleşir.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-number">03</span>
+                      <span>Test & QA</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Entegrasyon testleri, kullanıcı kabul testleri ve performans testleri gerçekleştirilir. Bug fix döngüsü tamamlanır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-number">04</span>
+                      <span>Deployment</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Staging ortamında son kontroller yapılır, production ortamına deploy edilir. Monitoring ve logging sistemleri devreye alınır.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Separated Style</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-separated" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap teal"><i class="bi bi-cpu-fill"></i></div>
+                      <span>Sistem Gereksinimleri</span>
+                    </div>
+                    <i class="bi bi-plus-lg acc-arrow acc-arrow-plus"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Minimum 4GB RAM, 2 çekirdekli işlemci ve 10GB disk alanı gereklidir. Node.js 18+ ve modern bir tarayıcı önerilir.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap purple"><i class="bi bi-download"></i></div>
+                      <span>Kurulum Adımları</span>
+                    </div>
+                    <i class="bi bi-plus-lg acc-arrow acc-arrow-plus"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Depoyu klonlayın, bağımlılıkları yükleyin ve geliştirme sunucusunu başlatın. Detaylı kurulum kılavuzu README dosyasında bulunmaktadır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap blue"><i class="bi bi-gear-fill"></i></div>
+                      <span>Yapılandırma</span>
+                    </div>
+                    <i class="bi bi-plus-lg acc-arrow acc-arrow-plus"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Ortam değişkenleri .env dosyasında tanımlanır. Veritabanı bağlantısı, API anahtarları ve tema ayarları yapılandırma panelinden yönetilir.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 3. RENKLİ & GRADIENT ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-palette-fill"></i></div>
+            <div><h6>Renkli & Gradient Accordions</h6><p>Renk kodlu, gradient kenarlıklı ve neon vurgulu accordion stilleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Renk Kodlu Sol Çizgi</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-colored">
+                <div class="acc-item acc-open" style="--acc-clr:var(--teal-primary)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span>Başarılı İşlemler</span>
+                      <span class="bdg bdg-soft-teal bdg-xs">128</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Tüm başarılı API çağrıları, veritabanı sorguları ve ödeme işlemleri bu kategoride listelenir. Son 24 saatte 128 başarılı işlem gerçekleşti.</p>
+                  </div>
+                </div>
+                <div class="acc-item" style="--acc-clr:var(--neon-orange)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span>Uyarılar</span>
+                      <span class="bdg bdg-soft-orange bdg-xs">23</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Yüksek bellek kullanımı, yavaş sorgular ve yaklaşan limitlere dair uyarılar. Performans eşikleri aşıldığında otomatik bildirim gönderilir.</p>
+                  </div>
+                </div>
+                <div class="acc-item" style="--acc-clr:var(--neon-red)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span>Hatalar</span>
+                      <span class="bdg bdg-soft-red bdg-xs">5</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Kritik hatalar, çökmeler ve başarısız işlemler. Otomatik hata raporlama sistemi ile geliştirici ekibine anlık bildirimler gönderilir.</p>
+                  </div>
+                </div>
+                <div class="acc-item" style="--acc-clr:var(--neon-blue)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span>Bilgilendirme</span>
+                      <span class="bdg bdg-soft-blue bdg-xs">42</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Sistem güncellemeleri, bakım bildirimleri ve genel bilgilendirme mesajları. Kullanıcı etkileşim logları da bu kategoride yer alır.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Gradient Header</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-gradient" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)" style="--acc-grad:linear-gradient(135deg,var(--teal-primary),var(--neon-blue))">
+                    <div class="acc-header-left">
+                      <i class="bi bi-rocket-takeoff-fill"></i>
+                      <span>Quick Start Guide</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Projeyi hızlıca başlatmak için gerekli adımlar: Depoyu klonlayın, <code>npm install</code> çalıştırın ve <code>npm run dev</code> ile geliştirme sunucusunu başlatın.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)" style="--acc-grad:linear-gradient(135deg,var(--neon-purple),var(--neon-pink))">
+                    <div class="acc-header-left">
+                      <i class="bi bi-brush-fill"></i>
+                      <span>Tema Özelleştirme</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>CSS Custom Properties üzerinden tüm renkleri, fontları ve boşlukları özelleştirebilirsiniz. Dark/Light mode geçişi tek bir attribute ile sağlanır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)" style="--acc-grad:linear-gradient(135deg,var(--neon-orange),var(--neon-red))">
+                    <div class="acc-header-left">
+                      <i class="bi bi-plugin"></i>
+                      <span>Eklenti Sistemi</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Modüler eklenti mimarisi ile yeni bileşenler ekleyebilir, mevcut olanları özelleştirebilirsiniz. Her eklenti bağımsız olarak yüklenip kaldırılabilir.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 4. İÇ İÇE (NESTED) ACCORDION ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-diagram-3-fill"></i></div>
+            <div><h6>İç İçe (Nested) Accordion</h6><p>Alt seviye paneller içeren hiyerarşik accordion yapısı</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-body-custom">
+              <div class="acc-group acc-bordered" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap teal"><i class="bi bi-folder-fill"></i></div>
+                      <div>
+                        <span>Frontend Geliştirme</span>
+                        <small class="acc-subtitle">3 alt kategori</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-group acc-nested">
+                      <div class="acc-item acc-open">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-filetype-html text-neon-orange"></i>
+                            <span>HTML & Semantik Yapı</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>Semantic HTML5 etiketleri, erişilebilirlik (a11y) standartları, SEO uyumlu yapı ve ARIA attribute'ları ile modern web sayfaları oluşturun.</p>
+                        </div>
+                      </div>
+                      <div class="acc-item">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-filetype-css text-neon-blue"></i>
+                            <span>CSS & Animasyonlar</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>CSS Grid, Flexbox, Custom Properties, @container queries, view transitions ve scroll-driven animations gibi modern CSS özellikleri kullanılır.</p>
+                        </div>
+                      </div>
+                      <div class="acc-item">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-filetype-js text-neon-green"></i>
+                            <span>JavaScript & Interaktivite</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>ES2024+ syntax, async/await patterns, Web Components, IntersectionObserver ve performans optimizasyonları ile zengin etkileşimler sağlanır.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap purple"><i class="bi bi-server"></i></div>
+                      <div>
+                        <span>Backend Geliştirme</span>
+                        <small class="acc-subtitle">2 alt kategori</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-group acc-nested">
+                      <div class="acc-item">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-hdd-network text-neon-purple"></i>
+                            <span>API Tasarımı</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>RESTful API, GraphQL endpoint'leri, WebSocket bağlantıları ve rate limiting mekanizmaları.</p>
+                        </div>
+                      </div>
+                      <div class="acc-item">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-database text-teal"></i>
+                            <span>Veritabanı</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>PostgreSQL, MongoDB, Redis cache stratejileri, migration yönetimi ve veritabanı optimizasyonları.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap blue"><i class="bi bi-cloud-fill"></i></div>
+                      <div>
+                        <span>DevOps & Deployment</span>
+                        <small class="acc-subtitle">2 alt kategori</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-group acc-nested">
+                      <div class="acc-item">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-box-seam text-neon-blue"></i>
+                            <span>Docker & Containerization</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>Docker imajları, multi-stage builds, Docker Compose ve Kubernetes orkestrasyon yapılandırması.</p>
+                        </div>
+                      </div>
+                      <div class="acc-item">
+                        <button class="acc-header" onclick="accToggle(this)">
+                          <div class="acc-header-left">
+                            <i class="bi bi-arrow-repeat text-neon-green"></i>
+                            <span>CI/CD Pipeline</span>
+                          </div>
+                          <i class="bi bi-chevron-down acc-arrow"></i>
+                        </button>
+                        <div class="acc-body">
+                          <p>GitHub Actions, automated testing, staging/production deployments ve rollback stratejileri.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 5. FAQ ACCORDION ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-patch-question-fill"></i></div>
+            <div><h6>SSS (FAQ) Accordion</h6><p>Sıkça sorulan sorular için özel tasarlanmış accordion stilleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-question-diamond-fill me-2 text-neon-green"></i>Genel Sorular</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-faq" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-faq-q">S</span>
+                      <span>Ücretsiz deneme süresi var mı?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-faq-answer">
+                      <span class="acc-faq-a">C</span>
+                      <p>Evet! 14 günlük ücretsiz deneme süremiz ile tüm Pro özellikleri kredi kartı gerektirmeden kullanabilirsiniz. Deneme süresi sonunda otomatik ücretlendirme yapılmaz.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-faq-q">S</span>
+                      <span>Aboneliğimi istediğim zaman iptal edebilir miyim?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-faq-answer">
+                      <span class="acc-faq-a">C</span>
+                      <p>Evet, aboneliğinizi istediğiniz zaman iptal edebilirsiniz. İptal sonrası mevcut dönem sonuna kadar hizmetten yararlanmaya devam edersiniz.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-faq-q">S</span>
+                      <span>Kaç kullanıcı ekleyebilirim?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-faq-answer">
+                      <span class="acc-faq-a">C</span>
+                      <p>Free planında 3, Pro planında 25 ve Enterprise planında sınırsız kullanıcı ekleyebilirsiniz. Her kullanıcıya özel rol ve izin atanabilir.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-wrench me-2 text-neon-orange"></i>Teknik Sorular</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-faq" data-acc-exclusive="true">
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-faq-q bg-icon-orange">S</span>
+                      <span>API rate limit nedir?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-faq-answer">
+                      <span class="acc-faq-a bg-icon-orange">C</span>
+                      <p>Free: 100 istek/dakika, Pro: 1000 istek/dakika, Enterprise: sınırsız. Rate limit aşıldığında 429 status code döner.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-faq-q bg-icon-orange">S</span>
+                      <span>Webhook desteği var mı?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-faq-answer">
+                      <span class="acc-faq-a bg-icon-orange">C</span>
+                      <p>Evet, Pro ve Enterprise planlarında webhook desteği sunulmaktadır. Sipariş, ödeme ve kullanıcı olayları için webhook endpoint'leri tanımlayabilirsiniz.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-faq-q bg-icon-orange">S</span>
+                      <span>Veri yedekleme sıklığı nedir?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-faq-answer">
+                      <span class="acc-faq-a bg-icon-orange">C</span>
+                      <p>Otomatik günlük yedekleme yapılır. Enterprise planında saatlik yedekleme ve point-in-time recovery özelliği sunulur.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 6. TİMELINE ACCORDION ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-orange"><i class="bi bi-clock-history"></i></div>
+            <div><h6>Timeline Accordion</h6><p>Zaman çizelgesi görünümüyle accordion birleşimi</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-8 mx-auto">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0">Proje Geçmişi</h6>
+              <span class="bdg bdg-soft-orange bdg-xs bdg-pill">2026</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-timeline">
+                <div class="acc-item acc-open">
+                  <div class="acc-timeline-dot teal"></div>
+                  <div class="acc-timeline-content">
+                    <button class="acc-header" onclick="accToggle(this)">
+                      <div class="acc-header-left">
+                        <div>
+                          <span>v2.1.0 - Büyük Güncelleme</span>
+                          <small class="acc-subtitle">6 Şubat 2026</small>
+                        </div>
+                      </div>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </button>
+                    <div class="acc-body">
+                      <ul class="acc-changelog">
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Accordion bileşeni eklendi</li>
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Badge & Tag sistemi eklendi</li>
+                        <li class="improved"><i class="bi bi-arrow-up-circle-fill"></i> Performans %40 iyileştirildi</li>
+                        <li class="fixed"><i class="bi bi-wrench"></i> Modal z-index hatası düzeltildi</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <div class="acc-timeline-dot purple"></div>
+                  <div class="acc-timeline-content">
+                    <button class="acc-header" onclick="accToggle(this)">
+                      <div class="acc-header-left">
+                        <div>
+                          <span>v2.0.0 - Major Release</span>
+                          <small class="acc-subtitle">15 Ocak 2026</small>
+                        </div>
+                      </div>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </button>
+                    <div class="acc-body">
+                      <ul class="acc-changelog">
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Dark mode varsayılan oldu</li>
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Auth sayfaları (Login/Register/Forgot)</li>
+                        <li class="improved"><i class="bi bi-arrow-up-circle-fill"></i> Tüm bileşenler yeniden tasarlandı</li>
+                        <li class="breaking"><i class="bi bi-exclamation-triangle-fill"></i> Eski CSS sınıfları kaldırıldı</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <div class="acc-timeline-dot blue"></div>
+                  <div class="acc-timeline-content">
+                    <button class="acc-header" onclick="accToggle(this)">
+                      <div class="acc-header-left">
+                        <div>
+                          <span>v1.5.0 - Bileşen Güncellemesi</span>
+                          <small class="acc-subtitle">1 Aralık 2025</small>
+                        </div>
+                      </div>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </button>
+                    <div class="acc-body">
+                      <ul class="acc-changelog">
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Kart bileşenleri eklendi</li>
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Offcanvas bileşeni eklendi</li>
+                        <li class="fixed"><i class="bi bi-wrench"></i> Form validation düzeltmeleri</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <div class="acc-timeline-dot green"></div>
+                  <div class="acc-timeline-content">
+                    <button class="acc-header" onclick="accToggle(this)">
+                      <div class="acc-header-left">
+                        <div>
+                          <span>v1.0.0 - İlk Sürüm</span>
+                          <small class="acc-subtitle">15 Ekim 2025</small>
+                        </div>
+                      </div>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </button>
+                    <div class="acc-body">
+                      <ul class="acc-changelog">
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Dashboard, Forms, Buttons, Tables, Tabs</li>
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Sidebar navigasyon</li>
+                        <li class="added"><i class="bi bi-plus-circle-fill"></i> Dark tema altyapısı</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 7. ADIM ADIM (WIZARD-STYLE) ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-signpost-2-fill"></i></div>
+            <div><h6>Adım Adım (Wizard) Accordion</h6><p>İlerleme göstergeli step-by-step accordion tasarımı</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-8 mx-auto">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0">Proje Oluşturma Sihirbazı</h6>
+              <span class="bdg bdg-soft-purple bdg-pill bdg-xs">Adım 2/4</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-wizard">
+                <div class="acc-item acc-wizard-done">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-wizard-step done"><i class="bi bi-check-lg"></i></span>
+                      <div>
+                        <span>Proje Bilgileri</span>
+                        <small class="acc-subtitle">Tamamlandı</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-wizard-summary">
+                      <div class="acc-wizard-field"><span>Proje Adı:</span><strong>OZAN Admin Panel</strong></div>
+                      <div class="acc-wizard-field"><span>Tür:</span><strong>Web Uygulaması</strong></div>
+                      <div class="acc-wizard-field"><span>Framework:</span><strong>Bootstrap 5.3</strong></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item acc-open acc-wizard-active">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-wizard-step active">2</span>
+                      <div>
+                        <span>Tasarım Ayarları</span>
+                        <small class="acc-subtitle">Devam ediyor...</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p class="mb-3">Tema renkleri, font ailesi ve layout yapısını seçin.</p>
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <label class="form-hint d-block mb-1">Tema Rengi</label>
+                        <div class="bdg-color-select-group">
+                          <button class="bdg-color-select active" style="--clr:var(--teal-primary)"><span class="bdg-color-dot"></span>Teal</button>
+                          <button class="bdg-color-select" style="--clr:var(--neon-purple)"><span class="bdg-color-dot"></span>Purple</button>
+                          <button class="bdg-color-select" style="--clr:var(--neon-blue)"><span class="bdg-color-dot"></span>Blue</button>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-hint d-block mb-1">Layout</label>
+                        <div class="bdg-select-group">
+                          <button class="bdg-select active">Sidebar</button>
+                          <button class="bdg-select">Top Nav</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="acc-item acc-wizard-pending">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-wizard-step">3</span>
+                      <div>
+                        <span>Bileşen Seçimi</span>
+                        <small class="acc-subtitle">Bekliyor</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Projeye dahil edilecek bileşenleri seçin: Forms, Tables, Charts, Maps, Calendar...</p>
+                  </div>
+                </div>
+                <div class="acc-item acc-wizard-pending">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <span class="acc-wizard-step">4</span>
+                      <div>
+                        <span>Dağıtım & Bitir</span>
+                        <small class="acc-subtitle">Bekliyor</small>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Son kontrolleri yapın ve projeyi dağıtıma hazırlayın. Build optimizasyonu ve deployment ayarlarını yapılandırın.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 8. GLASSMORPHISM & NEON ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-stars"></i></div>
+            <div><h6>Glassmorphism & Neon Accordion</h6><p>2026 trendlerine uygun cam efektli ve neon parlamalı tasarımlar</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Glassmorphism</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-glass" data-acc-exclusive="true">
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-diamond-fill text-teal-light"></i>
+                      <span>Glass Tasarım Nedir?</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Glassmorphism, yarı saydam arka planlar, bulanıklık (blur) efektleri ve ince kenarlıklar kullanan modern bir UI tasarım trendi. 2020'den beri popülerliğini koruyor.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-eye-fill text-teal-light"></i>
+                      <span>Tarayıcı Desteği</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>backdrop-filter özelliği modern tarayıcıların %95+'inde desteklenmektedir. Firefox 103+, Chrome 76+, Safari 9+ ve Edge 17+ ile uyumludur.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-speedometer2 text-teal-light"></i>
+                      <span>Performans Etkisi</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>backdrop-filter GPU hızlandırmalı çalışır, ancak çok fazla katmanda kullanıldığında performansa etki edebilir. will-change özelliği ile optimize edilebilir.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Neon Glow</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-neon" data-acc-exclusive="true">
+                <div class="acc-item acc-open" style="--acc-neon:var(--neon-purple)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-lightning-charge-fill"></i>
+                      <span>Neon UI Trendi</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Neon renkler ve glow efektleri 2026'da UI tasarımının en güçlü trendlerinden biri. Koyu temalar üzerinde parlak renkler dikkat çekici bir kontrast oluşturuyor.</p>
+                  </div>
+                </div>
+                <div class="acc-item" style="--acc-neon:var(--neon-pink)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-brush-fill"></i>
+                      <span>CSS Glow Efektleri</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>box-shadow ve text-shadow ile neon glow efektleri oluşturulur. Animation ile nefes alan parlamalar eklenebilir. filter: drop-shadow da alternatif bir yöntemdir.</p>
+                  </div>
+                </div>
+                <div class="acc-item" style="--acc-neon:var(--teal-primary)">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <i class="bi bi-palette-fill"></i>
+                      <span>Renk Seçimi</span>
+                    </div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Neon efektleri için yüksek satürasyon değerlerine sahip renkler tercih edilmelidir. Cyan, magenta, mor ve yeşil en etkili neon tonlarıdır.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 9. İÇERİK ZENGİN ACCORDION ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-layout-text-sidebar-reverse"></i></div>
+            <div><h6>İçerik Zengin Accordion</h6><p>İçinde tablo, liste, progress bar ve istatistik barındıran accordion panelleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-body-custom">
+              <div class="acc-group acc-bordered" data-acc-exclusive="true">
+                <!-- Stats Panel -->
+                <div class="acc-item acc-open">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap teal"><i class="bi bi-graph-up-arrow"></i></div>
+                      <div>
+                        <span>Sunucu Durumu</span>
+                        <small class="acc-subtitle">Tüm sistemler çalışıyor</small>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="bdg bdg-soft-green bdg-xs bdg-pill"><span class="bdg-dot dot-green dot-pulse"></span>Aktif</span>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </div>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-stats-grid">
+                      <div class="acc-stat-item">
+                        <div class="acc-stat-header">
+                          <span>CPU Kullanımı</span>
+                          <span class="text-neon-green fw-700">34%</span>
+                        </div>
+                        <div class="acc-progress"><div class="acc-progress-bar green" style="width:34%"></div></div>
+                      </div>
+                      <div class="acc-stat-item">
+                        <div class="acc-stat-header">
+                          <span>RAM Kullanımı</span>
+                          <span class="text-neon-orange fw-700">67%</span>
+                        </div>
+                        <div class="acc-progress"><div class="acc-progress-bar orange" style="width:67%"></div></div>
+                      </div>
+                      <div class="acc-stat-item">
+                        <div class="acc-stat-header">
+                          <span>Disk Alanı</span>
+                          <span class="text-neon-blue fw-700">52%</span>
+                        </div>
+                        <div class="acc-progress"><div class="acc-progress-bar blue" style="width:52%"></div></div>
+                      </div>
+                      <div class="acc-stat-item">
+                        <div class="acc-stat-header">
+                          <span>Ağ Trafiği</span>
+                          <span class="text-neon-purple fw-700">21%</span>
+                        </div>
+                        <div class="acc-progress"><div class="acc-progress-bar purple" style="width:21%"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Team List Panel -->
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap purple"><i class="bi bi-people-fill"></i></div>
+                      <div>
+                        <span>Takım Üyeleri</span>
+                        <small class="acc-subtitle">8 aktif üye</small>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="bdg-avatar-stack" style="margin-right:4px">
+                        <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--teal-primary),var(--teal-dark));width:24px;height:24px;font-size:9px;border-width:1px">O</div>
+                        <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-purple),#7c3aed);width:24px;height:24px;font-size:9px;border-width:1px">A</div>
+                        <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-blue),#2563eb);width:24px;height:24px;font-size:9px;border-width:1px">M</div>
+                      </div>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </div>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-team-list">
+                      <div class="acc-team-member">
+                        <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--teal-primary),var(--teal-dark));width:32px;height:32px;font-size:11px">OZ</div>
+                        <div class="acc-team-info">
+                          <span>Ozan Sonar</span>
+                          <small>Lead Developer</small>
+                        </div>
+                        <span class="bdg bdg-soft-teal bdg-xs">Admin</span>
+                      </div>
+                      <div class="acc-team-member">
+                        <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--neon-purple),#7c3aed);width:32px;height:32px;font-size:11px">AK</div>
+                        <div class="acc-team-info">
+                          <span>Ali Korkmaz</span>
+                          <small>Frontend Dev</small>
+                        </div>
+                        <span class="bdg bdg-soft-purple bdg-xs">Editör</span>
+                      </div>
+                      <div class="acc-team-member">
+                        <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--neon-blue),#2563eb);width:32px;height:32px;font-size:11px">MB</div>
+                        <div class="acc-team-info">
+                          <span>Merve Beyaz</span>
+                          <small>UI/UX Designer</small>
+                        </div>
+                        <span class="bdg bdg-soft-blue bdg-xs">Tasarımcı</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Pricing Panel -->
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left">
+                      <div class="acc-icon-wrap orange"><i class="bi bi-credit-card-fill"></i></div>
+                      <div>
+                        <span>Fiyatlandırma Detayları</span>
+                        <small class="acc-subtitle">3 plan mevcut</small>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="bdg bdg-gradient-2 bdg-xs">PRO</span>
+                      <i class="bi bi-chevron-down acc-arrow"></i>
+                    </div>
+                  </button>
+                  <div class="acc-body">
+                    <div class="acc-pricing-grid">
+                      <div class="acc-pricing-item">
+                        <h6>Free</h6>
+                        <span class="acc-pricing-val">₺0<small>/ay</small></span>
+                        <ul>
+                          <li><i class="bi bi-check2"></i> 3 Kullanıcı</li>
+                          <li><i class="bi bi-check2"></i> 1GB Depolama</li>
+                          <li class="disabled"><i class="bi bi-x"></i> API Erişimi</li>
+                        </ul>
+                      </div>
+                      <div class="acc-pricing-item featured">
+                        <span class="bdg bdg-gradient-2 bdg-xs" style="position:absolute;top:8px;right:8px">Popüler</span>
+                        <h6>Pro</h6>
+                        <span class="acc-pricing-val">₺299<small>/ay</small></span>
+                        <ul>
+                          <li><i class="bi bi-check2"></i> 25 Kullanıcı</li>
+                          <li><i class="bi bi-check2"></i> 50GB Depolama</li>
+                          <li><i class="bi bi-check2"></i> API Erişimi</li>
+                        </ul>
+                      </div>
+                      <div class="acc-pricing-item">
+                        <h6>Enterprise</h6>
+                        <span class="acc-pricing-val">₺999<small>/ay</small></span>
+                        <ul>
+                          <li><i class="bi bi-check2"></i> Sınırsız Kullanıcı</li>
+                          <li><i class="bi bi-check2"></i> 500GB Depolama</li>
+                          <li><i class="bi bi-check2"></i> Öncelikli Destek</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 10. TÜMÜNÜ AÇ/KAPAT ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-toggles"></i></div>
+            <div><h6>Toplu Kontrol</h6><p>Tümünü aç/kapat ve arama/filtreleme özellikleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-8 mx-auto">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <h6 class="mb-0">Döküman Bölümleri</h6>
+              <div class="d-flex gap-2">
+                <button class="bdg-btn-notif btn-xs" onclick="accExpandAll(this)"><i class="bi bi-arrows-expand"></i> Tümünü Aç</button>
+                <button class="bdg-btn-notif btn-xs" onclick="accCollapseAll(this)"><i class="bi bi-arrows-collapse"></i> Tümünü Kapat</button>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="acc-group acc-bordered" id="bulkAccGroup">
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left"><i class="bi bi-book"></i><span>Giriş</span></div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Bu döküman, OZAN Admin Panel'in kurulum, yapılandırma ve özelleştirme süreçlerini kapsamaktadır.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left"><i class="bi bi-download"></i><span>Kurulum</span></div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Adım adım kurulum rehberi: sistem gereksinimleri, bağımlılıklar ve ilk çalıştırma.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left"><i class="bi bi-gear"></i><span>Yapılandırma</span></div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Ortam değişkenleri, veritabanı ayarları, mail yapılandırması ve güvenlik parametreleri.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left"><i class="bi bi-puzzle"></i><span>Bileşenler</span></div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>Tüm UI bileşenlerinin kullanım örnekleri, prop listesi ve özelleştirme seçenekleri.</p>
+                  </div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-header" onclick="accToggle(this)">
+                    <div class="acc-header-left"><i class="bi bi-code-slash"></i><span>API Referansı</span></div>
+                    <i class="bi bi-chevron-down acc-arrow"></i>
+                  </button>
+                  <div class="acc-body">
+                    <p>RESTful API endpoint'leri, request/response örnekleri ve hata kodları.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- .page-content -->
+  </main>
+
+</div><!-- .admin-wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Accordion Toggle
+function accToggle(btn){
+  const item=btn.closest('.acc-item');
+  const group=item.closest('.acc-group');
+  const isOpen=item.classList.contains('acc-open');
+  const exclusive=group&&group.dataset.accExclusive==='true';
+
+  if(exclusive&&!isOpen){
+    group.querySelectorAll(':scope > .acc-item.acc-open').forEach(i=>{
+      i.classList.remove('acc-open');
+      const body=i.querySelector('.acc-body');
+      if(body) body.style.maxHeight=null;
+    });
+  }
+
+  item.classList.toggle('acc-open');
+  const body=item.querySelector('.acc-body');
+  if(body){
+    if(item.classList.contains('acc-open')){
+      body.style.maxHeight=body.scrollHeight+'px';
+      // Handle nested accordions
+      setTimeout(()=>{
+        const parentBody=item.closest('.acc-body');
+        if(parentBody){
+          parentBody.style.maxHeight=parentBody.scrollHeight+'px';
+        }
+      },310);
+    } else {
+      body.style.maxHeight=null;
+    }
+  }
+}
+
+// Expand All
+function accExpandAll(btn){
+  const card=btn.closest('.card-dark');
+  card.querySelectorAll('.acc-item:not(.acc-open)').forEach(item=>{
+    item.classList.add('acc-open');
+    const body=item.querySelector('.acc-body');
+    if(body) body.style.maxHeight=body.scrollHeight+'px';
+  });
+}
+
+// Collapse All
+function accCollapseAll(btn){
+  const card=btn.closest('.card-dark');
+  card.querySelectorAll('.acc-item.acc-open').forEach(item=>{
+    item.classList.remove('acc-open');
+    const body=item.querySelector('.acc-body');
+    if(body) body.style.maxHeight=null;
+  });
+}
+
+// Initialize open items
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.acc-item.acc-open .acc-body').forEach(body=>{
+    body.style.maxHeight=body.scrollHeight+'px';
+  });
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+</script>
+</body>
+</html>

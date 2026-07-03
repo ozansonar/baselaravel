@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Ayarlar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Proje Ayarları</h2>
+          <p>Uygulama yapılandırması, bildirimler, güvenlik, entegrasyonlar ve sistem tercihleri</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-glass" onclick="saveAllSettings()"><i class="bi bi-check2-all"></i> Tümünü Kaydet</button>
+        </div>
+      </div>
+
+      <!-- ==================== SETTINGS LAYOUT ==================== -->
+      <div class="stg-layout">
+
+        <!-- Settings Nav -->
+        <div class="stg-nav">
+          <div class="stg-nav-inner">
+            <a href="#stg-general" class="stg-nav-item active" onclick="switchSettingsTab(this,'stg-general')">
+              <i class="bi bi-sliders2"></i>
+              <div><span>Genel</span><small>Proje bilgileri & temel ayarlar</small></div>
+            </a>
+            <a href="#stg-notifications" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-notifications')">
+              <i class="bi bi-bell"></i>
+              <div><span>Bildirimler</span><small>E-posta, push & SMS tercihleri</small></div>
+            </a>
+            <a href="#stg-security" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-security')">
+              <i class="bi bi-shield-lock"></i>
+              <div><span>Güvenlik</span><small>Şifre politikası & oturum yönetimi</small></div>
+            </a>
+            <a href="#stg-api" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-api')">
+              <i class="bi bi-plug"></i>
+              <div><span>API & Entegrasyonlar</span><small>API anahtarları & webhook</small></div>
+            </a>
+            <a href="#stg-appearance" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-appearance')">
+              <i class="bi bi-palette"></i>
+              <div><span>Görünüm</span><small>Tema, renk & düzen tercihleri</small></div>
+            </a>
+            <a href="#stg-email" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-email')">
+              <i class="bi bi-envelope-at"></i>
+              <div><span>E-posta (SMTP)</span><small>Sunucu yapılandırması</small></div>
+            </a>
+            <a href="#stg-backup" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-backup')">
+              <i class="bi bi-cloud-arrow-up"></i>
+              <div><span>Yedekleme & Veri</span><small>Otomatik yedek & dışa aktarma</small></div>
+            </a>
+            <a href="#stg-maintenance" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-maintenance')">
+              <i class="bi bi-tools"></i>
+              <div><span>Bakım Modu</span><small>Planlı bakım & sistem durumu</small></div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="stg-content">
+
+          <!-- ==================== 1. GENEL AYARLAR ==================== -->
+          <div class="stg-panel active" id="stg-general">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-sliders2"></i> Genel Ayarlar</h5>
+                <p>Projenizin temel bilgilerini ve tercihlerini buradan yönetin</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- Proje Bilgileri -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Proje Bilgileri</h6>
+                <p>Temel proje adı, açıklama ve logo ayarları</p>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Proje Adı</label>
+                <input type="text" class="stg-input" value="OZAN Admin Panel" placeholder="Proje adını girin">
+                <small class="stg-hint">Bu ad başlık çubuğunda ve raporlarda görüntülenir</small>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Proje Açıklaması</label>
+                <textarea class="stg-textarea" rows="3" placeholder="Kısa bir açıklama yazın">Modern, responsive ve kapsamlı admin panel çözümü. 2026 tasarım trendleri ile geliştirilmiştir.</textarea>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Proje Logosu</label>
+                <div class="stg-logo-upload">
+                  <div class="stg-logo-preview" id="logoPreview">
+                    <div class="stg-logo-current" id="logoDefault">O</div>
+                    <img class="stg-logo-img d-none" id="logoImg" src="" alt="Logo">
+                  </div>
+                  <div class="stg-logo-actions">
+                    <input type="file" id="logoInput" accept="image/png,image/jpeg,image/svg+xml" hidden>
+                    <button class="stg-btn stg-btn-sm" onclick="document.getElementById('logoInput').click()"><i class="bi bi-upload"></i> Logo Yükle</button>
+                    <button class="stg-btn stg-btn-sm stg-btn-ghost d-none" id="logoRemoveBtn" onclick="removeLogo()"><i class="bi bi-trash3"></i> Kaldır</button>
+                    <small class="text-muted">PNG, JPG veya SVG. Maks. 2 MB, 256x256px önerilir.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Proje URL'si</label>
+                <div class="stg-input-group">
+                  <span class="stg-input-prefix">https://</span>
+                  <input type="text" class="stg-input" value="admin.ozan.dev" placeholder="domain.com">
+                </div>
+              </div>
+            </div>
+
+            <!-- Bölgesel Ayarlar -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Bölgesel Ayarlar</h6>
+                <p>Dil, saat dilimi ve biçimlendirme tercihleri</p>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Dil</label>
+                  <select class="stg-select">
+                    <option value="tr" selected>Türkçe</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="ar">العربية</option>
+                  </select>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Saat Dilimi</label>
+                  <select class="stg-select">
+                    <option value="europe-istanbul" selected>Europe/Istanbul (UTC+3)</option>
+                    <option value="europe-london">Europe/London (UTC+0)</option>
+                    <option value="america-newyork">America/New_York (UTC-5)</option>
+                    <option value="asia-tokyo">Asia/Tokyo (UTC+9)</option>
+                    <option value="australia-sydney">Australia/Sydney (UTC+11)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Tarih Formatı</label>
+                  <select class="stg-select">
+                    <option value="dd-mm-yyyy" selected>GG/AA/YYYY (06/02/2026)</option>
+                    <option value="mm-dd-yyyy">AA/GG/YYYY (02/06/2026)</option>
+                    <option value="yyyy-mm-dd">YYYY-AA-GG (2026-02-06)</option>
+                  </select>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Para Birimi</label>
+                  <select class="stg-select">
+                    <option value="try" selected>₺ Türk Lirası (TRY)</option>
+                    <option value="usd">$ ABD Doları (USD)</option>
+                    <option value="eur">€ Euro (EUR)</option>
+                    <option value="gbp">£ Sterlin (GBP)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Genel Tercihler -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Genel Tercihler</h6>
+              </div>
+
+              <div class="stg-toggle-list">
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Kullanıcı Kayıt İzni</span>
+                    <small>Yeni kullanıcıların kendi kendine kayıt olmasına izin ver</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Çoklu Dil Desteği</span>
+                    <small>Kullanıcıların arayüz dilini değiştirmesine izin ver</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Analitik Takibi</span>
+                    <small>Anonim kullanım verilerini topla (performans iyileştirme amaçlı)</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox">
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Hata Raporlama</span>
+                    <small>Otomatik hata raporlarını geliştirici ekibe gönder</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 2. BİLDİRİM AYARLARI ==================== -->
+          <div class="stg-panel" id="stg-notifications">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-bell"></i> Bildirim Ayarları</h5>
+                <p>E-posta, push bildirim ve SMS tercihlerinizi yönetin</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- Bildirim Kanalları -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Bildirim Kanalları</h6>
+                <p>Her kanal için genel açma/kapama</p>
+              </div>
+
+              <div class="stg-channel-grid">
+                <div class="stg-channel-card">
+                  <div class="stg-channel-icon ch-clr-blue"><i class="bi bi-envelope-fill"></i></div>
+                  <div class="stg-channel-info">
+                    <h6>E-posta</h6>
+                    <small>Bildirimler e-posta ile gönderilir</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-channel-card">
+                  <div class="stg-channel-icon ch-clr-purple"><i class="bi bi-app-indicator"></i></div>
+                  <div class="stg-channel-info">
+                    <h6>Push Bildirim</h6>
+                    <small>Tarayıcı push bildirimleri</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-channel-card">
+                  <div class="stg-channel-icon ch-clr-green"><i class="bi bi-chat-dots-fill"></i></div>
+                  <div class="stg-channel-info">
+                    <h6>SMS</h6>
+                    <small>Kritik uyarılar SMS ile</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox">
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-channel-card">
+                  <div class="stg-channel-icon ch-clr-orange"><i class="bi bi-slack"></i></div>
+                  <div class="stg-channel-info">
+                    <h6>Slack</h6>
+                    <small>Slack kanalına bildirim gönder</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox">
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bildirim Türleri -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Bildirim Türleri</h6>
+                <p>Her bildirim türü için kanal bazlı tercih</p>
+              </div>
+
+              <div class="stg-notif-table">
+                <div class="stg-notif-head">
+                  <span>Bildirim Türü</span>
+                  <span>E-posta</span>
+                  <span>Push</span>
+                  <span>SMS</span>
+                </div>
+                <div class="stg-notif-row">
+                  <div class="stg-notif-label"><i class="bi bi-cart-check text-neon-green"></i> Yeni Sipariş</div>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox"><span class="stg-checkmark"></span></label>
+                </div>
+                <div class="stg-notif-row">
+                  <div class="stg-notif-label"><i class="bi bi-person-plus text-neon-blue"></i> Yeni Kullanıcı</div>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox"><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox"><span class="stg-checkmark"></span></label>
+                </div>
+                <div class="stg-notif-row">
+                  <div class="stg-notif-label"><i class="bi bi-exclamation-triangle text-neon-orange"></i> Sistem Uyarısı</div>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                </div>
+                <div class="stg-notif-row">
+                  <div class="stg-notif-label"><i class="bi bi-shield-x text-neon-red"></i> Güvenlik Uyarısı</div>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                </div>
+                <div class="stg-notif-row">
+                  <div class="stg-notif-label"><i class="bi bi-chat-left-text text-neon-purple"></i> Yorum & Mesaj</div>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox"><span class="stg-checkmark"></span></label>
+                </div>
+                <div class="stg-notif-row">
+                  <div class="stg-notif-label"><i class="bi bi-graph-up text-teal"></i> Haftalık Rapor</div>
+                  <label class="stg-check"><input type="checkbox" checked><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox"><span class="stg-checkmark"></span></label>
+                  <label class="stg-check"><input type="checkbox"><span class="stg-checkmark"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sessiz Saatler -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Sessiz Saatler</h6>
+                <p>Belirli saatlerde bildirimleri sessize al</p>
+              </div>
+              <div class="stg-toggle-item mb-3">
+                <div class="stg-toggle-info">
+                  <span>Sessiz Mod Aktif</span>
+                  <small>Seçili saatler arasında sadece kritik bildirimler gönderilir</small>
+                </div>
+                <label class="stg-switch">
+                  <input type="checkbox" checked>
+                  <span class="stg-switch-slider"></span>
+                </label>
+              </div>
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Başlangıç</label>
+                  <input type="time" class="stg-input" value="22:00">
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Bitiş</label>
+                  <input type="time" class="stg-input" value="08:00">
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 3. GÜVENLİK AYARLARI ==================== -->
+          <div class="stg-panel" id="stg-security">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-shield-lock"></i> Güvenlik Ayarları</h5>
+                <p>Şifre politikası, iki faktörlü doğrulama ve oturum yönetimi</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- Şifre Politikası -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Şifre Politikası</h6>
+                <p>Kullanıcı şifreleri için minimum gereksinimler</p>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Minimum Uzunluk</label>
+                  <div class="stg-range-wrap">
+                    <input type="range" class="stg-range" min="6" max="24" value="12" oninput="this.nextElementSibling.textContent=this.value+' karakter'">
+                    <span class="stg-range-val">12 karakter</span>
+                  </div>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Şifre Geçerlilik Süresi</label>
+                  <select class="stg-select">
+                    <option value="30">30 gün</option>
+                    <option value="60">60 gün</option>
+                    <option value="90" selected>90 gün</option>
+                    <option value="180">180 gün</option>
+                    <option value="0">Süresiz</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="stg-toggle-list">
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Büyük Harf Zorunlu</span>
+                    <small>En az 1 büyük harf içermeli</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Rakam Zorunlu</span>
+                    <small>En az 1 rakam içermeli</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Özel Karakter Zorunlu</span>
+                    <small>En az 1 özel karakter içermeli (!@#$%)</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Önceki Şifre Kontrolü</span>
+                    <small>Son 5 şifrenin tekrar kullanılmasını engelle</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2FA -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>İki Faktörlü Doğrulama (2FA)</h6>
+                <p>Hesap güvenliğini artırmak için ek doğrulama katmanı</p>
+              </div>
+
+              <div class="stg-2fa-card">
+                <div class="stg-2fa-status stg-2fa-active">
+                  <i class="bi bi-shield-check"></i>
+                  <div>
+                    <span>2FA Aktif</span>
+                    <small>Google Authenticator ile yapılandırıldı</small>
+                  </div>
+                </div>
+                <div class="stg-2fa-methods">
+                  <div class="stg-2fa-method stg-2fa-selected">
+                    <i class="bi bi-phone"></i>
+                    <span>Authenticator App</span>
+                  </div>
+                  <div class="stg-2fa-method">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>SMS</span>
+                  </div>
+                  <div class="stg-2fa-method">
+                    <i class="bi bi-envelope"></i>
+                    <span>E-posta</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-toggle-item mt-3">
+                <div class="stg-toggle-info">
+                  <span>Tüm Kullanıcılara 2FA Zorunlu</span>
+                  <small>Admin dahil tüm kullanıcılar 2FA kullanmak zorundadır</small>
+                </div>
+                <label class="stg-switch">
+                  <input type="checkbox">
+                  <span class="stg-switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Oturum Yönetimi -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Oturum Yönetimi</h6>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Oturum Zaman Aşımı</label>
+                  <select class="stg-select">
+                    <option value="15">15 dakika</option>
+                    <option value="30" selected>30 dakika</option>
+                    <option value="60">1 saat</option>
+                    <option value="240">4 saat</option>
+                    <option value="1440">24 saat</option>
+                  </select>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Maks. Aktif Oturum</label>
+                  <select class="stg-select">
+                    <option value="1">1 cihaz</option>
+                    <option value="3" selected>3 cihaz</option>
+                    <option value="5">5 cihaz</option>
+                    <option value="0">Sınırsız</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="stg-toggle-item">
+                <div class="stg-toggle-info">
+                  <span>Başarısız Giriş Kilidi</span>
+                  <small>5 başarısız denemeden sonra hesabı 15 dk kilitle</small>
+                </div>
+                <label class="stg-switch">
+                  <input type="checkbox" checked>
+                  <span class="stg-switch-slider"></span>
+                </label>
+              </div>
+
+              <!-- Aktif Oturumlar -->
+              <h6 class="fs-13 mt-20 mb-12 text-muted">Aktif Oturumlar</h6>
+              <div class="stg-sessions">
+                <div class="stg-session-item stg-session-current">
+                  <div class="stg-session-icon"><i class="bi bi-laptop"></i></div>
+                  <div class="stg-session-info">
+                    <span>MacBook Pro — Chrome 124</span>
+                    <small>İstanbul, Türkiye • Şu an aktif</small>
+                  </div>
+                  <span class="stg-session-badge">Bu cihaz</span>
+                </div>
+                <div class="stg-session-item">
+                  <div class="stg-session-icon"><i class="bi bi-phone"></i></div>
+                  <div class="stg-session-info">
+                    <span>iPhone 16 Pro — Safari</span>
+                    <small>İstanbul, Türkiye • 2 saat önce</small>
+                  </div>
+                  <button class="stg-btn stg-btn-sm stg-btn-danger">Sonlandır</button>
+                </div>
+                <div class="stg-session-item">
+                  <div class="stg-session-icon"><i class="bi bi-tablet"></i></div>
+                  <div class="stg-session-info">
+                    <span>iPad Air — Safari</span>
+                    <small>Ankara, Türkiye • 1 gün önce</small>
+                  </div>
+                  <button class="stg-btn stg-btn-sm stg-btn-danger">Sonlandır</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 4. API & ENTEGRASYONLAR ==================== -->
+          <div class="stg-panel" id="stg-api">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-plug"></i> API & Entegrasyonlar</h5>
+                <p>API anahtarları, webhook konfigürasyonu ve üçüncü parti servis bağlantıları</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- API Anahtarları -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>API Anahtarları</h6>
+                <p>Uygulamanıza erişim için API anahtarlarını yönetin</p>
+              </div>
+
+              <div class="stg-api-keys">
+                <div class="stg-api-key">
+                  <div class="stg-api-key-header">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stg-api-badge stg-api-live">LIVE</span>
+                      <span class="stg-api-name">Production Key</span>
+                    </div>
+                    <small class="text-muted">Oluşturulma: 15 Ocak 2026</small>
+                  </div>
+                  <div class="stg-api-key-value">
+                    <code id="apiKey1">sk_live_ozan_4f8a2b••••••••••••••••</code>
+                    <button class="stg-btn-icon" onclick="toggleApiKey('apiKey1',this)" title="Göster/Gizle"><i class="bi bi-eye"></i></button>
+                    <button class="stg-btn-icon" onclick="copyToClipboard('apiKey1')" title="Kopyala"><i class="bi bi-clipboard"></i></button>
+                  </div>
+                  <div class="stg-api-key-meta">
+                    <span><i class="bi bi-activity"></i> Son kullanım: 2 dakika önce</span>
+                    <span><i class="bi bi-graph-up"></i> 12,458 istek / bugün</span>
+                  </div>
+                </div>
+                <div class="stg-api-key">
+                  <div class="stg-api-key-header">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stg-api-badge stg-api-test">TEST</span>
+                      <span class="stg-api-name">Development Key</span>
+                    </div>
+                    <small class="text-muted">Oluşturulma: 15 Ocak 2026</small>
+                  </div>
+                  <div class="stg-api-key-value">
+                    <code id="apiKey2">sk_test_ozan_9c3d7e••••••••••••••••</code>
+                    <button class="stg-btn-icon" onclick="toggleApiKey('apiKey2',this)" title="Göster/Gizle"><i class="bi bi-eye"></i></button>
+                    <button class="stg-btn-icon" onclick="copyToClipboard('apiKey2')" title="Kopyala"><i class="bi bi-clipboard"></i></button>
+                  </div>
+                  <div class="stg-api-key-meta">
+                    <span><i class="bi bi-activity"></i> Son kullanım: 5 saat önce</span>
+                    <span><i class="bi bi-graph-up"></i> 342 istek / bugün</span>
+                  </div>
+                </div>
+              </div>
+
+              <button class="stg-btn mt-12"><i class="bi bi-plus-lg"></i> Yeni API Anahtarı Oluştur</button>
+            </div>
+
+            <!-- Webhook -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Webhook Yapılandırması</h6>
+                <p>Olayları gerçek zamanlı olarak kendi sunucunuza iletin</p>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Webhook URL</label>
+                <div class="stg-input-group">
+                  <span class="stg-input-prefix">POST</span>
+                  <input type="url" class="stg-input" value="https://api.ozan.dev/webhooks/admin" placeholder="https://your-server.com/webhook">
+                </div>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Webhook Secret</label>
+                <div class="stg-input-group">
+                  <input type="password" class="stg-input font-mono" value="whsec_a1b2c3d4e5f6g7h8">
+                  <button class="stg-btn stg-btn-sm" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'"><i class="bi bi-eye"></i></button>
+                </div>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Olaylar</label>
+                <div class="stg-tag-select">
+                  <span class="stg-tag-chip stg-tag-active">order.created</span>
+                  <span class="stg-tag-chip stg-tag-active">order.updated</span>
+                  <span class="stg-tag-chip stg-tag-active">user.registered</span>
+                  <span class="stg-tag-chip">user.deleted</span>
+                  <span class="stg-tag-chip stg-tag-active">payment.completed</span>
+                  <span class="stg-tag-chip">payment.failed</span>
+                  <span class="stg-tag-chip">product.updated</span>
+                  <span class="stg-tag-chip stg-tag-active">system.alert</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Üçüncü Parti Entegrasyonlar -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Üçüncü Parti Entegrasyonlar</h6>
+              </div>
+
+              <div class="stg-integrations">
+                <div class="stg-integ-card stg-integ-connected">
+                  <div class="stg-integ-header">
+                    <div class="stg-integ-logo integ-logo-slack"><i class="bi bi-slack text-white"></i></div>
+                    <div><h6>Slack</h6><small class="stg-integ-status-on">Bağlı</small></div>
+                  </div>
+                  <p>Bildirimleri #admin-alerts kanalına gönder</p>
+                  <button class="stg-btn stg-btn-sm stg-btn-ghost">Ayarlar</button>
+                </div>
+                <div class="stg-integ-card stg-integ-connected">
+                  <div class="stg-integ-header">
+                    <div class="stg-integ-logo integ-logo-trello"><i class="bi bi-trello text-white"></i></div>
+                    <div><h6>Google Analytics</h6><small class="stg-integ-status-on">Bağlı</small></div>
+                  </div>
+                  <p>GA4 ile site trafiği ve kullanıcı davranışı takibi</p>
+                  <button class="stg-btn stg-btn-sm stg-btn-ghost">Ayarlar</button>
+                </div>
+                <div class="stg-integ-card">
+                  <div class="stg-integ-header">
+                    <div class="stg-integ-logo integ-logo-stripe"><i class="bi bi-stripe text-white fw-bold">S</i></div>
+                    <div><h6>Stripe</h6><small class="stg-integ-status-off">Bağlı değil</small></div>
+                  </div>
+                  <p>Online ödeme altyapısı ve abonelik yönetimi</p>
+                  <button class="stg-btn stg-btn-sm"><i class="bi bi-link-45deg"></i> Bağlan</button>
+                </div>
+                <div class="stg-integ-card">
+                  <div class="stg-integ-header">
+                    <div class="stg-integ-logo integ-logo-telegram"><i class="bi bi-telegram text-white"></i></div>
+                    <div><h6>Telegram Bot</h6><small class="stg-integ-status-off">Bağlı değil</small></div>
+                  </div>
+                  <p>Telegram botu ile bildirim ve komut desteği</p>
+                  <button class="stg-btn stg-btn-sm"><i class="bi bi-link-45deg"></i> Bağlan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 5. GÖRÜNÜM AYARLARI ==================== -->
+          <div class="stg-panel" id="stg-appearance">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-palette"></i> Görünüm Ayarları</h5>
+                <p>Tema, renk paleti ve düzen tercihlerinizi özelleştirin</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- Tema Seçimi -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Tema Modu</h6>
+              </div>
+
+              <div class="stg-theme-grid">
+                <label class="stg-theme-card stg-theme-selected">
+                  <input type="radio" name="theme" value="dark" checked hidden>
+                  <div class="stg-theme-preview stg-theme-dark-preview">
+                    <div class="stg-tp-sidebar"></div>
+                    <div class="stg-tp-main">
+                      <div class="stg-tp-navbar"></div>
+                      <div class="stg-tp-content"></div>
+                    </div>
+                  </div>
+                  <span>Koyu Tema</span>
+                  <i class="bi bi-check-circle-fill stg-theme-check"></i>
+                </label>
+                <label class="stg-theme-card">
+                  <input type="radio" name="theme" value="light" hidden>
+                  <div class="stg-theme-preview stg-theme-light-preview">
+                    <div class="stg-tp-sidebar"></div>
+                    <div class="stg-tp-main">
+                      <div class="stg-tp-navbar"></div>
+                      <div class="stg-tp-content"></div>
+                    </div>
+                  </div>
+                  <span>Açık Tema</span>
+                  <i class="bi bi-check-circle-fill stg-theme-check"></i>
+                </label>
+                <label class="stg-theme-card">
+                  <input type="radio" name="theme" value="auto" hidden>
+                  <div class="stg-theme-preview stg-theme-auto-preview">
+                    <div class="stg-tp-sidebar"></div>
+                    <div class="stg-tp-main">
+                      <div class="stg-tp-navbar"></div>
+                      <div class="stg-tp-content"></div>
+                    </div>
+                  </div>
+                  <span>Otomatik</span>
+                  <i class="bi bi-check-circle-fill stg-theme-check"></i>
+                </label>
+              </div>
+            </div>
+
+            <!-- Accent Renk -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Vurgu Rengi</h6>
+                <p>Butonlar, bağlantılar ve aktif durumlar için kullanılacak ana renk</p>
+              </div>
+
+              <div class="stg-color-picker">
+                <label class="stg-color-opt stg-color-selected">
+                  <input type="radio" name="accent" value="teal" checked hidden>
+                  <span class="stg-color-swatch sw-clr-teal"></span>
+                  <span>Teal</span>
+                </label>
+                <label class="stg-color-opt">
+                  <input type="radio" name="accent" value="blue" hidden>
+                  <span class="stg-color-swatch sw-clr-blue"></span>
+                  <span>Mavi</span>
+                </label>
+                <label class="stg-color-opt">
+                  <input type="radio" name="accent" value="purple" hidden>
+                  <span class="stg-color-swatch sw-clr-purple"></span>
+                  <span>Mor</span>
+                </label>
+                <label class="stg-color-opt">
+                  <input type="radio" name="accent" value="pink" hidden>
+                  <span class="stg-color-swatch sw-clr-pink"></span>
+                  <span>Pembe</span>
+                </label>
+                <label class="stg-color-opt">
+                  <input type="radio" name="accent" value="orange" hidden>
+                  <span class="stg-color-swatch sw-clr-orange"></span>
+                  <span>Turuncu</span>
+                </label>
+                <label class="stg-color-opt">
+                  <input type="radio" name="accent" value="green" hidden>
+                  <span class="stg-color-swatch sw-clr-green"></span>
+                  <span>Yeşil</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Düzen -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Düzen Tercihleri</h6>
+              </div>
+
+              <div class="stg-toggle-list">
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Kompakt Sidebar</span>
+                    <small>Sidebar'ı daraltılmış ikonlar olarak göster</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox">
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Sabit Navbar</span>
+                    <small>Üst menü çubuğu kaydırma sırasında sabit kalsın</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Sayfa Animasyonları</span>
+                    <small>Sayfa geçişlerinde fade/slide animasyonları</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox" checked>
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Tam Genişlik Düzen</span>
+                    <small>İçerik alanını tam genişlikte kullan (container kısıtlaması yok)</small>
+                  </div>
+                  <label class="stg-switch">
+                    <input type="checkbox">
+                    <span class="stg-switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="stg-field mt-3">
+                <label class="stg-label">Sayfa Başına Kayıt Sayısı</label>
+                <select class="stg-select stg-select-sm">
+                  <option value="10">10</option>
+                  <option value="25" selected>25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 6. E-POSTA (SMTP) ==================== -->
+          <div class="stg-panel" id="stg-email">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-envelope-at"></i> E-posta (SMTP) Ayarları</h5>
+                <p>Giden e-posta sunucusu yapılandırması</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>SMTP Sunucusu</h6>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-field-wide">
+                  <label class="stg-label">SMTP Sunucu Adresi</label>
+                  <input type="text" class="stg-input" value="smtp.gmail.com" placeholder="smtp.example.com">
+                </div>
+                <div class="stg-field flex-1">
+                  <label class="stg-label">Port</label>
+                  <input type="number" class="stg-input" value="587" placeholder="587">
+                </div>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Kullanıcı Adı</label>
+                  <input type="text" class="stg-input" value="admin@ozan.dev" placeholder="user@domain.com">
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Şifre</label>
+                  <input type="password" class="stg-input" value="••••••••••" placeholder="SMTP şifresi">
+                </div>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Şifreleme</label>
+                  <select class="stg-select">
+                    <option value="tls" selected>TLS</option>
+                    <option value="ssl">SSL</option>
+                    <option value="none">Yok</option>
+                  </select>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Gönderen Adı</label>
+                  <input type="text" class="stg-input" value="OZAN Admin" placeholder="Gönderen adı">
+                </div>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Gönderen E-posta</label>
+                <input type="email" class="stg-input" value="noreply@ozan.dev" placeholder="noreply@domain.com">
+              </div>
+
+              <div class="stg-test-email">
+                <div class="stg-field flex-1 mb-0">
+                  <label class="stg-label">Test E-postası Gönder</label>
+                  <div class="stg-input-group">
+                    <input type="email" class="stg-input" placeholder="test@example.com" id="testEmailInput">
+                    <button class="stg-btn stg-btn-sm" onclick="sendTestEmail()"><i class="bi bi-send"></i> Gönder</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- E-posta Şablonları -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>E-posta Şablonları</h6>
+                <p>Otomatik gönderilen e-postaların şablon ayarları</p>
+              </div>
+
+              <div class="stg-template-list">
+                <div class="stg-template-item">
+                  <div class="stg-template-info">
+                    <i class="bi bi-person-plus text-neon-blue"></i>
+                    <div>
+                      <span>Hoş Geldiniz</span>
+                      <small>Yeni kullanıcı kayıt e-postası</small>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <label class="stg-switch stg-switch-sm"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                    <button class="stg-btn-icon"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </div>
+                <div class="stg-template-item">
+                  <div class="stg-template-info">
+                    <i class="bi bi-key text-neon-orange"></i>
+                    <div>
+                      <span>Şifre Sıfırlama</span>
+                      <small>Şifre sıfırlama bağlantısı</small>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <label class="stg-switch stg-switch-sm"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                    <button class="stg-btn-icon"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </div>
+                <div class="stg-template-item">
+                  <div class="stg-template-info">
+                    <i class="bi bi-cart-check text-neon-green"></i>
+                    <div>
+                      <span>Sipariş Onayı</span>
+                      <small>Sipariş alındı bildirimi</small>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <label class="stg-switch stg-switch-sm"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                    <button class="stg-btn-icon"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </div>
+                <div class="stg-template-item">
+                  <div class="stg-template-info">
+                    <i class="bi bi-graph-up text-teal"></i>
+                    <div>
+                      <span>Haftalık Özet</span>
+                      <small>Haftalık performans raporu</small>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <label class="stg-switch stg-switch-sm"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                    <button class="stg-btn-icon"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 7. YEDEKLEME & VERİ ==================== -->
+          <div class="stg-panel" id="stg-backup">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-cloud-arrow-up"></i> Yedekleme & Veri</h5>
+                <p>Otomatik yedekleme, dışa aktarma ve veri temizliği</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- Otomatik Yedekleme -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Otomatik Yedekleme</h6>
+              </div>
+
+              <div class="stg-toggle-item mb-3">
+                <div class="stg-toggle-info">
+                  <span>Otomatik Yedekleme</span>
+                  <small>Belirli aralıklarla veritabanı ve dosyaları yedekle</small>
+                </div>
+                <label class="stg-switch">
+                  <input type="checkbox" checked>
+                  <span class="stg-switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Yedekleme Sıklığı</label>
+                  <select class="stg-select">
+                    <option value="hourly">Her saat</option>
+                    <option value="daily" selected>Günlük</option>
+                    <option value="weekly">Haftalık</option>
+                    <option value="monthly">Aylık</option>
+                  </select>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Saklama Süresi</label>
+                  <select class="stg-select">
+                    <option value="7">7 gün</option>
+                    <option value="14">14 gün</option>
+                    <option value="30" selected>30 gün</option>
+                    <option value="90">90 gün</option>
+                    <option value="365">1 yıl</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="stg-field">
+                <label class="stg-label">Depolama Konumu</label>
+                <select class="stg-select">
+                  <option value="local">Yerel Sunucu</option>
+                  <option value="s3" selected>Amazon S3</option>
+                  <option value="gcs">Google Cloud Storage</option>
+                  <option value="azure">Azure Blob Storage</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Son Yedeklemeler -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Son Yedeklemeler</h6>
+              </div>
+
+              <div class="stg-backup-list">
+                <div class="stg-backup-item">
+                  <div class="stg-backup-icon stg-backup-success"><i class="bi bi-check-circle-fill"></i></div>
+                  <div class="stg-backup-info">
+                    <span>backup_2026-02-06_03-00.tar.gz</span>
+                    <small>06 Şubat 2026, 03:00 • 248 MB • Otomatik</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="stg-btn stg-btn-sm stg-btn-ghost"><i class="bi bi-download"></i> İndir</button>
+                    <button class="stg-btn stg-btn-sm stg-btn-ghost"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
+                  </div>
+                </div>
+                <div class="stg-backup-item">
+                  <div class="stg-backup-icon stg-backup-success"><i class="bi bi-check-circle-fill"></i></div>
+                  <div class="stg-backup-info">
+                    <span>backup_2026-02-05_03-00.tar.gz</span>
+                    <small>05 Şubat 2026, 03:00 • 245 MB • Otomatik</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="stg-btn stg-btn-sm stg-btn-ghost"><i class="bi bi-download"></i> İndir</button>
+                    <button class="stg-btn stg-btn-sm stg-btn-ghost"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
+                  </div>
+                </div>
+                <div class="stg-backup-item">
+                  <div class="stg-backup-icon stg-backup-fail"><i class="bi bi-x-circle-fill"></i></div>
+                  <div class="stg-backup-info">
+                    <span>backup_2026-02-04_03-00.tar.gz</span>
+                    <small>04 Şubat 2026, 03:00 • Başarısız — Bağlantı zaman aşımı</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="stg-btn stg-btn-sm"><i class="bi bi-arrow-repeat"></i> Tekrar Dene</button>
+                  </div>
+                </div>
+              </div>
+
+              <button class="stg-btn mt-12"><i class="bi bi-cloud-arrow-up"></i> Manuel Yedekleme Başlat</button>
+            </div>
+
+            <!-- Dışa Aktarma -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Veri Dışa Aktarma</h6>
+                <p>Proje verilerini farklı formatlarda dışa aktarın</p>
+              </div>
+
+              <div class="stg-export-grid">
+                <div class="stg-export-card">
+                  <i class="bi bi-filetype-json text-neon-blue fs-28"></i>
+                  <h6>JSON</h6>
+                  <small>API uyumlu format</small>
+                  <button class="stg-btn stg-btn-sm"><i class="bi bi-download"></i> İndir</button>
+                </div>
+                <div class="stg-export-card">
+                  <i class="bi bi-filetype-csv text-neon-green fs-28"></i>
+                  <h6>CSV</h6>
+                  <small>Tablo verisi</small>
+                  <button class="stg-btn stg-btn-sm"><i class="bi bi-download"></i> İndir</button>
+                </div>
+                <div class="stg-export-card">
+                  <i class="bi bi-filetype-sql text-neon-orange fs-28"></i>
+                  <h6>SQL Dump</h6>
+                  <small>Veritabanı yedeği</small>
+                  <button class="stg-btn stg-btn-sm"><i class="bi bi-download"></i> İndir</button>
+                </div>
+                <div class="stg-export-card">
+                  <i class="bi bi-filetype-pdf text-neon-red fs-28"></i>
+                  <h6>PDF Rapor</h6>
+                  <small>Özet rapor</small>
+                  <button class="stg-btn stg-btn-sm"><i class="bi bi-download"></i> İndir</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== 8. BAKIM MODU ==================== -->
+          <div class="stg-panel" id="stg-maintenance">
+            <div class="stg-panel-header">
+              <div>
+                <h5><i class="bi bi-tools"></i> Bakım Modu</h5>
+                <p>Planlı bakım, sistem durumu ve performans ayarları</p>
+              </div>
+              <button class="stg-save-btn" onclick="showSaveToast()"><i class="bi bi-check-lg"></i> Kaydet</button>
+            </div>
+
+            <!-- Bakım Toggle -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Bakım Modu</h6>
+                <p>Etkinleştirildiğinde kullanıcılar bakım sayfasını görür, admin erişimi devam eder</p>
+              </div>
+
+              <div class="stg-maintenance-toggle">
+                <div class="stg-maint-status" id="maintStatus">
+                  <div class="stg-maint-indicator stg-maint-off"></div>
+                  <div>
+                    <span id="maintLabel">Bakım Modu Kapalı</span>
+                    <small>Sistem normal çalışıyor</small>
+                  </div>
+                </div>
+                <label class="stg-switch stg-switch-lg">
+                  <input type="checkbox" id="maintToggle" onchange="toggleMaintenance(this)">
+                  <span class="stg-switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="stg-field mt-3">
+                <label class="stg-label">Bakım Mesajı</label>
+                <textarea class="stg-textarea" rows="3" placeholder="Kullanıcılara gösterilecek mesaj">Sistemimiz şu anda planlı bakım çalışması nedeniyle geçici olarak hizmet dışıdır. En kısa sürede geri döneceğiz.</textarea>
+              </div>
+
+              <div class="stg-row">
+                <div class="stg-field stg-half">
+                  <label class="stg-label">Tahmini Süre</label>
+                  <select class="stg-select">
+                    <option value="15">15 dakika</option>
+                    <option value="30" selected>30 dakika</option>
+                    <option value="60">1 saat</option>
+                    <option value="120">2 saat</option>
+                    <option value="240">4 saat</option>
+                  </select>
+                </div>
+                <div class="stg-field stg-half">
+                  <label class="stg-label">IP Beyaz Liste</label>
+                  <input type="text" class="stg-input" value="192.168.1.100" placeholder="IP adresi (virgülle ayırın)">
+                  <small class="stg-hint">Bu IP'ler bakım modunda da erişebilir</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sistem Durumu -->
+            <div class="stg-section">
+              <div class="stg-section-title">
+                <h6>Sistem Durumu</h6>
+              </div>
+
+              <div class="stg-system-status">
+                <div class="stg-status-item">
+                  <div class="stg-status-dot stg-dot-ok"></div>
+                  <span>Web Sunucusu</span>
+                  <small class="stg-status-uptime">Çalışma: 45 gün 12 saat</small>
+                </div>
+                <div class="stg-status-item">
+                  <div class="stg-status-dot stg-dot-ok"></div>
+                  <span>Veritabanı (PostgreSQL)</span>
+                  <small class="stg-status-uptime">Yanıt: 3ms</small>
+                </div>
+                <div class="stg-status-item">
+                  <div class="stg-status-dot stg-dot-ok"></div>
+                  <span>Redis Cache</span>
+                  <small class="stg-status-uptime">Bellek: 128 MB / 512 MB</small>
+                </div>
+                <div class="stg-status-item">
+                  <div class="stg-status-dot stg-dot-warn"></div>
+                  <span>Disk Alanı</span>
+                  <small class="stg-status-uptime text-neon-orange">82% kullanımda (410/500 GB)</small>
+                </div>
+                <div class="stg-status-item">
+                  <div class="stg-status-dot stg-dot-ok"></div>
+                  <span>SSL Sertifikası</span>
+                  <small class="stg-status-uptime">Geçerlilik: 245 gün kaldı</small>
+                </div>
+                <div class="stg-status-item">
+                  <div class="stg-status-dot stg-dot-ok"></div>
+                  <span>CDN (Cloudflare)</span>
+                  <small class="stg-status-uptime">Hit oranı: %94.7</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tehlikeli Bölge -->
+            <div class="stg-section stg-danger-zone">
+              <div class="stg-section-title">
+                <h6 class="text-neon-red"><i class="bi bi-exclamation-triangle-fill"></i> Tehlikeli Bölge</h6>
+                <p>Bu işlemler geri alınamaz. Dikkatli olun.</p>
+              </div>
+
+              <div class="stg-danger-list">
+                <div class="stg-danger-item">
+                  <div>
+                    <span>Önbelleği Temizle</span>
+                    <small>Tüm uygulama ve Redis önbelleğini temizle</small>
+                  </div>
+                  <button class="stg-btn stg-btn-sm stg-btn-warning"><i class="bi bi-trash3"></i> Temizle</button>
+                </div>
+                <div class="stg-danger-item">
+                  <div>
+                    <span>Tüm Oturumları Sonlandır</span>
+                    <small>Tüm kullanıcıları çıkış yapmaya zorla</small>
+                  </div>
+                  <button class="stg-btn stg-btn-sm stg-btn-warning"><i class="bi bi-box-arrow-right"></i> Sonlandır</button>
+                </div>
+                <div class="stg-danger-item">
+                  <div>
+                    <span>Projeyi Sıfırla</span>
+                    <small>Tüm verileri sil ve projeyi fabrika ayarlarına döndür</small>
+                  </div>
+                  <button class="stg-btn stg-btn-sm stg-btn-danger"><i class="bi bi-exclamation-octagon"></i> Sıfırla</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- stg-content -->
+      </div><!-- stg-layout -->
+
+    </div><!-- page-content -->
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Logo upload
+document.getElementById('logoInput').addEventListener('change', function(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.size>2*1024*1024){
+    showSaveToast('Hata','Dosya boyutu 2 MB\'dan büyük olamaz','bi-exclamation-circle','var(--neon-red)');
+    e.target.value='';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const img=document.getElementById('logoImg');
+    img.src=ev.target.result;
+    img.classList.remove('d-none');
+    document.getElementById('logoDefault').classList.add('d-none');
+    document.getElementById('logoRemoveBtn').classList.remove('d-none');
+    showSaveToast('Logo Yüklendi','Yeni logo başarıyla önizleniyor','bi-image','var(--teal-primary)');
+  };
+  reader.readAsDataURL(file);
+});
+
+function removeLogo(){
+  document.getElementById('logoImg').src='';
+  document.getElementById('logoImg').classList.add('d-none');
+  document.getElementById('logoDefault').classList.remove('d-none');
+  document.getElementById('logoRemoveBtn').classList.add('d-none');
+  document.getElementById('logoInput').value='';
+  showSaveToast('Logo Kaldırıldı','Varsayılan logoya geri dönüldü','bi-trash3','var(--neon-orange)');
+}
+
+// Settings tab switching
+function switchSettingsTab(el, panelId){
+  document.querySelectorAll('.stg-nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.stg-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+  // Mobile: scroll to top of content
+  document.querySelector('.stg-content').scrollTop=0;
+}
+
+// Theme selection
+document.querySelectorAll('.stg-theme-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.stg-theme-card').forEach(c=>c.classList.remove('stg-theme-selected'));
+    card.classList.add('stg-theme-selected');
+  });
+});
+
+// Color selection
+document.querySelectorAll('.stg-color-opt').forEach(opt=>{
+  opt.addEventListener('click',()=>{
+    document.querySelectorAll('.stg-color-opt').forEach(o=>o.classList.remove('stg-color-selected'));
+    opt.classList.add('stg-color-selected');
+  });
+});
+
+// Webhook tag toggle
+document.querySelectorAll('.stg-tag-chip').forEach(tag=>{
+  tag.addEventListener('click',()=>{
+    tag.classList.toggle('stg-tag-active');
+  });
+});
+
+// API Key toggle visibility
+function toggleApiKey(id, btn){
+  const code=document.getElementById(id);
+  if(code.dataset.revealed){
+    code.textContent=code.dataset.masked;
+    code.dataset.revealed='';
+    btn.querySelector('i').className='bi bi-eye';
+  } else {
+    const full=code.textContent.replace(/••••••••••••••••/,'4f8a2b9c3d7e1f0a');
+    code.dataset.masked=code.textContent;
+    code.textContent=full;
+    code.dataset.revealed='1';
+    btn.querySelector('i').className='bi bi-eye-slash';
+  }
+}
+
+// Copy to clipboard
+function copyToClipboard(id){
+  const text=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    showSaveToast('Kopyalandı!','API anahtarı panoya kopyalandı','bi-clipboard-check');
+  });
+}
+
+// Maintenance toggle
+function toggleMaintenance(el){
+  const label=document.getElementById('maintLabel');
+  const status=document.getElementById('maintStatus');
+  const indicator=status.querySelector('.stg-maint-indicator');
+  if(el.checked){
+    label.textContent='Bakım Modu Aktif';
+    label.nextElementSibling.textContent='Kullanıcılar bakım sayfasını görüyor';
+    indicator.classList.remove('stg-maint-off');
+    indicator.classList.add('stg-maint-on');
+  } else {
+    label.textContent='Bakım Modu Kapalı';
+    label.nextElementSibling.textContent='Sistem normal çalışıyor';
+    indicator.classList.remove('stg-maint-on');
+    indicator.classList.add('stg-maint-off');
+  }
+}
+
+// Test email
+function sendTestEmail(){
+  const email=document.getElementById('testEmailInput').value;
+  if(!email){
+    showSaveToast('Hata','Lütfen bir e-posta adresi girin','bi-exclamation-circle','var(--neon-red)');
+    return;
+  }
+  showSaveToast('Gönderildi!','Test e-postası '+email+' adresine gönderildi','bi-envelope-check','var(--neon-green)');
+}
+
+// Save all
+function saveAllSettings(){
+  showSaveToast('Kaydedildi!','Tüm ayarlar başarıyla kaydedildi','bi-check-circle-fill','var(--neon-green)');
+}
+
+// Toast notification
+function showSaveToast(title,msg,icon,clr){
+  title=title||'Kaydedildi!';
+  msg=msg||'Ayarlar başarıyla kaydedildi';
+  icon=icon||'bi-check-circle-fill';
+  clr=clr||'var(--neon-green)';
+
+  const existing=document.querySelector('.stg-toast');
+  if(existing) existing.remove();
+
+  const toast=document.createElement('div');
+  toast.className='stg-toast stg-toast-show';
+  toast.innerHTML=`<i class="bi ${icon} ${cls} fs-20"></i><div><strong>${title}</strong><small>${msg}</small></div><button onclick="this.parentElement.remove()" class="prf-toast-btn text-clr-muted"><i class="bi bi-x-lg"></i></button>`;
+  document.body.appendChild(toast);
+  setTimeout(()=>{toast.classList.add('stg-toast-hide');setTimeout(()=>toast.remove(),300)},3000);
+}
+</script>
+</body>
+</html>

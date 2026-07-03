@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Rapor Merkezi</title>
+  <meta name="description" content="OZAN Admin Panel - Satış, müşteri, ürün ve finansal raporları oluşturun, planlayın ve indirin">
+  <link rel="canonical" href="https://admin.ozan.dev/reports.html">
+  <meta property="og:title" content="OZAN Admin - Rapor Merkezi">
+  <meta property="og:description" content="Gelişmiş rapor oluşturma, zamanlama ve analiz merkezi">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Raporlar</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Rapor Merkezi</h1>
+          <p class="page-subtitle">Satış, müşteri ve ürün raporlarını oluşturun, planlayın ve indirin</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="rpr-date-range">
+            <i class="bi bi-calendar3"></i>
+            <select class="rpr-date-select" id="globalDateRange" onchange="changeGlobalRange(this.value)">
+              <option value="week">Bu Hafta</option>
+              <option value="month" selected>Bu Ay</option>
+              <option value="quarter">Bu Çeyrek</option>
+              <option value="year">Bu Yıl</option>
+              <option value="custom">Özel Aralık</option>
+            </select>
+          </div>
+          <button class="btn-teal" onclick="openCustomReportModal()">
+            <i class="bi bi-plus-lg"></i> Özel Rapor
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: KPI CARDS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-blue">
+              <i class="bi bi-file-earmark-bar-graph"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Rapor</span>
+              <h3 class="usr-stat-value" data-target="284">284</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 18 yeni bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-green">
+              <i class="bi bi-download"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Bu Ay İndirilen</span>
+              <h3 class="usr-stat-value" data-target="1347">1347</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 23.4% geçen aya göre</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-purple">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Otomatik Raporlar</span>
+              <h3 class="usr-stat-value" data-target="12">12</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-check-circle"></i> Tümü çalışıyor</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-orange">
+              <i class="bi bi-alarm"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Planlanan</span>
+              <h3 class="usr-stat-value" data-target="5">5</h3>
+              <span class="usr-stat-change neutral"><i class="bi bi-calendar-event"></i> Sonraki: yarın 08:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: QUICK REPORTS ==================== -->
+      <div class="d-flex align-items-center justify-content-between mb-3" data-aos="fade-up">
+        <h2 class="rpr-section-title">Hızlı Rapor Oluştur</h2>
+        <span class="rpr-section-sub">6 rapor türü mevcut</span>
+      </div>
+
+      <div class="row g-4 mb-4">
+
+        <!-- Satış Raporu -->
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="rpr-quick-card rpr-quick-teal">
+            <div class="rpr-quick-header">
+              <div class="rpr-quick-icon"><i class="bi bi-graph-up-arrow"></i></div>
+              <div class="rpr-quick-badges">
+                <span class="rpr-format-badge pdf">PDF</span>
+                <span class="rpr-format-badge excel">Excel</span>
+                <span class="rpr-format-badge csv">CSV</span>
+              </div>
+            </div>
+            <h4 class="rpr-quick-title">Satış Raporu</h4>
+            <p class="rpr-quick-desc">Günlük, haftalık ve aylık satış verilerini, dönüşüm oranlarını ve gelir analizini içerir.</p>
+            <div class="rpr-quick-meta">
+              <span><i class="bi bi-clock me-1"></i>Son: 22 Şub 2026</span>
+              <span><i class="bi bi-download me-1"></i>412 indirme</span>
+            </div>
+            <div class="rpr-quick-actions">
+              <button class="btn-teal rpr-generate-btn" onclick="generateReport('sales')">
+                <i class="bi bi-play-circle me-1"></i> Oluştur
+              </button>
+              <button class="btn-glass rpr-schedule-btn" onclick="openScheduleModal('sales')" title="Planla">
+                <i class="bi bi-alarm"></i>
+              </button>
+              <button class="btn-glass rpr-preview-btn" onclick="openPreviewModal('sales')" title="Önizle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Müşteri Analizi -->
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="80">
+          <div class="rpr-quick-card rpr-quick-blue">
+            <div class="rpr-quick-header">
+              <div class="rpr-quick-icon"><i class="bi bi-people"></i></div>
+              <div class="rpr-quick-badges">
+                <span class="rpr-format-badge pdf">PDF</span>
+                <span class="rpr-format-badge excel">Excel</span>
+              </div>
+            </div>
+            <h4 class="rpr-quick-title">Müşteri Analizi</h4>
+            <p class="rpr-quick-desc">Yeni/tekrar müşteriler, yaşam boyu değer (LTV), segment analizi ve kayıp müşteri verilerini gösterir.</p>
+            <div class="rpr-quick-meta">
+              <span><i class="bi bi-clock me-1"></i>Son: 20 Şub 2026</span>
+              <span><i class="bi bi-download me-1"></i>238 indirme</span>
+            </div>
+            <div class="rpr-quick-actions">
+              <button class="btn-teal rpr-generate-btn" onclick="generateReport('customers')">
+                <i class="bi bi-play-circle me-1"></i> Oluştur
+              </button>
+              <button class="btn-glass rpr-schedule-btn" onclick="openScheduleModal('customers')" title="Planla">
+                <i class="bi bi-alarm"></i>
+              </button>
+              <button class="btn-glass rpr-preview-btn" onclick="openPreviewModal('customers')" title="Önizle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ürün Performansı -->
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="160">
+          <div class="rpr-quick-card rpr-quick-purple">
+            <div class="rpr-quick-header">
+              <div class="rpr-quick-icon"><i class="bi bi-box-seam"></i></div>
+              <div class="rpr-quick-badges">
+                <span class="rpr-format-badge pdf">PDF</span>
+                <span class="rpr-format-badge excel">Excel</span>
+                <span class="rpr-format-badge csv">CSV</span>
+              </div>
+            </div>
+            <h4 class="rpr-quick-title">Ürün Performansı</h4>
+            <p class="rpr-quick-desc">En çok satan ürünler, kategori bazlı performans, iade oranları ve kar marjı analizi.</p>
+            <div class="rpr-quick-meta">
+              <span><i class="bi bi-clock me-1"></i>Son: 21 Şub 2026</span>
+              <span><i class="bi bi-download me-1"></i>319 indirme</span>
+            </div>
+            <div class="rpr-quick-actions">
+              <button class="btn-teal rpr-generate-btn" onclick="generateReport('products')">
+                <i class="bi bi-play-circle me-1"></i> Oluştur
+              </button>
+              <button class="btn-glass rpr-schedule-btn" onclick="openScheduleModal('products')" title="Planla">
+                <i class="bi bi-alarm"></i>
+              </button>
+              <button class="btn-glass rpr-preview-btn" onclick="openPreviewModal('products')" title="Önizle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stok Durumu -->
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="rpr-quick-card rpr-quick-orange">
+            <div class="rpr-quick-header">
+              <div class="rpr-quick-icon"><i class="bi bi-archive"></i></div>
+              <div class="rpr-quick-badges">
+                <span class="rpr-format-badge excel">Excel</span>
+                <span class="rpr-format-badge csv">CSV</span>
+              </div>
+            </div>
+            <h4 class="rpr-quick-title">Stok Durumu</h4>
+            <p class="rpr-quick-desc">Kritik stok seviyeleri, tükenen ürünler, stok devir hızı ve sipariş tahminleri.</p>
+            <div class="rpr-quick-meta">
+              <span><i class="bi bi-clock me-1"></i>Son: Bugün 06:00</span>
+              <span><i class="bi bi-download me-1"></i>187 indirme</span>
+            </div>
+            <div class="rpr-quick-actions">
+              <button class="btn-teal rpr-generate-btn" onclick="generateReport('stock')">
+                <i class="bi bi-play-circle me-1"></i> Oluştur
+              </button>
+              <button class="btn-glass rpr-schedule-btn" onclick="openScheduleModal('stock')" title="Planla">
+                <i class="bi bi-alarm"></i>
+              </button>
+              <button class="btn-glass rpr-preview-btn" onclick="openPreviewModal('stock')" title="Önizle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finansal Özet -->
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="80">
+          <div class="rpr-quick-card rpr-quick-green">
+            <div class="rpr-quick-header">
+              <div class="rpr-quick-icon"><i class="bi bi-cash-stack"></i></div>
+              <div class="rpr-quick-badges">
+                <span class="rpr-format-badge pdf">PDF</span>
+                <span class="rpr-format-badge excel">Excel</span>
+              </div>
+            </div>
+            <h4 class="rpr-quick-title">Finansal Özet</h4>
+            <p class="rpr-quick-desc">Gelir-gider dengesi, brüt/net kar oranları, KDV özetleri ve aylık kar/zarar tablosu.</p>
+            <div class="rpr-quick-meta">
+              <span><i class="bi bi-clock me-1"></i>Son: 1 Şub 2026</span>
+              <span><i class="bi bi-download me-1"></i>94 indirme</span>
+            </div>
+            <div class="rpr-quick-actions">
+              <button class="btn-teal rpr-generate-btn" onclick="generateReport('financial')">
+                <i class="bi bi-play-circle me-1"></i> Oluştur
+              </button>
+              <button class="btn-glass rpr-schedule-btn" onclick="openScheduleModal('financial')" title="Planla">
+                <i class="bi bi-alarm"></i>
+              </button>
+              <button class="btn-glass rpr-preview-btn" onclick="openPreviewModal('financial')" title="Önizle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kampanya Raporu -->
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="160">
+          <div class="rpr-quick-card rpr-quick-pink">
+            <div class="rpr-quick-header">
+              <div class="rpr-quick-icon"><i class="bi bi-megaphone"></i></div>
+              <div class="rpr-quick-badges">
+                <span class="rpr-format-badge pdf">PDF</span>
+                <span class="rpr-format-badge excel">Excel</span>
+              </div>
+            </div>
+            <h4 class="rpr-quick-title">Kampanya Raporu</h4>
+            <p class="rpr-quick-desc">Aktif ve tamamlanan kampanyaların ROI, dönüşüm oranı ve müşteri kazanım maliyeti analizi.</p>
+            <div class="rpr-quick-meta">
+              <span><i class="bi bi-clock me-1"></i>Son: 18 Şub 2026</span>
+              <span><i class="bi bi-download me-1"></i>97 indirme</span>
+            </div>
+            <div class="rpr-quick-actions">
+              <button class="btn-teal rpr-generate-btn" onclick="generateReport('campaigns')">
+                <i class="bi bi-play-circle me-1"></i> Oluştur
+              </button>
+              <button class="btn-glass rpr-schedule-btn" onclick="openScheduleModal('campaigns')" title="Planla">
+                <i class="bi bi-alarm"></i>
+              </button>
+              <button class="btn-glass rpr-preview-btn" onclick="openPreviewModal('campaigns')" title="Önizle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /quick reports -->
+
+
+      <!-- ==================== SECTION 3: CHARTS ==================== -->
+      <div class="row g-4 mb-4">
+
+        <!-- Monthly Trend Chart -->
+        <div class="col-xl-8" data-aos="fade-up" data-aos-delay="0">
+          <div class="card-dark h-100">
+            <div class="card-body-custom">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                <div>
+                  <h5 class="rpr-chart-title">Aylık Rapor Aktivitesi</h5>
+                  <p class="rpr-chart-sub">Oluşturulan ve indirilen rapor sayıları</p>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="rpr-chart-tab active" onclick="switchTrendView('generated', this)">Oluşturulan</button>
+                  <button class="rpr-chart-tab" onclick="switchTrendView('downloaded', this)">İndirilen</button>
+                </div>
+              </div>
+              <div class="rpr-chart-wrap">
+                <canvas id="reportTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribution Doughnut -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-dark h-100">
+            <div class="card-body-custom">
+              <h5 class="rpr-chart-title mb-1">Rapor Türü Dağılımı</h5>
+              <p class="rpr-chart-sub mb-4">Bu ayki oluşturulan raporlar</p>
+              <div class="rpr-doughnut-wrap">
+                <canvas id="reportTypeChart"></canvas>
+              </div>
+              <div class="rpr-doughnut-legend" id="reportTypeLegend"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /charts -->
+
+
+      <!-- ==================== SECTION 4: SCHEDULED REPORTS ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="0">
+        <div class="card-body-custom">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+              <h5 class="rpr-chart-title">Zamanlanan Raporlar</h5>
+              <p class="rpr-chart-sub">Otomatik çalışan ve planlanan raporlar</p>
+            </div>
+            <button class="btn-teal btn-sm" onclick="openScheduleModal(null)">
+              <i class="bi bi-plus-lg me-1"></i> Yeni Plan
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover cl-table mb-0">
+              <thead>
+                <tr>
+                  <th>Rapor Adı</th>
+                  <th class="d-none d-md-table-cell">Sıklık</th>
+                  <th class="d-none d-lg-table-cell">Son Çalışma</th>
+                  <th class="d-none d-xl-table-cell">Sonraki</th>
+                  <th>Format</th>
+                  <th>Durum</th>
+                  <th class="cl-th-actions">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="scheduledTableBody">
+
+                <tr data-aos="fade-right" data-aos-delay="0">
+                  <td>
+                    <div class="rpr-sched-name">
+                      <div class="rpr-sched-icon rpr-sched-icon-teal"><i class="bi bi-graph-up-arrow"></i></div>
+                      <div>
+                        <span class="rpr-sched-title">Haftalık Satış Raporu</span>
+                        <span class="rpr-sched-sub">sales@ozan.dev</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="d-none d-md-table-cell"><span class="rpr-freq-badge">Her Pazartesi</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">17 Şub 2026, 08:00</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="rpr-next-date text-neon-green">24 Şub 2026, 08:00</span></td>
+                  <td><span class="rpr-format-badge pdf">PDF</span></td>
+                  <td><span class="rpr-status-badge active">Aktif</span></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Düzenle" onclick="editSchedule(1)"><i class="bi bi-pencil"></i></button>
+                      <button class="usr-action-btn" title="Şimdi Çalıştır" onclick="runScheduleNow(1)"><i class="bi bi-play-fill"></i></button>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteSchedule(1)"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-aos="fade-right" data-aos-delay="60">
+                  <td>
+                    <div class="rpr-sched-name">
+                      <div class="rpr-sched-icon rpr-sched-icon-blue"><i class="bi bi-people"></i></div>
+                      <div>
+                        <span class="rpr-sched-title">Aylık Müşteri Özeti</span>
+                        <span class="rpr-sched-sub">crm@ozan.dev</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="d-none d-md-table-cell"><span class="rpr-freq-badge">Her Ayın 1'i</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">1 Şub 2026, 09:00</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="rpr-next-date text-neon-green">1 Mar 2026, 09:00</span></td>
+                  <td><span class="rpr-format-badge excel">Excel</span></td>
+                  <td><span class="rpr-status-badge active">Aktif</span></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Düzenle" onclick="editSchedule(2)"><i class="bi bi-pencil"></i></button>
+                      <button class="usr-action-btn" title="Şimdi Çalıştır" onclick="runScheduleNow(2)"><i class="bi bi-play-fill"></i></button>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteSchedule(2)"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-aos="fade-right" data-aos-delay="120">
+                  <td>
+                    <div class="rpr-sched-name">
+                      <div class="rpr-sched-icon rpr-sched-icon-orange"><i class="bi bi-archive"></i></div>
+                      <div>
+                        <span class="rpr-sched-title">Günlük Stok Uyarı Raporu</span>
+                        <span class="rpr-sched-sub">depo@ozan.dev</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="d-none d-md-table-cell"><span class="rpr-freq-badge">Her Gün</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">22 Şub 2026, 06:00</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="rpr-next-date text-neon-green">23 Şub 2026, 06:00</span></td>
+                  <td><span class="rpr-format-badge csv">CSV</span></td>
+                  <td><span class="rpr-status-badge active">Aktif</span></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Düzenle" onclick="editSchedule(3)"><i class="bi bi-pencil"></i></button>
+                      <button class="usr-action-btn" title="Şimdi Çalıştır" onclick="runScheduleNow(3)"><i class="bi bi-play-fill"></i></button>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteSchedule(3)"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-aos="fade-right" data-aos-delay="180">
+                  <td>
+                    <div class="rpr-sched-name">
+                      <div class="rpr-sched-icon rpr-sched-icon-pink"><i class="bi bi-megaphone"></i></div>
+                      <div>
+                        <span class="rpr-sched-title">Kampanya Analizi</span>
+                        <span class="rpr-sched-sub">marketing@ozan.dev</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="d-none d-md-table-cell"><span class="rpr-freq-badge">Her Cuma</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">21 Şub 2026, 17:00</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="rpr-next-date text-neon-orange">28 Şub 2026, 17:00</span></td>
+                  <td><span class="rpr-format-badge pdf">PDF</span></td>
+                  <td><span class="rpr-status-badge inactive">Pasif</span></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Düzenle" onclick="editSchedule(4)"><i class="bi bi-pencil"></i></button>
+                      <button class="usr-action-btn success" title="Aktif Et" onclick="toggleSchedule(4, true)"><i class="bi bi-play-fill"></i></button>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteSchedule(4)"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-aos="fade-right" data-aos-delay="240">
+                  <td>
+                    <div class="rpr-sched-name">
+                      <div class="rpr-sched-icon rpr-sched-icon-green"><i class="bi bi-cash-stack"></i></div>
+                      <div>
+                        <span class="rpr-sched-title">Yönetici Finansal Özet</span>
+                        <span class="rpr-sched-sub">cfo@ozan.dev</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="d-none d-md-table-cell"><span class="rpr-freq-badge">Her Pazar</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">16 Şub 2026, 07:00</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="rpr-next-date text-neon-green">23 Şub 2026, 07:00</span></td>
+                  <td><span class="rpr-format-badge pdf">PDF</span></td>
+                  <td><span class="rpr-status-badge active">Aktif</span></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Düzenle" onclick="editSchedule(5)"><i class="bi bi-pencil"></i></button>
+                      <button class="usr-action-btn" title="Şimdi Çalıştır" onclick="runScheduleNow(5)"><i class="bi bi-play-fill"></i></button>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteSchedule(5)"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 5: RECENT DOWNLOADS ==================== -->
+      <div class="card-dark" data-aos="fade-up" data-aos-delay="0">
+        <div class="card-body-custom">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+              <h5 class="rpr-chart-title">Son İndirilenler</h5>
+              <p class="rpr-chart-sub">Oluşturulan ve indirilen son raporlar</p>
+            </div>
+            <div class="cl-search" style="max-width:260px">
+              <i class="bi bi-search"></i>
+              <input type="text" id="downloadSearch" placeholder="Rapor ara..." oninput="filterDownloads()">
+            </div>
+          </div>
+
+          <div class="rpr-download-list" id="downloadList">
+
+            <div class="rpr-download-item" data-name="satış" data-aos="fade-up" data-aos-delay="0">
+              <div class="rpr-dl-icon rpr-dl-icon-pdf"><i class="bi bi-filetype-pdf"></i></div>
+              <div class="rpr-dl-info">
+                <span class="rpr-dl-name">Satış_Raporu_Şubat_2026.pdf</span>
+                <div class="rpr-dl-meta">
+                  <span><i class="bi bi-clock me-1"></i>22 Şub 2026, 14:32</span>
+                  <span><i class="bi bi-hdd me-1"></i>2.4 MB</span>
+                  <span class="rpr-dl-type-label">Satış Raporu</span>
+                </div>
+              </div>
+              <div class="rpr-dl-actions">
+                <div class="rpr-dl-progress-wrap">
+                  <div class="rpr-dl-progress" style="width:100%"></div>
+                </div>
+                <button class="btn-glass btn-sm" onclick="downloadFile('Satış_Raporu_Şubat_2026.pdf')">
+                  <i class="bi bi-download me-1"></i> İndir
+                </button>
+                <button class="btn-glass btn-sm" onclick="openPreviewModal('sales')" title="Önizle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="rpr-download-item" data-name="müşteri" data-aos="fade-up" data-aos-delay="50">
+              <div class="rpr-dl-icon rpr-dl-icon-excel"><i class="bi bi-filetype-xlsx"></i></div>
+              <div class="rpr-dl-info">
+                <span class="rpr-dl-name">Musteri_Analizi_Q1_2026.xlsx</span>
+                <div class="rpr-dl-meta">
+                  <span><i class="bi bi-clock me-1"></i>21 Şub 2026, 10:15</span>
+                  <span><i class="bi bi-hdd me-1"></i>1.8 MB</span>
+                  <span class="rpr-dl-type-label">Müşteri Analizi</span>
+                </div>
+              </div>
+              <div class="rpr-dl-actions">
+                <div class="rpr-dl-progress-wrap">
+                  <div class="rpr-dl-progress" style="width:100%"></div>
+                </div>
+                <button class="btn-glass btn-sm" onclick="downloadFile('Musteri_Analizi_Q1_2026.xlsx')">
+                  <i class="bi bi-download me-1"></i> İndir
+                </button>
+                <button class="btn-glass btn-sm" onclick="openPreviewModal('customers')" title="Önizle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="rpr-download-item" data-name="stok" data-aos="fade-up" data-aos-delay="100">
+              <div class="rpr-dl-icon rpr-dl-icon-csv"><i class="bi bi-filetype-csv"></i></div>
+              <div class="rpr-dl-info">
+                <span class="rpr-dl-name">Stok_Durumu_22Şubat.csv</span>
+                <div class="rpr-dl-meta">
+                  <span><i class="bi bi-clock me-1"></i>22 Şub 2026, 06:00</span>
+                  <span><i class="bi bi-hdd me-1"></i>456 KB</span>
+                  <span class="rpr-dl-type-label">Stok Durumu</span>
+                </div>
+              </div>
+              <div class="rpr-dl-actions">
+                <div class="rpr-dl-progress-wrap">
+                  <div class="rpr-dl-progress" style="width:100%"></div>
+                </div>
+                <button class="btn-glass btn-sm" onclick="downloadFile('Stok_Durumu_22Şubat.csv')">
+                  <i class="bi bi-download me-1"></i> İndir
+                </button>
+                <button class="btn-glass btn-sm" onclick="openPreviewModal('stock')" title="Önizle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="rpr-download-item" data-name="finansal" data-aos="fade-up" data-aos-delay="150">
+              <div class="rpr-dl-icon rpr-dl-icon-pdf"><i class="bi bi-filetype-pdf"></i></div>
+              <div class="rpr-dl-info">
+                <span class="rpr-dl-name">Finansal_Ozet_2025_Yillik.pdf</span>
+                <div class="rpr-dl-meta">
+                  <span><i class="bi bi-clock me-1"></i>20 Şub 2026, 09:30</span>
+                  <span><i class="bi bi-hdd me-1"></i>5.2 MB</span>
+                  <span class="rpr-dl-type-label">Finansal Özet</span>
+                </div>
+              </div>
+              <div class="rpr-dl-actions">
+                <div class="rpr-dl-progress-wrap">
+                  <div class="rpr-dl-progress" style="width:100%"></div>
+                </div>
+                <button class="btn-glass btn-sm" onclick="downloadFile('Finansal_Ozet_2025_Yillik.pdf')">
+                  <i class="bi bi-download me-1"></i> İndir
+                </button>
+                <button class="btn-glass btn-sm" onclick="openPreviewModal('financial')" title="Önizle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="rpr-download-item" data-name="kampanya" data-aos="fade-up" data-aos-delay="200">
+              <div class="rpr-dl-icon rpr-dl-icon-pdf"><i class="bi bi-filetype-pdf"></i></div>
+              <div class="rpr-dl-info">
+                <span class="rpr-dl-name">Kampanya_Analizi_Ocak_2026.pdf</span>
+                <div class="rpr-dl-meta">
+                  <span><i class="bi bi-clock me-1"></i>19 Şub 2026, 17:05</span>
+                  <span><i class="bi bi-hdd me-1"></i>1.1 MB</span>
+                  <span class="rpr-dl-type-label">Kampanya Raporu</span>
+                </div>
+              </div>
+              <div class="rpr-dl-actions">
+                <div class="rpr-dl-progress-wrap">
+                  <div class="rpr-dl-progress" style="width:100%"></div>
+                </div>
+                <button class="btn-glass btn-sm" onclick="downloadFile('Kampanya_Analizi_Ocak_2026.pdf')">
+                  <i class="bi bi-download me-1"></i> İndir
+                </button>
+                <button class="btn-glass btn-sm" onclick="openPreviewModal('campaigns')" title="Önizle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="rpr-download-item" data-name="satış haftalık" data-aos="fade-up" data-aos-delay="250">
+              <div class="rpr-dl-icon rpr-dl-icon-excel"><i class="bi bi-filetype-xlsx"></i></div>
+              <div class="rpr-dl-info">
+                <span class="rpr-dl-name">Haftalık_Satış_17Şubat.xlsx</span>
+                <div class="rpr-dl-meta">
+                  <span><i class="bi bi-clock me-1"></i>17 Şub 2026, 08:01</span>
+                  <span><i class="bi bi-hdd me-1"></i>892 KB</span>
+                  <span class="rpr-dl-type-label">Satış Raporu</span>
+                </div>
+              </div>
+              <div class="rpr-dl-actions">
+                <div class="rpr-dl-progress-wrap">
+                  <div class="rpr-dl-progress" style="width:100%"></div>
+                </div>
+                <button class="btn-glass btn-sm" onclick="downloadFile('Haftalık_Satış_17Şubat.xlsx')">
+                  <i class="bi bi-download me-1"></i> İndir
+                </button>
+                <button class="btn-glass btn-sm" onclick="openPreviewModal('sales')" title="Önizle">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+          </div><!-- /download-list -->
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== MODAL: CUSTOM REPORT ==================== -->
+<div class="modal fade" id="customReportModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-sliders me-2"></i>Özel Rapor Oluştur</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+
+          <!-- Report Type -->
+          <div class="col-md-6">
+            <label class="form-label">Rapor Türü <span class="text-danger">*</span></label>
+            <select class="form-select" id="customReportType">
+              <option value="">Seçin...</option>
+              <option value="sales">Satış Raporu</option>
+              <option value="customers">Müşteri Analizi</option>
+              <option value="products">Ürün Performansı</option>
+              <option value="stock">Stok Durumu</option>
+              <option value="financial">Finansal Özet</option>
+              <option value="campaigns">Kampanya Raporu</option>
+            </select>
+          </div>
+
+          <!-- Format -->
+          <div class="col-md-6">
+            <label class="form-label">Çıktı Formatı <span class="text-danger">*</span></label>
+            <div class="d-flex gap-3 mt-1">
+              <label class="rpr-format-radio">
+                <input type="radio" name="customFormat" value="pdf" checked>
+                <span><i class="bi bi-filetype-pdf text-neon-red"></i> PDF</span>
+              </label>
+              <label class="rpr-format-radio">
+                <input type="radio" name="customFormat" value="excel">
+                <span><i class="bi bi-filetype-xlsx text-neon-green"></i> Excel</span>
+              </label>
+              <label class="rpr-format-radio">
+                <input type="radio" name="customFormat" value="csv">
+                <span><i class="bi bi-filetype-csv text-neon-blue"></i> CSV</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Date Range -->
+          <div class="col-md-6">
+            <label class="form-label">Başlangıç Tarihi</label>
+            <input type="date" class="form-control" id="customStartDate" value="2026-02-01">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Bitiş Tarihi</label>
+            <input type="date" class="form-control" id="customEndDate" value="2026-02-22">
+          </div>
+
+          <!-- Columns -->
+          <div class="col-12">
+            <label class="form-label">Dahil Edilecek Alanlar</label>
+            <div class="rpr-columns-grid" id="customColumns">
+              <label class="rpr-col-checkbox"><input type="checkbox" checked> <span>Tarih</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox" checked> <span>Sipariş No</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox" checked> <span>Müşteri</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox" checked> <span>Ürün</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox" checked> <span>Tutar</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox" checked> <span>Durum</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox"> <span>Kargo</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox"> <span>Ödeme Yöntemi</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox"> <span>Vergi</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox"> <span>İndirim</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox"> <span>Maliyet</span></label>
+              <label class="rpr-col-checkbox"><input type="checkbox"> <span>Kar Marjı</span></label>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="col-md-6">
+            <label class="form-label">Durum Filtresi</label>
+            <select class="form-select" id="customStatusFilter">
+              <option value="">Tümü</option>
+              <option value="delivered">Teslim Edildi</option>
+              <option value="pending">Bekleyen</option>
+              <option value="cancelled">İptal</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Kategori Filtresi</label>
+            <select class="form-select" id="customCategoryFilter">
+              <option value="">Tüm Kategoriler</option>
+              <option value="electronics">Elektronik</option>
+              <option value="clothing">Giyim</option>
+              <option value="cosmetics">Kozmetik</option>
+              <option value="sports">Spor</option>
+            </select>
+          </div>
+
+          <!-- Note -->
+          <div class="col-12">
+            <label class="form-label">Rapor Notu (Opsiyonel)</label>
+            <textarea class="form-control" rows="2" id="customNote" placeholder="Rapor başlığına veya footer'a eklenecek not..."></textarea>
+          </div>
+
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-glass" onclick="previewCustomReport()">
+            <i class="bi bi-eye me-1"></i> Önizle
+          </button>
+          <button class="btn-teal" onclick="buildCustomReport()">
+            <i class="bi bi-download me-1"></i> Oluştur & İndir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: REPORT PREVIEW ==================== -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-eye me-2"></i><span id="previewModalTitle">Satış Raporu Önizleme</span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Download Actions -->
+        <div class="d-flex gap-2 mb-4 flex-wrap">
+          <button class="btn-teal btn-sm" onclick="downloadPreviewReport()">
+            <i class="bi bi-filetype-pdf me-1"></i>PDF İndir
+          </button>
+          <button class="btn-glass btn-sm" onclick="downloadPreviewReport('excel')">
+            <i class="bi bi-filetype-xlsx me-1"></i>Excel İndir
+          </button>
+          <button class="btn-glass btn-sm" onclick="downloadPreviewReport('csv')">
+            <i class="bi bi-filetype-csv me-1"></i>CSV İndir
+          </button>
+        </div>
+
+        <!-- Summary metrics -->
+        <div class="row g-3 mb-4" id="previewMetrics">
+          <div class="col-6 col-md-3">
+            <div class="rpr-preview-metric">
+              <span class="rpr-preview-metric-label">Toplam Kayıt</span>
+              <strong class="rpr-preview-metric-value" id="previewTotalRecords">8.432</strong>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="rpr-preview-metric">
+              <span class="rpr-preview-metric-label">Toplam Tutar</span>
+              <strong class="rpr-preview-metric-value text-neon-green" id="previewTotalAmount">₺2.84M</strong>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="rpr-preview-metric">
+              <span class="rpr-preview-metric-label">Tarih Aralığı</span>
+              <strong class="rpr-preview-metric-value" id="previewDateRange">Şubat 2026</strong>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="rpr-preview-metric">
+              <span class="rpr-preview-metric-label">Rapor Türü</span>
+              <strong class="rpr-preview-metric-value text-teal" id="previewType">Satış</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Chart -->
+        <div class="rpr-preview-chart-wrap mb-4">
+          <canvas id="previewChart" height="90"></canvas>
+        </div>
+
+        <!-- Preview Table -->
+        <div class="table-responsive">
+          <table class="table cl-table mb-0" id="previewTable">
+            <thead id="previewTableHead"></thead>
+            <tbody id="previewTableBody"></tbody>
+          </table>
+        </div>
+        <p class="text-muted text-center mt-2 small">İlk 10 kayıt gösterilmektedir. İndir butonuna basarak tam raporu alın.</p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: SCHEDULE REPORT ==================== -->
+<div class="modal fade" id="scheduleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-alarm me-2"></i>Rapor Planla</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label">Rapor Türü <span class="text-danger">*</span></label>
+            <select class="form-select" id="schedReportType">
+              <option value="">Seçin...</option>
+              <option value="sales">Satış Raporu</option>
+              <option value="customers">Müşteri Analizi</option>
+              <option value="products">Ürün Performansı</option>
+              <option value="stock">Stok Durumu</option>
+              <option value="financial">Finansal Özet</option>
+              <option value="campaigns">Kampanya Raporu</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Sıklık <span class="text-danger">*</span></label>
+            <select class="form-select" id="schedFrequency" onchange="updateScheduleDay()">
+              <option value="daily">Günlük</option>
+              <option value="weekly" selected>Haftalık</option>
+              <option value="monthly">Aylık</option>
+            </select>
+          </div>
+
+          <div class="col-md-6" id="schedDayWrap">
+            <label class="form-label">Gün</label>
+            <select class="form-select" id="schedDay">
+              <option value="1">Pazartesi</option>
+              <option value="2">Salı</option>
+              <option value="3">Çarşamba</option>
+              <option value="4">Perşembe</option>
+              <option value="5">Cuma</option>
+              <option value="6">Cumartesi</option>
+              <option value="0">Pazar</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Saat</label>
+            <input type="time" class="form-control" id="schedTime" value="08:00">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Format</label>
+            <select class="form-select" id="schedFormat">
+              <option value="pdf">PDF</option>
+              <option value="excel">Excel</option>
+              <option value="csv">CSV</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Gönderim E-postası <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="schedEmail" placeholder="rapor@sirket.com">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Başlangıç Tarihi</label>
+            <input type="date" class="form-control" id="schedStartDate" value="2026-02-24">
+          </div>
+
+          <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+              <label class="form-label mb-0">Hemen Aktifleştir</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="schedActive" checked>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" onclick="saveSchedule()">
+            <i class="bi bi-alarm-fill me-1"></i> Planla
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MODAL: DELETE CONFIRM ==================== -->
+<div class="modal fade" id="deleteScheduleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="status-modal-icon danger">
+          <i class="bi bi-trash"></i>
+        </div>
+        <h5 class="cl-modal-heading">Planlamayı Sil</h5>
+        <p class="cl-modal-body-text"><strong id="deleteScheduleName"></strong> planlamasını silmek istediğinizden emin misiniz?</p>
+        <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmDeleteSchedule()">
+            <i class="bi bi-trash me-1"></i> Evet, Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="reports.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap | Orhan Baba'nın Çiftliği</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Orhan Baba'nın Çiftliği hesabınıza giriş yapın. Siparişlerinizi takip edin, favori ürünlerinizi kaydedin.">
+    <meta name="keywords" content="giriş yap, hesap, üye girişi">
+    <meta name="author" content="Orhan Baba'nın Çiftliği">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://orhanbabaciftlik.com/giris.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Giriş Yap | Orhan Baba'nın Çiftliği">
+    <meta property="og:description" content="Orhan Baba'nın Çiftliği hesabınıza giriş yapın. Siparişlerinizi takip edin, favori ürünlerinizi kaydedin.">
+    <meta property="og:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+    <meta property="og:url" content="https://orhanbabaciftlik.com/giris.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Orhan Baba'nın Çiftliği">
+    <meta property="og:locale" content="tr_TR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Giriş Yap | Orhan Baba'nın Çiftliği">
+    <meta name="twitter:description" content="Orhan Baba'nın Çiftliği hesabınıza giriş yapın. Siparişlerinizi takip edin, favori ürünlerinizi kaydedin.">
+    <meta name="twitter:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+
+    <!-- Preconnect & DNS Prefetch -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        
+
+        /* Auth Layout */
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Left Side - Decorative */
+        .auth-left {
+            flex: 1;
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .auth-left-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+        }
+
+        .auth-logo {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-logo i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .auth-left h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .auth-left p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 400px;
+            line-height: 1.8;
+        }
+
+        /* Testimonial */
+        .auth-testimonial {
+            margin-top: 50px;
+            padding: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .testimonial-avatar i {
+            font-size: 1.5rem;
+            color: var(--green-pale);
+        }
+
+        .testimonial-info strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .testimonial-info span {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Right Side - Form */
+        .auth-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            background: white;
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-header .mobile-logo {
+            display: none;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 30px rgba(74, 124, 67, 0.3);
+        }
+
+        .auth-header .mobile-logo i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .auth-header h2 {
+            font-size: 2.2rem;
+            color: var(--green-dark);
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            color: var(--brown-light);
+            font-size: 1rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--green-dark);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .input-group-custom {
+            position: relative;
+        }
+
+        .input-group-custom > i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--brown-light);
+            font-size: 1.1rem;
+            z-index: 1;
+        }
+
+        .form-control {
+            padding: 16px 20px 16px 55px;
+            border: 2px solid var(--green-pale);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control.has-toggle {
+            padding-right: 55px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--green-primary);
+            box-shadow: 0 0 0 4px rgba(74, 124, 67, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--brown-light);
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--brown-light);
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1;
+        }
+
+        .password-toggle:hover {
+            color: var(--green-primary);
+        }
+
+        /* Remember Me & Forgot */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .form-check {
+            margin: 0;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--green-pale);
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--green-primary);
+            border-color: var(--green-primary);
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 4px rgba(74, 124, 67, 0.1);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            color: var(--brown);
+            font-size: 0.95rem;
+        }
+
+        .forgot-password {
+            color: var(--green-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            color: white;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(74, 124, 67, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(74, 124, 67, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Divider */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--green-pale);
+        }
+
+        .auth-divider span {
+            padding: 0 20px;
+            color: var(--brown-light);
+            font-size: 0.9rem;
+        }
+
+        /* Social Buttons */
+        .social-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--green-pale);
+            background: white;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-social:hover {
+            border-color: var(--green-primary);
+            background: var(--green-mist);
+        }
+
+        .btn-social.google { color: #db4437; }
+        .btn-social.facebook { color: #4267b2; }
+        .btn-social.apple { color: #000; }
+
+        /* Auth Footer */
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--brown-light);
+        }
+
+        .auth-footer a {
+            color: var(--green-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Back to Home */
+        .back-home {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .back-home:hover {
+            color: var(--green-pale);
+            gap: 12px;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fee;
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .auth-left {
+                display: none;
+            }
+
+            .auth-right {
+                padding: 40px 30px;
+            }
+
+            .auth-header .mobile-logo {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .auth-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .social-buttons {
+                flex-direction: column;
+            }
+
+            .btn-social {
+                padding: 12px;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Navigation - Accessibility -->
+    <a href="#main-content" class="skip-nav">Ana içeriğe geç</a>
+
+    <main id="main-content" role="main">
+    <div class="auth-container">
+        <!-- Left Side -->
+        <div class="auth-left">
+            <a href="index.html" class="back-home" role="navigation" aria-label="Geri dön">
+                <i class="fas fa-arrow-left"></i>
+                Ana Sayfa
+            </a>
+
+            <div class="auth-left-content animate-fade-up">
+                <div class="auth-logo">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h1>Tekrar Hoş Geldiniz!</h1>
+                <p>Hesabınıza giriş yapın ve doğal lezzetlerin dünyasına adım atın.</p>
+
+                <div class="auth-testimonial">
+                    <p class="testimonial-text">
+                        "Yıllardır aldığım en taze ve lezzetli ürünler. Köy peyniri ve balları harika!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="testimonial-info">
+                            <strong>Elif Demir</strong>
+                            <span>İstanbul, 3 yıllık müşteri</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="auth-right">
+            <div class="auth-form-container animate-fade-up">
+                <div class="auth-header">
+                    <div class="mobile-logo">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h2>Giriş Yap</h2>
+                    <p>Hesabınıza erişmek için bilgilerinizi girin</p>
+                </div>
+
+                <div class="error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText">E-posta veya şifre hatalı!</span>
+                </div>
+
+                <form id="loginForm" aria-label="Giriş Formu">
+                    <div class="form-group">
+                        <label class="form-label">E-posta</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" id="email" placeholder="ornek@email.com" required autocomplete="email">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Şifre</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control has-toggle" id="password" autocomplete="current-password" placeholder="Şifreniz" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="passwordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Beni hatırla
+                            </label>
+                        </div>
+                        <a href="sifremi-unuttum.html" class="forgot-password">Şifremi unuttum</a>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Giriş Yap
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>veya</span>
+                </div>
+
+                <div class="social-buttons">
+                    <button class="btn-social google">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button class="btn-social facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                    <button class="btn-social apple">
+                        <i class="fab fa-apple"></i>
+                    </button>
+                </div>
+
+                <div class="auth-footer">
+                    Hesabınız yok mu? <a href="kayit.html">Kayıt Ol</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="app.js" defer></script>
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('passwordIcon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Get stored user
+            const storedUser = safeJsonParse('user', null);
+
+            // Demo login check
+            if (storedUser && storedUser.email === email && storedUser.password === password) {
+                localStorage.setItem('isLoggedIn', 'true');
+                if (rememberMe) {
+                    localStorage.setItem('rememberedEmail', email);
+                }
+                window.location.href = 'hesabim.html';
+            } else if (email === 'demo@orhan.com' && password === 'demo123') {
+                // Demo account for testing
+                const demoUser = {
+                    firstName: 'Demo',
+                    lastName: 'Kullanıcı',
+                    email: 'demo@orhan.com',
+                    phone: '0532 123 45 67'
+                };
+                localStorage.setItem('user', JSON.stringify(demoUser));
+                localStorage.setItem('isLoggedIn', 'true');
+                window.location.href = 'hesabim.html';
+            } else {
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 3000);
+            }
+        });
+
+        // Check for remembered email
+        document.addEventListener('DOMContentLoaded', function() {
+            const rememberedEmail = localStorage.getItem('rememberedEmail');
+            if (rememberedEmail) {
+                document.getElementById('email').value = rememberedEmail;
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+
+        // Social login simulation
+        document.querySelectorAll('.btn-social').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('Sosyal medya ile giriş yakında aktif olacak!');
+            });
+        });
+
+    </script>
+</body>
+</html>

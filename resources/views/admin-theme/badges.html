@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Badges & Tags</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+          <h2>Rozetler & Etiketler</h2>
+          <p>Durum rozetleri, etiket sistemi, bildirim sayaçları ve interaktif bileşenler</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="index.html" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+
+      <!-- ==================== 1. DURUM ROZETLERİ ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-patch-check"></i></div>
+            <div><h6>Durum Rozetleri</h6><p>Solid, soft, outline ve pill varyantlarıyla durum bildiren rozetler</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-circle-fill text-info me-2 fs-8"></i>Solid Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg bdg-solid-teal">Aktif</span>
+                <span class="bdg bdg-solid-purple">Premium</span>
+                <span class="bdg bdg-solid-blue">Bilgi</span>
+                <span class="bdg bdg-solid-green">Onaylı</span>
+                <span class="bdg bdg-solid-orange">Beklemede</span>
+                <span class="bdg bdg-solid-red">Kritik</span>
+                <span class="bdg bdg-solid-pink">Yeni</span>
+              </div>
+              <div class="bdg-showcase mt-3">
+                <span class="bdg bdg-solid-teal bdg-pill">Aktif</span>
+                <span class="bdg bdg-solid-purple bdg-pill">Premium</span>
+                <span class="bdg bdg-solid-blue bdg-pill">Bilgi</span>
+                <span class="bdg bdg-solid-green bdg-pill">Onaylı</span>
+                <span class="bdg bdg-solid-orange bdg-pill">Beklemede</span>
+                <span class="bdg bdg-solid-red bdg-pill">Kritik</span>
+                <span class="bdg bdg-solid-pink bdg-pill">Yeni</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-circle text-info me-2 fs-8"></i>Soft Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg bdg-soft-teal">Aktif</span>
+                <span class="bdg bdg-soft-purple">Premium</span>
+                <span class="bdg bdg-soft-blue">Bilgi</span>
+                <span class="bdg bdg-soft-green">Onaylı</span>
+                <span class="bdg bdg-soft-orange">Beklemede</span>
+                <span class="bdg bdg-soft-red">Kritik</span>
+                <span class="bdg bdg-soft-pink">Yeni</span>
+              </div>
+              <div class="bdg-showcase mt-3">
+                <span class="bdg bdg-soft-teal bdg-pill">Aktif</span>
+                <span class="bdg bdg-soft-purple bdg-pill">Premium</span>
+                <span class="bdg bdg-soft-blue bdg-pill">Bilgi</span>
+                <span class="bdg bdg-soft-green bdg-pill">Onaylı</span>
+                <span class="bdg bdg-soft-orange bdg-pill">Beklemede</span>
+                <span class="bdg bdg-soft-red bdg-pill">Kritik</span>
+                <span class="bdg bdg-soft-pink bdg-pill">Yeni</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-dash-circle text-info me-2 fs-8"></i>Outline Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg bdg-outline-teal">Aktif</span>
+                <span class="bdg bdg-outline-purple">Premium</span>
+                <span class="bdg bdg-outline-blue">Bilgi</span>
+                <span class="bdg bdg-outline-green">Onaylı</span>
+                <span class="bdg bdg-outline-orange">Beklemede</span>
+                <span class="bdg bdg-outline-red">Kritik</span>
+                <span class="bdg bdg-outline-pink">Yeni</span>
+              </div>
+              <div class="bdg-showcase mt-3">
+                <span class="bdg bdg-outline-teal bdg-pill">Aktif</span>
+                <span class="bdg bdg-outline-purple bdg-pill">Premium</span>
+                <span class="bdg bdg-outline-blue bdg-pill">Bilgi</span>
+                <span class="bdg bdg-outline-green bdg-pill">Onaylı</span>
+                <span class="bdg bdg-outline-orange bdg-pill">Beklemede</span>
+                <span class="bdg bdg-outline-red bdg-pill">Kritik</span>
+                <span class="bdg bdg-outline-pink bdg-pill">Yeni</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-stars text-info me-2 fs-10"></i>Glass Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg bdg-glass-teal">Aktif</span>
+                <span class="bdg bdg-glass-purple">Premium</span>
+                <span class="bdg bdg-glass-blue">Bilgi</span>
+                <span class="bdg bdg-glass-green">Onaylı</span>
+                <span class="bdg bdg-glass-orange">Beklemede</span>
+                <span class="bdg bdg-glass-red">Kritik</span>
+                <span class="bdg bdg-glass-pink">Yeni</span>
+              </div>
+              <div class="bdg-showcase mt-3">
+                <span class="bdg bdg-glass-teal bdg-pill"><i class="bi bi-check-circle me-1"></i>Aktif</span>
+                <span class="bdg bdg-glass-purple bdg-pill"><i class="bi bi-gem me-1"></i>Premium</span>
+                <span class="bdg bdg-glass-blue bdg-pill"><i class="bi bi-info-circle me-1"></i>Bilgi</span>
+                <span class="bdg bdg-glass-green bdg-pill"><i class="bi bi-shield-check me-1"></i>Onaylı</span>
+                <span class="bdg bdg-glass-orange bdg-pill"><i class="bi bi-clock me-1"></i>Beklemede</span>
+                <span class="bdg bdg-glass-red bdg-pill"><i class="bi bi-exclamation-triangle me-1"></i>Kritik</span>
+                <span class="bdg bdg-glass-pink bdg-pill"><i class="bi bi-lightning me-1"></i>Yeni</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 2. BOYUT VARİYANTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-aspect-ratio"></i></div>
+            <div><h6>Boyut Variyantları</h6><p>XS'den XL'ye kadar farklı boyut seçenekleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-body-custom">
+              <div class="bdg-showcase align-items-center">
+                <span class="bdg bdg-solid-teal bdg-xs">XS Badge</span>
+                <span class="bdg bdg-solid-purple bdg-sm">SM Badge</span>
+                <span class="bdg bdg-solid-blue">Default</span>
+                <span class="bdg bdg-solid-green bdg-lg">LG Badge</span>
+                <span class="bdg bdg-solid-orange bdg-xl">XL Badge</span>
+              </div>
+              <div class="bdg-showcase mt-3 align-items-center">
+                <span class="bdg bdg-soft-teal bdg-pill bdg-xs"><i class="bi bi-star-fill me-1"></i>XS Pill</span>
+                <span class="bdg bdg-soft-purple bdg-pill bdg-sm"><i class="bi bi-star-fill me-1"></i>SM Pill</span>
+                <span class="bdg bdg-soft-blue bdg-pill"><i class="bi bi-star-fill me-1"></i>Default Pill</span>
+                <span class="bdg bdg-soft-green bdg-pill bdg-lg"><i class="bi bi-star-fill me-1"></i>LG Pill</span>
+                <span class="bdg bdg-soft-orange bdg-pill bdg-xl"><i class="bi bi-star-fill me-1"></i>XL Pill</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 3. DOT & DURUM İNDİKATÖRLERİ ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-record-circle"></i></div>
+            <div><h6>Dot & Durum İndikatörleri</h6><p>Online/offline durumları, nabız animasyonları ve durum noktaları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Durum Noktaları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase align-items-center">
+                <span class="bdg bdg-soft-teal bdg-pill"><span class="bdg-dot dot-green"></span>Çevrimiçi</span>
+                <span class="bdg bdg-soft-orange bdg-pill"><span class="bdg-dot dot-orange"></span>Meşgul</span>
+                <span class="bdg bdg-soft-purple bdg-pill"><span class="bdg-dot dot-purple"></span>Uzakta</span>
+                <span class="bdg bdg-soft-red bdg-pill"><span class="bdg-dot dot-red"></span>Çevrimdışı</span>
+              </div>
+              <div class="bdg-showcase mt-3 align-items-center">
+                <span class="bdg bdg-soft-green bdg-pill"><span class="bdg-dot dot-green dot-pulse"></span>Canlı</span>
+                <span class="bdg bdg-soft-blue bdg-pill"><span class="bdg-dot dot-blue dot-pulse"></span>Yayında</span>
+                <span class="bdg bdg-soft-red bdg-pill"><span class="bdg-dot dot-red dot-pulse"></span>Acil</span>
+                <span class="bdg bdg-soft-teal bdg-pill"><span class="bdg-dot dot-teal dot-pulse"></span>Senkronize</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Avatar Durum Rozetleri</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase" style="align-items:center;gap:24px">
+                <div class="bdg-avatar-wrap">
+                  <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--teal-primary),var(--teal-dark))">OZ</div>
+                  <span class="bdg-avatar-status status-online"></span>
+                </div>
+                <div class="bdg-avatar-wrap">
+                  <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--neon-purple),#7c3aed)">AK</div>
+                  <span class="bdg-avatar-status status-busy"></span>
+                </div>
+                <div class="bdg-avatar-wrap">
+                  <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--neon-blue),#2563eb)">MB</div>
+                  <span class="bdg-avatar-status status-away"></span>
+                </div>
+                <div class="bdg-avatar-wrap">
+                  <div class="bdg-avatar" style="background:linear-gradient(135deg,var(--neon-pink),#db2777)">SY</div>
+                  <span class="bdg-avatar-status status-offline"></span>
+                </div>
+                <div class="bdg-avatar-wrap bdg-avatar-wrap-lg">
+                  <div class="bdg-avatar bdg-avatar-lg" style="background:linear-gradient(135deg,var(--neon-orange),#ea580c)">FK</div>
+                  <span class="bdg-avatar-status bdg-avatar-status-lg status-online"></span>
+                </div>
+                <div class="bdg-avatar-wrap bdg-avatar-wrap-lg">
+                  <div class="bdg-avatar bdg-avatar-lg" style="background:linear-gradient(135deg,var(--neon-green),#16a34a)">TR</div>
+                  <span class="bdg-avatar-status bdg-avatar-status-lg status-busy"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 4. BİLDİRİM SAYAÇLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-red"><i class="bi bi-bell-fill"></i></div>
+            <div><h6>Bildirim Sayaçları</h6><p>Butonlar, ikonlar ve avatarlar üzerinde bildirim sayaçları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">İkon Üzeri Sayaçlar</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase" style="align-items:center;gap:28px">
+                <div class="bdg-notif-wrap">
+                  <i class="bi bi-bell fs-24 text-clr-secondary"></i>
+                  <span class="bdg-counter bdg-counter-red">3</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <i class="bi bi-envelope fs-24 text-clr-secondary"></i>
+                  <span class="bdg-counter bdg-counter-teal">12</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <i class="bi bi-chat-dots fs-24 text-clr-secondary"></i>
+                  <span class="bdg-counter bdg-counter-purple">5</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <i class="bi bi-cart3 fs-24 text-clr-secondary"></i>
+                  <span class="bdg-counter bdg-counter-orange">99+</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <i class="bi bi-heart fs-24 text-clr-secondary"></i>
+                  <span class="bdg-counter bdg-counter-pink">7</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <i class="bi bi-people fs-24 text-clr-secondary"></i>
+                  <span class="bdg-counter-dot bdg-counter-red"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Buton Üzeri Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase align-items-center">
+                <button class="bdg-btn-notif">
+                  <i class="bi bi-inbox"></i> Gelen Kutusu
+                  <span class="bdg bdg-solid-red bdg-xs">14</span>
+                </button>
+                <button class="bdg-btn-notif purple">
+                  <i class="bi bi-bell"></i> Bildirimler
+                  <span class="bdg bdg-solid-purple bdg-xs">3</span>
+                </button>
+                <button class="bdg-btn-notif green">
+                  <i class="bi bi-chat-left-text"></i> Mesajlar
+                  <span class="bdg bdg-solid-green bdg-xs">28</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Animasyonlu Pulse Sayaçlar</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase" style="align-items:center;gap:36px">
+                <div class="bdg-notif-wrap">
+                  <div class="bdg-icon-circle teal"><i class="bi bi-lightning-charge-fill"></i></div>
+                  <span class="bdg-counter bdg-counter-red bdg-pulse">!</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <div class="bdg-icon-circle purple"><i class="bi bi-rocket-takeoff-fill"></i></div>
+                  <span class="bdg-counter bdg-counter-teal bdg-pulse">4</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <div class="bdg-icon-circle blue"><i class="bi bi-cpu-fill"></i></div>
+                  <span class="bdg-counter bdg-counter-orange bdg-pulse">9</span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <div class="bdg-icon-circle green"><i class="bi bi-database-fill"></i></div>
+                  <span class="bdg-counter-dot bdg-counter-red bdg-pulse"></span>
+                </div>
+                <div class="bdg-notif-wrap">
+                  <div class="bdg-icon-circle orange"><i class="bi bi-shield-fill-check"></i></div>
+                  <span class="bdg-counter bdg-counter-green bdg-pulse">OK</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 5. ETİKET SİSTEMİ ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-tags-fill"></i></div>
+            <div><h6>Etiket Sistemi</h6><p>Kaldırılabilir etiketler, kategori etiketleri ve renk seçenekleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Kaldırılabilir Etiketler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg-tag tag-teal"><i class="bi bi-hash"></i>javascript<button class="bdg-tag-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></span>
+                <span class="bdg-tag tag-purple"><i class="bi bi-hash"></i>react<button class="bdg-tag-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></span>
+                <span class="bdg-tag tag-blue"><i class="bi bi-hash"></i>typescript<button class="bdg-tag-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></span>
+                <span class="bdg-tag tag-green"><i class="bi bi-hash"></i>node.js<button class="bdg-tag-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></span>
+                <span class="bdg-tag tag-orange"><i class="bi bi-hash"></i>python<button class="bdg-tag-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></span>
+                <span class="bdg-tag tag-pink"><i class="bi bi-hash"></i>css<button class="bdg-tag-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Kategori Etiketleri</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg-tag-cat cat-teal"><i class="bi bi-folder-fill"></i>Frontend</span>
+                <span class="bdg-tag-cat cat-purple"><i class="bi bi-server"></i>Backend</span>
+                <span class="bdg-tag-cat cat-blue"><i class="bi bi-cloud-fill"></i>DevOps</span>
+                <span class="bdg-tag-cat cat-green"><i class="bi bi-bug-fill"></i>Bug Fix</span>
+                <span class="bdg-tag-cat cat-orange"><i class="bi bi-rocket-takeoff"></i>Feature</span>
+                <span class="bdg-tag-cat cat-red"><i class="bi bi-exclamation-diamond-fill"></i>Urgent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Etiket Girdi Alanı</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-tag-input-wrap" id="tagInputWrap">
+                <div class="bdg-tag-list" id="tagList">
+                  <span class="bdg-tag tag-teal"><i class="bi bi-hash"></i>design<button class="bdg-tag-close" onclick="removeTag(this)"><i class="bi bi-x"></i></button></span>
+                  <span class="bdg-tag tag-purple"><i class="bi bi-hash"></i>ui/ux<button class="bdg-tag-close" onclick="removeTag(this)"><i class="bi bi-x"></i></button></span>
+                </div>
+                <input type="text" class="bdg-tag-input" id="tagInput" placeholder="Etiket ekle... (Enter)" onkeydown="handleTagInput(event)">
+              </div>
+              <p class="form-hint mt-2"><i class="bi bi-info-circle"></i> Enter ile etiket ekleyin, × ile kaldırın</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 6. GRADIENT & NEON ROZETLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-palette-fill"></i></div>
+            <div><h6>Gradient & Neon Rozetler</h6><p>2026 trendlerine uygun gradient ve neon parlama efektli rozetler</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Gradient Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg bdg-gradient-1 bdg-pill">Teal → Blue</span>
+                <span class="bdg bdg-gradient-2 bdg-pill">Purple → Pink</span>
+                <span class="bdg bdg-gradient-3 bdg-pill">Orange → Red</span>
+                <span class="bdg bdg-gradient-4 bdg-pill">Green → Teal</span>
+                <span class="bdg bdg-gradient-5 bdg-pill">Blue → Purple</span>
+                <span class="bdg bdg-gradient-6 bdg-pill">Pink → Orange</span>
+              </div>
+              <div class="bdg-showcase mt-3">
+                <span class="bdg bdg-gradient-1 bdg-lg"><i class="bi bi-lightning-fill me-1"></i>Hızlı</span>
+                <span class="bdg bdg-gradient-2 bdg-lg"><i class="bi bi-gem me-1"></i>VIP</span>
+                <span class="bdg bdg-gradient-3 bdg-lg"><i class="bi bi-fire me-1"></i>Trend</span>
+                <span class="bdg bdg-gradient-4 bdg-lg"><i class="bi bi-patch-check-fill me-1"></i>Doğrulanmış</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Neon Glow Rozetler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-showcase">
+                <span class="bdg bdg-neon-teal bdg-pill">Teal Neon</span>
+                <span class="bdg bdg-neon-purple bdg-pill">Purple Neon</span>
+                <span class="bdg bdg-neon-blue bdg-pill">Blue Neon</span>
+                <span class="bdg bdg-neon-green bdg-pill">Green Neon</span>
+                <span class="bdg bdg-neon-pink bdg-pill">Pink Neon</span>
+                <span class="bdg bdg-neon-orange bdg-pill">Orange Neon</span>
+              </div>
+              <div class="bdg-showcase mt-3">
+                <span class="bdg bdg-neon-teal bdg-lg bdg-pill"><i class="bi bi-broadcast me-1"></i>Live</span>
+                <span class="bdg bdg-neon-purple bdg-lg bdg-pill"><i class="bi bi-stars me-1"></i>Pro</span>
+                <span class="bdg bdg-neon-pink bdg-lg bdg-pill"><i class="bi bi-heart-fill me-1"></i>Hot</span>
+                <span class="bdg bdg-neon-green bdg-lg bdg-pill"><i class="bi bi-check2-all me-1"></i>Done</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 7. RİBBON (KURDELE) ROZETLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-orange"><i class="bi bi-bookmark-fill"></i></div>
+            <div><h6>Ribbon (Kurdele) Rozetler</h6><p>Kart köşelerinde kullanılabilen şerit ve kurdele rozetleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="card-dark bdg-ribbon-card">
+            <div class="bdg-ribbon bdg-ribbon-teal">Yeni</div>
+            <div class="card-body-custom pt-48">
+              <h6 class="text-primary-mb">Ürün Kartı</h6>
+              <p class="text-muted-sm-caption">Sol üst köşe kurdelesi</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="card-dark bdg-ribbon-card">
+            <div class="bdg-ribbon bdg-ribbon-right bdg-ribbon-purple">PRO</div>
+            <div class="card-body-custom pt-48">
+              <h6 class="text-primary-mb">Premium Kart</h6>
+              <p class="text-muted-sm-caption">Sağ üst köşe kurdelesi</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="card-dark bdg-ribbon-card">
+            <div class="bdg-corner-ribbon bdg-corner-red">SATIŞ</div>
+            <div class="card-body-custom pt-48">
+              <h6 class="text-primary-mb">İndirimli Ürün</h6>
+              <p class="text-muted-sm-caption">Köşe şerit rozeti</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="card-dark bdg-ribbon-card">
+            <div class="bdg-flag bdg-flag-green"><i class="bi bi-check-lg"></i> Onaylı</div>
+            <div class="card-body-custom pt-48">
+              <h6 class="text-primary-mb">Onaylı Ürün</h6>
+              <p class="text-muted-sm-caption">Bayrak tarzı rozet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 8. İNTERAKTİF SEÇİLEBİLİR ETİKETLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-purple"><i class="bi bi-hand-index-fill"></i></div>
+            <div><h6>İnteraktif Seçilebilir Etiketler</h6><p>Tıklanarak seçilebilen filtre ve kategori etiketleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Tek Seçim (Radio Style)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-select-group" id="singleSelect">
+                <button class="bdg-select active" onclick="bdgSingleSelect(this)"><i class="bi bi-grid-fill"></i> Tümü</button>
+                <button class="bdg-select" onclick="bdgSingleSelect(this)"><i class="bi bi-code-slash"></i> Frontend</button>
+                <button class="bdg-select" onclick="bdgSingleSelect(this)"><i class="bi bi-server"></i> Backend</button>
+                <button class="bdg-select" onclick="bdgSingleSelect(this)"><i class="bi bi-phone"></i> Mobile</button>
+                <button class="bdg-select" onclick="bdgSingleSelect(this)"><i class="bi bi-palette"></i> Design</button>
+                <button class="bdg-select" onclick="bdgSingleSelect(this)"><i class="bi bi-cloud"></i> DevOps</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Çoklu Seçim (Checkbox Style)</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-select-group">
+                <button class="bdg-select-multi active" onclick="bdgMultiSelect(this)"><i class="bi bi-check2"></i> React</button>
+                <button class="bdg-select-multi" onclick="bdgMultiSelect(this)"><i class="bi bi-check2"></i> Vue</button>
+                <button class="bdg-select-multi active" onclick="bdgMultiSelect(this)"><i class="bi bi-check2"></i> Angular</button>
+                <button class="bdg-select-multi" onclick="bdgMultiSelect(this)"><i class="bi bi-check2"></i> Svelte</button>
+                <button class="bdg-select-multi" onclick="bdgMultiSelect(this)"><i class="bi bi-check2"></i> Next.js</button>
+                <button class="bdg-select-multi" onclick="bdgMultiSelect(this)"><i class="bi bi-check2"></i> Nuxt</button>
+              </div>
+              <div class="mt-2">
+                <span class="form-hint"><i class="bi bi-info-circle"></i> <span id="multiCount">2</span> seçili</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Renk Seçici Etiketler</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-color-select-group">
+                <button class="bdg-color-select active" style="--clr:var(--teal-primary)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Teal</button>
+                <button class="bdg-color-select" style="--clr:var(--neon-purple)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Purple</button>
+                <button class="bdg-color-select" style="--clr:var(--neon-blue)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Blue</button>
+                <button class="bdg-color-select" style="--clr:var(--neon-green)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Green</button>
+                <button class="bdg-color-select" style="--clr:var(--neon-orange)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Orange</button>
+                <button class="bdg-color-select" style="--clr:var(--neon-red)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Red</button>
+                <button class="bdg-color-select" style="--clr:var(--neon-pink)" onclick="bdgColorSelect(this)"><span class="bdg-color-dot"></span>Pink</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 9. ROZET GRUPLARI & YIĞINLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-blue"><i class="bi bi-collection-fill"></i></div>
+            <div><h6>Rozet Grupları & Yığınları</h6><p>Birlikte gruplandırılmış rozet bileşenleri ve avatar yığınları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Rozet Grupları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="mb-3">
+                <div class="bdg-group">
+                  <span class="bdg bdg-solid-teal">v2.1.0</span>
+                  <span class="bdg bdg-soft-green">Stable</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="bdg-group">
+                  <span class="bdg bdg-solid-purple">PRO</span>
+                  <span class="bdg bdg-soft-purple">₺299/ay</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="bdg-group">
+                  <span class="bdg bdg-solid-blue"><i class="bi bi-star-fill me-1"></i>4.8</span>
+                  <span class="bdg bdg-soft-blue">1.2K Yorum</span>
+                </div>
+              </div>
+              <div>
+                <div class="bdg-group">
+                  <span class="bdg bdg-solid-red"><i class="bi bi-cpu me-1"></i>CPU</span>
+                  <span class="bdg bdg-soft-orange">78%</span>
+                  <span class="bdg bdg-soft-red">Yüksek</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Avatar Yığınları & Sayaçları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="mb-4">
+                <span class="form-hint d-block mb-2">Takım Üyeleri</span>
+                <div class="bdg-avatar-stack">
+                  <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--teal-primary),var(--teal-dark))">OZ</div>
+                  <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-purple),#7c3aed)">AK</div>
+                  <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-blue),#2563eb)">MB</div>
+                  <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-pink),#db2777)">SY</div>
+                  <div class="bdg-avatar-stack-item bdg-avatar-stack-more">+5</div>
+                </div>
+              </div>
+              <div class="mb-4">
+                <span class="form-hint d-block mb-2">Aktif Kullanıcılar</span>
+                <div class="d-flex align-items-center gap-12" style="gap:12px">
+                  <div class="bdg-avatar-stack">
+                    <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-green),#16a34a)">FK</div>
+                    <div class="bdg-avatar-stack-item" style="background:linear-gradient(135deg,var(--neon-orange),#ea580c)">TR</div>
+                    <div class="bdg-avatar-stack-item avatar-gradient-red">KL</div>
+                  </div>
+                  <span class="bdg bdg-soft-green bdg-pill"><span class="bdg-dot dot-green dot-pulse"></span>3 Çevrimiçi</span>
+                </div>
+              </div>
+              <div>
+                <span class="form-hint d-block mb-2">Katkıda Bulunanlar</span>
+                <div class="d-flex align-items-center gap-12" style="gap:12px">
+                  <div class="bdg-avatar-stack bdg-avatar-stack-lg">
+                    <div class="bdg-avatar-stack-item bdg-avatar-stack-lg-item avatar-gradient-teal">A</div>
+                    <div class="bdg-avatar-stack-item bdg-avatar-stack-lg-item avatar-gradient-purple">B</div>
+                    <div class="bdg-avatar-stack-item bdg-avatar-stack-lg-item bdg-avatar-stack-more">+12</div>
+                  </div>
+                  <span class="bdg bdg-soft-purple bdg-pill bdg-lg">14 Kişi</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 10. KULLANIM SENARYOLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-green"><i class="bi bi-puzzle-fill"></i></div>
+            <div><h6>Gerçek Kullanım Senaryoları</h6><p>Sipariş durumu, kullanıcı profili, tablo ve bildirim panellerinde kullanım</p></div>
+          </div>
+        </div>
+
+        <!-- Order Status -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0">Sipariş Takip</h6>
+              <span class="bdg bdg-soft-blue bdg-pill bdg-sm">#ORD-2847</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="bdg-order-timeline">
+                <div class="bdg-order-step completed">
+                  <div class="bdg-order-dot"><i class="bi bi-check-lg"></i></div>
+                  <div class="bdg-order-info">
+                    <span class="bdg-order-title">Sipariş Alındı</span>
+                    <span class="bdg-order-time">6 Şub 2026, 09:30</span>
+                  </div>
+                  <span class="bdg bdg-soft-green bdg-xs bdg-pill">Tamamlandı</span>
+                </div>
+                <div class="bdg-order-step completed">
+                  <div class="bdg-order-dot"><i class="bi bi-check-lg"></i></div>
+                  <div class="bdg-order-info">
+                    <span class="bdg-order-title">Ödeme Onaylandı</span>
+                    <span class="bdg-order-time">6 Şub 2026, 09:32</span>
+                  </div>
+                  <span class="bdg bdg-soft-green bdg-xs bdg-pill">Tamamlandı</span>
+                </div>
+                <div class="bdg-order-step active">
+                  <div class="bdg-order-dot pulse"><i class="bi bi-truck"></i></div>
+                  <div class="bdg-order-info">
+                    <span class="bdg-order-title">Kargoya Verildi</span>
+                    <span class="bdg-order-time">6 Şub 2026, 14:15</span>
+                  </div>
+                  <span class="bdg bdg-soft-orange bdg-xs bdg-pill"><span class="bdg-dot dot-orange dot-pulse"></span>Aktif</span>
+                </div>
+                <div class="bdg-order-step">
+                  <div class="bdg-order-dot"><i class="bi bi-house-door"></i></div>
+                  <div class="bdg-order-info">
+                    <span class="bdg-order-title">Teslim Edildi</span>
+                    <span class="bdg-order-time">Bekleniyor</span>
+                  </div>
+                  <span class="bdg bdg-soft-purple bdg-xs bdg-pill">Beklemede</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile Card -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0">Kullanıcı Profil Kartı</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="bdg-profile-card">
+                <div class="bdg-profile-top">
+                  <div class="bdg-avatar-wrap">
+                    <div class="bdg-avatar bdg-avatar-xl avatar-gradient-teal">OZ</div>
+                    <span class="bdg-avatar-status bdg-avatar-status-xl status-online"></span>
+                  </div>
+                  <div class="bdg-profile-info">
+                    <h6>Ozan Sonar <span class="bdg bdg-gradient-2 bdg-xs">PRO</span></h6>
+                    <p>Full Stack Developer</p>
+                    <div class="bdg-showcase" style="gap:6px">
+                      <span class="bdg bdg-soft-teal bdg-xs bdg-pill">React</span>
+                      <span class="bdg bdg-soft-purple bdg-xs bdg-pill">Node.js</span>
+                      <span class="bdg bdg-soft-blue bdg-xs bdg-pill">TypeScript</span>
+                      <span class="bdg bdg-soft-green bdg-xs bdg-pill">MongoDB</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="bdg-profile-stats">
+                  <div class="bdg-profile-stat">
+                    <span class="bdg-profile-stat-val">128</span>
+                    <span class="bdg-profile-stat-lbl">Proje</span>
+                  </div>
+                  <div class="bdg-profile-stat">
+                    <span class="bdg-profile-stat-val">1.2K</span>
+                    <span class="bdg-profile-stat-lbl">Commit</span>
+                  </div>
+                  <div class="bdg-profile-stat">
+                    <span class="bdg-profile-stat-val">4.9</span>
+                    <span class="bdg-profile-stat-lbl">Puan</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Panel -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0">Bildirim Paneli</h6>
+              <span class="bdg bdg-solid-red bdg-pill bdg-xs">4 Yeni</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="bdg-notif-list">
+                <div class="bdg-notif-item unread">
+                  <div class="bdg-notif-icon teal"><i class="bi bi-person-plus-fill"></i></div>
+                  <div class="bdg-notif-content">
+                    <p><strong>Yeni Üye</strong> Ali Korkmaz takıma katıldı</p>
+                    <span>2 dakika önce</span>
+                  </div>
+                  <span class="bdg bdg-soft-teal bdg-xs">Yeni</span>
+                </div>
+                <div class="bdg-notif-item unread">
+                  <div class="bdg-notif-icon purple"><i class="bi bi-git"></i></div>
+                  <div class="bdg-notif-content">
+                    <p><strong>PR Birleştirildi</strong> feature/badges main'e merge edildi</p>
+                    <span>15 dakika önce</span>
+                  </div>
+                  <span class="bdg bdg-soft-purple bdg-xs">Git</span>
+                </div>
+                <div class="bdg-notif-item unread">
+                  <div class="bdg-notif-icon orange"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                  <div class="bdg-notif-content">
+                    <p><strong>CPU Uyarısı</strong> Sunucu CPU kullanımı %92'ye ulaştı</p>
+                    <span>1 saat önce</span>
+                  </div>
+                  <span class="bdg bdg-soft-orange bdg-xs">Uyarı</span>
+                </div>
+                <div class="bdg-notif-item">
+                  <div class="bdg-notif-icon blue"><i class="bi bi-cloud-download-fill"></i></div>
+                  <div class="bdg-notif-content">
+                    <p><strong>Güncelleme</strong> Sistem v2.1.0'a güncellendi</p>
+                    <span>3 saat önce</span>
+                  </div>
+                  <span class="bdg bdg-soft-blue bdg-xs">Sistem</span>
+                </div>
+                <div class="bdg-notif-item unread">
+                  <div class="bdg-notif-icon green"><i class="bi bi-cart-check-fill"></i></div>
+                  <div class="bdg-notif-content">
+                    <p><strong>Yeni Sipariş</strong> ₺4.580 tutarında sipariş alındı</p>
+                    <span>5 saat önce</span>
+                  </div>
+                  <span class="bdg bdg-soft-green bdg-xs">Sipariş</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Table -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0">Tablo İçi Rozetler</h6>
+              <span class="bdg bdg-soft-teal bdg-pill bdg-xs">5 Kayıt</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" style="--bs-table-bg:transparent;--bs-table-hover-bg:rgba(255,255,255,0.02)">
+                  <thead>
+                    <tr class="border-bottom-custom">
+                      <th class="table-header-cell">Kullanıcı</th>
+                      <th class="table-header-cell">Rol</th>
+                      <th class="table-header-cell">Durum</th>
+                      <th class="table-header-cell">Plan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-bottom-custom">
+                      <td class="table-body-cell">Ozan Sonar</td>
+                      <td><span class="bdg bdg-soft-teal bdg-xs">Admin</span></td>
+                      <td><span class="bdg bdg-soft-green bdg-xs bdg-pill"><span class="bdg-dot dot-green"></span>Aktif</span></td>
+                      <td><span class="bdg bdg-gradient-2 bdg-xs">PRO</span></td>
+                    </tr>
+                    <tr class="border-bottom-custom">
+                      <td class="table-body-cell">Ali Korkmaz</td>
+                      <td><span class="bdg bdg-soft-purple bdg-xs">Editör</span></td>
+                      <td><span class="bdg bdg-soft-green bdg-xs bdg-pill"><span class="bdg-dot dot-green"></span>Aktif</span></td>
+                      <td><span class="bdg bdg-soft-blue bdg-xs">Basic</span></td>
+                    </tr>
+                    <tr class="border-bottom-custom">
+                      <td class="table-body-cell">Merve Beyaz</td>
+                      <td><span class="bdg bdg-soft-blue bdg-xs">Kullanıcı</span></td>
+                      <td><span class="bdg bdg-soft-orange bdg-xs bdg-pill"><span class="bdg-dot dot-orange"></span>Uzakta</span></td>
+                      <td><span class="bdg bdg-gradient-1 bdg-xs">Team</span></td>
+                    </tr>
+                    <tr class="border-bottom-custom">
+                      <td class="table-body-cell">Selin Yılmaz</td>
+                      <td><span class="bdg bdg-soft-orange bdg-xs">Moderatör</span></td>
+                      <td><span class="bdg bdg-soft-red bdg-xs bdg-pill"><span class="bdg-dot dot-red"></span>Çevrimdışı</span></td>
+                      <td><span class="bdg bdg-soft-green bdg-xs">Free</span></td>
+                    </tr>
+                    <tr>
+                      <td class="table-body-cell">Fatih Kaya</td>
+                      <td><span class="bdg bdg-soft-green bdg-xs">Geliştirici</span></td>
+                      <td><span class="bdg bdg-soft-green bdg-xs bdg-pill"><span class="bdg-dot dot-green dot-pulse"></span>Aktif</span></td>
+                      <td><span class="bdg bdg-gradient-2 bdg-xs">PRO</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 11. ANİMASYONLU ROZETLER ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-pink"><i class="bi bi-activity"></i></div>
+            <div><h6>Animasyonlu Rozetler</h6><p>Typing, bounce, shimmer, wave ve diğer animasyonlu rozet efektleri</p></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card-dark">
+            <div class="card-body-custom">
+              <div class="bdg-showcase" style="align-items:center;gap:20px">
+                <!-- Typing -->
+                <span class="bdg bdg-soft-green bdg-pill bdg-lg">
+                  <span class="bdg-typing"><span></span><span></span><span></span></span>
+                  Yazıyor...
+                </span>
+
+                <!-- Shimmer -->
+                <span class="bdg bdg-shimmer bdg-pill bdg-lg">
+                  <i class="bi bi-gem me-1"></i>Premium
+                </span>
+
+                <!-- Bounce -->
+                <span class="bdg bdg-solid-red bdg-pill bdg-lg bdg-bounce">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>Acil!
+                </span>
+
+                <!-- Wave -->
+                <span class="bdg bdg-neon-teal bdg-pill bdg-lg">
+                  <span class="bdg-wave">
+                    <span>C</span><span>A</span><span>N</span><span>L</span><span>I</span>
+                  </span>
+                </span>
+
+                <!-- Progress Badge -->
+                <span class="bdg bdg-progress bdg-pill bdg-lg">
+                  <span class="bdg-progress-bar" style="width:72%"></span>
+                  <span class="bdg-progress-text"><i class="bi bi-arrow-clockwise me-1"></i>%72</span>
+                </span>
+
+                <!-- Glow Rotate -->
+                <span class="bdg bdg-solid-purple bdg-pill bdg-lg bdg-glow-rotate">
+                  <i class="bi bi-stars me-1"></i>VIP
+                </span>
+
+                <!-- Count Up -->
+                <span class="bdg bdg-soft-blue bdg-pill bdg-lg">
+                  <i class="bi bi-eye me-1"></i><span class="bdg-countup" data-target="1842">0</span> Görüntüleme
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== 12. ROZET KARTLARI ==================== -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon bg-icon-teal"><i class="bi bi-award-fill"></i></div>
+            <div><h6>Rozet Kartları (Achievement)</h6><p>Başarım rozetleri, seviye göstergeleri ve ödül kartları</p></div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="bdg-achieve-card">
+            <div class="bdg-achieve-glow" style="--glow:var(--teal-primary)"></div>
+            <div class="bdg-achieve-icon bg-icon-teal-strong">
+              <i class="bi bi-rocket-takeoff-fill"></i>
+            </div>
+            <h6>Erken Kuş</h6>
+            <p>İlk 100 kullanıcı arasında</p>
+            <div class="bdg-achieve-footer">
+              <span class="bdg bdg-soft-teal bdg-xs bdg-pill">Nadir</span>
+              <span class="text-sm-muted">2026</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="bdg-achieve-card">
+            <div class="bdg-achieve-glow" style="--glow:var(--neon-purple)"></div>
+            <div class="bdg-achieve-icon bg-icon-purple-strong">
+              <i class="bi bi-code-slash"></i>
+            </div>
+            <h6>Kod Savaşçısı</h6>
+            <p>1000+ commit yapıldı</p>
+            <div class="bdg-achieve-footer">
+              <span class="bdg bdg-soft-purple bdg-xs bdg-pill">Efsanevi</span>
+              <span class="text-sm-muted">2026</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="bdg-achieve-card">
+            <div class="bdg-achieve-glow" style="--glow:var(--neon-orange)"></div>
+            <div class="bdg-achieve-icon bg-icon-orange-strong">
+              <i class="bi bi-fire"></i>
+            </div>
+            <h6>Seri Tutucu</h6>
+            <p>30 gün kesintisiz aktif</p>
+            <div class="bdg-achieve-footer">
+              <span class="bdg bdg-soft-orange bdg-xs bdg-pill">Epik</span>
+              <span class="text-sm-muted">2026</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="bdg-achieve-card locked">
+            <div class="bdg-achieve-lock"><i class="bi bi-lock-fill"></i></div>
+            <div class="bdg-achieve-icon" style="background:rgba(255,255,255,0.04);color:var(--text-muted)">
+              <i class="bi bi-trophy-fill"></i>
+            </div>
+            <h6>Efsane</h6>
+            <p>Tüm başarımları topla</p>
+            <div class="bdg-achieve-footer">
+              <span class="bdg bdg-soft-purple bdg-xs bdg-pill" style="opacity:0.5">Kilitli</span>
+              <span class="text-sm-muted">???</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- .page-content -->
+  </main>
+
+</div><!-- .admin-wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// Tag Input
+const tagColors=['tag-teal','tag-purple','tag-blue','tag-green','tag-orange','tag-pink','tag-red'];
+let tagColorIdx=2;
+function handleTagInput(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const v=e.target.value.trim();
+    if(!v)return;
+    const list=document.getElementById('tagList');
+    const color=tagColors[tagColorIdx%tagColors.length];
+    tagColorIdx++;
+    const tag=document.createElement('span');
+    tag.className='bdg-tag '+color;
+    tag.innerHTML='<i class="bi bi-hash"></i>'+v+'<button class="bdg-tag-close" onclick="removeTag(this)"><i class="bi bi-x"></i></button>';
+    list.appendChild(tag);
+    e.target.value='';
+  }
+}
+function removeTag(btn){btn.parentElement.remove()}
+
+// Single Select
+function bdgSingleSelect(btn){
+  btn.closest('.bdg-select-group').querySelectorAll('.bdg-select').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Multi Select
+function bdgMultiSelect(btn){
+  btn.classList.toggle('active');
+  const count=btn.closest('.card-body-custom').querySelectorAll('.bdg-select-multi.active').length;
+  document.getElementById('multiCount').textContent=count;
+}
+
+// Color Select
+function bdgColorSelect(btn){
+  btn.closest('.bdg-color-select-group').querySelectorAll('.bdg-color-select').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Count Up Animation
+const countEls=document.querySelectorAll('.bdg-countup');
+const countObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el=entry.target;
+      const target=parseInt(el.dataset.target);
+      let current=0;
+      const step=Math.ceil(target/60);
+      const timer=setInterval(()=>{
+        current+=step;
+        if(current>=target){current=target;clearInterval(timer)}
+        el.textContent=current.toLocaleString('tr-TR');
+      },30);
+      countObserver.unobserve(el);
+    }
+  });
+},{threshold:0.5});
+countEls.forEach(el=>countObserver.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+</script>
+</body>
+</html>

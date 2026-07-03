@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Kullanıcı Yönetimi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+
+    <div id="navbar-container"></div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Kullanıcı Yönetimi</h1>
+          <p class="page-subtitle">Sistemdeki tüm kullanıcıları yönetin, roller atayın ve erişimleri kontrol edin</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="dropdown">
+            <button class="btn-glass dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-download me-1"></i> Dışa Aktar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-theme">
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportUsers('csv')"><i class="bi bi-filetype-csv me-2"></i>CSV olarak indir</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportUsers('json')"><i class="bi bi-filetype-json me-2"></i>JSON olarak indir</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="exportUsers('excel')"><i class="bi bi-file-earmark-excel me-2"></i>Excel olarak indir</a></li>
+            </ul>
+          </div>
+          <button class="btn-glass" onclick="document.getElementById('importFile').click()">
+            <i class="bi bi-upload me-1"></i> İçe Aktar
+          </button>
+          <input type="file" id="importFile" accept=".csv,.xlsx,.json" hidden onchange="importUsers(this)">
+          <a href="user-form.html" class="btn-teal">
+            <i class="bi bi-person-plus me-1"></i> Yeni Kullanıcı
+          </a>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STATS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-blue">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Kullanıcı</span>
+              <h3 class="usr-stat-value" id="statTotal" data-count="2847">0</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 12.5% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-green">
+              <i class="bi bi-person-check-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Aktif Kullanıcı</span>
+              <h3 class="usr-stat-value" id="statActive" data-count="2156">0</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 8.3% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-orange">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Yeni Kayıtlar</span>
+              <h3 class="usr-stat-value" id="statNew" data-count="184">0</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 23.1% bu ay</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-pink">
+              <i class="bi bi-person-dash-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Askıya Alınan</span>
+              <h3 class="usr-stat-value" id="statSuspended" data-count="23">0</h3>
+              <span class="usr-stat-change negative"><i class="bi bi-arrow-down-short"></i> 5.2% bu ay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: FILTERS & TOOLBAR ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-body-custom">
+          <div class="usr-toolbar">
+            <div class="usr-search">
+              <i class="bi bi-search"></i>
+              <input type="text" id="userSearch" placeholder="Ad, e-posta veya rol ile ara..." oninput="filterUsers()">
+            </div>
+
+            <div class="usr-filters">
+              <select class="usr-filter-select" id="filterRole" onchange="filterUsers()">
+                <option value="">Tüm Roller</option>
+                <option value="admin">Admin</option>
+                <option value="editor">Editör</option>
+                <option value="moderator">Moderatör</option>
+                <option value="user">Kullanıcı</option>
+                <option value="viewer">İzleyici</option>
+              </select>
+
+              <select class="usr-filter-select" id="filterStatus" onchange="filterUsers()">
+                <option value="">Tüm Durumlar</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Pasif</option>
+                <option value="suspended">Askıda</option>
+                <option value="pending">Beklemede</option>
+              </select>
+
+              <select class="usr-filter-select" id="filterDate" onchange="filterUsers()">
+                <option value="">Tüm Tarihler</option>
+                <option value="today">Bugün</option>
+                <option value="week">Bu Hafta</option>
+                <option value="month">Bu Ay</option>
+                <option value="quarter">Son 3 Ay</option>
+                <option value="year">Bu Yıl</option>
+              </select>
+            </div>
+
+            <div class="usr-toolbar-actions">
+              <div class="usr-view-toggle">
+                <button class="usr-view-btn active" onclick="setView('table', this)" title="Tablo Görünümü">
+                  <i class="bi bi-list-ul"></i>
+                </button>
+                <button class="usr-view-btn" onclick="setView('grid', this)" title="Kart Görünümü">
+                  <i class="bi bi-grid-3x3-gap"></i>
+                </button>
+              </div>
+              <div class="usr-bulk-actions d-none" id="bulkActions">
+                <span class="usr-bulk-count"><span id="selectedCount">0</span> seçili</span>
+                <button class="btn-glass" onclick="bulkAction('activate')"><i class="bi bi-check-circle me-1"></i>Aktif Et</button>
+                <button class="btn-glass" onclick="bulkAction('suspend')"><i class="bi bi-pause-circle me-1"></i>Askıya Al</button>
+                <button class="btn-glass" onclick="bulkAction('delete')"><i class="bi bi-trash me-1"></i>Sil</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 3: TABLE VIEW ==================== -->
+      <div class="card-dark mb-4" id="tableView" data-aos="fade-up" data-aos-delay="150">
+        <div class="card-body-custom p-0">
+          <div class="table-responsive">
+            <table class="usr-table">
+              <thead>
+                <tr>
+                  <th class="usr-th-checkbox">
+                    <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                  </th>
+                  <th class="usr-th-sortable" onclick="sortTable('name')">
+                    Kullanıcı <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="usr-th-sortable" onclick="sortTable('role')">
+                    Rol <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="usr-th-sortable" onclick="sortTable('status')">
+                    Durum <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="usr-th-sortable d-none d-lg-table-cell" onclick="sortTable('lastLogin')">
+                    Son Giriş <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="usr-th-sortable d-none d-xl-table-cell" onclick="sortTable('created')">
+                    Kayıt Tarihi <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th class="d-none d-xl-table-cell">2FA</th>
+                  <th class="usr-th-actions">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <!-- Row 1 -->
+                <tr data-role="admin" data-status="active" data-name="Ozan Sonar" data-email="ozan@example.com" data-login="5 dk önce" data-date="12 Oca 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-teal">
+                        <img src="https://ui-avatars.com/api/?name=Ozan+Sonar&background=14b8a6&color=fff&size=40" alt="">
+                        <span class="usr-status-dot online"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Ozan Sonar <i class="bi bi-patch-check-fill text-teal-xs"></i></span>
+                        <span class="usr-user-email">ozan@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge admin"><i class="bi bi-shield-fill"></i> Super Admin</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">5 dk önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">12 Oca 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-check text-neon-green"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Ozan Sonar')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=ozan"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Ozan Sonar')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 2 -->
+                <tr data-role="editor" data-status="active" data-name="Ayşe Yılmaz" data-email="ayse@example.com" data-login="23 dk önce" data-date="5 Mar 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-purple">
+                        <img src="https://ui-avatars.com/api/?name=Ayse+Yilmaz&background=a855f7&color=fff&size=40" alt="">
+                        <span class="usr-status-dot online"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Ayşe Yılmaz</span>
+                        <span class="usr-user-email">ayse@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge editor"><i class="bi bi-pencil-fill"></i> Editör</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">23 dk önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">5 Mar 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-check text-neon-green"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Ayşe Yılmaz')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=ayse"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Ayşe Yılmaz')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 3 -->
+                <tr data-role="moderator" data-status="active" data-name="Mehmet Demir" data-email="mehmet@example.com" data-login="1 saat önce" data-date="18 Tem 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-blue">
+                        <img src="https://ui-avatars.com/api/?name=Mehmet+Demir&background=3b82f6&color=fff&size=40" alt="">
+                        <span class="usr-status-dot online"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Mehmet Demir</span>
+                        <span class="usr-user-email">mehmet@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge moderator"><i class="bi bi-shield-fill-check"></i> Moderatör</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">1 saat önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">18 Tem 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-x text-clr-muted"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Mehmet Demir')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=mehmet"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Mehmet Demir')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 4 -->
+                <tr data-role="user" data-status="inactive" data-name="Zeynep Kaya" data-email="zeynep@example.com" data-login="3 gün önce" data-date="2 Ağu 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-green">
+                        <img src="https://ui-avatars.com/api/?name=Zeynep+Kaya&background=22c55e&color=fff&size=40" alt="">
+                        <span class="usr-status-dot offline"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Zeynep Kaya</span>
+                        <span class="usr-user-email">zeynep@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge user"><i class="bi bi-person-fill"></i> Kullanıcı</span></td>
+                  <td><span class="usr-status-badge inactive">Pasif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">3 gün önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">2 Ağu 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-x text-clr-muted"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Zeynep Kaya')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=zeynep"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Zeynep Kaya')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 5 -->
+                <tr data-role="admin" data-status="active" data-name="Ali Öztürk" data-email="ali@example.com" data-login="12 dk önce" data-date="28 Oca 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-teal">
+                        <img src="https://ui-avatars.com/api/?name=Ali+Ozturk&background=14b8a6&color=fff&size=40" alt="">
+                        <span class="usr-status-dot online"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Ali Öztürk <i class="bi bi-patch-check-fill text-teal-xs"></i></span>
+                        <span class="usr-user-email">ali@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge admin"><i class="bi bi-shield-fill"></i> Admin</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">12 dk önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">28 Oca 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-check text-neon-green"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Ali Öztürk')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=ali"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Ali Öztürk')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 6 -->
+                <tr data-role="editor" data-status="suspended" data-name="Fatma Çelik" data-email="fatma@example.com" data-login="15 gün önce" data-date="9 Nis 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-pink">
+                        <img src="https://ui-avatars.com/api/?name=Fatma+Celik&background=ec4899&color=fff&size=40" alt="">
+                        <span class="usr-status-dot suspended"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Fatma Çelik</span>
+                        <span class="usr-user-email">fatma@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge editor"><i class="bi bi-pencil-fill"></i> Editör</span></td>
+                  <td><span class="usr-status-badge suspended">Askıda</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">15 gün önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">9 Nis 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-check text-neon-green"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Fatma Çelik')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=fatma"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Fatma Çelik')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 7 -->
+                <tr data-role="viewer" data-status="pending" data-name="Emre Aksoy" data-email="emre@example.com" data-login="Hiç giriş yapmadı" data-date="1 Oca 2025">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-orange">
+                        <img src="https://ui-avatars.com/api/?name=Emre+Aksoy&background=f97316&color=fff&size=40" alt="">
+                        <span class="usr-status-dot pending"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Emre Aksoy</span>
+                        <span class="usr-user-email">emre@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge viewer"><i class="bi bi-eye-fill"></i> İzleyici</span></td>
+                  <td><span class="usr-status-badge pending">Beklemede</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">Hiç giriş yapmadı</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">1 Oca 2025</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-x text-clr-muted"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Emre Aksoy')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=emre"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Emre Aksoy')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 8 -->
+                <tr data-role="moderator" data-status="active" data-name="Selin Arslan" data-email="selin@example.com" data-login="45 dk önce" data-date="14 May 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-blue">
+                        <img src="https://ui-avatars.com/api/?name=Selin+Arslan&background=3b82f6&color=fff&size=40" alt="">
+                        <span class="usr-status-dot online"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Selin Arslan</span>
+                        <span class="usr-user-email">selin@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge moderator"><i class="bi bi-shield-fill-check"></i> Moderatör</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">45 dk önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">14 May 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-check text-neon-green"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Selin Arslan')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=selin"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Selin Arslan')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 9 -->
+                <tr data-role="user" data-status="active" data-name="Burak Yıldız" data-email="burak@example.com" data-login="2 saat önce" data-date="22 Haz 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-green">
+                        <img src="https://ui-avatars.com/api/?name=Burak+Yildiz&background=22c55e&color=fff&size=40" alt="">
+                        <span class="usr-status-dot online"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Burak Yıldız</span>
+                        <span class="usr-user-email">burak@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge user"><i class="bi bi-person-fill"></i> Kullanıcı</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">2 saat önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">22 Haz 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-x text-clr-muted"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Burak Yıldız')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=burak"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Burak Yıldız')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 10 -->
+                <tr data-role="user" data-status="active" data-name="Deniz Korkmaz" data-email="deniz@example.com" data-login="1 gün önce" data-date="30 Eki 2024">
+                  <td><input type="checkbox" class="usr-checkbox" onchange="updateBulk()"></td>
+                  <td>
+                    <div class="usr-user-cell">
+                      <div class="usr-avatar ring-purple">
+                        <img src="https://ui-avatars.com/api/?name=Deniz+Korkmaz&background=a855f7&color=fff&size=40" alt="">
+                        <span class="usr-status-dot offline"></span>
+                      </div>
+                      <div class="usr-user-info">
+                        <span class="usr-user-name">Deniz Korkmaz</span>
+                        <span class="usr-user-email">deniz@example.com</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="usr-role-badge user"><i class="bi bi-person-fill"></i> Kullanıcı</span></td>
+                  <td><span class="usr-status-badge active">Aktif</span></td>
+                  <td class="d-none d-lg-table-cell"><span class="usr-meta">1 gün önce</span></td>
+                  <td class="d-none d-xl-table-cell"><span class="usr-meta">30 Eki 2024</span></td>
+                  <td class="d-none d-xl-table-cell"><i class="bi bi-shield-check text-neon-green"></i></td>
+                  <td>
+                    <div class="usr-actions">
+                      <button class="usr-action-btn" title="Görüntüle" onclick="viewUser('Deniz Korkmaz')"><i class="bi bi-eye"></i></button>
+                      <a class="usr-action-btn" title="Düzenle" href="user-form.html?edit=deniz"><i class="bi bi-pencil"></i></a>
+                      <button class="usr-action-btn danger" title="Sil" onclick="deleteUser('Deniz Korkmaz')"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="usr-pagination">
+            <div class="usr-pagination-info">
+              <span>Toplam <strong>2,847</strong> kullanıcıdan <strong>1-10</strong> gösteriliyor</span>
+            </div>
+            <div class="usr-pagination-controls">
+              <select class="usr-filter-select w-auto" onchange="changePerPage(this.value)">
+                <option>10 / sayfa</option>
+                <option>25 / sayfa</option>
+                <option>50 / sayfa</option>
+                <option>100 / sayfa</option>
+              </select>
+              <div class="usr-page-btns">
+                <button class="usr-page-btn" disabled><i class="bi bi-chevron-left"></i></button>
+                <button class="usr-page-btn active">1</button>
+                <button class="usr-page-btn">2</button>
+                <button class="usr-page-btn">3</button>
+                <button class="usr-page-btn">...</button>
+                <button class="usr-page-btn">285</button>
+                <button class="usr-page-btn"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 4: GRID/CARD VIEW ==================== -->
+      <div id="gridView" class="d-none">
+        <div class="row g-4 mb-4">
+          <!-- Card 1 -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card">
+              <div class="usr-card-header">
+                <div class="usr-card-menu">
+                  <a class="usr-action-btn" href="user-form.html?edit=ozan"><i class="bi bi-three-dots-vertical"></i></a>
+                </div>
+                <div class="usr-card-avatar ring-teal">
+                  <img src="https://ui-avatars.com/api/?name=Ozan+Sonar&background=14b8a6&color=fff&size=80" alt="">
+                  <span class="usr-status-dot online"></span>
+                </div>
+                <h5 class="usr-card-name">Ozan Sonar <i class="bi bi-patch-check-fill text-teal-xs"></i></h5>
+                <span class="usr-card-email">ozan@example.com</span>
+                <span class="usr-role-badge admin mt-2"><i class="bi bi-shield-fill"></i> Super Admin</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">248</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">1.2K</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">96%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Ozan Sonar')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=ozan"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=ayse"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-purple">
+                  <img src="https://ui-avatars.com/api/?name=Ayse+Yilmaz&background=a855f7&color=fff&size=80" alt="">
+                  <span class="usr-status-dot online"></span>
+                </div>
+                <h5 class="usr-card-name">Ayşe Yılmaz</h5>
+                <span class="usr-card-email">ayse@example.com</span>
+                <span class="usr-role-badge editor mt-2"><i class="bi bi-pencil-fill"></i> Editör</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">56</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">423</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">89%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Ayşe Yılmaz')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=ayse"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=mehmet"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-blue">
+                  <img src="https://ui-avatars.com/api/?name=Mehmet+Demir&background=3b82f6&color=fff&size=80" alt="">
+                  <span class="usr-status-dot online"></span>
+                </div>
+                <h5 class="usr-card-name">Mehmet Demir</h5>
+                <span class="usr-card-email">mehmet@example.com</span>
+                <span class="usr-role-badge moderator mt-2"><i class="bi bi-shield-fill-check"></i> Moderatör</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">34</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">287</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">92%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Mehmet Demir')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=mehmet"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=zeynep"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-green">
+                  <img src="https://ui-avatars.com/api/?name=Zeynep+Kaya&background=22c55e&color=fff&size=80" alt="">
+                  <span class="usr-status-dot offline"></span>
+                </div>
+                <h5 class="usr-card-name">Zeynep Kaya</h5>
+                <span class="usr-card-email">zeynep@example.com</span>
+                <span class="usr-role-badge user mt-2"><i class="bi bi-person-fill"></i> Kullanıcı</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">12</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">89</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">78%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Zeynep Kaya')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=zeynep"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=ali"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-teal">
+                  <img src="https://ui-avatars.com/api/?name=Ali+Ozturk&background=14b8a6&color=fff&size=80" alt="">
+                  <span class="usr-status-dot online"></span>
+                </div>
+                <h5 class="usr-card-name">Ali Öztürk <i class="bi bi-patch-check-fill text-teal-xs"></i></h5>
+                <span class="usr-card-email">ali@example.com</span>
+                <span class="usr-role-badge admin mt-2"><i class="bi bi-shield-fill"></i> Admin</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">112</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">856</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">94%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Ali Öztürk')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=ali"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6 - Suspended -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card suspended">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=fatma"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-pink">
+                  <img src="https://ui-avatars.com/api/?name=Fatma+Celik&background=ec4899&color=fff&size=80" alt="">
+                  <span class="usr-status-dot suspended"></span>
+                </div>
+                <h5 class="usr-card-name">Fatma Çelik</h5>
+                <span class="usr-card-email">fatma@example.com</span>
+                <span class="usr-role-badge editor mt-2"><i class="bi bi-pencil-fill"></i> Editör</span>
+                <span class="usr-status-badge suspended mt-2">Askıda</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">28</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">198</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">72%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Fatma Çelik')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=fatma"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 7 - Pending -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card pending">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=emre"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-orange">
+                  <img src="https://ui-avatars.com/api/?name=Emre+Aksoy&background=f97316&color=fff&size=80" alt="">
+                  <span class="usr-status-dot pending"></span>
+                </div>
+                <h5 class="usr-card-name">Emre Aksoy</h5>
+                <span class="usr-card-email">emre@example.com</span>
+                <span class="usr-role-badge viewer mt-2"><i class="bi bi-eye-fill"></i> İzleyici</span>
+                <span class="usr-status-badge pending mt-2">Beklemede</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">0</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">0</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">-</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn success" onclick="approveUser('Emre Aksoy')"><i class="bi bi-check-circle"></i> Onayla</button>
+                <button class="usr-card-btn danger" onclick="rejectUser('Emre Aksoy')"><i class="bi bi-x-circle"></i> Reddet</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 8 -->
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="usr-card">
+              <div class="usr-card-header">
+                <div class="usr-card-menu"><a class="usr-action-btn" href="user-form.html?edit=selin"><i class="bi bi-three-dots-vertical"></i></a></div>
+                <div class="usr-card-avatar ring-blue">
+                  <img src="https://ui-avatars.com/api/?name=Selin+Arslan&background=3b82f6&color=fff&size=80" alt="">
+                  <span class="usr-status-dot online"></span>
+                </div>
+                <h5 class="usr-card-name">Selin Arslan</h5>
+                <span class="usr-card-email">selin@example.com</span>
+                <span class="usr-role-badge moderator mt-2"><i class="bi bi-shield-fill-check"></i> Moderatör</span>
+              </div>
+              <div class="usr-card-body">
+                <div class="usr-card-stats">
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">67</span><span class="usr-card-stat-label">Proje</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">534</span><span class="usr-card-stat-label">Görev</span></div>
+                  <div class="usr-card-stat"><span class="usr-card-stat-val">91%</span><span class="usr-card-stat-label">Başarı</span></div>
+                </div>
+              </div>
+              <div class="usr-card-footer">
+                <button class="usr-card-btn" onclick="viewUser('Selin Arslan')"><i class="bi bi-eye"></i> Görüntüle</button>
+                <a class="usr-card-btn primary" href="user-form.html?edit=selin"><i class="bi bi-pencil"></i> Düzenle</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 5: USER DETAIL PANEL (Offcanvas) ==================== -->
+      <div class="usr-detail-panel" id="userDetailPanel">
+        <div class="usr-detail-overlay" onclick="closeUserDetail()"></div>
+        <div class="usr-detail-content">
+          <div class="usr-detail-header">
+            <h5><i class="bi bi-person-lines-fill me-2"></i>Kullanıcı Detayı</h5>
+            <button class="usr-action-btn" onclick="closeUserDetail()"><i class="bi bi-x-lg"></i></button>
+          </div>
+
+          <div class="usr-detail-body">
+            <div class="usr-detail-profile">
+              <div class="usr-detail-avatar ring-teal">
+                <img src="https://ui-avatars.com/api/?name=Ozan+Sonar&background=14b8a6&color=fff&size=96" alt="" id="detailAvatar">
+                <span class="usr-status-dot online" id="detailStatusDot"></span>
+              </div>
+              <h4 id="detailName">Ozan Sonar</h4>
+              <span class="usr-role-badge admin" id="detailRole"><i class="bi bi-shield-fill"></i> Super Admin</span>
+              <span class="usr-card-email mt-1" id="detailEmail">ozan@example.com</span>
+            </div>
+
+            <div class="usr-detail-section">
+              <h6 class="usr-detail-section-title">Genel Bilgiler</h6>
+              <div class="usr-detail-info-list">
+                <div class="usr-detail-info-item">
+                  <i class="bi bi-telephone"></i>
+                  <div><span class="usr-detail-info-label">Telefon</span><span class="usr-detail-info-value" id="detailPhone">+90 532 XXX XX XX</span></div>
+                </div>
+                <div class="usr-detail-info-item">
+                  <i class="bi bi-geo-alt"></i>
+                  <div><span class="usr-detail-info-label">Konum</span><span class="usr-detail-info-value" id="detailLocation">İstanbul, Türkiye</span></div>
+                </div>
+                <div class="usr-detail-info-item">
+                  <i class="bi bi-building"></i>
+                  <div><span class="usr-detail-info-label">Departman</span><span class="usr-detail-info-value" id="detailDept">Yazılım Geliştirme</span></div>
+                </div>
+                <div class="usr-detail-info-item">
+                  <i class="bi bi-calendar3"></i>
+                  <div><span class="usr-detail-info-label">Kayıt Tarihi</span><span class="usr-detail-info-value" id="detailJoined">12 Ocak 2024</span></div>
+                </div>
+                <div class="usr-detail-info-item">
+                  <i class="bi bi-clock-history"></i>
+                  <div><span class="usr-detail-info-label">Son Giriş</span><span class="usr-detail-info-value" id="detailLastLogin">5 dakika önce</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="usr-detail-section">
+              <h6 class="usr-detail-section-title">Aktivite Özeti</h6>
+              <div class="usr-detail-stats">
+                <div class="usr-detail-stat">
+                  <div class="usr-detail-stat-bar"><div class="usr-detail-stat-fill" style="width:96%;--color:var(--teal-primary)"></div></div>
+                  <div class="usr-detail-stat-info"><span>Başarı Oranı</span><strong>96%</strong></div>
+                </div>
+                <div class="usr-detail-stat">
+                  <div class="usr-detail-stat-bar"><div class="usr-detail-stat-fill" style="width:78%;--color:var(--neon-blue)"></div></div>
+                  <div class="usr-detail-stat-info"><span>Görev Tamamlama</span><strong>78%</strong></div>
+                </div>
+                <div class="usr-detail-stat">
+                  <div class="usr-detail-stat-bar"><div class="usr-detail-stat-fill" style="width:85%;--color:var(--neon-purple)"></div></div>
+                  <div class="usr-detail-stat-info"><span>Katılım Skoru</span><strong>85%</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="usr-detail-section">
+              <h6 class="usr-detail-section-title">İzinler</h6>
+              <div class="usr-detail-perms">
+                <span class="usr-perm-tag granted"><i class="bi bi-check-circle-fill"></i> Okuma</span>
+                <span class="usr-perm-tag granted"><i class="bi bi-check-circle-fill"></i> Yazma</span>
+                <span class="usr-perm-tag granted"><i class="bi bi-check-circle-fill"></i> Silme</span>
+                <span class="usr-perm-tag granted"><i class="bi bi-check-circle-fill"></i> Kullanıcı Yönetimi</span>
+                <span class="usr-perm-tag granted"><i class="bi bi-check-circle-fill"></i> Sistem Ayarları</span>
+                <span class="usr-perm-tag granted"><i class="bi bi-check-circle-fill"></i> Raporlar</span>
+              </div>
+            </div>
+
+            <div class="usr-detail-section">
+              <h6 class="usr-detail-section-title">Son Hareketler</h6>
+              <div class="usr-detail-activity">
+                <div class="usr-detail-act-item">
+                  <div class="usr-detail-act-icon color-green"><i class="bi bi-check2-circle"></i></div>
+                  <div class="usr-detail-act-info"><span>Proje tamamlandı: <strong>E-Ticaret v2</strong></span><small>2 saat önce</small></div>
+                </div>
+                <div class="usr-detail-act-item">
+                  <div class="usr-detail-act-icon color-blue"><i class="bi bi-file-earmark-plus"></i></div>
+                  <div class="usr-detail-act-info"><span>Yeni dosya yüklendi: <strong>rapor_q4.pdf</strong></span><small>5 saat önce</small></div>
+                </div>
+                <div class="usr-detail-act-item">
+                  <div class="usr-detail-act-icon color-purple"><i class="bi bi-chat-left-text"></i></div>
+                  <div class="usr-detail-act-info"><span>Yorum yapıldı: <strong>API Entegrasyonu</strong></span><small>1 gün önce</small></div>
+                </div>
+                <div class="usr-detail-act-item">
+                  <div class="usr-detail-act-icon color-orange"><i class="bi bi-gear"></i></div>
+                  <div class="usr-detail-act-info"><span>Sistem ayarları güncellendi</span><small>2 gün önce</small></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="usr-detail-section">
+              <h6 class="usr-detail-section-title">Aktif Oturumlar</h6>
+              <div class="usr-detail-sessions">
+                <div class="usr-detail-session">
+                  <div class="usr-detail-session-icon"><i class="bi bi-laptop"></i></div>
+                  <div class="usr-detail-session-info"><span>MacBook Pro - Chrome</span><small>İstanbul, TR - Şimdi aktif</small></div>
+                  <span class="usr-session-current">Mevcut</span>
+                </div>
+                <div class="usr-detail-session">
+                  <div class="usr-detail-session-icon"><i class="bi bi-phone"></i></div>
+                  <div class="usr-detail-session-info"><span>iPhone 15 - Safari</span><small>İstanbul, TR - 3 saat önce</small></div>
+                  <button class="usr-action-btn danger" title="Oturumu sonlandır"><i class="bi bi-x-lg"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="usr-detail-footer">
+            <a class="btn-glass" href="user-form.html?edit=detail"><i class="bi bi-pencil me-1"></i> Düzenle</a>
+            <button class="btn-glass" onclick="suspendUser()"><i class="bi bi-pause-circle me-1"></i> Askıya Al</button>
+            <button class="btn-teal btn-danger-gradient" onclick="deleteUser('detail')"><i class="bi bi-trash me-1"></i> Sil</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 6: ROLE OVERVIEW ==================== -->
+      <div class="row g-4 mb-4" data-aos="fade-up">
+        <div class="col-12">
+          <div class="form-section-header">
+            <div class="form-section-icon"><i class="bi bi-shield-fill-check"></i></div>
+            <div>
+              <h6 class="mb-0">Rol Dağılımı</h6>
+              <small class="text-muted">Sistemdeki kullanıcıların rollere göre dağılımı</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+          <div class="usr-role-card accent-teal">
+            <div class="usr-role-card-icon"><i class="bi bi-shield-fill"></i></div>
+            <h4 class="usr-role-card-count">5</h4>
+            <span class="usr-role-card-name">Super Admin</span>
+            <div class="usr-role-card-bar"><div class="usr-role-card-fill" style="width:2%"></div></div>
+            <small class="text-muted">%0.2 oran</small>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+          <div class="usr-role-card accent-blue">
+            <div class="usr-role-card-icon"><i class="bi bi-shield-fill-check"></i></div>
+            <h4 class="usr-role-card-count">42</h4>
+            <span class="usr-role-card-name">Admin</span>
+            <div class="usr-role-card-bar"><div class="usr-role-card-fill" style="width:15%"></div></div>
+            <small class="text-muted">%1.5 oran</small>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+          <div class="usr-role-card accent-purple">
+            <div class="usr-role-card-icon"><i class="bi bi-pencil-fill"></i></div>
+            <h4 class="usr-role-card-count">186</h4>
+            <span class="usr-role-card-name">Editör</span>
+            <div class="usr-role-card-bar"><div class="usr-role-card-fill" style="width:35%"></div></div>
+            <small class="text-muted">%6.5 oran</small>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+          <div class="usr-role-card accent-orange">
+            <div class="usr-role-card-icon"><i class="bi bi-shield-fill-exclamation"></i></div>
+            <h4 class="usr-role-card-count">124</h4>
+            <span class="usr-role-card-name">Moderatör</span>
+            <div class="usr-role-card-bar"><div class="usr-role-card-fill" style="width:25%"></div></div>
+            <small class="text-muted">%4.4 oran</small>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+          <div class="usr-role-card accent-green">
+            <div class="usr-role-card-icon"><i class="bi bi-person-fill"></i></div>
+            <h4 class="usr-role-card-count">2,156</h4>
+            <span class="usr-role-card-name">Kullanıcı</span>
+            <div class="usr-role-card-bar"><div class="usr-role-card-fill" style="width:85%"></div></div>
+            <small class="text-muted">%75.7 oran</small>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+          <div class="usr-role-card accent-pink">
+            <div class="usr-role-card-icon"><i class="bi bi-eye-fill"></i></div>
+            <h4 class="usr-role-card-count">334</h4>
+            <span class="usr-role-card-name">İzleyici</span>
+            <div class="usr-role-card-bar"><div class="usr-role-card-fill" style="width:18%"></div></div>
+            <small class="text-muted">%11.7 oran</small>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 7: RECENT ACTIVITY LOG ==================== -->
+      <div class="row g-4 mb-4" data-aos="fade-up">
+        <div class="col-lg-8">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="bi bi-activity me-2 text-teal"></i>Son Kullanıcı Hareketleri</h6>
+              <button class="btn-glass">Tümünü Gör</button>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="usr-activity-list">
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-green"><img src="https://ui-avatars.com/api/?name=A+Y&background=22c55e&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Ayşe Yılmaz</strong> yeni bir makale yayınladı</span><small>2 dakika önce</small></div>
+                  <span class="usr-activity-type publish"><i class="bi bi-journal-richtext"></i></span>
+                </div>
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-blue"><img src="https://ui-avatars.com/api/?name=M+D&background=3b82f6&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Mehmet Demir</strong> bir kullanıcıyı onayladı</span><small>15 dakika önce</small></div>
+                  <span class="usr-activity-type approve"><i class="bi bi-person-check"></i></span>
+                </div>
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-teal"><img src="https://ui-avatars.com/api/?name=O+S&background=14b8a6&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Ozan Sonar</strong> sistem ayarlarını güncelledi</span><small>1 saat önce</small></div>
+                  <span class="usr-activity-type settings"><i class="bi bi-gear"></i></span>
+                </div>
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-pink"><img src="https://ui-avatars.com/api/?name=F+C&background=ec4899&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Fatma Çelik</strong> hesabı askıya alındı</span><small>3 saat önce</small></div>
+                  <span class="usr-activity-type suspend"><i class="bi bi-pause-circle"></i></span>
+                </div>
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-orange"><img src="https://ui-avatars.com/api/?name=E+A&background=f97316&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Emre Aksoy</strong> kayıt oldu - onay bekleniyor</span><small>5 saat önce</small></div>
+                  <span class="usr-activity-type register"><i class="bi bi-person-plus"></i></span>
+                </div>
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-purple"><img src="https://ui-avatars.com/api/?name=S+A&background=a855f7&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Selin Arslan</strong> 3 içerik moderasyondan geçirdi</span><small>6 saat önce</small></div>
+                  <span class="usr-activity-type moderate"><i class="bi bi-shield-check"></i></span>
+                </div>
+                <div class="usr-activity-item">
+                  <div class="usr-activity-avatar ring-green"><img src="https://ui-avatars.com/api/?name=B+Y&background=22c55e&color=fff&size=32" alt=""></div>
+                  <div class="usr-activity-info"><span><strong>Burak Yıldız</strong> profil bilgilerini güncelledi</span><small>1 gün önce</small></div>
+                  <span class="usr-activity-type edit"><i class="bi bi-pencil"></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Çevrimiçi Kullanıcılar -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="bi bi-circle-fill me-2 text-neon-green fs-8"></i>Çevrimiçi Kullanıcılar</h6>
+              <span class="badge badge-online">12 aktif</span>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="usr-online-list">
+                <div class="usr-online-item">
+                  <div class="usr-activity-avatar ring-teal"><img src="https://ui-avatars.com/api/?name=O+S&background=14b8a6&color=fff&size=32" alt=""><span class="usr-mini-dot online"></span></div>
+                  <div class="usr-online-info"><span>Ozan Sonar</span><small>Dashboard görüntülüyor</small></div>
+                  <small class="text-muted">Şimdi</small>
+                </div>
+                <div class="usr-online-item">
+                  <div class="usr-activity-avatar ring-purple"><img src="https://ui-avatars.com/api/?name=A+Y&background=a855f7&color=fff&size=32" alt=""><span class="usr-mini-dot online"></span></div>
+                  <div class="usr-online-info"><span>Ayşe Yılmaz</span><small>Makale düzenliyor</small></div>
+                  <small class="text-muted">2dk</small>
+                </div>
+                <div class="usr-online-item">
+                  <div class="usr-activity-avatar ring-blue"><img src="https://ui-avatars.com/api/?name=M+D&background=3b82f6&color=fff&size=32" alt=""><span class="usr-mini-dot online"></span></div>
+                  <div class="usr-online-info"><span>Mehmet Demir</span><small>Kullanıcı yönetiyor</small></div>
+                  <small class="text-muted">5dk</small>
+                </div>
+                <div class="usr-online-item">
+                  <div class="usr-activity-avatar ring-blue"><img src="https://ui-avatars.com/api/?name=S+A&background=3b82f6&color=fff&size=32" alt=""><span class="usr-mini-dot online"></span></div>
+                  <div class="usr-online-info"><span>Selin Arslan</span><small>Moderasyon paneli</small></div>
+                  <small class="text-muted">12dk</small>
+                </div>
+                <div class="usr-online-item">
+                  <div class="usr-activity-avatar ring-teal"><img src="https://ui-avatars.com/api/?name=A+O&background=14b8a6&color=fff&size=32" alt=""><span class="usr-mini-dot online"></span></div>
+                  <div class="usr-online-info"><span>Ali Öztürk</span><small>Raporları inceliyor</small></div>
+                  <small class="text-muted">18dk</small>
+                </div>
+                <div class="usr-online-item">
+                  <div class="usr-activity-avatar ring-green"><img src="https://ui-avatars.com/api/?name=B+Y&background=22c55e&color=fff&size=32" alt=""><span class="usr-mini-dot away"></span></div>
+                  <div class="usr-online-info"><span>Burak Yıldız</span><small>Uzakta</small></div>
+                  <small class="text-muted">45dk</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 8: INVITE & PENDING ==================== -->
+      <div class="row g-4 mb-4" data-aos="fade-up">
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-send me-2 text-neon-blue"></i>Davet Gönder</h6>
+            </div>
+            <div class="card-body-custom">
+              <p class="text-muted mb-3 fs-13">E-posta adresleri girerek toplu davet gönderin. Davet edilen kullanıcılar otomatik olarak belirlediğiniz rolle sisteme eklenir.</p>
+              <div class="mb-3">
+                <label class="stg-label">E-posta Adresleri</label>
+                <textarea class="stg-textarea" rows="3" placeholder="ornek@mail.com, diger@mail.com..." id="inviteEmails"></textarea>
+                <small class="text-muted">Virgül ile ayırarak birden fazla e-posta girebilirsiniz</small>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="stg-label">Rol</label>
+                  <select class="stg-select" id="inviteRole">
+                    <option value="user">Kullanıcı</option>
+                    <option value="editor">Editör</option>
+                    <option value="moderator">Moderatör</option>
+                    <option value="viewer">İzleyici</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Mesaj (Opsiyonel)</label>
+                  <input type="text" class="stg-input" placeholder="Hoşgeldin mesajı..." id="inviteMessage">
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-teal" onclick="sendInvites()"><i class="bi bi-send me-1"></i> Davet Gönder</button>
+                <button class="btn-glass" onclick="generateInviteLink()"><i class="bi bi-link-45deg me-1"></i> Davet Linki Oluştur</button>
+              </div>
+              <div class="usr-invite-link mt-3 d-none" id="inviteLinkArea">
+                <div class="stg-input d-flex align-items-center justify-content-between cursor-pointer" onclick="copyInviteLink()">
+                  <span id="inviteLinkText" class="usr-invite-link-text">https://app.ozan.dev/invite/xK9mPq2...</span>
+                  <i class="bi bi-clipboard text-teal"></i>
+                </div>
+                <small class="text-muted mt-1 d-block"><i class="bi bi-clock me-1"></i>Bu link 48 saat geçerlidir</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-clock-history me-2 text-neon-orange"></i>Bekleyen Onaylar</h6>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="usr-pending-list">
+                <div class="usr-pending-item">
+                  <div class="usr-activity-avatar ring-orange"><img src="https://ui-avatars.com/api/?name=E+A&background=f97316&color=fff&size=32" alt=""></div>
+                  <div class="usr-pending-info"><span class="usr-pending-name">Emre Aksoy</span><small>emre@example.com - 5 saat önce</small></div>
+                  <div class="usr-pending-actions">
+                    <button class="usr-action-btn success" title="Onayla" onclick="approveUser('Emre Aksoy')"><i class="bi bi-check-lg"></i></button>
+                    <button class="usr-action-btn danger" title="Reddet" onclick="rejectUser('Emre Aksoy')"><i class="bi bi-x-lg"></i></button>
+                  </div>
+                </div>
+                <div class="usr-pending-item">
+                  <div class="usr-activity-avatar ring-orange"><img src="https://ui-avatars.com/api/?name=C+T&background=f97316&color=fff&size=32" alt=""></div>
+                  <div class="usr-pending-info"><span class="usr-pending-name">Canan Tekin</span><small>canan@example.com - 1 gün önce</small></div>
+                  <div class="usr-pending-actions">
+                    <button class="usr-action-btn success" title="Onayla"><i class="bi bi-check-lg"></i></button>
+                    <button class="usr-action-btn danger" title="Reddet"><i class="bi bi-x-lg"></i></button>
+                  </div>
+                </div>
+                <div class="usr-pending-item">
+                  <div class="usr-activity-avatar ring-orange"><img src="https://ui-avatars.com/api/?name=H+K&background=f97316&color=fff&size=32" alt=""></div>
+                  <div class="usr-pending-info"><span class="usr-pending-name">Hakan Koç</span><small>hakan@example.com - 2 gün önce</small></div>
+                  <div class="usr-pending-actions">
+                    <button class="usr-action-btn success" title="Onayla"><i class="bi bi-check-lg"></i></button>
+                    <button class="usr-action-btn danger" title="Reddet"><i class="bi bi-x-lg"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="p-3 text-center border-top border-top-theme">
+                <button class="btn-teal me-2" onclick="approveAll()"><i class="bi bi-check-all me-1"></i> Tümünü Onayla</button>
+                <button class="btn-glass"><i class="bi bi-list-ul me-1"></i> Tümünü Gör (7)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== DELETE CONFIRM MODAL ==================== -->
+      <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+          <div class="modal-content">
+            <div class="modal-body text-center py-4">
+              <div class="status-modal-icon danger">
+                <i class="bi bi-exclamation-triangle"></i>
+              </div>
+              <h5 class="cl-modal-heading">Kullanıcıyı Sil</h5>
+              <p class="cl-modal-body-text">Bu kullanıcıyı silmek istediğinizden emin misiniz?</p>
+              <p class="cl-modal-content-name" id="deleteUserName">Ozan Sonar</p>
+              <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
+              <div class="d-flex gap-2 justify-content-center">
+                <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+                <button class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmDelete()">
+                  <i class="bi bi-trash me-1"></i> Evet, Sil
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3 z-toast">
+  <div class="toast align-items-center border-0 bg-card-bordered" id="usrToast" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center gap-2" id="usrToastBody">
+        <i class="bi bi-check-circle-fill text-neon-green"></i>
+        <span>İşlem başarıyla tamamlandı</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// ========== AOS Init ==========
+AOS.init({
+  duration: 600,
+  easing: 'ease-out-cubic',
+  once: true,
+  offset: 50
+});
+
+// ========== Counter Animation ==========
+function animateCounters() {
+  var duration = 1500;
+  var elements = document.querySelectorAll('[data-count]');
+  elements.forEach(function (el) {
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    if (isNaN(target)) return;
+    var start = 0;
+    var startTime = null;
+    function formatNumber(n) {
+      return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.floor(eased * target);
+      el.textContent = formatNumber(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = formatNumber(target);
+      }
+    }
+    requestAnimationFrame(step);
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', animateCounters);
+} else {
+  animateCounters();
+}
+</script>
+<script>
+// ========== View Toggle ==========
+function setView(view, btn) {
+  document.querySelectorAll('.usr-view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tableView').classList.toggle('d-none', view !== 'table');
+  document.getElementById('gridView').classList.toggle('d-none', view !== 'grid');
+}
+
+// ========== Select All / Bulk ==========
+function toggleSelectAll(master) {
+  const checkboxes = document.querySelectorAll('#userTableBody .usr-checkbox');
+  checkboxes.forEach(cb => cb.checked = master.checked);
+  updateBulk();
+}
+
+function updateBulk() {
+  const checked = document.querySelectorAll('#userTableBody .usr-checkbox:checked').length;
+  const bulkActions = document.getElementById('bulkActions');
+  const selectedCount = document.getElementById('selectedCount');
+  if (checked > 0) {
+    bulkActions.classList.remove('d-none');
+    selectedCount.textContent = checked;
+  } else {
+    bulkActions.classList.add('d-none');
+  }
+}
+
+function bulkAction(action) {
+  const labels = { activate: 'aktif edildi', suspend: 'askıya alındı', delete: 'silindi' };
+  const checked = document.querySelectorAll('#userTableBody .usr-checkbox:checked').length;
+  showToast(`${checked} kullanıcı ${labels[action]}`);
+  document.getElementById('selectAll').checked = false;
+  document.querySelectorAll('#userTableBody .usr-checkbox').forEach(cb => cb.checked = false);
+  updateBulk();
+}
+
+// ========== Filter ==========
+function filterUsers() {
+  const search = document.getElementById('userSearch').value.toLowerCase();
+  const role = document.getElementById('filterRole').value;
+  const status = document.getElementById('filterStatus').value;
+  const rows = document.querySelectorAll('#userTableBody tr');
+
+  rows.forEach(row => {
+    const name = (row.dataset.name || '').toLowerCase();
+    const rowRole = row.dataset.role || '';
+    const rowStatus = row.dataset.status || '';
+    const email = row.querySelector('.usr-user-email')?.textContent.toLowerCase() || '';
+
+    const matchSearch = !search || name.includes(search) || email.includes(search);
+    const matchRole = !role || rowRole === role;
+    const matchStatus = !status || rowStatus === status;
+
+    row.classList.toggle('d-none', !(matchSearch && matchRole && matchStatus));
+  });
+}
+
+// ========== Sort ==========
+let sortDir = {};
+function sortTable(col) {
+  sortDir[col] = !sortDir[col];
+  const tbody = document.getElementById('userTableBody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+
+  rows.sort((a, b) => {
+    let aVal, bVal;
+    if (col === 'name') { aVal = a.dataset.name; bVal = b.dataset.name; }
+    else if (col === 'role') { aVal = a.dataset.role; bVal = b.dataset.role; }
+    else if (col === 'status') { aVal = a.dataset.status; bVal = b.dataset.status; }
+    else { aVal = a.dataset.name; bVal = b.dataset.name; }
+    return sortDir[col] ? aVal.localeCompare(bVal, 'tr') : bVal.localeCompare(aVal, 'tr');
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+// ========== User Detail Panel ==========
+function viewUser(name) {
+  document.getElementById('detailName').textContent = name;
+  document.getElementById('userDetailPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeUserDetail() {
+  document.getElementById('userDetailPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ========== Delete ==========
+function deleteUser(name) {
+  document.getElementById('deleteUserName').textContent = name;
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function confirmDelete() {
+  bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+  showToast('Kullanıcı başarıyla silindi', 'danger');
+}
+
+// ========== Approve / Reject ==========
+function approveUser(name) {
+  showToast(`${name} onaylandı`);
+}
+function rejectUser(name) {
+  showToast(`${name} reddedildi`, 'warning');
+}
+function approveAll() {
+  showToast('Tüm bekleyen kullanıcılar onaylandı');
+}
+
+// ========== Suspend ==========
+function suspendUser() {
+  showToast('Kullanıcı askıya alındı', 'warning');
+}
+
+// ========== Export - Gerçek Dosya İndirme ==========
+function exportUsers(format) {
+  const rows = document.querySelectorAll('#userTableBody tr');
+  const users = [];
+
+  rows.forEach(row => {
+    if (row.classList.contains('d-none')) return;
+    users.push({
+      ad: row.dataset.name || '',
+      eposta: row.dataset.email || '',
+      rol: row.dataset.role || '',
+      durum: row.dataset.status || '',
+      sonGiris: row.dataset.login || '',
+      kayitTarihi: row.dataset.date || ''
+    });
+  });
+
+  if (users.length === 0) {
+    showToast('Dışa aktarılacak kullanıcı bulunamadı', 'warning');
+    return;
+  }
+
+  let content, filename, mimeType;
+
+  if (format === 'csv') {
+    const headers = ['Ad Soyad', 'E-posta', 'Rol', 'Durum', 'Son Giriş', 'Kayıt Tarihi'];
+    const csvRows = [headers.join(';')];
+    users.forEach(u => {
+      csvRows.push([u.ad, u.eposta, u.rol, u.durum, u.sonGiris, u.kayitTarihi].join(';'));
+    });
+    content = '\uFEFF' + csvRows.join('\n');
+    filename = 'kullanicilar.csv';
+    mimeType = 'text/csv;charset=utf-8';
+  } else if (format === 'json') {
+    content = JSON.stringify(users, null, 2);
+    filename = 'kullanicilar.json';
+    mimeType = 'application/json;charset=utf-8';
+  } else if (format === 'excel') {
+    let table = '<table><tr><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th>Durum</th><th>Son Giriş</th><th>Kayıt Tarihi</th></tr>';
+    users.forEach(u => {
+      table += `<tr><td>${u.ad}</td><td>${u.eposta}</td><td>${u.rol}</td><td>${u.durum}</td><td>${u.sonGiris}</td><td>${u.kayitTarihi}</td></tr>`;
+    });
+    table += '</table>';
+    content = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>' + table + '</body></html>';
+    filename = 'kullanicilar.xls';
+    mimeType = 'application/vnd.ms-excel;charset=utf-8';
+  }
+
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`${users.length} kullanıcı ${format.toUpperCase()} olarak indirildi`);
+}
+
+// ========== Import ==========
+function importUsers(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['csv', 'json', 'xlsx'].includes(ext)) {
+      showToast('Desteklenmeyen dosya formatı. CSV, JSON veya XLSX kullanın.', 'warning');
+      return;
+    }
+    showToast(`"${file.name}" dosyası başarıyla yüklendi. İçe aktarma işlemi başlatıldı.`);
+    input.value = '';
+  }
+}
+
+// ========== Invite ==========
+function sendInvites() {
+  const emails = document.getElementById('inviteEmails').value;
+  if (!emails.trim()) {
+    showToast('Lütfen e-posta adresi girin', 'warning');
+    return;
+  }
+  const count = emails.split(',').filter(e => e.trim()).length;
+  showToast(`${count} kullanıcıya davet gönderildi`);
+  document.getElementById('inviteEmails').value = '';
+}
+
+function generateInviteLink() {
+  document.getElementById('inviteLinkArea').classList.remove('d-none');
+  showToast('Davet linki oluşturuldu');
+}
+
+function copyInviteLink() {
+  navigator.clipboard.writeText('https://app.ozan.dev/invite/xK9mPq2rT8vL');
+  showToast('Davet linki kopyalandı');
+}
+
+// ========== Toast ==========
+function showToast(message, type) {
+  const toast = document.getElementById('usrToast');
+  const body = document.getElementById('usrToastBody');
+  const icons = { danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', default: 'bi-check-circle-fill' };
+  const classes = { danger: 'text-neon-red', warning: 'text-neon-orange', default: 'text-neon-green' };
+  const icon = icons[type] || icons.default;
+  const cls = classes[type] || classes.default;
+  body.innerHTML = `<i class="bi ${icon} ${cls}"></i><span>${message}</span>`;
+  new bootstrap.Toast(toast, { delay: 3000 }).show();
+}
+
+// ========== Per Page ==========
+function changePerPage(val) {
+  showToast(`Sayfa başına ${val} gösteriliyor`);
+}
+</script>
+</body>
+</html>

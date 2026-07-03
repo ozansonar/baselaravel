@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarifler | Blog | Orhan Baba'nın Çiftliği</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Blog kategorileri - Tarifler, çiftlik hayatı, sağlıklı beslenme yazıları. Orhan Baba'nın Çiftliği.">
+    <meta name="keywords" content="blog kategori, tarifler, çiftlik hayatı">
+    <meta name="author" content="Orhan Baba'nın Çiftliği">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://orhanbabaciftlik.com/kategori.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Tarifler | Blog | Orhan Baba'nın Çiftliği">
+    <meta property="og:description" content="Blog kategorileri - Tarifler, çiftlik hayatı, sağlıklı beslenme yazıları. Orhan Baba'nın Çiftliği.">
+    <meta property="og:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+    <meta property="og:url" content="https://orhanbabaciftlik.com/kategori.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Orhan Baba'nın Çiftliği">
+    <meta property="og:locale" content="tr_TR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tarifler | Blog | Orhan Baba'nın Çiftliği">
+    <meta name="twitter:description" content="Blog kategorileri - Tarifler, çiftlik hayatı, sağlıklı beslenme yazıları. Orhan Baba'nın Çiftliği.">
+    <meta name="twitter:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+
+    <!-- Preconnect & DNS Prefetch -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        
+
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .category-icon {
+            width: 80px; height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem;
+            color: var(--green-primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .category-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .category-stat {
+            text-align: center;
+        }
+
+        .category-stat .number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--green-dark);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .category-stat .label {
+            font-size: 0.9rem;
+            color: var(--brown-light);
+        }
+
+        /* Blog Section */
+        .blog-section { padding: 60px 0 100px; }
+
+        /* Blog Cards Grid */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .blog-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-hover); }
+
+        .blog-card-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--green-mist), var(--green-pale));
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        .blog-card-image i { font-size: 3rem; color: var(--green-primary); opacity: 0.5; }
+
+        .blog-card-
+
+        .blog-card-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+            color: var(--brown-light);
+            font-size: 0.85rem;
+        }
+
+        .blog-card-meta span { display: flex; align-items: center; gap: 5px; }
+
+        .blog-card-title {
+            font-size: 1.2rem;
+            color: var(--green-dark);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .blog-card-title a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+        .blog-card-title a:hover { color: var(--green-primary); }
+
+        .blog-card-excerpt {
+            color: var(--brown);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .read-more {
+            color: var(--green-primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover { gap: 12px; color: var(--green-dark); }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+
+        .pagination-btn {
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid var(--green-pale);
+            border-radius: 12px;
+            color: var(--green-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .pagination-btn:hover:not(:disabled) { background: var(--green-primary); border-color: var(--green-primary); color: white; }
+        .pagination-btn.active { background: var(--green-primary); border-color: var(--green-primary); color: white; }
+
+        /* Sidebar */
+        .blog-sidebar {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            padding: 30px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-widget {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid var(--green-mist);
+        }
+
+        .sidebar-widget:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+        .widget-title {
+            font-size: 1.3rem;
+            color: var(--green-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-title i { color: var(--green-primary); }
+
+        .category-list { list-style: none; }
+        .category-list li { margin-bottom: 10px; }
+
+        .category-list a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--green-mist);
+            border-radius: 10px;
+            color: var(--green-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .category-list a:hover, .category-list a.active { background: var(--green-primary); color: white; }
+
+        .category-count {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .category-list a:hover .category-count,
+        .category-list a.active .category-count { background: rgba(255,255,255,0.2); color: white; }
+
+        .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        .tag-cloud a {
+            padding: 8px 15px;
+            background: var(--green-mist);
+            border-radius: 20px;
+            color: var(--green-dark);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .tag-cloud a:hover { background: var(--green-primary); color: white; }
+
+        /* Footer */
+        .footer { background: var(--green-dark); color: white; padding: 80px 0 30px; }
+
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-brand .logo-icon {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, var(--green-light), var(--green-pale));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--green-dark);
+            font-size: 1.2rem;
+        }
+
+        .footer-text { color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 25px; }
+
+        .footer-social { display: flex; gap: 15px; }
+
+        .social-link {
+            width: 45px; height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-link:hover { background: var(--green-light); color: var(--green-dark); transform: translateY(-5px); }
+
+        .footer-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 25px; color: white; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 12px; }
+        .footer-links a { color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s ease; }
+        .footer-links a:hover { color: var(--green-light); }
+
+        .footer-bottom {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .blog-sidebar { position: relative; top: 0; margin-top: 40px; }
+            .blog-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 767px) {
+            .category-info { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Navigation - Accessibility -->
+    <a href="#main-content" class="skip-nav">Ana içeriğe geç</a>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top" role="navigation" aria-label="Ana Navigasyon">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+                Orhan Baba'nın Çiftliği
+            </a>
+            <button class="navbar-toggler" type="button" aria-label="Menüyü aç/kapat" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="urunler.html">Ürünlerimiz</a></li>
+                    <li class="nav-item"><a class="nav-link" href="hakkimizda.html">Hakkımızda</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="blog.html">Blog</a></li>
+                    <li class="nav-item"><a class="nav-link" href="galeri.html">Galeri</a></li>
+                    <li class="nav-item"><a class="nav-link" href="iletisim.html">İletişim</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-custom" href="sepet.html">
+                            <i class="fas fa-shopping-basket"></i>
+                            Sepetim
+                            <span class="cart-count" id="cartCount">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <main id="main-content">
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb-custom animate-fade-up">
+                <a href="index.html"><i class="fas fa-home"></i> Ana Sayfa</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="blog.html">Blog</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="categoryName">Tarifler</span>
+            </div>
+            <h1 class="page-title animate-fade-up delay-1" id="categoryTitle">Tarifler</h1>
+            <p class="page-subtitle animate-fade-up delay-2">Geleneksel tarifler ve mutfak sırları</p>
+
+            <div class="category-info animate-fade-up delay-2">
+                <div class="category-icon" id="categoryIcon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="category-stats">
+                    <div class="category-stat">
+                        <div class="number">12</div>
+                        <div class="label">Yazı</div>
+                    </div>
+                    <div class="category-stat">
+                        <div class="number">48</div>
+                        <div class="label">Yorum</div>
+                    </div>
+                    <div class="category-stat">
+                        <div class="number">5.2K</div>
+                        <div class="label">Görüntülenme</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section class="blog-section">
+        <div class="container">
+            <div class="row">
+                <!-- Blog Content -->
+                <div class="col-lg-8">
+                    <div class="blog-grid" id="blogGrid">
+                        <!-- Blog Card 1 -->
+                        <article class="blog-card animate-fade-up">
+                            <div class="blog-card-image">
+                                <i class="fas fa-cheese"></i>
+                            </div>
+                            <div class="blog-card-body">
+                                <div class="blog-card-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> 25 Ocak 2026</span>
+                                    <span><i class="fas fa-comments"></i> 12</span>
+                                </div>
+                                <h2 class="blog-card-title">
+                                    <a href="blog-detay.html?id=1">Ev Yapımı Peynir Nasıl Yapılır?</a>
+                                </h2>
+                                <p class="blog-card-excerpt">
+                                    Doğal ve katkısız peynir yapmak sandığınızdan çok daha kolay!
+                                </p>
+                                <a href="blog-detay.html?id=1" class="read-more">
+                                    Devamını Oku <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </article>
+
+                        <!-- Blog Card 2 -->
+                        <article class="blog-card animate-fade-up delay-1">
+                            <div class="blog-card-image">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="blog-card-body">
+                                <div class="blog-card-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> 10 Ocak 2026</span>
+                                    <span><i class="fas fa-comments"></i> 6</span>
+                                </div>
+                                <h2 class="blog-card-title">
+                                    <a href="blog-detay.html?id=4">Köy Kahvaltısı Hazırlama</a>
+                                </h2>
+                                <p class="blog-card-excerpt">
+                                    Geleneksel köy kahvaltısının tüm sırları bu yazımızda.
+                                </p>
+                                <a href="blog-detay.html?id=4" class="read-more">
+                                    Devamını Oku <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </article>
+
+                        <!-- Blog Card 3 -->
+                        <article class="blog-card animate-fade-up">
+                            <div class="blog-card-image">
+                                <i class="fas fa-bread-slice"></i>
+                            </div>
+                            <div class="blog-card-body">
+                                <div class="blog-card-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> 5 Ocak 2026</span>
+                                    <span><i class="fas fa-comments"></i> 9</span>
+                                </div>
+                                <h2 class="blog-card-title">
+                                    <a href="blog-detay.html?id=5">Ev Ekmeği Tarifi</a>
+                                </h2>
+                                <p class="blog-card-excerpt">
+                                    Köy usulü mayasız ekmek nasıl yapılır?
+                                </p>
+                                <a href="blog-detay.html?id=5" class="read-more">
+                                    Devamını Oku <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </article>
+
+                        <!-- Blog Card 4 -->
+                        <article class="blog-card animate-fade-up delay-1">
+                            <div class="blog-card-image">
+                                <i class="fas fa-cookie"></i>
+                            </div>
+                            <div class="blog-card-body">
+                                <div class="blog-card-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> 1 Ocak 2026</span>
+                                    <span><i class="fas fa-comments"></i> 4</span>
+                                </div>
+                                <h2 class="blog-card-title">
+                                    <a href="blog-detay.html?id=6">Tereyağlı Kurabiye</a>
+                                </h2>
+                                <p class="blog-card-excerpt">
+                                    Köy tereyağı ile yapılan enfes kurabiye tarifi.
+                                </p>
+                                <a href="blog-detay.html?id=6" class="read-more">
+                                    Devamını Oku <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container">
+                        <a href="#" class="pagination-btn"><i class="fas fa-chevron-left"></i></a>
+                        <a href="#" class="pagination-btn active">1</a>
+                        <a href="#" class="pagination-btn">2</a>
+                        <a href="#" class="pagination-btn">3</a>
+                        <a href="#" class="pagination-btn"><i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <aside class="blog-sidebar animate-fade-up delay-1">
+                        <!-- Categories Widget -->
+                        <div class="sidebar-widget">
+                            <h4 class="widget-title"><i class="fas fa-folder"></i> Kategoriler</h4>
+                            <ul class="category-list">
+                                <li><a href="kategori.html?cat=tarifler" class="active">Tarifler <span class="category-count">12</span></a></li>
+                                <li><a href="kategori.html?cat=ciftlik-hayati">Çiftlik Hayatı <span class="category-count">8</span></a></li>
+                                <li><a href="kategori.html?cat=saglik">Sağlık <span class="category-count">6</span></a></li>
+                                <li><a href="kategori.html?cat=organik-yasam">Organik Yaşam <span class="category-count">5</span></a></li>
+                                <li><a href="kategori.html?cat=mevsimlik">Mevsimlik <span class="category-count">4</span></a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Tags Widget -->
+                        <div class="sidebar-widget">
+                            <h4 class="widget-title"><i class="fas fa-tags"></i> Etiketler</h4>
+                            <div class="tag-cloud">
+                                <a href="#">Peynir</a>
+                                <a href="#">Bal</a>
+                                <a href="#">Organik</a>
+                                <a href="#">Tarif</a>
+                                <a href="#">Sağlık</a>
+                                <a href="#">Doğal</a>
+                                <a href="#">Kahvaltı</a>
+                                <a href="#">Yoğurt</a>
+                            </div>
+                        </div>
+
+                        <!-- Newsletter -->
+                        <div class="sidebar-widget sidebar-newsletter">
+                            <h4 class="widget-title"><i class="fas fa-envelope"></i> Bültene Abone Ol</h4>
+                            <p>Yeni tarifler için bültenimize abone olun.</p>
+                            <form>
+                                <input type="email" class="form-control" placeholder="E-posta adresiniz">
+                                <button type="submit" class="btn-newsletter">
+                                    <i class="fas fa-paper-plane me-2"></i>Abone Ol
+                                </button>
+                            </form>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </section>
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+                        Orhan Baba'nın Çiftliği
+                    </div>
+                    <p class="footer-text">1975'ten bu yana, geleneksel yöntemlerle üretilen doğal köy ürünlerini sofralarınıza ulaştırıyoruz.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="footer-title">Hızlı Linkler</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="urunler.html">Ürünlerimiz</a></li>
+                        <li><a href="hakkimizda.html">Hakkımızda</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="galeri.html">Galeri</a></li>
+                        <li><a href="iletisim.html">İletişim</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="footer-title">Blog</h5>
+                    <ul class="footer-links">
+                        <li><a href="kategori.html?cat=tarifler">Tarifler</a></li>
+                        <li><a href="kategori.html?cat=ciftlik-hayati">Çiftlik Hayatı</a></li>
+                        <li><a href="kategori.html?cat=saglik">Sağlık</a></li>
+                        <li><a href="galeri.html">Galeri</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="footer-title">İletişim</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Orhan Köyü, Çorum / Türkiye</li>
+                        <li><i class="fas fa-phone me-2"></i> +90 532 XXX XX XX</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@orhanbabaciftlik.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Orhan Baba'nın Çiftliği. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="app.js" defer></script>
+    <script>
+        // Update cart count
+        document.addEventListener('DOMContentLoaded', function() {
+            const cart = safeJsonParse('cart', []);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+
+            // Get category from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('cat') || 'tarifler';
+            updateCategoryPage(category);
+        });
+
+        function updateCategoryPage(cat) {
+            const categories = {
+                'tarifler': { name: 'Tarifler', icon: 'fa-utensils', desc: 'Geleneksel tarifler ve mutfak sırları' },
+                'ciftlik-hayati': { name: 'Çiftlik Hayatı', icon: 'fa-tractor', desc: 'Günlük çiftlik yaşamından notlar' },
+                'saglik': { name: 'Sağlık', icon: 'fa-heartbeat', desc: 'Doğal ürünlerle sağlıklı yaşam' },
+                'organik-yasam': { name: 'Organik Yaşam', icon: 'fa-seedling', desc: 'Organik yaşam tavsiyeleri' },
+                'mevsimlik': { name: 'Mevsimlik', icon: 'fa-sun', desc: 'Mevsimlik ürünler ve içerikler' }
+            };
+
+            const info = categories[cat] || categories['tarifler'];
+            document.getElementById('categoryName').textContent = info.name;
+            document.getElementById('categoryTitle').textContent = info.name;
+            document.querySelector('.page-subtitle').textContent = info.desc;
+            document.getElementById('categoryIcon').innerHTML = `<i class="fas ${info.icon}"></i>`;
+            document.title = `${info.name} | Blog | Orhan Baba'nın Çiftliği`;
+
+            // Update active category in sidebar
+            document.querySelectorAll('.category-list a').forEach(a => {
+                a.classList.remove('active');
+                if (a.href.includes(cat)) a.classList.add('active');
+            });
+        }
+
+        // Navbar scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+    </script>
+</body>
+</html>

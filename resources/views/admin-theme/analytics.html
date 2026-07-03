@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Analitik</title>
+  <meta name="description" content="OZAN Admin Panel - Gelişmiş analitik ve raporlama paneli">
+  <link rel="canonical" href="https://admin.ozan.dev/analytics.html">
+  <meta property="og:title" content="OZAN Admin - Analitik">
+  <meta property="og:description" content="Gelişmiş analitik, grafikler ve raporlama">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Analitik</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Analitik Panel</h1>
+          <p class="page-subtitle">Detaylı trafik, gelir, dönüşüm ve kullanıcı analizleri</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <!-- Date Range Picker -->
+          <div class="anl-date-range">
+            <i class="bi bi-calendar3"></i>
+            <select class="anl-date-select" id="dateRange" onchange="changeDateRange(this.value)">
+              <option value="7d">Son 7 Gün</option>
+              <option value="30d" selected>Son 30 Gün</option>
+              <option value="90d">Son 90 Gün</option>
+              <option value="6m">Son 6 Ay</option>
+              <option value="1y">Son 1 Yıl</option>
+              <option value="custom">Özel Tarih</option>
+            </select>
+          </div>
+          <div class="dropdown">
+            <button class="btn-glass dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-download"></i> Rapor İndir
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-theme">
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="downloadReport('pdf')"><i class="bi bi-filetype-pdf me-2 text-neon-red"></i>PDF Rapor</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="downloadReport('excel')"><i class="bi bi-file-earmark-excel me-2 text-neon-green"></i>Excel Rapor</a></li>
+              <li><a class="dropdown-item text-clr-secondary" href="#" onclick="downloadReport('csv')"><i class="bi bi-filetype-csv me-2 text-neon-blue"></i>CSV Verisi</a></li>
+            </ul>
+          </div>
+          <button class="btn-teal" onclick="openLiveModal()">
+            <i class="bi bi-broadcast"></i> Canlı İzleme
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: KPI CARDS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="anl-kpi-card">
+            <div class="anl-kpi-header">
+              <div class="anl-kpi-icon anl-kpi-icon-teal">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>12.5%</span>
+            </div>
+            <h3 class="anl-kpi-value" data-target="128430">128.430</h3>
+            <span class="anl-kpi-label">Toplam Ziyaretçi</span>
+            <div class="anl-kpi-sparkline">
+              <canvas id="sparkVisitors" height="40"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="anl-kpi-card">
+            <div class="anl-kpi-header">
+              <div class="anl-kpi-icon anl-kpi-icon-blue">
+                <i class="bi bi-eye-fill"></i>
+              </div>
+              <span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>18.3%</span>
+            </div>
+            <h3 class="anl-kpi-value" data-target="342890">342.890</h3>
+            <span class="anl-kpi-label">Sayfa Görüntülenme</span>
+            <div class="anl-kpi-sparkline">
+              <canvas id="sparkPageviews" height="40"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="anl-kpi-card">
+            <div class="anl-kpi-header">
+              <div class="anl-kpi-icon anl-kpi-icon-green">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>5.2%</span>
+            </div>
+            <h3 class="anl-kpi-value" data-target="4.8">%4.8</h3>
+            <span class="anl-kpi-label">Dönüşüm Oranı</span>
+            <div class="anl-kpi-sparkline">
+              <canvas id="sparkConversion" height="40"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="anl-kpi-card">
+            <div class="anl-kpi-header">
+              <div class="anl-kpi-icon anl-kpi-icon-orange">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <span class="anl-kpi-trend negative"><i class="bi bi-arrow-down-short"></i>2.1%</span>
+            </div>
+            <h3 class="anl-kpi-value">3dk 24sn</h3>
+            <span class="anl-kpi-label">Ort. Oturum Süresi</span>
+            <div class="anl-kpi-sparkline">
+              <canvas id="sparkSession" height="40"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: MINI METRICS ==================== -->
+      <div class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="col-xl-2 col-lg-4 col-sm-4 col-6">
+          <div class="anl-mini-card">
+            <i class="bi bi-cursor-fill anl-mini-icon text-neon-blue"></i>
+            <div class="anl-mini-value">68.2%</div>
+            <div class="anl-mini-label">Hemen Çıkma</div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-sm-4 col-6">
+          <div class="anl-mini-card">
+            <i class="bi bi-file-earmark-text-fill anl-mini-icon text-neon-purple"></i>
+            <div class="anl-mini-value">4.2</div>
+            <div class="anl-mini-label">Sayfa/Oturum</div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-sm-4 col-6">
+          <div class="anl-mini-card">
+            <i class="bi bi-person-plus-fill anl-mini-icon text-neon-green"></i>
+            <div class="anl-mini-value">2.847</div>
+            <div class="anl-mini-label">Yeni Kullanıcı</div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-sm-4 col-6">
+          <div class="anl-mini-card">
+            <i class="bi bi-arrow-repeat anl-mini-icon text-neon-orange"></i>
+            <div class="anl-mini-value">41.3%</div>
+            <div class="anl-mini-label">Geri Dönüş</div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-sm-4 col-6">
+          <div class="anl-mini-card">
+            <i class="bi bi-cart-check-fill anl-mini-icon text-teal"></i>
+            <div class="anl-mini-value">1.432</div>
+            <div class="anl-mini-label">Sipariş</div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-sm-4 col-6">
+          <div class="anl-mini-card">
+            <i class="bi bi-currency-dollar anl-mini-icon text-neon-pink"></i>
+            <div class="anl-mini-value">$148K</div>
+            <div class="anl-mini-label">Gelir</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 3: MAIN CHARTS ROW ==================== -->
+      <div class="row g-4 mb-4">
+        <!-- Revenue Trend (Large Line Chart) -->
+        <div class="col-xl-8" data-aos="fade-up" data-aos-delay="0">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-activity me-2 text-teal"></i>Gelir & Ziyaretçi Trendi</h6>
+              <div class="d-flex gap-2">
+                <button class="btn-glass btn-sm" onclick="updateTrendChart('7d', this)">7G</button>
+                <button class="btn-glass btn-sm active" onclick="updateTrendChart('30d', this)">30G</button>
+                <button class="btn-glass btn-sm" onclick="updateTrendChart('90d', this)">90G</button>
+                <button class="btn-glass btn-sm" onclick="updateTrendChart('1y', this)">1Y</button>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container"><canvas id="trendChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Traffic Sources (Doughnut) -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-pie-chart me-2 text-neon-purple"></i>Trafik Kaynakları</h6>
+              <button class="btn-icon" type="button" onclick="openTrafficDetailModal()" title="Detay"><i class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container"><canvas id="anlTrafficChart"></canvas></div>
+              <!-- Traffic Legend with percentages -->
+              <div class="anl-traffic-legend mt-3">
+                <div class="anl-legend-item"><span class="anl-legend-dot anl-dot-teal"></span> Organik <strong>38%</strong></div>
+                <div class="anl-legend-item"><span class="anl-legend-dot anl-dot-blue"></span> Direkt <strong>24%</strong></div>
+                <div class="anl-legend-item"><span class="anl-legend-dot anl-dot-purple"></span> Sosyal <strong>19%</strong></div>
+                <div class="anl-legend-item"><span class="anl-legend-dot anl-dot-orange"></span> Referans <strong>12%</strong></div>
+                <div class="anl-legend-item"><span class="anl-legend-dot anl-dot-pink"></span> E-posta <strong>7%</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 4: SECONDARY CHARTS ==================== -->
+      <div class="row g-4 mb-4">
+        <!-- Conversion Funnel -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="0">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-funnel me-2 text-neon-green"></i>Dönüşüm Hunisi</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="anl-funnel">
+                <div class="anl-funnel-step">
+                  <div class="anl-funnel-bar anl-funnel-1">
+                    <span class="anl-funnel-label">Sayfa Görüntüleme</span>
+                    <span class="anl-funnel-count">342.890</span>
+                  </div>
+                  <span class="anl-funnel-percent">100%</span>
+                </div>
+                <div class="anl-funnel-arrow"><i class="bi bi-chevron-down"></i></div>
+                <div class="anl-funnel-step">
+                  <div class="anl-funnel-bar anl-funnel-2">
+                    <span class="anl-funnel-label">Ürün İnceleme</span>
+                    <span class="anl-funnel-count">98.420</span>
+                  </div>
+                  <span class="anl-funnel-percent">28.7%</span>
+                </div>
+                <div class="anl-funnel-arrow"><i class="bi bi-chevron-down"></i></div>
+                <div class="anl-funnel-step">
+                  <div class="anl-funnel-bar anl-funnel-3">
+                    <span class="anl-funnel-label">Sepete Ekleme</span>
+                    <span class="anl-funnel-count">24.680</span>
+                  </div>
+                  <span class="anl-funnel-percent">7.2%</span>
+                </div>
+                <div class="anl-funnel-arrow"><i class="bi bi-chevron-down"></i></div>
+                <div class="anl-funnel-step">
+                  <div class="anl-funnel-bar anl-funnel-4">
+                    <span class="anl-funnel-label">Ödeme Sayfası</span>
+                    <span class="anl-funnel-count">8.932</span>
+                  </div>
+                  <span class="anl-funnel-percent">2.6%</span>
+                </div>
+                <div class="anl-funnel-arrow"><i class="bi bi-chevron-down"></i></div>
+                <div class="anl-funnel-step">
+                  <div class="anl-funnel-bar anl-funnel-5">
+                    <span class="anl-funnel-label">Satın Alma</span>
+                    <span class="anl-funnel-count">4.312</span>
+                  </div>
+                  <span class="anl-funnel-percent">1.3%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Device & Browser Breakdown -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-phone me-2 text-neon-blue"></i>Cihaz Dağılımı</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container chart-container-sm"><canvas id="deviceChart"></canvas></div>
+              <!-- Device stats below chart -->
+              <div class="anl-device-stats mt-3">
+                <div class="anl-device-item">
+                  <div class="anl-device-info">
+                    <i class="bi bi-phone text-neon-blue"></i>
+                    <span>Mobil</span>
+                  </div>
+                  <div class="anl-device-bar-wrap">
+                    <div class="anl-device-bar">
+                      <div class="anl-device-fill anl-fill-blue" data-width="58"></div>
+                    </div>
+                    <span class="anl-device-pct">58%</span>
+                  </div>
+                </div>
+                <div class="anl-device-item">
+                  <div class="anl-device-info">
+                    <i class="bi bi-laptop text-neon-purple"></i>
+                    <span>Masaüstü</span>
+                  </div>
+                  <div class="anl-device-bar-wrap">
+                    <div class="anl-device-bar">
+                      <div class="anl-device-fill anl-fill-purple" data-width="32"></div>
+                    </div>
+                    <span class="anl-device-pct">32%</span>
+                  </div>
+                </div>
+                <div class="anl-device-item">
+                  <div class="anl-device-info">
+                    <i class="bi bi-tablet text-neon-orange"></i>
+                    <span>Tablet</span>
+                  </div>
+                  <div class="anl-device-bar-wrap">
+                    <div class="anl-device-bar">
+                      <div class="anl-device-fill anl-fill-orange" data-width="10"></div>
+                    </div>
+                    <span class="anl-device-pct">10%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-trophy me-2 text-neon-orange"></i>En Çok Satan Ürünler</h6>
+              <button class="btn-icon" type="button" onclick="openTopProductsModal()" title="Tümünü Gör"><i class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+            <div class="card-body-custom pt-2">
+              <div class="anl-top-list">
+                <div class="anl-top-item">
+                  <span class="anl-top-rank anl-rank-1">1</span>
+                  <img src="https://picsum.photos/seed/prod1/40/40" alt="iPhone 16 Pro Max" class="anl-top-img" loading="lazy">
+                  <div class="anl-top-info">
+                    <span class="anl-top-name">iPhone 16 Pro Max</span>
+                    <span class="anl-top-meta">1.247 satış</span>
+                  </div>
+                  <div class="anl-top-revenue">
+                    <span class="anl-top-amount">$68.5M</span>
+                    <span class="anl-top-change positive"><i class="bi bi-arrow-up-short"></i>23%</span>
+                  </div>
+                </div>
+                <div class="anl-top-item">
+                  <span class="anl-top-rank anl-rank-2">2</span>
+                  <img src="https://picsum.photos/seed/prod3/40/40" alt="Nike Air Max 2026" class="anl-top-img" loading="lazy">
+                  <div class="anl-top-info">
+                    <span class="anl-top-name">Nike Air Max 2026</span>
+                    <span class="anl-top-meta">2.340 satış</span>
+                  </div>
+                  <div class="anl-top-revenue">
+                    <span class="anl-top-amount">$10.1M</span>
+                    <span class="anl-top-change positive"><i class="bi bi-arrow-up-short"></i>18%</span>
+                  </div>
+                </div>
+                <div class="anl-top-item">
+                  <span class="anl-top-rank anl-rank-3">3</span>
+                  <img src="https://picsum.photos/seed/prod2/40/40" alt="Galaxy S25 Ultra" class="anl-top-img" loading="lazy">
+                  <div class="anl-top-info">
+                    <span class="anl-top-name">Galaxy S25 Ultra</span>
+                    <span class="anl-top-meta">892 satış</span>
+                  </div>
+                  <div class="anl-top-revenue">
+                    <span class="anl-top-amount">$40.1M</span>
+                    <span class="anl-top-change positive"><i class="bi bi-arrow-up-short"></i>12%</span>
+                  </div>
+                </div>
+                <div class="anl-top-item">
+                  <span class="anl-top-rank">4</span>
+                  <img src="https://picsum.photos/seed/prod6/40/40" alt="MacBook Pro M4" class="anl-top-img" loading="lazy">
+                  <div class="anl-top-info">
+                    <span class="anl-top-name">MacBook Pro M4</span>
+                    <span class="anl-top-meta">3.891 satış</span>
+                  </div>
+                  <div class="anl-top-revenue">
+                    <span class="anl-top-amount">$350M</span>
+                    <span class="anl-top-change negative"><i class="bi bi-arrow-down-short"></i>4%</span>
+                  </div>
+                </div>
+                <div class="anl-top-item">
+                  <span class="anl-top-rank">5</span>
+                  <img src="https://picsum.photos/seed/prod4/40/40" alt="Sony WH-1000XM6" class="anl-top-img" loading="lazy">
+                  <div class="anl-top-info">
+                    <span class="anl-top-name">Sony WH-1000XM6</span>
+                    <span class="anl-top-meta">534 satış</span>
+                  </div>
+                  <div class="anl-top-revenue">
+                    <span class="anl-top-amount">$13.3M</span>
+                    <span class="anl-top-change positive"><i class="bi bi-arrow-up-short"></i>31%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 5: GEOGRAPHY & REAL-TIME ==================== -->
+      <div class="row g-4 mb-4">
+        <!-- Geo Breakdown -->
+        <div class="col-xl-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-geo-alt me-2 text-neon-green"></i>Coğrafi Dağılım</h6>
+              <div class="d-flex gap-2">
+                <button class="btn-glass btn-sm active" onclick="switchGeoView('country', this)">Ülke</button>
+                <button class="btn-glass btn-sm" onclick="switchGeoView('city', this)">Şehir</button>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="table-responsive">
+                <table class="table cl-table mb-0" id="geoTable">
+                  <thead>
+                    <tr>
+                      <th>Konum</th>
+                      <th>Ziyaretçi</th>
+                      <th class="d-none d-sm-table-cell">Oran</th>
+                      <th>Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody id="geoTableBody">
+                    <tr>
+                      <td>
+                        <div class="anl-geo-cell">
+                          <span class="anl-flag">🇹🇷</span>
+                          <span>Türkiye</span>
+                        </div>
+                      </td>
+                      <td><strong>84.219</strong></td>
+                      <td class="d-none d-sm-table-cell">
+                        <div class="anl-geo-bar-wrap">
+                          <div class="anl-geo-bar">
+                            <div class="anl-geo-fill" data-width="65"></div>
+                          </div>
+                          <span>65.6%</span>
+                        </div>
+                      </td>
+                      <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>8.2%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-geo-cell">
+                          <span class="anl-flag">🇩🇪</span>
+                          <span>Almanya</span>
+                        </div>
+                      </td>
+                      <td><strong>14.832</strong></td>
+                      <td class="d-none d-sm-table-cell">
+                        <div class="anl-geo-bar-wrap">
+                          <div class="anl-geo-bar">
+                            <div class="anl-geo-fill" data-width="11"></div>
+                          </div>
+                          <span>11.6%</span>
+                        </div>
+                      </td>
+                      <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>15.4%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-geo-cell">
+                          <span class="anl-flag">🇺🇸</span>
+                          <span>ABD</span>
+                        </div>
+                      </td>
+                      <td><strong>11.247</strong></td>
+                      <td class="d-none d-sm-table-cell">
+                        <div class="anl-geo-bar-wrap">
+                          <div class="anl-geo-bar">
+                            <div class="anl-geo-fill" data-width="8"></div>
+                          </div>
+                          <span>8.8%</span>
+                        </div>
+                      </td>
+                      <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>22.1%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-geo-cell">
+                          <span class="anl-flag">🇬🇧</span>
+                          <span>İngiltere</span>
+                        </div>
+                      </td>
+                      <td><strong>7.890</strong></td>
+                      <td class="d-none d-sm-table-cell">
+                        <div class="anl-geo-bar-wrap">
+                          <div class="anl-geo-bar">
+                            <div class="anl-geo-fill" data-width="6"></div>
+                          </div>
+                          <span>6.1%</span>
+                        </div>
+                      </td>
+                      <td><span class="anl-kpi-trend negative"><i class="bi bi-arrow-down-short"></i>3.5%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-geo-cell">
+                          <span class="anl-flag">🇳🇱</span>
+                          <span>Hollanda</span>
+                        </div>
+                      </td>
+                      <td><strong>5.124</strong></td>
+                      <td class="d-none d-sm-table-cell">
+                        <div class="anl-geo-bar-wrap">
+                          <div class="anl-geo-bar">
+                            <div class="anl-geo-fill" data-width="4"></div>
+                          </div>
+                          <span>4.0%</span>
+                        </div>
+                      </td>
+                      <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>11.8%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-geo-cell">
+                          <span class="anl-flag">🇫🇷</span>
+                          <span>Fransa</span>
+                        </div>
+                      </td>
+                      <td><strong>5.118</strong></td>
+                      <td class="d-none d-sm-table-cell">
+                        <div class="anl-geo-bar-wrap">
+                          <div class="anl-geo-bar">
+                            <div class="anl-geo-fill" data-width="4"></div>
+                          </div>
+                          <span>3.9%</span>
+                        </div>
+                      </td>
+                      <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>6.7%</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hourly Heatmap / Bar -->
+        <div class="col-xl-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-bar-chart me-2 text-neon-blue"></i>Saatlik Trafik Yoğunluğu</h6>
+              <div class="d-flex gap-2">
+                <button class="btn-glass btn-sm active" onclick="switchHourlyView('bar', this)">Grafik</button>
+                <button class="btn-glass btn-sm" onclick="switchHourlyView('heatmap', this)">Isı Haritası</button>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div id="hourlyBarView">
+                <div class="chart-container"><canvas id="hourlyChart"></canvas></div>
+              </div>
+              <div id="hourlyHeatmapView" class="d-none">
+                <div class="anl-heatmap" id="heatmapGrid">
+                  <!-- Generated by JS -->
+                </div>
+                <div class="anl-heatmap-legend">
+                  <span>Düşük</span>
+                  <div class="anl-heatmap-scale"></div>
+                  <span>Yüksek</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 6: TOP PAGES & REFERRERS ==================== -->
+      <div class="row g-4 mb-4">
+        <!-- Top Pages -->
+        <div class="col-xl-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-file-earmark-text me-2 text-teal"></i>En Çok Ziyaret Edilen Sayfalar</h6>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="table-responsive">
+                <table class="table cl-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Sayfa</th>
+                      <th>Görüntülenme</th>
+                      <th class="d-none d-md-table-cell">Ort. Süre</th>
+                      <th>Hemen Çıkma</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="anl-page-cell">
+                          <i class="bi bi-house text-teal"></i>
+                          <div>
+                            <span class="anl-page-url">/</span>
+                            <span class="anl-page-title">Ana Sayfa</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td><strong>48.290</strong></td>
+                      <td class="d-none d-md-table-cell">2dk 45sn</td>
+                      <td><span class="anl-bounce-low">42.3%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-page-cell">
+                          <i class="bi bi-box-seam text-neon-blue"></i>
+                          <div>
+                            <span class="anl-page-url">/urunler</span>
+                            <span class="anl-page-title">Ürün Listesi</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td><strong>35.670</strong></td>
+                      <td class="d-none d-md-table-cell">3dk 12sn</td>
+                      <td><span class="anl-bounce-mid">55.1%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-page-cell">
+                          <i class="bi bi-bag text-neon-purple"></i>
+                          <div>
+                            <span class="anl-page-url">/urun/iphone-16-pro-max</span>
+                            <span class="anl-page-title">iPhone 16 Pro Max</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td><strong>28.430</strong></td>
+                      <td class="d-none d-md-table-cell">4dk 38sn</td>
+                      <td><span class="anl-bounce-low">38.7%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-page-cell">
+                          <i class="bi bi-cart text-neon-green"></i>
+                          <div>
+                            <span class="anl-page-url">/sepet</span>
+                            <span class="anl-page-title">Sepet</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td><strong>18.920</strong></td>
+                      <td class="d-none d-md-table-cell">1dk 52sn</td>
+                      <td><span class="anl-bounce-high">72.4%</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="anl-page-cell">
+                          <i class="bi bi-journal-text text-neon-orange"></i>
+                          <div>
+                            <span class="anl-page-url">/blog</span>
+                            <span class="anl-page-title">Blog</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td><strong>14.580</strong></td>
+                      <td class="d-none d-md-table-cell">5dk 20sn</td>
+                      <td><span class="anl-bounce-low">31.2%</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue by Category (Horizontal Bar) -->
+        <div class="col-xl-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-dark h-100">
+            <div class="card-header-custom">
+              <h6><i class="bi bi-bar-chart-line me-2 text-neon-orange"></i>Kategori Bazlı Gelir</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="chart-container"><canvas id="categoryRevenueChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 7: REAL-TIME ACTIVITY LOG ==================== -->
+      <div class="card-dark mb-4" data-aos="fade-up">
+        <div class="card-header-custom">
+          <h6><i class="bi bi-clock-history me-2 text-neon-purple"></i>Son Kullanıcı Aktiviteleri</h6>
+          <div class="d-flex align-items-center gap-3">
+            <div class="anl-live-dot"><span></span> Canlı</div>
+            <button class="btn-glass btn-sm" onclick="refreshActivities()"><i class="bi bi-arrow-repeat me-1"></i>Yenile</button>
+          </div>
+        </div>
+        <div class="card-body-custom pt-2">
+          <div class="anl-activity-timeline" id="activityTimeline">
+            <div class="anl-timeline-item">
+              <div class="anl-timeline-dot anl-dot-green"></div>
+              <div class="anl-timeline-content">
+                <div class="anl-timeline-header">
+                  <strong>Ahmet Yılmaz</strong> yeni bir sipariş oluşturdu
+                  <span class="anl-timeline-badge">#ORD-2847</span>
+                </div>
+                <span class="anl-timeline-time">2 dakika önce</span>
+              </div>
+              <span class="anl-timeline-amount text-neon-green">+$2,499</span>
+            </div>
+            <div class="anl-timeline-item">
+              <div class="anl-timeline-dot anl-dot-blue"></div>
+              <div class="anl-timeline-content">
+                <div class="anl-timeline-header">
+                  <strong>Elif Kaya</strong> hesap oluşturdu
+                </div>
+                <span class="anl-timeline-time">15 dakika önce</span>
+              </div>
+              <span class="anl-timeline-amount text-neon-blue">Yeni Üye</span>
+            </div>
+            <div class="anl-timeline-item">
+              <div class="anl-timeline-dot anl-dot-purple"></div>
+              <div class="anl-timeline-content">
+                <div class="anl-timeline-header">
+                  <strong>Mehmet Demir</strong> ürün değerlendirmesi yaptı
+                  <span class="anl-timeline-badge">iPhone 16 Pro Max</span>
+                </div>
+                <span class="anl-timeline-time">32 dakika önce</span>
+              </div>
+              <span class="anl-timeline-amount"><i class="bi bi-star-fill text-warning"></i> 5.0</span>
+            </div>
+            <div class="anl-timeline-item">
+              <div class="anl-timeline-dot anl-dot-orange"></div>
+              <div class="anl-timeline-content">
+                <div class="anl-timeline-header">
+                  <strong>Zeynep Arslan</strong> sepetini terk etti
+                  <span class="anl-timeline-badge">3 ürün</span>
+                </div>
+                <span class="anl-timeline-time">1 saat önce</span>
+              </div>
+              <span class="anl-timeline-amount text-neon-orange">$1,847</span>
+            </div>
+            <div class="anl-timeline-item">
+              <div class="anl-timeline-dot anl-dot-green"></div>
+              <div class="anl-timeline-content">
+                <div class="anl-timeline-header">
+                  <strong>Burak Can</strong> ödeme tamamladı
+                  <span class="anl-timeline-badge">#ORD-2843</span>
+                </div>
+                <span class="anl-timeline-time">1 saat önce</span>
+              </div>
+              <span class="anl-timeline-amount text-neon-green">+$549</span>
+            </div>
+            <div class="anl-timeline-item">
+              <div class="anl-timeline-dot anl-dot-pink"></div>
+              <div class="anl-timeline-content">
+                <div class="anl-timeline-header">
+                  <strong>Selin Öztürk</strong> kupon kodu kullandı
+                  <span class="anl-timeline-badge">WINTER20</span>
+                </div>
+                <span class="anl-timeline-time">2 saat önce</span>
+              </div>
+              <span class="anl-timeline-amount text-neon-pink">-%20</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== LIVE MONITORING MODAL ==================== -->
+<div class="modal fade" id="liveModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title">
+          <span class="anl-live-dot me-2"><span></span></span> Canlı İzleme
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <div class="col-4">
+            <div class="anl-live-stat">
+              <div class="anl-live-stat-value" id="liveVisitors">247</div>
+              <div class="anl-live-stat-label">Aktif Ziyaretçi</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="anl-live-stat">
+              <div class="anl-live-stat-value" id="livePageviews">1.842</div>
+              <div class="anl-live-stat-label">Son 1 Saat Görüntülenme</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="anl-live-stat">
+              <div class="anl-live-stat-value" id="liveOrders">23</div>
+              <div class="anl-live-stat-label">Son 1 Saat Sipariş</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container mb-4"><canvas id="liveChart"></canvas></div>
+        <h6 class="mb-3">Son Ziyaretçiler</h6>
+        <div class="table-responsive">
+          <table class="table cl-table mb-0">
+            <thead>
+              <tr>
+                <th>Ziyaretçi</th>
+                <th>Sayfa</th>
+                <th>Kaynak</th>
+                <th>Süre</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="anl-geo-cell"><span class="anl-flag">🇹🇷</span><span>İstanbul</span></div></td>
+                <td>/urun/iphone-16-pro-max</td>
+                <td><span class="cl-category-badge tech">Google</span></td>
+                <td>3dk 12sn</td>
+              </tr>
+              <tr>
+                <td><div class="anl-geo-cell"><span class="anl-flag">🇹🇷</span><span>Ankara</span></div></td>
+                <td>/sepet</td>
+                <td><span class="cl-category-badge dev">Direkt</span></td>
+                <td>1dk 45sn</td>
+              </tr>
+              <tr>
+                <td><div class="anl-geo-cell"><span class="anl-flag">🇩🇪</span><span>Berlin</span></div></td>
+                <td>/urunler</td>
+                <td><span class="cl-category-badge design">Instagram</span></td>
+                <td>4dk 02sn</td>
+              </tr>
+              <tr>
+                <td><div class="anl-geo-cell"><span class="anl-flag">🇺🇸</span><span>New York</span></div></td>
+                <td>/blog/yapay-zeka-2026</td>
+                <td><span class="cl-category-badge marketing">Twitter</span></td>
+                <td>6dk 18sn</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== TRAFFIC DETAIL MODAL ==================== -->
+<div class="modal fade" id="trafficDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title">Trafik Kaynakları Detayı</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="chart-container mb-4"><canvas id="trafficDetailChart"></canvas></div>
+        <div class="table-responsive">
+          <table class="table cl-table mb-0">
+            <thead>
+              <tr>
+                <th>Kaynak</th>
+                <th>Ziyaretçi</th>
+                <th>Dönüşüm</th>
+                <th>Gelir</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="d-flex align-items-center gap-2"><span class="anl-legend-dot anl-dot-teal"></span><strong>Organik Arama</strong></div></td>
+                <td>48.804</td>
+                <td>5.2%</td>
+                <td>$56.200</td>
+                <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>12%</span></td>
+              </tr>
+              <tr>
+                <td><div class="d-flex align-items-center gap-2"><span class="anl-legend-dot anl-dot-blue"></span><strong>Direkt Trafik</strong></div></td>
+                <td>30.823</td>
+                <td>4.8%</td>
+                <td>$38.900</td>
+                <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>8%</span></td>
+              </tr>
+              <tr>
+                <td><div class="d-flex align-items-center gap-2"><span class="anl-legend-dot anl-dot-purple"></span><strong>Sosyal Medya</strong></div></td>
+                <td>24.402</td>
+                <td>3.1%</td>
+                <td>$21.400</td>
+                <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>24%</span></td>
+              </tr>
+              <tr>
+                <td><div class="d-flex align-items-center gap-2"><span class="anl-legend-dot anl-dot-orange"></span><strong>Referans</strong></div></td>
+                <td>15.412</td>
+                <td>6.7%</td>
+                <td>$28.300</td>
+                <td><span class="anl-kpi-trend negative"><i class="bi bi-arrow-down-short"></i>3%</span></td>
+              </tr>
+              <tr>
+                <td><div class="d-flex align-items-center gap-2"><span class="anl-legend-dot anl-dot-pink"></span><strong>E-posta</strong></div></td>
+                <td>8.989</td>
+                <td>8.3%</td>
+                <td>$18.600</td>
+                <td><span class="anl-kpi-trend positive"><i class="bi bi-arrow-up-short"></i>15%</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== TOP PRODUCTS MODAL ==================== -->
+<div class="modal fade" id="topProductsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title prd-modal-title">En Çok Satan Ürünler - Detay</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="chart-container mb-4"><canvas id="topProductsChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="analytics.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50
+  });
+</script>
+</body>
+</html>

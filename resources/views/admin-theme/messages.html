@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Mesajlar</title>
+  <meta name="description" content="OZAN Admin Panel mesajlaşma — e-posta yönetimi, gelen kutusu, gönderilenler ve taslaklar">
+  <link rel="canonical" href="https://admin.ozan.dev/messages.html">
+  <meta property="og:title" content="OZAN Admin - Mesajlar">
+  <meta property="og:description" content="E-posta ve mesajlarınızı yönetin">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <div id="navbar-container"></div>
+
+    <div class="page-content">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+          </li>
+          <li class="breadcrumb-item active text-teal">Mesajlar</li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" data-aos="fade-down">
+        <div>
+          <h1 class="page-title">Mesajlar</h1>
+          <p class="page-subtitle">Gelen ve giden mesajlarınızı yönetin</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn-glass" onclick="markAllRead()">
+            <i class="bi bi-envelope-open me-1"></i> Tümünü Okundu Yap
+          </button>
+          <button class="btn-teal" onclick="openCompose()">
+            <i class="bi bi-pencil-square me-1"></i> Yeni Mesaj
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STAT CARDS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-blue">
+              <i class="bi bi-chat-left-text-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Toplam Mesaj</span>
+              <h3 class="usr-stat-value">1,247</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> 32 bugün</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="50">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-orange">
+              <i class="bi bi-envelope-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Okunmamış</span>
+              <h3 class="usr-stat-value">5</h3>
+              <span class="usr-stat-change negative"><i class="bi bi-arrow-up-short"></i> 2 acil mesaj</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-green">
+              <i class="bi bi-reply-fill"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Ort. Yanıt Süresi</span>
+              <h3 class="usr-stat-value">18 dk</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-down-short"></i> %7 iyileşme</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="150">
+          <div class="usr-stat-card">
+            <div class="usr-stat-icon usr-stat-icon-purple">
+              <i class="bi bi-check2-circle"></i>
+            </div>
+            <div class="usr-stat-info">
+              <span class="usr-stat-label">Çözülen Talep</span>
+              <h3 class="usr-stat-value">892</h3>
+              <span class="usr-stat-change positive"><i class="bi bi-arrow-up-short"></i> %94 çözüm oranı</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: MAIL LAYOUT ==================== -->
+      <div class="msg-layout" data-aos="fade-up" data-aos-delay="100">
+
+        <!-- LEFT: Folder Sidebar -->
+        <aside class="msg-folders" id="msgFolders">
+          <div class="msg-folders-inner">
+            <button class="msg-folder-btn active" onclick="switchFolder('inbox', this)" data-folder="inbox">
+              <i class="bi bi-inbox"></i><span>Gelen Kutusu</span><span class="msg-folder-count">5</span>
+            </button>
+            <button class="msg-folder-btn" onclick="switchFolder('sent', this)" data-folder="sent">
+              <i class="bi bi-send"></i><span>Gönderilenler</span>
+            </button>
+            <button class="msg-folder-btn" onclick="switchFolder('draft', this)" data-folder="draft">
+              <i class="bi bi-file-earmark"></i><span>Taslaklar</span><span class="msg-folder-count">2</span>
+            </button>
+            <button class="msg-folder-btn" onclick="switchFolder('starred', this)" data-folder="starred">
+              <i class="bi bi-star"></i><span>Yıldızlı</span><span class="msg-folder-count">3</span>
+            </button>
+            <button class="msg-folder-btn" onclick="switchFolder('archive', this)" data-folder="archive">
+              <i class="bi bi-archive"></i><span>Arşiv</span>
+            </button>
+            <button class="msg-folder-btn" onclick="switchFolder('trash', this)" data-folder="trash">
+              <i class="bi bi-trash3"></i><span>Çöp Kutusu</span>
+            </button>
+
+            <div class="msg-labels-section">
+              <div class="msg-labels-title">Etiketler</div>
+              <button class="msg-label-btn" onclick="filterByLabel('important')">
+                <span class="msg-label-dot msg-label-dot--red"></span> Önemli
+              </button>
+              <button class="msg-label-btn" onclick="filterByLabel('work')">
+                <span class="msg-label-dot msg-label-dot--blue"></span> İş
+              </button>
+              <button class="msg-label-btn" onclick="filterByLabel('personal')">
+                <span class="msg-label-dot msg-label-dot--green"></span> Kişisel
+              </button>
+              <button class="msg-label-btn" onclick="filterByLabel('finance')">
+                <span class="msg-label-dot msg-label-dot--yellow"></span> Finans
+              </button>
+            </div>
+
+            <div class="msg-storage">
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-clr-secondary">Depolama</small>
+                <small class="text-clr-secondary">6.2 / 15 GB</small>
+              </div>
+              <div class="msg-storage-bar">
+                <div class="msg-storage-fill" data-width="41"></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- CENTER: Message List -->
+        <div class="msg-list-panel" id="msgListPanel">
+
+          <div class="msg-list-header">
+            <div class="d-flex align-items-center gap-2">
+              <button class="msg-mobile-back d-lg-none" onclick="toggleFolders()"><i class="bi bi-list"></i></button>
+              <div class="msg-search">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Mesajlarda ara..." oninput="searchMessages(this.value)">
+              </div>
+            </div>
+            <div class="msg-list-actions">
+              <button class="msg-action-sm" title="Yenile" onclick="refreshMessages()"><i class="bi bi-arrow-clockwise"></i></button>
+              <select class="msg-sort-select" onchange="sortMessages(this.value)">
+                <option value="newest">En Yeni</option>
+                <option value="oldest">En Eski</option>
+                <option value="unread">Okunmamış</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Message Items -->
+          <div class="msg-list" id="msgList">
+            <!-- JS tarafından doldurulur -->
+          </div>
+
+          <!-- Bulk Actions -->
+          <div class="msg-bulk-bar" id="msgBulkBar">
+            <span class="msg-bulk-count"><span id="bulkCount">0</span> mesaj seçildi</span>
+            <div class="d-flex gap-2">
+              <button class="btn-glass btn-sm" onclick="bulkMarkRead()"><i class="bi bi-envelope-open me-1"></i>Okundu</button>
+              <button class="btn-glass btn-sm" onclick="bulkArchive()"><i class="bi bi-archive me-1"></i>Arşivle</button>
+              <button class="btn-glass btn-sm msg-bulk-danger" onclick="bulkDelete()"><i class="bi bi-trash3 me-1"></i>Sil</button>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="msg-empty d-none" id="msgEmpty">
+            <i class="bi bi-inbox"></i>
+            <h5>Mesaj bulunamadı</h5>
+            <p>Bu klasörde henüz mesaj yok</p>
+          </div>
+        </div>
+
+        <!-- RIGHT: Detail Panel -->
+        <div class="msg-detail-panel" id="msgDetailPanel">
+          <div class="msg-detail-empty" id="msgDetailEmpty">
+            <i class="bi bi-envelope-open"></i>
+            <h5>Mesaj Seçin</h5>
+            <p>Okumak için listeden bir mesaj seçin</p>
+          </div>
+
+          <div class="msg-detail-content d-none" id="msgDetailContent">
+            <div class="msg-detail-header">
+              <button class="msg-detail-back d-xl-none" onclick="closeDetail()"><i class="bi bi-arrow-left"></i></button>
+              <div class="msg-detail-actions">
+                <button onclick="replyMessage()" title="Yanıtla"><i class="bi bi-reply"></i></button>
+                <button onclick="forwardMessage()" title="İlet"><i class="bi bi-forward"></i></button>
+                <button onclick="printMessage()" title="Yazdır"><i class="bi bi-printer"></i></button>
+                <button onclick="archiveDetail()" title="Arşivle"><i class="bi bi-archive"></i></button>
+                <button onclick="deleteDetail()" title="Sil"><i class="bi bi-trash3"></i></button>
+              </div>
+            </div>
+
+            <div class="msg-detail-body">
+              <h4 class="msg-detail-subject" id="detailSubject"></h4>
+              <div class="msg-detail-meta">
+                <div class="msg-detail-sender-avatar" id="detailAvatar"></div>
+                <div class="msg-detail-sender-info">
+                  <div>
+                    <strong id="detailSender"></strong>
+                    <span class="text-clr-secondary" id="detailEmail"></span>
+                  </div>
+                  <div class="text-clr-secondary" id="detailDate"></div>
+                </div>
+                <div class="msg-detail-to text-clr-secondary" id="detailTo"></div>
+              </div>
+              <div class="msg-detail-text" id="detailText"></div>
+              <div class="msg-attachments d-none" id="detailAttachments">
+                <div class="msg-attachments-title"><i class="bi bi-paperclip"></i> <span id="attTitle">Ekler</span></div>
+                <div class="msg-attachment-list" id="attList"></div>
+              </div>
+              <div class="msg-quick-reply">
+                <div class="msg-reply-header"><i class="bi bi-reply me-1"></i> Hızlı Yanıt</div>
+                <textarea class="msg-reply-input" id="quickReplyText" placeholder="Yanıtınızı yazın..." rows="3"></textarea>
+                <div class="msg-reply-footer">
+                  <div class="msg-reply-tools">
+                    <button title="Dosya Ekle"><i class="bi bi-paperclip"></i></button>
+                    <button title="Emoji"><i class="bi bi-emoji-smile"></i></button>
+                    <button title="Bağlantı"><i class="bi bi-link-45deg"></i></button>
+                  </div>
+                  <button class="btn-teal btn-sm" onclick="sendReply()"><i class="bi bi-send me-1"></i> Gönder</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /msg-layout -->
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /admin-wrapper -->
+
+
+<!-- ==================== MODAL: YENİ MESAJ ==================== -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title prd-modal-title"><i class="bi bi-pencil-square me-2"></i>Yeni Mesaj</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="msg-compose-field">
+          <label>Alıcı</label>
+          <input type="text" class="form-control" id="composeTo" placeholder="E-posta adresi yazın...">
+        </div>
+        <div class="msg-compose-field">
+          <label>CC</label>
+          <input type="text" class="form-control" id="composeCc" placeholder="CC ekleyin...">
+        </div>
+        <div class="msg-compose-field">
+          <label>Konu</label>
+          <input type="text" class="form-control" id="composeSubject" placeholder="Mesaj konusu...">
+        </div>
+        <div class="mt-3">
+          <textarea class="form-control" id="composeBody" rows="10" placeholder="Mesajınızı yazın..."></textarea>
+        </div>
+        <div class="msg-compose-attachments" id="composeAttachments"></div>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <div class="d-flex gap-2">
+          <button class="btn-glass btn-sm" onclick="addComposeAttachment()"><i class="bi bi-paperclip me-1"></i>Dosya Ekle</button>
+          <button class="btn-glass btn-sm" onclick="saveDraft()"><i class="bi bi-file-earmark me-1"></i>Taslak Kaydet</button>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-glass" data-bs-dismiss="modal">İptal</button>
+          <button class="btn-teal" onclick="sendCompose()"><i class="bi bi-send me-1"></i>Gönder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script src="messages.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 50 });
+</script>
+</body>
+</html>

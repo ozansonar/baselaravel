@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OZAN Admin - Roller & İzinler</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+  <div id="sidebar-container"></div>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+
+    <div id="navbar-container"></div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Page Header -->
+      <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <h1 class="page-title">Roller & İzinler</h1>
+          <p class="page-subtitle">Sistem rollerini yönetin, izinleri yapılandırın ve erişim kontrolünü sağlayın</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-light btn-sm" onclick="openRoleModal()"><i class="bi bi-plus-lg me-1"></i> Yeni Rol Oluştur</button>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 1: STATS ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-sm-6">
+          <div class="rp-stat-card">
+            <div class="rp-stat-icon accent-teal"><i class="bi bi-shield-fill"></i></div>
+            <div class="rp-stat-info">
+              <span class="rp-stat-label">Toplam Rol</span>
+              <h3 class="rp-stat-value">6</h3>
+              <span class="rp-stat-sub">2 sistem, 4 özel</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="rp-stat-card">
+            <div class="rp-stat-icon accent-purple"><i class="bi bi-key-fill"></i></div>
+            <div class="rp-stat-info">
+              <span class="rp-stat-label">Toplam İzin</span>
+              <h3 class="rp-stat-value">24</h3>
+              <span class="rp-stat-sub">5 kategori</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="rp-stat-card">
+            <div class="rp-stat-icon accent-blue"><i class="bi bi-people-fill"></i></div>
+            <div class="rp-stat-info">
+              <span class="rp-stat-label">Atanmış Kullanıcı</span>
+              <h3 class="rp-stat-value">2,847</h3>
+              <span class="rp-stat-sub">tüm roller dahil</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="rp-stat-card">
+            <div class="rp-stat-icon accent-orange"><i class="bi bi-clock-history"></i></div>
+            <div class="rp-stat-info">
+              <span class="rp-stat-label">Son Güncelleme</span>
+              <h3 class="rp-stat-value fs-18">2 saat önce</h3>
+              <span class="rp-stat-sub">Ozan Sonar tarafından</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 2: ROLE CARDS ==================== -->
+      <div class="form-section-header">
+        <div class="form-section-icon"><i class="bi bi-shield-fill-check"></i></div>
+        <div>
+          <h6 class="mb-0">Sistem Rolleri</h6>
+          <small class="text-muted">Rollere tıklayarak detaylarını görüntüleyin ve düzenleyin</small>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-4">
+        <!-- Super Admin -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="rp-role-card active" onclick="selectRole('super_admin', this)" data-role="super_admin">
+            <div class="rp-role-header">
+              <div class="rp-role-icon accent-teal"><i class="bi bi-shield-fill"></i></div>
+              <div class="rp-role-title">
+                <h5>Super Admin</h5>
+                <span class="rp-role-type system">Sistem Rolü</span>
+              </div>
+              <div class="rp-role-menu">
+                <button class="usr-action-btn" onclick="event.stopPropagation(); openRoleMenu('super_admin')"><i class="bi bi-three-dots-vertical"></i></button>
+              </div>
+            </div>
+            <p class="rp-role-desc">Tam sistem erişimi. Tüm modülleri yönetebilir, rol oluşturabilir ve silebilir.</p>
+            <div class="rp-role-meta">
+              <div class="rp-role-meta-item"><i class="bi bi-people"></i><span>5 kullanıcı</span></div>
+              <div class="rp-role-meta-item"><i class="bi bi-key"></i><span>24/24 izin</span></div>
+            </div>
+            <div class="rp-role-users">
+              <div class="rp-role-avatar" style="background:var(--teal-primary)" title="Ozan Sonar">OS</div>
+              <div class="rp-role-avatar" style="background:#3b82f6" title="Ali Öztürk">AÖ</div>
+              <div class="rp-role-avatar" style="background:#a855f7" title="Can Yılmaz">CY</div>
+              <div class="rp-role-avatar-more">+2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="rp-role-card" onclick="selectRole('admin', this)" data-role="admin">
+            <div class="rp-role-header">
+              <div class="rp-role-icon accent-blue"><i class="bi bi-shield-fill-check"></i></div>
+              <div class="rp-role-title">
+                <h5>Admin</h5>
+                <span class="rp-role-type system">Sistem Rolü</span>
+              </div>
+              <div class="rp-role-menu">
+                <button class="usr-action-btn" onclick="event.stopPropagation(); openRoleMenu('admin')"><i class="bi bi-three-dots-vertical"></i></button>
+              </div>
+            </div>
+            <p class="rp-role-desc">Geniş yönetim yetkisi. Kullanıcı ve içerik yönetimi yapabilir, sistem ayarlarını değiştiremez.</p>
+            <div class="rp-role-meta">
+              <div class="rp-role-meta-item"><i class="bi bi-people"></i><span>42 kullanıcı</span></div>
+              <div class="rp-role-meta-item"><i class="bi bi-key"></i><span>20/24 izin</span></div>
+            </div>
+            <div class="rp-role-users">
+              <div class="rp-role-avatar" style="background:#3b82f6" title="Mehmet Kara">MK</div>
+              <div class="rp-role-avatar" style="background:#22c55e" title="Elif Aydın">EA</div>
+              <div class="rp-role-avatar" style="background:#f97316" title="Hasan Polat">HP</div>
+              <div class="rp-role-avatar-more">+39</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editör -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="rp-role-card" onclick="selectRole('editor', this)" data-role="editor">
+            <div class="rp-role-header">
+              <div class="rp-role-icon accent-purple"><i class="bi bi-pencil-fill"></i></div>
+              <div class="rp-role-title">
+                <h5>Editör</h5>
+                <span class="rp-role-type custom">Özel Rol</span>
+              </div>
+              <div class="rp-role-menu">
+                <button class="usr-action-btn" onclick="event.stopPropagation(); openRoleMenu('editor')"><i class="bi bi-three-dots-vertical"></i></button>
+              </div>
+            </div>
+            <p class="rp-role-desc">İçerik oluşturma ve düzenleme yetkisi. Yayınlama yapabilir, kullanıcı yönetimi yapamaz.</p>
+            <div class="rp-role-meta">
+              <div class="rp-role-meta-item"><i class="bi bi-people"></i><span>186 kullanıcı</span></div>
+              <div class="rp-role-meta-item"><i class="bi bi-key"></i><span>12/24 izin</span></div>
+            </div>
+            <div class="rp-role-users">
+              <div class="rp-role-avatar" style="background:#a855f7" title="Ayşe Yılmaz">AY</div>
+              <div class="rp-role-avatar" style="background:#ec4899" title="Fatma Çelik">FÇ</div>
+              <div class="rp-role-avatar" style="background:#14b8a6" title="Berk Koç">BK</div>
+              <div class="rp-role-avatar-more">+183</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Moderatör -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="rp-role-card" onclick="selectRole('moderator', this)" data-role="moderator">
+            <div class="rp-role-header">
+              <div class="rp-role-icon accent-orange"><i class="bi bi-shield-fill-exclamation"></i></div>
+              <div class="rp-role-title">
+                <h5>Moderatör</h5>
+                <span class="rp-role-type custom">Özel Rol</span>
+              </div>
+              <div class="rp-role-menu">
+                <button class="usr-action-btn" onclick="event.stopPropagation(); openRoleMenu('moderator')"><i class="bi bi-three-dots-vertical"></i></button>
+              </div>
+            </div>
+            <p class="rp-role-desc">İçerik moderasyonu ve kullanıcı onaylama. Yorum yönetimi ve raporlama yapabilir.</p>
+            <div class="rp-role-meta">
+              <div class="rp-role-meta-item"><i class="bi bi-people"></i><span>124 kullanıcı</span></div>
+              <div class="rp-role-meta-item"><i class="bi bi-key"></i><span>10/24 izin</span></div>
+            </div>
+            <div class="rp-role-users">
+              <div class="rp-role-avatar" style="background:#3b82f6" title="Mehmet Demir">MD</div>
+              <div class="rp-role-avatar" style="background:#3b82f6" title="Selin Arslan">SA</div>
+              <div class="rp-role-avatar" style="background:#22c55e" title="Tolga Acar">TA</div>
+              <div class="rp-role-avatar-more">+121</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kullanıcı -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="rp-role-card" onclick="selectRole('user', this)" data-role="user">
+            <div class="rp-role-header">
+              <div class="rp-role-icon accent-green"><i class="bi bi-person-fill"></i></div>
+              <div class="rp-role-title">
+                <h5>Kullanıcı</h5>
+                <span class="rp-role-type custom">Özel Rol</span>
+              </div>
+              <div class="rp-role-menu">
+                <button class="usr-action-btn" onclick="event.stopPropagation(); openRoleMenu('user')"><i class="bi bi-three-dots-vertical"></i></button>
+              </div>
+            </div>
+            <p class="rp-role-desc">Temel erişim hakları. Kendi profilini düzenleyebilir ve içerik görüntüleyebilir.</p>
+            <div class="rp-role-meta">
+              <div class="rp-role-meta-item"><i class="bi bi-people"></i><span>2,156 kullanıcı</span></div>
+              <div class="rp-role-meta-item"><i class="bi bi-key"></i><span>6/24 izin</span></div>
+            </div>
+            <div class="rp-role-users">
+              <div class="rp-role-avatar" style="background:#22c55e" title="Zeynep Kaya">ZK</div>
+              <div class="rp-role-avatar" style="background:#22c55e" title="Burak Yıldız">BY</div>
+              <div class="rp-role-avatar" style="background:#a855f7" title="Deniz Korkmaz">DK</div>
+              <div class="rp-role-avatar-more">+2.1K</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- İzleyici -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="rp-role-card" onclick="selectRole('viewer', this)" data-role="viewer">
+            <div class="rp-role-header">
+              <div class="rp-role-icon accent-pink"><i class="bi bi-eye-fill"></i></div>
+              <div class="rp-role-title">
+                <h5>İzleyici</h5>
+                <span class="rp-role-type custom">Özel Rol</span>
+              </div>
+              <div class="rp-role-menu">
+                <button class="usr-action-btn" onclick="event.stopPropagation(); openRoleMenu('viewer')"><i class="bi bi-three-dots-vertical"></i></button>
+              </div>
+            </div>
+            <p class="rp-role-desc">Sadece okuma erişimi. Hiçbir değişiklik yapamaz, yalnızca görüntüleyebilir.</p>
+            <div class="rp-role-meta">
+              <div class="rp-role-meta-item"><i class="bi bi-people"></i><span>334 kullanıcı</span></div>
+              <div class="rp-role-meta-item"><i class="bi bi-key"></i><span>3/24 izin</span></div>
+            </div>
+            <div class="rp-role-users">
+              <div class="rp-role-avatar" style="background:#f97316" title="Emre Aksoy">EA</div>
+              <div class="rp-role-avatar" style="background:#ec4899" title="Ceren Bal">CB</div>
+              <div class="rp-role-avatar" style="background:#3b82f6" title="Onur Şen">OŞ</div>
+              <div class="rp-role-avatar-more">+331</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 3: PERMISSION MATRIX ==================== -->
+      <div class="card-dark mb-4">
+        <div class="card-header-custom d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <h6 class="mb-0"><i class="bi bi-grid-3x3 me-2 text-teal"></i>İzin Matrisi</h6>
+          </div>
+          <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" style="width:auto;background:var(--bg-input);border-color:var(--border-color);color:var(--text-primary);border-radius:8px;font-size:12px" onchange="filterMatrix(this.value)">
+              <option value="all">Tüm Kategoriler</option>
+              <option value="content">İçerik</option>
+              <option value="users">Kullanıcı</option>
+              <option value="system">Sistem</option>
+              <option value="reports">Raporlama</option>
+              <option value="api">API & Entegrasyon</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body-custom p-0">
+          <div class="table-responsive">
+            <table class="rp-matrix-table">
+              <thead>
+                <tr>
+                  <th class="rp-matrix-perm-col">İzin</th>
+                  <th class="rp-matrix-role-col"><div class="rp-matrix-role-head accent-teal"><i class="bi bi-shield-fill"></i><span>Super Admin</span></div></th>
+                  <th class="rp-matrix-role-col"><div class="rp-matrix-role-head accent-blue"><i class="bi bi-shield-fill-check"></i><span>Admin</span></div></th>
+                  <th class="rp-matrix-role-col"><div class="rp-matrix-role-head accent-purple"><i class="bi bi-pencil-fill"></i><span>Editör</span></div></th>
+                  <th class="rp-matrix-role-col"><div class="rp-matrix-role-head accent-orange"><i class="bi bi-shield-fill-exclamation"></i><span>Moderatör</span></div></th>
+                  <th class="rp-matrix-role-col"><div class="rp-matrix-role-head accent-green"><i class="bi bi-person-fill"></i><span>Kullanıcı</span></div></th>
+                  <th class="rp-matrix-role-col"><div class="rp-matrix-role-head accent-pink"><i class="bi bi-eye-fill"></i><span>İzleyici</span></div></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- İçerik Yönetimi -->
+                <tr class="rp-matrix-group" data-cat="content"><td colspan="7"><i class="bi bi-journal-richtext me-2"></i>İçerik Yönetimi</td></tr>
+                <tr data-cat="content"><td class="rp-perm-name"><span>İçerik Görüntüleme</span><small>Tüm içerikleri okuyabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                </tr>
+                <tr data-cat="content"><td class="rp-perm-name"><span>İçerik Oluşturma</span><small>Yeni içerik ekleyebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="content"><td class="rp-perm-name"><span>İçerik Düzenleme</span><small>Mevcut içerikleri düzenleyebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="content"><td class="rp-perm-name"><span>İçerik Silme</span><small>İçerikleri kalıcı olarak silebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="content"><td class="rp-perm-name"><span>İçerik Yayınlama</span><small>İçerikleri yayına alabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+
+                <!-- Kullanıcı Yönetimi -->
+                <tr class="rp-matrix-group" data-cat="users"><td colspan="7"><i class="bi bi-people me-2"></i>Kullanıcı Yönetimi</td></tr>
+                <tr data-cat="users"><td class="rp-perm-name"><span>Kullanıcı Listesi</span><small>Kullanıcıları görüntüleyebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="users"><td class="rp-perm-name"><span>Kullanıcı Ekleme</span><small>Yeni kullanıcı oluşturabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="users"><td class="rp-perm-name"><span>Kullanıcı Düzenleme</span><small>Kullanıcı bilgilerini düzenleyebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="users"><td class="rp-perm-name"><span>Kullanıcı Silme</span><small>Kullanıcıları silebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="users"><td class="rp-perm-name"><span>Rol Atama</span><small>Kullanıcılara rol atayabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+
+                <!-- Sistem Yönetimi -->
+                <tr class="rp-matrix-group" data-cat="system"><td colspan="7"><i class="bi bi-gear me-2"></i>Sistem Yönetimi</td></tr>
+                <tr data-cat="system"><td class="rp-perm-name"><span>Ayarları Görüntüleme</span><small>Sistem ayarlarını görebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="system"><td class="rp-perm-name"><span>Ayarları Düzenleme</span><small>Sistem ayarlarını değiştirebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="system"><td class="rp-perm-name"><span>Rol Yönetimi</span><small>Rolleri oluşturabilir ve düzenleyebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="system"><td class="rp-perm-name"><span>Yedekleme</span><small>Sistem yedekleme ve geri yükleme</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+
+                <!-- Raporlama -->
+                <tr class="rp-matrix-group" data-cat="reports"><td colspan="7"><i class="bi bi-bar-chart me-2"></i>Raporlama</td></tr>
+                <tr data-cat="reports"><td class="rp-perm-name"><span>Rapor Görüntüleme</span><small>Analitik raporları görebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="reports"><td class="rp-perm-name"><span>Rapor Oluşturma</span><small>Özel rapor oluşturabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="reports"><td class="rp-perm-name"><span>Dışa Aktarma</span><small>Verileri dışa aktarabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+
+                <!-- API -->
+                <tr class="rp-matrix-group" data-cat="api"><td colspan="7"><i class="bi bi-plug me-2"></i>API & Entegrasyon</td></tr>
+                <tr data-cat="api"><td class="rp-perm-name"><span>API Erişimi</span><small>REST API kullanabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="api"><td class="rp-perm-name"><span>Webhook Yönetimi</span><small>Webhook oluşturabilir ve düzenleyebilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+                <tr data-cat="api"><td class="rp-perm-name"><span>Entegrasyon Kurulumu</span><small>Üçüncü parti servisleri bağlayabilir</small></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked disabled><span></span></label></td>
+                  <td><label class="rp-check granted"><input type="checkbox" checked><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                  <td><label class="rp-check"><input type="checkbox"><span></span></label></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-body-custom pt-0">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3 text-xs-muted">
+              <span class="d-flex align-items-center gap-1"><span class="rp-legend-dot granted"></span> Verildi</span>
+              <span class="d-flex align-items-center gap-1"><span class="rp-legend-dot denied"></span> Reddedildi</span>
+              <span class="d-flex align-items-center gap-1"><span class="rp-legend-dot locked"></span> Kilitli (Sistem)</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="savePermissions()"><i class="bi bi-check2 me-1"></i> Değişiklikleri Kaydet</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 4: ROLE COMPARISON ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="bi bi-bar-chart-fill me-2 text-neon-purple"></i>Rol Dağılımı</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="rp-bar-chart">
+                <div class="rp-bar-item">
+                  <div class="rp-bar-label"><span class="rp-bar-dot" style="--c:var(--teal-primary)"></span>Super Admin</div>
+                  <div class="rp-bar-track"><div class="rp-bar-fill" style="width:0.2%;--c:var(--teal-primary)"><span>5</span></div></div>
+                  <span class="rp-bar-pct">%0.2</span>
+                </div>
+                <div class="rp-bar-item">
+                  <div class="rp-bar-label"><span class="rp-bar-dot" style="--c:var(--neon-blue)"></span>Admin</div>
+                  <div class="rp-bar-track"><div class="rp-bar-fill" style="width:1.5%;min-width:32px;--c:var(--neon-blue)"><span>42</span></div></div>
+                  <span class="rp-bar-pct">%1.5</span>
+                </div>
+                <div class="rp-bar-item">
+                  <div class="rp-bar-label"><span class="rp-bar-dot" style="--c:var(--neon-purple)"></span>Editör</div>
+                  <div class="rp-bar-track"><div class="rp-bar-fill" style="width:6.5%;--c:var(--neon-purple)"><span>186</span></div></div>
+                  <span class="rp-bar-pct">%6.5</span>
+                </div>
+                <div class="rp-bar-item">
+                  <div class="rp-bar-label"><span class="rp-bar-dot" style="--c:var(--neon-orange)"></span>Moderatör</div>
+                  <div class="rp-bar-track"><div class="rp-bar-fill" style="width:4.4%;--c:var(--neon-orange)"><span>124</span></div></div>
+                  <span class="rp-bar-pct">%4.4</span>
+                </div>
+                <div class="rp-bar-item">
+                  <div class="rp-bar-label"><span class="rp-bar-dot" style="--c:var(--neon-green)"></span>Kullanıcı</div>
+                  <div class="rp-bar-track"><div class="rp-bar-fill" style="width:75.7%;--c:var(--neon-green)"><span>2,156</span></div></div>
+                  <span class="rp-bar-pct">%75.7</span>
+                </div>
+                <div class="rp-bar-item">
+                  <div class="rp-bar-label"><span class="rp-bar-dot" style="--c:var(--neon-pink)"></span>İzleyici</div>
+                  <div class="rp-bar-track"><div class="rp-bar-fill" style="width:11.7%;--c:var(--neon-pink)"><span>334</span></div></div>
+                  <span class="rp-bar-pct">%11.7</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Role Changes -->
+        <div class="col-lg-4">
+          <div class="card-dark">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="bi bi-clock-history me-2 text-neon-orange"></i>Son Rol Değişiklikleri</h6>
+            </div>
+            <div class="card-body-custom p-0">
+              <div class="rp-activity-list">
+                <div class="rp-activity-item">
+                  <div class="rp-activity-icon" style="--c:var(--neon-green)"><i class="bi bi-arrow-up-circle"></i></div>
+                  <div class="rp-activity-info">
+                    <span><strong>Ayşe Yılmaz</strong> Editör rolüne yükseltildi</span>
+                    <small>Ozan Sonar tarafından - 2 saat önce</small>
+                  </div>
+                </div>
+                <div class="rp-activity-item">
+                  <div class="rp-activity-icon" style="--c:var(--neon-blue)"><i class="bi bi-plus-circle"></i></div>
+                  <div class="rp-activity-info">
+                    <span><strong>Moderatör</strong> rolüne 3 yeni izin eklendi</span>
+                    <small>Ali Öztürk tarafından - 5 saat önce</small>
+                  </div>
+                </div>
+                <div class="rp-activity-item">
+                  <div class="rp-activity-icon" style="--c:var(--neon-orange)"><i class="bi bi-arrow-down-circle"></i></div>
+                  <div class="rp-activity-info">
+                    <span><strong>Fatma Çelik</strong> Editör'den Kullanıcı'ya düşürüldü</span>
+                    <small>Ozan Sonar tarafından - 1 gün önce</small>
+                  </div>
+                </div>
+                <div class="rp-activity-item">
+                  <div class="rp-activity-icon" style="--c:var(--neon-purple)"><i class="bi bi-pencil"></i></div>
+                  <div class="rp-activity-info">
+                    <span><strong>Editör</strong> rolü güncellendi - Yayınlama izni eklendi</span>
+                    <small>Ozan Sonar tarafından - 2 gün önce</small>
+                  </div>
+                </div>
+                <div class="rp-activity-item">
+                  <div class="rp-activity-icon" style="--c:var(--teal-primary)"><i class="bi bi-shield-plus"></i></div>
+                  <div class="rp-activity-info">
+                    <span><strong>API Uzmanı</strong> adında yeni rol oluşturuldu</span>
+                    <small>Ali Öztürk tarafından - 3 gün önce</small>
+                  </div>
+                </div>
+                <div class="rp-activity-item">
+                  <div class="rp-activity-icon" style="--c:var(--neon-red, #ef4444)"><i class="bi bi-trash"></i></div>
+                  <div class="rp-activity-info">
+                    <span><strong>Stajyer</strong> rolü silindi (kullanıcılar Kullanıcı'ya taşındı)</span>
+                    <small>Ozan Sonar tarafından - 5 gün önce</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== SECTION 5: QUICK ROLE ASSIGN ==================== -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-person-gear me-2 text-neon-blue"></i>Hızlı Rol Atama</h6>
+            </div>
+            <div class="card-body-custom">
+              <p class="text-muted mb-3 fs-13">Kullanıcı seçerek hızlıca rol atayın veya mevcut rolünü değiştirin.</p>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="stg-label">Kullanıcı</label>
+                  <select class="stg-select" id="assignUser">
+                    <option value="">Kullanıcı seçin...</option>
+                    <option value="ozan">Ozan Sonar</option>
+                    <option value="ayse">Ayşe Yılmaz</option>
+                    <option value="mehmet">Mehmet Demir</option>
+                    <option value="zeynep">Zeynep Kaya</option>
+                    <option value="ali">Ali Öztürk</option>
+                    <option value="fatma">Fatma Çelik</option>
+                    <option value="emre">Emre Aksoy</option>
+                    <option value="selin">Selin Arslan</option>
+                    <option value="burak">Burak Yıldız</option>
+                    <option value="deniz">Deniz Korkmaz</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="stg-label">Yeni Rol</label>
+                  <select class="stg-select" id="assignRole">
+                    <option value="">Rol seçin...</option>
+                    <option value="admin">Admin</option>
+                    <option value="editor">Editör</option>
+                    <option value="moderator">Moderatör</option>
+                    <option value="user">Kullanıcı</option>
+                    <option value="viewer">İzleyici</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="stg-label">Not (Opsiyonel)</label>
+                  <input type="text" class="stg-input" id="assignNote" placeholder="Rol değişikliği sebebi...">
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-primary btn-sm" onclick="quickAssignRole()"><i class="bi bi-check2 me-1"></i> Rolü Ata</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="card-header-custom">
+              <h6 class="mb-0"><i class="bi bi-info-circle me-2 text-teal"></i>Rol Politikaları</h6>
+            </div>
+            <div class="card-body-custom">
+              <div class="stg-toggle-list">
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Otomatik Rol Atama</span>
+                    <small>Yeni kayıt olan kullanıcılara otomatik "Kullanıcı" rolü ata</small>
+                  </div>
+                  <label class="stg-switch"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Rol Değişikliği Bildirimi</span>
+                    <small>Rol değiştiğinde kullanıcıya e-posta bildirimi gönder</small>
+                  </div>
+                  <label class="stg-switch"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Çift Onay Gereksinimi</span>
+                    <small>Admin ve üzeri rol atamaları için ikinci onay iste</small>
+                  </div>
+                  <label class="stg-switch"><input type="checkbox"><span class="stg-switch-slider"></span></label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Rol Geçmişi Kaydet</span>
+                    <small>Tüm rol değişikliklerini logla</small>
+                  </div>
+                  <label class="stg-switch"><input type="checkbox" checked><span class="stg-switch-slider"></span></label>
+                </div>
+                <div class="stg-toggle-item">
+                  <div class="stg-toggle-info">
+                    <span>Oturum Sonlandırma</span>
+                    <small>Rol değişikliğinde mevcut oturumları sonlandır</small>
+                  </div>
+                  <label class="stg-switch"><input type="checkbox"><span class="stg-switch-slider"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+
+<!-- ==================== NEW ROLE MODAL ==================== -->
+<div class="modal fade" id="roleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-card-bordered">
+      <div class="modal-header border-theme">
+        <h5 class="modal-title" id="roleModalTitle"><i class="bi bi-shield-plus me-2 text-teal"></i>Yeni Rol Oluştur</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="stg-label">Rol Adı <span class="text-neon-red">*</span></label>
+            <input type="text" class="stg-input" id="newRoleName" placeholder="Örn: İçerik Yöneticisi">
+          </div>
+          <div class="col-md-6">
+            <label class="stg-label">Renk</label>
+            <div class="d-flex gap-2 flex-wrap mt-1">
+              <button class="rp-color-btn active" style="--c:var(--teal-primary)" onclick="selectColor(this, 'teal')" data-color="teal"></button>
+              <button class="rp-color-btn" style="--c:var(--neon-blue)" onclick="selectColor(this, 'blue')" data-color="blue"></button>
+              <button class="rp-color-btn" style="--c:var(--neon-purple)" onclick="selectColor(this, 'purple')" data-color="purple"></button>
+              <button class="rp-color-btn" style="--c:var(--neon-green)" onclick="selectColor(this, 'green')" data-color="green"></button>
+              <button class="rp-color-btn" style="--c:var(--neon-orange)" onclick="selectColor(this, 'orange')" data-color="orange"></button>
+              <button class="rp-color-btn" style="--c:var(--neon-pink)" onclick="selectColor(this, 'pink')" data-color="pink"></button>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="stg-label">Açıklama</label>
+            <textarea class="stg-textarea" id="newRoleDesc" rows="2" placeholder="Rolün amacını ve kapsamını açıklayın..."></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="stg-label">Kopyalanacak Rol</label>
+            <select class="stg-select" id="newRoleCopyFrom">
+              <option value="">Sıfırdan oluştur</option>
+              <option value="admin">Admin izinlerini kopyala</option>
+              <option value="editor">Editör izinlerini kopyala</option>
+              <option value="moderator">Moderatör izinlerini kopyala</option>
+              <option value="user">Kullanıcı izinlerini kopyala</option>
+              <option value="viewer">İzleyici izinlerini kopyala</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="stg-label">Öncelik Seviyesi</label>
+            <select class="stg-select" id="newRolePriority">
+              <option value="1">1 - Düşük</option>
+              <option value="2">2 - Normal</option>
+              <option value="3" selected>3 - Orta</option>
+              <option value="4">4 - Yüksek</option>
+              <option value="5">5 - Kritik</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-theme">
+        <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="createRole()"><i class="bi bi-plus-lg me-1"></i> Rol Oluştur</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3 z-toast">
+  <div class="toast align-items-center border-0 bg-card-bordered" id="rpToast" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center gap-2" id="rpToastBody">
+        <i class="bi bi-check-circle-fill text-neon-green"></i>
+        <span>İşlem başarıyla tamamlandı</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+<script>
+// ========== Role Selection ==========
+function selectRole(role, el) {
+  document.querySelectorAll('.rp-role-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  showToast(`${el.querySelector('h5').textContent} rolü seçildi`);
+}
+
+// ========== Role Menu ==========
+function openRoleMenu(role) {
+  showToast(`${role} rol menüsü açıldı`);
+}
+
+// ========== Permission Matrix Filter ==========
+function filterMatrix(cat) {
+  const rows = document.querySelectorAll('.rp-matrix-table tbody tr');
+  rows.forEach(row => {
+    if (cat === 'all') {
+      row.classList.remove('d-none');
+    } else {
+      row.classList.toggle('d-none', row.dataset.cat !== cat);
+    }
+  });
+}
+
+// ========== Matrix Checkbox Toggle ==========
+document.querySelectorAll('.rp-check input[type="checkbox"]:not([disabled])').forEach(cb => {
+  cb.addEventListener('change', function() {
+    const label = this.closest('.rp-check');
+    if (this.checked) {
+      label.classList.add('granted');
+    } else {
+      label.classList.remove('granted');
+    }
+  });
+});
+
+// ========== Save Permissions ==========
+function savePermissions() {
+  showToast('İzin matrisi başarıyla kaydedildi');
+}
+
+// ========== Quick Assign Role ==========
+function quickAssignRole() {
+  const user = document.getElementById('assignUser');
+  const role = document.getElementById('assignRole');
+  if (!user.value) { showToast('Lütfen bir kullanıcı seçin', 'warning'); return; }
+  if (!role.value) { showToast('Lütfen bir rol seçin', 'warning'); return; }
+  const userName = user.options[user.selectedIndex].text;
+  const roleName = role.options[role.selectedIndex].text;
+  showToast(`${userName} kullanıcısına ${roleName} rolü atandı`);
+  user.value = '';
+  role.value = '';
+  document.getElementById('assignNote').value = '';
+}
+
+// ========== New Role Modal ==========
+function openRoleModal() {
+  new bootstrap.Modal(document.getElementById('roleModal')).show();
+}
+
+function selectColor(btn, color) {
+  document.querySelectorAll('.rp-color-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function createRole() {
+  const name = document.getElementById('newRoleName').value.trim();
+  if (!name) { showToast('Lütfen rol adını girin', 'warning'); return; }
+  bootstrap.Modal.getInstance(document.getElementById('roleModal')).hide();
+  showToast(`"${name}" rolü başarıyla oluşturuldu`);
+  document.getElementById('newRoleName').value = '';
+  document.getElementById('newRoleDesc').value = '';
+}
+
+// ========== Toast ==========
+function showToast(message, type) {
+  const toast = document.getElementById('rpToast');
+  const body = document.getElementById('rpToastBody');
+  const icons = { danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', default: 'bi-check-circle-fill' };
+  const colors = { danger: 'var(--neon-red, #ef4444)', warning: 'var(--neon-orange)', default: 'var(--neon-green)' };
+  body.innerHTML = `<i class="bi ${icons[type] || icons.default}" style="color:${colors[type] || colors.default}"></i><span>${message}</span>`;
+  new bootstrap.Toast(toast, { delay: 3000 }).show();
+}
+</script>
+</body>
+</html>

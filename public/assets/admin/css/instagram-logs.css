@@ -1,0 +1,321 @@
+/* ====================================================================
+   Instagram API Logs — admin sayfa stilleri
+   Prefix: ig-log-*
+   ==================================================================== */
+
+/* ──────── Cron heartbeat banner ──────── */
+.ig-log-heartbeat{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:18px 22px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    background:var(--bg-card, #1a1f35);
+}
+.ig-log-heartbeat.is-healthy{
+    border-color:rgba(34,197,94,.35);
+    background:linear-gradient(135deg, rgba(34,197,94,.10), rgba(34,197,94,.02));
+}
+.ig-log-heartbeat.is-unhealthy{
+    border-color:rgba(239,68,68,.45);
+    background:linear-gradient(135deg, rgba(239,68,68,.12), rgba(239,68,68,.03));
+}
+.ig-log-heartbeat-icon{
+    font-size:36px;
+    line-height:1;
+    flex-shrink:0;
+}
+.ig-log-heartbeat.is-healthy .ig-log-heartbeat-icon{ color:#22c55e; }
+.ig-log-heartbeat.is-unhealthy .ig-log-heartbeat-icon{ color:#ef4444; }
+.ig-log-heartbeat-info{ flex:1; min-width:0; }
+.ig-log-heartbeat-title{
+    font-weight:700;
+    font-size:15px;
+    color:var(--text-primary, #f1f5f9);
+    margin-bottom:2px;
+}
+.ig-log-heartbeat-detail{
+    font-size:13px;
+    color:var(--text-muted, #64748b);
+}
+.ig-log-heartbeat-detail code{
+    background:rgba(255,255,255,.06);
+    padding:2px 6px;
+    border-radius:4px;
+    font-size:12px;
+    color:#fbbf24;
+}
+
+/* ──────── Toolbar ──────── */
+.ig-log-toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+.ig-log-badge-count{
+    display:inline-block;
+    margin-left:6px;
+    padding:1px 7px;
+    background:rgba(239,68,68,.25);
+    color:#fca5a5;
+    border-radius:10px;
+    font-size:11px;
+    font-weight:700;
+}
+.btn-glass-danger{
+    border-color:rgba(239,68,68,.4) !important;
+    color:#fca5a5 !important;
+}
+.btn-glass-danger:hover{
+    background:rgba(239,68,68,.15) !important;
+    border-color:rgba(239,68,68,.7) !important;
+    color:#fff !important;
+}
+
+/* ──────── Filter grid ──────── */
+.ig-log-filter-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:12px;
+    align-items:end;
+}
+.ig-log-filter-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+.ig-log-filter-actions .btn-teal,
+.ig-log-filter-actions .btn-glass{
+    flex:1;
+    white-space:nowrap;
+}
+
+/* ──────── Tablo ──────── */
+.ig-log-th-time   { width: 150px; }
+.ig-log-th-post   { width: 80px;  }
+.ig-log-th-status { width: 110px; }
+.ig-log-th-dur    { width: 90px;  }
+.ig-log-th-act    { width: 110px; }
+
+.ig-log-table .ig-log-cell-time{
+    font-variant-numeric: tabular-nums;
+}
+
+/* Status badge (kendi başına çalışsın diye usr-status-badge'a bağımlı değil) */
+.ig-log-status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:4px 10px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:600;
+    line-height:1;
+    white-space:nowrap;
+}
+.ig-log-status-badge.is-success{
+    background:rgba(34,197,94,.12);
+    color:#22c55e;
+    border:1px solid rgba(34,197,94,.25);
+}
+.ig-log-status-badge.is-failed{
+    background:rgba(239,68,68,.12);
+    color:#ef4444;
+    border:1px solid rgba(239,68,68,.25);
+}
+.ig-log-time{
+    font-weight:600;
+    font-size:13px;
+    color:var(--text-primary, #f1f5f9);
+}
+.ig-log-time-sub{
+    font-size:11px;
+    color:var(--text-muted, #64748b);
+}
+.ig-log-post-thumb{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    text-decoration:none;
+    transition: transform .15s;
+}
+.ig-log-post-thumb:hover{ transform:scale(1.05); }
+.ig-log-post-thumb img{
+    width:48px;
+    height:48px;
+    border-radius:6px;
+    object-fit:cover;
+    border:1px solid rgba(255,255,255,.08);
+}
+.ig-log-post-id{
+    font-size:11px;
+    color:#5eead4;
+    font-weight:600;
+}
+.ig-log-action-badge code{
+    background:rgba(94, 234, 212, 0.10);
+    color:#5eead4;
+    padding:3px 8px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
+}
+.ig-log-duration{
+    font-variant-numeric: tabular-nums;
+    font-size:13px;
+    color:var(--text-muted, #64748b);
+}
+.ig-log-duration.is-slow{
+    color:#fbbf24;
+    font-weight:600;
+}
+.ig-log-error{
+    color:#fca5a5;
+    font-size:12.5px;
+    line-height:1.4;
+    display:inline-block;
+    max-width:100%;
+    word-break:break-word;
+}
+
+/* ──────── Detay modal ──────── */
+.ig-log-modal{
+    background:var(--bg-card, #1a1f35) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+}
+.ig-log-modal .modal-header{
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+.ig-log-modal .modal-footer{
+    border-top:1px solid rgba(255,255,255,.06);
+}
+.ig-log-modal-id{
+    font-size:13px;
+    color:var(--text-muted, #64748b);
+    font-weight:400;
+}
+
+/* Özet grid */
+.ig-log-summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:12px;
+    margin-bottom:16px;
+}
+.ig-log-summary-item{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:8px;
+    padding:10px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+}
+.ig-log-summary-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--text-muted, #64748b);
+    font-weight:600;
+}
+.ig-log-summary-value{
+    font-size:14px;
+    color:var(--text-primary, #f1f5f9);
+    font-weight:600;
+    word-break:break-word;
+}
+
+/* Hata kutusu */
+.ig-log-error-box{
+    background:rgba(239,68,68,.08);
+    border:1px solid rgba(239,68,68,.3);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:16px;
+}
+.ig-log-error-title{
+    font-weight:700;
+    color:#fca5a5;
+    font-size:13px;
+    margin-bottom:6px;
+}
+.ig-log-error-msg{
+    color:#fecaca;
+    font-size:13px;
+    line-height:1.55;
+    word-break:break-word;
+    white-space:pre-wrap;
+}
+
+/* Tabs */
+.ig-log-tabs{
+    border-bottom:1px solid rgba(255,255,255,.08);
+    margin-bottom:0;
+}
+.ig-log-tabs .nav-link{
+    color:var(--text-muted, #64748b);
+    border:none;
+    padding:10px 18px;
+    font-size:13px;
+    font-weight:600;
+    background:transparent;
+    border-bottom:2px solid transparent;
+}
+.ig-log-tabs .nav-link.active{
+    color:#5eead4;
+    background:transparent;
+    border-bottom-color:#5eead4;
+}
+.ig-log-tabs .nav-link:hover{
+    color:#5eead4;
+}
+.ig-log-tab-content{
+    background:rgba(0,0,0,.2);
+    border:1px solid rgba(255,255,255,.06);
+    border-top:none;
+    border-radius:0 0 8px 8px;
+    padding:14px;
+}
+
+/* JSON viewer */
+.ig-log-json-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+    gap:10px;
+}
+.btn-glass-sm{
+    padding:4px 10px !important;
+    font-size:12px !important;
+}
+.ig-log-json{
+    background:#0d1117;
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:6px;
+    padding:14px 16px;
+    margin:0;
+    max-height:420px;
+    overflow:auto;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size:12px;
+    line-height:1.6;
+    color:#e6edf3;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+.ig-log-json:empty::after{
+    content:"(boş)";
+    color:#6e7681;
+    font-style:italic;
+}
+
+/* Mobile */
+@media (max-width: 768px){
+    .ig-log-heartbeat{ flex-direction:column; align-items:flex-start; text-align:left; }
+    .ig-log-summary-grid{ grid-template-columns:1fr 1fr; }
+    .ig-log-filter-grid{ grid-template-columns:1fr 1fr; }
+}

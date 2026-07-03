@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepetim | Orhan Baba'nın Çiftliği</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Sepetinizdeki doğal köy ürünleri. Güvenli ödeme ve hızlı teslimat ile Orhan Baba'nın Çiftliği.">
+    <meta name="keywords" content="sepet, alışveriş, köy ürünleri sipariş">
+    <meta name="author" content="Orhan Baba'nın Çiftliği">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://orhanbabaciftlik.com/sepet.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sepetim | Orhan Baba'nın Çiftliği">
+    <meta property="og:description" content="Sepetinizdeki doğal köy ürünleri. Güvenli ödeme ve hızlı teslimat ile Orhan Baba'nın Çiftliği.">
+    <meta property="og:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+    <meta property="og:url" content="https://orhanbabaciftlik.com/sepet.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Orhan Baba'nın Çiftliği">
+    <meta property="og:locale" content="tr_TR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sepetim | Orhan Baba'nın Çiftliği">
+    <meta name="twitter:description" content="Sepetinizdeki doğal köy ürünleri. Güvenli ödeme ve hızlı teslimat ile Orhan Baba'nın Çiftliği.">
+    <meta name="twitter:image" content="https://orhanbabaciftlik.com/og-image.jpg">
+
+    <!-- Preconnect & DNS Prefetch -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-30px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        
+
+        /* Cart Section */
+        .cart-section {
+            padding: 50px 0 100px;
+        }
+
+        /* Cart Items */
+        .cart-items-container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+        }
+
+        .cart-header {
+            padding: 25px 30px;
+            border-bottom: 2px solid var(--green-mist);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header h3 {
+            font-size: 1.5rem;
+            color: var(--green-dark);
+            margin: 0;
+        }
+
+        .cart-header span {
+            color: var(--brown-light);
+        }
+
+        .clear-cart-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--red);
+            background: white;
+            color: var(--red);
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-cart-btn:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        /* Cart Item */
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--green-mist);
+            transition: all 0.3s ease;
+        }
+
+        .cart-item:hover {
+            background: var(--green-mist);
+        }
+
+        .cart-item.removing {
+            animation: fadeOut 0.4s ease forwards;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            background: var(--green-mist);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 25px;
+            flex-shrink: 0;
+        }
+
+        .item-image i {
+            font-size: 3rem;
+            color: var(--green-primary);
+        }
+
+        .item-image span {
+            font-size: 3rem;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-category {
+            color: var(--green-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .item-name {
+            font-size: 1.3rem;
+            color: var(--green-dark);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .item-name a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .item-name a:hover {
+            color: var(--green-primary);
+        }
+
+        .item-unit {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 30px;
+        }
+
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 2px solid var(--green-pale);
+            background: white;
+            color: var(--green-primary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-btn:hover {
+            background: var(--green-primary);
+            color: white;
+            border-color: var(--green-primary);
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .qty-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--green-dark);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .item-price {
+            text-align: right;
+            margin-right: 25px;
+            min-width: 100px;
+        }
+
+        .unit-price {
+            color: var(--brown-light);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .total-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--green-primary);
+        }
+
+        .remove-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: #fee;
+            color: var(--red);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-btn:hover {
+            background: var(--red);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Empty Cart */
+        .empty-cart {
+            padding: 80px 30px;
+            text-align: center;
+        }
+
+        .empty-cart-icon {
+            width: 150px;
+            height: 150px;
+            background: var(--green-mist);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+        }
+
+        .empty-cart-icon i {
+            font-size: 4rem;
+            color: var(--green-pale);
+        }
+
+        .empty-cart h3 {
+            font-size: 1.8rem;
+            color: var(--green-dark);
+            margin-bottom: 15px;
+        }
+
+        .empty-cart p {
+            color: var(--brown-light);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .btn-shop-now {
+            padding: 15px 40px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-shop-now:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(74, 124, 67, 0.4);
+            color: white;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            padding: 30px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-title {
+            font-size: 1.5rem;
+            color: var(--green-dark);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--green-mist);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+        }
+
+        .summary-row span {
+            color: var(--brown-light);
+        }
+
+        .summary-row strong {
+            color: var(--green-dark);
+            font-size: 1.1rem;
+        }
+
+        .summary-divider {
+            height: 2px;
+            background: var(--green-mist);
+            margin: 15px 0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .summary-total span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .summary-total strong {
+            font-size: 2rem;
+            color: var(--green-primary);
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Coupon */
+        .coupon-section {
+            margin: 25px 0;
+            padding: 20px;
+            background: var(--green-mist);
+            border-radius: 15px;
+        }
+
+        .coupon-section label {
+            font-weight: 600;
+            color: var(--green-dark);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .coupon-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .coupon-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid var(--green-pale);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-input:focus {
+            outline: none;
+            border-color: var(--green-primary);
+        }
+
+        .coupon-btn {
+            padding: 12px 20px;
+            border: none;
+            background: var(--green-primary);
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-btn:hover {
+            background: var(--green-dark);
+        }
+
+        .coupon-applied {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #d4edda;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .coupon-applied span {
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        .coupon-applied button {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+        }
+
+        /* Checkout Button */
+        .btn-checkout {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            color: white;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(74, 124, 67, 0.3);
+        }
+
+        .btn-checkout:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(74, 124, 67, 0.4);
+        }
+
+        .btn-checkout:disabled {
+            background: var(--brown-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* WhatsApp Button */
+        .btn-whatsapp {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            background: #25D366;
+            color: white;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.3);
+            margin-top: 12px;
+            text-decoration: none;
+        }
+
+        .btn-whatsapp:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(37, 211, 102, 0.4);
+            background: #20bd5a;
+            color: white;
+        }
+
+        .btn-whatsapp:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Features */
+        .cart-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--green-mist);
+            border-radius: 12px;
+        }
+
+        .feature-item i {
+            color: var(--green-primary);
+            font-size: 1.1rem;
+        }
+
+        .feature-item span {
+            font-size: 0.85rem;
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        /* Continue Shopping */
+        .continue-shopping {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .continue-shopping a {
+            color: var(--green-primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .continue-shopping a:hover {
+            color: var(--green-dark);
+            gap: 12px;
+        }
+
+        /* Free Shipping Progress */
+        .free-shipping-progress {
+            background: var(--green-mist);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .progress-text span {
+            color: var(--brown-light);
+        }
+
+        .progress-text strong {
+            color: var(--green-primary);
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background: var(--green-pale);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green-primary), var(--green-light));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-success {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--green-primary);
+            font-weight: 600;
+        }
+
+        .progress-success i {
+            margin-right: 5px;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--green-dark);
+            color: white;
+            padding: 80px 0 30px;
+        }
+
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-brand .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--green-light), var(--green-pale));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green-dark);
+            font-size: 1.2rem;
+        }
+
+        .footer-text {
+            color: rgba(255,255,255,0.7);
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            background: var(--green-light);
+            color: var(--green-dark);
+            transform: translateY(-5px);
+        }
+
+        .footer-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--green-light);
+        }
+
+        .footer-bottom {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Scroll to Top */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            border: none;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+
+            .order-summary {
+                position: relative;
+                top: 0;
+                margin-top: 30px;
+            }
+        }
+
+        @media (max-width: 767px) {
+
+            .cart-item {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .item-image {
+                width: 80px;
+                height: 80px;
+                margin-right: 15px;
+            }
+
+            .item-image i, .item-image span {
+                font-size: 2rem;
+            }
+
+            .item-details {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .item-quantity {
+                margin: 0;
+            }
+
+            .item-price {
+                margin-right: 0;
+                min-width: auto;
+            }
+
+            .cart-features {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Navigation - Accessibility -->
+    <a href="#main-content" class="skip-nav">Ana içeriğe geç</a>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top" role="navigation" aria-label="Ana Navigasyon">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                Orhan Baba'nın Çiftliği
+            </a>
+            <button class="navbar-toggler" type="button" aria-label="Menüyü aç/kapat" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="urunler.html">Ürünlerimiz</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="hakkimizda.html">Hakkımızda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="blog.html">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="galeri.html">Galeri</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="iletisim.html">İletişim</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-custom" href="sepet.html">
+                            <i class="fas fa-shopping-basket"></i>
+                            Sepetim
+                            <span class="cart-count" id="cartCount">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <main id="main-content">
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb-custom animate-fade-up">
+                <a href="index.html"><i class="fas fa-home"></i> Ana Sayfa</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Sepetim</span>
+            </div>
+            <h1 class="page-title animate-fade-up delay-1">Sepetim</h1>
+            <p class="page-subtitle animate-fade-up delay-2" id="cartSubtitle">Sepetinizde ürün bulunmaktadır</p>
+        </div>
+    </section>
+
+    <!-- Cart Section -->
+    <section class="cart-section">
+        <div class="container">
+            <div class="row">
+                <!-- Cart Items -->
+                <div class="col-lg-8">
+                    <div class="cart-items-container animate-fade-up">
+                        <!-- Cart Header -->
+                        <div class="cart-header" id="cartHeader">
+                            <h3><i class="fas fa-shopping-cart me-2"></i>Sepetinizdeki Ürünler <span id="itemCount">(0 ürün)</span></h3>
+                            <button class="clear-cart-btn" id="clearCartBtn">
+                                <i class="fas fa-trash-alt me-2"></i>Sepeti Temizle
+                            </button>
+                        </div>
+
+                        <!-- Cart Items Container -->
+                        <div id="cartItemsContainer">
+                            <!-- Items will be loaded here dynamically -->
+                        </div>
+
+                        <!-- Empty Cart State -->
+                        <div class="empty-cart d-none" id="emptyCart">
+                            <div class="empty-cart-icon">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <h3>Sepetiniz Boş</h3>
+                            <p>Henüz sepetinize ürün eklemediniz. Hemen alışverişe başlayın!</p>
+                            <a href="urunler.html" class="btn-shop-now">
+                                <i class="fas fa-store"></i>
+                                Alışverişe Başla
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Continue Shopping -->
+                    <div class="continue-shopping">
+                        <a href="urunler.html">
+                            <i class="fas fa-arrow-left"></i>
+                            Alışverişe Devam Et
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-lg-4">
+                    <div class="order-summary animate-fade-up delay-1" id="orderSummary">
+                        <h3 class="summary-title"><i class="fas fa-receipt me-2"></i>Sipariş Özeti</h3>
+
+                        <!-- Free Shipping Progress -->
+                        <div class="free-shipping-progress" id="shippingProgress">
+                            <div class="progress-text">
+                                <span>Ücretsiz kargo için</span>
+                                <strong id="remainingForFreeShipping">200₺ kaldı</strong>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Ara Toplam</span>
+                            <strong id="subtotal">₺0</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Kargo</span>
+                            <strong id="shipping">₺25</strong>
+                        </div>
+                        <div class="summary-row d-none" id="discountRow">
+                            <span>İndirim</span>
+                            <strong id="discount" class="icon-red">-₺0</strong>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <!-- Coupon Section -->
+                        <div class="coupon-section">
+                            <label><i class="fas fa-tag me-2"></i>Kupon Kodu</label>
+                            <div class="coupon-input-group">
+                                <input type="text" class="coupon-input" id="couponInput" placeholder="Kupon kodunuzu girin">
+                                <button class="coupon-btn" id="applyCouponBtn">Uygula</button>
+                            </div>
+                            <div class="coupon-applied d-none" id="couponApplied">
+                                <span><i class="fas fa-check-circle me-1"></i> <span id="appliedCouponCode">HOSGELDIN10</span></span>
+                                <button id="removeCouponBtn"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="summary-total">
+                            <span>Toplam</span>
+                            <strong id="total">₺0</strong>
+                        </div>
+
+                        <button class="btn-checkout" id="checkoutBtn" disabled>
+                            <i class="fas fa-lock"></i>
+                            Güvenli Ödemeye Geç
+                        </button>
+
+                        <a class="btn-whatsapp" id="whatsappBtn" href="#" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp icon-xl"></i>
+                            WhatsApp ile Sipariş Ver
+                        </a>
+
+                        <div class="cart-features">
+                            <div class="feature-item">
+                                <i class="fas fa-truck"></i>
+                                <span>Hızlı Teslimat</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-snowflake"></i>
+                                <span>Soğuk Zincir</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-undo"></i>
+                                <span>Kolay İade</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Güvenli Ödeme</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <div class="logo-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        Orhan Baba'nın Çiftliği
+                    </div>
+                    <p class="footer-text">
+                        1975'ten bu yana, geleneksel yöntemlerle üretilen doğal köy ürünlerini sofralarınıza ulaştırıyoruz.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="footer-title">Hızlı Linkler</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="urunler.html">Ürünlerimiz</a></li>
+                        <li><a href="hakkimizda.html">Hakkımızda</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="galeri.html">Galeri</a></li>
+                        <li><a href="iletisim.html">İletişim</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="footer-title">Hesabım</h5>
+                    <ul class="footer-links">
+                        <li><a href="giris.html">Giriş Yap</a></li>
+                        <li><a href="kayit.html">Kayıt Ol</a></li>
+                        <li><a href="hesabim.html">Hesabım</a></li>
+                        <li><a href="sepet.html">Sepetim</a></li>
+                        <li><a href="odeme.html">Ödeme</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="footer-title">İletişim</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Orhan Köyü, Çorum / Türkiye</li>
+                        <li><i class="fas fa-phone me-2"></i> +90 532 XXX XX XX</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@orhanbabaciftlik.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Orhan Baba'nın Çiftliği. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTop" aria-label="Yukarı çık">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="app.js" defer></script>
+    <script>
+        // Product data for icons
+        const productIcons = {
+            'Köy Peyniri': { icon: 'fas fa-cheese', category: 'Süt Ürünleri', unit: 'kg' },
+            'Taze Süt': { icon: 'fas fa-glass-whiskey', category: 'Süt Ürünleri', unit: 'lt' },
+            'Köy Tereyağı': { emoji: '🧈', category: 'Süt Ürünleri', unit: 'kg' },
+            'Köy Yumurtası': { icon: 'fas fa-egg', category: 'Köy Ürünleri', unit: '30\'lu' },
+            'Süzme Bal': { emoji: '🍯', category: 'Bal & Reçel', unit: 'kg' },
+            'Ev Yoğurdu': { emoji: '🥛', category: 'Süt Ürünleri', unit: 'kg' },
+            'Kaşar Peyniri': { icon: 'fas fa-cheese', category: 'Süt Ürünleri', unit: 'kg' },
+            'Zeytinyağı': { emoji: '🫒', category: 'Köy Ürünleri', unit: 'lt' },
+            'Ev Reçeli': { emoji: '🍓', category: 'Bal & Reçel', unit: '500g' },
+            'Tahin': { emoji: '🥜', category: 'Köy Ürünleri', unit: '500g' },
+            'Lor Peyniri': { icon: 'fas fa-cheese', category: 'Süt Ürünleri', unit: 'kg' },
+            'Bulgur': { emoji: '🌾', category: 'Köy Ürünleri', unit: 'kg' }
+        };
+
+        // Cart data - inline safe parse (app.js deferred, not yet available)
+        let cart = [];
+        try {
+            var _cartData = localStorage.getItem('cart');
+            if (_cartData) cart = JSON.parse(_cartData);
+        } catch(e) { cart = []; }
+
+        let couponApplied = null;
+        const FREE_SHIPPING_THRESHOLD = 200;
+        const SHIPPING_COST = 25;
+
+        // Default products for demonstration (2 items)
+        const defaultProducts = [
+            { name: 'Köy Peyniri', price: 180, quantity: 1 },
+            { name: 'Taze Süt', price: 45, quantity: 2 }
+        ];
+
+        // Helper: match product name for icon lookup (handles weight suffix)
+        function getProductInfo(name) {
+            if (productIcons[name]) return productIcons[name];
+            // Try matching base name (e.g. "Köy Peyniri (1 kg)" -> "Köy Peyniri")
+            var baseName = name.replace(/\s*\(.*\)$/, '');
+            if (productIcons[baseName]) return productIcons[baseName];
+            return { icon: 'fas fa-box', category: 'Ürün', unit: 'adet' };
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add default products if cart is empty
+            if (cart.length === 0) {
+                cart = defaultProducts.slice();
+                localStorage.setItem('cart', JSON.stringify(cart));
+            }
+            renderCart();
+            updateSummary();
+        });
+
+        // Render cart items
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            const emptyCart = document.getElementById('emptyCart');
+            const cartHeader = document.getElementById('cartHeader');
+
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyCart.classList.remove('d-none');
+                cartHeader.classList.add('d-none');
+                document.getElementById('orderSummary').style.opacity = '0.5';
+                document.getElementById('orderSummary').style.pointerEvents = 'none';
+                document.getElementById('cartSubtitle').textContent = 'Sepetiniz boş';
+            } else {
+                emptyCart.classList.add('d-none');
+                cartHeader.classList.remove('d-none');
+                document.getElementById('orderSummary').style.opacity = '1';
+                document.getElementById('orderSummary').style.pointerEvents = 'auto';
+                document.getElementById('itemCount').textContent = `(${cart.length} ürün)`;
+                document.getElementById('cartSubtitle').textContent = `Sepetinizde ${cart.length} ürün bulunmaktadır`;
+
+                container.innerHTML = cart.map((item, index) => {
+                    const productInfo = getProductInfo(item.name);
+                    const iconHtml = productInfo.emoji
+                        ? `<span>${productInfo.emoji}</span>`
+                        : `<i class="${productInfo.icon}"></i>`;
+
+                    return `
+                        <div class="cart-item" data-index="${index}">
+                            <div class="item-image">
+                                ${iconHtml}
+                            </div>
+                            <div class="item-details">
+                                <div class="item-category">${productInfo.category}</div>
+                                <div class="item-name"><a href="urun-detay.html">${item.name}</a></div>
+                                <div class="item-unit">₺${item.price} / ${productInfo.unit}</div>
+                            </div>
+                            <div class="item-quantity">
+                                <button class="qty-btn" onclick="updateQuantity(${index}, -1)" ${item.quantity <= 1 ? 'disabled' : ''}>
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="qty-value">${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQuantity(${index}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="item-price">
+                                <div class="unit-price">${item.quantity} x ₺${item.price}</div>
+                                <div class="total-price">₺${item.price * item.quantity}</div>
+                            </div>
+                            <button class="remove-btn" onclick="removeItem(${index})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateCartCount();
+        }
+
+        // Update quantity
+        function updateQuantity(index, change) {
+            cart[index].quantity += change;
+            if (cart[index].quantity < 1) cart[index].quantity = 1;
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+            updateSummary();
+        }
+
+        // Remove item
+        function removeItem(index) {
+            const item = document.querySelector(`.cart-item[data-index="${index}"]`);
+            item.classList.add('removing');
+
+            setTimeout(() => {
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCart();
+                updateSummary();
+            }, 400);
+        }
+
+        // Clear cart
+        document.getElementById('clearCartBtn').addEventListener('click', function() {
+            if (confirm('Sepetinizdeki tüm ürünleri silmek istediğinize emin misiniz?')) {
+                cart = [];
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCart();
+                updateSummary();
+            }
+        });
+
+        // Update summary
+        function updateSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+            const shipping = isFreeShipping ? 0 : SHIPPING_COST;
+
+            let discount = 0;
+            if (couponApplied) {
+                discount = Math.round(subtotal * 0.1); // 10% discount
+            }
+
+            const total = subtotal + shipping - discount;
+
+            // Update values
+            document.getElementById('subtotal').textContent = `₺${subtotal}`;
+            document.getElementById('shipping').textContent = isFreeShipping ? 'Ücretsiz' : `₺${shipping}`;
+            document.getElementById('shipping').style.color = isFreeShipping ? 'var(--green-primary)' : '';
+            document.getElementById('total').textContent = `₺${total}`;
+
+            // Discount row
+            if (couponApplied) {
+                document.getElementById('discountRow').classList.remove('d-none');
+                document.getElementById('discount').textContent = `-₺${discount}`;
+            } else {
+                document.getElementById('discountRow').classList.add('d-none');
+            }
+
+            // Free shipping progress
+            const progress = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
+            const progressElement = document.getElementById('shippingProgress');
+
+            if (remaining > 0) {
+                document.getElementById('remainingForFreeShipping').textContent = `₺${remaining} kaldı`;
+                progressElement.innerHTML = `
+                    <div class="progress-text">
+                        <span>Ücretsiz kargo için</span>
+                        <strong>₺${remaining} kaldı</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${progress}%;"></div>
+                    </div>
+                `;
+            } else {
+                progressElement.innerHTML = `
+                    <div class="progress-success">
+                        <i class="fas fa-check-circle"></i> Ücretsiz kargo kazandınız!
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 100%;"></div>
+                    </div>
+                `;
+            }
+
+            // Checkout button
+            document.getElementById('checkoutBtn').disabled = cart.length === 0;
+
+            // WhatsApp button
+            var whatsappBtn = document.getElementById('whatsappBtn');
+            if (cart.length === 0) {
+                whatsappBtn.style.opacity = '0.5';
+                whatsappBtn.style.pointerEvents = 'none';
+                whatsappBtn.href = '#';
+            } else {
+                whatsappBtn.style.opacity = '1';
+                whatsappBtn.style.pointerEvents = 'auto';
+
+                var msg = 'Merhaba, aşağıdaki ürünleri sipariş vermek istiyorum:%0A%0A';
+                cart.forEach(function(item, i) {
+                    msg += '• ' + item.name + ' — ' + item.quantity + ' adet x ₺' + item.price + ' = ₺' + (item.quantity * item.price) + '%0A';
+                });
+                msg += '%0A—————————————%0A';
+                msg += 'Ara Toplam: ₺' + subtotal + '%0A';
+                if (couponApplied) {
+                    msg += 'İndirim (' + couponApplied + '): -₺' + discount + '%0A';
+                }
+                msg += 'Kargo: ' + (isFreeShipping ? 'Ücretsiz' : '₺' + shipping) + '%0A';
+                msg += 'Toplam: ₺' + total + '%0A%0A';
+                msg += 'Ödeme ve teslimat detayları için bilgi rica ederim.';
+
+                whatsappBtn.href = 'https://wa.me/905059424124?text=' + msg;
+            }
+        }
+
+        // Coupon functionality
+        document.getElementById('applyCouponBtn').addEventListener('click', function() {
+            const code = document.getElementById('couponInput').value.trim().toUpperCase();
+
+            if (code === 'HOSGELDIN10' || code === 'INDIRIM10') {
+                couponApplied = code;
+                document.getElementById('couponApplied').classList.remove('d-none');
+                document.getElementById('appliedCouponCode').textContent = code;
+                document.getElementById('couponInput').value = '';
+                document.querySelector('.coupon-input-group').classList.add('d-none');
+                updateSummary();
+            } else {
+                document.getElementById('couponInput').style.animation = 'shake 0.5s ease';
+                setTimeout(() => {
+                    document.getElementById('couponInput').style.animation = '';
+                }, 500);
+            }
+        });
+
+        document.getElementById('removeCouponBtn').addEventListener('click', function() {
+            couponApplied = null;
+            document.getElementById('couponApplied').classList.add('d-none');
+            document.querySelector('.coupon-input-group').classList.remove('d-none');
+            updateSummary();
+        });
+
+        // Update cart count
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+
+        // Checkout button
+        document.getElementById('checkoutBtn').addEventListener('click', function() {
+            if (cart.length > 0) {
+                window.location.href = 'odeme.html';
+            }
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            const scrollTop = document.getElementById('scrollTop');
+
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            if (window.scrollY > 500) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+        });
+
+        // Scroll to top
+        document.getElementById('scrollTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
