@@ -1,103 +1,82 @@
-<footer class="footer" role="contentinfo">
+@php
+    $fName    = \App\Models\Setting::getValue('site_name', config('app.name'));
+    $fDesc    = \App\Models\Setting::getValue('site_description', 'Modern, hızlı ve güvenilir kurumsal çözümler.');
+    $fLogo    = \App\Models\Setting::getValue('site_logo');
+    $fFooter  = \App\Models\Setting::getValue('footer_text', '© ' . date('Y') . ' ' . $fName . '. Tüm hakları saklıdır.');
+    $fPhone   = \App\Models\Setting::getValue('contact_phone');
+    $fEmail   = \App\Models\Setting::getValue('contact_email');
+    $fAddress = \App\Models\Setting::getValue('contact_address');
+    $fSocials = [
+        'social_facebook'  => 'fa-brands fa-facebook-f',
+        'social_instagram' => 'fa-brands fa-instagram',
+        'social_twitter'   => 'fa-brands fa-x-twitter',
+        'social_youtube'   => 'fa-brands fa-youtube',
+        'social_linkedin'  => 'fa-brands fa-linkedin-in',
+    ];
+@endphp
+
+<footer class="site-footer" role="contentinfo">
     <div class="container">
-        <div class="row g-4">
-            {{-- Hakkımızda --}}
-            <div class="col-lg-3 col-md-6">
-                <div class="footer-brand">
-                    <span class="logo-icon"><i class="fa-solid fa-leaf"></i></span>
-                    {{ \App\Models\Setting::getValue('site_name', config('app.name')) }}
-                </div>
-                <p class="footer-tagline">
-                    <i class="fa-solid fa-location-dot"></i>
-                    Büyük Palabıyık Köyü, <strong>Çorum</strong> / Türkiye
-                </p>
-                <p class="footer-text">
-                    Çorum'un bereketli topraklarından doğanın en taze haliyle çiftliğimizden sofranıza.
-                    Katkısız, hormonsuz, doğal köy ürünleriyle sağlıklı yaşamın tadını çıkarın.
-                </p>
+        <div class="row g-4 g-lg-5">
+            {{-- Brand --}}
+            <div class="col-lg-4">
+                <a class="footer-brand" href="{{ route('home') }}">
+                    @if($fLogo)
+                        <img src="{{ upload_url($fLogo) }}" alt="{{ $fName }}" height="34" class="brand__logo">
+                    @else
+                        <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
+                    @endif
+                    <span>{{ $fName }}</span>
+                </a>
+                <p class="mb-4">{{ $fDesc }}</p>
                 <div class="footer-social">
-                    @php
-                        $socialLinks = [
-                            'social_facebook'  => ['icon' => 'fa-brands fa-facebook-f',  'label' => 'Facebook'],
-                            'social_instagram' => ['icon' => 'fa-brands fa-instagram',    'label' => 'Instagram'],
-                            'social_twitter'   => ['icon' => 'fa-brands fa-x-twitter',    'label' => 'X (Twitter)'],
-                            'social_youtube'   => ['icon' => 'fa-brands fa-youtube',      'label' => 'YouTube'],
-                            'social_whatsapp'  => ['icon' => 'fa-brands fa-whatsapp',     'label' => 'WhatsApp'],
-                        ];
-                    @endphp
-                    @foreach($socialLinks as $key => $social)
+                    @foreach($fSocials as $key => $icon)
                         @php $url = \App\Models\Setting::getValue($key); @endphp
                         @if($url)
-                        <a href="{{ $key === 'social_whatsapp' ? whatsapp_url($url, 'Merhaba, bilgi almak istiyorum.') : $url }}" class="social-link" target="_blank" rel="noopener noreferrer"
-                           aria-label="{{ $social['label'] }}">
-                            <i class="{{ $social['icon'] }}"></i>
-                        </a>
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ str_replace('social_', '', $key) }}">
+                                <i class="{{ $icon }}"></i>
+                            </a>
                         @endif
                     @endforeach
                 </div>
             </div>
 
-            {{-- Hızlı Linkler --}}
-            <div class="col-lg-2 col-md-6">
-                <h5 class="footer-title">Hızlı Linkler</h5>
-                <ul class="footer-links">
-                    <li><a href="{{ route('home') }}"><i class="fa-solid fa-angle-right"></i> Anasayfa</a></li>
-                    <li><a href="{{ route('pages.show', 'hakkimizda') }}"><i class="fa-solid fa-angle-right"></i> Hakkımızda</a></li>
-                    <li><a href="{{ route('contact') }}"><i class="fa-solid fa-angle-right"></i> İletişim</a></li>
-                    <li><a href="{{ route('faq') }}"><i class="fa-solid fa-angle-right"></i> SSS</a></li>
-                    <li><a href="{{ route('gallery') }}"><i class="fa-solid fa-angle-right"></i> Galeri</a></li>
-                    <li><a href="{{ route('pages.show', 'teslimat-kosullari') }}"><i class="fa-solid fa-angle-right"></i> Teslimat Koşulları</a></li>
-                    <li><a href="{{ route('pages.show', 'gizlilik-politikasi') }}"><i class="fa-solid fa-angle-right"></i> Gizlilik Politikası</a></li>
-                </ul>
+            {{-- Quick links --}}
+            <div class="col-6 col-lg-2">
+                <h5>Menü</h5>
+                <a class="footer-link" href="{{ route('home') }}">Anasayfa</a>
+                <a class="footer-link" href="{{ route('blog.index') }}">İçerikler</a>
+                <a class="footer-link" href="{{ route('gallery') }}">Galeri</a>
+                <a class="footer-link" href="{{ route('faq') }}">SSS</a>
+                <a class="footer-link" href="{{ route('contact') }}">İletişim</a>
             </div>
 
-            {{-- İletişim --}}
-            <div class="col-lg-3 col-md-6">
-                <h5 class="footer-title">İletişim</h5>
-                @php
-                    $footerPhone   = \App\Models\Setting::getValue('contact_phone', '0555 123 45 67');
-                    $footerEmail   = \App\Models\Setting::getValue('contact_email', 'info@example.com');
-                    $footerAddress = \App\Models\Setting::getValue('contact_address', 'Çiftlik Yolu No:1, Bolu');
-                @endphp
-                <address class="footer-address">
-                    <div class="footer-contact-item">
-                        <div class="footer-contact-icon">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </div>
-                        <span>{{ $footerAddress }}</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <div class="footer-contact-icon">
-                            <i class="fa-solid fa-phone"></i>
-                        </div>
-                        <a href="tel:{{ preg_replace('/\s+/', '', $footerPhone) }}" class="text-white-50">
-                            {{ format_phone($footerPhone) }}
-                        </a>
-                    </div>
-                    <div class="footer-contact-item">
-                        <div class="footer-contact-icon">
-                            <i class="fa-solid fa-envelope"></i>
-                        </div>
-                        <a href="mailto:{{ $footerEmail }}" class="text-white-50">
-                            {{ $footerEmail }}
-                        </a>
-                    </div>
-                </address>
+            {{-- Corporate pages --}}
+            <div class="col-6 col-lg-2">
+                <h5>Kurumsal</h5>
+                <a class="footer-link" href="{{ url('/hakkimizda') }}">Hakkımızda</a>
+                <a class="footer-link" href="{{ url('/gizlilik-politikasi') }}">Gizlilik Politikası</a>
+                <a class="footer-link" href="{{ url('/kullanim-kosullari') }}">Kullanım Koşulları</a>
+            </div>
+
+            {{-- Contact --}}
+            <div class="col-lg-4">
+                <h5>İletişim</h5>
+                @if($fAddress)
+                    <p class="d-flex gap-2 mb-2"><i class="fa-solid fa-location-dot mt-1"></i><span>{{ $fAddress }}</span></p>
+                @endif
+                @if($fPhone)
+                    <p class="mb-2"><a class="footer-link d-inline-flex gap-2 p-0" href="tel:{{ preg_replace('/\s+/', '', $fPhone) }}"><i class="fa-solid fa-phone"></i>{{ format_phone($fPhone) }}</a></p>
+                @endif
+                @if($fEmail)
+                    <p class="mb-0"><a class="footer-link d-inline-flex gap-2 p-0" href="mailto:{{ $fEmail }}"><i class="fa-solid fa-envelope"></i>{{ $fEmail }}</a></p>
+                @endif
             </div>
         </div>
 
-        <div class="footer-bottom">
-            <p class="footer-copyright">{{ \App\Models\Setting::getValue('footer_text', '© ' . date('Y') . ' ' . \App\Models\Setting::getValue('site_name', config('app.name')) . '. Tüm hakları saklıdır.') }}</p>
-            <p class="footer-credit">
-                <span class="footer-credit__label">
-                    <i class="fa-solid fa-code"></i>
-                    Tasarım &amp; Geliştirme
-                </span>
-                <a href="https://ozansonar.net/" target="_blank" rel="noopener noreferrer" class="footer-credit__link" aria-label="Site geliştiricisi Ozan SONAR">
-                    <span class="footer-credit__name">Ozan SONAR</span>
-                    <i class="fa-solid fa-arrow-up-right-from-square footer-credit__icon"></i>
-                </a>
-            </p>
+        <div class="footer-bottom d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+            <span>{{ $fFooter }}</span>
+            <span class="text-white-50">Laravel Base ile geliştirildi</span>
         </div>
     </div>
 </footer>

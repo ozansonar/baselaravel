@@ -78,6 +78,22 @@ class AppServiceProvider extends ServiceProvider
             $view->with('headerMenu', app(\App\Services\MenuService::class)->getByLocation('header'));
         });
 
+        // Share active popups for the current page with the front layout
+        View::composer('layouts.app', function (\Illuminate\View\View $view): void {
+            $pageMap = [
+                'home'          => 'home',
+                'blog.index'    => 'blog',
+                'blog.category' => 'blog',
+                'blog.show'     => 'blog',
+                'gallery'       => 'gallery',
+                'contact'       => 'contact',
+                'faq'           => 'faq',
+            ];
+
+            $currentPage = $pageMap[request()->route()?->getName() ?? ''] ?? 'other';
+            $view->with('popups', app(\App\Services\PopupService::class)->getForPage($currentPage));
+        });
+
         // Share admin badge counts once across sidebar & topbar
         View::composer(['partials.admin.sidebar', 'partials.admin.topbar'], function (\Illuminate\View\View $view): void {
             static $unreadMessageCount = null;

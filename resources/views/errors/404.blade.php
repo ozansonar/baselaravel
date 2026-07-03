@@ -5,23 +5,26 @@
 @section('robots', 'noindex, nofollow')
 
 @section('content')
-    <section class="error-page">
-        <div class="error-page__card">
-            <div class="error-page__emoji">🌿</div>
-            <h1 class="error-page__code">404</h1>
-            <h2 class="error-page__title">Sayfa Bulunamadı</h2>
-            <div class="error-page__divider"></div>
-            <p class="error-page__text">
-                Aradığınız sayfa kaldırılmış, adı değişmiş veya geçici olarak kullanım dışı olabilir.
-            </p>
-            <div class="error-page__actions">
-                <a href="{{ route('home') }}" class="btn-error-primary">
-                    <i class="fa-solid fa-house me-2"></i> Ana Sayfaya Dön
-                </a>
-                <a href="{{ route('blog.index') }}" class="btn-error-outline">
-                    <i class="fa-solid fa-book-open me-2"></i> Blog'a Göz At
-                </a>
+
+    <section class="section">
+        <div class="container">
+            <div class="empty-state mw-readable mx-auto">
+                <div class="empty-state__icon"><i class="fa-solid fa-compass"></i></div>
+                <div class="stat__num text-brand">404</div>
+                <h1 class="section__title mt-2">Sayfa bulunamadı</h1>
+                <p class="section__lead mx-auto mb-4">
+                    Aradığınız sayfa kaldırılmış, adı değişmiş veya geçici olarak kullanım dışı olabilir.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ route('home') }}" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-house"></i> Anasayfa
+                    </a>
+                    <a href="{{ route('blog.index') }}" class="btn btn-light btn-lg">
+                        <i class="fa-solid fa-book-open"></i> İçerikler
+                    </a>
+                </div>
             </div>
         </div>
     </section>
+
 @endsection

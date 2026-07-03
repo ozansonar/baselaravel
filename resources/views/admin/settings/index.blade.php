@@ -423,7 +423,7 @@
                     <div class="stg-field">
                         <label class="stg-label">Ana Sayfa Başlığı (Title)</label>
                         <input type="text" class="stg-input" name="settings[seo_home_title]"
-                               value="{{ $s('seo_home_title') }}" placeholder="Doğal Köy Ürünleri | {{ $s('site_name', config('app.name')) }}">
+                               value="{{ $s('seo_home_title') }}" placeholder="Kurumsal Web Sitesi | {{ $s('site_name', config('app.name')) }}">
                         <small class="stg-hint">60 karakter altında tutmanız önerilir</small>
                     </div>
 
@@ -494,7 +494,7 @@
                     <div class="stg-field">
                         <label class="stg-label">OG Başlık</label>
                         <input type="text" class="stg-input" name="settings[og_title]"
-                               value="{{ $s('og_title') }}" placeholder="{{ $s('site_name', config('app.name')) }} - Doğal Köy Ürünleri">
+                               value="{{ $s('og_title') }}" placeholder="{{ $s('site_name', config('app.name')) }} - Kurumsal Web Sitesi">
                     </div>
 
                     <div class="stg-field">
@@ -804,9 +804,9 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtPrimaryColor"
                                        name="settings[mail_theme_primary_color]"
-                                       value="{{ $s('mail_theme_primary_color', '#4a7c43') }}">
+                                       value="{{ $s('mail_theme_primary_color', '#4f46e5') }}">
                                 <input type="text" class="stg-input stg-color-hex" id="mtPrimaryColorHex"
-                                       value="{{ $s('mail_theme_primary_color', '#4a7c43') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_primary_color', '#4f46e5') }}" maxlength="7" readonly>
                             </div>
                         </div>
                         <div class="stg-field stg-half">
@@ -814,9 +814,9 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtPrimaryDarkColor"
                                        name="settings[mail_theme_primary_dark_color]"
-                                       value="{{ $s('mail_theme_primary_dark_color', '#2d5a27') }}">
+                                       value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}">
                                 <input type="text" class="stg-input stg-color-hex" id="mtPrimaryDarkColorHex"
-                                       value="{{ $s('mail_theme_primary_dark_color', '#2d5a27') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}" maxlength="7" readonly>
                             </div>
                         </div>
                     </div>
@@ -827,9 +827,9 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtBgColor"
                                        name="settings[mail_theme_bg_color]"
-                                       value="{{ $s('mail_theme_bg_color', '#f0f4e8') }}">
+                                       value="{{ $s('mail_theme_bg_color', '#f8fafc') }}">
                                 <input type="text" class="stg-input stg-color-hex" id="mtBgColorHex"
-                                       value="{{ $s('mail_theme_bg_color', '#f0f4e8') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_bg_color', '#f8fafc') }}" maxlength="7" readonly>
                             </div>
                         </div>
                         <div class="stg-field stg-half">
@@ -850,9 +850,9 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtTextColor"
                                        name="settings[mail_theme_text_color]"
-                                       value="{{ $s('mail_theme_text_color', '#4a4a4a') }}">
+                                       value="{{ $s('mail_theme_text_color', '#334155') }}">
                                 <input type="text" class="stg-input stg-color-hex" id="mtTextColorHex"
-                                       value="{{ $s('mail_theme_text_color', '#4a4a4a') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_text_color', '#334155') }}" maxlength="7" readonly>
                             </div>
                         </div>
                         <div class="stg-field stg-half">
@@ -860,9 +860,9 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtMutedColor"
                                        name="settings[mail_theme_muted_color]"
-                                       value="{{ $s('mail_theme_muted_color', '#888888') }}">
+                                       value="{{ $s('mail_theme_muted_color', '#64748b') }}">
                                 <input type="text" class="stg-input stg-color-hex" id="mtMutedColorHex"
-                                       value="{{ $s('mail_theme_muted_color', '#888888') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_muted_color', '#64748b') }}" maxlength="7" readonly>
                             </div>
                         </div>
                     </div>
@@ -879,7 +879,7 @@
                         <label class="stg-label">Footer Yazısı</label>
                         <textarea class="stg-textarea" name="settings[mail_theme_footer_text]" rows="3"
                                   id="mtFooterText"
-                                  placeholder="Çiftliğimizden sofranıza, doğallığın en taze hali.">{{ $s('mail_theme_footer_text', 'Çiftliğimizden sofranıza, doğallığın en taze hali.') }}</textarea>
+                                  placeholder="Sizinle çalışmaktan mutluluk duyuyoruz.">{{ $s('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.') }}</textarea>
                         <small class="stg-hint">E-posta footer bölümünde görünecek açıklama metni</small>
                     </div>
 
@@ -933,7 +933,7 @@
                                 {{-- Footer --}}
                                 <div class="stg-mp-footer" id="mpFooter">
                                     <p class="stg-mp-footer-link" id="mpFooterLink">{{ $s('site_name', config('app.name')) }}</p>
-                                    <p class="stg-mp-footer-text" id="mpFooterText">{{ $s('mail_theme_footer_text', 'Çiftliğimizden sofranıza, doğallığın en taze hali.') }}</p>
+                                    <p class="stg-mp-footer-text" id="mpFooterText">{{ $s('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.') }}</p>
                                     <div class="stg-mp-social" id="mpSocial">
                                         <span class="stg-mp-social-icon"><i class="bi bi-facebook"></i></span>
                                         <span class="stg-mp-social-icon"><i class="bi bi-instagram"></i></span>
@@ -1531,12 +1531,12 @@
     syncColorHex('mtMutedColor', 'mtMutedColorHex');
 
     function updateMailPreview() {
-        var primary = (document.getElementById('mtPrimaryColor') || {}).value || '#4a7c43';
-        var primaryDark = (document.getElementById('mtPrimaryDarkColor') || {}).value || '#2d5a27';
-        var bg = (document.getElementById('mtBgColor') || {}).value || '#f0f4e8';
+        var primary = (document.getElementById('mtPrimaryColor') || {}).value || '#4f46e5';
+        var primaryDark = (document.getElementById('mtPrimaryDarkColor') || {}).value || '#4338ca';
+        var bg = (document.getElementById('mtBgColor') || {}).value || '#f8fafc';
         var cardBg = (document.getElementById('mtCardBgColor') || {}).value || '#ffffff';
-        var text = (document.getElementById('mtTextColor') || {}).value || '#4a4a4a';
-        var muted = (document.getElementById('mtMutedColor') || {}).value || '#888888';
+        var text = (document.getElementById('mtTextColor') || {}).value || '#334155';
+        var muted = (document.getElementById('mtMutedColor') || {}).value || '#64748b';
 
         var wrap = document.getElementById('mailThemePreviewWrap');
         var header = document.getElementById('mpHeader');
@@ -1566,7 +1566,7 @@
     if (footerTextInput) {
         footerTextInput.addEventListener('input', function() {
             var el = document.getElementById('mpFooterText');
-            if (el) el.textContent = this.value || 'Çiftliğimizden sofranıza, doğallığın en taze hali.';
+            if (el) el.textContent = this.value || 'Sizinle çalışmaktan mutluluk duyuyoruz.';
         });
     }
 

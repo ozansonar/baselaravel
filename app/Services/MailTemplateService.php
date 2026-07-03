@@ -94,7 +94,7 @@ final class MailTemplateService
 
 <p class="em-text">
     {site_name} ailesine katıldığınız için teşekkür ederiz.
-    Çiftliğimizden sofranıza en taze, en doğal ürünleri ulaştırmak için sabırsızlanıyoruz.
+    Aramıza hoş geldiniz! Size yardımcı olmaktan mutluluk duyarız.
 </p>
 
 <hr class="em-divider">
@@ -116,7 +116,7 @@ final class MailTemplateService
 
 <p class="em-text">
     Herhangi bir sorunuz varsa bize iletişim sayfamızdan ulaşabilirsiniz.
-    Sağlıklı ve doğal günler dileriz!
+    İyi çalışmalar dileriz!
 </p>',
             ],
             'reset_password' => [

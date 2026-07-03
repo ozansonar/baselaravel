@@ -1,75 +1,66 @@
 @extends('layouts.app')
 
 @section('title', 'Hesabım | ' . \App\Models\Setting::getValue('site_name', config('app.name')))
-@section('meta_description', 'Hesap bilgilerinizi yönetin.')
+@section('meta_description', 'Hesap bilgilerinizi görüntüleyin ve yönetin.')
 @section('robots', 'noindex, nofollow')
 
 @section('content')
-{{-- Page Header --}}
-<header class="page-header">
-    <div class="container">
-        <div class="breadcrumb-custom">
-            <a href="{{ route('home') }}"><i class="fa-solid fa-house"></i> Ana Sayfa</a>
-            <i class="fa-solid fa-chevron-right"></i>
-            <span>Hesabım</span>
-        </div>
-        <h1 class="page-title">Hesabım</h1>
-        <p class="page-subtitle">Hesap bilgilerinizi yönetin</p>
-    </div>
-</header>
 
-{{-- Dashboard Section --}}
-<section class="dashboard-section">
-    <div class="container">
-        <div class="row">
-            {{-- Sidebar --}}
-            <div class="col-lg-3">
-                @include('account.partials.sidebar')
-            </div>
+    <section class="section">
+        <div class="container">
+            <div class="row g-4">
 
-            {{-- Content --}}
-            <div class="col-lg-9">
-                <div class="dashboard-content">
-                    <div class="content-header">
-                        <h3><i class="fa-solid fa-gauge"></i> Dashboard</h3>
-                    </div>
+                {{-- Sidebar --}}
+                <div class="col-lg-3">
+                    @include('account.partials.sidebar', ['user' => $user])
+                </div>
 
-                    {{-- Profile Summary --}}
-                    <h4 class="text-green-dark mb-4">Profil Bilgileri</h4>
+                {{-- Content --}}
+                <div class="col-lg-9">
+                    <span class="section__eyebrow"><i class="fa-solid fa-house-user"></i> Hesabım</span>
+                    <h1 class="section__title">Hoş geldiniz, {{ $user->first_name }}</h1>
+                    <p class="section__lead mb-4">Hesap bilgilerinizin özetini aşağıda görebilir, profilinizi güncelleyebilirsiniz.</p>
 
-                    <div class="table-responsive">
-                        <table class="orders-table">
-                            <tbody>
-                                <tr>
-                                    <th>Ad Soyad</th>
-                                    <td>{{ $user->full_name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>E-posta</th>
-                                    <td>{{ $user->email }}</td>
-                                </tr>
-                                @if($user->phone)
-                                <tr>
-                                    <th>Telefon</th>
-                                    <td>{{ $user->phone }}</td>
-                                </tr>
-                                @endif
-                                <tr>
-                                    <th>Üyelik Tarihi</th>
-                                    <td>{{ $user->created_at->translatedFormat('d F Y') }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="field-card">
+                        <div class="row g-4">
+                            <div class="col-sm-6">
+                                <div class="contact-info__label">Ad Soyad</div>
+                                <div class="contact-info__value">{{ $user->full_name }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="contact-info__label">E-posta</div>
+                                <div class="contact-info__value">{{ $user->email }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="contact-info__label">Telefon</div>
+                                <div class="contact-info__value">{{ $user->phone ?: '—' }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="contact-info__label">Üyelik Tarihi</div>
+                                <div class="contact-info__value">{{ $user->created_at->translatedFormat('d M Y') }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="contact-info__label">Rol</div>
+                                <div class="contact-info__value">
+                                    @forelse($user->roles as $role)
+                                        {{ $role->name }}@if(!$loop->last), @endif
+                                    @empty
+                                        Üye
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="mt-4">
-                        <a href="{{ route('account.profile') }}" class="btn-view">
-                            <i class="fa-solid fa-user-pen me-2"></i>Profili Düzenle
+                        <hr class="divider my-4">
+
+                        <a href="{{ route('account.profile') }}" class="btn btn-primary">
+                            <i class="fa-solid fa-user-pen"></i> Profili Düzenle
                         </a>
                     </div>
                 </div>
+
             </div>
         </div>
-    </div>
-</section>
+    </section>
+
 @endsection

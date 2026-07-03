@@ -1,169 +1,90 @@
 @extends('layouts.app')
 
-@section('title', ($activeCategory ? $activeCategory->name . ' - ' : '') . 'Blog | ' . \App\Models\Setting::getValue('site_name', config('app.name')))
-@section('meta_description', $activeCategory ? $activeCategory->name . ' kategorisindeki blog yazıları.' : 'Çiftlik hayatı, sağlıklı beslenme ve doğal ürünler hakkında güncel blog yazıları.')
-@section('canonical', $activeCategory ? route('blog.category', $activeCategory->slug) : route('blog.index'))
-@section('og_image', url(upload_url(\App\Models\Setting::getValue('og_image', ''), 'lg')))
-
-@push('json-ld')
-@php
-    $blogBreadcrumbItems = [
-        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Ana Sayfa', 'item' => route('home')],
-    ];
-    if ($activeCategory) {
-        $blogBreadcrumbItems[] = ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => route('blog.index')];
-        $blogBreadcrumbItems[] = ['@type' => 'ListItem', 'position' => 3, 'name' => $activeCategory->name];
-    } else {
-        $blogBreadcrumbItems[] = ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog'];
-    }
-    $blogBreadcrumbJsonLd = [
-        '@context' => 'https://schema.org',
-        '@type' => 'BreadcrumbList',
-        'itemListElement' => $blogBreadcrumbItems,
-    ];
-@endphp
-<script type="application/ld+json">{!! json_encode($blogBreadcrumbJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-@endpush
-
-@push('pagination-meta')
-@if($posts->currentPage() > 1)
-<link rel="prev" href="{{ $posts->previousPageUrl() }}">
-@endif
-@if($posts->hasMorePages())
-<link rel="next" href="{{ $posts->nextPageUrl() }}">
-@endif
-@endpush
+@section('title', ($activeCategory?->name ? $activeCategory->name . ' — İçerikler' : 'İçerikler'))
+@section('meta_description', $activeCategory?->name ? $activeCategory->name . ' kategorisindeki içerikler.' : 'Güncel yazılar, rehberler ve haberler. İlginizi çekecek içerikleri kategorilere göre keşfedin.')
+@section('canonical', url()->current())
 
 @section('content')
 
-{{-- Page Header --}}
-<header class="page-header">
-    <div class="container">
-        <nav class="breadcrumb-custom" aria-label="Breadcrumb">
-            <a href="{{ route('home') }}"><i class="fa-solid fa-home"></i> Ana Sayfa</a>
-            <i class="fa-solid fa-chevron-right"></i>
-            @if($activeCategory)
-            <a href="{{ route('blog.index') }}">Blog</a>
-            <i class="fa-solid fa-chevron-right"></i>
-            <span>{{ $activeCategory->name }}</span>
-            @else
-            <span>Blog</span>
-            @endif
-        </nav>
-        <h1 class="page-title">{{ $activeCategory ? $activeCategory->name : 'Blog' }}</h1>
-        <p class="page-subtitle">{{ $activeCategory ? $activeCategory->name . ' kategorisindeki yazılar' : 'Çiftlik yaşamından notlar, tarifler ve ipuçları' }}</p>
-    </div>
-</header>
-
-{{-- Blog Section --}}
-<section class="blog-section">
-    <div class="container">
-        <div class="row">
-            {{-- Blog Content --}}
-            <div class="col-lg-9">
-                <div class="row">
-                    @forelse($posts as $post)
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <article class="blog-card-list">
-                            <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="blog-card-image">
-                                @if($post->image)
-                                <img src="{{ upload_url($post->image, 'md') }}" alt="{{ $post->title }}" width="400" height="250" loading="lazy" decoding="async">
-                                @else
-                                <i class="{{ $post->category?->icon ?? 'fa-solid fa-pen-nib' }}"></i>
-                                @endif
-                                @if($post->category)
-                                <span class="blog-card-category">{{ $post->category->name }}</span>
-                                @endif
-                            </a>
-                            <div class="blog-card-body">
-                                <div class="blog-card-meta">
-                                    <time datetime="{{ $post->published_at?->format('Y-m-d') }}"><i class="fa-solid fa-calendar-alt"></i> {{ $post->published_at?->translatedFormat('d M Y') }}</time>
-                                    <span><i class="fa-solid fa-eye"></i> {{ number_format($post->views) }}</span>
-                                </div>
-                                <h2 class="blog-card-title">
-                                    <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}">{{ Str::limit($post->title, 65) }}</a>
-                                </h2>
-                                <p class="blog-card-excerpt">
-                                    {{ Str::limit($post->excerpt ?? strip_tags($post->body), 100) }}
-                                </p>
-                                <div class="blog-card-footer">
-                                    <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="read-more">
-                                        Devamını Oku <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                    @empty
-                    <div class="col-12 text-center py-5">
-                        <i class="fa-solid fa-pen-nib fa-3x text-muted mb-3 d-block"></i>
-                        <p class="text-brown-light">Henüz blog yazısı yayınlanmamış.</p>
-                    </div>
-                    @endforelse
-                </div>
-
-                {{-- Pagination --}}
-                @if($posts->hasPages())
-                <div class="pagination-container">
-                    {{ $posts->links('vendor.pagination.custom') }}
-                </div>
-                @endif
-            </div>
-
-            {{-- Sidebar --}}
-            <div class="col-lg-3">
-                <aside class="blog-sidebar">
-                    {{-- Categories Widget --}}
-                    @if($categories->isNotEmpty())
-                    <div class="sidebar-widget">
-                        <h4 class="widget-title"><i class="fa-solid fa-folder"></i> Kategoriler</h4>
-                        <ul class="category-list">
-                            @foreach($categories as $category)
-                            <li>
-                                <a href="{{ route('blog.category', $category->slug) }}">
-                                    {{ $category->name }}
-                                    <span class="category-count">{{ $category->posts_count }}</span>
-                                </a>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
+    {{-- ══════════ PAGE HERO ══════════ --}}
+    <section class="page-hero">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Anasayfa</a></li>
+                    @if($activeCategory)
+                        <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">İçerikler</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $activeCategory->name }}</li>
+                    @else
+                        <li class="breadcrumb-item active" aria-current="page">İçerikler</li>
                     @endif
-
-                    {{-- Popular Posts Widget --}}
-                    @php
-                        $popularPosts = Cache::remember('popular_blog_posts', 3600, function () {
-                            return \App\Models\BlogPost::published()
-                                ->with('category')
-                                ->orderByDesc('views')
-                                ->limit(3)
-                                ->get();
-                        });
-                    @endphp
-                    @if($popularPosts->isNotEmpty())
-                    <div class="sidebar-widget">
-                        <h4 class="widget-title"><i class="fa-solid fa-fire"></i> Popüler Yazılar</h4>
-                        @foreach($popularPosts as $popular)
-                        <div class="popular-post">
-                            <div class="popular-post-image">
-                                @if($popular->image)
-                                <img src="{{ upload_url($popular->image, 'thumb') }}" alt="{{ $popular->title }}" width="80" height="80" loading="lazy" decoding="async">
-                                @else
-                                <i class="{{ $popular->category?->icon ?? 'fa-solid fa-pen-nib' }}"></i>
-                                @endif
-                            </div>
-                            <div class="popular-post-content">
-                                <h5><a href="{{ route('blog.show', [$popular->category->slug, $popular->slug]) }}">{{ Str::limit($popular->title, 50) }}</a></h5>
-                                <span class="popular-post-date"><i class="fa-solid fa-calendar-alt me-1"></i> {{ $popular->published_at?->translatedFormat('d F Y') }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    @endif
-                </aside>
-            </div>
+                </ol>
+            </nav>
+            <h1 class="page-hero__title">{{ $activeCategory?->name ?? 'İçerikler' }}</h1>
+            <p class="page-hero__lead">Güncel yazılar, rehberler ve haberler. İlginizi çekecek içerikleri keşfedin.</p>
         </div>
-    </div>
-</section>
+    </section>
+
+    {{-- ══════════ LIST ══════════ --}}
+    <section class="section--tight">
+        <div class="container">
+
+            {{-- Category filter --}}
+            @if($categories->isNotEmpty())
+                <nav class="pill-nav mb-4" aria-label="Kategori filtresi">
+                    <a href="{{ route('blog.index') }}" class="pill {{ $activeCategory ? '' : 'pill--active' }}">Tümü</a>
+                    @foreach($categories as $cat)
+                        <a href="{{ route('blog.category', $cat->slug) }}"
+                           class="pill {{ $activeCategory?->id === $cat->id ? 'pill--active' : '' }}">{{ $cat->name }}</a>
+                    @endforeach
+                </nav>
+            @endif
+
+            @if($posts->isNotEmpty())
+                <div class="row g-4">
+                    @foreach($posts as $post)
+                        <div class="col-md-6 col-lg-4">
+                            <article class="post-card">
+                                <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="post-card__media">
+                                    @if($post->image)
+                                        <img src="{{ upload_url($post->image, 'md') }}" alt="{{ $post->title }}" class="post-card__img" loading="lazy" decoding="async">
+                                    @else
+                                        <span class="post-card__ph"><i class="fa-regular fa-image"></i></span>
+                                    @endif
+                                    @if($post->category)
+                                        <span class="post-card__cat">{{ $post->category->name }}</span>
+                                    @endif
+                                </a>
+                                <div class="post-card__body">
+                                    <div class="post-card__meta">
+                                        <span><i class="fa-regular fa-calendar me-1"></i>{{ optional($post->published_at)->translatedFormat('d M Y') }}</span>
+                                        <span><i class="fa-regular fa-eye me-1"></i>{{ number_format((int) $post->views) }}</span>
+                                    </div>
+                                    <h2 class="post-card__title">
+                                        <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}">{{ $post->title }}</a>
+                                    </h2>
+                                    @if($post->excerpt)
+                                        <p class="post-card__excerpt">{{ \Illuminate\Support\Str::limit($post->excerpt, 110) }}</p>
+                                    @endif
+                                    <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="post-card__more">Devamını oku <i class="fa-solid fa-arrow-right"></i></a>
+                                </div>
+                            </article>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-5">
+                    {{ $posts->onEachSide(1)->links('pagination::bootstrap-5') }}
+                </div>
+            @else
+                <div class="empty-state">
+                    <div class="empty-state__icon"><i class="fa-regular fa-newspaper"></i></div>
+                    <h2 class="h5">Henüz içerik yok</h2>
+                    <p class="mb-0">Bu bölümde gösterilecek içerik bulunamadı. Daha sonra tekrar göz atın.</p>
+                </div>
+            @endif
+
+        </div>
+    </section>
 
 @endsection

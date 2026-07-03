@@ -22,7 +22,7 @@ final class RssFeedController extends Controller
         $content = view('feed', [
             'posts'    => $posts,
             'siteName' => $this->settingService->get('site_name', config('app.name')),
-            'siteDesc' => $this->settingService->get('site_description', 'Doğal ve organik çiftlik ürünleri.'),
+            'siteDesc' => $this->settingService->get('site_description', 'Modern, hızlı ve güvenilir kurumsal çözümler.'),
         ])->render();
 
         return response($content, 200)

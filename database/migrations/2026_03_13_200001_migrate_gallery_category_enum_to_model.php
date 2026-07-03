@@ -10,10 +10,10 @@ return new class extends Migration
     public function up(): void
     {
         $enumMap = [
-            'ciftlik'   => ['name' => 'Çiftlik',   'slug' => 'ciftlik',   'sort_order' => 1],
-            'hayvanlar' => ['name' => 'Hayvanlar',  'slug' => 'hayvanlar', 'sort_order' => 2],
-            'urunler'   => ['name' => 'Ürünler',    'slug' => 'urunler',   'sort_order' => 3],
-            'manzara'   => ['name' => 'Manzara',    'slug' => 'manzara',   'sort_order' => 4],
+            'genel'       => ['name' => 'Genel',       'slug' => 'genel',       'sort_order' => 1],
+            'etkinlikler' => ['name' => 'Etkinlikler', 'slug' => 'etkinlikler', 'sort_order' => 2],
+            'ekip'        => ['name' => 'Ekip',         'slug' => 'ekip',         'sort_order' => 3],
+            'mekan'       => ['name' => 'Mekan',        'slug' => 'mekan',        'sort_order' => 4],
         ];
 
         $now = now();
@@ -44,10 +44,10 @@ return new class extends Migration
     public function down(): void
     {
         $enumMap = [
-            'ciftlik'   => 'Çiftlik',
-            'hayvanlar' => 'Hayvanlar',
-            'urunler'   => 'Ürünler',
-            'manzara'   => 'Manzara',
+            'genel'       => 'Genel',
+            'etkinlikler' => 'Etkinlikler',
+            'ekip'        => 'Ekip',
+            'mekan'       => 'Mekan',
         ];
 
         foreach ($enumMap as $enumValue => $name) {

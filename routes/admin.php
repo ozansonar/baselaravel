@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PopupController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SettingController;
@@ -48,6 +49,10 @@ Route::patch('pages/{page}/restore', [PageController::class, 'restore'])->name('
 // Sliders
 Route::resource('sliders', SliderController::class)->except('show');
 Route::patch('sliders/{slider}/restore', [SliderController::class, 'restore'])->name('sliders.restore')->withTrashed();
+
+// Popups / Modals (belirli sayfa + tarih aralığı)
+Route::resource('popups', PopupController::class)->except('show');
+Route::patch('popups/{popup}/restore', [PopupController::class, 'restore'])->name('popups.restore')->withTrashed();
 
 // Gallery Categories
 Route::resource('gallery-categories', GalleryCategoryController::class)->except('show');

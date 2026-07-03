@@ -56,6 +56,11 @@
             <i class="bi bi-images"></i> Sliderlar
         </a>
 
+        <a href="{{ route('admin.popups.index') }}"
+           class="nav-link {{ Route::is('admin.popups.*') ? 'active' : '' }}">
+            <i class="bi bi-window-stack"></i> Popup / Modal
+        </a>
+
         <a href="{{ route('admin.gallery-categories.index') }}"
            class="nav-link {{ Route::is('admin.gallery-categories.*') ? 'active' : '' }}">
             <i class="bi bi-folder-fill"></i> Galeri Kategorileri
