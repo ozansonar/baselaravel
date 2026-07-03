@@ -28,7 +28,7 @@
                     @foreach($socialLinks as $key => $social)
                         @php $url = \App\Models\Setting::getValue($key); @endphp
                         @if($url)
-                        <a href="{{ $key === 'social_whatsapp' ? whatsapp_url($url, 'Merhaba, Orhan Baba\'nın Çiftliği hakkında bilgi almak istiyorum.') : $url }}" class="social-link" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ $key === 'social_whatsapp' ? whatsapp_url($url, 'Merhaba, bilgi almak istiyorum.') : $url }}" class="social-link" target="_blank" rel="noopener noreferrer"
                            aria-label="{{ $social['label'] }}">
                             <i class="{{ $social['icon'] }}"></i>
                         </a>
@@ -45,54 +45,18 @@
                     <li><a href="{{ route('pages.show', 'hakkimizda') }}"><i class="fa-solid fa-angle-right"></i> Hakkımızda</a></li>
                     <li><a href="{{ route('contact') }}"><i class="fa-solid fa-angle-right"></i> İletişim</a></li>
                     <li><a href="{{ route('faq') }}"><i class="fa-solid fa-angle-right"></i> SSS</a></li>
-                    <li><a href="{{ route('sitemap-page') }}"><i class="fa-solid fa-angle-right"></i> Site Haritası</a></li>
+                    <li><a href="{{ route('gallery') }}"><i class="fa-solid fa-angle-right"></i> Galeri</a></li>
                     <li><a href="{{ route('pages.show', 'teslimat-kosullari') }}"><i class="fa-solid fa-angle-right"></i> Teslimat Koşulları</a></li>
                     <li><a href="{{ route('pages.show', 'gizlilik-politikasi') }}"><i class="fa-solid fa-angle-right"></i> Gizlilik Politikası</a></li>
                 </ul>
             </div>
-
-            {{-- Kategoriler --}}
-            <div class="col-lg-2 col-md-6">
-                <h5 class="footer-title">Kategoriler</h5>
-                <ul class="footer-links">
-                    @php
-                        $footerCategories = Cache::remember('nav_categories_footer', 3600, function () {
-                            return \App\Models\Category::where('is_active', true)
-                                ->whereNull('parent_id')
-                                ->orderBy('sort_order')
-                                ->get();
-                        });
-                    @endphp
-                    @foreach($footerCategories as $cat)
-                    <li>
-                        <a href="{{ route('products.index', $cat->slug) }}"><i class="fa-solid fa-angle-right"></i> {{ $cat->name }}</a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-
-            {{-- Hizmet Bölgelerimiz (Modül 8 — şehir landing sayfalarına SEO juice) --}}
-            @if(! empty($footerCityPages ?? []) && count($footerCityPages) > 0)
-            <div class="col-lg-2 col-md-6">
-                <h5 class="footer-title">Hizmet Bölgelerimiz</h5>
-                <ul class="footer-links">
-                    @foreach($footerCityPages as $cityPage)
-                    <li>
-                        <a href="{{ url('/' . $cityPage->city_slug . '-koy-urunleri') }}">
-                            <i class="fa-solid fa-angle-right"></i> {{ $cityPage->city_name }}
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
 
             {{-- İletişim --}}
             <div class="col-lg-3 col-md-6">
                 <h5 class="footer-title">İletişim</h5>
                 @php
                     $footerPhone   = \App\Models\Setting::getValue('contact_phone', '0555 123 45 67');
-                    $footerEmail   = \App\Models\Setting::getValue('contact_email', 'info@orhanbabaninciftligi.com');
+                    $footerEmail   = \App\Models\Setting::getValue('contact_email', 'info@example.com');
                     $footerAddress = \App\Models\Setting::getValue('contact_address', 'Çiftlik Yolu No:1, Bolu');
                 @endphp
                 <address class="footer-address">

@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreMenuItemRequest;
 use App\Http\Requests\Admin\UpdateMenuItemRequest;
-use App\Models\Category;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Services\MenuItemService;
@@ -31,7 +30,6 @@ final class MenuItemController extends Controller
         return view('admin.menus.items', [
             'menu'             => $menu,
             'availableRoutes'  => $this->menuItemService->getAvailableRoutes(),
-            'rootCategories'   => Category::active()->whereNull('parent_id')->orderBy('sort_order')->get(),
             'pages'            => \App\Models\Page::orderBy('title')->get(['id', 'title', 'slug']),
         ]);
     }

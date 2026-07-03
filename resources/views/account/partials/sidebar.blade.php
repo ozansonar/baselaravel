@@ -25,20 +25,6 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('account.orders') }}"
-               class="{{ Route::is('account.orders*') ? 'active' : '' }}">
-                <i class="fa-solid fa-bag-shopping"></i>
-                Siparişlerim
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('account.addresses') }}"
-               class="{{ Route::is('account.addresses*') ? 'active' : '' }}">
-                <i class="fa-solid fa-location-dot"></i>
-                Adreslerim
-            </a>
-        </li>
-        <li>
             <a href="{{ route('account.profile') }}"
                class="{{ Route::is('account.profile') ? 'active' : '' }}">
                 <i class="fa-solid fa-user-pen"></i>

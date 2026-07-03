@@ -19,7 +19,7 @@
         $gtmId = \App\Models\Setting::getValue('google_tag_manager_id');
 
         $siteLogo = \App\Models\Setting::getValue('site_logo');
-        $logoUrl = $siteLogo ? upload_url($siteLogo) : 'https://www.orhanbabaninciftligi.com/uploads/images/5f6cd32c2da54-1600967468.png';
+        $logoUrl = $siteLogo ? upload_url($siteLogo) : asset('images/logo.png');
     @endphp
 
     <title>@yield('title', $siteTitle . ' | Çorum Doğal Köy Ürünleri')</title>
@@ -189,7 +189,7 @@
     @endphp
     <script type="application/ld+json">{!! json_encode($orgJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
-    {{-- WebSite + SearchAction JSON-LD --}}
+    {{-- WebSite JSON-LD --}}
     @php
         $websiteJsonLd = [
             '@context' => 'https://schema.org',
@@ -198,14 +198,6 @@
             'url' => url('/'),
             'description' => $siteDesc,
             'inLanguage' => 'tr',
-            'potentialAction' => [
-                '@type' => 'SearchAction',
-                'target' => [
-                    '@type' => 'EntryPoint',
-                    'urlTemplate' => url('/ara') . '?q={search_term_string}',
-                ],
-                'query-input' => 'required name=search_term_string',
-            ],
         ];
     @endphp
     <script type="application/ld+json">{!! json_encode($websiteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -232,7 +224,7 @@
         $whatsappUrl = \App\Models\Setting::getValue('social_whatsapp');
     @endphp
     @if($whatsappUrl)
-    <a href="{{ whatsapp_url($whatsappUrl, 'Merhaba, Orhan Baba\'nın Çiftliği hakkında bilgi almak istiyorum.') }}" class="whatsapp-float" target="_blank" rel="noopener noreferrer"
+    <a href="{{ whatsapp_url($whatsappUrl, 'Merhaba, bilgi almak istiyorum.') }}" class="whatsapp-float" target="_blank" rel="noopener noreferrer"
        aria-label="WhatsApp ile iletişime geçin">
         <i class="fa-brands fa-whatsapp"></i>
         <span class="whatsapp-float-text">Bize Yazın</span>
@@ -243,9 +235,6 @@
     <button class="scroll-top" aria-label="Yukarı çık">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
-
-    {{-- Popup Modals --}}
-    @include('partials.popup-modal')
 
     {{-- Global Result Modal --}}
     @include('partials.result-modal')

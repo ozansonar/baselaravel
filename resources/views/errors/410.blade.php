@@ -18,8 +18,8 @@
                 <a href="{{ route('home') }}" class="btn-error-primary">
                     <i class="fa-solid fa-house me-2"></i> Ana Sayfaya Dön
                 </a>
-                <a href="{{ route('products.all') }}" class="btn-error-outline">
-                    <i class="fa-solid fa-basket-shopping me-2"></i> Ürünleri Keşfet
+                <a href="{{ route('blog.index') }}" class="btn-error-outline">
+                    <i class="fa-solid fa-book-open me-2"></i> Blog'a Göz At
                 </a>
             </div>
         </div>

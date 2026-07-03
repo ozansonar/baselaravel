@@ -9,7 +9,6 @@ use App\Http\Requests\StoreBlogPostRequest;
 use App\Http\Requests\UpdateBlogPostRequest;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
-use App\Models\InstagramPost;
 use App\Services\BlogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -130,57 +129,4 @@ final class BlogPostController extends Controller
             ->with('success', 'İçerik başarıyla geri yüklendi.');
     }
 
-    /**
-     * Blog yazısını sosyal medya gönderisine dönüştür — taslak InstagramPost
-     * oluşturur, kullanıcıyı edit sayfasına yönlendirir. Orada caption düzenler,
-     * hashtag ekler, Facebook cross-post seçer, yayınlar.
-     *
-     * Görsel: BlogPost.image (MediaLibrary kareli — Instagram için ideal).
-     * Caption default: title + excerpt + blog URL.
-     */
-    public function shareToSocial(Request $request, BlogPost $blogPost): RedirectResponse
-    {
-        $this->authorize('view', $blogPost);
-
-        if ($blogPost->image === null || $blogPost->image === '') {
-            return back()->with('error', 'Bu blog yazısının kapak görseli yok — Instagram\'da paylaşılamaz. Önce kapak görseli ekle.');
-        }
-
-        $blogPost->loadMissing('category');
-
-        $caption = $this->buildBlogShareCaption($blogPost);
-
-        $instagramPost = InstagramPost::create([
-            'image_path'          => $blogPost->image,
-            'media_type'          => 'image',
-            'caption'             => $caption,
-            'hashtags'            => [],
-            'status'              => \App\Enums\InstagramPostStatus::Draft,
-            'publish_to_facebook' => false,
-            'created_by'          => $request->user()?->id,
-        ]);
-
-        return redirect()
-            ->route('admin.instagram-posts.edit', $instagramPost->id)
-            ->with('success', 'Blog yazısı sosyal medya taslağına dönüştürüldü. Caption ve hashtag\'leri düzenleyip yayınla butonuna bas.');
-    }
-
-    /**
-     * Blog için sosyal medya caption taslağı.
-     * Format: başlık + boş satır + özet/snippet + boş satır + URL.
-     */
-    private function buildBlogShareCaption(BlogPost $blogPost): string
-    {
-        $title = trim((string) $blogPost->title);
-        $rawExcerpt = trim((string) ($blogPost->excerpt ?? ''));
-
-        if ($rawExcerpt === '' && $blogPost->body) {
-            $rawExcerpt = trim((string) preg_replace('/\s+/u', ' ', strip_tags((string) $blogPost->body)));
-        }
-        $excerpt = mb_substr($rawExcerpt, 0, 800, 'UTF-8');
-
-        $url = route('blog.show', [$blogPost->category->slug, $blogPost->slug]);
-
-        return trim($title . "\n\n" . $excerpt . "\n\nDevamını oku: " . $url);
-    }
 }

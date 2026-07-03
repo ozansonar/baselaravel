@@ -84,7 +84,7 @@ abstract class BaseMail extends Mailable
     protected function buildSharedData(): void
     {
         $this->siteName = Setting::getValue('site_name', config('app.name'));
-        $this->siteUrl = config('app.url', 'https://orhanbabaninciftligi.com');
+        $this->siteUrl = config('app.url', 'http://localhost');
         $this->currentYear = date('Y');
 
         $this->prepareMailLogo();

@@ -199,7 +199,7 @@ final class TelegramNotifier
     public static function testConnection(): array
     {
         $text = "<b>✅ Test mesajı</b>\n"
-            . 'Orhan Babanın Çiftliği admin paneli — Telegram bildirimleri çalışıyor.' . "\n"
+            . 'Admin paneli — Telegram bildirimleri çalışıyor.' . "\n"
             . '<i>' . now()->format('d.m.Y H:i') . '</i>';
 
         return self::send($text);

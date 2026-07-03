@@ -31,11 +31,6 @@
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button type="button" class="btn-glass" id="btnAiFillBlog"
-                  data-url="{{ route('admin.blog-posts.ai-fill') }}"
-                  onclick="aiFillBlogAll()">
-            <i class="bi bi-robot me-1"></i>AI ile Doldur
-          </button>
           <button type="submit" name="is_published" value="0" class="btn-glass">
             <i class="bi bi-file-earmark me-1"></i>Taslak Kaydet
           </button>
@@ -403,5 +398,4 @@
 
 @push('scripts')
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>
-<script src="{{ versioned_asset('assets/admin/js/blog-ai-fill.js') }}"></script>
 @endpush

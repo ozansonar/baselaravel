@@ -9,63 +9,14 @@
 
 @section('content')
 
-{{-- ItemList Schema.org — Öne çıkan ürünler carousel rich result --}}
-@if($featuredProducts->isNotEmpty())
-@push('json-ld')
-@php
-    $itemListJsonLd = [
-        '@context' => 'https://schema.org',
-        '@type' => 'ItemList',
-        'name' => 'Öne Çıkan Ürünler',
-        'itemListElement' => $featuredProducts->map(function ($p, $i) {
-            $item = [
-                '@type' => 'ListItem',
-                'position' => $i + 1,
-                'item' => [
-                    '@type' => 'Product',
-                    'name' => $p->name,
-                    'url' => route('products.show', $p->slug),
-                    'description' => $p->short_description ?? $p->name,
-                    'offers' => [
-                        '@type' => 'Offer',
-                        'price' => number_format($p->currentPrice(), 2, '.', ''),
-                        'priceCurrency' => 'TRY',
-                        'availability' => $p->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                    ],
-                ],
-            ];
-            if ($p->cover_image) {
-                $item['item']['image'] = url(upload_url($p->cover_image, 'lg'));
-            }
-            if ($p->reviews_count > 0) {
-                $item['item']['aggregateRating'] = [
-                    '@type' => 'AggregateRating',
-                    'ratingValue' => number_format((float) $p->reviews_avg, 1, '.', ''),
-                    'reviewCount' => (string) $p->reviews_count,
-                ];
-            }
-            return $item;
-        })->values()->all(),
-    ];
-@endphp
-<script type="application/ld+json">{!! json_encode($itemListJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-@endpush
-@endif
-
 {{-- Hero Section --}}
 @include('partials.home-hero')
 
 {{-- Stats Section --}}
 @include('partials.home-stats')
 
-{{-- Products Section --}}
-@include('partials.home-products')
-
 {{-- About Section --}}
 @include('partials.home-about')
-
-{{-- Categories Section --}}
-@include('partials.home-categories')
 
 {{-- CTA Section --}}
 <section class="cta-section" aria-labelledby="cta-title">
@@ -73,24 +24,12 @@
         <h2 class="cta-section__title" id="cta-title">Doğallığı Tatmaya Hazır mısınız?</h2>
         <p class="cta-section__text">Çiftliğimizden sofranıza, en taze ve doğal ürünleri keşfedin. Hemen sipariş verin, kapınıza gelsin!</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="{{ route('products.all') }}" class="cta-section__btn cta-section__btn--primary">
-                <i class="fa-solid fa-basket-shopping me-2"></i>Ürünleri Keşfet
-            </a>
             <a href="{{ route('contact') }}" class="cta-section__btn cta-section__btn--outline">
                 <i class="fa-solid fa-phone me-2"></i>Bize Ulaşın
             </a>
         </div>
     </div>
 </section>
-
-{{-- Testimonials Section --}}
-@include('partials.home-testimonials')
-
-{{-- Google Reviews Section --}}
-@include('partials.home-google-reviews')
-
-{{-- YouTube Videos Section --}}
-@include('partials.home-youtube')
 
 {{-- Blog Section --}}
 @include('partials.home-blog')

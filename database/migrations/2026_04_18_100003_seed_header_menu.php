@@ -33,16 +33,16 @@ return new class extends Migration
                 'children'     => [],
             ],
             [
-                'label'        => 'Ürünler',
-                'icon'         => 'fa-solid fa-basket-shopping',
-                'route_name'   => 'products.all',
+                'label'        => 'Blog',
+                'icon'         => 'fa-solid fa-newspaper',
+                'route_name'   => 'blog.index',
                 'route_params' => null,
-                'display_type' => 'mega_menu',
-                'children'     => $this->buildCategoryChildren(),
+                'display_type' => 'link',
+                'children'     => [],
             ],
             [
                 'label'        => 'Hakkımızda',
-                'icon'         => 'fa-solid fa-tractor',
+                'icon'         => 'fa-solid fa-circle-info',
                 'route_name'   => 'pages.show',
                 'route_params' => json_encode(['slug' => 'hakkimizda']),
                 'display_type' => 'link',
@@ -123,26 +123,5 @@ return new class extends Migration
             DB::table('menu_items')->where('menu_id', $menuId)->delete();
             DB::table('menus')->where('id', $menuId)->delete();
         }
-    }
-
-    private function buildCategoryChildren(): array
-    {
-        if (! DB::getSchemaBuilder()->hasTable('categories')) {
-            return [];
-        }
-
-        return DB::table('categories')
-            ->where('is_active', true)
-            ->whereNull('parent_id')
-            ->whereNull('deleted_at')
-            ->orderBy('sort_order')
-            ->get(['name', 'slug'])
-            ->map(fn ($cat) => [
-                'label'        => $cat->name,
-                'icon'         => 'fa-solid fa-seedling',
-                'route_name'   => 'products.index',
-                'route_params' => json_encode(['categorySlug' => $cat->slug]),
-            ])
-            ->all();
     }
 };

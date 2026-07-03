@@ -22,10 +22,7 @@
                         1975'ten bu yana <strong>Çorum'un Büyük Palabıyık Köyü'nde</strong> ailemizin çiftliğinden doğal süt, köy peyniri, tereyağı ve organik köy ürünlerini sevgiyle üretip sofralarınıza ulaştırıyoruz. Hiçbir katkı maddesi yok — sadece İç Anadolu'nun bereketli toprağının tadı.
                     </p>
                     <div class="hero-buttons">
-                        <a href="{{ route('products.index', $categories->first()?->slug ?? 'sut') }}" class="btn btn-custom">
-                            <i class="fa-solid fa-cheese me-2"></i>Ürünleri Keşfet
-                        </a>
-                        <a href="{{ route('pages.show', 'hakkimizda') }}" class="btn btn-outline-custom">
+                        <a href="{{ route('pages.show', 'hakkimizda') }}" class="btn btn-custom">
                             <i class="fa-solid fa-play me-2"></i>Hikayemizi İzle
                         </a>
                     </div>

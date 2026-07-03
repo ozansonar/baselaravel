@@ -7,7 +7,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Faq extends Model
@@ -15,7 +14,6 @@ class Faq extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'product_id',
         'question',
         'answer',
         'sort_order',
@@ -28,14 +26,6 @@ class Faq extends Model
             'sort_order' => 'integer',
             'is_active'  => 'boolean',
         ];
-    }
-
-    /**
-     * @return BelongsTo<Product, $this>
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
     }
 
     /**
@@ -54,23 +44,5 @@ class Faq extends Model
     public function scopeSorted(Builder $query): Builder
     {
         return $query->orderBy('sort_order');
-    }
-
-    /**
-     * @param Builder<static> $query
-     * @return Builder<static>
-     */
-    public function scopeGlobal(Builder $query): Builder
-    {
-        return $query->whereNull('product_id');
-    }
-
-    /**
-     * @param Builder<static> $query
-     * @return Builder<static>
-     */
-    public function scopeForProduct(Builder $query, int $productId): Builder
-    {
-        return $query->where('product_id', $productId);
     }
 }

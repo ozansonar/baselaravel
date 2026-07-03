@@ -21,7 +21,7 @@
 @php
     $siteName = \App\Models\Setting::getValue('site_name', config('app.name'));
     $siteLogo = \App\Models\Setting::getValue('site_logo');
-    $logoUrl = $siteLogo ? url(upload_url($siteLogo)) : 'https://www.orhanbabaninciftligi.com/uploads/images/5f6cd32c2da54-1600967468.png';
+    $logoUrl = $siteLogo ? url(upload_url($siteLogo)) : asset('images/logo.png');
     $postImage = $post->image ? url(upload_url($post->image, 'lg')) : url($logoUrl);
 
     $articleJsonLd = [
@@ -68,9 +68,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-validation-engine/css/validationEngine.jquery.min.css') }}">
-@if($relatedProducts->isNotEmpty())
-@include('partials.product-card-styles')
-@endif
 @endpush
 
 @section('content')
@@ -127,51 +124,12 @@
                     <div class="blog-card-body">
                         @include('partials.social-share', [
                             'url'         => route('blog.show', [$post->category->slug, $post->slug]),
-                            'title'       => $post->title . ' — Orhan Babanın Çiftliği',
+                            'title'       => $post->title . ' — ' . \App\Models\Setting::getValue('site_name', config('app.name')),
                             'description' => $post->meta_description ?? Str::limit($post->excerpt ?? strip_tags($post->body), 160),
                             'image'       => $post->image ? url(upload_url($post->image, 'lg')) : '',
                         ])
                     </div>
                 </div>
-
-                {{-- Related Products --}}
-                @if($relatedProducts->isNotEmpty())
-                <h2 class="mb-4 text-green-dark">İlgili Ürünler</h2>
-                <div class="row g-4 mb-5">
-                    @foreach($relatedProducts as $relatedProduct)
-                    <div class="col-md-4">
-                        <article class="product-card">
-                            <div class="product-image">
-                                @if($relatedProduct->cover_image)
-                                <x-responsive-image :path="$relatedProduct->cover_image" :alt="$relatedProduct->name" size="md" class="product-img-cover" loading="lazy" />
-                                @else
-                                <i class="fas fa-box-open product-icon"></i>
-                                @endif
-                                <a href="{{ route('products.show', $relatedProduct->slug) }}" class="quick-view-btn">
-                                    <i class="fas fa-eye me-2"></i>Detay
-                                </a>
-                            </div>
-                            <div class="product-content">
-                                @if($relatedProduct->category)
-                                <div class="product-category">{{ $relatedProduct->category->name }}</div>
-                                @endif
-                                <h4 class="product-title">
-                                    <a href="{{ route('products.show', $relatedProduct->slug) }}">{{ $relatedProduct->name }}</a>
-                                </h4>
-                                <div class="product-footer">
-                                    <div class="product-price">
-                                        ₺{{ number_format($relatedProduct->currentPrice(), 0, ',', '.') }} <span>/ {{ $relatedProduct->unit }}</span>
-                                    </div>
-                                    <a href="{{ route('products.show', $relatedProduct->slug) }}" class="btn-add-cart" aria-label="{{ $relatedProduct->name }} detayını gör">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
 
                 {{-- Related Posts --}}
                 @if($relatedPosts->isNotEmpty())

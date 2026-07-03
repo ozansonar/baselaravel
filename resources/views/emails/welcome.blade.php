@@ -57,7 +57,7 @@
     </table>
 
     <div class="em-btn-wrap">
-        <a href="{{ url('/urunler') }}" class="em-btn">&#127807; Ürünleri Keşfet</a>
+        <a href="{{ url('/') }}" class="em-btn">&#127807; Siteyi Keşfet</a>
     </div>
 
     <hr class="em-divider">

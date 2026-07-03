@@ -10,7 +10,6 @@ use App\Mail\ResetPasswordMail;
 use App\Services\MailService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -75,22 +74,6 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
-    /**
-     * @return HasMany<Address, $this>
-     */
-    public function addresses(): HasMany
-    {
-        return $this->hasMany(Address::class);
-    }
-
-    /**
-     * @return HasMany<Order, $this>
-     */
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class);
-    }
-
     // ── Helpers ──
 
     public function hasRole(string $slug): bool
@@ -101,11 +84,6 @@ class User extends Authenticatable
     public function hasAnyRole(array $slugs): bool
     {
         return $this->roles()->whereIn('slug', $slugs)->exists();
-    }
-
-    public function defaultAddress(): ?Address
-    {
-        return $this->addresses()->where('is_default', true)->first();
     }
 
     /**

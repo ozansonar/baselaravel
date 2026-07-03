@@ -7,8 +7,6 @@ namespace App\Http\Controllers;
 use App\Services\BlogCategoryService;
 use App\Services\BlogCommentService;
 use App\Services\BlogService;
-use App\Services\InternalLinkService;
-use App\Services\RelatedContentService;
 use Illuminate\View\View;
 
 final class BlogController extends Controller
@@ -17,8 +15,6 @@ final class BlogController extends Controller
         private readonly BlogService $blogService,
         private readonly BlogCategoryService $blogCategoryService,
         private readonly BlogCommentService $blogCommentService,
-        private readonly RelatedContentService $relatedContentService,
-        private readonly InternalLinkService $internalLinkService,
     ) {}
 
     public function index(): View
@@ -61,15 +57,11 @@ final class BlogController extends Controller
 
         $comments = $this->blogCommentService->getApprovedComments($post);
 
-        $autoLinkedBody = $this->internalLinkService->injectProductLinks($post->body ?? '');
-        $autoLinkedBody = $this->internalLinkService->injectCityLinks($autoLinkedBody);
-
         return view('blog.show', [
             'post'            => $post,
             'categories'      => $this->blogCategoryService->allActive(),
-            'relatedPosts'    => $this->relatedContentService->getRelatedPosts($post, 4),
-            'relatedProducts' => $this->relatedContentService->getRelatedProducts($post, 3),
-            'autoLinkedBody'  => $autoLinkedBody,
+            'relatedPosts'    => $this->blogService->getRelatedPosts($post, 4),
+            'autoLinkedBody'  => $post->body ?? '',
             'comments'        => $comments,
             'commentCount'    => $comments->count(),
         ]);
