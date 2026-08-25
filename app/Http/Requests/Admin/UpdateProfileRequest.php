@@ -29,7 +29,10 @@ final class UpdateProfileRequest extends FormRequest
             'bio'        => ['nullable', 'string', 'max:1000'],
             'location'   => ['nullable', 'string', 'max:255'],
             'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'password'   => ['nullable', 'string', 'min:8', 'confirmed'],
+            // Changing a password requires proving the current one, so a hijacked
+            // session cannot lock the real owner out.
+            'current_password' => ['required_with:password', 'current_password'],
+            'password'   => ['nullable', 'string', 'min:8', 'confirmed', 'different:current_password'],
         ];
     }
 
@@ -39,6 +42,9 @@ final class UpdateProfileRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'current_password.required_with' => 'Şifrenizi değiştirmek için mevcut şifrenizi girmelisiniz.',
+            'current_password.current_password' => 'Mevcut şifreniz hatalı.',
+            'password.different' => 'Yeni şifre mevcut şifrenizle aynı olamaz.',
             'first_name.required' => 'Ad alanı zorunludur.',
             'first_name.max'      => 'Ad en fazla 100 karakter olabilir.',
             'last_name.required'  => 'Soyad alanı zorunludur.',

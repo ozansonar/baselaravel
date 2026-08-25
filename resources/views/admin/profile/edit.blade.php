@@ -125,6 +125,18 @@
                     <div class="prf-card-title"><i class="bi bi-shield-lock"></i> Şifre Değiştir</div>
                     <div class="prf-edit-form">
                         <div class="stg-row">
+                            <div class="stg-field">
+                                <label class="stg-label" for="current_password">Mevcut Şifre</label>
+                                <input type="password" class="stg-input @error('current_password') is-invalid @enderror"
+                                       id="current_password" name="current_password"
+                                       placeholder="Şifrenizi değiştirmek için gerekli"
+                                       autocomplete="current-password">
+                                @error('current_password')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="stg-row">
                             <div class="stg-field stg-half">
                                 <label class="stg-label" for="password">Yeni Şifre</label>
                                 <input type="password" class="stg-input @error('password') is-invalid @enderror"

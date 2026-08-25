@@ -103,6 +103,17 @@
                             <p class="text-muted small mb-3">Boş bırakırsanız değişmez.</p>
 
                             <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="current_password">Mevcut Şifre</label>
+                                    <input type="password"
+                                           class="form-control @error('current_password') is-invalid @enderror"
+                                           id="current_password" name="current_password"
+                                           placeholder="Şifrenizi değiştirmek için gerekli" autocomplete="current-password">
+                                    @error('current_password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="col-md-6">
                                     <label class="form-label" for="password">Yeni Şifre</label>
                                     <input type="password"
