@@ -28,6 +28,3 @@ error_log
 public/error_log
 storage/debugbar/
 
-# Google Service Account credentials (NEVER commit)
-/storage/app/google/*.json
-!/storage/app/google/.gitkeep

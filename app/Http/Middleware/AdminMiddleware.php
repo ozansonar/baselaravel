@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Enums\UserRole;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +19,9 @@ final class AdminMiddleware
             return redirect()->route('login');
         }
 
-        // Check if user has admin panel access via roles
-        $hasAccess = $user->roles()
-            ->whereIn('slug', ['admin', 'editor', 'moderator'])
-            ->exists();
+        // Which roles reach the panel is decided by UserRole::hasAdminAccess(),
+        // so the list is not repeated here.
+        $hasAccess = $user->hasAnyRole(UserRole::adminPanelSlugs());
 
         if (!$hasAccess) {
             abort(403, 'Bu alana erişim yetkiniz yok.');

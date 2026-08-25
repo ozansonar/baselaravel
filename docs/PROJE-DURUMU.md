@@ -367,8 +367,10 @@ bir kırığın sessizce girmesi bu alanlarda hâlâ mümkün.
 - **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13
   ile çalışıyor ama uzun vadede risk.
 - **Hesabım alanı zayıf** — şifre değiştirme ve e-posta doğrulama yok.
-- **Ölü kod:** `app/Enums/UserRole.php`, `vendor/pagination/custom.blade.php`,
-  `.gitignore`'daki google kuralı.
+- ~~Ölü kod~~ — temizlendi: `vendor/pagination/custom.blade.php` ve
+  `.gitignore`'daki google kuralı kaldırıldı. `UserRole` enum'u silinmedi,
+  aksine bağlandı: `AdminMiddleware` ve `RoleSeeder` artık rol slug'larını
+  ondan okuyor.
 
 ---
 
@@ -409,6 +411,6 @@ Sıradakiler:
 3. **Rol/yetki yönetimi ekranı** — `roles-permissions.html` temada hazır. Roller
    şu an yalnızca seeder'dan geliyor; rol matrisi netleştiği için bu ekran
    artık daha anlamlı.
-4. **Kalan ölü kodu temizle** — `UserRole` enum,
-   `vendor/pagination/custom.blade.php`, `.gitignore`'daki google kuralı
-5. **Hesabım alanını genişlet** — şifre değiştirme, e-posta doğrulama
+4. ~~Kalan ölü kodu temizle~~ — tamamlandı
+5. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
+   doğrulama akışı eklendi

@@ -92,6 +92,28 @@ class EnumDrivenOptionsTest extends TestCase
         $this->assertStringContainsString('data-description=', $html);
     }
 
+    /**
+     * Role slugs live in the UserRole enum; the seeder and AdminMiddleware read
+     * from it rather than repeating the list.
+     */
+    public function test_roles_are_seeded_from_the_user_role_enum(): void
+    {
+        $this->seed(\Database\Seeders\RoleSeeder::class);
+
+        foreach (\App\Enums\UserRole::cases() as $role) {
+            $this->assertDatabaseHas('roles', [
+                'slug'        => $role->value,
+                'name'        => $role->label(),
+                'description' => $role->description(),
+            ]);
+        }
+
+        $this->assertSame(
+            ['admin', 'editor', 'moderator'],
+            \App\Enums\UserRole::adminPanelSlugs(),
+        );
+    }
+
     public function test_timezone_offsets_are_computed_not_hardcoded(): void
     {
         // Europe/Istanbul has no daylight saving, so this one is stable.
