@@ -27,6 +27,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->recent()
             ->limit($limit)
             ->get();
@@ -41,6 +42,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->where('id', '!=', $post->id)
             ->where('blog_category_id', $post->blog_category_id)
             ->recent()
@@ -52,6 +54,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->recent()
             ->paginate($perPage);
     }
@@ -60,6 +63,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->where('blog_category_id', $categoryId)
             ->recent()
             ->paginate($perPage);
@@ -67,8 +71,12 @@ final class BlogService
 
     public function findBySlug(string $slug): ?BlogPost
     {
+        // A slug is only unique inside its own language, so the lookup is
+        // scoped; a post with no translation yet resolves through the
+        // default-language fallback.
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->where('slug', $slug)
             ->first();
     }

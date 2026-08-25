@@ -19,6 +19,10 @@ final class SitemapService
      */
     public function generateUrls(): array
     {
+        // Deliberately not scoped to a language: a sitemap should list every
+        // language's URLs. Each translation is its own row with its own slug,
+        // so every language version appears once and the output does not depend
+        // on the visitor's locale.
         return Cache::remember('sitemap.urls', 3600, function (): array {
             $urls = [];
 

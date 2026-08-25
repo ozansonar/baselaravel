@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 final class GalleryService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -24,8 +26,8 @@ final class GalleryService
      */
     public function activePhotos(): Collection
     {
-        return Cache::remember('gallery.photos', 3600, fn () =>
-            GalleryItem::active()->photos()->sorted()->with('galleryCategory')->get(),
+        return Cache::remember($this->localeCacheKey('gallery.photos'), 3600, fn () =>
+            GalleryItem::active()->localeWithFallback()->photos()->sorted()->with('galleryCategory')->get(),
         );
     }
 
@@ -34,8 +36,8 @@ final class GalleryService
      */
     public function activeVideos(): Collection
     {
-        return Cache::remember('gallery.videos', 3600, fn () =>
-            GalleryItem::active()->videos()->sorted()->with('galleryCategory')->get(),
+        return Cache::remember($this->localeCacheKey('gallery.videos'), 3600, fn () =>
+            GalleryItem::active()->localeWithFallback()->videos()->sorted()->with('galleryCategory')->get(),
         );
     }
 
@@ -244,8 +246,8 @@ final class GalleryService
 
     private function clearCache(): void
     {
-        Cache::forget('gallery.photos');
-        Cache::forget('gallery.videos');
+        $this->forgetLocalized('gallery.photos');
+        $this->forgetLocalized('gallery.videos');
         Cache::forget('admin.gallery.stats');
     }
 }

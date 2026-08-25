@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
+use App\Models\BlogPost;
 use App\Models\Faq;
+use App\Models\GalleryCategory;
+use App\Models\GalleryItem;
 use App\Models\Page;
 use App\Models\Slider;
 use App\Services\FaqService;
@@ -230,5 +234,149 @@ class FrontLocaleContentTest extends TestCase
 
         app()->setLocale('tr');
         $this->assertSame('sliders/kampanya-tr.webp', $sliders->allActive()->first()?->image);
+    }
+
+    // ── Blog ──
+
+    /**
+     * @return array{post: BlogPost, category: BlogCategory}
+     */
+    private function blogPair(): array
+    {
+        $turkishCategory = BlogCategory::factory()->create(['locale' => 'tr', 'name' => 'Duyurular', 'slug' => 'duyurular']);
+        $englishCategory = BlogCategory::factory()->create([
+            'locale'        => 'en',
+            'lang_group_id' => $turkishCategory->lang_group_id,
+            'name'          => 'Announcements',
+            'slug'          => 'announcements',
+        ]);
+
+        $turkishPost = BlogPost::factory()->create([
+            'locale'           => 'tr',
+            'blog_category_id' => $turkishCategory->id,
+            'title'            => 'Türkçe Yazı',
+            'slug'             => 'turkce-yazi',
+        ]);
+
+        BlogPost::factory()->create([
+            'locale'           => 'en',
+            'lang_group_id'    => $turkishPost->lang_group_id,
+            'blog_category_id' => $englishCategory->id,
+            'title'            => 'English Post',
+            'slug'             => 'english-post',
+        ]);
+
+        return ['post' => $turkishPost, 'category' => $turkishCategory];
+    }
+
+    public function test_the_blog_list_follows_the_visitors_language(): void
+    {
+        $this->blogPair();
+
+        $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
+            ->get('/blog')
+            ->assertOk()
+            ->assertSee('English Post', false)
+            ->assertDontSee('Türkçe Yazı', false);
+
+        $this->withHeaders(['Accept-Language' => 'tr'])
+            ->get('/blog')
+            ->assertOk()
+            ->assertSee('Türkçe Yazı', false);
+    }
+
+    public function test_an_untranslated_post_still_shows_in_the_default_language(): void
+    {
+        $this->blogPair();
+
+        $category = BlogCategory::where('locale', 'tr')->firstOrFail();
+        BlogPost::factory()->create([
+            'locale'           => 'tr',
+            'blog_category_id' => $category->id,
+            'title'            => 'Yalnızca Türkçe Yazı',
+            'slug'             => 'yalnizca-turkce',
+        ]);
+
+        $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
+            ->get('/blog')
+            ->assertOk()
+            ->assertSee('English Post', false)
+            ->assertSee('Yalnızca Türkçe Yazı', false);
+    }
+
+    public function test_a_post_resolves_by_its_slug_in_the_current_language(): void
+    {
+        $this->blogPair();
+
+        $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
+            ->get('/blog/announcements/english-post')
+            ->assertOk()
+            ->assertSee('English Post', false);
+
+        $this->withHeaders(['Accept-Language' => 'tr'])
+            ->get('/blog/duyurular/turkce-yazi')
+            ->assertOk()
+            ->assertSee('Türkçe Yazı', false);
+    }
+
+    public function test_blog_categories_follow_the_visitors_language(): void
+    {
+        $this->blogPair();
+
+        $categories = app(\App\Services\BlogCategoryService::class);
+
+        app()->setLocale('en');
+        $this->assertSame(['Announcements'], $categories->allActive()->pluck('name')->all());
+
+        app()->setLocale('tr');
+        $this->assertSame(['Duyurular'], $categories->allActive()->pluck('name')->all(), 'Kategori cache i dile göre ayrılmıyor');
+    }
+
+    // ── Galeri ──
+
+    public function test_gallery_items_follow_the_visitors_language(): void
+    {
+        $category = GalleryCategory::factory()->create(['locale' => 'tr']);
+
+        $turkish = GalleryItem::factory()->create([
+            'locale'              => 'tr',
+            'gallery_category_id' => $category->id,
+            'title'               => 'Türkçe Kare',
+            'image'               => 'gallery/tr.webp',
+        ]);
+
+        GalleryItem::factory()->create([
+            'locale'              => 'en',
+            'lang_group_id'       => $turkish->lang_group_id,
+            'gallery_category_id' => $category->id,
+            'title'               => 'English Shot',
+            'image'               => 'gallery/en.webp',
+        ]);
+
+        $gallery = app(\App\Services\GalleryService::class);
+
+        app()->setLocale('en');
+        $english = $gallery->activePhotos();
+        $this->assertSame(['English Shot'], $english->pluck('title')->all());
+        $this->assertSame('gallery/en.webp', $english->first()?->image);
+
+        app()->setLocale('tr');
+        $turkishItems = $gallery->activePhotos();
+        $this->assertSame(['Türkçe Kare'], $turkishItems->pluck('title')->all(), 'Galeri cache i dile göre ayrılmıyor');
+        $this->assertSame('gallery/tr.webp', $turkishItems->first()?->image);
+    }
+
+    /**
+     * A sitemap should advertise every language, so it is deliberately not
+     * scoped to the visitor's locale.
+     */
+    public function test_the_sitemap_lists_every_language(): void
+    {
+        $this->blogPair();
+
+        $urls = collect(app(\App\Services\SitemapService::class)->generateUrls())->pluck('loc');
+
+        $this->assertTrue($urls->contains(fn (string $u): bool => str_contains($u, 'turkce-yazi')));
+        $this->assertTrue($urls->contains(fn (string $u): bool => str_contains($u, 'english-post')));
     }
 }

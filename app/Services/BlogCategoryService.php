@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class BlogCategoryService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     use \App\Services\Concerns\SyncsTranslations;
 
     /**
@@ -19,8 +21,9 @@ final class BlogCategoryService
      */
     public function allActive(): Collection
     {
-        return Cache::remember('blog_categories.active', 3600, fn () =>
+        return Cache::remember($this->localeCacheKey('blog_categories.active'), 3600, fn () =>
             BlogCategory::active()
+                ->localeWithFallback()
                 ->sorted()
                 ->withCount(['posts' => fn ($q) => $q->published()])
                 ->get(),
@@ -164,7 +167,7 @@ final class BlogCategoryService
 
     private function clearCache(): void
     {
-        Cache::forget('blog_categories.active');
+        $this->forgetLocalized('blog_categories.active');
         Cache::forget('admin.blog_categories.stats');
         // Modül 7 — blog kategori değişikliği sitemap'e anında yansısın.
         Cache::forget('sitemap.urls');

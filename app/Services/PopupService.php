@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 final class PopupService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -24,8 +26,8 @@ final class PopupService
      */
     public function getForPage(string $page): Collection
     {
-        return Cache::remember("popups.page.{$page}", 300, fn () =>
-            Popup::active()->scheduled()->forPage($page)->sorted()->get(),
+        return Cache::remember($this->localeCacheKey("popups.page.{$page}"), 300, fn () =>
+            Popup::active()->localeWithFallback()->scheduled()->forPage($page)->sorted()->get(),
         );
     }
 
@@ -202,7 +204,7 @@ final class PopupService
         Cache::forget('admin.popups.stats');
 
         foreach (PopupPage::cases() as $page) {
-            Cache::forget("popups.page.{$page->value}");
+            $this->forgetLocalized("popups.page.{$page->value}");
         }
     }
 }

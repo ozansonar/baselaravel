@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class GalleryCategoryService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     use \App\Services\Concerns\SyncsTranslations;
 
     /**
@@ -19,8 +21,9 @@ final class GalleryCategoryService
      */
     public function allActive(): Collection
     {
-        return Cache::remember('gallery_categories.active', 3600, fn () =>
+        return Cache::remember($this->localeCacheKey('gallery_categories.active'), 3600, fn () =>
             GalleryCategory::active()
+                ->localeWithFallback()
                 ->sorted()
                 ->withCount('galleryItems')
                 ->get(),
@@ -173,7 +176,7 @@ final class GalleryCategoryService
 
     private function clearCache(): void
     {
-        Cache::forget('gallery_categories.active');
+        $this->forgetLocalized('gallery_categories.active');
         Cache::forget('admin.gallery_categories.stats');
     }
 }
