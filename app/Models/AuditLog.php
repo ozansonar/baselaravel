@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\AuditEvent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 final class AuditLog extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     public $timestamps = false; // sadece created_at — useCurrent migration'da
 
