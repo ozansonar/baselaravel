@@ -2,7 +2,7 @@
 
 **Son güncelleme:** 2026-08-25
 **Branch:** `feat/laravel-13-upgrade` (= `refactor/extract-base-kit`, aynı commit)
-**Stack:** PHP 8.3 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
+**Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
 
 ---
 
@@ -43,7 +43,7 @@ Route → Controller (thin) → FormRequest (validation)
 
 - **Controller'da iş mantığı yok** — hepsi Service katmanında
 - Her PHP dosyasında `declare(strict_types=1)`
-- Modellerde `$fillable` (asla `$guarded = []`), `casts()` metodu, PHP 8.3 enum cast
+- Modellerde `$fillable` (asla `$guarded = []`), `casts()` metodu, PHP 8.4 enum cast
 - `HasSlug` trait'i slug üretimini merkezileştiriyor
 - Admin route'ları `bootstrap/app.php` içinde ayrı yükleniyor (`admin` prefix + middleware)
 

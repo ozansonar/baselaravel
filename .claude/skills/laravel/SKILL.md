@@ -1,7 +1,7 @@
 ---
 name: laravel
 description: >
-  Laravel 12 (PHP 8.3) ile backend geliştirme. Bu skill'i şu durumlarda kullan:
+  Laravel 13 (PHP 8.4) ile backend geliştirme. Bu skill'i şu durumlarda kullan:
   model, migration, controller, service, route, middleware, policy, observer, event,
   job, API endpoint, veritabanı işlemi, authentication, cache, queue, validation
   veya herhangi bir Laravel backend işlemi istendiğinde. "Model oluştur", "migration",
@@ -9,12 +9,12 @@ description: >
   "service class", "query" gibi ifadelerde tetiklen.
 ---
 
-# Laravel 12 — Proje Kuralları
+# Laravel 13 — Proje Kuralları
 
 ## Stack
 
-- PHP 8.3.30 (strict types, enums, readonly, match, typed properties)
-- Laravel 12
+- PHP 8.4 (strict types, enums, readonly, match, typed properties, property hooks)
+- Laravel 13
 - Blade
 - MySQL 8
 - Redis (cache & queue, varsa)
@@ -29,7 +29,9 @@ description: >
 
 - `declare(strict_types=1);` → her PHP dosyasında ZORUNLU
 - PSR-12 coding standard
-- PHP 8.3 features aktif kullan: typed properties, return types, enums, readonly, match, `?->`, `#[Override]`
+- PHP 8.4 features aktif kullan: typed properties, return types, enums, readonly, match,
+  `?->`, `#[Override]`, property hooks, asimetrik görünürlük (`private(set)`),
+  parantezsiz `new Foo()->bar()`, `array_find` / `array_any` / `array_all`
 - Controller İNCE olacak → sadece request al, service'e ilet, response dön
 - İş mantığı ASLA controller'da → her zaman Service katmanında
 - FormRequest ile validation → controller içinde `$request->validate()` YASAK
@@ -139,7 +141,7 @@ app/
 ├── Http/Resources/       ← API Resource/Collection
 ├── Models/               ← Eloquent + SoftDeletes
 ├── Services/             ← İş mantığı BURADA
-├── Enums/                ← PHP 8.3 Backed Enums
+├── Enums/                ← PHP 8.4 Backed Enums
 ├── Observers/            ← Model event + cascade soft delete
 ├── Policies/             ← Authorization
 ├── Events/ & Listeners/

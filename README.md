@@ -5,7 +5,7 @@ Yeni bir proje bu depoyu klonlayıp üstüne kendi modüllerini ekleyerek başla
 galeri, menü, ayarlar, mail şablonu/logu, yedekleme, analitik ve yetkilendirme gibi
 her projede tekrar eden işler hazır gelir.
 
-**Stack:** PHP 8.3 · Laravel 13 · Blade · MySQL 8 · Bootstrap 5.3.8 · Vanilla JS
+**Stack:** PHP 8.4 · Laravel 13 · Blade · MySQL 8 · Bootstrap 5.3.8 · Vanilla JS
 
 > **Build tool yok.** Vite, npm, Node.js, Webpack kullanılmaz. Tüm vendor
 > kütüphaneleri `public/assets/vendor/` altında hazır dosya olarak durur ve
@@ -17,7 +17,7 @@ her projede tekrar eden işler hazır gelir.
 
 | | Sürüm |
 |---|---|
-| PHP | 8.3+ (`composer.json` platform pini: 8.3.30) |
+| PHP | 8.4+ (`composer.json` platform pini: 8.4.2) |
 | Composer | 2.x |
 | Veritabanı | MySQL 8 (geliştirmede SQLite de çalışır) |
 | PHP eklentileri | Laravel 13'ün standart seti + `gd` veya `imagick` (görsel işleme) |
