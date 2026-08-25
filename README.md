@@ -207,6 +207,48 @@ Kurulumla gelen roller ve varsayılan yetkileri:
 silinemez ve anahtarları değiştirilemez. Panelden istediğin kadar **özel rol**
 ekleyip izinlerini matristen verebilirsin.
 
+## Çok dilli yapı
+
+Site birden fazla dilde yayınlanabilir. Diller **Ayarlar → Diller** ekranından
+yönetilir; yeni dil eklemek için kod değiştirmek gerekmez. Kurulumla Türkçe
+(varsayılan) ve İngilizce aktif, Almanca/Fransızca/İtalyanca pasif gelir.
+
+**Tam olarak bir varsayılan dil** olur. Varsayılan dil pasife alınamaz ve
+silinemez; başka bir dili varsayılan yapmak öncekinin işaretini kaldırır.
+
+### Ziyaretçi hangi dili görür
+
+1. Sağ üstteki seçiciden seçtiği dil
+2. Tarayıcısının `Accept-Language` başlığındaki en iyi eşleşme
+   (`de-AT` → Almanca)
+3. Varsayılan dil
+
+### İçerik
+
+Her içerik **dil başına ayrı satır** olarak saklanır; aynı içeriğin farklı
+dillerdeki sürümleri ortak bir `lang_group_id` ile bağlıdır. Bunun pratik
+sonuçları:
+
+- **Görsel de dile aittir.** Üzerinde Türkçe yazı olan görseli Türkçe sekmesine,
+  İngilizcesini İngilizce sekmesine yüklersiniz.
+- Slug yalnızca kendi dili içinde benzersizdir; Türkçe ve İngilizce ikisi de
+  `contact` kullanabilir.
+- Kategoriler de çevrilir, İngilizce içerik İngilizce kategoriye bağlanır.
+- Henüz çevrilmemiş içerik siteden kaybolmaz, varsayılan dilden gösterilir.
+
+### Formlar
+
+İçerik formları her aktif dil için bir sekme açar. **Yalnızca varsayılan dil
+zorunludur**, diğerlerini sonra doldurabilirsiniz. Boş bırakılan bir sekme
+mevcut çeviriyi silmez. Çevirisi olmayan dil sekmede "Çeviri yok" rozetiyle
+işaretlenir.
+
+Yeni bir modülü çok dilli yapmak için `App\Services\Concerns\SyncsTranslations`
+trait'ini servise ekleyin, formu `<x-language-tabs>` ile sarın ve alanları
+`translations[{locale}][field]` olarak isimlendirin.
+
+---
+
 ## E-posta doğrulama
 
 Kayıt olan kullanıcıya doğrulama bağlantısı gönderilir ve `/hesabim` alanı

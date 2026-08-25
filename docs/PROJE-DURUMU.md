@@ -343,6 +343,96 @@ komutları da çalıştırılıp doğrulandı.
 
 ---
 
+## 5e. Çok Dilli Yapı — ✅ Kuruldu
+
+Site birden fazla dilde yayınlanabiliyor. Diller panelden yönetiliyor, içerik
+dil başına ayrı satır olarak tutuluyor ve aynı içeriğin farklı dillerdeki
+sürümleri ortak bir `lang_group_id` ile birbirine bağlı.
+
+### Diller
+
+`languages` tablosu panelden yönetiliyor; yeni dil eklemek deploy gerektirmiyor.
+Kurulumla Türkçe (varsayılan) ve İngilizce aktif, Almanca/Fransızca/İtalyanca
+pasif hazır geliyor.
+
+`LanguageService` **tam olarak bir varsayılan dil** kuralının sahibi:
+
+- Varsayılanı taşımak öncekini tek işlemde temizliyor, ikinci varsayılan oluşamıyor
+- Varsayılan dil pasife alınamıyor ve silinemiyor
+- Pasif bir dil varsayılan yapılırsa otomatik aktifleşiyor
+- Sistemdeki ilk dil zorunlu olarak varsayılan oluyor
+
+### Ziyaretçi hangi dili görüyor
+
+1. Seçiciden seçtiği dil (oturumda)
+2. `Accept-Language` başlığından en iyi eşleşme — q değerleri dikkate alınıyor,
+   bölgesel varyant taban dile eşleniyor (`de-AT` → `de`)
+3. Varsayılan dil
+
+Yalnızca aktif diller sayılıyor. Seçici sağ üstte, aktif dil bayrak ve kodla
+gösteriliyor; tek dil aktifse hiç render edilmiyor. `<html lang>`, `hreflang`
+etiketleri ve `og:locale` aktif dilden geliyor.
+
+### İçerik nasıl saklanıyor
+
+Sekiz içerik tablosu (`pages`, `blog_posts`, `blog_categories`,
+`gallery_categories`, `gallery_items`, `faqs`, `sliders`, `popups`) `locale` ve
+`lang_group_id` kolonlarını taşıyor.
+
+- `(locale, lang_group_id)` benzersiz — aynı içeriğin bir dilde iki sürümü olamıyor
+- Slug benzersizliği global değil `(locale, slug)`; Türkçe ve İngilizce ikisi de
+  `contact` kullanabiliyor
+- **Görsel dahil her kolon dile ait.** Üzerinde Türkçe yazı olan görsel TR
+  satırına, İngilizcesi EN satırına yükleniyor.
+- Kategoriler de çevrildiği için ilişkiler dile bağlı: İngilizce yazı İngilizce
+  kategoriye bağlanıyor, form o sekmede yalnızca o dilin kategorilerini sunuyor
+
+`HasTranslations` trait'i `translations()`, `translation($locale)`,
+`hasTranslation()`, `missingLanguages()`, `scopeLocale()` ve
+`scopeLocaleWithFallback()` sağlıyor. Fallback scope'u sayesinde **henüz
+çevrilmemiş içerik siteden kaybolmuyor**, varsayılan dilden geliyor.
+
+### Admin formları
+
+Her aktif dil için bir sekme açılıyor, her sekmede o dile ait alanlar var.
+
+- Varsayılan dil rozetli, çevirisi olmayan dil "Çeviri yok" ile işaretli
+- Doğrulama hatası olan sekme kırmızı ve otomatik öne geliyor
+- **Yalnızca varsayılan dil zorunlu** — çevirmen diğerlerini sonra doldurabiliyor
+- **Boş bırakılan sekme mevcut çeviriyi silmiyor**, sadece atlanıyor
+- Yeni dosya eklenmeden yapılan düzenleme o dilin görselini korumuyor değil,
+  koruyor
+- Kendi görseli olmayan yeni bir çeviri varsayılan dilin görselini devralıyor;
+  çeviri görsel hazır olmadan da eklenebiliyor, sonradan yüklenince o dile
+  özel oluyor
+- Blog yazılarında yayın durumu ve yazar dil bloklarının dışında; yayınlamak
+  yazı hakkında bir karar, tek çevirisi hakkında değil
+
+### Cache
+
+Ön yüz sorguları dile göre cache'leniyor. Anahtarlar dil içermeseydi ilk
+ziyaretçinin dili, süre dolana kadar herkese servis edilirdi. `LocalizedCache`
+trait'i anahtarları dile göre üretiyor ve içerik değişince tüm dillerin
+anahtarını temizliyor.
+
+### Yol üzerinde bulunan hata
+
+`resources/views/pages/show.blade.php` içinde
+`@section('meta_description', $page->meta_description ?? $page->excerpt)` vardı.
+İkisi de boş olduğunda Blade `@section('x', null)` çağrısını blok formu sanıp
+`ob_start()` açıyor ve kapanış hiç gelmiyor. Yani meta açıklaması ve özeti
+olmayan **her sayfa görüntülemesi bir çıktı tamponu sızdırıyordu**. PHPUnit'in
+"risky" işareti sayesinde yakalandı, bölüm artık yalnızca içerik varsa
+tanımlanıyor.
+
+### Testler
+
+`LanguageManagementTest` (12), `ContentTranslationTest` (13),
+`LocaleResolutionTest` (13), `TranslatedPageFormTest` (13),
+`TranslatedContentFormsTest` (19), `FrontLocaleContentTest` (8).
+
+---
+
 ## 6. ⚠️ Kalan Yapılacak İşler
 
 ### 🟡 Test kapsamı
@@ -405,9 +495,11 @@ formatlanır.
 
 Sıradakiler:
 
-1. **İçerik CRUD testleri** — yazma yolları hâlâ testsiz (sayfa, blog, galeri
-   store/update/destroy, upload, mail gönderimi).
-2. **README yaz** — base kit'in kurulum rehberi. Şu an tek satır.
+1. **Ön yüzdeki sabit metinler** — arayüz metinleri (buton, başlık, form
+   etiketleri) hâlâ Blade içinde Türkçe sabit. İçerik çok dilli ama arayüz
+   değil; `lang/` çeviri dosyalarına taşınması gerekiyor.
+2. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
+   blog listesi/detayı ve galeri sorguları da `localeWithFallback` kullanmalı.
 3. **Rol/yetki yönetimi ekranı** — `roles-permissions.html` temada hazır. Roller
    şu an yalnızca seeder'dan geliyor; rol matrisi netleştiği için bu ekran
    artık daha anlamlı.
