@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\SafeRedirectTarget;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class StoreRedirectRequest extends FormRequest
@@ -20,7 +21,7 @@ final class StoreRedirectRequest extends FormRequest
     {
         return [
             'old_url'     => 'required|string|max:500|unique:redirects,old_url|starts_with:/',
-            'new_url'     => 'nullable|required_unless:status_code,404,410|string|max:500',
+            'new_url'     => ['nullable', 'required_unless:status_code,404,410', 'string', 'max:500', new SafeRedirectTarget()],
             'status_code' => 'required|integer|in:301,302,307,308,404,410',
             'is_active'   => 'boolean',
             'note'        => 'nullable|string|max:500',

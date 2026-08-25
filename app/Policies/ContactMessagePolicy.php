@@ -21,7 +21,7 @@ final class ContactMessagePolicy
 
     public function reply(User $user, ContactMessage $contactMessage): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasAnyRole(['admin', 'editor', 'moderator']);
     }
 
     public function delete(User $user, ContactMessage $contactMessage): bool

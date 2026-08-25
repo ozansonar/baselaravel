@@ -274,7 +274,11 @@
                                 <input type="text" class="form-control form-control-theme" id="newUrl" name="new_url"
                                        placeholder="/yeni-sayfa-adresi">
                             </div>
-                            <small class="form-text text-clr-muted">Kullanıcının yönlendirileceği adres</small>
+                            <small class="form-text text-clr-muted">
+                                Kullanıcının yönlendirileceği adres. Site içi bir yol (<code>/sayfa</code>)
+                                ya da izin verilen bir alan adı olmalıdır; site dışına yönlendirme
+                                kabul edilmez.
+                            </small>
                         </div>
 
                         {{-- Not --}}

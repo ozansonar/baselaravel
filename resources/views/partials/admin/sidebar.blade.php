@@ -22,10 +22,12 @@
             <i class="bi bi-grid-1x2-fill"></i> Dashboard
         </a>
 
-                @can('viewAny', \App\Models\Page::class)
-{{-- ─── İÇERİK ───────────────────────────────────────── --}}
+        {{-- ─── İÇERİK ───────────────────────────────────────── --}}
+        @can('viewAny', \App\Models\BlogComment::class)
         <div class="nav-section-title">İçerik</div>
+        @endcan
 
+        @can('viewAny', \App\Models\BlogPost::class)
         <a href="{{ route('admin.blog-categories.index') }}"
            class="nav-link {{ Route::is('admin.blog-categories.*') ? 'active' : '' }}">
             <i class="bi bi-bookmark-fill"></i> İçerik Kategorileri
@@ -35,7 +37,9 @@
            class="nav-link {{ Route::is('admin.blog-posts.*') ? 'active' : '' }}">
             <i class="bi bi-journal-richtext"></i> İçerikler
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\BlogComment::class)
         @php
             $pendingCommentCount = \App\Models\BlogComment::where('status', 'pending')->count();
         @endphp
@@ -46,7 +50,9 @@
             <span class="nav-badge">{{ $pendingCommentCount }}</span>
             @endif
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\Page::class)
         <a href="{{ route('admin.pages.index') }}"
            class="nav-link {{ Route::is('admin.pages.*') ? 'active' : '' }}">
             <i class="bi bi-file-earmark-text-fill"></i> Sayfalar
@@ -79,8 +85,8 @@
         @endcan
 
 
-                @can('viewAny', \App\Models\UploadedFile::class)
-{{-- ─── MEDYA & DOSYA ────────────────────────────────── --}}
+        @can('viewAny', \App\Models\UploadedFile::class)
+        {{-- ─── MEDYA & DOSYA ────────────────────────────────── --}}
         <div class="nav-section-title">Medya & Dosya</div>
 
         <a href="{{ route('admin.files.index') }}"
@@ -102,7 +108,7 @@
             @endif
         </a>
 
-                @can('viewAny', \App\Models\User::class)
+        @can('viewAny', \App\Models\User::class)
 <a href="{{ route('admin.users.index') }}"
            class="nav-link {{ Route::is('admin.users.*') ? 'active' : '' }}">
             <i class="bi bi-people-fill"></i> Kullanıcılar
@@ -110,8 +116,8 @@
         @endcan
 
 
-                @can('viewAny', \App\Models\Redirect::class)
-{{-- ─── SEO & ENTEGRASYON ────────────────────────────── --}}
+        @can('viewAny', \App\Models\Redirect::class)
+        {{-- ─── SEO & ENTEGRASYON ────────────────────────────── --}}
         <div class="nav-section-title">SEO & Entegrasyon</div>
 
         <a href="{{ route('admin.redirects.index') }}"
@@ -124,7 +130,7 @@
         {{-- ─── SİSTEM ───────────────────────────────────────── --}}
         <div class="nav-section-title">Sistem</div>
 
-                @can('viewAny', \App\Models\Setting::class)
+        @can('viewAny', \App\Models\Setting::class)
 <a href="{{ route('admin.settings.index') }}"
            class="nav-link {{ Route::is('admin.settings.*') ? 'active' : '' }}">
             <i class="bi bi-gear-fill"></i> Ayarlar
@@ -132,7 +138,7 @@
         @endcan
 
 
-                @can('viewAny', \App\Models\Menu::class)
+        @can('viewAny', \App\Models\Menu::class)
 <a href="{{ route('admin.menus.index') }}"
            class="nav-link {{ Route::is('admin.menus.*') ? 'active' : '' }}">
             <i class="bi bi-list-nested"></i> Menü Yönetimi
@@ -140,7 +146,7 @@
         @endcan
 
 
-                @can('view-analytics')
+        @can('view-analytics')
 <a href="{{ route('admin.analytics.index') }}"
            class="nav-link {{ Route::is('admin.analytics.*') ? 'active' : '' }}">
             <i class="bi bi-graph-up-arrow"></i> Analitik
@@ -148,7 +154,7 @@
         @endcan
 
 
-                @can('viewAny', \App\Models\MailTemplate::class)
+        @can('viewAny', \App\Models\MailTemplate::class)
 <a href="{{ route('admin.mail-templates.index') }}"
            class="nav-link {{ Route::is('admin.mail-templates.*') ? 'active' : '' }}">
             <i class="bi bi-envelope-open-fill"></i> Mail Şablonları
@@ -156,7 +162,7 @@
         @endcan
 
 
-                @can('viewAny', \App\Models\MailLog::class)
+        @can('viewAny', \App\Models\MailLog::class)
 <a href="{{ route('admin.mail-logs.index') }}"
            class="nav-link {{ Route::is('admin.mail-logs.*') ? 'active' : '' }}">
             <i class="bi bi-envelope-paper-fill"></i> Mail Logları
@@ -165,7 +171,7 @@
 
 
         @if(Route::has('admin.system-health.index'))
-                @can('view-system-health')
+        @can('view-system-health')
 <a href="{{ route('admin.system-health.index') }}"
            class="nav-link {{ Route::is('admin.system-health.*') ? 'active' : '' }}">
             <i class="bi bi-heart-pulse-fill"></i> Sistem Sağlık
@@ -175,7 +181,7 @@
         @endif
 
         @if(Route::has('admin.audit-logs.index'))
-                @can('viewAny', \App\Models\AuditLog::class)
+        @can('viewAny', \App\Models\AuditLog::class)
 <a href="{{ route('admin.audit-logs.index') }}"
            class="nav-link {{ Route::is('admin.audit-logs.*') ? 'active' : '' }}">
             <i class="bi bi-clock-history"></i> Aktivite Logları
@@ -185,7 +191,7 @@
         @endif
 
         @if(Route::has('admin.notifications.index'))
-                @can('viewAny', \App\Models\AdminNotification::class)
+        @can('viewAny', \App\Models\AdminNotification::class)
 <a href="{{ route('admin.notifications.index') }}"
            class="nav-link {{ Route::is('admin.notifications.*') ? 'active' : '' }}">
             <i class="bi bi-bell-fill"></i> Bildirimler
@@ -195,7 +201,7 @@
         @endif
 
         @if(Route::has('admin.backups.index'))
-                @can('manage-backups')
+        @can('manage-backups')
 <a href="{{ route('admin.backups.index') }}"
            class="nav-link {{ Route::is('admin.backups.*') ? 'active' : '' }}">
             <i class="bi bi-cloud-download-fill"></i> Yedekler

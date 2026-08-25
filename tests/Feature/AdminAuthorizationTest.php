@@ -32,6 +32,8 @@ class AdminAuthorizationTest extends TestCase
             '/admin'                    => [200, 200, 200],
             '/admin/bildirimler'        => [200, 200, 200],
             '/admin/contact-messages'   => [200, 200, 200],
+            // Moderation is what the moderator role exists for
+            '/admin/blog-comments'      => [200, 200, 200],
 
             // Content — admin and editor
             '/admin/pages'              => [200, 200, 403],
@@ -176,5 +178,49 @@ class AdminAuthorizationTest extends TestCase
         $plain = $this->userWithRole('user');
 
         $this->actingAs($plain)->get('/admin')->assertForbidden();
+    }
+
+    /**
+     * The moderator role is described as "Mesaj ve yorum yönetimi", so it must
+     * actually be able to do both.
+     */
+    public function test_moderator_can_moderate_comments_but_not_delete_them(): void
+    {
+        $moderator = $this->userWithRole('moderator');
+
+        $category = \App\Models\BlogCategory::create([
+            'name'      => 'Duyurular',
+            'slug'      => 'duyurular',
+            'is_active' => true,
+        ]);
+
+        $post = \App\Models\BlogPost::create([
+            'blog_category_id' => $category->id,
+            'user_id'          => $moderator->id,
+            'title'            => 'Örnek Yazı',
+            'slug'             => 'ornek-yazi',
+            'body'             => 'İçerik',
+            'is_published'     => true,
+            'published_at'     => now(),
+        ]);
+
+        $comment = \App\Models\BlogComment::create([
+            'blog_post_id' => $post->id,
+            'name'         => 'Ziyaretçi',
+            'email'        => 'ziyaretci@example.test',
+            'body'         => 'Güzel yazı.',
+            'status'       => 'pending',
+        ]);
+
+        $this->actingAs($moderator)
+            ->patch("/admin/blog-comments/{$comment->id}/approve")
+            ->assertRedirect();
+
+        $this->assertSame(\App\Enums\CommentStatus::Approved, $comment->fresh()->status);
+
+        // Deleting stays with the admin.
+        $this->actingAs($moderator)
+            ->delete("/admin/blog-comments/{$comment->id}")
+            ->assertForbidden();
     }
 }

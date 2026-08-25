@@ -11,17 +11,17 @@ final class BlogCommentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasAnyRole(['admin', 'editor', 'moderator']);
     }
 
     public function view(User $user, BlogComment $comment): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasAnyRole(['admin', 'editor', 'moderator']);
     }
 
     public function approve(User $user, BlogComment $comment): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasAnyRole(['admin', 'editor', 'moderator']);
     }
 
     public function delete(User $user, BlogComment $comment): bool

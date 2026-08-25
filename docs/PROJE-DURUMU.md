@@ -186,8 +186,8 @@ birden içeri alıyordu. Yani bir **editör** veritabanı yedeğini indirebiliyo
 | Alan | admin | editor | moderator |
 |---|:---:|:---:|:---:|
 | Dashboard, kendi profili, bildirimler | ✅ | ✅ | ✅ |
-| İletişim mesajları (görüntüleme) | ✅ | ✅ | ✅ |
-| İletişim mesajı yanıtlama | ✅ | ✅ | — |
+| İletişim mesajları (görüntüleme + yanıtlama) | ✅ | ✅ | ✅ |
+| **Yorum moderasyonu** (onay / red) | ✅ | ✅ | ✅ |
 | Sayfa, blog, galeri, SSS, slider, popup | ✅ | ✅ | — |
 | Menü yönetimi | ✅ | ✅ | — |
 | Dosya yöneticisi · CKEditor upload | ✅ | ✅ | — |
@@ -202,11 +202,15 @@ birden içeri alıyordu. Yani bir **editör** veritabanı yedeğini indirebiliyo
 | Sistem sağlık | ✅ | — | — |
 | Silme / geri yükleme (her modülde) | ✅ | — | — |
 
-> **Yönlendirmeler neden sadece admin?** `StoreRedirectRequest`'te `old_url` için
-> `starts_with:/` kuralı var ama **`new_url` için yok**. Yani hedef harici bir
-> adres olabiliyor ve `HandleRedirects` ziyaretçiyi oraya yolluyor — trafik
-> kaçırma vektörü. Yetkiyi daraltmak anlık çözüm; kalıcı çözüm için
-> `new_url` doğrulaması da eklenmeli (bkz. bölüm 6).
+> **Yönlendirmeler neden sadece admin?** Hedef adres ziyaretçinin gönderileceği
+> yer olduğu için yönlendirme yönetimi trafik üzerinde doğrudan kontrol demek.
+> Yetki daraltmasının yanına açık yönlendirme doğrulaması da eklendi — aşağıya
+> bakın.
+
+> **Moderatör neden yorum ve mesaj yönetebiliyor?** `RoleSeeder` bu rolü
+> "Mesaj ve yorum yönetimi yetkisi" diye tanımlıyordu ama `BlogCommentPolicy`
+> moderatörü dışlıyordu; yani rol tanımlıydı ama hiçbir şey yapamıyordu.
+> Policy rol tanımına uyduruldu. Silme yetkisi admin'de kaldı.
 
 ### Yapılanlar
 
@@ -243,14 +247,50 @@ istek başına tek sorgu.
 
 ### Doğrulama
 
-`tests/Feature/AdminAuthorizationTest` eklendi — 6 test, 104 assertion:
+`tests/Feature/AdminAuthorizationTest` — 7 test:
 
-- 20 rotanın üç rol için beklenen durum kodu (200/403) matrisi
+- 21 rotanın üç rol için beklenen durum kodu (200/403) matrisi
 - Editör yedek indiremiyor
 - Editör mail log gövdesi okuyamıyor (şifre sıfırlama linki içeren gerçek kayıtla)
 - Editör ve moderatör sidebar'ında yasak linkler görünmüyor
 - Admin sidebar'ında her şey görünmeye devam ediyor
 - Panel rolü olmayan kullanıcı 403 alıyor
+- Moderatör yorum onaylayabiliyor ama silemiyor
+
+---
+
+## 5c. Açık Yönlendirme — ✅ Kapatıldı
+
+`HandleRedirects` middleware'i `new_url` değerini doğrudan `redirect()`
+fonksiyonuna veriyor. `old_url` için `starts_with:/` kuralı vardı ama
+**`new_url` için hiçbir kısıt yoktu** — yani kayıt oluşturabilen biri site
+trafiğini istediği harici adrese yollayabiliyordu.
+
+`app/Rules/SafeRedirectTarget` yazıldı ve iki FormRequest'e de bağlandı.
+Kabul ettikleri:
+
+- Site içi yollar (`/yeni-sayfa`)
+- `APP_URL` host'una ait mutlak adresler
+- `config('redirects.allowed_hosts')` içinde listelenen host'lar
+  (`.env` → `REDIRECT_ALLOWED_HOSTS=eski-alan-adi.com`)
+
+Reddettikleri — hepsi test edilmiş durumda:
+
+| Vektör | Örnek | Neden tehlikeli |
+|---|---|---|
+| Mutlak harici adres | `https://evil.test/phishing` | Doğrudan site dışı |
+| Protokole bağlı URL | `//evil.test` | Tarayıcı site dışı olarak yorumlar |
+| Ters bölü hilesi | `/\evil.test` | Bazı tarayıcılar `\` → `/` çevirir |
+| `javascript:` şeması | `javascript:alert(1)` | XSS |
+| `data:` şeması | `data:text/html,...` | XSS |
+| Satır sonu kaçırma | `/ok\nhttps://evil.test` | Header/hedef kaçırma |
+
+`config/redirects.php` eklendi, `.env.example` güncellendi, admin formundaki
+yardım metni kuralı açıklıyor.
+
+`tests/Feature/RedirectTargetValidationTest` — 11 test: 6 saldırı vektörü
+reddediliyor, site içi yol / kendi host'u / izinli host kabul ediliyor, 410
+kaydı hedefsiz oluşturulabiliyor ve kayıtlı yönlendirme hâlâ çalışıyor.
 
 ---
 
@@ -258,25 +298,10 @@ istek başına tek sorgu.
 
 ### 🟡 Test kapsamı
 
-Suite artık **9 test / 131 assertion**. Yetkilendirme ve okuma yolları kapsandı,
-ancak **yazma yolları hâlâ testsiz**: CRUD store/update/destroy, validation,
-upload, mail gönderimi. FAQ'daki gibi bir kırığın sessizce girmesi hâlâ mümkün.
-
-### 🟡 Rol tanımı ile policy uyuşmazlığı
-
-`RoleSeeder` moderatör rolünü "**Mesaj ve yorum** yönetimi yetkisi" diye
-tanımlıyor, ama `BlogCommentPolicy` yalnızca admin + editor'e izin veriyor.
-Yani moderatör tanımındaki işi yapamıyor.
-
-Bu bir **yetki genişletme** kararı olduğu için bilinçli olarak dokunulmadı —
-daraltmak güvenli, genişletmek ürün kararı. İki seçenek: ya
-`BlogCommentPolicy`'ye moderatör eklenir, ya rol açıklaması düzeltilir.
-
-### 🟡 Açık yönlendirme doğrulaması
-
-`StoreRedirectRequest` ve `UpdateRedirectRequest` içinde `new_url` için host
-kısıtı yok. Yetki artık admin'le sınırlı ama doğrulama da eklenmeli
-(`starts_with:/` veya izinli host listesi).
+Suite artık **21 test / 166 assertion**. Yetkilendirme, açık yönlendirme ve
+okuma yolları kapsandı; ancak **içerik CRUD yazma yolları hâlâ testsiz**:
+sayfa/blog/galeri store-update-destroy, upload, mail gönderimi. FAQ'daki gibi
+bir kırığın sessizce girmesi bu alanlarda hâlâ mümkün.
 
 ### 🟡 CLAUDE.md kuralına aykırılıklar
 
@@ -329,19 +354,21 @@ formatlanır.
 ## 8. Önerilen Sıra
 
 - [x] ~~**Yetkilendirme boşluğunu kapat**~~ — tamamlandı (bkz. bölüm 5)
+- [x] ~~**Açık yönlendirmeyi kapat**~~ — tamamlandı (bkz. bölüm 5c)
+- [x] ~~**Moderatör rolünü işler hâle getir**~~ — policy rol tanımına uyduruldu
 - [x] ~~**Hoş geldin e-postasını düzelt**~~ — tamamlandı (bkz. bölüm 4)
 - [x] ~~**Ürün/sipariş kalıntılarını temizle**~~ — tamamlandı, 15 kalem
 
 Sıradakiler:
 
-1. **`new_url` doğrulaması ekle** — yönlendirme hedefi hâlâ harici bir adres
-   olabiliyor. Yetki admin'e daraltıldı ama doğrulama da gerekli.
-2. **Moderatör rolüne karar ver** — rol açıklaması yorum yönetimi diyor,
-   `BlogCommentPolicy` izin vermiyor. Ya policy genişletilmeli ya açıklama
-   düzeltilmeli.
-3. **Test kapsamı ekle** — CRUD yazma yolları hâlâ testsiz.
-4. **Kalan ölü kodu temizle** — `UserRole` enum, `vendor/pagination/custom.blade.php`,
-   `.gitignore`'daki google kuralı
-5. **README yaz** — base kit'in kurulum rehberi
-6. **Eksik modüller** — rol/yetki yönetimi ekranı (`roles-permissions.html` temada
-   hazır; yeni rol matrisi bu ekranı daha da anlamlı kılıyor)
+1. **İçerik CRUD testleri** — yazma yolları hâlâ testsiz (sayfa, blog, galeri
+   store/update/destroy, upload, mail gönderimi).
+2. **README yaz** — base kit'in kurulum rehberi. Şu an tek satır.
+3. **Rol/yetki yönetimi ekranı** — `roles-permissions.html` temada hazır. Roller
+   şu an yalnızca seeder'dan geliyor; rol matrisi netleştiği için bu ekran
+   artık daha anlamlı.
+4. **Kalan ölü kodu temizle** — `UserRole` enum,
+   `vendor/pagination/custom.blade.php`, `.gitignore`'daki google kuralı
+5. **SoftDeletes kararı** — 3 log/bildirim modelinde yok; ya kural gevşetilmeli
+   ya modeller uyumlu hâle getirilmeli
+6. **Hesabım alanını genişlet** — şifre değiştirme, e-posta doğrulama
