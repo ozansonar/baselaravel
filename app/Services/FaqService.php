@@ -18,7 +18,7 @@ final class FaqService
     public function allActive(): Collection
     {
         return Cache::remember('faqs.active', 3600, fn () =>
-            Faq::active()->global()->sorted()->get(),
+            Faq::active()->sorted()->get(),
         );
     }
 
