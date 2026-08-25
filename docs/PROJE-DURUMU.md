@@ -506,12 +506,14 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **273 test / 1390 assertion**. Yetkilendirme, açık yönlendirme,
-SoftDeletes, çok dilli içerik formları, arayüz çevirisi ve navigasyon kapsandı.
+Suite artık **297 test / 1416 assertion**. Yetkilendirme, açık yönlendirme,
+SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
+tool yasağı kapsandı.
 
-Hâlâ testsiz kalan: **mail gönderimi ve upload yolları** (`UploadService`
-varyant üretimi, `MailTemplateService` render). İçerik CRUD'u çok dilli form
-testleriyle birlikte kapsandı.
+Mail ve upload yolları da kapsandı (`ImageUploadTest` 23, `MailDeliveryTest` 25);
+bunlar diske ve SMTP'ye dokunduğu için kodu okuyarak doğrulanamayan tek yerdi.
+
+Bu testler yazılırken üç gerçek kusur çıktı — bkz. 5h.
 
 `NoBuildToolchainTest` (24) build tool yasağını bekçilik ediyor: kök dizinde
 `package.json` / `vite.config.*` / `webpack.mix.js` / `tailwind.config.*` yok,
@@ -523,24 +525,78 @@ komutu veya stok Laravel dosyası zinciri sessizce geri getirebilir.
 
 ### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
 
-- **`roles-permissions.html`** — Rol/yetki yönetimi ekranı. `Role` modeli ve
-  `RoleService` var ama admin CRUD'u yok; roller sadece seeder'dan geliyor.
-  Yeni rol matrisi göz önüne alınınca bu ekran daha da anlamlı.
 - **`reports.html`** — Raporlama ekranı
 - **`content-list.html`** — Genel içerik listesi
+
+~~`roles-permissions.html`~~ — yapıldı (`4b49a5a`): `admin/roles/index.blade.php`
+ve tam CRUD + izin senkronizasyonu route'ları mevcut.
 
 ### 🟢 Diğer
 
 - ~~`README.md` tek satır~~ — yazıldı: kurulum, roller, çok dilli yapı, testler.
-- **`composer.json` adı hâlâ `laravel/laravel`**.
-- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13
-  ile çalışıyor ama uzun vadede risk.
+- ~~`composer.json` adı hâlâ `laravel/laravel`~~ — `ozansonar/laravel-base` oldu.
+- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13 /
+  PHP 8.4 ile çalışıyor ama uzun vadede risk. Tek kullanım yeri
+  `AnalyticsService` (tarayıcı/cihaz tespiti); değiştirilmesi gerekirse etki
+  alanı dar.
+- ~~Ölü iskele girdileri~~ — temizlendi: `.gitignore`'daki `Homestead.*`
+  satırları ve `composer.json`'daki `allow-plugins → pestphp/pest-plugin`.
 - ~~Hesabım alanı zayıf~~ — şifre değiştirme (mevcut şifre doğrulamalı) ve
   e-posta doğrulama eklendi.
 - ~~Ölü kod~~ — temizlendi: `vendor/pagination/custom.blade.php` ve
   `.gitignore`'daki google kuralı kaldırıldı. `UserRole` enum'u silinmedi,
   aksine bağlandı: `AdminMiddleware` ve `RoleSeeder` artık rol slug'larını
   ondan okuyor.
+
+---
+
+## 5h. Mail ve Upload Yolları — ✅ Test Edildi ve Üç Kusur Kapatıldı
+
+Diske ve SMTP'ye dokunan yollar kodu okuyarak doğrulanamıyordu. Test yazılırken
+üçü de sessizce çalışan üç kusur çıktı.
+
+### 1. Upload kökü iki farklı yerden okunuyordu
+
+Yazma `config('uploads.path')` kullanıyordu ama **okuma altı yerde
+`public_path('uploads')` sabitliyordu** — `UploadService::url()`,
+`srcset()`, `getOriginalWidth()`, `BaseMail` (mail logosu), `BackupService`,
+`HealthCheckService` ve `FileManagerService`.
+
+Üretimde ikisi aynı klasöre denk geldiği için görünmüyordu, ama upload yolu
+yapılandırıldığı anda: her varyant araması ışınlanıp boşa düşüyor ve **her görsel
+sessizce tam boy orijinaline geri dönüyordu**; yedekleme boş klasörü yedekliyor,
+sağlık kontrolü yanlış klasörü raporluyordu.
+
+`UploadService::basePath()` tek kaynak oldu, yedi çağrı yeri ona bağlandı.
+
+### 2. `contact_reply` şablonu hiç seed edilmemişti
+
+`ContactMessageReplyMail::templateKey()` her zaman `'contact_reply'` döndürüyordu
+ve `MailTemplateService` bunun varsayılanını biliyordu, ama **veritabanına hiç
+satır eklenmemişti**. Sonuç: Mail Şablonları ekranı bu şablonu hiç listelemiyordu,
+iletişim mesajına panelden verilen yanıt sessizce Blade view'ına düşüyordu —
+yani yöneticinin en çok kendi cümleleriyle yazmak isteyeceği mail, düzenleyemediği
+tek mail'di. `2026_08_25_210000` migration'ı ile seed edildi.
+
+### 3. Şablon drift'i (yanlış alarm, doğrulandı)
+
+`resetToDefault()` ile migration seed'i arasında dört şablonda fark vardı, ama
+normalize edilince farkın **tamamen biçimsel** olduğu görüldü (girinti ve etiket
+içi boşluk). İçerik regresyonu yok. Test bu yüzden boşluğa duyarsız karşılaştırma
+yapıyor — biçim değil, kullanıcının okuduğu kelimeler korunuyor mu diye bakıyor.
+
+### Bekçiler
+
+- `test_every_mail_template_key_has_a_row_in_the_panel` — her mail sınıfının
+  `templateKey()` değeri panelde bir satıra karşılık geliyor mu. `contact_reply`
+  boşluğunu tam olarak bu yakaladı; seed migration'ı geçici olarak kaldırılıp
+  testin gerçekten kırıldığı doğrulandı.
+- `test_resetting_a_template_restores_the_shipped_content` — altı şablonun
+  tamamı için varsayılana dönüş kontrolü (e-ticaret metninin geri gelmesi gibi
+  bir regresyonu yakalar)
+- `ImageUploadTest` — silme ve değiştirme işlemlerinin varyantları da temizlediği,
+  kaynaktan büyük varyant üretilmediği, reddedilen yüklemenin diske hiçbir şey
+  yazmadığı
 
 ---
 

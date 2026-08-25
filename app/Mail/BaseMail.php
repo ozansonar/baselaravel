@@ -6,6 +6,7 @@ namespace App\Mail;
 
 use App\Models\MailTemplate;
 use App\Models\Setting;
+use App\Services\UploadService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -220,7 +221,7 @@ abstract class BaseMail extends Mailable
         try {
             $logoRelPath = Setting::where('key', 'mail_logo')->value('value');
             if ($logoRelPath) {
-                $fullPath = public_path('uploads/' . $logoRelPath);
+                $fullPath = UploadService::basePath($logoRelPath);
                 if (file_exists($fullPath)) {
                     $this->mailLogoPath = $fullPath;
                     $this->mailLogoUrl = 'cid:mail-logo';

@@ -369,7 +369,7 @@ final class UploadService
             $variantPath = "{$info['dirname']}/{$info['filename']}-{$size}.{$info['extension']}";
 
             // If variant exists, use it; otherwise fall back to original
-            if (file_exists(public_path("uploads/{$variantPath}"))) {
+            if (file_exists(self::basePath($variantPath))) {
                 return "/uploads/{$variantPath}";
             }
         }
@@ -404,13 +404,13 @@ final class UploadService
             // Only include if variant file actually exists
             $info = pathinfo($path);
             $variantPath = "{$info['dirname']}/{$info['filename']}-{$sizeName}.{$info['extension']}";
-            if (file_exists(public_path("uploads/{$variantPath}"))) {
+            if (file_exists(self::basePath($variantPath))) {
                 $parts[] = "{$url} {$width}w";
             }
         }
 
         // Add original as the largest option
-        if (file_exists(public_path("uploads/{$path}"))) {
+        if (file_exists(self::basePath($path))) {
             $parts[] = "/uploads/{$path} " . self::getOriginalWidth($path) . 'w';
         }
 
@@ -689,12 +689,21 @@ final class UploadService
      *
      * Read from config so the test suite can redirect writes somewhere
      * disposable instead of the real public/uploads folder.
+     *
+     * Static because the URL helpers below have to resolve against the same
+     * root the writes use; when they disagreed, a configured upload path meant
+     * every variant lookup silently missed and fell back to the original.
      */
-    private function uploadsPath(string $relativePath = ''): string
+    public static function basePath(string $relativePath = ''): string
     {
         $base = rtrim((string) config('uploads.path', public_path('uploads')), '/');
 
         return $relativePath !== '' ? "{$base}/{$relativePath}" : $base;
+    }
+
+    private function uploadsPath(string $relativePath = ''): string
+    {
+        return self::basePath($relativePath);
     }
 
     /**
@@ -722,7 +731,7 @@ final class UploadService
      */
     private static function getOriginalWidth(string $path): int
     {
-        $fullPath = public_path("uploads/{$path}");
+        $fullPath = self::basePath($path);
 
         if (!file_exists($fullPath)) {
             return 1920;

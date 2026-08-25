@@ -94,7 +94,7 @@ final class FileManagerService
                 );
 
                 // WebP dosya boyutu probe
-                $webpAbs = public_path('uploads/' . $storedPath);
+                $webpAbs = UploadService::basePath($storedPath);
                 if (is_file($webpAbs)) {
                     $webpSize = (int) filesize($webpAbs);
                 }
@@ -110,7 +110,7 @@ final class FileManagerService
             $width = null;
             $height = null;
             if ($category === UploadedFile::CATEGORY_IMAGE) {
-                $absolute = public_path('uploads/' . $storedPath);
+                $absolute = UploadService::basePath($storedPath);
                 $info = @getimagesize($absolute);
                 if ($info !== false) {
                     $width = (int) $info[0];
