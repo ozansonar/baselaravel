@@ -86,10 +86,16 @@ final class AuditLogger
 
     /**
      * Eski log'ları temizle (cron tarafından çağrılır).
+     *
+     * Saklama süresi temizliği olduğu için forceDelete kullanılır; normal
+     * delete yalnızca deleted_at doldurur ve tablo süresiz büyümeye devam
+     * ederdi.
      */
     public static function pruneOlderThan(int $days = 90): int
     {
-        return AuditLog::where('created_at', '<', now()->subDays($days))->delete();
+        return AuditLog::withTrashed()
+            ->where('created_at', '<', now()->subDays($days))
+            ->forceDelete();
     }
 
     /**

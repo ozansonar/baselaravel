@@ -21,11 +21,12 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 | | Adet | | Adet |
 |---|---|---|---|
 | Model | 23 | Route | 164 |
-| Service | 33 | Migration | 38 |
+| Service | 33 | Migration | 40 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
 | Policy | 20 | Enum | 9 |
 | Observer | 9 | Artisan command | 5 |
+| Test | 27 | Assertion | 179 |
 
 ---
 
@@ -294,22 +295,62 @@ kaydı hedefsiz oluşturulabiliyor ve kayıtlı yönlendirme hâlâ çalışıyo
 
 ---
 
+## 5d. SoftDeletes — ✅ Her Modelde
+
+CLAUDE.md "SoftDeletes → HER MODELDE ZORUNLU" diyordu ama 3 model dışarıdaydı:
+`AdminNotification`, `AnalyticsDailyStat`, `AuditLog`. Üçüne de eklendi;
+**23 modelin tamamı** artık SoftDeletes kullanıyor.
+
+`2026_08_25_130000_add_soft_deletes_to_log_tables` migration'ı `deleted_at`
+kolonlarını ekliyor. `audit_logs` ve `admin_notifications` her panel isteğinde
+sorgulandığı için trait'in eklediği `deleted_at is null` koşuluna ayrı index
+verildi. `up()` ve `down()` ayrı ayrı test edildi.
+
+### Bu değişikliğin bozacağı 3 yer önceden düzeltildi
+
+SoftDeletes `->delete()` çağrısının anlamını değiştirdiği için körü körüne
+eklemek sessiz hatalara yol açardı:
+
+| Yer | Sorun | Çözüm |
+|---|---|---|
+| `AuditLogger::pruneOlderThan` | Saklama süresi temizliği `->delete()` kullanıyordu. SoftDeletes ile yalnızca `deleted_at` dolar, satır kalır; üstelik sonraki çalıştırmalar global scope yüzünden o satırları hiç görmez ve **tablo süresiz büyür**. | `withTrashed()->forceDelete()` |
+| `NotificationCenter::pruneOlderThan` | Aynı sorun | `withTrashed()->forceDelete()` |
+| `AggregateDailyStatsCommand` | `analytics_daily_stats.date` **unique**. O tarihe ait satır soft delete edilmişse `updateOrCreate` onu göremez, INSERT dener ve **gecelik cron unique ihlaliyle patlar**. | `withTrashed()->whereDate(...)` ile bul, `trashed()` ise `restore()` et |
+
+`PruneOldPageViewsCommand` zaten `forceDelete()` kullanıyordu — projedeki
+doğru pattern buydu, diğer ikisi ona hizalandı.
+
+Ek olarak agregasyon araması `whereDate` ile yapılıyor; önceki eşitlik
+karşılaştırması sürücü `date` kolonuna tam zaman damgası yazdığında
+eşleşmiyordu.
+
+### Doğrulama
+
+`tests/Feature/SoftDeleteRetentionTest` — 6 test:
+
+- **Reflection ile tüm `app/Models` taranıyor**, SoftDeletes kullanmayan model
+  varsa test kırılıyor. Kural artık kendi kendini koruyor.
+- Üç tabloda `deleted_at` kolonu var
+- Bildirim silmek satırı tabloda bırakıp listeden gizliyor
+- Audit log temizliği satırları **tablodan gerçekten siliyor** (önceden soft
+  silinmiş bir satır da dahil)
+- Bildirim temizliği satırları gerçekten siliyor
+- Aynı tarihe ait soft silinmiş satır varken gecelik agregasyon patlamıyor,
+  kaydı geri yüklüyor
+
+Gerçek MySQL veritabanında `analytics:aggregate-daily` ve `audit-logs:prune`
+komutları da çalıştırılıp doğrulandı.
+
+---
+
 ## 6. ⚠️ Kalan Yapılacak İşler
 
 ### 🟡 Test kapsamı
 
-Suite artık **21 test / 166 assertion**. Yetkilendirme, açık yönlendirme ve
+Suite artık **27 test / 179 assertion**. Yetkilendirme, açık yönlendirme ve
 okuma yolları kapsandı; ancak **içerik CRUD yazma yolları hâlâ testsiz**:
 sayfa/blog/galeri store-update-destroy, upload, mail gönderimi. FAQ'daki gibi
 bir kırığın sessizce girmesi bu alanlarda hâlâ mümkün.
-
-### 🟡 CLAUDE.md kuralına aykırılıklar
-
-**SoftDeletes 3 modelde yok** (kural: "HER MODELDE ZORUNLU"):
-`AdminNotification`, `AnalyticsDailyStat`, `AuditLog`
-
-Log/bildirim tabloları olduğu için savunulabilir, ama ya kural gevşetilmeli
-ya modeller uyumlu hâle getirilmeli.
 
 ### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
 
@@ -353,6 +394,7 @@ formatlanır.
 
 ## 8. Önerilen Sıra
 
+- [x] ~~**SoftDeletes'i her modele yay**~~ — tamamlandı (bkz. bölüm 5d)
 - [x] ~~**Yetkilendirme boşluğunu kapat**~~ — tamamlandı (bkz. bölüm 5)
 - [x] ~~**Açık yönlendirmeyi kapat**~~ — tamamlandı (bkz. bölüm 5c)
 - [x] ~~**Moderatör rolünü işler hâle getir**~~ — policy rol tanımına uyduruldu
@@ -369,6 +411,4 @@ Sıradakiler:
    artık daha anlamlı.
 4. **Kalan ölü kodu temizle** — `UserRole` enum,
    `vendor/pagination/custom.blade.php`, `.gitignore`'daki google kuralı
-5. **SoftDeletes kararı** — 3 log/bildirim modelinde yok; ya kural gevşetilmeli
-   ya modeller uyumlu hâle getirilmeli
-6. **Hesabım alanını genişlet** — şifre değiştirme, e-posta doğrulama
+5. **Hesabım alanını genişlet** — şifre değiştirme, e-posta doğrulama

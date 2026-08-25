@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 final class AuditLog extends Model
 {
+    use SoftDeletes;
+
     public const EVENT_CREATED = 'created';
     public const EVENT_UPDATED = 'updated';
     public const EVENT_DELETED = 'deleted';

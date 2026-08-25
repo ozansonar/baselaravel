@@ -93,9 +93,15 @@ final class NotificationCenter
 
     /**
      * Eski bildirimleri temizle (cron).
+     *
+     * Saklama süresi temizliği olduğu için forceDelete kullanılır; normal
+     * delete yalnızca deleted_at doldurur ve tablo süresiz büyümeye devam
+     * ederdi.
      */
     public static function pruneOlderThan(int $days = 60): int
     {
-        return AdminNotification::where('created_at', '<', now()->subDays($days))->delete();
+        return AdminNotification::withTrashed()
+            ->where('created_at', '<', now()->subDays($days))
+            ->forceDelete();
     }
 }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 final class AdminNotification extends Model
 {
+    use SoftDeletes;
+
     public const LEVEL_INFO     = 'info';
     public const LEVEL_SUCCESS  = 'success';
     public const LEVEL_WARNING  = 'warning';
