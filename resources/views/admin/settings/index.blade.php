@@ -244,6 +244,13 @@
                                value="{{ $s('footer_text') }}" placeholder="Footer metin bilgisi">
                         <small class="stg-hint">Site alt kısmında görünecek telif hakkı metni</small>
                     </div>
+
+                    <div class="stg-field">
+                        <label class="stg-label">Footer Kredi Metni</label>
+                        <input type="text" class="stg-input" name="settings[footer_credit]"
+                               value="{{ $s('footer_credit') }}" placeholder="Örn: Acme Yazılım tarafından geliştirildi">
+                        <small class="stg-hint">Footer'ın sağ tarafında görünür. Boş bırakılırsa hiç gösterilmez.</small>
+                    </div>
                 </div>
             </form>
         </div>

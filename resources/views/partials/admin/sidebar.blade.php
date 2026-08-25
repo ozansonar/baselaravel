@@ -1,13 +1,16 @@
 <aside class="sidebar" id="adminSidebar" aria-label="Admin menü">
     <div class="sidebar-header">
-        @php $sidebarLogo = \App\Models\Setting::getValue('site_logo'); @endphp
+        @php
+            $sidebarLogo = \App\Models\Setting::getValue('site_logo');
+            $sidebarSiteName = \App\Models\Setting::getValue('site_name', config('app.name'));
+        @endphp
         @if($sidebarLogo)
-        <img src="{{ upload_url($sidebarLogo) }}" alt="{{ \App\Models\Setting::getValue('site_name', config('app.name')) }}" class="sidebar-logo-img">
+        <img src="{{ upload_url($sidebarLogo) }}" alt="{{ $sidebarSiteName }}" class="sidebar-logo-img">
         @else
-        <div class="sidebar-logo">OB</div>
+        <div class="sidebar-logo">{{ site_initials($sidebarSiteName) }}</div>
         @endif
         <div class="sidebar-brand">
-            <h5>{{ \App\Models\Setting::getValue('site_name', config('app.name')) }}</h5>
+            <h5>{{ $sidebarSiteName }}</h5>
             <span>Yönetim Paneli</span>
         </div>
     </div>

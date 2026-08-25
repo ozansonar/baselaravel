@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "ozansonar/laravel-base",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Kurumsal site ve admin panel base kit — Laravel 13, Blade, Bootstrap 5, build tool yok.",
+    "keywords": ["laravel", "base-kit", "starter", "admin-panel"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
@@ -41,7 +41,8 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
-            "@php artisan migrate --force"
+            "@php artisan migrate --force",
+            "@php artisan db:seed --force"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",

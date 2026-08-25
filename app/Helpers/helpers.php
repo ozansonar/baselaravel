@@ -102,3 +102,28 @@ if (!function_exists('upload_srcset')) {
         return UploadService::srcset($path, $sizes);
     }
 }
+
+if (!function_exists('site_initials')) {
+    /**
+     * Build a short monogram from the site name, used as a logo placeholder
+     * until a real logo is uploaded.
+     *
+     * @param  string|null $name Site name (e.g. "Acme Yazılım")
+     * @return string            Up to two uppercase letters (e.g. "AY")
+     */
+    function site_initials(?string $name): string
+    {
+        $words = preg_split('/\s+/u', trim((string) $name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($words === []) {
+            return '—';
+        }
+
+        $letters = array_map(
+            static fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)),
+            array_slice($words, 0, 2),
+        );
+
+        return implode('', $letters);
+    }
+}

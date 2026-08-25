@@ -3,6 +3,7 @@
     $fDesc    = \App\Models\Setting::getValue('site_description', 'Modern, hızlı ve güvenilir kurumsal çözümler.');
     $fLogo    = \App\Models\Setting::getValue('site_logo');
     $fFooter  = \App\Models\Setting::getValue('footer_text', '© ' . date('Y') . ' ' . $fName . '. Tüm hakları saklıdır.');
+    $fCredit  = \App\Models\Setting::getValue('footer_credit');
     $fPhone   = \App\Models\Setting::getValue('contact_phone');
     $fEmail   = \App\Models\Setting::getValue('contact_email');
     $fAddress = \App\Models\Setting::getValue('contact_address');
@@ -76,7 +77,9 @@
 
         <div class="footer-bottom d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
             <span>{{ $fFooter }}</span>
-            <span class="text-white-50">Laravel Base ile geliştirildi</span>
+            @if($fCredit)
+            <span class="text-white-50">{{ $fCredit }}</span>
+            @endif
         </div>
     </div>
 </footer>
