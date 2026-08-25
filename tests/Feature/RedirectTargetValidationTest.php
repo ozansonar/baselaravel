@@ -21,6 +21,13 @@ class RedirectTargetValidationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seedAuthorization();
+    }
+
     private function admin(): User
     {
         $role = Role::firstOrCreate(['slug' => 'admin'], ['name' => 'Admin']);

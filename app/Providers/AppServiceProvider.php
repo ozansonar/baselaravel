@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\PermissionKey;
 use App\Listeners\UpdateMailLogOnFailed;
 use App\Listeners\UpdateMailLogOnSent;
 use App\Models\BlogCategory;
@@ -112,17 +113,14 @@ class AppServiceProvider extends ServiceProvider
      */
     private function configureAuthorization(): void
     {
-        // Backups contain a full database dump — admin only.
-        Gate::define('manage-backups', fn (User $user): bool => $user->hasRole('admin'));
-
-        // Exposes infrastructure details (paths, versions, disk usage).
-        Gate::define('view-system-health', fn (User $user): bool => $user->hasRole('admin'));
-
-        // Visitor statistics — useful for whoever produces the content.
-        Gate::define('view-analytics', fn (User $user): bool => $user->hasAnyRole(['admin', 'editor']));
-
-        // CKEditor inline uploads, used while writing pages and blog posts.
-        Gate::define('upload-editor-media', fn (User $user): bool => $user->hasAnyRole(['admin', 'editor']));
+        // These areas have no Eloquent model to hang a Policy on, so they are
+        // Gates. The decision still comes from the database permissions.
+        Gate::define('manage-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsManage));
+        Gate::define('view-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsView));
+        Gate::define('delete-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsDelete));
+        Gate::define('view-system-health', fn (User $user): bool => $user->hasPermission(PermissionKey::SystemHealthView));
+        Gate::define('view-analytics', fn (User $user): bool => $user->hasPermission(PermissionKey::AnalyticsView));
+        Gate::define('upload-editor-media', fn (User $user): bool => $user->hasPermission(PermissionKey::EditorUpload));
     }
 
     private function configureRateLimiting(): void

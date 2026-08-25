@@ -4,43 +4,43 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\GalleryItem;
 use App\Models\User;
 
+/**
+ * Permissions come from the database (role -> permission), so what a role can
+ * do is changed from the roles screen, not by editing this file.
+ */
 final class GalleryItemPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasPermission(PermissionKey::GalleryView);
     }
 
-    public function view(User $user, GalleryItem $galleryItem): bool
+    public function view(User $user, GalleryItem $item): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasPermission(PermissionKey::GalleryView);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasPermission(PermissionKey::GalleryManage);
     }
 
-    public function update(User $user, GalleryItem $galleryItem): bool
+    public function update(User $user, GalleryItem $item): bool
     {
-        return $user->hasAnyRole(['admin', 'editor']);
+        return $user->hasPermission(PermissionKey::GalleryManage);
     }
 
-    public function delete(User $user, GalleryItem $galleryItem): bool
+    public function delete(User $user, GalleryItem $item): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasPermission(PermissionKey::GalleryDelete);
     }
 
-    public function restore(User $user, GalleryItem $galleryItem): bool
+    public function restore(User $user, GalleryItem $item): bool
     {
-        return $user->hasRole('admin');
-    }
-
-    public function forceDelete(User $user, GalleryItem $galleryItem): bool
-    {
-        return $user->hasRole('admin');
+        return $user->hasPermission(PermissionKey::GalleryDelete);
     }
 }

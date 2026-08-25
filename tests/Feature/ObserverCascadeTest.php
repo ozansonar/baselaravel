@@ -27,6 +27,13 @@ class ObserverCascadeTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seedAuthorization();
+    }
+
     private function makeCategory(string $slug = 'duyurular'): BlogCategory
     {
         return BlogCategory::create([

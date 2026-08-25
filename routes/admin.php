@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PopupController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\UploadController;
@@ -94,6 +95,13 @@ Route::get('contact-messages/{contactMessage}', [ContactMessageController::class
 Route::post('contact-messages/{contactMessage}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
 Route::delete('contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 Route::patch('contact-messages/{contactMessage}/restore', [ContactMessageController::class, 'restore'])->name('contact-messages.restore')->withTrashed();
+
+// Roles & Permissions
+Route::get('roller',                 [RoleController::class, 'index'])->name('roles.index');
+Route::post('roller',                [RoleController::class, 'store'])->name('roles.store');
+Route::put('roller/izinler',         [RoleController::class, 'syncPermissions'])->name('roles.permissions.sync');
+Route::put('roller/{role}',          [RoleController::class, 'update'])->name('roles.update');
+Route::delete('roller/{role}',       [RoleController::class, 'destroy'])->name('roles.destroy');
 
 // Users
 Route::resource('users', UserController::class)->except('show');

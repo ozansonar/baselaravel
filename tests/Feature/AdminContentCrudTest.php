@@ -37,6 +37,8 @@ class AdminContentCrudTest extends TestCase
     {
         parent::setUp();
 
+        $this->seedAuthorization();
+
         $role = Role::firstOrCreate(['slug' => 'admin'], ['name' => 'Yönetici']);
 
         $this->admin = User::factory()->create();

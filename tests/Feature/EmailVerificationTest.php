@@ -22,6 +22,13 @@ class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seedAuthorization();
+    }
+
     private function unverifiedUser(): User
     {
         return User::factory()->unverified()->create();

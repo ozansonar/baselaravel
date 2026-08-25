@@ -20,6 +20,13 @@ class AdminAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seedAuthorization();
+    }
+
     /**
      * route => [admin, editor, moderator] expected status codes.
      *
@@ -49,6 +56,7 @@ class AdminAuthorizationTest extends TestCase
             // Admin only
             '/admin/settings'           => [200, 403, 403],
             '/admin/users'              => [200, 403, 403],
+            '/admin/roller'             => [200, 403, 403],
             '/admin/redirects'          => [200, 403, 403],
             '/admin/mail-templates'     => [200, 403, 403],
             '/admin/mail-logs'          => [200, 403, 403],
@@ -134,12 +142,12 @@ class AdminAuthorizationTest extends TestCase
     {
         $hiddenFor = [
             'editor' => [
-                '/admin/settings', '/admin/users', '/admin/redirects',
+                '/admin/settings', '/admin/users', '/admin/roller', '/admin/redirects',
                 '/admin/mail-templates', '/admin/mail-logs',
                 '/admin/aktivite-loglari', '/admin/yedekler', '/admin/sistem-saglik',
             ],
             'moderator' => [
-                '/admin/settings', '/admin/users', '/admin/redirects',
+                '/admin/settings', '/admin/users', '/admin/roller', '/admin/redirects',
                 '/admin/mail-templates', '/admin/mail-logs',
                 '/admin/aktivite-loglari', '/admin/yedekler', '/admin/sistem-saglik',
                 '/admin/pages', '/admin/blog-posts', '/admin/files',

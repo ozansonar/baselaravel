@@ -17,6 +17,13 @@ class AccountPasswordChangeTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seedAuthorization();
+    }
+
     private function user(): User
     {
         $user = User::create([

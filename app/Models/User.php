@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\Department;
+use App\Enums\PermissionKey;
 use App\Enums\Gender;
 use App\Mail\ResetPasswordMail;
 use App\Mail\VerifyEmailMail;
@@ -102,6 +103,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasAnyRole(array $slugs): bool
     {
         return $this->roles->whereIn('slug', $slugs)->isNotEmpty();
+    }
+
+    /**
+     * True when any of the user's roles carries the given permission.
+     *
+     * Reads through the relations so a request that runs many authorization
+     * checks still loads roles and permissions once.
+     */
+    public function hasPermission(PermissionKey|string $permission): bool
+    {
+        $key = $permission instanceof PermissionKey ? $permission->value : $permission;
+
+        return $this->roles
+            ->loadMissing('permissions')
+            ->contains(fn (Role $role): bool => $role->permissions->contains('key', $key));
     }
 
     /**

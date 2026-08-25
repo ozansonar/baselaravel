@@ -23,7 +23,7 @@ final class BackupController extends Controller
 
     public function index(): View
     {
-        $this->authorize('manage-backups');
+        $this->authorize('view-backups');
 
         return view('admin.backups.index', [
             'backups' => $this->service->list(),
@@ -54,7 +54,7 @@ final class BackupController extends Controller
 
     public function destroy(Request $request, string $filename): RedirectResponse
     {
-        $this->authorize('manage-backups');
+        $this->authorize('delete-backups');
 
         $ok = $this->service->delete($filename);
 

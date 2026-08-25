@@ -183,24 +183,29 @@ o dosyayı birebir Blade'e çevir. Detaylı rehber: `.claude/skills/admin-panel/
 
 ## Roller ve yetkiler
 
-`AdminMiddleware` üç rolü panele alır; hangi alana kimin gireceğine Policy ve
-Gate'ler karar verir.
+Yetkilendirme **veritabanı tabanlıdır**: kullanıcı rolleri taşır, roller izinleri
+taşır, Policy ve Gate'ler kullanıcıya "şu izne sahip mi?" diye sorar. Bir rolün
+ne yapabileceğini değiştirmek için kod değiştirmek gerekmez — panelde
+**Roller & İzinler** ekranındaki matris yeterlidir.
 
-| Alan | admin | editor | moderator |
-|---|:---:|:---:|:---:|
-| Dashboard, kendi profili, bildirimler | ✅ | ✅ | ✅ |
-| İletişim mesajları, yorum moderasyonu | ✅ | ✅ | ✅ |
-| Sayfa, blog, galeri, SSS, slider, popup, menü | ✅ | ✅ | — |
-| Dosya yöneticisi, analitik | ✅ | ✅ | — |
-| Ayarlar, kullanıcılar, yönlendirmeler | ✅ | — | — |
-| Mail şablonları, mail logları, aktivite logları | ✅ | — | — |
-| Yedekler, sistem sağlık | ✅ | — | — |
-| Silme / geri yükleme (her modülde) | ✅ | — | — |
+- İzinlerin tek kaynağı `app/Enums/PermissionKey.php`. Yeni bir yetenek eklemek
+  için oraya bir case eklenir; seeder ve matris ekranı kendiliğinden takip eder.
+- İzinler dört grupta toplanır: İçerik, Medya & Dosya, İletişim, Sistem.
+- Panele giriş, en az bir izne sahip olmakla belirlenir; hangi ekranı göreceği
+  ise ekran bazında Policy'lere bağlıdır.
 
-Yeni bir alan eklerken Policy veya Gate yazmayı unutma; `AdminMiddleware` tek
-başına yetki kontrolü değildir.
+Kurulumla gelen roller ve varsayılan yetkileri:
 
----
+| Rol | Varsayılan yetki |
+|---|---|
+| Yönetici (`admin`) | Tüm izinler. Bu rolün izinleri kilitlidir; matristen kısılamaz, aksi hâlde panele giriş tamamen kapanabilirdi. |
+| Editör (`editor`) | İçerik, medya, analitik, mesaj yanıtlama, yorum moderasyonu. Silme yetkisi yok. |
+| Moderatör (`moderator`) | Mesaj yanıtlama ve yorum moderasyonu. |
+| Kullanıcı (`user`), İzleyici (`viewer`) | Panel yetkisi yok. |
+
+`UserRole` enum'undaki roller **sistem rolüdür**: yeniden adlandırılabilir ama
+silinemez ve anahtarları değiştirilemez. Panelden istediğin kadar **özel rol**
+ekleyip izinlerini matristen verebilirsin.
 
 ## E-posta doğrulama
 
