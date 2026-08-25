@@ -265,12 +265,8 @@
                     <div class="usr-card-body">
                         <div class="usr-card-stats">
                             <div class="usr-card-stat">
-                                <span class="usr-card-stat-val">{{ $user->orders_count ?? 0 }}</span>
-                                <span class="usr-card-stat-label">Sipariş</span>
-                            </div>
-                            <div class="usr-card-stat">
-                                <span class="usr-card-stat-val">{{ $user->created_at->translatedFormat('d M') }}</span>
-                                <span class="usr-card-stat-label">Kayıt</span>
+                                <span class="usr-card-stat-val">{{ $user->created_at->translatedFormat('d M Y') }}</span>
+                                <span class="usr-card-stat-label">Kayıt Tarihi</span>
                             </div>
                         </div>
                     </div>

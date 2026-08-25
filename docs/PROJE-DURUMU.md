@@ -101,85 +101,76 @@ adres/tercih yönetimi yok.
 
 ---
 
-## 4. ⚠️ Kaldırılacak / Düzeltilecek — Eski Proje Kalıntıları
+## 4. Eski Proje Kalıntıları — ✅ Temizlendi
 
-`ab57deb` refactor'unda ürün/sipariş modülü sökülürken **bazı referanslar geride
-kalmış**. Laravel 13 upgrade'i sırasında bunlardan biri (`FaqService`) sayfayı
-500'e düşürdüğü için yakalandı ve düzeltildi; aşağıdakiler hâlâ duruyor.
+`ab57deb` refactor'unda ürün/sipariş modülü sökülürken geride kalan referanslar
+temizlendi. Aşağıdaki tablo ne yapıldığını kayıt altına alır.
 
-### 🔴 Yüksek — Kullanıcıya görünen bozuk davranış
+### Hoş geldin e-postası
 
-**1. Hoş geldin e-postası tamamen e-ticaret metni**
+Yeni kayıt olan her kullanıcıya gıda/e-ticaret metni gidiyordu ve "Ürünleri Keşfet"
+butonu var olmayan `/urunler` rotasına link veriyordu (catch-all `/{slug}` yakalayıp
+404 döndürüyordu).
 
-Yeni kayıt olan her kullanıcıya gıda/e-ticaret sitesi metni gidiyor:
+Metin **üç ayrı yerde** duruyordu, üçü de düzeltildi:
 
-- `resources/views/emails/welcome.blade.php:22-52` — "Taze ürünlere göz atın",
-  "Kolay ve hızlı sipariş verin", "Siparişlerinizi adım adım takip edin",
-  "Teslimat adreslerinizi kaydedin"
-- `app/Services/MailTemplateService.php:105-112` — aynı metnin varsayılan şablonu
-- `database/migrations/2026_03_12_200000_create_mail_templates_table.php:88` —
-  aynı metin migration seed'inde
-- `app/Mail/WelcomeMail.php:41` — `'products_url' => url('/urunler')`
+| Dosya | Rolü | Yapılan |
+|---|---|---|
+| `resources/views/emails/welcome.blade.php` | DB şablonu yoksa fallback | 4 özellik satırı genel metinle değiştirildi |
+| `app/Services/MailTemplateService.php` | "Varsayılana Sıfırla" butonunun yazdığı içerik | Aynı şekilde düzeltildi + `{products_url}` butonu kaldırıldı |
+| `database/migrations/2026_03_12_000000...mail_templates` | Yeni kurulumların seed'i | Kalan tek eski satır düzeltildi |
 
-**`/urunler` route'u yok.** Catch-all `/{slug}` yakalayıp 404 veriyor. Yani
-e-postadaki "Ürünleri Keşfet" butonu kırık.
+> **Not:** `MailTemplateService::getDefaults()` migration seed'iyle senkron değildi.
+> Yani "Varsayılana Sıfırla" butonu şablonu **eski e-ticaret metnine geri
+> döndürüyordu**. Artık ikisi aynı.
 
-**Yapılacak:** Hoş geldin şablonunu base kit'e uygun genel bir metinle değiştir,
-`products_url` değişkenini kaldır. Üç yerde birden (view + service + migration).
+`app/Mail/WelcomeMail.php` içindeki `'products_url' => url('/urunler')` değişkeni
+kaldırıldı. Yeni özellik satırları:
 
-**2. Sipariş mail tipleri**
+- 👤 Profil bilgilerinizi yönetin
+- 📄 İçeriklerimizi keşfedin
+- 📢 Yeni yazılardan haberdar olun
+- ✉️ Bizimle iletişimde kalın
 
-- `app/Services/MailTemplateService.php:199-203` — `Sipariş Onayı - #{order_number}`
-  ve `Sipariş Durumu Güncellendi - #{order_number}` şablonları
-- `app/Models/MailLog.php:80-81` — `OrderConfirmationMail` / `OrderStatusUpdatedMail`
-  etiketleri
+Mevcut veritabanındaki `welcome` satırı için
+`2026_08_25_120000_clean_product_references_from_mail_templates` migration'ı
+yazıldı. Admin'in özelleştirmesini ezmemek için **yalnızca** eski metin parçasını
+değiştiriyor; `down()` işlemi geri alıyor (ikisi de test edildi).
 
-Karşılık gelen Mail sınıfları **yok** (`app/Mail/` altında 6 sınıf var, ikisi de
-değil). Mail şablonları ekranında asla tetiklenmeyecek iki kayıt duruyor.
+### Diğer temizlenenler
 
-### 🟡 Orta — Yanlış/ölü UI
+| # | Konum | Sorun | Yapılan |
+|---|---|---|---|
+| 1 | `MailTemplateService` | `order_confirmation`, `order_status_updated` şablonları (gövdeleri boş, DB'ye hiç seed edilmemiş, Mail sınıfları yok) | Kaldırıldı |
+| 2 | `app/Models/MailLog.php` | `OrderConfirmationMail`, `OrderStatusUpdatedMail` etiketleri | Kaldırıldı |
+| 3 | `admin/users/index.blade.php` | `orders_count` — ilişki yok, daima **0** gösteriyordu | Stat kaldırıldı, "Kayıt Tarihi" tek stat olarak bırakıldı (`space-around` ortalıyor, düzen bozulmuyor) |
+| 4 | `database/seeders/RoleSeeder.php` | Editör = "İçerik ve **ürün** yönetimi" | "İçerik yönetimi yetkisi" |
+| 5 | `admin/settings/index.blade.php` | "Yeni **sipariş** bildirimleri ve **Instagram** hata uyarıları" | "Sistem bildirimleri ve hata uyarıları" |
+| 6 | `admin/popups`, `admin/sliders` (create+edit) | `placeholder="/urunler/..."` | `/blog/...` |
+| 7 | `admin/redirects/index.blade.php` | `/urunler/kuru-gida`, `/urunler` | `/eski-sayfa-adresi`, `/yeni-sayfa-adresi` |
+| 8 | `admin/menus/items.blade.php` | `categorySlug=sut-urunleri` | `categorySlug=duyurular` |
+| 9 | `admin/pages/_sections-about.blade.php` | "50 yıllık tecrübemizle hazırladığımız **ürünlerimizi**..." | "Uzman ekibimizle sunduğumuz hizmetleri..." |
+| 10 | `admin/mail-templates/edit.blade.php` | `em-table` → "Tablo (**ürün** listesi vb.)" | "Tablo (liste, özet vb.)" |
+| 11 | `app/Services/TelegramNotifier.php` | Docblock: "yeni **sipariş**", "Yeni **Sipariş** #1234" | "yeni kayıt/mesaj", "Yeni İletişim Mesajı" |
+| 12 | `app/Helpers/helpers.php` | Docblock örneği `products/sut-a1b2c3d4e5.webp` | `blog/ornek-gorsel-...` |
+| 13 | `uploaded_files` migration | "**MediaLibrary** modülünden BAĞIMSIZ — o **ürün-bazlı**..." (MediaLibrary da yok) | Yorum güncel yapıya göre yeniden yazıldı |
+| 14 | `public/uploads/products/`, `public/uploads/testimonials/` | Kodda 0 referans, boş dizinler | Silindi |
+| 15 | `mail_templates` migration | Değişken örnekleri: "Ürün Bilgisi", "ürünleriniz hakkında" | "Bilgi Talebi", "hizmetleriniz hakkında" |
 
-**3. Kullanıcı listesinde "Sipariş" istatistiği**
+**Doğrulama:** `WelcomeMail` render edilip kontrol edildi — `/urunler`,
+`{products_url}` ve sipariş/ürün kelimeleri yok. Kullanıcı kartı render edilip
+`orders_count` ve "Sipariş" içermediği, "Kayıt Tarihi" içerdiği doğrulandı.
+Kod tabanında kalan tek eşleşme temizlik migration'ının kendi arama metni.
 
-`resources/views/admin/users/index.blade.php:269` → `{{ $user->orders_count ?? 0 }}`
+### ⬜ Hâlâ duran ölü kod (sipariş/ürünle ilgisiz)
 
-`orders` ilişkisi yok, her kullanıcı için **daima 0** gösteriyor. Ya kaldırılmalı
-ya anlamlı bir metrikle değiştirilmeli (ör. yorum sayısı, son giriş).
+Bunlar ayrı bir temizlik turu ister:
 
-**4. Rol açıklaması**
-
-`database/seeders/RoleSeeder.php:16` → Editör rolü "İçerik ve **ürün** yönetimi
-yetkisi" diyor. Ürün modülü yok.
-
-**5. Ayarlar ekranında sipariş bildirimi metni**
-
-`resources/views/admin/settings/index.blade.php:294` → "Yeni **sipariş**
-bildirimleri ve **Instagram** kalıcı hata uyarıları bu adrese gönderilir."
-Her ikisi de artık yok.
-
-**6. Placeholder'larda `/urunler`**
-
-Admin formlarında örnek URL olarak eski route geçiyor — kozmetik ama kafa karıştırıcı:
-`admin/popups/create.blade.php:174`, `popups/edit.blade.php:186`,
-`sliders/create.blade.php:200`, `sliders/edit.blade.php:215`,
-`redirects/index.blade.php:247,275`, `menus/items.blade.php:119`
-(`categorySlug=sut-urunleri`), `pages/_sections-about.blade.php:303`
-
-### 🟢 Düşük — Ölü dosya/kod
-
-**7. `app/Enums/UserRole.php`** — kod tabanında **0 referans**. Roller `roles`
-tablosu + `Role` modeli üzerinden yönetiliyor, enum kullanılmıyor. Silinebilir.
-
-**8. `resources/views/vendor/pagination/custom.blade.php`** — hiçbir yerden
-referans verilmiyor. Sayfalama `pagination::bootstrap-5` kullanıyor.
-
-**9. Boş upload dizinleri** — `public/uploads/products/` ve
-`public/uploads/testimonials/` kodda hiç geçmiyor (`.gitkeep` dışında boş).
-
-**10. `.gitignore`** — `/storage/app/google/*.json` kuralı duruyor ama dizin yok.
-
-**11. `app/Helpers/helpers.php:27-29`** — docblock örnekleri hâlâ
-`products/sut-a1b2c3d4e5.webp` diyor. Sadece yorum.
+- **`app/Enums/UserRole.php`** — kod tabanında **0 referans**. Roller `roles`
+  tablosu + `Role` modeli üzerinden yönetiliyor.
+- **`resources/views/vendor/pagination/custom.blade.php`** — hiçbir yerden
+  referans verilmiyor; sayfalama `pagination::bootstrap-5` kullanıyor.
+- **`.gitignore`** — `/storage/app/google/*.json` kuralı duruyor ama dizin yok.
 
 ---
 
@@ -277,11 +268,16 @@ formatlanır.
 
 ## 7. Önerilen Sıra
 
+- [x] ~~**Hoş geldin e-postasını düzelt**~~ — tamamlandı (bkz. bölüm 4)
+- [x] ~~**Ürün/sipariş kalıntılarını temizle**~~ — tamamlandı, 15 kalem
+
+Sıradakiler:
+
 1. **Yetkilendirme boşluğunu kapat** — özellikle `BackupController` ve
-   `MailLogController` (güvenlik, kullanıcı verisi riski)
-2. **Hoş geldin e-postasını düzelt** — her yeni kayıtta yanlış içerik gidiyor
-3. **Ölü kalıntıları temizle** — sipariş mail tipleri, `orders_count`, `UserRole`
-   enum, `/urunler` placeholder'ları, rol açıklaması
-4. **Test kapsamı ekle** — en azından CRUD yazma yolları
-5. **README yaz** — base kit'in kurulum rehberi
-6. **Eksik modüller** — rol/yetki yönetimi ekranı
+   `MailLogController` (güvenlik, kullanıcı verisi riski). Şu an en kritik madde.
+2. **Test kapsamı ekle** — en azından CRUD yazma yolları. Mevcut 3 test sadece
+   okuma yollarını kapsıyor.
+3. **Kalan ölü kodu temizle** — `UserRole` enum, `vendor/pagination/custom.blade.php`,
+   `.gitignore`'daki google kuralı
+4. **README yaz** — base kit'in kurulum rehberi
+5. **Eksik modüller** — rol/yetki yönetimi ekranı (`roles-permissions.html` temada hazır)

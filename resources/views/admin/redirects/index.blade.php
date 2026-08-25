@@ -244,7 +244,7 @@
                             <div class="input-group input-group-theme">
                                 <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="oldUrl" name="old_url"
-                                       placeholder="/urunler/kuru-gida" required>
+                                       placeholder="/eski-sayfa-adresi" required>
                             </div>
                             <small class="form-text text-clr-muted">/ ile başlamalıdır</small>
                         </div>
@@ -272,7 +272,7 @@
                             <div class="input-group input-group-theme">
                                 <span class="input-group-text"><i class="bi bi-arrow-right"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="newUrl" name="new_url"
-                                       placeholder="/urunler">
+                                       placeholder="/yeni-sayfa-adresi">
                             </div>
                             <small class="form-text text-clr-muted">Kullanıcının yönlendirileceği adres</small>
                         </div>

@@ -85,11 +85,11 @@ final class TelegramNotifier
     }
 
     /**
-     * Bilgilendirici Telegram bildirimi — yeni sipariş, durum değişikliği,
+     * Bilgilendirici Telegram bildirimi — yeni kayıt, yeni mesaj,
      * cron başarı vb. event'ler için. notifyAdminError'un info versiyonu:
      * throttle YOK (her event ayrı, kaybedilmesin), emoji default ✅.
      *
-     * @param  string                $title       Kısa başlık (örn. "Yeni Sipariş #1234")
+     * @param  string                $title       Kısa başlık (örn. "Yeni İletişim Mesajı")
      * @param  array<string, mixed>  $context     Key-value detaylar
      * @param  string|null           $url         Detay paneline link
      * @param  string                $emoji       Başlığın önünde 🛒 / ✅ / 📦 vs.

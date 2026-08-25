@@ -84,8 +84,8 @@ return new class extends Migration
         <td class="em-feature-td">
             <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td class="em-feature-icon-td">&#127793;</td>
-                    <td class="em-feature-text-td"><strong>Taze ürünlere</strong> göz atın</td>
+                    <td class="em-feature-icon-td">&#128100;</td>
+                    <td class="em-feature-text-td"><strong>Profil bilgilerinizi</strong> yönetin</td>
                 </tr>
             </table>
         </td>
@@ -225,8 +225,8 @@ return new class extends Migration
                     ['key' => 'contact_name', 'label' => 'Gönderen Adı', 'example' => 'Mehmet Demir'],
                     ['key' => 'contact_email', 'label' => 'Gönderen E-posta', 'example' => 'mehmet@example.com'],
                     ['key' => 'contact_phone', 'label' => 'Gönderen Telefon', 'example' => '0532 123 45 67'],
-                    ['key' => 'contact_subject', 'label' => 'Mesaj Konusu', 'example' => 'Ürün Bilgisi'],
-                    ['key' => 'contact_message', 'label' => 'Mesaj İçeriği', 'example' => 'Merhaba, ürünleriniz hakkında bilgi almak istiyorum.'],
+                    ['key' => 'contact_subject', 'label' => 'Mesaj Konusu', 'example' => 'Bilgi Talebi'],
+                    ['key' => 'contact_message', 'label' => 'Mesaj İçeriği', 'example' => 'Merhaba, hizmetleriniz hakkında bilgi almak istiyorum.'],
                     ['key' => 'contact_date', 'label' => 'Mesaj Tarihi', 'example' => '12.03.2026 14:30'],
                     ['key' => 'message_url', 'label' => 'Mesaj Detay URL', 'example' => 'https://example.com/admin/contact-messages/1'],
                     ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Laravel Base'],

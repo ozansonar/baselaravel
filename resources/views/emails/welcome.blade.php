@@ -18,8 +18,8 @@
             <td class="em-feature-td">
                 <table role="presentation" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td class="em-feature-icon-td">&#127793;</td>
-                        <td class="em-feature-text-td"><strong>Taze ürünlere</strong> göz atın</td>
+                        <td class="em-feature-icon-td">&#128100;</td>
+                        <td class="em-feature-text-td"><strong>Profil bilgilerinizi</strong> yönetin</td>
                     </tr>
                 </table>
             </td>
@@ -28,8 +28,8 @@
             <td class="em-feature-td">
                 <table role="presentation" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td class="em-feature-icon-td">&#128722;</td>
-                        <td class="em-feature-text-td"><strong>Kolay ve hızlı</strong> sipariş verin</td>
+                        <td class="em-feature-icon-td">&#128196;</td>
+                        <td class="em-feature-text-td"><strong>İçeriklerimizi</strong> keşfedin</td>
                     </tr>
                 </table>
             </td>
@@ -38,8 +38,8 @@
             <td class="em-feature-td">
                 <table role="presentation" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td class="em-feature-icon-td">&#128230;</td>
-                        <td class="em-feature-text-td"><strong>Siparişlerinizi</strong> adım adım takip edin</td>
+                        <td class="em-feature-icon-td">&#128227;</td>
+                        <td class="em-feature-text-td"><strong>Yeni yazılardan</strong> haberdar olun</td>
                     </tr>
                 </table>
             </td>
@@ -48,8 +48,8 @@
             <td class="em-feature-td">
                 <table role="presentation" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td class="em-feature-icon-td">&#127968;</td>
-                        <td class="em-feature-text-td"><strong>Teslimat adreslerinizi</strong> kaydedin</td>
+                        <td class="em-feature-icon-td">&#9993;</td>
+                        <td class="em-feature-text-td"><strong>Bizimle iletişimde</strong> kalın</td>
                     </tr>
                 </table>
             </td>

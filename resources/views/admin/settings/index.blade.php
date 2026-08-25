@@ -291,7 +291,7 @@
                         <label class="stg-label">Yönetici Bildirim E-postası</label>
                         <input type="email" class="stg-input" name="settings[admin_notification_email]"
                                value="{{ $s('admin_notification_email') }}" placeholder="bildirim@domain.com">
-                        <small class="stg-help-text">Yeni sipariş bildirimleri ve Instagram kalıcı hata uyarıları bu adrese gönderilir. Boşsa "İletişim E-posta Adresi" kullanılır.</small>
+                        <small class="stg-help-text">Sistem bildirimleri ve hata uyarıları bu adrese gönderilir. Boşsa "İletişim E-posta Adresi" kullanılır.</small>
                     </div>
                 </div>
 

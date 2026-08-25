@@ -171,7 +171,7 @@
                                        class="form-control @error('button_url') is-invalid @enderror"
                                        id="button_url" name="button_url"
                                        value="{{ old('button_url') }}"
-                                       placeholder="/urunler/...">
+                                       placeholder="/blog/...">
                                 @error('button_url')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

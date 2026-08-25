@@ -24,9 +24,9 @@ if (!function_exists('upload_url')) {
     /**
      * Get the public URL for an uploaded file.
      *
-     * @param  string|null $path Relative path (e.g. "products/sut-a1b2c3d4e5.webp")
+     * @param  string|null $path Relative path (e.g. "blog/ornek-gorsel-a1b2c3d4e5.webp")
      * @param  string|null $size Size variant: thumb (150px), sm (300px), md (600px), lg (1200px)
-     * @return string            URL path (e.g. "/uploads/products/sut-a1b2c3d4e5-sm.webp")
+     * @return string            URL path (e.g. "/uploads/blog/ornek-gorsel-a1b2c3d4e5-sm.webp")
      */
     function upload_url(?string $path, ?string $size = null): string
     {

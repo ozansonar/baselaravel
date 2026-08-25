@@ -116,7 +116,7 @@
                                 <div id="routeParamsWrapper" class="mt-3 d-none">
                                     <label class="form-label text-clr-secondary">Parametreler</label>
                                     <div id="routeParamsList" class="d-flex flex-column gap-2"></div>
-                                    <small class="form-text text-clr-muted">Örnek: slug=hakkimizda, categorySlug=sut-urunleri</small>
+                                    <small class="form-text text-clr-muted">Örnek: slug=hakkimizda, categorySlug=duyurular</small>
                                 </div>
                             </div>
 

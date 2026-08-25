@@ -300,7 +300,7 @@
             <div class="col-12">
                 <label class="form-label" for="sections_cta_description">Açıklama</label>
                 <textarea class="form-control" id="sections_cta_description" name="sections[cta][description]"
-                    rows="2" placeholder="Ör: 50 yıllık tecrübemizle hazırladığımız ürünlerimizi keşfedin...">{{ $cta['description'] ?? '' }}</textarea>
+                    rows="2" placeholder="Ör: Uzman ekibimizle sunduğumuz hizmetleri keşfedin...">{{ $cta['description'] ?? '' }}</textarea>
             </div>
         </div>
     </div>
