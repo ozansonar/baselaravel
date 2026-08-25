@@ -506,8 +506,9 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **273 test / 1390 assertion**. Yetkilendirme, açık yönlendirme,
-SoftDeletes, çok dilli içerik formları, arayüz çevirisi ve navigasyon kapsandı.
+Suite artık **297 test / 1416 assertion**. Yetkilendirme, açık yönlendirme,
+SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
+tool yasağı kapsandı.
 
 Hâlâ testsiz kalan: **mail gönderimi ve upload yolları** (`UploadService`
 varyant üretimi, `MailTemplateService` render). İçerik CRUD'u çok dilli form
@@ -523,18 +524,23 @@ komutu veya stok Laravel dosyası zinciri sessizce geri getirebilir.
 
 ### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
 
-- **`roles-permissions.html`** — Rol/yetki yönetimi ekranı. `Role` modeli ve
-  `RoleService` var ama admin CRUD'u yok; roller sadece seeder'dan geliyor.
-  Yeni rol matrisi göz önüne alınınca bu ekran daha da anlamlı.
 - **`reports.html`** — Raporlama ekranı
 - **`content-list.html`** — Genel içerik listesi
+
+~~`roles-permissions.html`~~ — yapıldı (`4b49a5a`): `admin/roles/index.blade.php`
+ve tam CRUD + izin senkronizasyonu route'ları mevcut.
 
 ### 🟢 Diğer
 
 - ~~`README.md` tek satır~~ — yazıldı: kurulum, roller, çok dilli yapı, testler.
-- **`composer.json` adı hâlâ `laravel/laravel`**.
-- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13
-  ile çalışıyor ama uzun vadede risk.
+- ~~`composer.json` adı hâlâ `laravel/laravel`~~ — `ozansonar/laravel-base` oldu.
+- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13 /
+  PHP 8.4 ile çalışıyor ama uzun vadede risk. Tek kullanım yeri
+  `AnalyticsService` (tarayıcı/cihaz tespiti); değiştirilmesi gerekirse etki
+  alanı dar.
+- **Ölü iskele girdileri** (zararsız, temizlenebilir): `.gitignore` içindeki
+  `Homestead.json` / `Homestead.yaml` ve `composer.json` içindeki
+  `allow-plugins → pestphp/pest-plugin` (Pest kurulu değil).
 - ~~Hesabım alanı zayıf~~ — şifre değiştirme (mevcut şifre doğrulamalı) ve
   e-posta doğrulama eklendi.
 - ~~Ölü kod~~ — temizlendi: `vendor/pagination/custom.blade.php` ve
