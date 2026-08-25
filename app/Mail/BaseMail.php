@@ -84,7 +84,7 @@ abstract class BaseMail extends Mailable
     protected function buildSharedData(): void
     {
         $this->siteName = Setting::getValue('site_name', config('app.name'));
-        $this->siteUrl = config('app.url', 'https://orhanbabaninciftligi.com');
+        $this->siteUrl = config('app.url', 'http://localhost');
         $this->currentYear = date('Y');
 
         $this->prepareMailLogo();
@@ -100,22 +100,22 @@ abstract class BaseMail extends Mailable
             Setting::where('key', $key)->value('value') ?? $default;
 
         try {
-            $this->themePrimary = $getValue('mail_theme_primary_color', '#4a7c43');
-            $this->themePrimaryDark = $getValue('mail_theme_primary_dark_color', '#2d5a27');
-            $this->themeBg = $getValue('mail_theme_bg_color', '#f0f4e8');
+            $this->themePrimary = $getValue('mail_theme_primary_color', '#4f46e5');
+            $this->themePrimaryDark = $getValue('mail_theme_primary_dark_color', '#4338ca');
+            $this->themeBg = $getValue('mail_theme_bg_color', '#f8fafc');
             $this->themeCardBg = $getValue('mail_theme_card_bg_color', '#ffffff');
-            $this->themeText = $getValue('mail_theme_text_color', '#4a4a4a');
-            $this->themeMuted = $getValue('mail_theme_muted_color', '#888888');
-            $this->themeFooterText = $getValue('mail_theme_footer_text', 'Çiftliğimizden sofranıza, doğallığın en taze hali.');
+            $this->themeText = $getValue('mail_theme_text_color', '#334155');
+            $this->themeMuted = $getValue('mail_theme_muted_color', '#64748b');
+            $this->themeFooterText = $getValue('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.');
             $this->themeSocialLinks = $getValue('mail_theme_social_links', '1') === '1';
         } catch (\Throwable) {
-            $this->themePrimary = '#4a7c43';
-            $this->themePrimaryDark = '#2d5a27';
-            $this->themeBg = '#f0f4e8';
+            $this->themePrimary = '#4f46e5';
+            $this->themePrimaryDark = '#4338ca';
+            $this->themeBg = '#f8fafc';
             $this->themeCardBg = '#ffffff';
-            $this->themeText = '#4a4a4a';
-            $this->themeMuted = '#888888';
-            $this->themeFooterText = 'Çiftliğimizden sofranıza, doğallığın en taze hali.';
+            $this->themeText = '#334155';
+            $this->themeMuted = '#64748b';
+            $this->themeFooterText = 'Sizinle çalışmaktan mutluluk duyuyoruz.';
             $this->themeSocialLinks = true;
         }
     }

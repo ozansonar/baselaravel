@@ -55,7 +55,7 @@ return new class extends Migration
                 'variables'   => json_encode([
                     ['key' => 'mail_subject', 'label' => 'E-posta Konusu', 'example' => 'Test Konusu'],
                     ['key' => 'mail_body', 'label' => 'E-posta İçeriği', 'example' => 'Bu bir test mesajıdır.'],
-                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Orhan Babanın Çiftliği'],
+                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Laravel Base'],
                 ]),
                 'is_active'   => true,
                 'created_at'  => $now,
@@ -72,7 +72,7 @@ return new class extends Migration
 
 <p class="em-text">
     {site_name} ailesine katıldığınız için teşekkür ederiz.
-    Çiftliğimizden sofranıza en taze, en doğal ürünleri ulaştırmak için sabırsızlanıyoruz.
+    Aramıza hoş geldiniz! Size yardımcı olmaktan mutluluk duyarız.
 </p>
 
 <hr class="em-divider">
@@ -94,8 +94,8 @@ return new class extends Migration
         <td class="em-feature-td">
             <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td class="em-feature-icon-td">&#128722;</td>
-                    <td class="em-feature-text-td"><strong>Kolay ve hızlı</strong> sipariş verin</td>
+                    <td class="em-feature-icon-td">&#128196;</td>
+                    <td class="em-feature-text-td"><strong>İçeriklerimizi</strong> keşfedin</td>
                 </tr>
             </table>
         </td>
@@ -104,8 +104,8 @@ return new class extends Migration
         <td class="em-feature-td">
             <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td class="em-feature-icon-td">&#128230;</td>
-                    <td class="em-feature-text-td"><strong>Siparişlerinizi</strong> adım adım takip edin</td>
+                    <td class="em-feature-icon-td">&#128227;</td>
+                    <td class="em-feature-text-td"><strong>Yeni yazılardan</strong> haberdar olun</td>
                 </tr>
             </table>
         </td>
@@ -114,28 +114,23 @@ return new class extends Migration
         <td class="em-feature-td">
             <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td class="em-feature-icon-td">&#127968;</td>
-                    <td class="em-feature-text-td"><strong>Teslimat adreslerinizi</strong> kaydedin</td>
+                    <td class="em-feature-icon-td">&#9993;</td>
+                    <td class="em-feature-text-td"><strong>Bizimle iletişimde</strong> kalın</td>
                 </tr>
             </table>
         </td>
     </tr>
 </table>
 
-<div class="em-btn-wrap">
-    <a href="{products_url}" class="em-btn">&#127807; Ürünleri Keşfet</a>
-</div>
-
 <hr class="em-divider">
 
 <p class="em-text">
     Herhangi bir sorunuz varsa bize iletişim sayfamızdan ulaşabilirsiniz.
-    Sağlıklı ve doğal günler dileriz!
+    İyi çalışmalar dileriz!
 </p>',
                 'variables'   => json_encode([
                     ['key' => 'user_name', 'label' => 'Kullanıcı Adı Soyadı', 'example' => 'Ahmet Yılmaz'],
-                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Orhan Babanın Çiftliği'],
-                    ['key' => 'products_url', 'label' => 'Ürünler Sayfası URL', 'example' => 'https://orhanbabaninciftligi.com/urunler'],
+                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Laravel Base'],
                 ]),
                 'is_active'   => true,
                 'created_at'  => $now,
@@ -179,8 +174,8 @@ return new class extends Migration
     <a href="{reset_url}">{reset_url}</a>
 </p>',
                 'variables'   => json_encode([
-                    ['key' => 'reset_url', 'label' => 'Şifre Sıfırlama Linki', 'example' => 'https://orhanbabaninciftligi.com/sifre-sifirla/token123'],
-                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Orhan Babanın Çiftliği'],
+                    ['key' => 'reset_url', 'label' => 'Şifre Sıfırlama Linki', 'example' => 'https://example.com/sifre-sifirla/token123'],
+                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Laravel Base'],
                 ]),
                 'is_active'   => true,
                 'created_at'  => $now,
@@ -233,132 +228,8 @@ return new class extends Migration
                     ['key' => 'contact_subject', 'label' => 'Mesaj Konusu', 'example' => 'Ürün Bilgisi'],
                     ['key' => 'contact_message', 'label' => 'Mesaj İçeriği', 'example' => 'Merhaba, ürünleriniz hakkında bilgi almak istiyorum.'],
                     ['key' => 'contact_date', 'label' => 'Mesaj Tarihi', 'example' => '12.03.2026 14:30'],
-                    ['key' => 'message_url', 'label' => 'Mesaj Detay URL', 'example' => 'https://orhanbabaninciftligi.com/admin/contact-messages/1'],
-                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Orhan Babanın Çiftliği'],
-                ]),
-                'is_active'   => true,
-                'created_at'  => $now,
-                'updated_at'  => $now,
-                'deleted_at'  => null,
-            ],
-            [
-                'key'         => 'order_confirmation',
-                'name'        => 'Sipariş Onayı',
-                'description' => 'Müşterinin siparişi oluşturulduktan sonra gönderilir.',
-                'subject'     => 'Sipariş Onayı - #{order_number}',
-                'body'        => '<p class="em-greeting">Sipariş Onayı</p>
-<h1 class="em-heading">Siparişiniz Alındı! &#127881;</h1>
-
-<p class="em-text">
-    Sayın {shipping_name}, siparişiniz başarıyla oluşturuldu.
-    Sipariş detaylarınız aşağıda yer almaktadır.
-</p>
-
-<table class="em-info-box" role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-        <td class="em-info-box-td">
-            <p class="em-info-row"><span class="em-info-label">Sipariş No:</span> #{order_number}</p>
-            <p class="em-info-row"><span class="em-info-label">Tarih:</span> {order_date}</p>
-            <p class="em-info-row"><span class="em-info-label">Durum:</span> {order_status_badge}</p>
-        </td>
-    </tr>
-</table>
-
-<hr class="em-divider">
-
-<p class="em-heading-sm">Sipariş Detayları</p>
-
-{order_items_table}
-
-<hr class="em-divider">
-
-<p class="em-heading-sm">Teslimat Bilgileri</p>
-
-<table class="em-info-box" role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-        <td class="em-info-box-td">
-            <p class="em-info-row"><span class="em-info-label">Ad Soyad:</span> {shipping_name}</p>
-            <p class="em-info-row"><span class="em-info-label">Telefon:</span> {shipping_phone}</p>
-            <p class="em-info-row"><span class="em-info-label">Adres:</span> {shipping_address}</p>
-            <p class="em-info-row"><span class="em-info-label">İlçe / İl:</span> {shipping_district_city}</p>
-            {shipping_zip_row}
-        </td>
-    </tr>
-</table>
-
-{order_notes_section}
-
-<div class="em-btn-wrap">
-    <a href="{order_url}" class="em-btn">&#128230; Siparişimi Görüntüle</a>
-</div>
-
-<p class="em-text">
-    Siparişiniz hazırlanmaya başladığında size bilgi vereceğiz.
-    Bizi tercih ettiğiniz için teşekkür ederiz!
-</p>',
-                'variables'   => json_encode([
-                    ['key' => 'order_number', 'label' => 'Sipariş Numarası', 'example' => 'ORD-20260312-001'],
-                    ['key' => 'order_date', 'label' => 'Sipariş Tarihi', 'example' => '12.03.2026 14:30'],
-                    ['key' => 'order_status_badge', 'label' => 'Durum Etiketi (HTML)', 'example' => '<span class="em-badge em-badge-warning">Beklemede</span>'],
-                    ['key' => 'shipping_name', 'label' => 'Teslimat Adı Soyadı', 'example' => 'Ahmet Yılmaz'],
-                    ['key' => 'shipping_phone', 'label' => 'Teslimat Telefonu', 'example' => '0532 123 45 67'],
-                    ['key' => 'shipping_address', 'label' => 'Teslimat Adresi', 'example' => 'Atatürk Cad. No:15'],
-                    ['key' => 'shipping_district_city', 'label' => 'İlçe / İl', 'example' => 'Merkez / Bolu'],
-                    ['key' => 'shipping_zip_row', 'label' => 'Posta Kodu Satırı (HTML)', 'example' => ''],
-                    ['key' => 'order_notes_section', 'label' => 'Sipariş Notu Bölümü (HTML)', 'example' => ''],
-                    ['key' => 'order_items_table', 'label' => 'Sipariş Ürünleri Tablosu (HTML)', 'example' => '<table class="em-table">...</table>'],
-                    ['key' => 'order_url', 'label' => 'Sipariş Detay URL', 'example' => 'https://orhanbabaninciftligi.com/hesabim/siparisler/1'],
-                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Orhan Babanın Çiftliği'],
-                ]),
-                'is_active'   => true,
-                'created_at'  => $now,
-                'updated_at'  => $now,
-                'deleted_at'  => null,
-            ],
-            [
-                'key'         => 'order_status_updated',
-                'name'        => 'Sipariş Durumu Güncellendi',
-                'description' => 'Sipariş durumu değiştiğinde müşteriye gönderilir.',
-                'subject'     => 'Sipariş Durumu Güncellendi - #{order_number}',
-                'body'        => '<p class="em-greeting">Sipariş Güncelleme</p>
-<h1 class="em-heading">Sipariş Durumu Güncellendi</h1>
-
-<p class="em-text">
-    Sayın {shipping_name}, #{order_number} numaralı siparişinizin durumu güncellendi.
-</p>
-
-<table class="em-info-box" role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-        <td class="em-info-box-td">
-            <p class="em-info-row"><span class="em-info-label">Sipariş No:</span> #{order_number}</p>
-            <p class="em-info-row"><span class="em-info-label">Yeni Durum:</span> {order_status_badge}</p>
-            <p class="em-info-row"><span class="em-info-label">Güncelleme Tarihi:</span> {update_date}</p>
-        </td>
-    </tr>
-</table>
-
-<hr class="em-divider">
-
-{status_message_section}
-
-<hr class="em-divider">
-
-<p class="em-heading-sm">Sipariş Özeti</p>
-
-{order_items_table}
-
-<div class="em-btn-wrap">
-    <a href="{order_url}" class="em-btn">Sipariş Detayları</a>
-</div>',
-                'variables'   => json_encode([
-                    ['key' => 'order_number', 'label' => 'Sipariş Numarası', 'example' => 'ORD-20260312-001'],
-                    ['key' => 'shipping_name', 'label' => 'Müşteri Adı', 'example' => 'Ahmet Yılmaz'],
-                    ['key' => 'order_status_badge', 'label' => 'Durum Etiketi (HTML)', 'example' => '<span class="em-badge em-badge-success">Kargoya Verildi</span>'],
-                    ['key' => 'update_date', 'label' => 'Güncelleme Tarihi', 'example' => '12.03.2026 16:45'],
-                    ['key' => 'status_message_section', 'label' => 'Durum Mesajı Bölümü (HTML)', 'example' => ''],
-                    ['key' => 'order_items_table', 'label' => 'Sipariş Ürünleri Tablosu (HTML)', 'example' => '<table class="em-table">...</table>'],
-                    ['key' => 'order_url', 'label' => 'Sipariş Detay URL', 'example' => 'https://orhanbabaninciftligi.com/hesabim/siparisler/1'],
-                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Orhan Babanın Çiftliği'],
+                    ['key' => 'message_url', 'label' => 'Mesaj Detay URL', 'example' => 'https://example.com/admin/contact-messages/1'],
+                    ['key' => 'site_name', 'label' => 'Site Adı', 'example' => 'Laravel Base'],
                 ]),
                 'is_active'   => true,
                 'created_at'  => $now,

@@ -14,12 +14,12 @@ class UserSeeder extends Seeder
     {
         // Admin user
         $admin = User::updateOrCreate(
-            ['email' => 'ozansonar1@gmail.com'],
+            ['email' => 'admin@example.com'],
             [
-                'first_name'        => 'Orhan',
-                'last_name'         => 'Baba',
-                'phone'             => '+905059424124',
-                'password'          => 'Cft625-!q56?T',
+                'first_name'        => 'Admin',
+                'last_name'         => 'User',
+                'phone'             => null,
+                'password'          => 'password',
                 'email_verified_at' => now(),
                 'is_active'         => true,
             ],
@@ -30,11 +30,11 @@ class UserSeeder extends Seeder
 
         // Editor user
         $editor = User::updateOrCreate(
-            ['email' => 'editor@orhanbabaninciftligi.com'],
+            ['email' => 'editor@example.com'],
             [
-                'first_name'        => 'Ayşe',
-                'last_name'         => 'Editör',
-                'phone'             => '05559876543',
+                'first_name'        => 'Editor',
+                'last_name'         => 'User',
+                'phone'             => null,
                 'password'          => 'password',
                 'email_verified_at' => now(),
                 'is_active'         => true,
@@ -46,11 +46,11 @@ class UserSeeder extends Seeder
 
         // Regular user
         $user = User::updateOrCreate(
-            ['email' => 'kullanici@example.com'],
+            ['email' => 'user@example.com'],
             [
-                'first_name'        => 'Mehmet',
-                'last_name'         => 'Kullanıcı',
-                'phone'             => '05553456789',
+                'first_name'        => 'Regular',
+                'last_name'         => 'User',
+                'phone'             => null,
                 'password'          => 'password',
                 'email_verified_at' => now(),
                 'is_active'         => true,

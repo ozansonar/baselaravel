@@ -6,12 +6,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
 
-    <title>@yield('title', 'Giriş Yap') | {{ \App\Models\Setting::getValue('site_name', config('app.name')) }}</title>
-
     @php
+        $siteName = \App\Models\Setting::getValue('site_name', config('app.name'));
+        $siteLogo = \App\Models\Setting::getValue('site_logo');
         $gaId  = \App\Models\Setting::getValue('google_analytics_id');
         $gtmId = \App\Models\Setting::getValue('google_tag_manager_id');
     @endphp
+
+    <title>@yield('title', 'Giriş') | {{ $siteName }}</title>
 
     @if($gaId)
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
@@ -30,51 +32,58 @@
 
     @stack('styles')
 </head>
-<body class="d-flex align-items-center justify-content-center min-vh-100" data-auth-page>
+<body data-auth-page>
     @if($gtmId)
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}" height="0" width="0" class="d-none"></iframe></noscript>
     @endif
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+    <div class="auth-wrap">
 
-            {{-- Logo --}}
-            <div class="text-center mb-4">
-                <a href="{{ route('home') }}" class="text-decoration-none">
-                    <span class="logo-icon d-inline-flex mx-auto mb-3">
-                        <i class="fa-solid fa-leaf"></i>
-                    </span>
-                    <h4 class="text-green-dark">{{ \App\Models\Setting::getValue('site_name', config('app.name')) }}</h4>
-                </a>
-            </div>
+        {{-- Left: decorative brand panel (lg+ only) --}}
+        <aside class="auth-aside">
+            <a href="{{ route('home') }}" class="brand text-white">
+                <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
+                <span class="brand__text">{{ $siteName }}</span>
+            </a>
 
-            {{-- Flash Messages --}}
-            @include('partials.flash-message')
-
-            {{-- Card --}}
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body p-4 p-md-5">
-                    @yield('content')
-                </div>
-            </div>
-
-            {{-- Footer --}}
-            <p class="text-center text-muted mt-4 small">
-                &copy; {{ date('Y') }} {{ \App\Models\Setting::getValue('site_name', config('app.name')) }}
+            <p class="auth-aside__quote">
+                Kurumsal başarı, doğru araçlarla başlar. Ekibinizi tek platformda buluşturun.
             </p>
+
+            <p class="text-white-50 small mb-0">
+                &copy; {{ date('Y') }} {{ $siteName }}. Tüm hakları saklıdır.
+            </p>
+        </aside>
+
+        {{-- Right: form side --}}
+        <div class="auth-main">
+            <div class="auth-card">
+
+                {{-- Brand --}}
+                <a href="{{ route('home') }}" class="auth-brand">
+                    <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
+                    <span class="brand__text">{{ $siteName }}</span>
+                </a>
+
+                {{-- Flash Messages --}}
+                @include('partials.flash-message')
+
+                @yield('content')
+            </div>
         </div>
+
     </div>
-</div>
 
-{{-- JS --}}
-<script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ versioned_asset('js/app.js') }}"></script>
+    @include('partials.result-modal')
 
-@if(app(\App\Services\RecaptchaService::class)->isEnabled())
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-@endif
+    {{-- JS --}}
+    <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ versioned_asset('js/app.js') }}"></script>
 
-@stack('scripts')
+    @if(app(\App\Services\RecaptchaService::class)->isEnabled())
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
+
+    @stack('scripts')
 </body>
 </html>

@@ -16,7 +16,7 @@
             <div class="form-section-icon bg-icon-teal"><i class="bi bi-book"></i></div>
             <div>
                 <h6 class="mb-0">Hikaye Bölümü</h6>
-                <small class="text-muted">Çiftliğin hikayesini anlatan ana bölüm</small>
+                <small class="text-muted">Kurumun hikayesini anlatan ana bölüm</small>
             </div>
         </div>
     </div>
@@ -245,7 +245,7 @@
                     <div class="col-12 col-md-6">
                         <label class="form-label">Ad Soyad</label>
                         <input type="text" class="form-control" name="sections[team][{{ $i }}][name]"
-                            value="{{ $member['name'] ?? '' }}" placeholder="Ör: Orhan Yılmaz">
+                            value="{{ $member['name'] ?? '' }}" placeholder="Ör: Ahmet Yılmaz">
                     </div>
                     <div class="col-12 col-md-6">
                         <label class="form-label">Rol / Unvan</label>

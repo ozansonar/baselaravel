@@ -30,29 +30,11 @@
                 </div>
                 <div class="mega-menu-grid">
                     @foreach($item->activeChildren as $child)
-                        @php
-                            $childUrl = $menuItemService->resolveUrl($child);
-                            $childCategory = null;
-                            if ($child->link_type === 'route' && $child->route_name === 'products.index') {
-                                $slug = $child->route_params['categorySlug'] ?? ($child->route_params['slug'] ?? null);
-                                if ($slug) {
-                                    $childCategory = \App\Models\Category::where('slug', $slug)
-                                        ->select(['id', 'slug', 'image'])
-                                        ->first();
-                                }
-                            }
-                        @endphp
+                        @php $childUrl = $menuItemService->resolveUrl($child); @endphp
                         <a href="{{ $childUrl }}" class="mega-menu-card"
                            @if($child->target === '_blank') target="_blank" rel="noopener" @endif>
                             <div class="mega-menu-card-icon">
-                                @if($childCategory && $childCategory->image)
-                                    <img src="{{ upload_url($childCategory->image, 'thumb') }}"
-                                         alt="{{ $child->label }}"
-                                         class="mega-menu-card-img"
-                                         width="50" height="50"
-                                         decoding="async"
-                                         loading="lazy">
-                                @elseif($child->icon)
+                                @if($child->icon)
                                     <i class="{{ $child->icon }}"></i>
                                 @else
                                     <i class="fa-solid fa-seedling"></i>

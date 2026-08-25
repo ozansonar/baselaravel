@@ -43,7 +43,7 @@ final class UploadService
     ];
 
     /**
-     * Allowed video mime types — Instagram Graph API sadece mp4/quicktime kabul eder.
+     * Allowed video mime types (mp4/quicktime).
      *
      * @var array<string>
      */
@@ -53,7 +53,7 @@ final class UploadService
     ];
 
     /**
-     * Maximum video file size (bytes). Instagram Reels limit ~100MB.
+     * Maximum video file size (bytes) ~100MB.
      */
     private const MAX_VIDEO_SIZE_BYTES = 104_857_600; // 100 MB
 
@@ -65,11 +65,11 @@ final class UploadService
      * Upload an image, convert to WebP, and create responsive variants.
      *
      * @param  UploadedFile       $file           Uploaded image file
-     * @param  string             $folder         Sub-folder inside public/uploads (e.g. "products")
+     * @param  string             $folder         Sub-folder inside public/uploads (e.g. "images")
      * @param  string             $name           Human-readable name for slug (e.g. "Organik Köy Sütü")
      * @param  array<string>|null $sizes          Which variants to create (null = all)
      * @param  bool               $preserveFormat Keep original format instead of converting to WebP
-     * @return string                             Relative path: "products/organik-koy-sutu-a1b2c3d4e5.webp"
+     * @return string                             Relative path: "images/example-a1b2c3d4e5.webp"
      */
     public function uploadImage(
         UploadedFile $file,
@@ -155,7 +155,7 @@ final class UploadService
      * @param  UploadedFile $file   Uploaded file
      * @param  string       $folder Sub-folder inside public/uploads
      * @param  string       $name   Human-readable name for slug
-     * @return string               Relative path: "documents/organik-sertifika-a1b2c3d4e5.pdf"
+     * @return string               Relative path: "documents/example-a1b2c3d4e5.pdf"
      */
     public function uploadFile(
         UploadedFile $file,
@@ -176,14 +176,14 @@ final class UploadService
     }
 
     /**
-     * Upload a video file (Instagram Reels/Story için).
+     * Upload a video file.
      *
      * Validation: mp4/quicktime MIME + max 100MB. Süre kontrolü FFprobe yoksa atlanır.
      *
      * @param  UploadedFile $file
-     * @param  string       $folder Sub-folder (e.g. "instagram-videos")
+     * @param  string       $folder Sub-folder (e.g. "videos")
      * @param  string       $name   Slug için isim
-     * @return string               Relative path: "instagram-videos/post-a1b2c3d4e5.mp4"
+     * @return string               Relative path: "videos/example-a1b2c3d4e5.mp4"
      *
      * @throws RuntimeException Validation hatası
      */
@@ -349,9 +349,9 @@ final class UploadService
     /**
      * Get the public URL for an uploaded file.
      *
-     * @param  string|null $path Relative path (e.g. "products/sut-a1b2c3d4e5.webp")
+     * @param  string|null $path Relative path (e.g. "images/example-a1b2c3d4e5.webp")
      * @param  string|null $size Size variant (thumb, sm, md, lg) or null for original
-     * @return string            Full URL path (e.g. "/uploads/products/sut-a1b2c3d4e5-sm.webp")
+     * @return string            Full URL path (e.g. "/uploads/images/example-a1b2c3d4e5-sm.webp")
      */
     public static function url(?string $path, ?string $size = null): string
     {

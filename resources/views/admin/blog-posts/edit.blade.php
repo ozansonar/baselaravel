@@ -32,11 +32,6 @@
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button type="button" class="btn-glass" id="btnAiFillBlog"
-                  data-url="{{ route('admin.blog-posts.ai-fill') }}"
-                  onclick="aiFillBlogAll()">
-            <i class="bi bi-robot me-1"></i>AI ile Doldur
-          </button>
           <button type="button" class="btn-glass"
                   onclick="shareBlogToSocial({{ $post->id }})"
                   title="Bu yazıyı Instagram + Facebook'ta paylaşmak için taslak oluşturur">
@@ -417,7 +412,6 @@
 
 @push('scripts')
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>
-<script src="{{ versioned_asset('assets/admin/js/blog-ai-fill.js') }}"></script>
 <script>
 'use strict';
 

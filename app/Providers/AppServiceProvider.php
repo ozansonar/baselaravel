@@ -6,29 +6,20 @@ namespace App\Providers;
 
 use App\Listeners\UpdateMailLogOnFailed;
 use App\Listeners\UpdateMailLogOnSent;
+use App\Models\BlogCategory;
 use App\Models\BlogComment;
-use App\Models\Category;
-use App\Models\CityLandingPage;
+use App\Models\BlogPost;
 use App\Models\Menu;
 use App\Models\MenuItem;
-use App\Models\Order;
-use App\Models\BlogCategory;
-use App\Models\BlogPost;
 use App\Models\Page;
-use App\Models\Product;
 use App\Models\Redirect;
 use App\Models\User;
-use App\Observers\AiImagePromptObserver;
 use App\Observers\BlogCategoryObserver;
 use App\Observers\BlogCommentObserver;
 use App\Observers\BlogPostObserver;
-use App\Observers\CategoryObserver;
-use App\Observers\CityLandingPageObserver;
 use App\Observers\MenuItemObserver;
 use App\Observers\MenuObserver;
-use App\Observers\OrderObserver;
 use App\Observers\PageObserver;
-use App\Observers\ProductObserver;
 use App\Observers\RedirectObserver;
 use App\Observers\UserObserver;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -67,9 +58,6 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         User::observe(UserObserver::class);
-        Category::observe(CategoryObserver::class);
-        Product::observe(ProductObserver::class);
-        Order::observe(OrderObserver::class);
         BlogComment::observe(BlogCommentObserver::class);
         Menu::observe(MenuObserver::class);
         MenuItem::observe(MenuItemObserver::class);
@@ -77,21 +65,9 @@ class AppServiceProvider extends ServiceProvider
         Page::observe(PageObserver::class);
         BlogPost::observe(BlogPostObserver::class);
         BlogCategory::observe(BlogCategoryObserver::class);
-        CityLandingPage::observe(CityLandingPageObserver::class);
-        \App\Models\AiImagePrompt::observe(AiImagePromptObserver::class);
 
-        // Audit Trail — kritik modellerde otomatik aktivite logu
-        \App\Models\InstagramPost::observe(\App\Observers\AuditObserver::class);
+        // Audit Trail — automatic activity log on critical models
         \App\Models\Setting::observe(\App\Observers\AuditObserver::class);
-        \App\Models\MediaLibraryImage::observe(\App\Observers\AuditObserver::class);
-        \App\Models\BulkImport::observe(\App\Observers\AuditObserver::class);
-        \App\Models\SpecialDay::observe(\App\Observers\AuditObserver::class);
-        \App\Models\AiImagePrompt::observe(\App\Observers\AuditObserver::class);
-        Order::observe(\App\Observers\AuditObserver::class);
-
-        // AI log fail bildirimi — herhangi bir AI servisi (blog, topic, ürün,
-        // sayfa, şehir) fail olduğunda Telegram + in-app bell otomatik.
-        \App\Models\AiLog::observe(\App\Observers\AiLogObserver::class);
 
         // Mail log status tracking via events
         Event::listen(MessageSent::class, [UpdateMailLogOnSent::class, 'handle']);
@@ -102,49 +78,29 @@ class AppServiceProvider extends ServiceProvider
             $view->with('headerMenu', app(\App\Services\MenuService::class)->getByLocation('header'));
         });
 
-        // Share active city landing pages with footer (Modül 8 — internal
-        // linking güçlendirme: footer'daki "Hizmet Bölgelerimiz" linkleri
-        // her sayfa görüntülenmesinde city sayfalarına link juice akıtır).
-        View::composer('partials.footer', function (\Illuminate\View\View $view): void {
-            $view->with(
-                'footerCityPages',
-                app(\App\Services\CityLandingPageService::class)->activePages(),
-            );
-        });
-
-        // Share active popups with front layout
+        // Share active popups for the current page with the front layout
         View::composer('layouts.app', function (\Illuminate\View\View $view): void {
-            $routeName = request()->route()?->getName() ?? '';
-
             $pageMap = [
-                'home'           => 'home',
-                'products.all'   => 'products',
-                'products.index' => 'products',
-                'products.show'  => 'product_detail',
-                'contact'        => 'contact',
-                'blog.index'     => 'blog',
-                'blog.category'  => 'blog',
-                'blog.show'      => 'blog',
-                'gallery'        => 'gallery',
-                'faq'            => 'faq',
-                'cart.index'     => 'cart',
+                'home'          => 'home',
+                'blog.index'    => 'blog',
+                'blog.category' => 'blog',
+                'blog.show'     => 'blog',
+                'gallery'       => 'gallery',
+                'contact'       => 'contact',
+                'faq'           => 'faq',
             ];
 
-            $currentPage = $pageMap[$routeName] ?? 'other';
-            $popups = app(\App\Services\PopupService::class)->getForPage($currentPage);
-
-            $view->with(compact('popups', 'currentPage'));
+            $currentPage = $pageMap[request()->route()?->getName() ?? ''] ?? 'other';
+            $view->with('popups', app(\App\Services\PopupService::class)->getForPage($currentPage));
         });
 
         // Share admin badge counts once across sidebar & topbar
         View::composer(['partials.admin.sidebar', 'partials.admin.topbar'], function (\Illuminate\View\View $view): void {
             static $unreadMessageCount = null;
-            static $pendingReviewCount = null;
 
             $unreadMessageCount ??= \App\Models\ContactMessage::where('is_read', false)->count();
-            $pendingReviewCount ??= \App\Models\ProductReview::where('status', 'pending')->count();
 
-            $view->with(compact('unreadMessageCount', 'pendingReviewCount'));
+            $view->with(compact('unreadMessageCount'));
         });
     }
 

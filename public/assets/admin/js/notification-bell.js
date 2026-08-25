@@ -8,8 +8,8 @@
  *   - Action URL varsa o sayfaya gider
  *
  * Popup toast (sticky):
- *   - Yeni gelen bildirim 'order_created'/'order_status_changed' tip
- *     veya warning/error/critical level ise sağ alt köşede sticky toast olur
+ *   - Yeni gelen bildirim warning/error/critical level ise sağ alt köşede
+ *     sticky toast olur
  *   - Otomatik kapanma YOK — kullanıcı "Görüntüle" veya "Okundu" tıklayana
  *     kadar durur
  *   - "Görüntüle" → action_url'e git + okundu işaretle
@@ -35,7 +35,7 @@
     var seenIds = new Set();       // İlk yüklemede DB'deki bildirimleri "görüldü" sayıyoruz
     var firstPoll = true;          // İlk polling'de popup çıkarma (eski bildirimler için)
     var popupContainer = null;
-    var POPUP_TYPES = ['order_created', 'order_status_changed'];
+    var POPUP_TYPES = [];
     var POPUP_LEVELS = ['warning', 'error', 'critical'];
 
     bellBtn.addEventListener('show.bs.dropdown', function () {

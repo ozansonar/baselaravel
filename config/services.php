@@ -40,10 +40,4 @@ return [
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
-    // TikTok Content Posting API (docs/tiktok.md Bölüm 4.10)
-    'tiktok' => [
-        'base_url_sandbox'    => env('TIKTOK_BASE_URL_SANDBOX', 'https://open-sandbox.tiktokapis.com'),
-        'base_url_production' => env('TIKTOK_BASE_URL_PRODUCTION', 'https://open.tiktokapis.com'),
-    ],
-
 ];

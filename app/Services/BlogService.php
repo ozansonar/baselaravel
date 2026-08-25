@@ -14,7 +14,6 @@ final class BlogService
 {
     public function __construct(
         private readonly UploadService $uploadService,
-        private readonly RelatedContentService $relatedContentService,
     ) {}
 
     // ── Frontend ──
@@ -26,6 +25,22 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->recent()
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Related posts from the same category (fallback to most recent).
+     *
+     * @return Collection<int, BlogPost>
+     */
+    public function getRelatedPosts(BlogPost $post, int $limit = 4): Collection
+    {
+        return BlogPost::with(['category', 'author'])
+            ->published()
+            ->where('id', '!=', $post->id)
+            ->where('blog_category_id', $post->blog_category_id)
             ->recent()
             ->limit($limit)
             ->get();
@@ -176,7 +191,6 @@ final class BlogService
 
             $post->update($data);
             $this->clearCache();
-            $this->relatedContentService->clearCacheForPost($post->id);
 
             return $post->refresh();
         });
@@ -184,14 +198,10 @@ final class BlogService
 
     public function delete(BlogPost $post): void
     {
-        $postId = $post->id;
-
         DB::transaction(function () use ($post): void {
             $post->delete();
             $this->clearCache();
         });
-
-        $this->relatedContentService->clearCacheForPost($postId);
     }
 
     public function restore(int $id): BlogPost

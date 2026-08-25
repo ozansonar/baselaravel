@@ -91,11 +91,6 @@ final class MenuItemService
                 }
             }
 
-            // Mega menu / dropdown items: parent active if any product page is shown
-            if ($item->display_type !== 'link' && str_starts_with($currentRoute, 'products.')
-                && str_starts_with($item->route_name, 'products.')) {
-                return true;
-            }
         }
 
         if ($item->link_type === 'url' && $item->url) {
@@ -118,15 +113,11 @@ final class MenuItemService
     {
         return [
             'home'           => 'Anasayfa',
-            'products.all'   => 'Tüm Ürünler',
-            'products.index' => 'Kategori Sayfası (slug parametresi gerekli)',
-            'products.show'  => 'Ürün Detayı (slug parametresi gerekli)',
+            'blog.index'     => 'Blog',
             'gallery'        => 'Galeri',
             'contact'        => 'İletişim',
             'faq'            => 'SSS',
-            'blog.index'     => 'Blog',
             'pages.show'     => 'Dinamik Sayfa (slug parametresi gerekli)',
-            'cart.index'     => 'Sepet',
             'login'          => 'Giriş',
             'register'       => 'Kayıt',
         ];

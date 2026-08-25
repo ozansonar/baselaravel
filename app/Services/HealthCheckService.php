@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\AiLog;
-use App\Models\InstagramPost;
 use App\Models\Setting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -39,12 +37,9 @@ final class HealthCheckService
             $this->checkDatabase(),
             $this->checkQueueWorker(),
             $this->checkDiskSpace(),
-            $this->checkInstagramToken(),
-            $this->checkAiUsage(),
             $this->checkTelegram(),
             $this->checkStorageWritable(),
             $this->checkPhpExtensions(),
-            $this->checkLastInstagramPublish(),
             $this->checkLastBackup(),
         ];
 
@@ -147,60 +142,6 @@ final class HealthCheckService
     }
 
     /** @return array<string, mixed> */
-    private function checkInstagramToken(): array
-    {
-        $expiresAt = Setting::getValue('instagram_token_expires_at', '');
-
-        if (empty($expiresAt)) {
-            return $this->result('ig_token', 'Instagram Token', self::STATUS_WARNING,
-                'Token süresi tanımlı değil', 'Settings → Instagram');
-        }
-
-        try {
-            $expires = Carbon::parse($expiresAt);
-        } catch (\Throwable) {
-            return $this->result('ig_token', 'Instagram Token', self::STATUS_WARNING,
-                'Geçersiz tarih formatı', $expiresAt);
-        }
-
-        if ($expires->isPast()) {
-            return $this->result('ig_token', 'Instagram Token', self::STATUS_CRITICAL,
-                'Token süresi DOLMUŞ — paylaşımlar başarısız olur',
-                'Bitiş: ' . $expires->format('d.m.Y'));
-        }
-
-        // Carbon 3: diffInDays işaretli float döner. Token gelecekte olduğu için
-        // pozitif; floor() ile aşağı yuvarlayıp gün sayısını tam alıyoruz.
-        $daysLeft = (int) floor(now()->diffInDays($expires, absolute: false));
-
-        if ($daysLeft <= 7) {
-            return $this->result('ig_token', 'Instagram Token', self::STATUS_WARNING,
-                "Token {$daysLeft} gün içinde süresi dolacak",
-                'Settings → Token Yenile');
-        }
-
-        return $this->result('ig_token', 'Instagram Token', self::STATUS_OK,
-            "Geçerli ({$daysLeft} gün kaldı)",
-            'Bitiş: ' . $expires->format('d.m.Y'));
-    }
-
-    /** @return array<string, mixed> */
-    private function checkAiUsage(): array
-    {
-        try {
-            $last24h = AiLog::where('created_at', '>=', now()->subDay())->count();
-            $cost = (float) AiLog::where('created_at', '>=', now()->subDay())->sum('cost_usd');
-
-            return $this->result('ai_usage', 'AI Kullanımı (24sa)', self::STATUS_OK,
-                "{$last24h} çağrı — \$" . number_format($cost, 4),
-                'Detay: /admin/ai-logs');
-        } catch (\Throwable $e) {
-            return $this->result('ai_usage', 'AI Kullanımı', self::STATUS_WARNING,
-                'AI logları okunamadı', $e->getMessage());
-        }
-    }
-
-    /** @return array<string, mixed> */
     private function checkTelegram(): array
     {
         $enabled = Setting::getValue('telegram_enabled', '0') === '1';
@@ -279,35 +220,6 @@ final class HealthCheckService
         return $this->result('php_ext', 'PHP Modülleri', self::STATUS_OK,
             'Tüm gerekli modüller yüklü',
             'PHP ' . PHP_VERSION . ' — ' . count($required) . ' modül OK');
-    }
-
-    /** @return array<string, mixed> */
-    private function checkLastInstagramPublish(): array
-    {
-        try {
-            $lastPublished = InstagramPost::query()
-                ->whereNotNull('published_at')
-                ->latest('published_at')
-                ->value('published_at');
-
-            if (! $lastPublished) {
-                return $this->result('last_publish', 'Son IG Paylaşım', self::STATUS_WARNING,
-                    'Henüz hiç post yayınlanmamış', null);
-            }
-
-            $when = Carbon::parse($lastPublished);
-            $diff = $when->diffForHumans();
-            // Carbon 3: absolute:true → her zaman pozitif saat farkı
-            $hoursAgo = (int) floor($when->diffInHours(now(), absolute: true));
-
-            $status = $hoursAgo > 168 ? self::STATUS_WARNING : self::STATUS_OK; // 1 hafta üstü uyarı
-
-            return $this->result('last_publish', 'Son IG Paylaşım', $status,
-                $diff, $when->format('d.m.Y H:i'));
-        } catch (\Throwable $e) {
-            return $this->result('last_publish', 'Son IG Paylaşım', self::STATUS_WARNING,
-                'Sorgu başarısız', $e->getMessage());
-        }
     }
 
     /** @return array<string, mixed> */

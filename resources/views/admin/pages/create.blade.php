@@ -29,11 +29,6 @@
         </div>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <button type="button" class="btn-glass" id="btnAiFillPage"
-                data-url="{{ route('admin.pages.ai-fill') }}"
-                onclick="aiFillPageAll()">
-            <i class="bi bi-robot me-1"></i>AI ile Doldur
-        </button>
         <a href="{{ route('admin.pages.index') }}" class="btn-glass">
             <i class="bi bi-x-lg me-1"></i>Vazgeç
         </a>
@@ -432,7 +427,6 @@
 
 @push('scripts')
 <script src="{{ versioned_asset('assets/admin/js/page-form.js') }}"></script>
-<script src="{{ versioned_asset('assets/admin/js/page-ai-fill.js') }}"></script>
 @endpush
 
 @endsection

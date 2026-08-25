@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Category;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use Illuminate\Database\Seeder;
@@ -31,16 +30,15 @@ final class MenuSeeder extends Seeder
                 'display_type' => 'link',
             ],
             [
-                'label'        => 'Ürünler',
-                'icon'         => 'fa-solid fa-basket-shopping',
+                'label'        => 'Blog',
+                'icon'         => 'fa-solid fa-newspaper',
                 'link_type'    => 'route',
-                'route_name'   => 'products.all',
-                'display_type' => 'mega_menu',
-                'children'     => $this->buildCategoryChildren(),
+                'route_name'   => 'blog.index',
+                'display_type' => 'link',
             ],
             [
                 'label'        => 'Hakkımızda',
-                'icon'         => 'fa-solid fa-tractor',
+                'icon'         => 'fa-solid fa-circle-info',
                 'link_type'    => 'route',
                 'route_name'   => 'pages.show',
                 'route_params' => ['slug' => 'hakkimizda'],
@@ -70,42 +68,12 @@ final class MenuSeeder extends Seeder
         ];
 
         foreach ($items as $index => $data) {
-            $children = $data['children'] ?? [];
-            unset($data['children']);
-
-            $item = MenuItem::create(array_merge($data, [
+            MenuItem::create(array_merge($data, [
                 'menu_id'    => $headerMenu->id,
                 'sort_order' => $index,
                 'is_active'  => true,
                 'target'     => '_self',
             ]));
-
-            foreach ($children as $childIndex => $child) {
-                MenuItem::create(array_merge($child, [
-                    'menu_id'    => $headerMenu->id,
-                    'parent_id'  => $item->id,
-                    'sort_order' => $childIndex,
-                    'is_active'  => true,
-                    'target'     => '_self',
-                ]));
-            }
         }
-    }
-
-    private function buildCategoryChildren(): array
-    {
-        return Category::active()
-            ->whereNull('parent_id')
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn (Category $cat) => [
-                'label'        => $cat->name,
-                'icon'         => 'fa-solid fa-seedling',
-                'link_type'    => 'route',
-                'route_name'   => 'products.index',
-                'route_params' => ['categorySlug' => $cat->slug],
-                'display_type' => 'link',
-            ])
-            ->all();
     }
 }

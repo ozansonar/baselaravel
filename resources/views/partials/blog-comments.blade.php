@@ -1,118 +1,158 @@
-{{-- Blog Comments Section --}}
-<div class="blog-comments-section" id="comments">
-    <h3 class="blog-comments-title">
-        <i class="fa-solid fa-comments"></i>
-        Yorumlar
+{{-- Blog Comments — needs $post, $comments, $commentCount from blog/show --}}
+<div id="comments">
+
+    <h2 class="section__title h4 mb-4">
+        <i class="fa-solid fa-comments text-brand me-2"></i>Yorumlar
         @if($commentCount > 0)
-        <span class="blog-comments-count">{{ $commentCount }}</span>
+            <span class="text-muted fw-normal">({{ $commentCount }})</span>
         @endif
-    </h3>
+    </h2>
 
-    {{-- Comment List --}}
+    {{-- Comment list --}}
     @if($comments->isNotEmpty())
-    <div class="blog-comments-list">
-        @foreach($comments as $comment)
-        <div class="blog-comment">
-            <div class="blog-comment-avatar">
-                {{ $comment->initials() }}
-            </div>
-            <div class="blog-comment-content">
-                <div class="blog-comment-header">
-                    <strong class="blog-comment-author">{{ $comment->name }}</strong>
-                    <time class="blog-comment-date" datetime="{{ $comment->created_at->toIso8601String() }}">{{ $comment->created_at->translatedFormat('d F Y, H:i') }}</time>
-                </div>
-                <p class="blog-comment-body">{{ $comment->body }}</p>
-                <button type="button" class="blog-comment-reply-btn" data-comment-id="{{ $comment->id }}">
-                    <i class="fa-solid fa-reply"></i> Yanıtla
-                </button>
+        <div class="mb-5">
+            @foreach($comments as $c)
+                <div class="comment">
+                    <div class="comment__avatar">{{ mb_strtoupper(mb_substr($c->name, 0, 1)) }}</div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <span class="comment__name">{{ $c->name }}</span>
+                            <span class="comment__date">{{ $c->created_at->translatedFormat('d M Y') }}</span>
+                        </div>
+                        <p class="mb-0">{{ $c->body }}</p>
 
-                {{-- Replies --}}
-                @if($comment->approvedReplies->isNotEmpty())
-                <div class="blog-comment-replies">
-                    @foreach($comment->approvedReplies as $reply)
-                    <div class="blog-comment blog-comment-reply">
-                        <div class="blog-comment-avatar blog-comment-avatar-sm">
-                            {{ $reply->initials() }}
-                        </div>
-                        <div class="blog-comment-content">
-                            <div class="blog-comment-header">
-                                <strong class="blog-comment-author">{{ $reply->name }}</strong>
-                                <time class="blog-comment-date" datetime="{{ $reply->created_at->toIso8601String() }}">{{ $reply->created_at->translatedFormat('d F Y, H:i') }}</time>
-                            </div>
-                            <p class="blog-comment-body">{{ $reply->body }}</p>
-                        </div>
+                        {{-- Replies --}}
+                        @if($c->approvedReplies->isNotEmpty())
+                            @foreach($c->approvedReplies as $reply)
+                                <div class="comment comment--reply">
+                                    <div class="comment__avatar">{{ mb_strtoupper(mb_substr($reply->name, 0, 1)) }}</div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                            <span class="comment__name">{{ $reply->name }}</span>
+                                            <span class="comment__date">{{ $reply->created_at->translatedFormat('d M Y') }}</span>
+                                        </div>
+                                        <p class="mb-0">{{ $reply->body }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
-                    @endforeach
                 </div>
-                @endif
-
-                {{-- Reply Form (hidden by default) --}}
-                <div class="blog-comment-reply-form d-none" id="reply-form-{{ $comment->id }}">
-                    <form class="blog-comment-form" data-parent-id="{{ $comment->id }}" novalidate>
-                        @csrf
-                        <input type="hidden" name="blog_post_id" value="{{ $post->id }}">
-                        <input type="hidden" name="parent_id" value="{{ $comment->id }}">
-                        <div class="row g-3">
-                            <div class="col-sm-6">
-                                <input type="text" name="name" class="blog-comment-input validate[required,minSize[2],maxSize[100]]" placeholder="Ad Soyad *">
-                            </div>
-                            <div class="col-sm-6">
-                                <input type="email" name="email" class="blog-comment-input validate[required,custom[email]]" placeholder="E-posta *">
-                            </div>
-                            <div class="col-12">
-                                <textarea name="body" class="blog-comment-input blog-comment-textarea validate[required,minSize[3],maxSize[2000]]" rows="3" placeholder="Yanıtınız *"></textarea>
-                            </div>
-                            <div class="col-12 d-flex gap-2">
-                                <button type="submit" class="btn-custom btn-sm">
-                                    <i class="fa-solid fa-paper-plane"></i> Yanıtla
-                                </button>
-                                <button type="button" class="btn-comment-cancel" onclick="cancelReply({{ $comment->id }})">
-                                    İptal
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            @endforeach
         </div>
-        @endforeach
-    </div>
     @else
-    <div class="blog-comments-empty">
-        <i class="fa-regular fa-comment-dots"></i>
-        <p>Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
-    </div>
+        <div class="empty-state mb-4">
+            <div class="empty-state__icon"><i class="fa-regular fa-comment-dots"></i></div>
+            <p class="mb-0">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+        </div>
     @endif
 
-    {{-- Comment Form --}}
-    <div class="blog-comment-form-section" id="comment-form">
-        <h4 class="blog-comment-form-title">Yorum Yap</h4>
-        <form class="blog-comment-form" id="mainCommentForm" novalidate>
+    {{-- Comment form --}}
+    <div class="field-card">
+        <h3 class="h5 mb-3">Yorum Yap</h3>
+        <form id="blogCommentForm" method="POST" action="{{ route('blog-comments.store') }}" novalidate>
             @csrf
             <input type="hidden" name="blog_post_id" value="{{ $post->id }}">
+
             <div class="row g-3">
                 <div class="col-sm-6">
-                    <label class="blog-comment-label" for="comment-name">Ad Soyad</label>
-                    <input type="text" name="name" id="comment-name" class="blog-comment-input validate[required,minSize[2],maxSize[100]]" placeholder="Adınız ve soyadınız">
+                    <label for="comment-name" class="form-label">Ad Soyad</label>
+                    <input type="text" id="comment-name" name="name" value="{{ old('name') }}"
+                           class="form-control @error('name') is-invalid @enderror" placeholder="Adınız ve soyadınız" required>
+                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
+
                 <div class="col-sm-6">
-                    <label class="blog-comment-label" for="comment-email">E-posta</label>
-                    <input type="email" name="email" id="comment-email" class="blog-comment-input validate[required,custom[email]]" placeholder="E-posta adresiniz">
-                    <small class="blog-comment-hint">E-posta adresiniz yayınlanmayacaktır.</small>
+                    <label for="comment-email" class="form-label">E-posta</label>
+                    <input type="email" id="comment-email" name="email" value="{{ old('email') }}"
+                           class="form-control @error('email') is-invalid @enderror" placeholder="E-posta adresiniz" required>
+                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <small class="text-muted">E-posta adresiniz yayınlanmayacaktır.</small>
                 </div>
+
                 <div class="col-12">
-                    <label class="blog-comment-label" for="comment-body">Yorumunuz</label>
-                    <textarea name="body" id="comment-body" class="blog-comment-input blog-comment-textarea validate[required,minSize[3],maxSize[2000]]" rows="5" placeholder="Yorumunuzu buraya yazın..."></textarea>
+                    <label for="comment-body" class="form-label">Yorumunuz</label>
+                    <textarea id="comment-body" name="body" rows="5"
+                              class="form-control @error('body') is-invalid @enderror" placeholder="Yorumunuzu buraya yazın..." required>{{ old('body') }}</textarea>
+                    @error('body')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
+
                 <div class="col-12">
                     <x-recaptcha />
                 </div>
+
                 <div class="col-12">
-                    <button type="submit" class="btn-custom" id="commentSubmitBtn">
+                    <button type="submit" class="btn btn-primary" id="blogCommentSubmit">
                         <i class="fa-solid fa-paper-plane"></i> Yorum Gönder
                     </button>
                 </div>
             </div>
         </form>
     </div>
+
 </div>
+
+<script>
+(function () {
+    var form = document.getElementById('blogCommentForm');
+    if (!form) return;
+
+    var csrf = document.querySelector('meta[name="csrf-token"]');
+    var btn  = document.getElementById('blogCommentSubmit');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gönderiliyor...';
+
+        var data = {};
+        new FormData(form).forEach(function (value, key) {
+            if (key !== '_token') { data[key] = value; }
+        });
+        if (!data['g-recaptcha-response'] && typeof grecaptcha !== 'undefined') {
+            data['g-recaptcha-response'] = grecaptcha.getResponse();
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf ? csrf.content : '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+
+            if (res.success) {
+                form.reset();
+                if (typeof grecaptcha !== 'undefined') { grecaptcha.reset(); }
+                if (typeof showResultModal === 'function') {
+                    showResultModal('success', res.message);
+                }
+            } else if (res.errors) {
+                var messages = Object.keys(res.errors).map(function (k) { return res.errors[k][0]; });
+                if (typeof showResultModal === 'function') {
+                    showResultModal('error', messages.join('<br>'));
+                }
+            } else {
+                if (typeof showResultModal === 'function') {
+                    showResultModal('error', res.message || 'Bir hata oluştu.');
+                }
+            }
+        })
+        .catch(function () {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            if (typeof showResultModal === 'function') {
+                showResultModal('error', 'Bir hata oluştu. Lütfen tekrar deneyin.');
+            }
+        });
+    });
+})();
+</script>

@@ -1,16 +1,13 @@
-{{-- Global Result Modal (Success / Error) --}}
+{{-- Global Result Modal (success / error / warning / info) --}}
 <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content result-modal">
-            <button type="button" class="result-modal-close" data-bs-dismiss="modal" aria-label="Kapat">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="result-modal-icon-wrap" id="resultModalIconWrap">
-                <i id="resultModalIcon"></i>
+        <div class="modal-content border-0 rounded-4 text-center p-4 p-md-5">
+            <div class="d-flex justify-content-center mb-3">
+                <span class="result-icon result-icon--info" id="resultModalIcon"></span>
             </div>
-            <h5 class="result-modal-title" id="resultModalTitle"></h5>
-            <div class="result-modal-body" id="resultModalBody"></div>
-            <button type="button" class="result-modal-btn" id="resultModalBtn" data-bs-dismiss="modal">Tamam</button>
+            <h5 class="fw-bold mb-2" id="resultModalTitle"></h5>
+            <p class="text-muted mb-4" id="resultModalBody"></p>
+            <button type="button" class="btn btn-primary px-4 mx-auto" data-bs-dismiss="modal">Tamam</button>
         </div>
     </div>
 </div>
