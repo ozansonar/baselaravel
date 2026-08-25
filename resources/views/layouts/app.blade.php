@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,11 @@
     @hasSection('canonical')
     <link rel="canonical" href="@yield('canonical')">
     @endif
-    <link rel="alternate" hreflang="tr" href="{{ url()->current() }}">
+    {{-- Search engines are told about every language this page is published in --}}
+    @foreach(app(\App\Services\LanguageService::class)->active() as $altLanguage)
+    <link rel="alternate" hreflang="{{ $altLanguage->code }}" href="{{ route('locale.switch', $altLanguage->code) }}">
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ route('locale.switch', app(\App\Services\LanguageService::class)->defaultCode()) }}">
     <link rel="alternate" type="application/rss+xml" title="{{ $siteName }} Blog" href="{{ route('feed') }}">
     @stack('pagination-meta')
 
@@ -39,7 +43,7 @@
     <meta property="og:title" content="@yield('og_title', trim(View::yieldContent('title', $ogTitle)))">
     <meta property="og:description" content="@yield('og_description', trim(View::yieldContent('meta_description', $ogDesc)))">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:locale" content="tr_TR">
+    <meta property="og:locale" content="{{ app()->getLocale() }}">
     <meta property="og:site_name" content="{{ $siteTitle }}">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     @hasSection('og_image')
@@ -182,8 +186,8 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     @endif
 
-    {{-- Analytics tracker (async; admin/staff skipped) --}}
-    @unless(auth()->check() && auth()->user()->hasAnyRole(['admin','editor','moderator']))
+    {{-- Analytics tracker (async; panel kullanıcıları sayılmaz) --}}
+    @unless(auth()->check() && auth()->user()->roles()->whereHas('permissions')->exists())
     <script src="{{ versioned_asset('js/analytics-tracker.js') }}" defer></script>
     @endunless
 

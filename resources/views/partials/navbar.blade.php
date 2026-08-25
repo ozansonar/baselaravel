@@ -35,7 +35,7 @@
                             <span>{{ auth()->user()->full_name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            @if(auth()->user()->hasAnyRole(['admin', 'editor', 'moderator']))
+                            @if(auth()->user()->roles()->whereHas('permissions')->exists())
                                 <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge me-2"></i>Yönetim Paneli</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             @endif
@@ -54,6 +54,8 @@
                     <a href="{{ route('login') }}" class="btn btn-light">Giriş</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Üye Ol</a>
                 @endauth
+
+                @include('partials.language-switcher')
             </div>
 
             {{-- Mobile toggle --}}
@@ -90,7 +92,7 @@
         <div class="mt-auto d-grid gap-2 pt-3">
             @auth
                 <a href="{{ route('account.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-house-user"></i> Hesabım</a>
-                @if(auth()->user()->hasAnyRole(['admin', 'editor', 'moderator']))
+                @if(auth()->user()->roles()->whereHas('permissions')->exists())
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-gauge"></i> Yönetim Paneli</a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="d-grid">
@@ -101,6 +103,8 @@
                 <a href="{{ route('login') }}" class="btn btn-light">Giriş Yap</a>
                 <a href="{{ route('register') }}" class="btn btn-primary">Üye Ol</a>
             @endauth
+
+            @include('partials.language-switcher')
         </div>
     </div>
 </div>
