@@ -9,6 +9,8 @@ use App\Http\Requests\Admin\StoreMenuItemRequest;
 use App\Http\Requests\Admin\UpdateMenuItemRequest;
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Models\Page;
+use App\Services\LanguageService;
 use App\Services\MenuItemService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,8 +33,14 @@ final class MenuItemController extends Controller
 
         return view('admin.menus.items', [
             'menu'             => $menu,
+            'menuLanguage'     => app(LanguageService::class)->findByCode($menu->locale),
             'availableRoutes'  => $this->menuItemService->getAvailableRoutes(),
-            'pages'            => \App\Models\Page::orderBy('title')->get(['id', 'title', 'slug']),
+            // Only pages in the menu's own language, so a link never points at
+            // another language's page.
+            'pages'            => Page::query()
+                ->where('locale', $menu->locale)
+                ->orderBy('title')
+                ->get(['id', 'title', 'slug']),
         ]);
     }
 

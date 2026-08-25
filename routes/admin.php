@@ -123,6 +123,7 @@ Route::prefix('analytics')->name('analytics.')->group(function () {
 Route::prefix('menus')->name('menus.')->group(function () {
     Route::get('/', [MenuController::class, 'index'])->name('index');
     Route::put('{menu}', [MenuController::class, 'update'])->name('update');
+    Route::post('{menu}/copy/{locale}', [MenuController::class, 'copy'])->name('copy');
     Route::get('{menu}/items', [MenuItemController::class, 'index'])->name('items.index');
     Route::post('{menu}/items', [MenuItemController::class, 'store'])->name('items.store');
     Route::patch('{menu}/items/reorder', [MenuItemController::class, 'reorder'])->name('items.reorder');

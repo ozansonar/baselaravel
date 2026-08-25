@@ -5,29 +5,95 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Menu;
+use App\Models\MenuItem;
+use App\Services\Concerns\LocalizedCache;
+use App\Services\Concerns\ResolvesLocalizedSlugs;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class MenuService
 {
+    use LocalizedCache;
+    use ResolvesLocalizedSlugs;
+
     private const CACHE_TTL = 3600;
 
+    /**
+     * The navigation for a location in the visitor's language.
+     *
+     * A language that has no menu of its own falls back to the default one, so
+     * activating a language never leaves the site without navigation.
+     */
     public function getByLocation(string $location): ?Menu
     {
         return Cache::remember(
-            $this->cacheKey($location),
+            $this->localeCacheKey($this->cacheKey($location)),
             self::CACHE_TTL,
-            fn () => Menu::active()
-                ->byLocation($location)
-                ->with(['rootItems' => function ($query) {
-                    $query->where('is_active', true)->with('activeChildren');
-                }])
-                ->first()
+            function () use ($location): ?Menu {
+                $locale = app()->getLocale();
+                $fallback = app(LanguageService::class)->defaultCode();
+
+                return $this->queryLocation($location, $locale)
+                    ?? ($locale === $fallback ? null : $this->queryLocation($location, $fallback));
+            },
         );
+    }
+
+    /**
+     * Every language version of a location, default language first.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Menu>
+     */
+    public function allForLocation(string $location): \Illuminate\Database\Eloquent\Collection
+    {
+        return Menu::query()
+            ->byLocation($location)
+            ->withCount('items')
+            ->orderBy('locale')
+            ->get();
+    }
+
+    /**
+     * Copy a menu — including its whole item tree — into another language.
+     *
+     * Without this, activating a language would mean rebuilding the navigation
+     * by hand. The copy keeps the structure and links every item to its source
+     * by lang_group_id, so the translator only edits the labels.
+     */
+    public function copyToLocale(Menu $menu, string $locale): Menu
+    {
+        $existing = Menu::query()
+            ->where('lang_group_id', $menu->lang_group_id)
+            ->where('locale', $locale)
+            ->first();
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $copy = DB::transaction(function () use ($menu, $locale): Menu {
+            $copy = Menu::create([
+                'locale'        => $locale,
+                'lang_group_id' => $menu->lang_group_id,
+                'name'          => $menu->name,
+                'location'      => $menu->location,
+                'is_active'     => $menu->is_active,
+            ]);
+
+            $this->copyItems($menu, $copy, $locale, null, null);
+
+            return $copy;
+        });
+
+        $this->clearAllCaches();
+
+        return $copy;
     }
 
     public function clearCache(string $location): void
     {
-        Cache::forget($this->cacheKey($location));
+        $this->forgetLocalized($this->cacheKey($location));
     }
 
     public function clearAllCaches(): void
@@ -35,6 +101,76 @@ final class MenuService
         foreach (['header', 'footer', 'custom'] as $location) {
             $this->clearCache($location);
         }
+    }
+
+    private function queryLocation(string $location, string $locale): ?Menu
+    {
+        return Menu::active()
+            ->byLocation($location)
+            ->where('locale', $locale)
+            ->with(['rootItems' => function ($query): void {
+                $query->where('is_active', true)->with('activeChildren');
+            }])
+            ->first();
+    }
+
+    /**
+     * Walk the source tree depth-first so a child is always created after the
+     * parent it points at.
+     */
+    private function copyItems(Menu $source, Menu $target, string $locale, ?int $sourceParentId, ?int $targetParentId): void
+    {
+        $children = MenuItem::query()
+            ->where('menu_id', $source->id)
+            ->where('parent_id', $sourceParentId)
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($children as $item) {
+            $copy = MenuItem::create([
+                'locale'        => $locale,
+                'lang_group_id' => $item->lang_group_id ?: (string) Str::uuid(),
+                'menu_id'       => $target->id,
+                'parent_id'     => $targetParentId,
+                'label'         => $item->label,
+                'icon'          => $item->icon,
+                'link_type'     => $item->link_type,
+                'route_name'    => $item->route_name,
+                'route_params'  => $this->translateRouteParams($item, $locale),
+                'url'           => $item->url,
+                'target'        => $item->target,
+                'display_type'  => $item->display_type,
+                'sort_order'    => $item->sort_order,
+                'is_active'     => $item->is_active,
+            ]);
+
+            $this->copyItems($source, $target, $locale, $item->id, $copy->id);
+        }
+    }
+
+    /**
+     * A copied page link should open the target language's page, not the one it
+     * was copied from — where that translation already exists.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function translateRouteParams(MenuItem $item, string $locale): ?array
+    {
+        $params = $item->route_params;
+
+        if ($item->route_name !== 'pages.show' || ! is_array($params)) {
+            return $params;
+        }
+
+        $slug = $params['slug'] ?? null;
+
+        if (! is_string($slug) || $slug === '') {
+            return $params;
+        }
+
+        $params['slug'] = $this->localizedSlug($slug, $locale);
+
+        return $params;
     }
 
     private function cacheKey(string $location): string

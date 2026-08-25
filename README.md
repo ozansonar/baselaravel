@@ -247,6 +247,31 @@ Yeni bir modülü çok dilli yapmak için `App\Services\Concerns\SyncsTranslatio
 trait'ini servise ekleyin, formu `<x-language-tabs>` ile sarın ve alanları
 `translations[{locale}][field]` olarak isimlendirin.
 
+### Arayüz metinleri
+
+İçerik veritabanından gelir, **arayüz** ise `lang/{kod}/site.php` dosyalarından:
+buton, başlık, form etiketi, placeholder ve `aria-label` dahil. Kurulumla `tr`
+ve `en` dosyaları gelir.
+
+Yeni dil eklediğinizde `lang/tr/site.php` dosyasını yeni kodun klasörüne
+kopyalayıp değerleri çevirin. Dosya yoksa arayüz varsayılan dile düşer, ham
+anahtar (`site.nav.home`) sayfaya basılmaz.
+
+`InterfaceTranslationTest` iki şeyi bekçilik eder: dil dosyalarının anahtar
+kümesi birebir aynıdır (eksik anahtar sayfayı sessizce yarı çevrilmiş gösterir)
+ve Blade'de kullanılan her anahtar tanımlıdır.
+
+### Navigasyon
+
+Menüler de dile aittir: her dilin kendi menüsü ve kendi öğe ağacı vardır, yani
+bir dil daha az bağlantı veya farklı bir sıra gösterebilir. Menüsü olmayan bir
+dil varsayılan dilin menüsüne düşer, site hiçbir zaman navigasyonsuz kalmaz.
+
+**Menü Yönetimi** ekranında her menü kartında bir çeviri butonu vardır; menüyü
+tüm öğe ağacıyla birlikte başka bir dile kopyalar. Kopya yapıyı ve bağlantıları
+korur, geriye yalnızca etiketleri çevirmek kalır. Sayfa bağlantıları kopyalanırken
+hedef dilin slug'ına çevrilir; o dilde çevirisi yoksa slug olduğu gibi kalır.
+
 ---
 
 ## E-posta doğrulama
@@ -283,6 +308,10 @@ composer test
   CASCADE kalmadığını doğrular
 - `EnumDrivenOptionsTest` — enum case'lerinin ekranlara düştüğünü doğrular
 - `RedirectTargetValidationTest` — açık yönlendirme koruması
+- `InterfaceTranslationTest` — dil dosyalarının anahtar denkliği, Blade'de
+  kullanılan her anahtarın tanımlı olması, arayüzün tarayıcı diline uyması
+- `LocalizedMenuTest` — dile göre navigasyon, menüsü olmayan dilin varsayılana
+  düşmesi, menünün başka bir dile kopyalanması
 
 ---
 

@@ -23,4 +23,13 @@ final class MenuPolicy
     {
         return $user->hasPermission(PermissionKey::MenusManage);
     }
+
+    /**
+     * Copying a menu into another language creates a menu, so it needs the same
+     * permission as managing one.
+     */
+    public function create(User $user): bool
+    {
+        return $user->hasPermission(PermissionKey::MenusManage);
+    }
 }

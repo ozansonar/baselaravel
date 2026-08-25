@@ -19,7 +19,10 @@
     <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" data-aos="fade-down">
         <div>
             <h1 class="page-title">{{ $menu->name }} Öğeleri</h1>
-            <p class="page-subtitle">Sürükle-bırak ile sıralayın, düzenleyin ve alt öğeler ekleyin</p>
+            <p class="page-subtitle">
+                <span class="badge bg-secondary me-1">{{ $menuLanguage?->flag }} {{ $menuLanguage?->native_name ?? strtoupper($menu->locale) }}</span>
+                Sürükle-bırak ile sıralayın, düzenleyin ve alt öğeler ekleyin
+            </p>
         </div>
         <button type="button" class="btn-teal" data-bs-toggle="modal" data-bs-target="#menuItemModal" id="addRootItemBtn">
             <i class="bi bi-plus-lg"></i> Yeni Öğe Ekle

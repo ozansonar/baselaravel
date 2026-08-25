@@ -23,6 +23,8 @@ use App\Observers\MenuObserver;
 use App\Observers\PageObserver;
 use App\Observers\RedirectObserver;
 use App\Observers\UserObserver;
+use App\Services\MenuItemService;
+use App\Services\MenuService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Events\MessageFailed;
@@ -42,7 +44,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The navigation renders twice per page (desktop and the mobile
+        // drawer) and asks these for every item, so they keep a per-request
+        // memo — which only helps if the instance is shared.
+        $this->app->singleton(MenuService::class);
+        $this->app->singleton(MenuItemService::class);
     }
 
     /**

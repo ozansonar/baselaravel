@@ -429,7 +429,76 @@ tanımlanıyor.
 
 `LanguageManagementTest` (12), `ContentTranslationTest` (13),
 `LocaleResolutionTest` (13), `TranslatedPageFormTest` (13),
-`TranslatedContentFormsTest` (19), `FrontLocaleContentTest` (8).
+`TranslatedContentFormsTest` (19), `FrontLocaleContentTest` (17).
+
+---
+
+## 5f. Arayüz Çevirisi — ✅ Tamamlandı
+
+İçerik çok dilliydi ama arayüz değildi: buton, başlık, form etiketi ve
+`aria-label`'lar Blade içinde Türkçe sabit yazılıydı. İngilizce ziyaretçi
+İngilizce içeriği Türkçe bir arayüzün içinde okuyordu.
+
+Tüm arayüz metinleri `lang/tr/site.php` ve `lang/en/site.php` dosyalarına
+taşındı (166 anahtar, iki dilde birebir aynı anahtar kümesi).
+
+Kapsam: anasayfa, blog listesi/detayı, galeri, SSS, iletişim, sayfa detayı,
+hesap paneli, profil, giriş/kayıt/şifre/e-posta doğrulama; navbar, footer, dil
+seçici, sosyal paylaşım, yorum formu, onay/sonuç/popup modalları; 403, 404, 410,
+419, 429, 500 hata sayfaları ve bakım modu (503).
+
+Dikkat edilen noktalar:
+
+- `aria-label` ve `placeholder` metinleri de çeviriye dahil — ekran okuyucu
+  kullanıcısı da sayfayı kendi dilinde duyuyor
+- Anasayfa hero başlığı işaretleme taşıyor ve `{!! !!}` ile basılıyor, böylece
+  vurgulanan kelime her dilde ayrı seçilebiliyor
+- Ayar (Setting) varsayılanları da çeviriden okunuyor: `site_description` ve
+  `footer_text` boşsa aktif dilde görünüyor
+- 503 sayfası bakım modunda middleware'siz render edildiği için `<html lang>`
+  değerini artık aktif dilden alıyor
+- Admin paneli bilinçli olarak tek dilli (Türkçe) bırakıldı — arka ofis, ziyaretçi
+  yüzeyi değil
+
+`InterfaceTranslationTest` (10) bekçilik ediyor: iki dil dosyasının anahtar
+kümesi birebir aynı mı, hiçbir değer boş değil mi, Blade'de kullanılan her
+anahtar tanımlı mı (tanımsız anahtar sayfaya ham `site.nav.home` olarak basılır),
+tarayıcı diline göre arayüz dili, dil seçimiyle değişen navigasyon ve çeviri
+dosyası olmayan dilde varsayılana düşme.
+
+---
+
+## 5g. Çok Dilli Navigasyon — ✅ Tamamlandı
+
+Arayüz çevrildikten sonra tarayıcı testinde çıktı: navbar hâlâ Türkçeydi. Menü
+öğeleri veritabanı içeriği ve `menus`/`menu_items` çeviri tablolarına dahil
+edilmemişti — İngilizce ziyaretçi hâlâ "Anasayfa · Hakkımızda · İletişim"
+okuyordu.
+
+İki tablo da diğer içerik tabloları gibi `locale` + `lang_group_id` taşıyor.
+**Bir menü tek bir dile ait ve kendi öğe ağacını taşıyor**, yani bir dil
+meşru olarak farklı bir navigasyon gösterebiliyor (daha az sayfa, farklı sıra).
+
+- Menüsü olmayan dil varsayılan dilin menüsüne düşüyor, site navigasyonsuz kalmıyor
+- Menü cache'i dile göre ayrıldı (`LocalizedCache`)
+- Panelde her menü kartı hangi dile ait olduğunu bayrakla gösteriyor
+- **"Başka bir dile kopyala"** aksiyonu menüyü tüm öğe ağacıyla klonluyor;
+  yapı ve bağlantılar korunuyor, çevirmene yalnızca etiketler kalıyor. Her öğe
+  kaynağına `lang_group_id` ile bağlı kalıyor.
+- Öğe formu yalnızca menünün kendi dilindeki sayfaları sunuyor
+
+Yol üzerinde bulunan tuzak: menü sayfa **slug'ı** saklıyor, sayfa id'si değil.
+Bu yüzden hem yedeğe düşen hem de kopyalanan menü yanlış çeviriyi açıyordu.
+`ResolvesLocalizedSlugs` trait'i slug'ı aktif dilin slug'ına çeviriyor — hem
+kopyalama anında (veriyi doğru yazmak için) hem render anında (emniyet ağı).
+Karar öğenin kendi diline değil, **slug'ın hangi dile ait olduğuna** bakıyor;
+iki yol da tek kontrolle kapanıyor.
+
+Navigasyon her sayfada iki kez render edildiği (masaüstü + mobil çekmece) ve öğe
+başına slug sorgusu gerektirdiği için `MenuService` ve `MenuItemService` singleton
+olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
+
+`LocalizedMenuTest` (14) kapsıyor.
 
 ---
 
@@ -437,10 +506,12 @@ tanımlanıyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **27 test / 179 assertion**. Yetkilendirme, açık yönlendirme ve
-okuma yolları kapsandı; ancak **içerik CRUD yazma yolları hâlâ testsiz**:
-sayfa/blog/galeri store-update-destroy, upload, mail gönderimi. FAQ'daki gibi
-bir kırığın sessizce girmesi bu alanlarda hâlâ mümkün.
+Suite artık **273 test / 1390 assertion**. Yetkilendirme, açık yönlendirme,
+SoftDeletes, çok dilli içerik formları, arayüz çevirisi ve navigasyon kapsandı.
+
+Hâlâ testsiz kalan: **mail gönderimi ve upload yolları** (`UploadService`
+varyant üretimi, `MailTemplateService` render). İçerik CRUD'u çok dilli form
+testleriyle birlikte kapsandı.
 
 ### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
 
@@ -452,11 +523,12 @@ bir kırığın sessizce girmesi bu alanlarda hâlâ mümkün.
 
 ### 🟢 Diğer
 
-- **`README.md` tek satır** (`# baselaravel`). Kurulum adımları yazılmalı.
+- ~~`README.md` tek satır~~ — yazıldı: kurulum, roller, çok dilli yapı, testler.
 - **`composer.json` adı hâlâ `laravel/laravel`**.
 - **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13
   ile çalışıyor ama uzun vadede risk.
-- **Hesabım alanı zayıf** — şifre değiştirme ve e-posta doğrulama yok.
+- ~~Hesabım alanı zayıf~~ — şifre değiştirme (mevcut şifre doğrulamalı) ve
+  e-posta doğrulama eklendi.
 - ~~Ölü kod~~ — temizlendi: `vendor/pagination/custom.blade.php` ve
   `.gitignore`'daki google kuralı kaldırıldı. `UserRole` enum'u silinmedi,
   aksine bağlandı: `AdminMiddleware` ve `RoleSeeder` artık rol slug'larını
