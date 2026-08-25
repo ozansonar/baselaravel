@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\AuditEvent;
 use App\Models\AdminNotification;
 use App\Models\AnalyticsDailyStat;
 use App\Models\AuditLog;
@@ -92,21 +93,21 @@ class SoftDeleteRetentionTest extends TestCase
     public function test_audit_log_pruning_removes_rows_from_the_table(): void
     {
         AuditLog::create([
-            'event'      => AuditLog::EVENT_CUSTOM,
+            'event'      => AuditEvent::Custom,
             'label'      => 'Eski kayıt',
             'created_at' => now()->subDays(200),
         ]);
 
         // A row that was already soft deleted must be reclaimed as well.
         $soft = AuditLog::create([
-            'event'      => AuditLog::EVENT_CUSTOM,
+            'event'      => AuditEvent::Custom,
             'label'      => 'Önce soft silinmiş',
             'created_at' => now()->subDays(200),
         ]);
         $soft->delete();
 
         AuditLog::create([
-            'event'      => AuditLog::EVENT_CUSTOM,
+            'event'      => AuditEvent::Custom,
             'label'      => 'Yeni kayıt',
             'created_at' => now()->subDays(3),
         ]);

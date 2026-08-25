@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\RedirectStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +26,7 @@ class Redirect extends Model
     protected function casts(): array
     {
         return [
-            'status_code' => 'integer',
+            'status_code' => RedirectStatus::class,
             'hit_count'   => 'integer',
             'last_hit_at' => 'datetime',
             'is_active'   => 'boolean',

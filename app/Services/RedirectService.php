@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\RedirectStatus;
 use App\Models\Redirect;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
@@ -115,8 +116,11 @@ final class RedirectService
         return $redirect;
     }
 
-    public function createAutoRedirect(string $oldUrl, string $newUrl, int $statusCode = 301): void
-    {
+    public function createAutoRedirect(
+        string $oldUrl,
+        string $newUrl,
+        RedirectStatus $statusCode = RedirectStatus::MovedPermanently,
+    ): void {
         $oldUrl = '/' . ltrim($oldUrl, '/');
         $newUrl = '/' . ltrim($newUrl, '/');
 

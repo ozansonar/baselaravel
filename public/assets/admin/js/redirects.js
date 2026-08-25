@@ -18,14 +18,6 @@
     var statusCodeDesc = document.getElementById('statusCodeDesc');
     var storeUrl = form ? form.action : '';
 
-    var statusDescriptions = {
-        '301': 'URL kalıcı olarak taşındı. SEO değeri yeni URL\'ye aktarılır. Google eski URL\'yi zamanla düşürür.',
-        '302': 'URL geçici olarak başka yere yönlendirildi. SEO değeri eski URL\'de kalır.',
-        '307': '302 gibi ama HTTP metodu (POST/GET) değişmez. API yönlendirmeleri için uygundur.',
-        '308': '301 gibi ama HTTP metodu değişmez. API\'ler için kalıcı taşıma.',
-        '404': 'Sayfa mevcut değil. Yönlendirme yapılmaz, 404 sayfası gösterilir.',
-        '410': 'Sayfa bilinçli olarak kaldırıldı ve geri gelmeyecek. Google daha hızlı düşürür.'
-    };
 
     // ── Status code change → toggle new_url visibility + description ──
     if (statusCodeSelect) {
@@ -34,8 +26,16 @@
         });
     }
 
+    // Labels and behaviour come from the RedirectStatus enum, rendered onto
+    // each <option> as data attributes. Nothing about status codes is listed
+    // twice: adding a case to the enum is enough.
     function updateStatusUI(code) {
-        var isNoRedirect = code === '404' || code === '410';
+        if (!statusCodeSelect) {
+            return;
+        }
+
+        var option = statusCodeSelect.querySelector('option[value="' + code + '"]');
+        var isNoRedirect = option ? option.dataset.redirects === '0' : false;
 
         if (newUrlWrapper) {
             newUrlWrapper.classList.toggle('d-none', isNoRedirect);
@@ -49,8 +49,7 @@
         }
 
         if (statusCodeDesc) {
-            var desc = statusDescriptions[code] || '';
-            statusCodeDesc.querySelector('span').textContent = desc;
+            statusCodeDesc.querySelector('span').textContent = option ? (option.dataset.description || '') : '';
         }
     }
 

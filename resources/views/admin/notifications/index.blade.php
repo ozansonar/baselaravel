@@ -60,7 +60,7 @@
             @else
                 <ul class="nt-list">
                     @foreach($notifications as $notif)
-                        <li class="nt-item nt-item--{{ $notif->level }} {{ $notif->isUnread() ? 'is-unread' : '' }}">
+                        <li class="nt-item nt-item--{{ $notif->level?->value }} {{ $notif->isUnread() ? 'is-unread' : '' }}">
                             <div class="nt-item__icon">
                                 <i class="bi {{ $notif->levelIcon() }}"></i>
                             </div>

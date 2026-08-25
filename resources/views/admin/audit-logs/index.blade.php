@@ -21,8 +21,8 @@
                     <label class="form-label small text-muted">Event</label>
                     <select name="event" class="form-select form-select-sm form-control-theme">
                         <option value="">Hepsi</option>
-                        @foreach($eventTypes as $key => $label)
-                            <option value="{{ $key }}" @selected(request('event') === $key)>{{ $label }}</option>
+                        @foreach($eventTypes as $event)
+                            <option value="{{ $event->value }}" @selected(request('event') === $event->value)>{{ $event->label() }}</option>
                         @endforeach
                     </select>
                 </div>

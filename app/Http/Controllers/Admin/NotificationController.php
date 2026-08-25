@@ -60,7 +60,7 @@ final class NotificationController extends Controller
             'items' => $items->map(static fn ($n) => [
                 'id'          => $n->id,
                 'type'        => $n->type,
-                'level'       => $n->level,
+                'level'       => $n->level?->value,
                 'icon'        => $n->levelIcon(),
                 'badge_class' => $n->levelBadgeClass(),
                 'title'       => $n->title,

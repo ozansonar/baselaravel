@@ -23,7 +23,7 @@ final class HandleRedirects
             Redirect::where('is_active', true)
                 ->get(['old_url', 'new_url', 'status_code'])
                 ->keyBy('old_url')
-                ->map(fn ($r) => ['new_url' => $r->new_url, 'status_code' => $r->status_code])
+                ->map(fn ($r) => ['new_url' => $r->new_url, 'status_code' => $r->status_code?->value])
                 ->toArray()
         );
 

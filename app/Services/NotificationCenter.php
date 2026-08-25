@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\NotificationLevel;
 use App\Models\AdminNotification;
 use Illuminate\Support\Facades\Cache;
 
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
  * Admin paneli içi bildirim merkezi.
  *
  * Kullanım:
- *  NotificationCenter::send('post_failed', 'IG paylaşım başarısız', 'Post #123 fail oldu', level: 'error', actionUrl: ...);
+ *  NotificationCenter::send('backup_failed', 'Yedek alınamadı', 'Disk dolu', level: NotificationLevel::Error, actionUrl: ...);
  *  NotificationCenter::sendCritical('Backup hatası', 'Disk dolu', actionUrl: ...);
  *
  * Throttle: aynı (type + title hash) için 5 dakika tekrar gönderilmez.
@@ -25,7 +26,7 @@ final class NotificationCenter
         string $type,
         string $title,
         ?string $message = null,
-        string $level = AdminNotification::LEVEL_INFO,
+        NotificationLevel $level = NotificationLevel::Info,
         ?int $userId = null,
         ?string $icon = null,
         ?string $actionUrl = null,
@@ -41,7 +42,7 @@ final class NotificationCenter
             return AdminNotification::create([
                 'user_id'    => $userId,
                 'type'       => $type,
-                'level'      => in_array($level, AdminNotification::LEVELS, true) ? $level : 'info',
+                'level'      => $level,
                 'title'      => mb_strimwidth($title, 0, 200, '…'),
                 'message'    => $message ? mb_strimwidth($message, 0, 1000, '…') : null,
                 'icon'       => $icon,
@@ -61,7 +62,7 @@ final class NotificationCenter
             TelegramNotifier::notifyAdminError($title, $message ? ['detay' => $message] : [], $actionUrl, emoji: '🚨');
         }
 
-        return self::send('critical', $title, $message, AdminNotification::LEVEL_CRITICAL, null, null, $actionUrl);
+        return self::send('critical', $title, $message, NotificationLevel::Critical, null, null, $actionUrl);
     }
 
     /** Belirli kullanıcı için okundu işaretle */
