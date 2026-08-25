@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class BlogService
 {
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -194,6 +196,48 @@ final class BlogService
 
             return $post->refresh();
         });
+    }
+
+    /**
+     * Save a post in every language the form supplied.
+     *
+     * The publish flag and the author come from outside the language blocks:
+     * publishing is a decision about the post, not about one translation.
+     *
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     * @param array<string, mixed> $shared
+     */
+    public function createTranslated(array $translations, array $shared = []): string
+    {
+        $groupId = $this->saveTranslations(
+            BlogPost::class,
+            $translations,
+            fn (array $fields, string $locale, ?BlogPost $existing, ?BlogPost $default): array =>
+                $this->prepareImageField($fields + $shared, $existing, 'blog', 'title', 'image', $default),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     * @param array<string, mixed> $shared
+     */
+    public function updateTranslated(BlogPost $post, array $translations, array $shared = []): string
+    {
+        $groupId = $this->saveTranslations(
+            BlogPost::class,
+            $translations,
+            fn (array $fields, string $locale, ?BlogPost $existing, ?BlogPost $default): array =>
+                $this->prepareImageField($fields + $shared, $existing, 'blog', 'title', 'image', $default),
+            $post->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function delete(BlogPost $post): void

@@ -1,0 +1,268 @@
+{{--
+    One language's worth of a popups record.
+
+    Included once per language, so every field — the image included — belongs to
+    that language alone.
+
+    @var \App\Models\Language $language
+    @var \App\Models\Popup|null $translation
+--}}
+
+        {{-- Mobile Section Jumper --}}
+        <div class="d-lg-none mb-4" data-aos="fade-up">
+            <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+                <option value="" disabled selected>Bölüme git...</option>
+                <option value="section-basic">Temel Bilgiler</option>
+                <option value="section-media">Görsel</option>
+                <option value="section-button">Buton Ayarları</option>
+                <option value="section-settings">Popup Ayarları</option>
+            </select>
+        </div>
+
+        {{-- Form Layout --}}
+        <div class="row g-4 align-items-start">
+
+            {{-- Sol Navigasyon (desktop) --}}
+            <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right">
+                <div class="stg-nav-inner position-sticky stg-nav-sticky">
+                    <a href="#section-basic" class="stg-nav-item active" onclick="scrollToSection('section-basic', this)">
+                        <i class="bi bi-window-stack"></i>
+                        <div><span>Temel Bilgiler</span><small>Başlık, açıklama</small></div>
+                    </a>
+                    <a href="#section-media" class="stg-nav-item" onclick="scrollToSection('section-media', this)">
+                        <i class="bi bi-image"></i>
+                        <div><span>Görsel</span><small>Popup görseli</small></div>
+                    </a>
+                    <a href="#section-button" class="stg-nav-item" onclick="scrollToSection('section-button', this)">
+                        <i class="bi bi-link-45deg"></i>
+                        <div><span>Buton Ayarları</span><small>Buton metni ve URL</small></div>
+                    </a>
+                    <a href="#section-settings" class="stg-nav-item" onclick="scrollToSection('section-settings', this)">
+                        <i class="bi bi-gear"></i>
+                        <div><span>Popup Ayarları</span><small>Boyut, sayfalar, tarih</small></div>
+                    </a>
+                </div>
+            </div>
+
+            {{-- Form İçeriği --}}
+            <div class="col-12 col-lg-9">
+
+                {{-- SECTION 1: TEMEL BİLGİLER --}}
+                <div class="card-dark mb-4" id="section-basic_{{ $language->code }}" data-aos="fade-up">
+                    <div class="card-header-custom">
+                        <div class="form-section-header mb-0">
+                            <div class="form-section-icon bg-icon-teal"><i class="bi bi-window-stack"></i></div>
+                            <div>
+                                <h6 class="mb-0">Temel Bilgiler</h6>
+                                <small class="text-muted">Popup başlığını ve açıklamasını belirleyin</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-3">
+                            {{-- Başlık --}}
+                            <div class="col-12">
+                                <label class="form-label" for="title_{{ $language->code }}">
+                                    Başlık <span class="text-danger">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
+                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       placeholder="Popup başlığını girin..." required>
+                                @error("translations.{$language->code}.title")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Açıklama --}}
+                            <div class="col-12">
+                                <label class="form-label" for="description_{{ $language->code }}">Açıklama</label>
+                                <textarea class="form-control @error("translations.{$language->code}.description") is-invalid @enderror"
+                                          id="description_{{ $language->code }}" name="translations[{{ $language->code }}][description]" rows="3"
+                                          placeholder="Popup açıklamasını girin...">{{ old("translations.{$language->code}.description", $translation?->description) }}</textarea>
+                                @error("translations.{$language->code}.description")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- SECTION 2: GÖRSEL --}}
+                <div class="card-dark mb-4" id="section-media_{{ $language->code }}" data-aos="fade-up">
+                    <div class="card-header-custom">
+                        <div class="form-section-header mb-0">
+                            <div class="form-section-icon bg-icon-purple"><i class="bi bi-image"></i></div>
+                            <div>
+                                <h6 class="mb-0">Görsel</h6>
+                                <small class="text-muted">Popup için görsel yükleyin</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="image_{{ $language->code }}">Popup Görseli</label>
+                                <input type="file"
+                                       class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*">
+                                @error("translations.{$language->code}.image")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">PNG, JPG, WebP | Maks: 2 MB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- SECTION 3: BUTON AYARLARI --}}
+                <div class="card-dark mb-4" id="section-button_{{ $language->code }}" data-aos="fade-up">
+                    <div class="card-header-custom">
+                        <div class="form-section-header mb-0">
+                            <div class="form-section-icon bg-icon-blue"><i class="bi bi-link-45deg"></i></div>
+                            <div>
+                                <h6 class="mb-0">Buton Ayarları</h6>
+                                <small class="text-muted">Popup üzerindeki buton metni ve yönlendirme URL'si</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="button_text_{{ $language->code }}">Buton Metni</label>
+                                <input type="text"
+                                       class="form-control @error("translations.{$language->code}.button_text") is-invalid @enderror"
+                                       id="button_text_{{ $language->code }}" name="translations[{{ $language->code }}][button_text]"
+                                       value="{{ old("translations.{$language->code}.button_text", $translation?->button_text) }}"
+                                       placeholder="Detaylı Bilgi">
+                                @error("translations.{$language->code}.button_text")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Boş bırakılırsa buton gösterilmez</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="button_url_{{ $language->code }}">Buton URL</label>
+                                <input type="text"
+                                       class="form-control @error("translations.{$language->code}.button_url") is-invalid @enderror"
+                                       id="button_url_{{ $language->code }}" name="translations[{{ $language->code }}][button_url]"
+                                       value="{{ old("translations.{$language->code}.button_url", $translation?->button_url) }}"
+                                       placeholder="/blog/...">
+                                @error("translations.{$language->code}.button_url")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Dahili veya harici link girebilirsiniz</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- SECTION 4: POPUP AYARLARI --}}
+                <div class="card-dark mb-4" id="section-settings_{{ $language->code }}" data-aos="fade-up">
+                    <div class="card-header-custom">
+                        <div class="form-section-header mb-0">
+                            <div class="form-section-icon bg-icon-orange"><i class="bi bi-gear"></i></div>
+                            <div>
+                                <h6 class="mb-0">Popup Ayarları</h6>
+                                <small class="text-muted">Boyut, görüntülenme sayfaları, tarih aralığı ve durum</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-3">
+                            {{-- Boyut --}}
+                            <div class="col-md-6">
+                                <label class="form-label" for="size_{{ $language->code }}">Popup Boyutu</label>
+                                <select class="form-select @error("translations.{$language->code}.size") is-invalid @enderror"
+                                        id="size_{{ $language->code }}" name="translations[{{ $language->code }}][size]">
+                                    @foreach(\App\Enums\PopupSize::cases() as $size)
+                                        <option value="{{ $size->value }}" {{ old("translations.{$language->code}.size", 'md') === $size->value ? 'selected' : '' }}>
+                                            {{ $size->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error("translations.{$language->code}.size")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Sıralama --}}
+                            <div class="col-md-3">
+                                <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
+                                <input type="number"
+                                       class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]"
+                                       value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
+                                @error("translations.{$language->code}.sort_order")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Düşük = Önce gösterilir</div>
+                            </div>
+
+                            {{-- Durum --}}
+                            <div class="col-md-3">
+                                <label class="form-label" for="is_active_{{ $language->code }}">Durum</label>
+                                <select class="form-select @error("translations.{$language->code}.is_active") is-invalid @enderror"
+                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]">
+                                    <option value="1" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 1 ? 'selected' : '' }}>Aktif</option>
+                                    <option value="0" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 0 ? 'selected' : '' }}>Pasif</option>
+                                </select>
+                                @error("translations.{$language->code}.is_active")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Sayfalar --}}
+                            <div class="col-12">
+                                <label class="form-label">
+                                    Görüntülenecek Sayfalar <span class="text-danger">*</span>
+                                </label>
+                                @error("translations.{$language->code}.pages")
+                                <div class="text-danger small mb-2">{{ $message }}</div>
+                                @enderror
+                                <div class="row g-2">
+                                    @foreach(\App\Enums\PopupPage::cases() as $page)
+                                        <div class="col-6 col-md-4 col-lg-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                       name="translations[{{ $language->code }}][pages][]" value="{{ $page->value }}"
+                                                       id="page_{{ $page->value }}"
+                                                       {{ in_array($page->value, old("translations.{$language->code}.pages", ['all'])) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="page_{{ $page->value }}">
+                                                    {{ $page->label() }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Başlangıç Tarihi --}}
+                            <div class="col-md-6">
+                                <label class="form-label" for="start_date_{{ $language->code }}">Başlangıç Tarihi</label>
+                                <input type="date"
+                                       class="form-control @error("translations.{$language->code}.start_date") is-invalid @enderror"
+                                       id="start_date_{{ $language->code }}" name="translations[{{ $language->code }}][start_date]"
+                                       value="{{ old("translations.{$language->code}.start_date", $translation?->start_date?->format('Y-m-d')) }}">
+                                @error("translations.{$language->code}.start_date")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Boş = Hemen başlar</div>
+                            </div>
+
+                            {{-- Bitiş Tarihi --}}
+                            <div class="col-md-6">
+                                <label class="form-label" for="end_date_{{ $language->code }}">Bitiş Tarihi</label>
+                                <input type="date"
+                                       class="form-control @error("translations.{$language->code}.end_date") is-invalid @enderror"
+                                       id="end_date_{{ $language->code }}" name="translations[{{ $language->code }}][end_date]"
+                                       value="{{ old("translations.{$language->code}.end_date", $translation?->end_date?->format('Y-m-d')) }}">
+                                @error("translations.{$language->code}.end_date")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Boş = Süresiz gösterilir</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+

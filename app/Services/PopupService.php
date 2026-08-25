@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 final class PopupService
 {
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -99,6 +101,41 @@ final class PopupService
 
             return $popup->refresh();
         });
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Popup::class,
+            $translations,
+            fn (array $fields, string $locale, ?Popup $existing, ?Popup $default): array =>
+                $this->prepareImageField($fields, $existing, 'popups', 'title', 'image', $default),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Popup $popup, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Popup::class,
+            $translations,
+            fn (array $fields, string $locale, ?Popup $existing, ?Popup $default): array =>
+                $this->prepareImageField($fields, $existing, 'popups', 'title', 'image', $default),
+            $popup->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function delete(Popup $popup): void

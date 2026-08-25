@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedBlogPostRequest;
 use App\Http\Requests\StoreBlogPostRequest;
 use App\Http\Requests\UpdateBlogPostRequest;
 use App\Models\BlogCategory;
@@ -44,23 +45,20 @@ final class BlogPostController extends Controller
         $this->authorize('create', BlogPost::class);
 
         return view('admin.blog-posts.create', [
-            'categories' => BlogCategory::active()->sorted()->get(),
+            // Every language's categories; each tab shows only its own.
+            'categories'    => BlogCategory::active()->sorted()->get(),
+            'formLanguages' => $this->blogService->formLanguages(),
         ]);
     }
 
-    public function store(StoreBlogPostRequest $request): RedirectResponse
+    public function store(StoreTranslatedBlogPostRequest $request): RedirectResponse
     {
         $this->authorize('create', BlogPost::class);
 
-        $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
-        $data['is_published'] = (bool) $request->input('is_published', false);
-
-        if ($data['is_published'] && empty($data['published_at'])) {
-            $data['published_at'] = now();
-        }
-
-        $this->blogService->create($data);
+        $this->blogService->createTranslated(
+            $request->validated('translations'),
+            $this->sharedFields($request),
+        );
 
         return redirect()
             ->route('admin.blog-posts.index')
@@ -83,27 +81,47 @@ final class BlogPostController extends Controller
         $this->authorize('update', $blogPost);
 
         return view('admin.blog-posts.edit', [
-            'post'       => $blogPost,
-            'categories' => BlogCategory::active()->sorted()->get(),
+            'post'          => $blogPost,
+            'categories'    => BlogCategory::active()->sorted()->get(),
+            'formLanguages' => $this->blogService->formLanguages(),
         ]);
     }
 
-    public function update(UpdateBlogPostRequest $request, BlogPost $blogPost): RedirectResponse
+    public function update(StoreTranslatedBlogPostRequest $request, BlogPost $blogPost): RedirectResponse
     {
         $this->authorize('update', $blogPost);
 
-        $data = $request->validated();
-        $data['is_published'] = (bool) $request->input('is_published', false);
-
-        if ($data['is_published'] && empty($data['published_at']) && !$blogPost->published_at) {
-            $data['published_at'] = now();
-        }
-
-        $this->blogService->update($blogPost, $data);
+        $this->blogService->updateTranslated(
+            $blogPost,
+            $request->validated('translations'),
+            $this->sharedFields($request, $blogPost),
+        );
 
         return redirect()
             ->route('admin.blog-posts.index')
             ->with('success', 'İçerik başarıyla güncellendi.');
+    }
+
+    /**
+     * Fields that belong to the post rather than to one translation: who wrote
+     * it and whether it is published.
+     *
+     * @return array<string, mixed>
+     */
+    private function sharedFields(StoreTranslatedBlogPostRequest $request, ?BlogPost $post = null): array
+    {
+        $published = $request->boolean('is_published');
+
+        $shared = [
+            'user_id'      => $request->user()->id,
+            'is_published' => $published,
+        ];
+
+        if ($published && $post?->published_at === null) {
+            $shared['published_at'] = now();
+        }
+
+        return $shared;
     }
 
     public function destroy(BlogPost $blogPost): RedirectResponse

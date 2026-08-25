@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedPopupRequest;
 use App\Http\Requests\StorePopupRequest;
 use App\Http\Requests\UpdatePopupRequest;
 use App\Models\Popup;
@@ -41,14 +42,14 @@ final class PopupController extends Controller
     {
         $this->authorize('create', Popup::class);
 
-        return view('admin.popups.create');
+        return view('admin.popups.create', ['formLanguages' => $this->popupService->formLanguages()]);
     }
 
-    public function store(StorePopupRequest $request): RedirectResponse
+    public function store(StoreTranslatedPopupRequest $request): RedirectResponse
     {
         $this->authorize('create', Popup::class);
 
-        $this->popupService->create($request->validated());
+        $this->popupService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.popups.index')
@@ -60,15 +61,16 @@ final class PopupController extends Controller
         $this->authorize('update', $popup);
 
         return view('admin.popups.edit', [
-            'popup' => $popup,
+            'popup'         => $popup,
+            'formLanguages' => $this->popupService->formLanguages(),
         ]);
     }
 
-    public function update(UpdatePopupRequest $request, Popup $popup): RedirectResponse
+    public function update(StoreTranslatedPopupRequest $request, Popup $popup): RedirectResponse
     {
         $this->authorize('update', $popup);
 
-        $this->popupService->update($popup, $request->validated());
+        $this->popupService->updateTranslated($popup, $request->validated('translations'));
 
         return redirect()
             ->route('admin.popups.index')

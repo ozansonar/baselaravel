@@ -95,18 +95,21 @@ class AdminContentCrudTest extends TestCase
 
     public function test_a_blog_category_and_post_can_be_created_and_removed(): void
     {
-        $this->post('/admin/blog-categories', [
-            'name'      => 'Duyurular',
-            'is_active' => 1,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/blog-categories', ['translations' => [
+            'tr' => ['name' => 'Duyurular', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
 
         $category = BlogCategory::where('name', 'Duyurular')->firstOrFail();
 
         $this->post('/admin/blog-posts', [
-            'blog_category_id' => $category->id,
-            'title'            => 'İlk Yazı',
-            'body'             => '<p>İçerik gövdesi</p>',
-            'is_published'     => 1,
+            'is_published' => 1,
+            'translations' => [
+                'tr' => [
+                    'blog_category_id' => $category->id,
+                    'title'            => 'İlk Yazı',
+                    'body'             => '<p>İçerik gövdesi</p>',
+                ],
+            ],
         ])->assertSessionHasNoErrors();
 
         $post = BlogPost::where('title', 'İlk Yazı')->firstOrFail();
@@ -119,12 +122,14 @@ class AdminContentCrudTest extends TestCase
     public function test_a_blog_post_needs_an_existing_category(): void
     {
         $this->from('/admin/blog-posts/create')
-            ->post('/admin/blog-posts', [
-                'blog_category_id' => 9999,
-                'title'            => 'Sahipsiz',
-                'body'             => '<p>Gövde</p>',
-            ])
-            ->assertSessionHasErrors('blog_category_id');
+            ->post('/admin/blog-posts', ['translations' => [
+                'tr' => [
+                    'blog_category_id' => 9999,
+                    'title'            => 'Sahipsiz',
+                    'body'             => '<p>Gövde</p>',
+                ],
+            ]])
+            ->assertSessionHasErrors('translations.tr.blog_category_id');
 
         $this->assertSame(0, BlogPost::count());
     }
@@ -138,11 +143,15 @@ class AdminContentCrudTest extends TestCase
         $post = BlogPost::factory()->create(['slug' => 'eski-baslik']);
 
         $this->put("/admin/blog-posts/{$post->id}", [
-            'blog_category_id' => $post->blog_category_id,
-            'title'            => 'Yeni Başlık',
-            'slug'             => 'yeni-baslik',
-            'body'             => '<p>Gövde</p>',
-            'is_published'     => 1,
+            'is_published' => 1,
+            'translations' => [
+                'tr' => [
+                    'blog_category_id' => $post->blog_category_id,
+                    'title'            => 'Yeni Başlık',
+                    'slug'             => 'yeni-baslik',
+                    'body'             => '<p>Gövde</p>',
+                ],
+            ],
         ])->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('redirects', [
@@ -189,20 +198,21 @@ class AdminContentCrudTest extends TestCase
 
     public function test_a_gallery_item_can_be_created_with_an_upload(): void
     {
-        $this->post('/admin/gallery-categories', [
-            'name'      => 'Etkinlikler',
-            'is_active' => 1,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/gallery-categories', ['translations' => [
+            'tr' => ['name' => 'Etkinlikler', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
 
         $category = GalleryCategory::where('name', 'Etkinlikler')->firstOrFail();
 
-        $this->post('/admin/gallery-items', [
-            'title'               => 'Açılış',
-            'type'                => GalleryType::Photo->value,
-            'gallery_category_id' => $category->id,
-            'image'               => $this->image(),
-            'is_active'           => 1,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/gallery-items', ['translations' => [
+            'tr' => [
+                'title'               => 'Açılış',
+                'type'                => GalleryType::Photo->value,
+                'gallery_category_id' => $category->id,
+                'image'               => $this->image(),
+                'is_active'           => 1,
+            ],
+        ]])->assertSessionHasNoErrors();
 
         $item = GalleryItem::where('title', 'Açılış')->firstOrFail();
 
@@ -218,13 +228,15 @@ class AdminContentCrudTest extends TestCase
         $category = GalleryCategory::factory()->create();
 
         $this->from('/admin/gallery-items/create')
-            ->post('/admin/gallery-items', [
-                'title'               => 'Tanıtım',
-                'type'                => GalleryType::Video->value,
-                'gallery_category_id' => $category->id,
-                'image'               => $this->image(),
-            ])
-            ->assertSessionHasErrors('video_url');
+            ->post('/admin/gallery-items', ['translations' => [
+                'tr' => [
+                    'title'               => 'Tanıtım',
+                    'type'                => GalleryType::Video->value,
+                    'gallery_category_id' => $category->id,
+                    'image'               => $this->image(),
+                ],
+            ]])
+            ->assertSessionHasErrors('translations.tr.video_url');
     }
 
     // ── Slider ──
@@ -262,13 +274,15 @@ class AdminContentCrudTest extends TestCase
 
     public function test_a_popup_can_be_created_and_targets_the_chosen_pages(): void
     {
-        $this->post('/admin/popups', [
-            'title'      => 'Duyuru',
-            'pages'      => [PopupPage::Home->value],
-            'size'       => 'md',
-            'is_active'  => 1,
-            'sort_order' => 0,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/popups', ['translations' => [
+            'tr' => [
+                'title'      => 'Duyuru',
+                'pages'      => [PopupPage::Home->value],
+                'size'       => 'md',
+                'is_active'  => 1,
+                'sort_order' => 0,
+            ],
+        ]])->assertSessionHasNoErrors();
 
         $popup = Popup::where('title', 'Duyuru')->firstOrFail();
 
@@ -281,8 +295,10 @@ class AdminContentCrudTest extends TestCase
     public function test_a_popup_needs_at_least_one_target_page(): void
     {
         $this->from('/admin/popups/create')
-            ->post('/admin/popups', ['title' => 'Hedefsiz', 'size' => 'md'])
-            ->assertSessionHasErrors('pages');
+            ->post('/admin/popups', ['translations' => [
+                'tr' => ['title' => 'Hedefsiz', 'size' => 'md'],
+            ]])
+            ->assertSessionHasErrors('translations.tr.pages');
 
         $this->assertSame(0, Popup::count());
     }
@@ -301,13 +317,15 @@ class AdminContentCrudTest extends TestCase
 
         $category = GalleryCategory::factory()->create();
 
-        $this->post('/admin/gallery-items', [
-            'title'               => 'İzolasyon',
-            'type'                => GalleryType::Photo->value,
-            'gallery_category_id' => $category->id,
-            'image'               => $this->image(),
-            'is_active'           => 1,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/gallery-items', ['translations' => [
+            'tr' => [
+                'title'               => 'İzolasyon',
+                'type'                => GalleryType::Photo->value,
+                'gallery_category_id' => $category->id,
+                'image'               => $this->image(),
+                'is_active'           => 1,
+            ],
+        ]])->assertSessionHasNoErrors();
 
         $item = GalleryItem::where('title', 'İzolasyon')->firstOrFail();
 

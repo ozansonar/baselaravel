@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\GalleryType;
+use App\Enums\PopupPage;
+use App\Models\BlogCategory;
+use App\Models\BlogPost;
 use App\Models\Faq;
+use App\Models\GalleryCategory;
+use App\Models\GalleryItem;
+use App\Models\Popup;
 use App\Models\Role;
 use App\Models\Slider;
 use App\Models\User;
@@ -230,5 +237,197 @@ class TranslatedContentFormsTest extends TestCase
 
         $this->assertNotSame($turkishImage, $english?->image, 'İngilizce görsel güncellenmedi');
         $this->assertSame($turkishImage, $turkish->fresh()->image, 'Türkçe görsel değişti');
+    }
+
+    // ── Kategoriler ──
+
+    /**
+     * Categories are translated too, which is what lets an English item point
+     * at an English category.
+     */
+    public function test_a_blog_category_saves_one_row_per_language(): void
+    {
+        $this->post('/admin/blog-categories', ['translations' => [
+            'tr' => ['name' => 'Duyurular', 'is_active' => 1],
+            'en' => ['name' => 'Announcements', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
+
+        $turkish = BlogCategory::where('locale', 'tr')->firstOrFail();
+
+        $this->assertSame('Announcements', $turkish->translation('en')?->name);
+        $this->assertSame('duyurular', $turkish->slug);
+        $this->assertSame('announcements', $turkish->translation('en')?->slug);
+    }
+
+    public function test_a_gallery_category_saves_one_row_per_language(): void
+    {
+        $this->post('/admin/gallery-categories', ['translations' => [
+            'tr' => ['name' => 'Etkinlikler', 'is_active' => 1],
+            'en' => ['name' => 'Events', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
+
+        // A migration already seeds gallery categories, so this is scoped to
+        // the row the test created.
+        $turkish = GalleryCategory::where('locale', 'tr')->where('name', 'Etkinlikler')->latest('id')->firstOrFail();
+
+        $this->assertSame('Events', $turkish->translation('en')?->name);
+    }
+
+    // ── Galeri ──
+
+    public function test_a_gallery_item_stores_a_separate_image_per_language(): void
+    {
+        $turkishCategory = GalleryCategory::factory()->create(['locale' => 'tr']);
+        $englishCategory = GalleryCategory::factory()->create(['locale' => 'en']);
+
+        $this->post('/admin/gallery-items', ['translations' => [
+            'tr' => [
+                'title'               => 'Açılış',
+                'type'                => GalleryType::Photo->value,
+                'gallery_category_id' => $turkishCategory->id,
+                'image'               => UploadedFile::fake()->image('acilis-tr.jpg', 800, 600),
+                'is_active'           => 1,
+            ],
+            'en' => [
+                'title'               => 'Opening',
+                'type'                => GalleryType::Photo->value,
+                'gallery_category_id' => $englishCategory->id,
+                'image'               => UploadedFile::fake()->image('opening-en.jpg', 800, 600),
+                'is_active'           => 1,
+            ],
+        ]])->assertSessionHasNoErrors();
+
+        $turkish = GalleryItem::where('locale', 'tr')->firstOrFail();
+        $english = $turkish->translation('en');
+
+        $this->assertNotNull($english);
+        $this->assertNotSame($turkish->image, $english->image);
+
+        // Each language points at the category row of its own language.
+        $this->assertSame($turkishCategory->id, $turkish->gallery_category_id);
+        $this->assertSame($englishCategory->id, $english->gallery_category_id);
+    }
+
+    public function test_the_gallery_form_offers_only_same_language_categories(): void
+    {
+        $turkishCategory = GalleryCategory::factory()->create(['locale' => 'tr', 'name' => 'Türkçe Kategori']);
+        $englishCategory = GalleryCategory::factory()->create(['locale' => 'en', 'name' => 'English Category']);
+
+        $html = $this->get('/admin/gallery-items/create')->getContent();
+
+        // Both appear, but each inside its own tab pane.
+        $this->assertStringContainsString('Türkçe Kategori', $html);
+        $this->assertStringContainsString('English Category', $html);
+
+        $turkishPane = $this->paneFor($html, 'galleryItemLangTabs-tr');
+        $englishPane = $this->paneFor($html, 'galleryItemLangTabs-en');
+
+        $this->assertStringContainsString('Türkçe Kategori', $turkishPane);
+        $this->assertStringNotContainsString('English Category', $turkishPane, 'Türkçe sekmede İngilizce kategori görünüyor');
+
+        $this->assertStringContainsString('English Category', $englishPane);
+        $this->assertStringNotContainsString('Türkçe Kategori', $englishPane, 'İngilizce sekmede Türkçe kategori görünüyor');
+    }
+
+    // ── Popup ──
+
+    public function test_a_popup_saves_one_row_per_language(): void
+    {
+        $this->post('/admin/popups', ['translations' => [
+            'tr' => ['title' => 'Duyuru', 'pages' => [PopupPage::Home->value], 'size' => 'md', 'is_active' => 1, 'sort_order' => 0],
+            'en' => ['title' => 'Announcement', 'pages' => [PopupPage::Home->value], 'size' => 'md', 'is_active' => 1, 'sort_order' => 0],
+        ]])->assertSessionHasNoErrors();
+
+        $turkish = Popup::where('locale', 'tr')->firstOrFail();
+
+        $this->assertSame('Announcement', $turkish->translation('en')?->title);
+        $this->assertSame([PopupPage::Home->value], $turkish->translation('en')?->pages);
+    }
+
+    // ── Blog yazısı ──
+
+    public function test_a_blog_post_saves_one_row_per_language_with_its_own_category(): void
+    {
+        $turkishCategory = BlogCategory::factory()->create(['locale' => 'tr']);
+        $englishCategory = BlogCategory::factory()->create(['locale' => 'en']);
+
+        $this->post('/admin/blog-posts', [
+            'is_published' => 1,
+            'translations' => [
+                'tr' => ['title' => 'İlk Yazı', 'body' => '<p>Türkçe gövde</p>', 'blog_category_id' => $turkishCategory->id],
+                'en' => ['title' => 'First Post', 'body' => '<p>English body</p>', 'blog_category_id' => $englishCategory->id],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $turkish = BlogPost::where('locale', 'tr')->firstOrFail();
+        $english = $turkish->translation('en');
+
+        $this->assertNotNull($english);
+        $this->assertSame($turkishCategory->id, $turkish->blog_category_id);
+        $this->assertSame($englishCategory->id, $english->blog_category_id);
+        $this->assertSame('first-post', $english->slug);
+    }
+
+    /**
+     * Publishing is a decision about the post, so it reaches every language the
+     * form saved.
+     */
+    public function test_publishing_a_post_applies_to_every_language(): void
+    {
+        $turkishCategory = BlogCategory::factory()->create(['locale' => 'tr']);
+        $englishCategory = BlogCategory::factory()->create(['locale' => 'en']);
+
+        $this->post('/admin/blog-posts', [
+            'is_published' => 1,
+            'translations' => [
+                'tr' => ['title' => 'Yayında', 'body' => '<p>tr</p>', 'blog_category_id' => $turkishCategory->id],
+                'en' => ['title' => 'Published', 'body' => '<p>en</p>', 'blog_category_id' => $englishCategory->id],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $turkish = BlogPost::where('locale', 'tr')->firstOrFail();
+
+        $this->assertTrue($turkish->is_published);
+        $this->assertTrue($turkish->translation('en')?->is_published);
+    }
+
+    public function test_a_blog_post_records_the_author_on_every_language(): void
+    {
+        $turkishCategory = BlogCategory::factory()->create(['locale' => 'tr']);
+        $englishCategory = BlogCategory::factory()->create(['locale' => 'en']);
+
+        $this->post('/admin/blog-posts', [
+            'is_published' => 1,
+            'translations' => [
+                'tr' => ['title' => 'Yazar', 'body' => '<p>tr</p>', 'blog_category_id' => $turkishCategory->id],
+                'en' => ['title' => 'Author', 'body' => '<p>en</p>', 'blog_category_id' => $englishCategory->id],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $turkish = BlogPost::where('locale', 'tr')->firstOrFail();
+
+        $this->assertNotNull($turkish->user_id);
+        $this->assertSame($turkish->user_id, $turkish->translation('en')?->user_id);
+    }
+
+    /**
+     * Pull one tab pane out of the rendered form so a tab's contents can be
+     * asserted on in isolation.
+     */
+    private function paneFor(string $html, string $paneId): string
+    {
+        $start = strpos($html, 'id="' . $paneId . '"');
+
+        if ($start === false) {
+            return '';
+        }
+
+        // Stop at the next pane rather than at this pane's own role attribute,
+        // which sits immediately after the id.
+        $next = strpos($html, 'class="tab-pane', $start + 1);
+
+        return $next === false
+            ? substr($html, $start)
+            : substr($html, $start, $next - $start);
     }
 }

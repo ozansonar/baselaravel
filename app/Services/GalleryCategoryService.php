@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class GalleryCategoryService
 {
+    use \App\Services\Concerns\SyncsTranslations;
+
     /**
      * @return Collection<int, GalleryCategory>
      */
@@ -121,6 +123,35 @@ final class GalleryCategoryService
 
             return $category->refresh();
         });
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(GalleryCategory::class, $translations, static fn (array $fields): array => $fields);
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(GalleryCategory $category, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            GalleryCategory::class,
+            $translations,
+            static fn (array $fields): array => $fields,
+            $category->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function delete(GalleryCategory $category): void
