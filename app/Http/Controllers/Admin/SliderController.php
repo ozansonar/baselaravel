@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedSliderRequest;
 use App\Http\Requests\StoreSliderRequest;
 use App\Http\Requests\UpdateSliderRequest;
 use App\Models\Slider;
@@ -41,14 +42,14 @@ final class SliderController extends Controller
     {
         $this->authorize('create', Slider::class);
 
-        return view('admin.sliders.create');
+        return view('admin.sliders.create', ['formLanguages' => $this->sliderService->formLanguages()]);
     }
 
-    public function store(StoreSliderRequest $request): RedirectResponse
+    public function store(StoreTranslatedSliderRequest $request): RedirectResponse
     {
         $this->authorize('create', Slider::class);
 
-        $this->sliderService->create($request->validated());
+        $this->sliderService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.sliders.index')
@@ -60,15 +61,16 @@ final class SliderController extends Controller
         $this->authorize('update', $slider);
 
         return view('admin.sliders.edit', [
-            'slider' => $slider,
+            'slider'        => $slider,
+            'formLanguages' => $this->sliderService->formLanguages(),
         ]);
     }
 
-    public function update(UpdateSliderRequest $request, Slider $slider): RedirectResponse
+    public function update(StoreTranslatedSliderRequest $request, Slider $slider): RedirectResponse
     {
         $this->authorize('update', $slider);
 
-        $this->sliderService->update($slider, $request->validated());
+        $this->sliderService->updateTranslated($slider, $request->validated('translations'));
 
         return redirect()
             ->route('admin.sliders.index')

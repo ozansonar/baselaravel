@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedFaqRequest;
 use App\Http\Requests\StoreFaqRequest;
 use App\Http\Requests\UpdateFaqRequest;
 use App\Models\Faq;
@@ -42,14 +43,14 @@ final class FaqController extends Controller
     {
         $this->authorize('create', Faq::class);
 
-        return view('admin.faqs.create');
+        return view('admin.faqs.create', ['formLanguages' => $this->faqService->formLanguages()]);
     }
 
-    public function store(StoreFaqRequest $request): RedirectResponse
+    public function store(StoreTranslatedFaqRequest $request): RedirectResponse
     {
         $this->authorize('create', Faq::class);
 
-        $this->faqService->create($request->validated());
+        $this->faqService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.faqs.index')
@@ -61,15 +62,16 @@ final class FaqController extends Controller
         $this->authorize('update', $faq);
 
         return view('admin.faqs.edit', [
-            'faq' => $faq,
+            'faq'           => $faq,
+            'formLanguages' => $this->faqService->formLanguages(),
         ]);
     }
 
-    public function update(UpdateFaqRequest $request, Faq $faq): RedirectResponse
+    public function update(StoreTranslatedFaqRequest $request, Faq $faq): RedirectResponse
     {
         $this->authorize('update', $faq);
 
-        $this->faqService->update($faq, $request->validated());
+        $this->faqService->updateTranslated($faq, $request->validated('translations'));
 
         return redirect()
             ->route('admin.faqs.index')

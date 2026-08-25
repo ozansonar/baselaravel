@@ -168,7 +168,7 @@ final class PageService
         $groupId = $this->saveTranslations(
             Page::class,
             $translations,
-            fn (array $fields, string $locale): array => $this->prepareFields($fields, $locale, null),
+            fn (array $fields, string $locale, ?Page $existing, ?Page $default): array => $this->prepareFields($fields, $locale, $existing, $default),
         );
 
         $this->clearCache();
@@ -184,7 +184,7 @@ final class PageService
         $groupId = $this->saveTranslations(
             Page::class,
             $translations,
-            fn (array $fields, string $locale, ?Page $existing): array => $this->prepareFields($fields, $locale, $existing),
+            fn (array $fields, string $locale, ?Page $existing, ?Page $default): array => $this->prepareFields($fields, $locale, $existing, $default),
             $page->lang_group_id,
         );
 
@@ -197,7 +197,7 @@ final class PageService
      * @param array<string, mixed> $fields
      * @return array<string, mixed>
      */
-    private function prepareFields(array $fields, string $locale, ?Page $existing): array
+    private function prepareFields(array $fields, string $locale, ?Page $existing, ?Page $default = null): array
     {
         $image = $fields['image'] ?? null;
 
@@ -206,8 +206,13 @@ final class PageService
                 ? $this->uploadService->replaceImage($image, 'pages', $fields['title'] ?? 'page', $existing->image)
                 : $this->uploadService->uploadImage($image, 'pages', $fields['title'] ?? 'page');
         } else {
-            // No new file in this block: keep whatever the translation already has.
+            // No new file in this block: keep whatever the translation already
+            // has, or borrow the default language's while this one is prepared.
             unset($fields['image']);
+
+            if ($existing === null && $default?->image) {
+                $fields['image'] = $default->image;
+            }
         }
 
         // The about-page builder stores its blocks as JSON, and its team photos

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 final class FaqService
 {
     use \App\Services\Concerns\LocalizedCache;
+    use \App\Services\Concerns\SyncsTranslations;
 
     /**
      * @return Collection<int, Faq>
@@ -67,6 +68,35 @@ final class FaqService
 
             return $faq;
         });
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(Faq::class, $translations, static fn (array $fields): array => $fields);
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Faq $faq, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Faq::class,
+            $translations,
+            static fn (array $fields): array => $fields,
+            $faq->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function update(Faq $faq, array $data): Faq

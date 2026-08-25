@@ -26,9 +26,11 @@ trait SyncsTranslations
     /**
      * @param class-string<Model> $modelClass
      * @param array<string, array<string, mixed>> $translations locale => fields
-     * @param callable(array<string, mixed>, string, Model|null): array<string, mixed> $prepare
-     *        Hook for per-row work such as uploads; receives the fields, the
-     *        locale and the existing row (null when creating).
+     * @param callable(array<string, mixed>, string, Model|null, Model|null): array<string, mixed> $prepare
+     *        Hook for per-row work such as uploads. Receives the fields, the
+     *        locale, the existing row (null when creating) and the default
+     *        language's row, which is what a new translation inherits files
+     *        from until it has its own.
      */
     protected function saveTranslations(
         string $modelClass,
@@ -54,7 +56,14 @@ trait SyncsTranslations
                     continue;
                 }
 
-                $payload = $prepare($fields, $locale, $existing);
+                $defaultRow = $locale === $this->defaultLocale()
+                    ? $existing
+                    : $modelClass::query()
+                        ->where('lang_group_id', $groupId)
+                        ->where('locale', $this->defaultLocale())
+                        ->first();
+
+                $payload = $prepare($fields, $locale, $existing, $defaultRow);
 
                 if ($payload === []) {
                     continue;
@@ -124,6 +133,48 @@ trait SyncsTranslations
         }
 
         return true;
+    }
+
+    /**
+     * Handle the one-image-per-language case every content form shares.
+     *
+     * A block with no new file keeps whatever that language already had, so
+     * saving the Turkish tab never clears the English artwork.
+     *
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    protected function prepareImageField(
+        array $fields,
+        ?Model $existing,
+        string $folder,
+        string $nameKey = 'title',
+        string $imageKey = 'image',
+        ?Model $inheritFrom = null,
+    ): array {
+        $image = $fields[$imageKey] ?? null;
+
+        if (! $image instanceof \Illuminate\Http\UploadedFile) {
+            unset($fields[$imageKey]);
+
+            // A brand new translation with no artwork of its own borrows the
+            // default language's, so the content still renders while the
+            // translated artwork is being prepared.
+            if ($existing === null && $inheritFrom?->getAttribute($imageKey)) {
+                $fields[$imageKey] = $inheritFrom->getAttribute($imageKey);
+            }
+
+            return $fields;
+        }
+
+        $name = (string) ($fields[$nameKey] ?? $folder);
+        $current = $existing?->getAttribute($imageKey);
+
+        $fields[$imageKey] = $current
+            ? $this->uploadService->replaceImage($image, $folder, $name, $current)
+            : $this->uploadService->uploadImage($image, $folder, $name);
+
+        return $fields;
     }
 
     /**

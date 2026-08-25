@@ -154,19 +154,15 @@ class AdminContentCrudTest extends TestCase
 
     public function test_a_faq_can_be_created_updated_and_removed(): void
     {
-        $this->post('/admin/faqs', [
-            'question'  => 'Nasıl üye olurum?',
-            'answer'    => 'Kayıt sayfasından.',
-            'is_active' => 1,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/faqs', ['translations' => [
+            'tr' => ['question' => 'Nasıl üye olurum?', 'answer' => 'Kayıt sayfasından.', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
 
         $faq = Faq::where('question', 'Nasıl üye olurum?')->firstOrFail();
 
-        $this->put("/admin/faqs/{$faq->id}", [
-            'question'  => 'Nasıl kayıt olurum?',
-            'answer'    => 'Kayıt sayfasından.',
-            'is_active' => 1,
-        ])->assertSessionHasNoErrors();
+        $this->put("/admin/faqs/{$faq->id}", ['translations' => [
+            'tr' => ['question' => 'Nasıl kayıt olurum?', 'answer' => 'Kayıt sayfasından.', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
 
         $this->assertSame('Nasıl kayıt olurum?', $faq->fresh()->question);
 
@@ -180,11 +176,9 @@ class AdminContentCrudTest extends TestCase
      */
     public function test_a_created_faq_shows_up_on_the_public_page(): void
     {
-        $this->post('/admin/faqs', [
-            'question'  => 'Kargo ne zaman gelir?',
-            'answer'    => 'İki iş günü içinde.',
-            'is_active' => 1,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/faqs', ['translations' => [
+            'tr' => ['question' => 'Kargo ne zaman gelir?', 'answer' => 'İki iş günü içinde.', 'is_active' => 1],
+        ]])->assertSessionHasNoErrors();
 
         $this->get('/sikca-sorulan-sorular')
             ->assertOk()
@@ -237,12 +231,14 @@ class AdminContentCrudTest extends TestCase
 
     public function test_a_slider_can_be_created_and_removed(): void
     {
-        $this->post('/admin/sliders', [
-            'title'      => 'Kampanya',
-            'image'      => $this->image('slider.jpg'),
-            'is_active'  => 1,
-            'sort_order' => 0,
-        ])->assertSessionHasNoErrors();
+        $this->post('/admin/sliders', ['translations' => [
+            'tr' => [
+                'title'      => 'Kampanya',
+                'image'      => $this->image('slider.jpg'),
+                'is_active'  => 1,
+                'sort_order' => 0,
+            ],
+        ]])->assertSessionHasNoErrors();
 
         $slider = Slider::where('title', 'Kampanya')->firstOrFail();
         $this->assertNotNull($slider->image);
@@ -254,8 +250,10 @@ class AdminContentCrudTest extends TestCase
     public function test_a_slider_without_an_image_is_rejected(): void
     {
         $this->from('/admin/sliders/create')
-            ->post('/admin/sliders', ['title' => 'Görselsiz'])
-            ->assertSessionHasErrors('image');
+            ->post('/admin/sliders', ['translations' => [
+                'tr' => ['title' => 'Görselsiz'],
+            ]])
+            ->assertSessionHasErrors('translations.tr.image');
 
         $this->assertSame(0, Slider::count());
     }
@@ -329,11 +327,9 @@ class AdminContentCrudTest extends TestCase
         $editor->roles()->attach($editorRole);
 
         $this->actingAs($editor)
-            ->post('/admin/faqs', [
-                'question'  => 'Editör sorusu',
-                'answer'    => 'Editör cevabı',
-                'is_active' => 1,
-            ])
+            ->post('/admin/faqs', ['translations' => [
+                'tr' => ['question' => 'Editör sorusu', 'answer' => 'Editör cevabı', 'is_active' => 1],
+            ]])
             ->assertSessionHasNoErrors();
 
         $faq = Faq::where('question', 'Editör sorusu')->firstOrFail();
