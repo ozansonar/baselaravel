@@ -684,9 +684,15 @@ final class UploadService
     /**
      * Get the full filesystem path for uploads.
      */
+    /**
+     * Root of the upload directory.
+     *
+     * Read from config so the test suite can redirect writes somewhere
+     * disposable instead of the real public/uploads folder.
+     */
     private function uploadsPath(string $relativePath = ''): string
     {
-        $base = public_path('uploads');
+        $base = rtrim((string) config('uploads.path', public_path('uploads')), '/');
 
         return $relativePath !== '' ? "{$base}/{$relativePath}" : $base;
     }

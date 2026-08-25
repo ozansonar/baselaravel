@@ -13,12 +13,19 @@ class AdminSmokeTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seedAuthorization();
+    }
+
     /**
      * Every admin GET route should render for an admin user.
      */
     public function test_admin_pages_render(): void
     {
-        $role = Role::create(['name' => 'Admin', 'slug' => 'admin']);
+        $role = Role::where('slug', 'admin')->firstOrFail();
 
         $admin = User::create([
             'first_name' => 'Test',
@@ -44,6 +51,7 @@ class AdminSmokeTest extends TestCase
             '/admin/blog-comments',
             '/admin/contact-messages',
             '/admin/users',
+            '/admin/roller',
             '/admin/redirects',
             '/admin/menus',
             '/admin/settings',

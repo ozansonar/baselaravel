@@ -19,6 +19,8 @@ class AnalyticsController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('view-analytics');
+
         [$from, $to] = $this->resolveDateRange($request);
         $includeBots = $request->boolean('include_bots');
 
@@ -49,6 +51,8 @@ class AnalyticsController extends Controller
 
     public function visits(Request $request): View
     {
+        $this->authorize('view-analytics');
+
         $filters = $request->only(['from', 'to', 'is_bot', 'device_type', 'url']);
         $visits = $this->analyticsService->paginateVisits($filters, 50);
 
@@ -69,6 +73,8 @@ class AnalyticsController extends Controller
 
     public function chart(Request $request, string $type): JsonResponse
     {
+        $this->authorize('view-analytics');
+
         [$from, $to] = $this->resolveDateRange($request);
         $includeBots = $request->boolean('include_bots');
 

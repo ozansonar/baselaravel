@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedBlogCategoryRequest;
 use App\Http\Requests\StoreBlogCategoryRequest;
 use App\Http\Requests\UpdateBlogCategoryRequest;
 use App\Models\BlogCategory;
@@ -41,14 +42,14 @@ final class BlogCategoryController extends Controller
     {
         $this->authorize('create', BlogCategory::class);
 
-        return view('admin.blog-categories.create');
+        return view('admin.blog-categories.create', ['formLanguages' => $this->blogCategoryService->formLanguages()]);
     }
 
-    public function store(StoreBlogCategoryRequest $request): RedirectResponse
+    public function store(StoreTranslatedBlogCategoryRequest $request): RedirectResponse
     {
         $this->authorize('create', BlogCategory::class);
 
-        $this->blogCategoryService->create($request->validated());
+        $this->blogCategoryService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.blog-categories.index')
@@ -60,15 +61,16 @@ final class BlogCategoryController extends Controller
         $this->authorize('update', $blogCategory);
 
         return view('admin.blog-categories.edit', [
-            'category' => $blogCategory,
+            'category'      => $blogCategory,
+            'formLanguages' => $this->blogCategoryService->formLanguages(),
         ]);
     }
 
-    public function update(UpdateBlogCategoryRequest $request, BlogCategory $blogCategory): RedirectResponse
+    public function update(StoreTranslatedBlogCategoryRequest $request, BlogCategory $blogCategory): RedirectResponse
     {
         $this->authorize('update', $blogCategory);
 
-        $this->blogCategoryService->update($blogCategory, $request->validated());
+        $this->blogCategoryService->updateTranslated($blogCategory, $request->validated('translations'));
 
         return redirect()
             ->route('admin.blog-categories.index')

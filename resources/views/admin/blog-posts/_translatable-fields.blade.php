@@ -1,0 +1,295 @@
+{{--
+    One language's worth of a blog post.
+
+    Included once per language, so title, body, artwork, SEO and even the
+    category belong to that language alone — an English post points at the
+    English category row.
+
+    @var \App\Models\Language $language
+    @var \App\Models\BlogPost|null $translation
+--}}
+          <!-- ==================== SECTION 1: TEMEL BİLGİLER ==================== -->
+          <div class="card-dark mb-4" id="section-basic_{{ $language->code }}">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-text-paragraph"></i></div>
+                <div>
+                  <h6 class="mb-0">Temel Bilgiler</h6>
+                  <small class="text-muted">İçeriğin başlığını, URL yapısını ve kategorisini belirleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Başlık -->
+                <div class="col-12">
+                  <label class="form-label" for="title_{{ $language->code }}">
+                    İçerik Başlığı <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
+                    id="title_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][title]"
+                    value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                    placeholder="İçeriğin ana başlığını yazın..."
+                    maxlength="120"
+                    required
+                    oninput="updateCharCounter(this, 120); generateSlug(this.value); updateSeoPreview()"
+                  >
+                  @error("translations.{$language->code}.title")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Dikkat çekici ve SEO uyumlu bir başlık girin</div>
+                    <div class="form-text"><span id="title-counter">{{ Str::length(old("translations.{$language->code}.title", '')) }}</span>/120</div>
+                  </div>
+                </div>
+
+                <!-- Slug -->
+                <div class="col-12">
+                  <label class="form-label" for="slug_{{ $language->code }}">URL (Slug)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">{{ config('app.url') }}/blog/</span>
+                    <input
+                      type="text"
+                      class="form-control @error("translations.{$language->code}.slug") is-invalid @enderror"
+                      id="slug_{{ $language->code }}"
+                      name="translations[{{ $language->code }}][slug]"
+                      value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
+                      placeholder="otomatik-oluşturulur"
+                    >
+                  </div>
+                  @error("translations.{$language->code}.slug")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="form-text">Başlık yazıldığında otomatik oluşturulur, isterseniz düzenleyebilirsiniz</div>
+                </div>
+
+                <!-- Kategori -->
+                <div class="col-12">
+                  <label class="form-label" for="blog_category_id_{{ $language->code }}">
+                    Kategori <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select @error("translations.{$language->code}.blog_category_id") is-invalid @enderror" id="blog_category_id_{{ $language->code }}" name="translations[{{ $language->code }}][blog_category_id]" required>
+                    <option value="">Kategori seçin...</option>
+                    {{-- Categories are translated too, so a post is tied to the category
+                       row in its own language. --}}
+                    @foreach($categories->where('locale', $language->code) as $category)
+                    <option value="{{ $category->id }}" {{ old("translations.{$language->code}.blog_category_id", $translation?->blog_category_id) == $category->id ? 'selected' : '' }}>
+                      {{ $category->name }}
+                    </option>
+                    @endforeach
+                  </select>
+                  @error("translations.{$language->code}.blog_category_id")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 2: İÇERİK EDİTÖRÜ ==================== -->
+          <div class="card-dark mb-4" id="section-content_{{ $language->code }}">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-purple"><i class="bi bi-body-text"></i></div>
+                <div>
+                  <h6 class="mb-0">İçerik Editörü</h6>
+                  <small class="text-muted">İçeriğin ana metnini ve kısa özetini yazın</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Kısa Özet -->
+                <div class="col-12">
+                  <label class="form-label" for="excerpt_{{ $language->code }}">
+                    Kısa Özet
+                  </label>
+                  <textarea
+                    class="form-control @error("translations.{$language->code}.excerpt") is-invalid @enderror"
+                    id="excerpt_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][excerpt]"
+                    rows="3"
+                    maxlength="300"
+                    placeholder="İçeriğin kısa bir özetini yazın (listeleme sayfalarında görünür)..."
+                    oninput="updateCharCounter(this, 300)"
+                  >{{ old("translations.{$language->code}.excerpt", $translation?->excerpt) }}</textarea>
+                  @error("translations.{$language->code}.excerpt")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Arama sonuçlarında ve listelerde gösterilecek kısa açıklama</div>
+                    <div class="form-text"><span id="excerpt-counter">{{ Str::length(old("translations.{$language->code}.excerpt", '')) }}</span>/300</div>
+                  </div>
+                </div>
+
+                <!-- Ana İçerik -->
+                <div class="col-12">
+                  <label class="form-label" for="body_{{ $language->code }}">
+                    Ana İçerik <span class="text-danger">*</span>
+                  </label>
+                  <textarea
+                    class="@error("translations.{$language->code}.body") is-invalid @enderror"
+                    id="body_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][body]"
+                    rows="12"
+                  >{{ old("translations.{$language->code}.body", $translation?->body) }}</textarea>
+                  @error("translations.{$language->code}.body")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 3: MEDYA YÖNETİMİ ==================== -->
+          <div class="card-dark mb-4" id="section-media_{{ $language->code }}">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-blue"><i class="bi bi-images"></i></div>
+                <div>
+                  <h6 class="mb-0">Medya Yönetimi</h6>
+                  <small class="text-muted">Kapak görseli yükleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Kapak Görseli -->
+                <div class="col-12">
+                  <label class="form-label" for="image_{{ $language->code }}">
+                    Kapak Görseli
+                  </label>
+                  <input
+                    type="file"
+                    class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
+                    id="image_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][image]"
+                    accept="image/png,image/jpeg,image/webp"
+                  >
+                  @error("translations.{$language->code}.image")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="form-text">PNG, JPG, WebP | Maks. 2 MB | Önerilen: 1200x630 px</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 4: SEO AYARLARI ==================== -->
+          <div class="card-dark mb-4" id="section-seo_{{ $language->code }}">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-orange"><i class="bi bi-search"></i></div>
+                <div>
+                  <h6 class="mb-0">SEO Ayarları</h6>
+                  <small class="text-muted">Arama motorları için meta bilgilerini düzenleyin</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- SEO Önizleme -->
+                <div class="col-12">
+                  <label class="form-label">Google Arama Önizlemesi</label>
+                  <div class="ca-seo-preview">
+                    <div class="ca-seo-url">{{ config('app.url') }}/blog/<span id="seoPreviewSlug">yeni-icerik</span></div>
+                    <div class="ca-seo-title" id="seoPreviewTitle">İçerik Başlığı Buraya Gelecek</div>
+                    <div class="ca-seo-desc" id="seoPreviewDesc">İçeriğinizin meta açıklaması burada görünecek. Arama sonuçlarında kullanıcıların göreceği metin budur.</div>
+                  </div>
+                </div>
+
+                <!-- Meta Başlık -->
+                <div class="col-12">
+                  <label class="form-label" for="meta_title_{{ $language->code }}">Meta Başlık</label>
+                  <input
+                    type="text"
+                    class="form-control @error("translations.{$language->code}.meta_title") is-invalid @enderror"
+                    id="meta_title_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][meta_title]"
+                    value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
+                    maxlength="60"
+                    placeholder="SEO için özel başlık (boş bırakılırsa içerik başlığı kullanılır)"
+                    oninput="updateCharCounter(this, 60); updateSeoPreview()"
+                  >
+                  @error("translations.{$language->code}.meta_title")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Önerilen: 50-60 karakter</div>
+                    <div class="form-text"><span id="meta_title-counter">{{ Str::length(old("translations.{$language->code}.meta_title", '')) }}</span>/60</div>
+                  </div>
+                </div>
+
+                <!-- Meta Açıklama -->
+                <div class="col-12">
+                  <label class="form-label" for="meta_description_{{ $language->code }}">Meta Açıklama</label>
+                  <textarea
+                    class="form-control @error("translations.{$language->code}.meta_description") is-invalid @enderror"
+                    id="meta_description_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][meta_description]"
+                    rows="3"
+                    maxlength="160"
+                    placeholder="Arama sonuçlarında görünecek açıklama metni..."
+                    oninput="updateCharCounter(this, 160); updateSeoPreview()"
+                  >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
+                  @error("translations.{$language->code}.meta_description")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="form-text">Önerilen: 120-160 karakter</div>
+                    <div class="form-text"><span id="meta_description-counter">{{ Str::length(old("translations.{$language->code}.meta_description", '')) }}</span>/160</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================== SECTION 5: YAYIN AYARLARI ==================== -->
+          <div class="card-dark mb-4" id="section-publish_{{ $language->code }}">
+            <div class="card-header-custom">
+              <div class="form-section-header mb-0">
+                <div class="form-section-icon bg-icon-teal"><i class="bi bi-calendar-event"></i></div>
+                <div>
+                  <h6 class="mb-0">Yayın Ayarları</h6>
+                  <small class="text-muted">İçeriğin yayın durumu ve tarihini ayarlayın</small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body-custom">
+              <div class="row g-3">
+
+                <!-- Yayın Tarihi -->
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="published_at_{{ $language->code }}">Yayın Tarihi</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control @error("translations.{$language->code}.published_at") is-invalid @enderror"
+                    id="published_at_{{ $language->code }}"
+                    name="translations[{{ $language->code }}][published_at]"
+                    value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}"
+                  >
+                  @error("translations.{$language->code}.published_at")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="form-text">Boş bırakılırsa hemen yayınlanır</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+

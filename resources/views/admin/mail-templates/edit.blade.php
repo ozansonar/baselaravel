@@ -178,7 +178,7 @@
                         </div>
                         <div class="mt-css-item">
                             <code>em-table</code>
-                            <small>Tablo (ürün listesi vb.)</small>
+                            <small>Tablo (liste, özet vb.)</small>
                         </div>
                         <div class="mt-css-item">
                             <code>em-badge</code>

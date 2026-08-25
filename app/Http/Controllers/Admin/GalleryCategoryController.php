@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedGalleryCategoryRequest;
 use App\Http\Requests\StoreGalleryCategoryRequest;
 use App\Http\Requests\UpdateGalleryCategoryRequest;
 use App\Models\GalleryCategory;
@@ -41,17 +42,14 @@ final class GalleryCategoryController extends Controller
     {
         $this->authorize('create', GalleryCategory::class);
 
-        return view('admin.gallery-categories.create');
+        return view('admin.gallery-categories.create', ['formLanguages' => $this->galleryCategoryService->formLanguages()]);
     }
 
-    public function store(StoreGalleryCategoryRequest $request): RedirectResponse
+    public function store(StoreTranslatedGalleryCategoryRequest $request): RedirectResponse
     {
         $this->authorize('create', GalleryCategory::class);
 
-        $data = $request->validated();
-        $data['is_active'] = $request->boolean('is_active');
-
-        $this->galleryCategoryService->create($data);
+        $this->galleryCategoryService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.gallery-categories.index')
@@ -63,18 +61,16 @@ final class GalleryCategoryController extends Controller
         $this->authorize('update', $galleryCategory);
 
         return view('admin.gallery-categories.edit', [
-            'category' => $galleryCategory,
+            'category'      => $galleryCategory,
+            'formLanguages' => $this->galleryCategoryService->formLanguages(),
         ]);
     }
 
-    public function update(UpdateGalleryCategoryRequest $request, GalleryCategory $galleryCategory): RedirectResponse
+    public function update(StoreTranslatedGalleryCategoryRequest $request, GalleryCategory $galleryCategory): RedirectResponse
     {
         $this->authorize('update', $galleryCategory);
 
-        $data = $request->validated();
-        $data['is_active'] = $request->boolean('is_active');
-
-        $this->galleryCategoryService->update($galleryCategory, $data);
+        $this->galleryCategoryService->updateTranslated($galleryCategory, $request->validated('translations'));
 
         return redirect()
             ->route('admin.gallery-categories.index')

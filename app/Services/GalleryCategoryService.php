@@ -12,13 +12,18 @@ use Illuminate\Support\Facades\DB;
 
 final class GalleryCategoryService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
+    use \App\Services\Concerns\SyncsTranslations;
+
     /**
      * @return Collection<int, GalleryCategory>
      */
     public function allActive(): Collection
     {
-        return Cache::remember('gallery_categories.active', 3600, fn () =>
+        return Cache::remember($this->localeCacheKey('gallery_categories.active'), 3600, fn () =>
             GalleryCategory::active()
+                ->localeWithFallback()
                 ->sorted()
                 ->withCount('galleryItems')
                 ->get(),
@@ -123,6 +128,35 @@ final class GalleryCategoryService
         });
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(GalleryCategory::class, $translations, static fn (array $fields): array => $fields);
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(GalleryCategory $category, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            GalleryCategory::class,
+            $translations,
+            static fn (array $fields): array => $fields,
+            $category->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
     public function delete(GalleryCategory $category): void
     {
         DB::transaction(function () use ($category): void {
@@ -142,7 +176,7 @@ final class GalleryCategoryService
 
     private function clearCache(): void
     {
-        Cache::forget('gallery_categories.active');
+        $this->forgetLocalized('gallery_categories.active');
         Cache::forget('admin.gallery_categories.stats');
     }
 }

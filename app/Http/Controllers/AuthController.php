@@ -79,8 +79,8 @@ final class AuthController extends Controller
 
         auth()->login($user);
 
-        return redirect()->route('home')
-            ->with('success', 'Hesabınız oluşturuldu. Hoş geldiniz!');
+        return redirect()->route('verification.notice')
+            ->with('success', 'Hesabınız oluşturuldu. Son adım: e-posta adresinizi doğrulayın.');
     }
 
     /**

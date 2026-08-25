@@ -5,7 +5,7 @@
              data-popup-id="{{ $popup->id }}">
             <div class="modal-dialog modal-dialog-centered {{ $popup->size->modalClass() }}">
                 <div class="modal-content site-popup__content">
-                    <button type="button" class="site-popup__close" data-bs-dismiss="modal" aria-label="Kapat">
+                    <button type="button" class="site-popup__close" data-bs-dismiss="modal" aria-label="{{ __('site.actions.close') }}">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
 

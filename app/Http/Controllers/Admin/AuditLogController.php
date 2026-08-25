@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -17,6 +18,8 @@ final class AuditLogController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', AuditLog::class);
+
         $query = AuditLog::query()->with('user:id,first_name,last_name,email');
 
         if ($request->filled('event')) {
@@ -42,17 +45,14 @@ final class AuditLogController extends Controller
         return view('admin.audit-logs.index', [
             'logs'       => $logs,
             'users'      => User::query()->select('id', 'first_name', 'last_name', 'email')->orderBy('id')->get(),
-            'eventTypes' => [
-                AuditLog::EVENT_CREATED => 'Oluşturuldu',
-                AuditLog::EVENT_UPDATED => 'Güncellendi',
-                AuditLog::EVENT_DELETED => 'Silindi',
-                AuditLog::EVENT_CUSTOM  => 'Özel',
-            ],
+            'eventTypes' => AuditEvent::cases(),
         ]);
     }
 
     public function show(AuditLog $auditLog): View
     {
+        $this->authorize('view', $auditLog);
+
         $auditLog->load('user');
         return view('admin.audit-logs.show', ['log' => $auditLog]);
     }

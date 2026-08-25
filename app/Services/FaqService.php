@@ -12,13 +12,16 @@ use Illuminate\Support\Facades\DB;
 
 final class FaqService
 {
+    use \App\Services\Concerns\LocalizedCache;
+    use \App\Services\Concerns\SyncsTranslations;
+
     /**
      * @return Collection<int, Faq>
      */
     public function allActive(): Collection
     {
-        return Cache::remember('faqs.active', 3600, fn () =>
-            Faq::active()->sorted()->get(),
+        return Cache::remember($this->localeCacheKey('faqs.active'), 3600, fn () =>
+            Faq::active()->localeWithFallback()->sorted()->get(),
         );
     }
 
@@ -65,6 +68,35 @@ final class FaqService
 
             return $faq;
         });
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(Faq::class, $translations, static fn (array $fields): array => $fields);
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Faq $faq, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Faq::class,
+            $translations,
+            static fn (array $fields): array => $fields,
+            $faq->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function update(Faq $faq, array $data): Faq
@@ -130,7 +162,7 @@ final class FaqService
 
     private function clearCache(): void
     {
-        Cache::forget('faqs.active');
+        $this->forgetLocalized('faqs.active');
         Cache::forget('admin.faqs.stats');
     }
 }

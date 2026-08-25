@@ -41,10 +41,10 @@
                     </div>
                     @if($sliders->count() > 1)
                     <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Önceki</span>
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">{{ __('site.actions.prev') }}</span>
                     </button>
                     <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Sonraki</span>
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">{{ __('site.actions.next') }}</span>
                     </button>
                     @endif
                 </div>
@@ -55,12 +55,13 @@
             <div class="container">
                 <div class="row align-items-center g-5">
                     <div class="col-lg-6">
-                        <span class="hero__eyebrow"><i class="fa-solid fa-sparkles"></i> Kurumsal Base Altyapı</span>
-                        <h1 class="hero__title">İşinizi <span class="grad">bir üst seviyeye</span> taşıyın</h1>
-                        <p class="hero__lead">Modern, hızlı ve güvenilir bir altyapı ile fikirlerinizi hayata geçirin. Yönetim paneliyle tam entegre, ölçeklenebilir bir temel.</p>
+                        <span class="hero__eyebrow"><i class="fa-solid fa-sparkles"></i> {{ __('site.home.eyebrow') }}</span>
+                        {{-- Contains markup on purpose: the highlighted words differ per language --}}
+                        <h1 class="hero__title">{!! __('site.home.hero_title') !!}</h1>
+                        <p class="hero__lead">{{ __('site.home.hero_lead') }}</p>
                         <div class="d-flex flex-wrap gap-3 mt-4">
-                            <a href="{{ route('contact') }}" class="btn btn-primary btn-lg">Hemen Başlayın <i class="fa-solid fa-arrow-right"></i></a>
-                            <a href="{{ route('blog.index') }}" class="btn btn-light btn-lg">İçerikleri Keşfet</a>
+                            <a href="{{ route('contact') }}" class="btn btn-primary btn-lg">{{ __('site.actions.get_start') }} <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="{{ route('blog.index') }}" class="btn btn-light btn-lg">{{ __('site.actions.explore') }}</a>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -77,17 +78,17 @@
     <section class="section">
         <div class="container">
             <div class="section__head--center mb-5">
-                <span class="section__eyebrow"><i class="fa-solid fa-star"></i> Neden Biz?</span>
-                <h2 class="section__title">Öne Çıkan Özelliklerimiz</h2>
-                <p class="section__lead">İhtiyaçlarınıza uygun, modern ve sürdürülebilir çözümler sunuyoruz.</p>
+                <span class="section__eyebrow"><i class="fa-solid fa-star"></i> {{ __('site.misc.why_us') }}</span>
+                <h2 class="section__title">{{ __('site.home.features') }}</h2>
+                <p class="section__lead">{{ __('site.home.features_lead') }}</p>
             </div>
             <div class="row g-4">
                 @php
                     $features = [
-                        ['icon' => 'fa-bolt',          'title' => 'Yüksek Performans', 'text' => 'Hızlı yüklenen, optimize edilmiş ve ölçeklenebilir bir altyapı.'],
-                        ['icon' => 'fa-shield-halved', 'title' => 'Güvenlik Odaklı',  'text' => 'Modern güvenlik standartlarıyla verileriniz her zaman koruma altında.'],
-                        ['icon' => 'fa-mobile-screen','title' => 'Tam Responsive',   'text' => 'Tüm cihazlarda kusursuz görünüm ve akıcı bir kullanıcı deneyimi.'],
-                        ['icon' => 'fa-headset',       'title' => 'Sürekli Destek',   'text' => 'İhtiyaç duyduğunuz her an yanınızda olan güçlü bir destek ekibi.'],
+                        ['icon' => 'fa-bolt',          'title' => __('site.home.f1_title'), 'text' => __('site.home.f1_text')],
+                        ['icon' => 'fa-shield-halved', 'title' => __('site.home.f2_title'), 'text' => __('site.home.f2_text')],
+                        ['icon' => 'fa-mobile-screen', 'title' => __('site.home.f3_title'), 'text' => __('site.home.f3_text')],
+                        ['icon' => 'fa-headset',       'title' => __('site.home.f4_title'), 'text' => __('site.home.f4_text')],
                     ];
                 @endphp
                 @foreach($features as $f)
@@ -109,10 +110,10 @@
             <div class="row g-4 text-center">
                 @php
                     $stats = [
-                        ['num' => '10+',  'label' => 'Yıllık Deneyim'],
-                        ['num' => '500+', 'label' => 'Tamamlanan Proje'],
-                        ['num' => '250+', 'label' => 'Mutlu Müşteri'],
-                        ['num' => '24/7', 'label' => 'Kesintisiz Destek'],
+                        ['num' => '10+',  'label' => __('site.home.stat1')],
+                        ['num' => '500+', 'label' => __('site.home.stat2')],
+                        ['num' => '250+', 'label' => __('site.home.stat3')],
+                        ['num' => '24/7', 'label' => __('site.home.stat4')],
                     ];
                 @endphp
                 @foreach($stats as $st)
@@ -134,9 +135,9 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-5">
                     <div>
                         <span class="section__eyebrow"><i class="fa-solid fa-newspaper"></i> Blog</span>
-                        <h2 class="section__title mb-0">Son İçerikler</h2>
+                        <h2 class="section__title mb-0">{{ __('site.blog.latest') }}</h2>
                     </div>
-                    <a href="{{ route('blog.index') }}" class="btn btn-outline-primary">Tümünü Gör <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="{{ route('blog.index') }}" class="btn btn-outline-primary">{{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="row g-4">
                     @foreach($blogPosts as $post)
@@ -163,7 +164,7 @@
                                     @if($post->excerpt)
                                         <p class="post-card__excerpt">{{ \Illuminate\Support\Str::limit($post->excerpt, 110) }}</p>
                                     @endif
-                                    <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="post-card__more">Devamını oku <i class="fa-solid fa-arrow-right"></i></a>
+                                    <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="post-card__more">{{ __('site.actions.read_more') }} <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </article>
                         </div>
@@ -177,9 +178,9 @@
     <section class="section">
         <div class="container">
             <div class="cta text-center">
-                <h2 class="mb-3">Bir sonraki adımı birlikte atalım</h2>
-                <p class="cta__lead mb-4 mx-auto mw-readable">Sorularınız mı var? Ekibimiz size yardımcı olmaktan memnuniyet duyar.</p>
-                <a href="{{ route('contact') }}" class="btn btn-light btn-lg">Bize Ulaşın <i class="fa-solid fa-arrow-right"></i></a>
+                <h2 class="mb-3">{{ __('site.home.cta') }}</h2>
+                <p class="cta__lead mb-4 mx-auto mw-readable">{{ __('site.home.cta_lead') }}</p>
+                <a href="{{ route('contact') }}" class="btn btn-light btn-lg">{{ __('site.actions.contact_us') }} <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </div>
     </section>

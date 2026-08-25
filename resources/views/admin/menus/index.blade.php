@@ -128,6 +128,10 @@
                             <span class="menu-manage-tag menu-manage-tag--{{ $meta['variant'] }}">
                                 <i class="bi bi-geo-alt-fill"></i> {{ $meta['label'] }}
                             </span>
+                            @php $menuLanguage = $languages[$menu->locale] ?? null; @endphp
+                            <span class="menu-manage-tag menu-manage-tag--muted">
+                                {{ $menuLanguage?->flag }} {{ $menuLanguage?->native_name ?? strtoupper($menu->locale) }}
+                            </span>
                             @if($menu->is_active)
                                 <span class="menu-manage-tag menu-manage-tag--success">
                                     <i class="bi bi-check-circle-fill"></i> Aktif
@@ -147,6 +151,27 @@
                         <a href="{{ route('admin.menus.items.index', $menu) }}" class="btn-teal flex-grow-1">
                             <i class="bi bi-pencil-square"></i> Öğeleri Yönet
                         </a>
+                        @if(($missingLanguages[$menu->id] ?? collect())->isNotEmpty())
+                            <div class="dropdown">
+                                <button type="button" class="btn-glass dropdown-toggle" data-bs-toggle="dropdown"
+                                        aria-expanded="false" title="Başka bir dile kopyala">
+                                    <i class="bi bi-translate"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><h6 class="dropdown-header">Bu menüyü kopyala</h6></li>
+                                    @foreach($missingLanguages[$menu->id] as $language)
+                                        <li>
+                                            <form method="POST" action="{{ route('admin.menus.copy', [$menu, $language->code]) }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item">
+                                                    {{ $language->flag }} {{ $language->native_name }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#editMenuModal{{ $menu->id }}" title="Menü Ayarları">
                             <i class="bi bi-gear-fill"></i>
                         </button>

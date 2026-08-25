@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedPageRequest;
 use App\Http\Requests\StorePageRequest;
 use App\Http\Requests\UpdatePageRequest;
 use App\Models\Page;
@@ -41,14 +42,16 @@ final class PageController extends Controller
     {
         $this->authorize('create', Page::class);
 
-        return view('admin.pages.create');
+        return view('admin.pages.create', [
+            'formLanguages' => $this->pageService->formLanguages(),
+        ]);
     }
 
-    public function store(StorePageRequest $request): RedirectResponse
+    public function store(StoreTranslatedPageRequest $request): RedirectResponse
     {
         $this->authorize('create', Page::class);
 
-        $this->pageService->create($request->validated());
+        $this->pageService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.pages.index')
@@ -60,27 +63,30 @@ final class PageController extends Controller
         $this->authorize('update', $page);
 
         return view('admin.pages.edit', [
-            'page' => $page,
+            'page'          => $page,
+            'formLanguages' => $this->pageService->formLanguages(),
         ]);
     }
 
-    public function update(UpdatePageRequest $request, Page $page): RedirectResponse
+    public function update(StoreTranslatedPageRequest $request, Page $page): RedirectResponse
     {
         $this->authorize('update', $page);
 
-        $data = $request->validated();
+        $translations = $request->validated('translations');
 
-        $teamPhotoFiles = [];
-        if (isset($data['sections']['team'])) {
-            foreach (array_keys($data['sections']['team']) as $index) {
-                $photoFile = $request->file("sections.team.{$index}.photo_file");
-                if ($photoFile) {
-                    $teamPhotoFiles[$index] = $photoFile;
+        // Uploads never survive validation, so team photos are pulled straight
+        // off the request and merged back into their own language block.
+        foreach ($translations as $locale => $fields) {
+            foreach (array_keys($fields['sections']['team'] ?? []) as $index) {
+                $photo = $request->file("translations.{$locale}.sections.team.{$index}.photo_file");
+
+                if ($photo !== null) {
+                    $translations[$locale]['sections']['team'][$index]['photo_file'] = $photo;
                 }
             }
         }
 
-        $this->pageService->update($page, $data, $teamPhotoFiles);
+        $this->pageService->updateTranslated($page, $translations);
 
         return redirect()
             ->route('admin.pages.edit', $page)

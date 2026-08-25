@@ -89,12 +89,9 @@
                 <div class="cl-filters">
                     <select class="cl-filter-select" name="status_code" onchange="document.getElementById('filterForm').submit()">
                         <option value="">Tüm Kodlar</option>
-                        <option value="301" {{ request('status_code') === '301' ? 'selected' : '' }}>301 - Kalıcı</option>
-                        <option value="302" {{ request('status_code') === '302' ? 'selected' : '' }}>302 - Geçici</option>
-                        <option value="307" {{ request('status_code') === '307' ? 'selected' : '' }}>307 - Geçici (Strict)</option>
-                        <option value="308" {{ request('status_code') === '308' ? 'selected' : '' }}>308 - Kalıcı (Strict)</option>
-                        <option value="404" {{ request('status_code') === '404' ? 'selected' : '' }}>404 - Bulunamadı</option>
-                        <option value="410" {{ request('status_code') === '410' ? 'selected' : '' }}>410 - Kaldırıldı</option>
+                        @foreach(\App\Enums\RedirectStatus::cases() as $status)
+                            <option value="{{ $status->value }}" @selected(request('status_code') === (string) $status->value)>{{ $status->label() }}</option>
+                        @endforeach
                     </select>
 
                     <select class="cl-filter-select" name="status" onchange="document.getElementById('filterForm').submit()">
@@ -161,8 +158,9 @@
                                     @endif
                                 </td>
                                 <td class="d-none d-md-table-cell">
-                                    <span class="redirect-badge redirect-badge-{{ $redirect->status_code }}">
-                                        {{ $redirect->status_code }}
+                                    <span class="redirect-badge redirect-badge-{{ $redirect->status_code?->value }}"
+                                          title="{{ $redirect->status_code?->label() }}">
+                                        {{ $redirect->status_code?->value }}
                                     </span>
                                 </td>
                                 <td class="d-none d-lg-table-cell">
@@ -244,7 +242,7 @@
                             <div class="input-group input-group-theme">
                                 <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="oldUrl" name="old_url"
-                                       placeholder="/urunler/kuru-gida" required>
+                                       placeholder="/eski-sayfa-adresi" required>
                             </div>
                             <small class="form-text text-clr-muted">/ ile başlamalıdır</small>
                         </div>
@@ -253,12 +251,12 @@
                         <div class="mb-3">
                             <label for="statusCode" class="form-label text-clr-secondary">Durum Kodu <span class="text-danger">*</span></label>
                             <select class="form-select form-select-theme" id="statusCode" name="status_code" required>
-                                <option value="301">301 - Kalıcı Yönlendirme</option>
-                                <option value="302">302 - Geçici Yönlendirme</option>
-                                <option value="307">307 - Geçici Yönlendirme (Strict)</option>
-                                <option value="308">308 - Kalıcı Yönlendirme (Strict)</option>
-                                <option value="404">404 - Sayfa Bulunamadı</option>
-                                <option value="410">410 - Kalıcı Olarak Kaldırıldı</option>
+                                @foreach(\App\Enums\RedirectStatus::cases() as $status)
+                                    <option value="{{ $status->value }}"
+                                            data-redirects="{{ $status->redirectsSomewhere() ? '1' : '0' }}"
+                                            data-description="{{ $status->description() }}"
+                                            @selected(old('status_code', 301) == $status->value)>{{ $status->label() }}</option>
+                                @endforeach
                             </select>
                             <div id="statusCodeDesc" class="redirect-status-desc mt-2">
                                 <i class="bi bi-info-circle me-1"></i>
@@ -272,9 +270,13 @@
                             <div class="input-group input-group-theme">
                                 <span class="input-group-text"><i class="bi bi-arrow-right"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="newUrl" name="new_url"
-                                       placeholder="/urunler">
+                                       placeholder="/yeni-sayfa-adresi">
                             </div>
-                            <small class="form-text text-clr-muted">Kullanıcının yönlendirileceği adres</small>
+                            <small class="form-text text-clr-muted">
+                                Kullanıcının yönlendirileceği adres. Site içi bir yol (<code>/sayfa</code>)
+                                ya da izin verilen bir alan adı olmalıdır; site dışına yönlendirme
+                                kabul edilmez.
+                            </small>
                         </div>
 
                         {{-- Not --}}

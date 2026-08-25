@@ -6,15 +6,18 @@ namespace App\Models;
 
 use App\Enums\ContentStatus;
 use App\Traits\HasSlug;
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Page extends Model
 {
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasFactory, HasSlug, SoftDeletes;
 
     protected $fillable = [
+        'locale',
+        'lang_group_id',
         'title',
         'slug',
         'content',

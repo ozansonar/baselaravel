@@ -9,6 +9,8 @@ use App\Http\Requests\Admin\StoreMenuItemRequest;
 use App\Http\Requests\Admin\UpdateMenuItemRequest;
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Models\Page;
+use App\Services\LanguageService;
 use App\Services\MenuItemService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,19 +25,29 @@ final class MenuItemController extends Controller
 
     public function index(Menu $menu): View
     {
+        $this->authorize('viewAny', MenuItem::class);
+
         $menu->load(['rootItems' => function ($query) {
             $query->with('children');
         }]);
 
         return view('admin.menus.items', [
             'menu'             => $menu,
+            'menuLanguage'     => app(LanguageService::class)->findByCode($menu->locale),
             'availableRoutes'  => $this->menuItemService->getAvailableRoutes(),
-            'pages'            => \App\Models\Page::orderBy('title')->get(['id', 'title', 'slug']),
+            // Only pages in the menu's own language, so a link never points at
+            // another language's page.
+            'pages'            => Page::query()
+                ->where('locale', $menu->locale)
+                ->orderBy('title')
+                ->get(['id', 'title', 'slug']),
         ]);
     }
 
     public function store(StoreMenuItemRequest $request, Menu $menu): RedirectResponse
     {
+        $this->authorize('create', MenuItem::class);
+
         $data = $request->validated();
         $data['menu_id'] = $menu->id;
 
@@ -48,6 +60,8 @@ final class MenuItemController extends Controller
 
     public function update(UpdateMenuItemRequest $request, MenuItem $item): RedirectResponse
     {
+        $this->authorize('update', $item);
+
         $this->menuItemService->update($item, $request->validated());
 
         return redirect()
@@ -57,6 +71,8 @@ final class MenuItemController extends Controller
 
     public function destroy(MenuItem $item): RedirectResponse
     {
+        $this->authorize('delete', $item);
+
         $menuId = $item->menu_id;
 
         $this->menuItemService->delete($item);
@@ -70,6 +86,8 @@ final class MenuItemController extends Controller
     {
         $menuItem = MenuItem::withTrashed()->findOrFail($item);
 
+        $this->authorize('restore', $menuItem);
+
         $this->menuItemService->restore($item);
 
         return redirect()
@@ -79,6 +97,8 @@ final class MenuItemController extends Controller
 
     public function reorder(Request $request, Menu $menu): JsonResponse
     {
+        $this->authorize('reorder', MenuItem::class);
+
         $tree = $request->input('tree', []);
 
         if (! is_array($tree)) {

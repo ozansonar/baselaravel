@@ -1,10 +1,10 @@
 @extends('layouts.auth')
 
-@section('title', 'Şifre Sıfırla')
+@section('title', __('site.password.reset_title'))
 
 @section('content')
-    <h1 class="auth-card__title">Yeni şifre belirleyin</h1>
-    <p class="auth-card__sub">Hesabınız için yeni bir şifre oluşturun</p>
+    <h1 class="auth-card__title">{{ __('site.password.reset_title') }}</h1>
+    <p class="auth-card__sub">{{ __('site.password.reset_subtitle') }}</p>
 
     <form method="POST" action="{{ route('password.update') }}">
         @csrf
@@ -13,7 +13,7 @@
 
         {{-- Email --}}
         <div class="mb-3">
-            <label for="email" class="form-label">E-posta Adresi</label>
+            <label for="email" class="form-label">{{ __('site.login.email') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
                 <input type="email"
@@ -28,7 +28,7 @@
 
         {{-- Password --}}
         <div class="mb-3">
-            <label for="password" class="form-label">Yeni Şifre</label>
+            <label for="password" class="form-label">{{ __('site.account.new_password') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                 <input type="password"
@@ -39,12 +39,12 @@
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="form-text">En az 8 karakter kullanın.</div>
+            <div class="form-text">{{ __('site.register.password_hint') }}</div>
         </div>
 
         {{-- Password confirmation --}}
         <div class="mb-3">
-            <label for="password_confirmation" class="form-label">Şifre (Tekrar)</label>
+            <label for="password_confirmation" class="form-label">{{ __('site.register.password_again') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                 <input type="password"
@@ -55,13 +55,13 @@
         </div>
 
         <button type="submit" class="btn btn-primary w-100">
-            <i class="fa-solid fa-check"></i> Şifreyi Sıfırla
+            <i class="fa-solid fa-check"></i> {{ __('site.password.reset_submit') }}
         </button>
     </form>
 
     <p class="text-center text-muted mt-4 mb-0">
         <a href="{{ route('login') }}" class="fw-semibold">
-            <i class="fa-solid fa-arrow-left"></i> Giriş
+            <i class="fa-solid fa-arrow-left"></i> {{ __('site.auth.login') }}
         </a>
     </p>
 @endsection

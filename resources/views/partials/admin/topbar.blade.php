@@ -63,11 +63,13 @@
                         <i class="bi bi-person me-2"></i> Profil
                     </a>
                 </li>
+                @can('viewAny', \App\Models\Setting::class)
                 <li>
                     <a class="dropdown-item" href="{{ route('admin.settings.index') }}">
                         <i class="bi bi-gear me-2"></i> Ayarlar
                     </a>
                 </li>
+                @endcan
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form method="POST" action="{{ route('logout') }}">

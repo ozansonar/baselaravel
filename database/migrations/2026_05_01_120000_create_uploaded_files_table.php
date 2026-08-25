@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Schema;
  * Admin elle yüklediği herhangi bir dosyayı (PDF, Word, Excel, görsel,
  * video, ZIP) saklar. Public URL üzerinden blog/sayfa içinde linklenir.
  *
- * MediaLibrary modülünden BAĞIMSIZ — o ürün-bazlı kare görseller için,
- * bu genel dosya yönetimi için.
+ * Modele bağlı görsel alanlarından (slider, blog, sayfa görselleri)
+ * BAĞIMSIZ — onlar UploadService ile ilgili kaydın kolonuna yazılır,
+ * bu tablo serbest dosya kütüphanesi içindir.
  */
 return new class extends Migration
 {

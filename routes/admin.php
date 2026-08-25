@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PopupController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\UploadController;
@@ -95,6 +96,13 @@ Route::post('contact-messages/{contactMessage}/reply', [ContactMessageController
 Route::delete('contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 Route::patch('contact-messages/{contactMessage}/restore', [ContactMessageController::class, 'restore'])->name('contact-messages.restore')->withTrashed();
 
+// Roles & Permissions
+Route::get('roller',                 [RoleController::class, 'index'])->name('roles.index');
+Route::post('roller',                [RoleController::class, 'store'])->name('roles.store');
+Route::put('roller/izinler',         [RoleController::class, 'syncPermissions'])->name('roles.permissions.sync');
+Route::put('roller/{role}',          [RoleController::class, 'update'])->name('roles.update');
+Route::delete('roller/{role}',       [RoleController::class, 'destroy'])->name('roles.destroy');
+
 // Users
 Route::resource('users', UserController::class)->except('show');
 Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed();
@@ -115,6 +123,7 @@ Route::prefix('analytics')->name('analytics.')->group(function () {
 Route::prefix('menus')->name('menus.')->group(function () {
     Route::get('/', [MenuController::class, 'index'])->name('index');
     Route::put('{menu}', [MenuController::class, 'update'])->name('update');
+    Route::post('{menu}/copy/{locale}', [MenuController::class, 'copy'])->name('copy');
     Route::get('{menu}/items', [MenuItemController::class, 'index'])->name('items.index');
     Route::post('{menu}/items', [MenuItemController::class, 'store'])->name('items.store');
     Route::patch('{menu}/items/reorder', [MenuItemController::class, 'reorder'])->name('items.reorder');

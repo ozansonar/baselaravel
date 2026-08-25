@@ -12,13 +12,18 @@ use Illuminate\Support\Facades\DB;
 
 final class BlogCategoryService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
+    use \App\Services\Concerns\SyncsTranslations;
+
     /**
      * @return Collection<int, BlogCategory>
      */
     public function allActive(): Collection
     {
-        return Cache::remember('blog_categories.active', 3600, fn () =>
+        return Cache::remember($this->localeCacheKey('blog_categories.active'), 3600, fn () =>
             BlogCategory::active()
+                ->localeWithFallback()
                 ->sorted()
                 ->withCount(['posts' => fn ($q) => $q->published()])
                 ->get(),
@@ -114,6 +119,35 @@ final class BlogCategoryService
         });
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(BlogCategory::class, $translations, static fn (array $fields): array => $fields);
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(BlogCategory $category, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            BlogCategory::class,
+            $translations,
+            static fn (array $fields): array => $fields,
+            $category->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
     public function delete(BlogCategory $category): void
     {
         DB::transaction(function () use ($category): void {
@@ -133,7 +167,7 @@ final class BlogCategoryService
 
     private function clearCache(): void
     {
-        Cache::forget('blog_categories.active');
+        $this->forgetLocalized('blog_categories.active');
         Cache::forget('admin.blog_categories.stats');
         // Modül 7 — blog kategori değişikliği sitemap'e anında yansısın.
         Cache::forget('sitemap.urls');

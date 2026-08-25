@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AuditEvent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -17,10 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 final class AuditLog extends Model
 {
-    public const EVENT_CREATED = 'created';
-    public const EVENT_UPDATED = 'updated';
-    public const EVENT_DELETED = 'deleted';
-    public const EVENT_CUSTOM  = 'custom';
+    use HasFactory, SoftDeletes;
 
     public $timestamps = false; // sadece created_at — useCurrent migration'da
 
@@ -41,6 +41,7 @@ final class AuditLog extends Model
     protected function casts(): array
     {
         return [
+            'event'        => AuditEvent::class,
             'old_values'   => 'array',
             'new_values'   => 'array',
             'auditable_id' => 'integer',
@@ -75,24 +76,12 @@ final class AuditLog extends Model
 
     public function eventLabel(): string
     {
-        return match ($this->event) {
-            self::EVENT_CREATED => 'Oluşturuldu',
-            self::EVENT_UPDATED => 'Güncellendi',
-            self::EVENT_DELETED => 'Silindi',
-            self::EVENT_CUSTOM  => 'Özel',
-            default             => $this->event,
-        };
+        return $this->event?->label() ?? '—';
     }
 
     public function eventBadgeClass(): string
     {
-        return match ($this->event) {
-            self::EVENT_CREATED => 'bg-success',
-            self::EVENT_UPDATED => 'bg-info',
-            self::EVENT_DELETED => 'bg-danger',
-            self::EVENT_CUSTOM  => 'bg-warning text-dark',
-            default             => 'bg-secondary',
-        };
+        return 'bg-' . ($this->event?->color() ?? 'secondary');
     }
 
     public function modelLabel(): string

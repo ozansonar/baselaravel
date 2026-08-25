@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Services\BackupService;
+use App\Enums\NotificationLevel;
 use App\Services\NotificationCenter;
 use App\Services\TelegramNotifier;
 use Illuminate\Console\Command;
@@ -37,7 +38,7 @@ final class RunBackup extends Command
                 type: 'backup_failed',
                 title: 'Yedek alma başarısız',
                 message: $result['message'],
-                level: 'error',
+                level: NotificationLevel::Error,
                 icon: 'bi-exclamation-octagon-fill',
                 actionUrl: $url,
             );
@@ -71,7 +72,7 @@ final class RunBackup extends Command
             type: 'backup_completed',
             title: 'Yedek alındı: ' . $result['file'],
             message: 'Toplam ' . $result['size_human'] . ' (DB ' . round($result['db_size'] / 1_048_576, 2) . ' MB + dosyalar ' . round($result['files_size'] / 1_048_576, 2) . ' MB)',
-            level: 'success',
+            level: NotificationLevel::Success,
             icon: 'bi-cloud-check-fill',
             actionUrl: $url,
         );

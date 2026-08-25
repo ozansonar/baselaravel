@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\GalleryType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTranslatedGalleryItemRequest;
 use App\Http\Requests\StoreGalleryItemRequest;
 use App\Http\Requests\UpdateGalleryItemRequest;
 use App\Models\GalleryCategory;
@@ -46,19 +47,18 @@ final class GalleryItemController extends Controller
         $this->authorize('create', GalleryItem::class);
 
         return view('admin.gallery-items.create', [
-            'types'      => GalleryType::cases(),
-            'categories' => GalleryCategory::active()->sorted()->get(),
+            'types'         => GalleryType::cases(),
+            // Every language's categories, filtered per tab in the form.
+            'categories'    => GalleryCategory::active()->sorted()->get(),
+            'formLanguages' => $this->galleryService->formLanguages(),
         ]);
     }
 
-    public function store(StoreGalleryItemRequest $request): RedirectResponse
+    public function store(StoreTranslatedGalleryItemRequest $request): RedirectResponse
     {
         $this->authorize('create', GalleryItem::class);
 
-        $data = $request->validated();
-        $data['is_active'] = (bool) $request->input('is_active', false);
-
-        $this->galleryService->create($data);
+        $this->galleryService->createTranslated($request->validated('translations'));
 
         return redirect()
             ->route('admin.gallery-items.index')
@@ -70,20 +70,18 @@ final class GalleryItemController extends Controller
         $this->authorize('update', $galleryItem);
 
         return view('admin.gallery-items.edit', [
-            'item'       => $galleryItem->load('galleryCategory'),
-            'types'      => GalleryType::cases(),
-            'categories' => GalleryCategory::active()->sorted()->get(),
+            'item'          => $galleryItem->load('galleryCategory'),
+            'types'         => GalleryType::cases(),
+            'categories'    => GalleryCategory::active()->sorted()->get(),
+            'formLanguages' => $this->galleryService->formLanguages(),
         ]);
     }
 
-    public function update(UpdateGalleryItemRequest $request, GalleryItem $galleryItem): RedirectResponse
+    public function update(StoreTranslatedGalleryItemRequest $request, GalleryItem $galleryItem): RedirectResponse
     {
         $this->authorize('update', $galleryItem);
 
-        $data = $request->validated();
-        $data['is_active'] = (bool) $request->input('is_active', false);
-
-        $this->galleryService->update($galleryItem, $data);
+        $this->galleryService->updateTranslated($galleryItem, $request->validated('translations'));
 
         return redirect()
             ->route('admin.gallery-items.index')

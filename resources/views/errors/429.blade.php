@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', '429 - Çok Fazla İstek')
+@section('title', '429 - ' . __('site.errors.429_title'))
 @section('robots', 'noindex, nofollow')
 
 @section('content')
     @include('partials.error', [
         'code'    => '429',
-        'title'   => 'Çok Fazla İstek',
-        'message' => 'Kısa sürede çok fazla istek gönderdiniz. Lütfen biraz bekleyip tekrar deneyin.',
+        'title'   => __('site.errors.429_title'),
+        'message' => __('site.errors.429'),
     ])
 @endsection

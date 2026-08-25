@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 final class PopupService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -22,8 +26,8 @@ final class PopupService
      */
     public function getForPage(string $page): Collection
     {
-        return Cache::remember("popups.page.{$page}", 300, fn () =>
-            Popup::active()->scheduled()->forPage($page)->sorted()->get(),
+        return Cache::remember($this->localeCacheKey("popups.page.{$page}"), 300, fn () =>
+            Popup::active()->localeWithFallback()->scheduled()->forPage($page)->sorted()->get(),
         );
     }
 
@@ -101,6 +105,41 @@ final class PopupService
         });
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Popup::class,
+            $translations,
+            fn (array $fields, string $locale, ?Popup $existing, ?Popup $default): array =>
+                $this->prepareImageField($fields, $existing, 'popups', 'title', 'image', $default),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Popup $popup, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Popup::class,
+            $translations,
+            fn (array $fields, string $locale, ?Popup $existing, ?Popup $default): array =>
+                $this->prepareImageField($fields, $existing, 'popups', 'title', 'image', $default),
+            $popup->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
     public function delete(Popup $popup): void
     {
         DB::transaction(function () use ($popup): void {
@@ -165,7 +204,7 @@ final class PopupService
         Cache::forget('admin.popups.stats');
 
         foreach (PopupPage::cases() as $page) {
-            Cache::forget("popups.page.{$page->value}");
+            $this->forgetLocalized("popups.page.{$page->value}");
         }
     }
 }

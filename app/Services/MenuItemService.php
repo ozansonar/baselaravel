@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Services\Concerns\ResolvesLocalizedSlugs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Throwable;
 
 final class MenuItemService
 {
+    use ResolvesLocalizedSlugs;
+
     public function __construct(
         private readonly MenuService $menuService,
     ) {}
@@ -21,6 +25,10 @@ final class MenuItemService
             (int) $data['menu_id'],
             isset($data['parent_id']) ? (int) $data['parent_id'] : null
         );
+
+        // An item belongs to the language of the menu it sits in, not to
+        // whatever language the panel happens to be displayed in.
+        $data['locale'] ??= Menu::query()->whereKey($data['menu_id'])->value('locale');
 
         $item = MenuItem::create($data);
         $this->menuService->clearAllCaches();
@@ -63,7 +71,7 @@ final class MenuItemService
         if ($item->link_type === 'route' && $item->route_name) {
             try {
                 if (Route::has($item->route_name)) {
-                    return route($item->route_name, $item->route_params ?? []);
+                    return route($item->route_name, $this->routeParams($item));
                 }
             } catch (Throwable) {
                 return '#';
@@ -72,6 +80,37 @@ final class MenuItemService
 
         return $item->url ?: '#';
     }
+
+    /**
+     * Point a page link at the translation the visitor is reading.
+     *
+     * Two ways a link ends up on the wrong slug: a menu shown as a fallback
+     * carries the default language's slugs, and a menu copied into a new
+     * language keeps the slugs it was copied from. Both are caught by asking
+     * whether the slug itself belongs to the current language rather than
+     * trusting the item's own locale.
+     *
+     * @return array<string, mixed>
+     */
+    private function routeParams(MenuItem $item): array
+    {
+        $params = $item->route_params ?? [];
+
+        if ($item->route_name !== 'pages.show') {
+            return $params;
+        }
+
+        $slug = $params['slug'] ?? null;
+
+        if (! is_string($slug) || $slug === '') {
+            return $params;
+        }
+
+        $params['slug'] = $this->localizedSlug($slug);
+
+        return $params;
+    }
+
 
     public function isActive(MenuItem $item): bool
     {

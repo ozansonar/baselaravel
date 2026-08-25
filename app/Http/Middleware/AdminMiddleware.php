@@ -18,9 +18,10 @@ final class AdminMiddleware
             return redirect()->route('login');
         }
 
-        // Check if user has admin panel access via roles
+        // Anyone holding at least one permission belongs in the panel; which
+        // screens they then see is decided per screen by the policies.
         $hasAccess = $user->roles()
-            ->whereIn('slug', ['admin', 'editor', 'moderator'])
+            ->whereHas('permissions')
             ->exists();
 
         if (!$hasAccess) {

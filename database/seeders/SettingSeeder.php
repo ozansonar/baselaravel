@@ -13,13 +13,14 @@ class SettingSeeder extends Seeder
     {
         $settings = [
             // General
-            ['key' => 'site_name',        'value' => 'Laravel Base',                                     'group' => 'general', 'type' => 'text'],
-            ['key' => 'site_title',       'value' => 'Laravel Base',                                     'group' => 'general', 'type' => 'text'],
+            ['key' => 'site_name',        'value' => config('app.name'),                                 'group' => 'general', 'type' => 'text'],
+            ['key' => 'site_title',       'value' => config('app.name'),                                 'group' => 'general', 'type' => 'text'],
             ['key' => 'site_description', 'value' => 'Yeniden kullanılabilir Laravel başlangıç altyapısı.', 'group' => 'general', 'type' => 'textarea'],
             ['key' => 'site_keywords',    'value' => 'laravel,base,starter',                             'group' => 'general', 'type' => 'text'],
             ['key' => 'site_logo',        'value' => null, 'group' => 'general',    'type' => 'image'],
             ['key' => 'site_favicon',     'value' => null, 'group' => 'general',    'type' => 'image'],
-            ['key' => 'footer_text',      'value' => '© 2026 Laravel Base. Tüm hakları saklıdır.',      'group' => 'general', 'type' => 'text'],
+            ['key' => 'footer_text',      'value' => '© ' . date('Y') . ' ' . config('app.name') . '. Tüm hakları saklıdır.', 'group' => 'general', 'type' => 'text'],
+            ['key' => 'footer_credit',    'value' => null, 'group' => 'general',    'type' => 'text'],
 
             // Contact
             ['key' => 'contact_email',          'value' => 'info@example.com',        'group' => 'contact', 'type' => 'text'],

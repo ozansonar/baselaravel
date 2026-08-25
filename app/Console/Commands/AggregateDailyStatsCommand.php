@@ -66,20 +66,31 @@ class AggregateDailyStatsCommand extends Command
             ->map(fn ($r) => ['browser' => $r->browser, 'count' => (int) $r->count])
             ->all();
 
-        AnalyticsDailyStat::updateOrCreate(
-            ['date' => $date->toDateString()],
-            [
-                'total_views'     => $totalViews,
-                'unique_visitors' => $uniqueVisitors,
-                'bot_views'       => $botViews,
-                'desktop_views'   => (int) ($deviceCounts['desktop'] ?? 0),
-                'mobile_views'    => (int) ($deviceCounts['mobile'] ?? 0),
-                'tablet_views'    => (int) ($deviceCounts['tablet'] ?? 0),
-                'top_pages'       => $topPages,
-                'top_referrers'   => $topReferrers,
-                'top_browsers'    => $topBrowsers,
-            ]
-        );
+        // The date column is unique, so a soft-deleted row for this date would
+        // stay invisible to a plain updateOrCreate and the insert would then
+        // hit the unique index. Look through trashed rows and revive instead.
+        // whereDate keeps the lookup working whether the driver stores a bare
+        // date or a full timestamp.
+        $stat = AnalyticsDailyStat::withTrashed()
+            ->whereDate('date', $date->toDateString())
+            ->first()
+            ?? new AnalyticsDailyStat(['date' => $date->toDateString()]);
+
+        if ($stat->trashed()) {
+            $stat->restore();
+        }
+
+        $stat->fill([
+            'total_views'     => $totalViews,
+            'unique_visitors' => $uniqueVisitors,
+            'bot_views'       => $botViews,
+            'desktop_views'   => (int) ($deviceCounts['desktop'] ?? 0),
+            'mobile_views'    => (int) ($deviceCounts['mobile'] ?? 0),
+            'tablet_views'    => (int) ($deviceCounts['tablet'] ?? 0),
+            'top_pages'       => $topPages,
+            'top_referrers'   => $topReferrers,
+            'top_browsers'    => $topBrowsers,
+        ])->save();
 
         $this->info("Done. total={$totalViews}, unique={$uniqueVisitors}, bots={$botViews}");
 

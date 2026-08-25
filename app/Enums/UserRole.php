@@ -34,11 +34,35 @@ enum UserRole: string
         };
     }
 
+    public function description(): string
+    {
+        return match ($this) {
+            self::Admin     => 'Tam yetkili sistem yöneticisi',
+            self::Editor    => 'İçerik yönetimi yetkisi',
+            self::Moderator => 'Mesaj ve yorum yönetimi yetkisi',
+            self::User      => 'Kayıtlı site kullanıcısı',
+            self::Viewer    => 'Sadece görüntüleme yetkisi',
+        };
+    }
+
     /**
      * Check if role has admin panel access.
      */
     public function hasAdminAccess(): bool
     {
         return in_array($this, [self::Admin, self::Editor, self::Moderator], true);
+    }
+
+    /**
+     * Slugs of the roles AdminMiddleware lets into the panel.
+     *
+     * @return array<int, string>
+     */
+    public static function adminPanelSlugs(): array
+    {
+        return array_values(array_map(
+            static fn (self $role): string => $role->value,
+            array_filter(self::cases(), static fn (self $role): bool => $role->hasAdminAccess()),
+        ));
     }
 }

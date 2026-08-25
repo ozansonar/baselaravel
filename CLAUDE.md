@@ -5,7 +5,7 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 
 ## Stack
 
-- PHP 8.3.30 / Laravel 12 / Blade / MySQL 8 / Bootstrap 5.3.8 CDN / Vanilla JS
+- PHP 8.4 / Laravel 13 / Blade / MySQL 8 / Bootstrap 5.3.8 / Vanilla JS
 
 ## Tasarım Sadakati
 
@@ -31,7 +31,8 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 ## Kodlama
 
 - PSR-12 / FormRequest validation / Thin controllers
-- PHP 8.3: typed properties, enums, readonly, match, null safe
+- PHP 8.4: typed properties, enums, readonly, match, null safe, property hooks,
+  asimetrik görünürlük (`private(set)`), `array_find` / `array_any` / `array_all`
 - Fetch API (AJAX) / Bootstrap utility-first / BEM CSS / Mobile-first responsive
 - Migration'da `down()` her zaman yaz / Index ekle / `DB::transaction()`
 

@@ -612,3 +612,53 @@ img { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ==========================================================================
+   Language switcher
+   ========================================================================== */
+
+.lang-switcher__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding-inline: .75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.lang-switcher__flag {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.lang-switcher__code {
+    font-size: .8125rem;
+    letter-spacing: .02em;
+}
+
+.lang-switcher__menu {
+    min-width: 11rem;
+}
+
+.lang-switcher__menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.lang-switcher__menu .dropdown-item.active {
+    background-color: rgba(79, 70, 229, .1);
+    color: inherit;
+    font-weight: 600;
+}
+
+/* Inside the mobile off-canvas the switcher spans the full width like the
+   buttons above it. */
+.mobile-nav .d-grid .lang-switcher,
+.mobile-nav .d-grid .lang-switcher__toggle {
+    width: 100%;
+}
+
+.mobile-nav .d-grid .lang-switcher__toggle {
+    justify-content: center;
+}

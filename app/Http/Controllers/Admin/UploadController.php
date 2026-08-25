@@ -17,6 +17,8 @@ final class UploadController extends Controller
 
     public function ckeditor(Request $request): JsonResponse
     {
+        $this->authorize('upload-editor-media');
+
         $request->validate([
             'upload' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
         ]);

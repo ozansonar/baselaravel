@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', '419 - Oturum Süresi Doldu')
+@section('title', '419 - ' . __('site.errors.419_title'))
 @section('robots', 'noindex, nofollow')
 
 @section('content')
     @include('partials.error', [
         'code'    => '419',
-        'title'   => 'Oturum Süresi Doldu',
-        'message' => 'Güvenlik nedeniyle oturumunuz sonlandı. Lütfen sayfayı yenileyip tekrar deneyin.',
+        'title'   => __('site.errors.419_title'),
+        'message' => __('site.errors.419'),
     ])
 @endsection

@@ -20,6 +20,8 @@ final class HealthController extends Controller
 
     public function index(): View
     {
+        $this->authorize('view-system-health');
+
         return view('admin.system-health.index', [
             'health' => $this->service->runAll(),
         ]);
@@ -27,6 +29,8 @@ final class HealthController extends Controller
 
     public function json(): JsonResponse
     {
+        $this->authorize('view-system-health');
+
         return response()->json($this->service->runAll());
     }
 }

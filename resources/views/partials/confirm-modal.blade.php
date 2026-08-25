@@ -5,11 +5,11 @@
             <div class="d-flex justify-content-center mb-3">
                 <span class="result-icon result-icon--warning"><i class="fa-solid fa-triangle-exclamation"></i></span>
             </div>
-            <h5 class="fw-bold mb-2" id="confirmModalTitle">Emin misiniz?</h5>
+            <h5 class="fw-bold mb-2" id="confirmModalTitle">{{ __('site.actions.sure') }}</h5>
             <p class="text-muted mb-4" id="confirmModalBody"></p>
             <div class="d-flex gap-2 justify-content-center">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="button" class="btn btn-primary px-4" id="confirmModalConfirmBtn">Evet</button>
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">{{ __('site.actions.cancel') }}</button>
+                <button type="button" class="btn btn-primary px-4" id="confirmModalConfirmBtn">{{ __('site.actions.yes') }}</button>
             </div>
         </div>
     </div>

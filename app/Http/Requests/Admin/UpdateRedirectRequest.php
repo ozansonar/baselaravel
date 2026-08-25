@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\RedirectStatus;
+use App\Rules\SafeRedirectTarget;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class UpdateRedirectRequest extends FormRequest
 {
@@ -22,8 +25,8 @@ final class UpdateRedirectRequest extends FormRequest
 
         return [
             'old_url'     => 'required|string|max:500|unique:redirects,old_url,' . $redirectId . '|starts_with:/',
-            'new_url'     => 'nullable|required_unless:status_code,404,410|string|max:500',
-            'status_code' => 'required|integer|in:301,302,307,308,404,410',
+            'new_url'     => ['nullable', 'required_unless:status_code,404,410', 'string', 'max:500', new SafeRedirectTarget()],
+            'status_code' => ['required', Rule::enum(RedirectStatus::class)],
             'is_active'   => 'boolean',
             'note'        => 'nullable|string|max:500',
         ];
@@ -40,7 +43,7 @@ final class UpdateRedirectRequest extends FormRequest
             'old_url.starts_with' => 'Eski URL / ile başlamalıdır.',
             'new_url.required_unless' => 'Yönlendirme yapılan durum kodları için yeni URL zorunludur.',
             'status_code.required' => 'Durum kodu zorunludur.',
-            'status_code.in'       => 'Geçersiz durum kodu.',
+            'status_code.enum'     => 'Geçersiz durum kodu.',
         ];
     }
 

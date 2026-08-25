@@ -244,6 +244,13 @@
                                value="{{ $s('footer_text') }}" placeholder="Footer metin bilgisi">
                         <small class="stg-hint">Site alt kısmında görünecek telif hakkı metni</small>
                     </div>
+
+                    <div class="stg-field">
+                        <label class="stg-label">Footer Kredi Metni</label>
+                        <input type="text" class="stg-input" name="settings[footer_credit]"
+                               value="{{ $s('footer_credit') }}" placeholder="Örn: Acme Yazılım tarafından geliştirildi">
+                        <small class="stg-hint">Footer'ın sağ tarafında görünür. Boş bırakılırsa hiç gösterilmez.</small>
+                    </div>
                 </div>
             </form>
         </div>
@@ -291,7 +298,7 @@
                         <label class="stg-label">Yönetici Bildirim E-postası</label>
                         <input type="email" class="stg-input" name="settings[admin_notification_email]"
                                value="{{ $s('admin_notification_email') }}" placeholder="bildirim@domain.com">
-                        <small class="stg-help-text">Yeni sipariş bildirimleri ve Instagram kalıcı hata uyarıları bu adrese gönderilir. Boşsa "İletişim E-posta Adresi" kullanılır.</small>
+                        <small class="stg-help-text">Sistem bildirimleri ve hata uyarıları bu adrese gönderilir. Boşsa "İletişim E-posta Adresi" kullanılır.</small>
                     </div>
                 </div>
 
@@ -657,9 +664,9 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Şifreleme</label>
                             <select class="stg-select" name="settings[mail_encryption]">
-                                <option value="tls" {{ $s('mail_encryption', 'tls') === 'tls' ? 'selected' : '' }}>TLS</option>
-                                <option value="ssl" {{ $s('mail_encryption') === 'ssl' ? 'selected' : '' }}>SSL</option>
-                                <option value="none" {{ $s('mail_encryption') === 'none' ? 'selected' : '' }}>Yok</option>
+                                @foreach(\App\Enums\MailEncryption::cases() as $enc)
+                                    <option value="{{ $enc->value }}" @selected($s('mail_encryption', \App\Enums\MailEncryption::Tls->value) === $enc->value)>{{ $enc->label() }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="stg-field stg-half">
@@ -1085,18 +1092,16 @@
                     </div>
 
                     <div class="stg-field">
-                        @php $tgLevel = $s('telegram_notify_level', 'permanent_only'); @endphp
+                        @php $tgLevel = $s('telegram_notify_level', \App\Enums\TelegramNotifyLevel::default()->value); @endphp
                         <select class="stg-input" name="settings[telegram_notify_level]">
-                            <option value="permanent_only" @selected($tgLevel === 'permanent_only')>
-                                Sadece kalıcı hata (3/3 deneme sonunda) — önerilen
-                            </option>
-                            <option value="every_failure" @selected($tgLevel === 'every_failure')>
-                                Her başarısızlıkta (1., 2., 3. denemede ayrı mesaj)
-                            </option>
+                            @foreach(\App\Enums\TelegramNotifyLevel::cases() as $level)
+                                <option value="{{ $level->value }}" @selected($tgLevel === $level->value)>{{ $level->label() }}</option>
+                            @endforeach
                         </select>
                         <small class="stg-hint">
-                            <strong>Kalıcı hata:</strong> sadece tüm denemeler tükendiğinde tek mesaj gelir (sessiz, idempotent).<br>
-                            <strong>Her başarısızlıkta:</strong> sorun başlar başlamaz haberin olur, ama 1 post için 3 mesaj gelebilir.
+                            @foreach(\App\Enums\TelegramNotifyLevel::cases() as $level)
+                                <strong>{{ $level->label() }}:</strong> {{ $level->description() }}@if(!$loop->last)<br>@endif
+                            @endforeach
                         </small>
                     </div>
                 </div>
@@ -1153,8 +1158,9 @@
                             <div class="stg-field">
                                 <label class="stg-label">Dil</label>
                                 <select class="stg-select" name="settings[app_locale]">
-                                    <option value="tr" {{ $s('app_locale', 'tr') === 'tr' ? 'selected' : '' }}>Türkçe</option>
-                                    <option value="en" {{ $s('app_locale', 'tr') === 'en' ? 'selected' : '' }}>English</option>
+                                    @foreach(\App\Enums\AppLocale::cases() as $locale)
+                                        <option value="{{ $locale->value }}" @selected($s('app_locale', \App\Enums\AppLocale::default()->value) === $locale->value)>{{ $locale->label() }}</option>
+                                    @endforeach
                                 </select>
                                 <span class="stg-hint">Uygulamanın arayüz dili</span>
                             </div>
@@ -1163,27 +1169,9 @@
                             <div class="stg-field">
                                 <label class="stg-label">Saat Dilimi</label>
                                 <select class="stg-select" name="settings[app_timezone]">
-                                    @php
-                                        $currentTz = $s('app_timezone', 'Europe/Istanbul');
-                                        $timezones = [
-                                            'Europe/Istanbul'  => 'Europe/Istanbul (UTC+3)',
-                                            'Europe/London'    => 'Europe/London (UTC+0)',
-                                            'Europe/Berlin'    => 'Europe/Berlin (UTC+1)',
-                                            'Europe/Moscow'    => 'Europe/Moscow (UTC+3)',
-                                            'America/New_York' => 'America/New_York (UTC-5)',
-                                            'America/Chicago'  => 'America/Chicago (UTC-6)',
-                                            'America/Denver'   => 'America/Denver (UTC-7)',
-                                            'America/Los_Angeles' => 'America/Los_Angeles (UTC-8)',
-                                            'Asia/Dubai'       => 'Asia/Dubai (UTC+4)',
-                                            'Asia/Kolkata'     => 'Asia/Kolkata (UTC+5:30)',
-                                            'Asia/Shanghai'    => 'Asia/Shanghai (UTC+8)',
-                                            'Asia/Tokyo'       => 'Asia/Tokyo (UTC+9)',
-                                            'Australia/Sydney' => 'Australia/Sydney (UTC+11)',
-                                            'Pacific/Auckland' => 'Pacific/Auckland (UTC+12)',
-                                        ];
-                                    @endphp
-                                    @foreach($timezones as $tz => $label)
-                                        <option value="{{ $tz }}" {{ $currentTz === $tz ? 'selected' : '' }}>{{ $label }}</option>
+                                    @php $currentTz = $s('app_timezone', \App\Enums\AppTimezone::default()->value); @endphp
+                                    @foreach(\App\Enums\AppTimezone::cases() as $tz)
+                                        <option value="{{ $tz->value }}" @selected($currentTz === $tz->value)>{{ $tz->label() }}</option>
                                     @endforeach
                                 </select>
                                 <span class="stg-hint">Tarih ve saat gösteriminde kullanılacak saat dilimi</span>

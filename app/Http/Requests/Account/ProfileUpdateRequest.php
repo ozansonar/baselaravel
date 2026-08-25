@@ -26,7 +26,10 @@ final class ProfileUpdateRequest extends FormRequest
             'last_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($userId)],
             'phone' => ['nullable', 'string', 'max:20'],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            // Changing a password requires proving the current one, so a hijacked
+            // session cannot lock the real owner out.
+            'current_password' => ['required_with:password', 'current_password'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed', 'different:current_password'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'remove_avatar' => ['nullable', 'boolean'],
         ];
@@ -38,6 +41,9 @@ final class ProfileUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'current_password.required_with' => 'Şifrenizi değiştirmek için mevcut şifrenizi girmelisiniz.',
+            'current_password.current_password' => 'Mevcut şifreniz hatalı.',
+            'password.different' => 'Yeni şifre mevcut şifrenizle aynı olamaz.',
             'first_name.required' => 'Ad alanı zorunludur.',
             'first_name.regex'    => 'Ad yalnızca harf ve boşluk içerebilir.',
             'last_name.required'  => 'Soyad alanı zorunludur.',

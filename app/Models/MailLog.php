@@ -6,13 +6,14 @@ namespace App\Models;
 
 use App\Enums\MailLogStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MailLog extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'to',
@@ -77,8 +78,6 @@ class MailLog extends Model
         'ContactMessageNotification' => ['label' => 'İletişim Formu', 'icon' => 'bi-chat-dots-fill', 'color' => 'text-info'],
         'WelcomeMail'                => ['label' => 'Hoş Geldiniz', 'icon' => 'bi-person-plus-fill', 'color' => 'text-success'],
         'ResetPasswordMail'          => ['label' => 'Şifre Sıfırlama', 'icon' => 'bi-key-fill', 'color' => 'text-warning'],
-        'OrderConfirmationMail'      => ['label' => 'Sipariş Onayı', 'icon' => 'bi-bag-check-fill', 'color' => 'text-primary'],
-        'OrderStatusUpdatedMail'     => ['label' => 'Sipariş Güncelleme', 'icon' => 'bi-truck', 'color' => 'text-neon-purple'],
         'ContactMessageReplyMail'    => ['label' => 'İletişim Yanıtı', 'icon' => 'bi-reply-fill', 'color' => 'text-neon-green'],
         'TestMail'                   => ['label' => 'Test Maili', 'icon' => 'bi-wrench-adjustable', 'color' => 'text-secondary'],
     ];

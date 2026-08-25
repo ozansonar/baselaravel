@@ -36,9 +36,8 @@ final class WelcomeMail extends BaseMail
         $siteName = Setting::getValue('site_name', config('app.name'));
 
         return [
-            'user_name'    => $this->user->full_name,
-            'site_name'    => $siteName,
-            'products_url' => url('/urunler'),
+            'user_name' => $this->user->full_name,
+            'site_name' => $siteName,
         ];
     }
 }

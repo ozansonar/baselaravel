@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Request;
  * Audit log üretici — model değişikliklerini ve özel olayları kaydeder.
  *
  * Kullanım:
- *  AuditLogger::log('updated', $post, $oldAttrs, $newAttrs);
+ *  AuditLogger::log(AuditEvent::Updated, $post, $oldAttrs, $newAttrs);
  *  AuditLogger::custom('Sistem yedek aldı', context: ['size_mb' => 145]);
  */
 final class AuditLogger
@@ -37,7 +38,7 @@ final class AuditLogger
      * @param array<string, mixed> $oldValues
      * @param array<string, mixed> $newValues
      */
-    public static function log(string $event, Model $model, array $oldValues = [], array $newValues = []): void
+    public static function log(AuditEvent $event, Model $model, array $oldValues = [], array $newValues = []): void
     {
         try {
             AuditLog::create([
@@ -68,7 +69,7 @@ final class AuditLogger
         try {
             AuditLog::create([
                 'user_id'        => $userId ?? Auth::id(),
-                'event'          => AuditLog::EVENT_CUSTOM,
+                'event'          => AuditEvent::Custom,
                 'auditable_type' => null,
                 'auditable_id'   => null,
                 'label'          => substr($label, 0, 250),
@@ -86,10 +87,16 @@ final class AuditLogger
 
     /**
      * Eski log'ları temizle (cron tarafından çağrılır).
+     *
+     * Saklama süresi temizliği olduğu için forceDelete kullanılır; normal
+     * delete yalnızca deleted_at doldurur ve tablo süresiz büyümeye devam
+     * ederdi.
      */
     public static function pruneOlderThan(int $days = 90): int
     {
-        return AuditLog::where('created_at', '<', now()->subDays($days))->delete();
+        return AuditLog::withTrashed()
+            ->where('created_at', '<', now()->subDays($days))
+            ->forceDelete();
     }
 
     /**
@@ -108,7 +115,7 @@ final class AuditLogger
         return $values;
     }
 
-    private static function buildLabel(string $event, Model $model): string
+    private static function buildLabel(AuditEvent $event, Model $model): string
     {
         $type = class_basename($model);
         $id = $model->getKey();
@@ -121,12 +128,7 @@ final class AuditLogger
 
         $name = $name ? mb_strimwidth((string) $name, 0, 60, '…', 'UTF-8') : null;
 
-        $eventTr = match ($event) {
-            'created' => 'oluşturuldu',
-            'updated' => 'güncellendi',
-            'deleted' => 'silindi',
-            default   => $event,
-        };
+        $eventTr = mb_strtolower($event->label());
 
         return $name
             ? "{$type} #{$id} \"{$name}\" {$eventTr}"

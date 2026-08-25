@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\Department;
+use App\Enums\PermissionKey;
 use App\Enums\Gender;
 use App\Mail\ResetPasswordMail;
+use App\Mail\VerifyEmailMail;
 use App\Services\MailService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -74,16 +78,68 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
-    // ── Helpers ──
-
-    public function hasRole(string $slug): bool
+    /**
+     * @return HasMany<AdminNotification, $this>
+     */
+    public function adminNotifications(): HasMany
     {
-        return $this->roles()->where('slug', $slug)->exists();
+        return $this->hasMany(AdminNotification::class);
     }
 
+    // ── Helpers ──
+
+    /**
+     * Reads through the roles relation so repeated authorization checks within
+     * a single request hit the database once instead of once per call.
+     */
+    public function hasRole(string $slug): bool
+    {
+        return $this->roles->contains('slug', $slug);
+    }
+
+    /**
+     * @param array<int, string> $slugs
+     */
     public function hasAnyRole(array $slugs): bool
     {
-        return $this->roles()->whereIn('slug', $slugs)->exists();
+        return $this->roles->whereIn('slug', $slugs)->isNotEmpty();
+    }
+
+    /**
+     * True when any of the user's roles carries the given permission.
+     *
+     * Reads through the relations so a request that runs many authorization
+     * checks still loads roles and permissions once.
+     */
+    public function hasPermission(PermissionKey|string $permission): bool
+    {
+        $key = $permission instanceof PermissionKey ? $permission->value : $permission;
+
+        return $this->roles
+            ->loadMissing('permissions')
+            ->contains(fn (Role $role): bool => $role->permissions->contains('key', $key));
+    }
+
+    /**
+     * Send the verification link through the project's own mail pipeline so it
+     * is logged and uses the editable template like every other mail.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $verificationUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $this->getKey(), 'hash' => sha1($this->getEmailForVerification())],
+        );
+
+        try {
+            app(MailService::class)->queue($this->email, new VerifyEmailMail($this, $verificationUrl));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Doğrulama maili kuyruğa eklenemedi', [
+                'user_id' => $this->id,
+                'error'   => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

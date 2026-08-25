@@ -13,9 +13,11 @@
             <p>Hoş geldiniz, {{ auth()->user()->name }}. Sitenizin genel durumunu buradan takip edin.</p>
         </div>
         <div class="d-flex gap-2">
+            @can('create', \App\Models\BlogPost::class)
             <a href="{{ route('admin.blog-posts.create') }}" class="btn-teal">
                 <i class="bi bi-plus-lg"></i> Yeni İçerik
             </a>
+            @endcan
         </div>
     </div>
 
@@ -93,7 +95,9 @@
             <div class="card-dark">
                 <div class="card-header-custom">
                     <h6><i class="bi bi-journal-richtext me-2 text-neon-purple"></i>Son Blog Yazıları</h6>
+                    @can('viewAny', \App\Models\BlogPost::class)
                     <a href="{{ route('admin.blog-posts.index') }}" class="btn-glass btn-sm">Tümünü Gör</a>
+                    @endcan
                 </div>
                 <div class="card-body-custom pt-2">
                     @forelse($recentPosts as $post)

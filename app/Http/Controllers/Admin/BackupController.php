@@ -23,6 +23,8 @@ final class BackupController extends Controller
 
     public function index(): View
     {
+        $this->authorize('view-backups');
+
         return view('admin.backups.index', [
             'backups' => $this->service->list(),
         ]);
@@ -30,12 +32,16 @@ final class BackupController extends Controller
 
     public function create(): JsonResponse
     {
+        $this->authorize('manage-backups');
+
         $result = $this->service->create();
         return response()->json($result, $result['success'] ? 200 : 422);
     }
 
     public function download(string $filename): BinaryFileResponse|RedirectResponse
     {
+        $this->authorize('manage-backups');
+
         $path = $this->service->downloadPath($filename);
 
         if ($path === null) {
@@ -48,6 +54,8 @@ final class BackupController extends Controller
 
     public function destroy(Request $request, string $filename): RedirectResponse
     {
+        $this->authorize('delete-backups');
+
         $ok = $this->service->delete($filename);
 
         return redirect()->route('admin.backups.index')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\PermissionKey;
 use App\Listeners\UpdateMailLogOnFailed;
 use App\Listeners\UpdateMailLogOnSent;
 use App\Models\BlogCategory;
@@ -22,12 +23,15 @@ use App\Observers\MenuObserver;
 use App\Observers\PageObserver;
 use App\Observers\RedirectObserver;
 use App\Observers\UserObserver;
+use App\Services\MenuItemService;
+use App\Services\MenuService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Events\MessageFailed;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -40,7 +44,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The navigation renders twice per page (desktop and the mobile
+        // drawer) and asks these for every item, so they keep a per-request
+        // memo — which only helps if the instance is shared.
+        $this->app->singleton(MenuService::class);
+        $this->app->singleton(MenuItemService::class);
     }
 
     /**
@@ -56,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         \Carbon\Carbon::setLocale(config('app.locale', 'tr'));
 
         $this->configureRateLimiting();
+        $this->configureAuthorization();
 
         User::observe(UserObserver::class);
         BlogComment::observe(BlogCommentObserver::class);
@@ -102,6 +111,22 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with(compact('unreadMessageCount'));
         });
+    }
+
+    /**
+     * Gates for admin areas that have no backing Eloquent model, so they
+     * cannot be covered by a Policy.
+     */
+    private function configureAuthorization(): void
+    {
+        // These areas have no Eloquent model to hang a Policy on, so they are
+        // Gates. The decision still comes from the database permissions.
+        Gate::define('manage-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsManage));
+        Gate::define('view-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsView));
+        Gate::define('delete-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsDelete));
+        Gate::define('view-system-health', fn (User $user): bool => $user->hasPermission(PermissionKey::SystemHealthView));
+        Gate::define('view-analytics', fn (User $user): bool => $user->hasPermission(PermissionKey::AnalyticsView));
+        Gate::define('upload-editor-media', fn (User $user): bool => $user->hasPermission(PermissionKey::EditorUpload));
     }
 
     private function configureRateLimiting(): void

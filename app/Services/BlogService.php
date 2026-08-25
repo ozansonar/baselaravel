@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class BlogService
 {
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -25,6 +27,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->recent()
             ->limit($limit)
             ->get();
@@ -39,6 +42,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->where('id', '!=', $post->id)
             ->where('blog_category_id', $post->blog_category_id)
             ->recent()
@@ -50,6 +54,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->recent()
             ->paginate($perPage);
     }
@@ -58,6 +63,7 @@ final class BlogService
     {
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->where('blog_category_id', $categoryId)
             ->recent()
             ->paginate($perPage);
@@ -65,8 +71,12 @@ final class BlogService
 
     public function findBySlug(string $slug): ?BlogPost
     {
+        // A slug is only unique inside its own language, so the lookup is
+        // scoped; a post with no translation yet resolves through the
+        // default-language fallback.
         return BlogPost::with(['category', 'author'])
             ->published()
+            ->localeWithFallback()
             ->where('slug', $slug)
             ->first();
     }
@@ -194,6 +204,48 @@ final class BlogService
 
             return $post->refresh();
         });
+    }
+
+    /**
+     * Save a post in every language the form supplied.
+     *
+     * The publish flag and the author come from outside the language blocks:
+     * publishing is a decision about the post, not about one translation.
+     *
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     * @param array<string, mixed> $shared
+     */
+    public function createTranslated(array $translations, array $shared = []): string
+    {
+        $groupId = $this->saveTranslations(
+            BlogPost::class,
+            $translations,
+            fn (array $fields, string $locale, ?BlogPost $existing, ?BlogPost $default): array =>
+                $this->prepareImageField($fields + $shared, $existing, 'blog', 'title', 'image', $default),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     * @param array<string, mixed> $shared
+     */
+    public function updateTranslated(BlogPost $post, array $translations, array $shared = []): string
+    {
+        $groupId = $this->saveTranslations(
+            BlogPost::class,
+            $translations,
+            fn (array $fields, string $locale, ?BlogPost $existing, ?BlogPost $default): array =>
+                $this->prepareImageField($fields + $shared, $existing, 'blog', 'title', 'image', $default),
+            $post->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function delete(BlogPost $post): void

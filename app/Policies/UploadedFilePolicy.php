@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Policies;
+
+use App\Enums\PermissionKey;
+use App\Models\UploadedFile;
+use App\Models\User;
+
+/**
+ * Permissions come from the database (role -> permission), so what a role can
+ * do is changed from the roles screen, not by editing this file.
+ */
+final class UploadedFilePolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return $user->hasPermission(PermissionKey::FilesView);
+    }
+
+    public function view(User $user, UploadedFile $file): bool
+    {
+        return $user->hasPermission(PermissionKey::FilesView);
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->hasPermission(PermissionKey::FilesManage);
+    }
+
+    public function update(User $user, UploadedFile $file): bool
+    {
+        return $user->hasPermission(PermissionKey::FilesManage);
+    }
+
+    public function delete(User $user, UploadedFile $file): bool
+    {
+        return $user->hasPermission(PermissionKey::FilesDelete);
+    }
+}

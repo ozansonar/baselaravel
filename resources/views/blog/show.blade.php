@@ -15,8 +15,8 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Anasayfa</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">İçerikler</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('site.nav.home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">{{ __('site.blog.title') }}</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('blog.category', $post->category->slug) }}">{{ $post->category->name }}</a></li>
                 </ol>
             </nav>
@@ -26,7 +26,7 @@
                 @if($post->author?->full_name)
                     <span><i class="fa-regular fa-user me-1"></i>{{ $post->author->full_name }}</span>
                 @endif
-                <span><i class="fa-regular fa-eye me-1"></i>{{ number_format((int) $post->views) }} görüntülenme</span>
+                <span><i class="fa-regular fa-eye me-1"></i>{{ __('site.blog.views_count', ['count' => number_format((int) $post->views)]) }}</span>
                 @if($post->category)
                     <span class="pill pill--active"><i class="fa-solid fa-folder me-1"></i>{{ $post->category->name }}</span>
                 @endif
@@ -70,8 +70,8 @@
         <section class="section--tight section--soft">
             <div class="container">
                 <div class="section__head--center mb-5">
-                    <span class="section__eyebrow"><i class="fa-solid fa-newspaper"></i> Devamı</span>
-                    <h2 class="section__title mb-0">İlgili İçerikler</h2>
+                    <span class="section__eyebrow"><i class="fa-solid fa-newspaper"></i> {{ __('site.blog.keep_reading') }}</span>
+                    <h2 class="section__title mb-0">{{ __('site.blog.related') }}</h2>
                 </div>
                 <div class="row g-4">
                     @foreach($relatedPosts as $related)
@@ -95,7 +95,7 @@
                                     <h3 class="post-card__title">
                                         <a href="{{ route('blog.show', [$related->category->slug, $related->slug]) }}">{{ $related->title }}</a>
                                     </h3>
-                                    <a href="{{ route('blog.show', [$related->category->slug, $related->slug]) }}" class="post-card__more">Devamını oku <i class="fa-solid fa-arrow-right"></i></a>
+                                    <a href="{{ route('blog.show', [$related->category->slug, $related->slug]) }}" class="post-card__more">{{ __('site.actions.read_more') }} <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </article>
                         </div>

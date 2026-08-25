@@ -24,9 +24,9 @@ if (!function_exists('upload_url')) {
     /**
      * Get the public URL for an uploaded file.
      *
-     * @param  string|null $path Relative path (e.g. "products/sut-a1b2c3d4e5.webp")
+     * @param  string|null $path Relative path (e.g. "blog/ornek-gorsel-a1b2c3d4e5.webp")
      * @param  string|null $size Size variant: thumb (150px), sm (300px), md (600px), lg (1200px)
-     * @return string            URL path (e.g. "/uploads/products/sut-a1b2c3d4e5-sm.webp")
+     * @return string            URL path (e.g. "/uploads/blog/ornek-gorsel-a1b2c3d4e5-sm.webp")
      */
     function upload_url(?string $path, ?string $size = null): string
     {
@@ -100,5 +100,30 @@ if (!function_exists('upload_srcset')) {
     function upload_srcset(?string $path, ?array $sizes = null): string
     {
         return UploadService::srcset($path, $sizes);
+    }
+}
+
+if (!function_exists('site_initials')) {
+    /**
+     * Build a short monogram from the site name, used as a logo placeholder
+     * until a real logo is uploaded.
+     *
+     * @param  string|null $name Site name (e.g. "Acme Yazılım")
+     * @return string            Up to two uppercase letters (e.g. "AY")
+     */
+    function site_initials(?string $name): string
+    {
+        $words = preg_split('/\s+/u', trim((string) $name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($words === []) {
+            return '—';
+        }
+
+        $letters = array_map(
+            static fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)),
+            array_slice($words, 0, 2),
+        );
+
+        return implode('', $letters);
     }
 }

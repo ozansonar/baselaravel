@@ -73,6 +73,10 @@ final class AuthService
             ]);
         }
 
+        // Sends through the project's own mail pipeline; failures are logged
+        // there and must not break the registration itself.
+        $user->sendEmailVerificationNotification();
+
         return $user;
     }
 

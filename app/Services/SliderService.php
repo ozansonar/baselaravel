@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 final class SliderService
 {
+    use \App\Services\Concerns\LocalizedCache;
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -21,8 +24,8 @@ final class SliderService
      */
     public function allActive(): Collection
     {
-        return Cache::remember('sliders.active', 3600, fn () =>
-            Slider::active()->sorted()->get(),
+        return Cache::remember($this->localeCacheKey('sliders.active'), 3600, fn () =>
+            Slider::active()->localeWithFallback()->sorted()->get(),
         );
     }
 
@@ -78,6 +81,41 @@ final class SliderService
 
             return $slider;
         });
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Slider::class,
+            $translations,
+            fn (array $fields, string $locale, ?Slider $existing, ?Slider $default): array =>
+                $this->prepareImageField($fields, $existing, 'sliders', 'title', 'image', $default),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Slider $slider, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Slider::class,
+            $translations,
+            fn (array $fields, string $locale, ?Slider $existing, ?Slider $default): array =>
+                $this->prepareImageField($fields, $existing, 'sliders', 'title', 'image', $default),
+            $slider->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
     }
 
     public function update(Slider $slider, array $data): Slider
@@ -157,7 +195,7 @@ final class SliderService
 
     private function clearCache(): void
     {
-        Cache::forget('sliders.active');
+        $this->forgetLocalized('sliders.active');
         Cache::forget('admin.sliders.stats');
     }
 }

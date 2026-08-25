@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 final class PageService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -53,14 +57,17 @@ final class PageService
      */
     public function allPublished(): Collection
     {
-        return Cache::remember('pages.published', 3600, fn () =>
-            Page::published()->sorted()->get(['id', 'title', 'slug', 'sort_order']),
+        return Cache::remember($this->localeCacheKey('pages.published'), 3600, fn () =>
+            Page::published()->localeWithFallback()->sorted()->get(['id', 'title', 'slug', 'sort_order', 'locale', 'lang_group_id']),
         );
     }
 
     public function findBySlug(string $slug): Page
     {
-        return Page::where('slug', $slug)->published()->firstOrFail();
+        // A slug only has to be unique inside its own language, so the lookup
+        // is scoped; content with no translation yet still resolves through the
+        // default-language fallback.
+        return Page::where('slug', $slug)->published()->localeWithFallback()->firstOrFail();
     }
 
     public function findById(int $id): Page
@@ -121,7 +128,7 @@ final class PageService
      *
      * @param array<string, mixed> $sections
      */
-    private function processSections(array $sections, Page $page): array
+    private function processSections(array $sections, ?Page $page): array
     {
         $oldSections = $page->sections ?? [];
 
@@ -146,6 +153,75 @@ final class PageService
         }
 
         return $sections;
+    }
+
+    /**
+     * Save a page in every language the form supplied.
+     *
+     * Each language block carries its own image, so artwork with text on it can
+     * differ per language.
+     *
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Page::class,
+            $translations,
+            fn (array $fields, string $locale, ?Page $existing, ?Page $default): array => $this->prepareFields($fields, $locale, $existing, $default),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Page $page, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Page::class,
+            $translations,
+            fn (array $fields, string $locale, ?Page $existing, ?Page $default): array => $this->prepareFields($fields, $locale, $existing, $default),
+            $page->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    private function prepareFields(array $fields, string $locale, ?Page $existing, ?Page $default = null): array
+    {
+        $image = $fields['image'] ?? null;
+
+        if ($image instanceof \Illuminate\Http\UploadedFile) {
+            $fields['image'] = $existing?->image
+                ? $this->uploadService->replaceImage($image, 'pages', $fields['title'] ?? 'page', $existing->image)
+                : $this->uploadService->uploadImage($image, 'pages', $fields['title'] ?? 'page');
+        } else {
+            // No new file in this block: keep whatever the translation already
+            // has, or borrow the default language's while this one is prepared.
+            unset($fields['image']);
+
+            if ($existing === null && $default?->image) {
+                $fields['image'] = $default->image;
+            }
+        }
+
+        // The about-page builder stores its blocks as JSON, and its team photos
+        // are uploads like any other, so they are processed per language too.
+        if (isset($fields['sections'])) {
+            $fields['sections'] = $this->processSections($fields['sections'], $existing);
+        }
+
+        return $fields;
     }
 
     public function delete(Page $page): void
@@ -202,7 +278,7 @@ final class PageService
 
     private function clearCache(): void
     {
-        Cache::forget('pages.published');
+        $this->forgetLocalized('pages.published');
         Cache::forget('admin.pages.stats');
         // Modül 7 — yeni/güncellenen sayfa sitemap'e anında yansısın.
         Cache::forget('sitemap.urls');

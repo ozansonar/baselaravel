@@ -22,7 +22,10 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable()->index();
             $table->timestamp('created_at')->useCurrent()->index();
 
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            // Cascade is handled by UserObserver; a null user_id means the
+            // notification is broadcast to every admin, so it must not be
+            // produced by a foreign key action.
+            $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
         });
     }
 

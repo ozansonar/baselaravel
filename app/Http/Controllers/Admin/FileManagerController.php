@@ -31,6 +31,8 @@ final class FileManagerController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', UploadedFile::class);
+
         $perPage = in_array((int) $request->query('per_page'), [12, 24, 48, 96], true)
             ? (int) $request->query('per_page')
             : 24;
@@ -58,6 +60,8 @@ final class FileManagerController extends Controller
      */
     public function upload(UploadFileRequest $request): JsonResponse
     {
+        $this->authorize('create', UploadedFile::class);
+
         $result = $this->files->upload(
             file:    $request->file('file'),
             title:   $request->filled('title') ? (string) $request->input('title') : null,
@@ -86,6 +90,8 @@ final class FileManagerController extends Controller
 
     public function show(UploadedFile $file): View
     {
+        $this->authorize('view', $file);
+
         $file->load('uploader');
 
         return view('admin.files.show', [
@@ -95,6 +101,8 @@ final class FileManagerController extends Controller
 
     public function update(UpdateFileRequest $request, UploadedFile $file): RedirectResponse
     {
+        $this->authorize('update', $file);
+
         $file->update($request->validated());
 
         return back()->with('success', 'Dosya bilgileri güncellendi.');
@@ -102,6 +110,8 @@ final class FileManagerController extends Controller
 
     public function destroy(UploadedFile $file): RedirectResponse
     {
+        $this->authorize('delete', $file);
+
         $this->files->delete($file);
 
         return redirect()
