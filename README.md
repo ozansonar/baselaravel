@@ -315,6 +315,10 @@ composer test
 - `NoBuildToolchainTest` — `package.json`, `vite.config.js`, `node_modules`,
   `resources/js` gibi build tool kalıntılarının geri girmediğini ve hiçbir
   view'ın `@vite` / `mix()` kullanmadığını doğrular
+- `ImageUploadTest` — WebP dönüşümü, responsive varyantlar, silme/değiştirmede
+  varyantların da temizlenmesi, `url()` / `srcset()` çözümlemesi
+- `MailDeliveryTest` — şablon render'ı, gönderim/kuyruk loglama, hata durumunda
+  loglanıp fırlatılmaması, her mail sınıfının panelde bir şablonu olması
 - `InterfaceTranslationTest` — dil dosyalarının anahtar denkliği, Blade'de
   kullanılan her anahtarın tanımlı olması, arayüzün tarayıcı diline uyması
 - `LocalizedMenuTest` — dile göre navigasyon, menüsü olmayan dilin varsayılana

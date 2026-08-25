@@ -60,7 +60,7 @@ final class BackupService
             }
 
             // 2b. uploads/ klasörünü ekle
-            $uploadsPath = public_path('uploads');
+            $uploadsPath = UploadService::basePath();
             $filesSize = 0;
             if (is_dir($uploadsPath)) {
                 $filesSize = $this->addDirectoryToZip($zip, $uploadsPath, 'uploads');

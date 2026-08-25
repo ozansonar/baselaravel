@@ -180,7 +180,7 @@ final class HealthCheckService
         $tests = [
             'storage/logs'           => storage_path('logs'),
             'storage/framework/views'=> storage_path('framework/views'),
-            'public/uploads'         => public_path('uploads'),
+            'public/uploads'         => UploadService::basePath(),
         ];
 
         $errors = [];
