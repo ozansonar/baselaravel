@@ -23,6 +23,8 @@ final class MenuItemController extends Controller
 
     public function index(Menu $menu): View
     {
+        $this->authorize('viewAny', MenuItem::class);
+
         $menu->load(['rootItems' => function ($query) {
             $query->with('children');
         }]);
@@ -36,6 +38,8 @@ final class MenuItemController extends Controller
 
     public function store(StoreMenuItemRequest $request, Menu $menu): RedirectResponse
     {
+        $this->authorize('create', MenuItem::class);
+
         $data = $request->validated();
         $data['menu_id'] = $menu->id;
 
@@ -48,6 +52,8 @@ final class MenuItemController extends Controller
 
     public function update(UpdateMenuItemRequest $request, MenuItem $item): RedirectResponse
     {
+        $this->authorize('update', $item);
+
         $this->menuItemService->update($item, $request->validated());
 
         return redirect()
@@ -57,6 +63,8 @@ final class MenuItemController extends Controller
 
     public function destroy(MenuItem $item): RedirectResponse
     {
+        $this->authorize('delete', $item);
+
         $menuId = $item->menu_id;
 
         $this->menuItemService->delete($item);
@@ -70,6 +78,8 @@ final class MenuItemController extends Controller
     {
         $menuItem = MenuItem::withTrashed()->findOrFail($item);
 
+        $this->authorize('restore', $menuItem);
+
         $this->menuItemService->restore($item);
 
         return redirect()
@@ -79,6 +89,8 @@ final class MenuItemController extends Controller
 
     public function reorder(Request $request, Menu $menu): JsonResponse
     {
+        $this->authorize('reorder', MenuItem::class);
+
         $tree = $request->input('tree', []);
 
         if (! is_array($tree)) {

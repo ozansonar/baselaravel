@@ -21,6 +21,8 @@ final class MailLogController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', MailLog::class);
+
         $perPage = in_array((int) $request->input('per_page', 25), [10, 25, 50, 100], true)
             ? (int) $request->input('per_page', 25)
             : 25;
@@ -37,6 +39,8 @@ final class MailLogController extends Controller
 
     public function show(MailLog $mailLog): View
     {
+        $this->authorize('view', $mailLog);
+
         $mailLog->load('user');
 
         return view('admin.mail-logs.show', [
@@ -46,6 +50,8 @@ final class MailLogController extends Controller
 
     public function body(MailLog $mailLog): JsonResponse
     {
+        $this->authorize('view', $mailLog);
+
         return response()->json([
             'body' => $mailLog->body ?? '<p>İçerik kaydedilmemiş.</p>',
         ]);
@@ -53,6 +59,8 @@ final class MailLogController extends Controller
 
     public function resend(MailLog $mailLog): JsonResponse
     {
+        $this->authorize('resend', $mailLog);
+
         try {
             $success = $this->mailService->resendFromLog($mailLog);
 

@@ -24,7 +24,7 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 | Service | 33 | Migration | 38 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
-| Policy | 13 | Enum | 9 |
+| Policy | 20 | Enum | 9 |
 | Observer | 9 | Artisan command | 5 |
 
 ---
@@ -174,79 +174,139 @@ Bunlar ayrı bir temizlik turu ister:
 
 ---
 
-## 5. ⚠️ Yapılacak İşler
+## 5. Yetkilendirme — ✅ Kapatıldı
 
-### 🔴 Güvenlik — Yetkilendirme boşluğu
+Daha önce 26 admin controller'ın 13'ü `authorize()` çağırmıyordu; tek koruma
+`AdminMiddleware`'di ve o da `admin`, `editor`, `moderator` rollerinin üçünü
+birden içeri alıyordu. Yani bir **editör** veritabanı yedeğini indirebiliyor,
+şifre sıfırlama e-postalarının gövdesini okuyabiliyordu.
 
-**26 admin controller'ın 13'ü `authorize()` çağırmıyor.** Bu controller'lar sadece
-`AdminMiddleware`'e güveniyor, o da `admin`, `editor`, `moderator` rollerinin
-üçüne birden geçit veriyor. Yani bir **editör veya moderatör** şunları yapabilir:
+### Rol matrisi (artık uygulanıyor)
 
-| Controller | Ne yapabiliyor |
+| Alan | admin | editor | moderator |
+|---|:---:|:---:|:---:|
+| Dashboard, kendi profili, bildirimler | ✅ | ✅ | ✅ |
+| İletişim mesajları (görüntüleme) | ✅ | ✅ | ✅ |
+| İletişim mesajı yanıtlama | ✅ | ✅ | — |
+| Sayfa, blog, galeri, SSS, slider, popup | ✅ | ✅ | — |
+| Menü yönetimi | ✅ | ✅ | — |
+| Dosya yöneticisi · CKEditor upload | ✅ | ✅ | — |
+| Analitik | ✅ | ✅ | — |
+| Ayarlar | ✅ | — | — |
+| Kullanıcılar | ✅ | — | — |
+| **Yönlendirmeler** | ✅ | — | — |
+| Mail şablonları | ✅ | — | — |
+| **Mail logları** | ✅ | — | — |
+| Aktivite logları | ✅ | — | — |
+| **Yedekler** | ✅ | — | — |
+| Sistem sağlık | ✅ | — | — |
+| Silme / geri yükleme (her modülde) | ✅ | — | — |
+
+> **Yönlendirmeler neden sadece admin?** `StoreRedirectRequest`'te `old_url` için
+> `starts_with:/` kuralı var ama **`new_url` için yok**. Yani hedef harici bir
+> adres olabiliyor ve `HandleRedirects` ziyaretçiyi oraya yolluyor — trafik
+> kaçırma vektörü. Yetkiyi daraltmak anlık çözüm; kalıcı çözüm için
+> `new_url` doğrulaması da eklenmeli (bkz. bölüm 6).
+
+### Yapılanlar
+
+**7 yeni Policy** (Laravel isim kuralıyla otomatik keşfediliyor, kayıt gerekmiyor):
+
+| Policy | Yetki |
 |---|---|
-| `BackupController` | Yedek oluşturma, **indirme**, silme |
-| `FileManagerController` | Dosya yükleme, silme |
-| `RedirectController` | Yönlendirme ekleme/silme |
-| `MenuController` / `MenuItemController` | Menü yapısını değiştirme |
-| `AuditLogController` | Tüm aktivite loglarını görme |
-| `AnalyticsController` | Ziyaretçi verisi |
-| `MailLogController` | **Giden e-posta içeriklerini okuma** |
-| `UploadController` | CKEditor upload |
-| `HealthController` | Sistem bilgisi |
-| `NotificationController` | Bildirimler |
-| `DashboardController`, `ProfileController` | (kabul edilebilir) |
+| `RedirectPolicy` | admin |
+| `MailLogPolicy` | admin |
+| `AuditLogPolicy` | admin |
+| `MenuPolicy` | admin + editor |
+| `MenuItemPolicy` | admin + editor (silme/geri yükleme admin) |
+| `UploadedFilePolicy` | admin + editor (silme admin) |
+| `AdminNotificationPolicy` | üç rol (silme admin) |
 
-En kritikleri **BackupController** (tüm DB'yi indirebilir) ve **MailLogController**
-(şifre sıfırlama e-postalarının gövdesini okuyabilir).
+**4 yeni Gate** — model'i olmayan alanlar için, `AppServiceProvider` içinde:
+`manage-backups`, `view-system-health` (admin) · `view-analytics`,
+`upload-editor-media` (admin + editor)
 
-**Yapılacak:** Bu modeller için Policy yaz (`Redirect`, `Menu`, `MenuItem`,
-`UploadedFile`, `MailLog`, `AuditLog`, `AdminNotification`) veya en azından
-`AdminMiddleware`'e rol parametresi ekle (`admin` şart olan rotalar için).
+**11 controller'a `authorize()` eklendi:** Backup, MailLog, AuditLog, Health,
+Redirect, Menu, MenuItem, FileManager, Notification, Analytics, Upload.
+
+`DashboardController` ve `ProfileController` bilinçli olarak dışarıda — biri
+panele girebilen herkese açık genel özet, diğeri kullanıcının kendi profili.
+
+**Arayüz yetkiye uyduruldu.** Sidebar 13 `@can` bloğuyla sarıldı; topbar'daki
+Ayarlar linki ve dashboard'daki blog kısayolları da koşullandırıldı. Aksi hâlde
+her yasak alan kullanıcı için ölü bir link olurdu.
+
+**`User::hasRole()` / `hasAnyRole()` optimize edildi.** Önce her çağrı ayrı bir
+`exists()` sorgusu atıyordu; `authorize()` çağrıları çoğaldığı için bu istek
+başına onlarca sorguya çıkacaktı. Artık `roles` ilişkisi üzerinden okuyor —
+istek başına tek sorgu.
+
+### Doğrulama
+
+`tests/Feature/AdminAuthorizationTest` eklendi — 6 test, 104 assertion:
+
+- 20 rotanın üç rol için beklenen durum kodu (200/403) matrisi
+- Editör yedek indiremiyor
+- Editör mail log gövdesi okuyamıyor (şifre sıfırlama linki içeren gerçek kayıtla)
+- Editör ve moderatör sidebar'ında yasak linkler görünmüyor
+- Admin sidebar'ında her şey görünmeye devam ediyor
+- Panel rolü olmayan kullanıcı 403 alıyor
+
+---
+
+## 6. ⚠️ Kalan Yapılacak İşler
 
 ### 🟡 Test kapsamı
 
-Şu an **3 test** var:
-- `tests/Unit/ExampleTest` — `assertTrue(true)`, değersiz
-- `tests/Feature/ExampleTest` — anasayfa 200 mü
-- `tests/Feature/AdminSmokeTest` — 25 admin GET rotası render oluyor mu
+Suite artık **9 test / 131 assertion**. Yetkilendirme ve okuma yolları kapsandı,
+ancak **yazma yolları hâlâ testsiz**: CRUD store/update/destroy, validation,
+upload, mail gönderimi. FAQ'daki gibi bir kırığın sessizce girmesi hâlâ mümkün.
 
-**Hiç yazma yolu test edilmiyor.** CRUD store/update/destroy, yetkilendirme,
-validation, upload, mail gönderimi — hepsi testsiz. FAQ'daki gibi bir kırığın
-tekrar sessizce girmesi çok kolay.
+### 🟡 Rol tanımı ile policy uyuşmazlığı
 
-**Yapılacak:** En azından her admin modülü için store/update/destroy + policy
-testi; `UploadService` için unit test.
+`RoleSeeder` moderatör rolünü "**Mesaj ve yorum** yönetimi yetkisi" diye
+tanımlıyor, ama `BlogCommentPolicy` yalnızca admin + editor'e izin veriyor.
+Yani moderatör tanımındaki işi yapamıyor.
+
+Bu bir **yetki genişletme** kararı olduğu için bilinçli olarak dokunulmadı —
+daraltmak güvenli, genişletmek ürün kararı. İki seçenek: ya
+`BlogCommentPolicy`'ye moderatör eklenir, ya rol açıklaması düzeltilir.
+
+### 🟡 Açık yönlendirme doğrulaması
+
+`StoreRedirectRequest` ve `UpdateRedirectRequest` içinde `new_url` için host
+kısıtı yok. Yetki artık admin'le sınırlı ama doğrulama da eklenmeli
+(`starts_with:/` veya izinli host listesi).
 
 ### 🟡 CLAUDE.md kuralına aykırılıklar
 
 **SoftDeletes 3 modelde yok** (kural: "HER MODELDE ZORUNLU"):
 `AdminNotification`, `AnalyticsDailyStat`, `AuditLog`
 
-Bunlar log/bildirim tabloları olduğu için savunulabilir, ama ya kural
-gevşetilmeli ya modeller uyumlu hâle getirilmeli. Şu anki hâl belirsiz.
+Log/bildirim tabloları olduğu için savunulabilir, ama ya kural gevşetilmeli
+ya modeller uyumlu hâle getirilmeli.
 
 ### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
 
-`resources/views/admin-theme/` altında hazır HTML olup projede karşılığı olmayanlar:
-
 - **`roles-permissions.html`** — Rol/yetki yönetimi ekranı. `Role` modeli ve
   `RoleService` var ama admin CRUD'u yok; roller sadece seeder'dan geliyor.
+  Yeni rol matrisi göz önüne alınınca bu ekran daha da anlamlı.
 - **`reports.html`** — Raporlama ekranı
 - **`content-list.html`** — Genel içerik listesi
 
 ### 🟢 Diğer
 
-- **`README.md` tek satır** (`# baselaravel`). Base kit olarak dağıtılacaksa
-  kurulum adımları, gereksinimler, seeder kullanımı yazılmalı.
-- **`composer.json` adı hâlâ `laravel/laravel`**, açıklama Laravel skeleton'ınki.
-- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Analytics'te
-  tarayıcı/cihaz tespiti için kullanılıyor. Laravel 13 ile çalışıyor ama uzun
-  vadede risk; alternatifi değerlendirilmeli.
+- **`README.md` tek satır** (`# baselaravel`). Kurulum adımları yazılmalı.
+- **`composer.json` adı hâlâ `laravel/laravel`**.
+- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13
+  ile çalışıyor ama uzun vadede risk.
 - **Hesabım alanı zayıf** — şifre değiştirme ve e-posta doğrulama yok.
+- **Ölü kod:** `app/Enums/UserRole.php`, `vendor/pagination/custom.blade.php`,
+  `.gitignore`'daki google kuralı.
 
 ---
 
-## 6. Laravel 13 Upgrade Notları
+## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
 kırılmaların hiçbiri projeye dokunmadı. İki config değeri **bilinçli olarak
@@ -266,18 +326,22 @@ formatlanır.
 
 ---
 
-## 7. Önerilen Sıra
+## 8. Önerilen Sıra
 
+- [x] ~~**Yetkilendirme boşluğunu kapat**~~ — tamamlandı (bkz. bölüm 5)
 - [x] ~~**Hoş geldin e-postasını düzelt**~~ — tamamlandı (bkz. bölüm 4)
 - [x] ~~**Ürün/sipariş kalıntılarını temizle**~~ — tamamlandı, 15 kalem
 
 Sıradakiler:
 
-1. **Yetkilendirme boşluğunu kapat** — özellikle `BackupController` ve
-   `MailLogController` (güvenlik, kullanıcı verisi riski). Şu an en kritik madde.
-2. **Test kapsamı ekle** — en azından CRUD yazma yolları. Mevcut 3 test sadece
-   okuma yollarını kapsıyor.
-3. **Kalan ölü kodu temizle** — `UserRole` enum, `vendor/pagination/custom.blade.php`,
+1. **`new_url` doğrulaması ekle** — yönlendirme hedefi hâlâ harici bir adres
+   olabiliyor. Yetki admin'e daraltıldı ama doğrulama da gerekli.
+2. **Moderatör rolüne karar ver** — rol açıklaması yorum yönetimi diyor,
+   `BlogCommentPolicy` izin vermiyor. Ya policy genişletilmeli ya açıklama
+   düzeltilmeli.
+3. **Test kapsamı ekle** — CRUD yazma yolları hâlâ testsiz.
+4. **Kalan ölü kodu temizle** — `UserRole` enum, `vendor/pagination/custom.blade.php`,
    `.gitignore`'daki google kuralı
-4. **README yaz** — base kit'in kurulum rehberi
-5. **Eksik modüller** — rol/yetki yönetimi ekranı (`roles-permissions.html` temada hazır)
+5. **README yaz** — base kit'in kurulum rehberi
+6. **Eksik modüller** — rol/yetki yönetimi ekranı (`roles-permissions.html` temada
+   hazır; yeni rol matrisi bu ekranı daha da anlamlı kılıyor)

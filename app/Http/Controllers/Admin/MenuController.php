@@ -14,6 +14,8 @@ final class MenuController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('viewAny', Menu::class);
+
         $menus = Menu::withCount('items')->orderBy('location')->get();
 
         $stats = [
@@ -28,6 +30,8 @@ final class MenuController extends Controller
 
     public function update(UpdateMenuRequest $request, Menu $menu): RedirectResponse
     {
+        $this->authorize('update', $menu);
+
         $menu->update($request->validated());
 
         return redirect()

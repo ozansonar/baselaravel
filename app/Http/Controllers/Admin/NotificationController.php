@@ -19,6 +19,8 @@ final class NotificationController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', AdminNotification::class);
+
         $userId = $request->user()?->id;
 
         $query = AdminNotification::query()->forUser($userId);
@@ -43,6 +45,8 @@ final class NotificationController extends Controller
      */
     public function recent(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', AdminNotification::class);
+
         $userId = $request->user()?->id;
 
         $items = AdminNotification::query()
@@ -70,18 +74,24 @@ final class NotificationController extends Controller
 
     public function markRead(Request $request, AdminNotification $notification): JsonResponse
     {
+        $this->authorize('update', $notification);
+
         NotificationCenter::markRead($notification->id, $request->user()?->id);
         return response()->json(['success' => true]);
     }
 
     public function markAllRead(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', AdminNotification::class);
+
         $count = NotificationCenter::markAllRead($request->user()?->id);
         return response()->json(['success' => true, 'count' => $count]);
     }
 
     public function destroy(Request $request, AdminNotification $notification): RedirectResponse
     {
+        $this->authorize('delete', $notification);
+
         // Sadece kendi bildirimi veya broadcast olanı silebilir
         if ($notification->user_id !== null && $notification->user_id !== $request->user()?->id) {
             return redirect()->back()->with('error', 'Bu bildirimi silme yetkin yok.');

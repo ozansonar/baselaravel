@@ -17,6 +17,8 @@ final class AuditLogController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', AuditLog::class);
+
         $query = AuditLog::query()->with('user:id,first_name,last_name,email');
 
         if ($request->filled('event')) {
@@ -53,6 +55,8 @@ final class AuditLogController extends Controller
 
     public function show(AuditLog $auditLog): View
     {
+        $this->authorize('view', $auditLog);
+
         $auditLog->load('user');
         return view('admin.audit-logs.show', ['log' => $auditLog]);
     }

@@ -28,6 +28,7 @@ use Illuminate\Mail\Events\MessageFailed;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         \Carbon\Carbon::setLocale(config('app.locale', 'tr'));
 
         $this->configureRateLimiting();
+        $this->configureAuthorization();
 
         User::observe(UserObserver::class);
         BlogComment::observe(BlogCommentObserver::class);
@@ -102,6 +104,25 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with(compact('unreadMessageCount'));
         });
+    }
+
+    /**
+     * Gates for admin areas that have no backing Eloquent model, so they
+     * cannot be covered by a Policy.
+     */
+    private function configureAuthorization(): void
+    {
+        // Backups contain a full database dump — admin only.
+        Gate::define('manage-backups', fn (User $user): bool => $user->hasRole('admin'));
+
+        // Exposes infrastructure details (paths, versions, disk usage).
+        Gate::define('view-system-health', fn (User $user): bool => $user->hasRole('admin'));
+
+        // Visitor statistics — useful for whoever produces the content.
+        Gate::define('view-analytics', fn (User $user): bool => $user->hasAnyRole(['admin', 'editor']));
+
+        // CKEditor inline uploads, used while writing pages and blog posts.
+        Gate::define('upload-editor-media', fn (User $user): bool => $user->hasAnyRole(['admin', 'editor']));
     }
 
     private function configureRateLimiting(): void

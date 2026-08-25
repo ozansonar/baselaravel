@@ -76,14 +76,21 @@ class User extends Authenticatable
 
     // ── Helpers ──
 
+    /**
+     * Reads through the roles relation so repeated authorization checks within
+     * a single request hit the database once instead of once per call.
+     */
     public function hasRole(string $slug): bool
     {
-        return $this->roles()->where('slug', $slug)->exists();
+        return $this->roles->contains('slug', $slug);
     }
 
+    /**
+     * @param array<int, string> $slugs
+     */
     public function hasAnyRole(array $slugs): bool
     {
-        return $this->roles()->whereIn('slug', $slugs)->exists();
+        return $this->roles->whereIn('slug', $slugs)->isNotEmpty();
     }
 
     /**
