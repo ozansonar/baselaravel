@@ -19,13 +19,19 @@ class AccountPasswordChangeTest extends TestCase
 
     private function user(): User
     {
-        return User::create([
+        $user = User::create([
             'first_name' => 'Deneme',
             'last_name'  => 'Kullanici',
             'email'      => 'hesap@example.test',
             'password'   => 'eski-sifre-123',
             'is_active'  => true,
         ]);
+
+        // The account area sits behind the verified middleware. email_verified_at
+        // is not fillable, so it has to be set explicitly.
+        $user->markEmailAsVerified();
+
+        return $user;
     }
 
     /**

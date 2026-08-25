@@ -202,6 +202,25 @@ başına yetki kontrolü değildir.
 
 ---
 
+## E-posta doğrulama
+
+Kayıt olan kullanıcıya doğrulama bağlantısı gönderilir ve `/hesabim` alanı
+doğrulanana kadar kapalıdır (`verified` middleware). Bağlantı 60 dakika geçerli
+imzalı bir URL'dir.
+
+Mail, Laravel'in kendi bildirimini değil projenin mail altyapısını kullanır:
+şablon **Mail Şablonları** ekranından düzenlenebilir (`verify_email`) ve gönderim
+mail loglarına düşer.
+
+Doğrulamayı zorunlu tutmak istemiyorsan `routes/web.php` içindeki hesap grubundan
+`verified` middleware'ini çıkarman yeterli:
+
+```php
+Route::middleware(['auth', 'verified'])->prefix('hesabim')  // → ['auth']
+```
+
+---
+
 ## Testler
 
 ```bash

@@ -7,15 +7,17 @@ namespace App\Models;
 use App\Enums\Department;
 use App\Enums\Gender;
 use App\Mail\ResetPasswordMail;
+use App\Mail\VerifyEmailMail;
 use App\Services\MailService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -100,6 +102,28 @@ class User extends Authenticatable
     public function hasAnyRole(array $slugs): bool
     {
         return $this->roles->whereIn('slug', $slugs)->isNotEmpty();
+    }
+
+    /**
+     * Send the verification link through the project's own mail pipeline so it
+     * is logged and uses the editable template like every other mail.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $verificationUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $this->getKey(), 'hash' => sha1($this->getEmailForVerification())],
+        );
+
+        try {
+            app(MailService::class)->queue($this->email, new VerifyEmailMail($this, $verificationUrl));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Doğrulama maili kuyruğa eklenemedi', [
+                'user_id' => $this->id,
+                'error'   => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

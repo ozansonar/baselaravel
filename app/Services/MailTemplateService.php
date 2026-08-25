@@ -115,6 +115,27 @@ final class MailTemplateService
     İyi çalışmalar dileriz!
 </p>',
             ],
+            'verify_email' => [
+                'subject' => 'E-posta Adresinizi Doğrulayın - {site_name}',
+                'body'    => '<p class="em-greeting">Merhaba</p>
+<h1 class="em-heading">E-posta Adresinizi Doğrulayın</h1>
+
+<p class="em-text">
+    {user_name}, hesabınızı kullanmaya başlamak için aşağıdaki butona tıklayarak
+    e-posta adresinizi doğrulayın.
+</p>
+
+<div class="em-btn-wrap">
+    <a href="{verification_url}" class="em-btn">E-postamı Doğrula</a>
+</div>
+
+<hr class="em-divider">
+
+<p class="em-text-sm">
+    Bağlantının geçerlilik süresi 60 dakikadır. Bu hesabı siz oluşturmadıysanız
+    bu e-postayı yok sayabilirsiniz.
+</p>',
+            ],
             'reset_password' => [
                 'subject' => 'Şifre Sıfırlama - {site_name}',
                 'body'    => '<p class="em-greeting">Güvenlik</p>
