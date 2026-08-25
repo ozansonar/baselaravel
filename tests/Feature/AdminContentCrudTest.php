@@ -37,6 +37,8 @@ class AdminContentCrudTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\LanguageSeeder::class);
+        app(\App\Services\LanguageService::class)->clearCache();
         $this->seedAuthorization();
 
         $role = Role::firstOrCreate(['slug' => 'admin'], ['name' => 'Yönetici']);
@@ -56,20 +58,18 @@ class AdminContentCrudTest extends TestCase
 
     public function test_a_page_can_be_created_updated_and_removed(): void
     {
-        $this->post('/admin/pages', [
-            'title'   => 'Hakkımızda',
-            'content' => '<p>Kurumsal metin</p>',
-            'status'  => 'published',
-        ])->assertSessionHasNoErrors()->assertRedirect();
+        // Pages are multilingual: the form posts one block of fields per
+        // language and the default language is the required one.
+        $this->post('/admin/pages', ['translations' => [
+            'tr' => ['title' => 'Hakkımızda', 'content' => '<p>Kurumsal metin</p>', 'status' => 'published'],
+        ]])->assertSessionHasNoErrors()->assertRedirect();
 
         $page = Page::where('title', 'Hakkımızda')->firstOrFail();
         $this->assertSame('hakkimizda', $page->slug, 'Slug otomatik üretilmedi');
 
-        $this->put("/admin/pages/{$page->id}", [
-            'title'   => 'Kurumsal',
-            'content' => '<p>Güncellendi</p>',
-            'status'  => 'published',
-        ])->assertSessionHasNoErrors();
+        $this->put("/admin/pages/{$page->id}", ['translations' => [
+            'tr' => ['title' => 'Kurumsal', 'content' => '<p>Güncellendi</p>', 'status' => 'published'],
+        ]])->assertSessionHasNoErrors();
 
         $this->assertSame('Kurumsal', $page->fresh()->title);
 
@@ -83,8 +83,10 @@ class AdminContentCrudTest extends TestCase
     public function test_a_page_without_a_title_is_rejected(): void
     {
         $this->from('/admin/pages/create')
-            ->post('/admin/pages', ['content' => '<p>Başlıksız</p>'])
-            ->assertSessionHasErrors('title');
+            ->post('/admin/pages', ['translations' => [
+                'tr' => ['title' => '', 'content' => '<p>Başlıksız</p>'],
+            ]])
+            ->assertSessionHasErrors('translations.tr.title');
 
         $this->assertSame(0, Page::count());
     }

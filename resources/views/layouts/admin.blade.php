@@ -66,6 +66,7 @@
 <script src="{{ versioned_asset('assets/admin/js/app.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/global-modals.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/stat-counter.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/language-tabs.js') }}"></script>
 @if(Route::has('admin.notifications.recent'))
 <script src="{{ versioned_asset('assets/admin/js/notification-bell.js') }}"></script>
 @endif

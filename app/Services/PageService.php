@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 final class PageService
 {
+    use \App\Services\Concerns\SyncsTranslations;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -121,7 +123,7 @@ final class PageService
      *
      * @param array<string, mixed> $sections
      */
-    private function processSections(array $sections, Page $page): array
+    private function processSections(array $sections, ?Page $page): array
     {
         $oldSections = $page->sections ?? [];
 
@@ -146,6 +148,70 @@ final class PageService
         }
 
         return $sections;
+    }
+
+    /**
+     * Save a page in every language the form supplied.
+     *
+     * Each language block carries its own image, so artwork with text on it can
+     * differ per language.
+     *
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function createTranslated(array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Page::class,
+            $translations,
+            fn (array $fields, string $locale): array => $this->prepareFields($fields, $locale, null),
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $translations locale => fields
+     */
+    public function updateTranslated(Page $page, array $translations): string
+    {
+        $groupId = $this->saveTranslations(
+            Page::class,
+            $translations,
+            fn (array $fields, string $locale, ?Page $existing): array => $this->prepareFields($fields, $locale, $existing),
+            $page->lang_group_id,
+        );
+
+        $this->clearCache();
+
+        return $groupId;
+    }
+
+    /**
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    private function prepareFields(array $fields, string $locale, ?Page $existing): array
+    {
+        $image = $fields['image'] ?? null;
+
+        if ($image instanceof \Illuminate\Http\UploadedFile) {
+            $fields['image'] = $existing?->image
+                ? $this->uploadService->replaceImage($image, 'pages', $fields['title'] ?? 'page', $existing->image)
+                : $this->uploadService->uploadImage($image, 'pages', $fields['title'] ?? 'page');
+        } else {
+            // No new file in this block: keep whatever the translation already has.
+            unset($fields['image']);
+        }
+
+        // The about-page builder stores its blocks as JSON, and its team photos
+        // are uploads like any other, so they are processed per language too.
+        if (isset($fields['sections'])) {
+            $fields['sections'] = $this->processSections($fields['sections'], $existing);
+        }
+
+        return $fields;
     }
 
     public function delete(Page $page): void

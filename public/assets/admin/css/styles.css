@@ -32453,3 +32453,75 @@ body.mlib-lightbox-open {
     .vpv-panel-wide { width: 100%; }
     .vpv-detail-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ==========================================================================
+   Language tabs (multilingual content forms)
+   ========================================================================== */
+
+.lang-tabs {
+  border-bottom: 1px solid var(--border-color);
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.lang-tabs__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.lang-tabs__btn:hover {
+  background: var(--bg-hover, rgba(255, 255, 255, .04));
+  color: var(--text-primary);
+}
+
+.lang-tabs__btn.active {
+  background: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.lang-tabs__btn--invalid {
+  color: var(--bs-danger, #ef4444);
+}
+
+.lang-tabs__flag {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.lang-tabs__badge {
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.lang-tabs__badge--default {
+  background: rgba(20, 184, 166, .15);
+  color: #14b8a6;
+}
+
+.lang-tabs__badge--missing {
+  background: rgba(249, 115, 22, .15);
+  color: #f97316;
+}
+
+.lang-tabs__error {
+  font-size: 13px;
+}
+
+.lang-tabs__content {
+  padding-top: 20px;
+}
