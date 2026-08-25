@@ -31,5 +31,7 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Uploads go to a throwaway folder so tests never touch public/uploads -->
+        <env name="UPLOADS_PATH" value="./storage/framework/testing/uploads"/>
     </php>
 </phpunit>
