@@ -10,12 +10,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasTranslations;
 
 class GalleryItem extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasTranslations, HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'locale',
+        'lang_group_id',
         'title',
         'description',
         'image',

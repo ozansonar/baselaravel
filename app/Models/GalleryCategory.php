@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasSlug;
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,9 +14,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GalleryCategory extends Model
 {
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasFactory, HasSlug, SoftDeletes;
 
     protected $fillable = [
+        'locale',
+        'lang_group_id',
         'name',
         'slug',
         'is_active',

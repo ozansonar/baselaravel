@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasSlug;
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BlogCategory extends Model
 {
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasFactory, HasSlug, SoftDeletes;
 
     /**
      * @return \Illuminate\Database\Eloquent\Builder<static>
@@ -23,6 +24,8 @@ class BlogCategory extends Model
     }
 
     protected $fillable = [
+        'locale',
+        'lang_group_id',
         'name',
         'slug',
         'icon',

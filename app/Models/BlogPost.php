@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CommentStatus;
 use App\Traits\HasSlug;
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BlogPost extends Model
 {
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasFactory, HasSlug, SoftDeletes;
 
     protected static function slugSource(): string
     {
@@ -22,6 +23,8 @@ class BlogPost extends Model
     }
 
     protected $fillable = [
+        'locale',
+        'lang_group_id',
         'blog_category_id',
         'user_id',
         'title',
