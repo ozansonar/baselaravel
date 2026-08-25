@@ -9,7 +9,11 @@ her projede tekrar eden işler hazır gelir.
 
 > **Build tool yok.** Vite, npm, Node.js, Webpack kullanılmaz. Tüm vendor
 > kütüphaneleri `public/assets/vendor/` altında hazır dosya olarak durur ve
-> `asset()` ile dahil edilir.
+> `asset()` ile dahil edilir. Cache busting için `versioned_asset()` dosyanın
+> kendi `mtime` değerini ekler; bundler hash'ine gerek yok.
+>
+> Bu kural `NoBuildToolchainTest` ile korunuyor — klonlanan bir projeye
+> `package.json` veya `vite.config.js` geri girdiği anda suite kırılır.
 
 ---
 
@@ -308,6 +312,9 @@ composer test
   CASCADE kalmadığını doğrular
 - `EnumDrivenOptionsTest` — enum case'lerinin ekranlara düştüğünü doğrular
 - `RedirectTargetValidationTest` — açık yönlendirme koruması
+- `NoBuildToolchainTest` — `package.json`, `vite.config.js`, `node_modules`,
+  `resources/js` gibi build tool kalıntılarının geri girmediğini ve hiçbir
+  view'ın `@vite` / `mix()` kullanmadığını doğrular
 - `InterfaceTranslationTest` — dil dosyalarının anahtar denkliği, Blade'de
   kullanılan her anahtarın tanımlı olması, arayüzün tarayıcı diline uyması
 - `LocalizedMenuTest` — dile göre navigasyon, menüsü olmayan dilin varsayılana

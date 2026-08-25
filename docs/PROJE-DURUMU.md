@@ -513,6 +513,14 @@ Hâlâ testsiz kalan: **mail gönderimi ve upload yolları** (`UploadService`
 varyant üretimi, `MailTemplateService` render). İçerik CRUD'u çok dilli form
 testleriyle birlikte kapsandı.
 
+`NoBuildToolchainTest` (24) build tool yasağını bekçilik ediyor: kök dizinde
+`package.json` / `vite.config.*` / `webpack.mix.js` / `tailwind.config.*` yok,
+`node_modules` / `public/build` / `resources/js` / `resources/css` dizinleri
+oluşmamış, hiçbir view `@vite` veya `mix()` kullanmıyor, `composer.json`
+Node tabanlı araç istemiyor ve vendor kütüphaneleri commit'li dosya olarak
+duruyor. Bu base kit'ten türeyen her proje için önemli — bir artisan iskele
+komutu veya stok Laravel dosyası zinciri sessizce geri getirebilir.
+
 ### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
 
 - **`roles-permissions.html`** — Rol/yetki yönetimi ekranı. `Role` modeli ve
