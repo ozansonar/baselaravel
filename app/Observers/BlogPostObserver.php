@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\Models\BlogComment;
 use App\Models\BlogPost;
 use App\Services\RedirectService;
 
@@ -25,14 +26,29 @@ final class BlogPostObserver
         }
     }
 
+    /**
+     * Cascade lives here instead of on the foreign key so a soft deleted post
+     * hides its comments too, and restoring brings them back.
+     */
     public function deleting(BlogPost $blogPost): void
     {
-        if (!$blogPost->isForceDeleting()) {
-            $categorySlug = $blogPost->category?->slug ?? 'genel';
-            $this->redirectService->createAutoRedirect(
-                '/blog/' . $categorySlug . '/' . $blogPost->slug,
-                '/blog',
-            );
+        if ($blogPost->isForceDeleting()) {
+            $blogPost->comments()->withTrashed()->each(fn (BlogComment $comment) => $comment->forceDelete());
+
+            return;
         }
+
+        $categorySlug = $blogPost->category?->slug ?? 'genel';
+        $this->redirectService->createAutoRedirect(
+            '/blog/' . $categorySlug . '/' . $blogPost->slug,
+            '/blog',
+        );
+
+        $blogPost->comments()->each(fn (BlogComment $comment) => $comment->delete());
+    }
+
+    public function restoring(BlogPost $blogPost): void
+    {
+        $blogPost->comments()->onlyTrashed()->each(fn (BlogComment $comment) => $comment->restore());
     }
 }

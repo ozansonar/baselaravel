@@ -26,8 +26,12 @@ return new class extends Migration
 
         Schema::create('blog_posts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('blog_category_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            // Cascade is handled by BlogCategoryObserver so soft deletes travel
+            // down the tree and restoring brings the posts back.
+            $table->foreignId('blog_category_id')->constrained()->restrictOnDelete();
+            // Removing an author must not remove their content; the post simply
+            // loses its author.
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();

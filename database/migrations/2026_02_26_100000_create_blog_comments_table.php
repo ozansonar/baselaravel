@@ -12,7 +12,8 @@ return new class extends Migration
     {
         Schema::create('blog_comments', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('blog_post_id')->constrained()->cascadeOnDelete();
+            // Cascade is handled by BlogPostObserver.
+            $table->foreignId('blog_post_id')->constrained()->restrictOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('blog_comments')->nullOnDelete();
             $table->string('name');
             $table->string('email');

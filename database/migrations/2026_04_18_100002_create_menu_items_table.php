@@ -12,7 +12,8 @@ return new class extends Migration
     {
         Schema::create('menu_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('menu_id')->constrained('menus')->cascadeOnDelete();
+            // Cascade is handled by MenuObserver.
+            $table->foreignId('menu_id')->constrained('menus')->restrictOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('menu_items')->nullOnDelete();
             $table->string('label');
             $table->string('icon')->nullable();
