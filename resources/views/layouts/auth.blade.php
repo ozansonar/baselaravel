@@ -13,7 +13,7 @@
         $gtmId = \App\Models\Setting::getValue('google_tag_manager_id');
     @endphp
 
-    <title>@yield('title', 'Giriş') | {{ $siteName }}</title>
+    <title>@yield('title', __('site.auth.login')) | {{ $siteName }}</title>
 
     @if($gaId)
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
@@ -47,11 +47,11 @@
             </a>
 
             <p class="auth-aside__quote">
-                Kurumsal başarı, doğru araçlarla başlar. Ekibinizi tek platformda buluşturun.
+                {{ __('site.misc.auth_quote') }}
             </p>
 
             <p class="text-white-50 small mb-0">
-                &copy; {{ date('Y') }} {{ $siteName }}. Tüm hakları saklıdır.
+                &copy; {{ date('Y') }} {{ $siteName }}. {{ __('site.misc.rights') }}
             </p>
         </aside>
 

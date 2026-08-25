@@ -1,15 +1,13 @@
 @extends('layouts.auth')
 
-@section('title', 'E-posta Doğrulama')
+@section('title', __('site.verify.title'))
 
 @section('robots', 'noindex, nofollow')
 
 @section('content')
-    <h1 class="auth-card__title">E-postanızı doğrulayın</h1>
+    <h1 class="auth-card__title">{{ __('site.verify.title') }}</h1>
     <p class="auth-card__sub">
-        <strong>{{ auth()->user()->email }}</strong> adresine bir doğrulama
-        bağlantısı gönderdik. Hesabınızı kullanmaya başlamak için bağlantıya
-        tıklamanız yeterli.
+        {!! __('site.verify.sent_to', ['email' => '<strong>' . e(auth()->user()->email) . '</strong>']) !!}
     </p>
 
     @if(session('success'))
@@ -18,22 +16,19 @@
         </div>
     @endif
 
-    <p class="text-muted small">
-        E-posta gelmediyse spam klasörünü kontrol edin. Bağlantının geçerlilik
-        süresi 60 dakikadır.
-    </p>
+    <p class="text-muted small">{{ __('site.verify.spam') }}</p>
 
     <form method="POST" action="{{ route('verification.send') }}">
         @csrf
         <button type="submit" class="btn btn-primary w-100">
-            <i class="fa-solid fa-paper-plane"></i> Bağlantıyı Tekrar Gönder
+            <i class="fa-solid fa-paper-plane"></i> {{ __('site.verify.resend') }}
         </button>
     </form>
 
     <form method="POST" action="{{ route('logout') }}" class="mt-3">
         @csrf
         <button type="submit" class="btn btn-link w-100 text-muted">
-            Çıkış yap
+            {{ __('site.verify.logout') }}
         </button>
     </form>
 @endsection

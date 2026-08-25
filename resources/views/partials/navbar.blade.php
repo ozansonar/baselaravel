@@ -36,23 +36,23 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             @if(auth()->user()->roles()->whereHas('permissions')->exists())
-                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge me-2"></i>Yönetim Paneli</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge me-2"></i>{{ __('site.auth.admin_panel') }}</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             @endif
-                            <li><a class="dropdown-item" href="{{ route('account.dashboard') }}"><i class="fa-solid fa-house-user me-2"></i>Hesabım</a></li>
-                            <li><a class="dropdown-item" href="{{ route('account.profile') }}"><i class="fa-solid fa-user-pen me-2"></i>Profil</a></li>
+                            <li><a class="dropdown-item" href="{{ route('account.dashboard') }}"><i class="fa-solid fa-house-user me-2"></i>{{ __('site.auth.account') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ route('account.profile') }}"><i class="fa-solid fa-user-pen me-2"></i>{{ __('site.auth.profile') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i>Çıkış Yap</button>
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i>{{ __('site.auth.logout') }}</button>
                                 </form>
                             </li>
                         </ul>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-light">Giriş</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Üye Ol</a>
+                    <a href="{{ route('login') }}" class="btn btn-light">{{ __('site.auth.login') }}</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">{{ __('site.auth.register') }}</a>
                 @endauth
 
                 @include('partials.language-switcher')
@@ -60,7 +60,7 @@
 
             {{-- Mobile toggle --}}
             <button class="nav-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"
-                    aria-controls="mobileNav" aria-label="Menüyü aç">
+                    aria-controls="mobileNav" aria-label="{{ __('site.misc.open_menu') }}">
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
@@ -78,7 +78,7 @@
                 <span class="brand__text">{{ $siteName }}</span>
             @endif
         </a>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ __('site.actions.close') }}"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column">
         <ul class="navbar-nav mobile-nav flex-column mb-3">
@@ -91,17 +91,17 @@
 
         <div class="mt-auto d-grid gap-2 pt-3">
             @auth
-                <a href="{{ route('account.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-house-user"></i> Hesabım</a>
+                <a href="{{ route('account.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-house-user"></i> {{ __('site.auth.account') }}</a>
                 @if(auth()->user()->roles()->whereHas('permissions')->exists())
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-gauge"></i> Yönetim Paneli</a>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-gauge"></i> {{ __('site.auth.admin_panel') }}</a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="d-grid">
                     @csrf
-                    <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
+                    <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-right-from-bracket"></i> {{ __('site.auth.logout') }}</button>
                 </form>
             @else
-                <a href="{{ route('login') }}" class="btn btn-light">Giriş Yap</a>
-                <a href="{{ route('register') }}" class="btn btn-primary">Üye Ol</a>
+                <a href="{{ route('login') }}" class="btn btn-light">{{ __('site.auth.login_long') }}</a>
+                <a href="{{ route('register') }}" class="btn btn-primary">{{ __('site.auth.register') }}</a>
             @endauth
 
             @include('partials.language-switcher')

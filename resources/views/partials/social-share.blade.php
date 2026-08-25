@@ -8,12 +8,12 @@
 @endphp
 
 <div class="social-share">
-    <span class="social-share__label"><i class="fa-solid fa-share-nodes"></i> Paylaş</span>
+    <span class="social-share__label"><i class="fa-solid fa-share-nodes"></i> {{ __('site.actions.share') }}</span>
     <div class="social-share__buttons">
         <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}"
            class="social-share__btn social-share__btn--facebook"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Facebook'ta paylaş"
+           aria-label="{{ __('site.misc.share_on', ['network' => 'Facebook']) }}"
            onclick="window.open(this.href,'share','width=600,height=400');return false;">
             <i class="fa-brands fa-facebook-f"></i>
         </a>
@@ -21,7 +21,7 @@
         <a href="https://twitter.com/intent/tweet?url={{ $shareUrl }}&text={{ $shareTitle }}"
            class="social-share__btn social-share__btn--x"
            target="_blank" rel="noopener noreferrer"
-           aria-label="X'te paylaş"
+           aria-label="{{ __('site.misc.share_on', ['network' => 'X']) }}"
            onclick="window.open(this.href,'share','width=600,height=400');return false;">
             <i class="fa-brands fa-x-twitter"></i>
         </a>
@@ -29,14 +29,14 @@
         <a href="https://wa.me/?text={{ $shareText }}%20{{ $shareUrl }}"
            class="social-share__btn social-share__btn--whatsapp"
            target="_blank" rel="noopener noreferrer"
-           aria-label="WhatsApp'ta paylaş">
+           aria-label="{{ __('site.misc.share_on', ['network' => 'WhatsApp']) }}">
             <i class="fa-brands fa-whatsapp"></i>
         </a>
 
         <a href="https://t.me/share/url?url={{ $shareUrl }}&text={{ $shareTitle }}"
            class="social-share__btn social-share__btn--telegram"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Telegram'da paylaş"
+           aria-label="{{ __('site.misc.share_on', ['network' => 'Telegram']) }}"
            onclick="window.open(this.href,'share','width=600,height=400');return false;">
             <i class="fa-brands fa-telegram"></i>
         </a>
@@ -45,7 +45,7 @@
         <a href="https://pinterest.com/pin/create/button/?url={{ $shareUrl }}&media={{ $shareImage }}&description={{ $shareTitle }}"
            class="social-share__btn social-share__btn--pinterest"
            target="_blank" rel="noopener noreferrer"
-           aria-label="Pinterest'te paylaş"
+           aria-label="{{ __('site.misc.share_on', ['network' => 'Pinterest']) }}"
            onclick="window.open(this.href,'share','width=600,height=700');return false;">
             <i class="fa-brands fa-pinterest-p"></i>
         </a>
@@ -54,7 +54,7 @@
         <button type="button"
                 class="social-share__btn social-share__btn--copy js-copy-link"
                 data-url="{{ $url }}"
-                aria-label="Linki kopyala">
+                aria-label="{{ __('site.misc.copy_link_aria') }}">
             <i class="fa-solid fa-link"></i>
         </button>
     </div>

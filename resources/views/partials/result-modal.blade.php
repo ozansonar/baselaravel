@@ -7,7 +7,7 @@
             </div>
             <h5 class="fw-bold mb-2" id="resultModalTitle"></h5>
             <p class="text-muted mb-4" id="resultModalBody"></p>
-            <button type="button" class="btn btn-primary px-4 mx-auto" data-bs-dismiss="modal">Tamam</button>
+            <button type="button" class="btn btn-primary px-4 mx-auto" data-bs-dismiss="modal">{{ __('site.actions.ok') }}</button>
         </div>
     </div>
 </div>

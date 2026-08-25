@@ -2,7 +2,7 @@
 <div id="comments">
 
     <h2 class="section__title h4 mb-4">
-        <i class="fa-solid fa-comments text-brand me-2"></i>Yorumlar
+        <i class="fa-solid fa-comments text-brand me-2"></i>{{ __('site.blog.comments') }}
         @if($commentCount > 0)
             <span class="text-muted fw-normal">({{ $commentCount }})</span>
         @endif
@@ -43,37 +43,37 @@
     @else
         <div class="empty-state mb-4">
             <div class="empty-state__icon"><i class="fa-regular fa-comment-dots"></i></div>
-            <p class="mb-0">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+            <p class="mb-0">{{ __('site.blog.comment_empty') }}</p>
         </div>
     @endif
 
     {{-- Comment form --}}
     <div class="field-card">
-        <h3 class="h5 mb-3">Yorum Yap</h3>
+        <h3 class="h5 mb-3">{{ __('site.blog.comment_title') }}</h3>
         <form id="blogCommentForm" method="POST" action="{{ route('blog-comments.store') }}" novalidate>
             @csrf
             <input type="hidden" name="blog_post_id" value="{{ $post->id }}">
 
             <div class="row g-3">
                 <div class="col-sm-6">
-                    <label for="comment-name" class="form-label">Ad Soyad</label>
+                    <label for="comment-name" class="form-label">{{ __('site.blog.comment_name') }}</label>
                     <input type="text" id="comment-name" name="name" value="{{ old('name') }}"
-                           class="form-control @error('name') is-invalid @enderror" placeholder="Adınız ve soyadınız" required>
+                           class="form-control @error('name') is-invalid @enderror" placeholder="{{ __('site.blog.comment_name_ph') }}" required>
                     @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="col-sm-6">
-                    <label for="comment-email" class="form-label">E-posta</label>
+                    <label for="comment-email" class="form-label">{{ __('site.blog.comment_email') }}</label>
                     <input type="email" id="comment-email" name="email" value="{{ old('email') }}"
-                           class="form-control @error('email') is-invalid @enderror" placeholder="E-posta adresiniz" required>
+                           class="form-control @error('email') is-invalid @enderror" placeholder="{{ __('site.blog.comment_email_ph') }}" required>
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    <small class="text-muted">E-posta adresiniz yayınlanmayacaktır.</small>
+                    <small class="text-muted">{{ __('site.blog.comment_email_note') }}</small>
                 </div>
 
                 <div class="col-12">
-                    <label for="comment-body" class="form-label">Yorumunuz</label>
+                    <label for="comment-body" class="form-label">{{ __('site.blog.comment_body') }}</label>
                     <textarea id="comment-body" name="body" rows="5"
-                              class="form-control @error('body') is-invalid @enderror" placeholder="Yorumunuzu buraya yazın..." required>{{ old('body') }}</textarea>
+                              class="form-control @error('body') is-invalid @enderror" placeholder="{{ __('site.blog.comment_body_ph') }}" required>{{ old('body') }}</textarea>
                     @error('body')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
@@ -83,7 +83,7 @@
 
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary" id="blogCommentSubmit">
-                        <i class="fa-solid fa-paper-plane"></i> Yorum Gönder
+                        <i class="fa-solid fa-paper-plane"></i> {{ __('site.blog.comment_submit') }}
                     </button>
                 </div>
             </div>
@@ -105,7 +105,7 @@
 
         var originalHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gönderiliyor...';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> {{ __('site.misc.sending') }}';
 
         var data = {};
         new FormData(form).forEach(function (value, key) {
@@ -142,7 +142,7 @@
                 }
             } else {
                 if (typeof showResultModal === 'function') {
-                    showResultModal('error', res.message || 'Bir hata oluştu.');
+                    showResultModal('error', res.message || @json(__('site.misc.error_generic')));
                 }
             }
         })
@@ -150,7 +150,7 @@
             btn.disabled = false;
             btn.innerHTML = originalHtml;
             if (typeof showResultModal === 'function') {
-                showResultModal('error', 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                showResultModal('error', @json(__('site.misc.error_retry')));
             }
         });
     });

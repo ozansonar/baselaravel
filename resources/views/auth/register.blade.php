@@ -1,10 +1,10 @@
 @extends('layouts.auth')
 
-@section('title', 'Üye Ol')
+@section('title', __('site.register.title'))
 
 @section('content')
-    <h1 class="auth-card__title">Aramıza katılın</h1>
-    <p class="auth-card__sub">Ücretsiz hesap oluşturun</p>
+    <h1 class="auth-card__title">{{ __('site.register.join_us') }}</h1>
+    <p class="auth-card__sub">{{ __('site.register.free_account') }}</p>
 
     <form method="POST" action="{{ route('register') }}">
         @csrf
@@ -12,21 +12,21 @@
         {{-- First / Last name --}}
         <div class="row g-3 mb-3">
             <div class="col-6">
-                <label for="first_name" class="form-label">Ad</label>
+                <label for="first_name" class="form-label">{{ __('site.register.first_name') }}</label>
                 <input type="text"
                        class="form-control @error('first_name') is-invalid @enderror"
                        id="first_name" name="first_name" value="{{ old('first_name') }}"
-                       placeholder="Adınız" required autofocus autocomplete="given-name">
+                       placeholder="{{ __('site.register.first_name_ph') }}" required autofocus autocomplete="given-name">
                 @error('first_name')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
             <div class="col-6">
-                <label for="last_name" class="form-label">Soyad</label>
+                <label for="last_name" class="form-label">{{ __('site.register.last_name') }}</label>
                 <input type="text"
                        class="form-control @error('last_name') is-invalid @enderror"
                        id="last_name" name="last_name" value="{{ old('last_name') }}"
-                       placeholder="Soyadınız" required autocomplete="family-name">
+                       placeholder="{{ __('site.register.last_name_ph') }}" required autocomplete="family-name">
                 @error('last_name')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -35,7 +35,7 @@
 
         {{-- Email --}}
         <div class="mb-3">
-            <label for="email" class="form-label">E-posta Adresi</label>
+            <label for="email" class="form-label">{{ __('site.login.email') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
                 <input type="email"
@@ -50,7 +50,7 @@
 
         {{-- Phone (optional) --}}
         <div class="mb-3">
-            <label for="phone" class="form-label">Telefon <span class="text-muted fw-normal">(opsiyonel)</span></label>
+            <label for="phone" class="form-label">{{ __('site.register.phone') }} <span class="text-muted fw-normal">{{ __('site.misc.optional') }}</span></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
                 <input type="tel"
@@ -65,7 +65,7 @@
 
         {{-- Password --}}
         <div class="mb-3">
-            <label for="password" class="form-label">Şifre</label>
+            <label for="password" class="form-label">{{ __('site.login.password') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                 <input type="password"
@@ -76,12 +76,12 @@
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="form-text">En az 8 karakter kullanın.</div>
+            <div class="form-text">{{ __('site.register.password_hint') }}</div>
         </div>
 
         {{-- Password confirmation --}}
         <div class="mb-3">
-            <label for="password_confirmation" class="form-label">Şifre (Tekrar)</label>
+            <label for="password_confirmation" class="form-label">{{ __('site.register.password_again') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                 <input type="password"
@@ -94,11 +94,11 @@
         <x-recaptcha />
 
         <button type="submit" class="btn btn-primary w-100">
-            <i class="fa-solid fa-user-plus"></i> Üye Ol
+            <i class="fa-solid fa-user-plus"></i> {{ __('site.auth.register') }}
         </button>
     </form>
 
     <p class="text-center text-muted mt-4 mb-0">
-        Zaten üye misiniz? <a href="{{ route('login') }}" class="fw-semibold">Giriş Yap</a>
+        Zaten üye misiniz? <a href="{{ route('login') }}" class="fw-semibold">{{ __('site.auth.login_long') }}</a>
     </p>
 @endsection

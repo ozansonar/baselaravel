@@ -25,7 +25,7 @@
                         <i class="fa-solid fa-leaf"></i> {{ $item->label }}
                     </h5>
                     <a href="{{ $itemUrl }}" class="mega-menu-all-link">
-                        Tümünü Gör <i class="fa-solid fa-arrow-right"></i>
+                        {{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
                 <div class="mega-menu-grid">

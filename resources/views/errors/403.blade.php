@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', '403 - Erişim Reddedildi')
+@section('title', '403 - ' . __('site.errors.403_title'))
 @section('robots', 'noindex, nofollow')
 
 @section('content')
     @include('partials.error', [
         'code'    => '403',
-        'title'   => 'Erişim Reddedildi',
-        'message' => 'Bu sayfaya erişim yetkiniz bulunmuyor.',
+        'title'   => __('site.errors.403_title'),
+        'message' => __('site.errors.403'),
     ])
 @endsection

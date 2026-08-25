@@ -8,7 +8,7 @@
     @php
         $siteName  = \App\Models\Setting::getValue('site_name', config('app.name'));
         $siteTitle = \App\Models\Setting::getValue('site_title', $siteName);
-        $siteDesc  = \App\Models\Setting::getValue('site_description', 'Modern, hızlı ve güvenilir kurumsal çözümler.');
+        $siteDesc  = \App\Models\Setting::getValue('site_description', __('site.misc.site_description'));
         $siteKeywords = \App\Models\Setting::getValue('site_keywords');
         $siteFavicon  = \App\Models\Setting::getValue('site_favicon');
         $ogTitle = \App\Models\Setting::getValue('og_title', $siteTitle);
@@ -144,7 +144,7 @@
     @stack('json-ld')
 </head>
 <body>
-    <a href="#main-content" class="skip-to-content">Ana içeriğe geç</a>
+    <a href="#main-content" class="skip-to-content">{{ __('site.nav.skip_to_content') }}</a>
 
     @if($gtmId)
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}" height="0" width="0" class="d-none"></iframe></noscript>
@@ -161,15 +161,15 @@
     {{-- WhatsApp Button --}}
     @php $whatsappUrl = \App\Models\Setting::getValue('social_whatsapp'); @endphp
     @if($whatsappUrl)
-    <a href="{{ whatsapp_url($whatsappUrl, 'Merhaba, bilgi almak istiyorum.') }}" class="whatsapp-float" target="_blank" rel="noopener noreferrer"
-       aria-label="WhatsApp ile iletişime geçin">
+    <a href="{{ whatsapp_url($whatsappUrl, __('site.misc.whatsapp_message')) }}" class="whatsapp-float" target="_blank" rel="noopener noreferrer"
+       aria-label="{{ __('site.misc.whatsapp_aria') }}">
         <i class="fa-brands fa-whatsapp"></i>
-        <span class="whatsapp-float-text">Bize Yazın</span>
+        <span class="whatsapp-float-text">{{ __('site.contact.form_title') }}</span>
     </a>
     @endif
 
     {{-- Scroll to top --}}
-    <button class="scroll-top" aria-label="Yukarı çık">
+    <button class="scroll-top" aria-label="{{ __('site.misc.scroll_top') }}">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 

@@ -1,8 +1,8 @@
 @php
     $fName    = \App\Models\Setting::getValue('site_name', config('app.name'));
-    $fDesc    = \App\Models\Setting::getValue('site_description', 'Modern, hızlı ve güvenilir kurumsal çözümler.');
+    $fDesc    = \App\Models\Setting::getValue('site_description', __('site.misc.site_description'));
     $fLogo    = \App\Models\Setting::getValue('site_logo');
-    $fFooter  = \App\Models\Setting::getValue('footer_text', '© ' . date('Y') . ' ' . $fName . '. Tüm hakları saklıdır.');
+    $fFooter  = \App\Models\Setting::getValue('footer_text', '© ' . date('Y') . ' ' . $fName . '. ' . __('site.misc.rights'));
     $fCredit  = \App\Models\Setting::getValue('footer_credit');
     $fPhone   = \App\Models\Setting::getValue('contact_phone');
     $fEmail   = \App\Models\Setting::getValue('contact_email');
@@ -44,25 +44,25 @@
 
             {{-- Quick links --}}
             <div class="col-6 col-lg-2">
-                <h5>Menü</h5>
-                <a class="footer-link" href="{{ route('home') }}">Anasayfa</a>
-                <a class="footer-link" href="{{ route('blog.index') }}">İçerikler</a>
-                <a class="footer-link" href="{{ route('gallery') }}">Galeri</a>
-                <a class="footer-link" href="{{ route('faq') }}">SSS</a>
-                <a class="footer-link" href="{{ route('contact') }}">İletişim</a>
+                <h5>{{ __('site.nav.menu') }}</h5>
+                <a class="footer-link" href="{{ route('home') }}">{{ __('site.nav.home') }}</a>
+                <a class="footer-link" href="{{ route('blog.index') }}">{{ __('site.blog.title') }}</a>
+                <a class="footer-link" href="{{ route('gallery') }}">{{ __('site.nav.gallery') }}</a>
+                <a class="footer-link" href="{{ route('faq') }}">{{ __('site.nav.faq') }}</a>
+                <a class="footer-link" href="{{ route('contact') }}">{{ __('site.nav.contact') }}</a>
             </div>
 
             {{-- Corporate pages --}}
             <div class="col-6 col-lg-2">
-                <h5>Kurumsal</h5>
-                <a class="footer-link" href="{{ url('/hakkimizda') }}">Hakkımızda</a>
-                <a class="footer-link" href="{{ url('/gizlilik-politikasi') }}">Gizlilik Politikası</a>
-                <a class="footer-link" href="{{ url('/kullanim-kosullari') }}">Kullanım Koşulları</a>
+                <h5>{{ __('site.nav.corporate') }}</h5>
+                <a class="footer-link" href="{{ url('/hakkimizda') }}">{{ __('site.nav.about') }}</a>
+                <a class="footer-link" href="{{ url('/gizlilik-politikasi') }}">{{ __('site.nav.privacy') }}</a>
+                <a class="footer-link" href="{{ url('/kullanim-kosullari') }}">{{ __('site.nav.terms') }}</a>
             </div>
 
             {{-- Contact --}}
             <div class="col-lg-4">
-                <h5>İletişim</h5>
+                <h5>{{ __('site.nav.contact') }}</h5>
                 @if($fAddress)
                     <p class="d-flex gap-2 mb-2"><i class="fa-solid fa-location-dot mt-1"></i><span>{{ $fAddress }}</span></p>
                 @endif

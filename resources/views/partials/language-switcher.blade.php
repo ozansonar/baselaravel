@@ -9,7 +9,7 @@
     <div class="dropdown lang-switcher">
         <button class="btn btn-light dropdown-toggle lang-switcher__toggle" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
-                aria-label="Dil seçimi — aktif dil {{ $currentLanguage->name }}">
+                aria-label="{{ __('site.misc.language_aria', ['language' => $currentLanguage->name]) }}">
             <span class="lang-switcher__flag">{{ $currentLanguage->flag }}</span>
             <span class="lang-switcher__code">{{ strtoupper($currentLanguage->code) }}</span>
         </button>
