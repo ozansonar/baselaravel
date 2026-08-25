@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 final class PageService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -55,14 +57,17 @@ final class PageService
      */
     public function allPublished(): Collection
     {
-        return Cache::remember('pages.published', 3600, fn () =>
-            Page::published()->sorted()->get(['id', 'title', 'slug', 'sort_order']),
+        return Cache::remember($this->localeCacheKey('pages.published'), 3600, fn () =>
+            Page::published()->localeWithFallback()->sorted()->get(['id', 'title', 'slug', 'sort_order', 'locale', 'lang_group_id']),
         );
     }
 
     public function findBySlug(string $slug): Page
     {
-        return Page::where('slug', $slug)->published()->firstOrFail();
+        // A slug only has to be unique inside its own language, so the lookup
+        // is scoped; content with no translation yet still resolves through the
+        // default-language fallback.
+        return Page::where('slug', $slug)->published()->localeWithFallback()->firstOrFail();
     }
 
     public function findById(int $id): Page
@@ -268,7 +273,7 @@ final class PageService
 
     private function clearCache(): void
     {
-        Cache::forget('pages.published');
+        $this->forgetLocalized('pages.published');
         Cache::forget('admin.pages.stats');
         // Modül 7 — yeni/güncellenen sayfa sitemap'e anında yansısın.
         Cache::forget('sitemap.urls');

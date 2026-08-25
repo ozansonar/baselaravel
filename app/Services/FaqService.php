@@ -12,13 +12,15 @@ use Illuminate\Support\Facades\DB;
 
 final class FaqService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     /**
      * @return Collection<int, Faq>
      */
     public function allActive(): Collection
     {
-        return Cache::remember('faqs.active', 3600, fn () =>
-            Faq::active()->sorted()->get(),
+        return Cache::remember($this->localeCacheKey('faqs.active'), 3600, fn () =>
+            Faq::active()->localeWithFallback()->sorted()->get(),
         );
     }
 
@@ -130,7 +132,7 @@ final class FaqService
 
     private function clearCache(): void
     {
-        Cache::forget('faqs.active');
+        $this->forgetLocalized('faqs.active');
         Cache::forget('admin.faqs.stats');
     }
 }

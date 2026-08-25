@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 final class SliderService
 {
+    use \App\Services\Concerns\LocalizedCache;
+
     public function __construct(
         private readonly UploadService $uploadService,
     ) {}
@@ -21,8 +23,8 @@ final class SliderService
      */
     public function allActive(): Collection
     {
-        return Cache::remember('sliders.active', 3600, fn () =>
-            Slider::active()->sorted()->get(),
+        return Cache::remember($this->localeCacheKey('sliders.active'), 3600, fn () =>
+            Slider::active()->localeWithFallback()->sorted()->get(),
         );
     }
 
@@ -157,7 +159,7 @@ final class SliderService
 
     private function clearCache(): void
     {
-        Cache::forget('sliders.active');
+        $this->forgetLocalized('sliders.active');
         Cache::forget('admin.sliders.stats');
     }
 }
