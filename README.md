@@ -47,14 +47,22 @@ composer setup
 
 Kurulum bittiğinde panele girebileceğin hazır kullanıcılar oluşur:
 
-| E-posta | Şifre | Rol |
-|---|---|---|
-| admin@example.com | `password` | Yönetici |
-| editor@example.com | `password` | Editör |
-| user@example.com | `password` | Kullanıcı |
+| E-posta | Rol |
+|---|---|
+| admin@example.com | Yönetici |
+| editor@example.com | Editör |
+| user@example.com | Kullanıcı |
 
-> **Canlıya almadan önce bu üç kullanıcının şifresini değiştir veya
-> gereksizleri sil.**
+Üçünün şifresi `.env` içindeki `SEED_PASSWORD` değeridir; tanımlı değilse
+`config/seeding.php` içindeki varsayılan (`Demo*12345.`) kullanılır. Kurulumdan
+önce `.env` dosyana kendi şifreni yaz:
+
+```env
+SEED_PASSWORD=kendi-guclu-sifren
+```
+
+> **Canlıya almadan önce admin şifresini panelden değiştir ve ihtiyacın olmayan
+> demo hesapları sil.** Depodan gelen varsayılan şifre herkesçe bilinir.
 
 ### Yeni projeye uyarlama
 

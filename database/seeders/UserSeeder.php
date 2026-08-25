@@ -12,6 +12,10 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Configurable so a deployment can seed its own password instead of the
+        // one shipped in the repository. See config/seeding.php.
+        $password = (string) config('seeding.password');
+
         // Admin user
         $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
@@ -19,7 +23,7 @@ class UserSeeder extends Seeder
                 'first_name'        => 'Admin',
                 'last_name'         => 'User',
                 'phone'             => null,
-                'password'          => 'password',
+                'password'          => $password,
                 'email_verified_at' => now(),
                 'is_active'         => true,
             ],
@@ -35,7 +39,7 @@ class UserSeeder extends Seeder
                 'first_name'        => 'Editor',
                 'last_name'         => 'User',
                 'phone'             => null,
-                'password'          => 'password',
+                'password'          => $password,
                 'email_verified_at' => now(),
                 'is_active'         => true,
             ],
@@ -51,7 +55,7 @@ class UserSeeder extends Seeder
                 'first_name'        => 'Regular',
                 'last_name'         => 'User',
                 'phone'             => null,
-                'password'          => 'password',
+                'password'          => $password,
                 'email_verified_at' => now(),
                 'is_active'         => true,
             ],
