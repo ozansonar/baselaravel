@@ -53,7 +53,7 @@ final class StoreTranslatedPageRequest extends FormRequest
             $rules["{$prefix}.excerpt"]          = ['nullable', 'string', 'max:500'];
             $rules["{$prefix}.image"]            = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'];
             $rules["{$prefix}.status"]           = ['nullable', new Enum(ContentStatus::class)];
-            $rules["{$prefix}.sort_order"]       = ['nullable', 'integer', 'min:0'];
+            $rules["{$prefix}.sort_order"]       = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];

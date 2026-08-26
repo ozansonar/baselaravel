@@ -52,7 +52,7 @@ final class StoreTranslatedBlogCategoryRequest extends FormRequest
             $rules[$prefix] = ['array'];
             $rules["{$prefix}.name"]        = [$required, 'string', 'max:255'];
             $rules["{$prefix}.icon"]        = ['nullable', 'string', 'max:100'];
-            $rules["{$prefix}.sort_order"]  = ['nullable', 'integer', 'min:0'];
+            $rules["{$prefix}.sort_order"]  = ['nullable', 'integer', 'min:0', 'max:999'];
             $rules["{$prefix}.is_active"]   = ['nullable', 'boolean'];
             $rules["{$prefix}.slug"]        = [
                 'nullable', 'string', 'max:255',

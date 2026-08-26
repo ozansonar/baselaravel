@@ -63,7 +63,7 @@ trait SyncsTranslations
                         ->where('locale', $this->defaultLocale())
                         ->first();
 
-                $payload = $prepare($fields, $locale, $existing, $defaultRow);
+                $payload = $prepare($this->normalizeSettings($fields), $locale, $existing, $defaultRow);
 
                 if ($payload === []) {
                     continue;
@@ -96,6 +96,27 @@ trait SyncsTranslations
     protected function defaultLocale(): string
     {
         return app(LanguageService::class)->defaultCode();
+    }
+
+    /**
+     * Settings columns are NOT NULL with a database default, but an emptied
+     * number input arrives as null and would break the insert. Normalising
+     * here keeps every module safe rather than each form remembering to.
+     *
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    protected function normalizeSettings(array $fields): array
+    {
+        if (array_key_exists('sort_order', $fields) && ($fields['sort_order'] === null || $fields['sort_order'] === '')) {
+            $fields['sort_order'] = 0;
+        }
+
+        if (array_key_exists('is_active', $fields)) {
+            $fields['is_active'] = (bool) $fields['is_active'];
+        }
+
+        return $fields;
     }
 
     /**
