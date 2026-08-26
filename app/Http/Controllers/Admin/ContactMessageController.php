@@ -70,7 +70,6 @@ final class ContactMessageController extends Controller
         $this->authorize('viewAny', ContactMessage::class);
 
         $count = $this->contactMessageService->markAllAsRead();
-        $this->contactMessageService->clearCache();
 
         return redirect()
             ->route('admin.contact-messages.index')
@@ -82,7 +81,6 @@ final class ContactMessageController extends Controller
         $this->authorize('delete', $contactMessage);
 
         $this->contactMessageService->restore($contactMessage);
-        $this->contactMessageService->clearCache();
 
         return redirect()
             ->route('admin.contact-messages.index')
@@ -114,7 +112,6 @@ final class ContactMessageController extends Controller
         $this->authorize('delete', $contactMessage);
 
         $this->contactMessageService->delete($contactMessage);
-        $this->contactMessageService->clearCache();
 
         return redirect()
             ->route('admin.contact-messages.index')
