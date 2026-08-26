@@ -129,6 +129,7 @@
                                 <label class="stg-label" for="current_password">Mevcut Şifre</label>
                                 <input type="password" class="stg-input @error('current_password') is-invalid @enderror"
                                        id="current_password" name="current_password"
+                                       data-validation-engine="validate[condRequired[password]]"
                                        placeholder="Şifrenizi değiştirmek için gerekli"
                                        autocomplete="current-password">
                                 @error('current_password')
@@ -151,7 +152,7 @@
                             <div class="stg-field stg-half">
                                 <label class="stg-label" for="password_confirmation">Şifre Tekrarı</label>
                                 <input type="password" class="stg-input"
-                                       id="password_confirmation" name="password_confirmation" data-validation-engine="validate[equals[password]]"
+                                       id="password_confirmation" name="password_confirmation" data-validation-engine="validate[condRequired[password],equals[password]]"
                                        placeholder="Yeni şifreyi tekrar giriniz"
                                        autocomplete="new-password">
                             </div>
@@ -191,7 +192,9 @@
                                     </div>
                                 @endif
                             </div>
-                            <input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp" class="d-none">
+                            <input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp" class="d-none"
+                                   data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
+                                   data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                             <button type="button" class="prf-btn prf-btn-primary w-100 mt-3" onclick="document.getElementById('avatarInput').click()">
                                 <i class="bi bi-upload"></i> Fotoğraf Seç
                             </button>
