@@ -49,6 +49,19 @@
       </div>
 
 
+          {{-- The value is not posted anywhere; it is there because the plugin
+               discards findings on a field whose own value is empty. --}}
+          <input type="hidden" id="langGuard" value="1"
+                 data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
+                 data-prompt-target="langGuardError">
+          <div id="langGuardError" class="mb-4">
+            @error('translations')
+              <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ $message }}
+              </div>
+            @enderror
+          </div>
+
           {{-- Her dil kendi sekmesinde --}}
           <x-language-tabs :languages="$formLanguages" :model="$post" id="postLangTabs">
             @foreach($formLanguages as $language)
@@ -63,6 +76,9 @@
               </x-language-tab-pane>
             @endforeach
           </x-language-tabs>
+
+          {{-- No language is mandatory on its own, but the post cannot be empty
+               in every language; this guard carries that one rule. --}}
 
 
           <!-- ==================== FORM ACTIONS ==================== -->

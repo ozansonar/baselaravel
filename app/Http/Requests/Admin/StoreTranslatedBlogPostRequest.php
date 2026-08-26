@@ -12,6 +12,11 @@ use Illuminate\Validation\Rule;
 /**
  * A blog post arrives as one block of fields per language.
  *
+ * No single language is mandatory: a post may exist in English only, in which
+ * case it simply does not surface on the Turkish site. What is required is that
+ * at least one language block is filled, and that a block the editor did touch
+ * carries the fields a post cannot do without.
+ *
  * The publish state comes from the save buttons and applies to every language
  * block, because "publish" is a decision about the post rather than about one
  * translation of it.
@@ -29,16 +34,25 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
         $post = $this->route('blog_post');
 
         $rules = [
-            'translations'  => ['required', 'array'],
+            'translations'  => ['required', 'array', function (string $attribute, mixed $value, callable $fail): void {
+                foreach (app(LanguageService::class)->activeCodes() as $locale) {
+                    if ($this->hasContent($locale)) {
+                        return;
+                    }
+                }
+
+                $fail('En az bir dilde içerik girmelisiniz.');
+            }],
             'is_published'  => ['nullable', 'boolean'],
         ];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            // A language the editor left untouched stays optional; the moment a
+            // block holds anything, it has to be a complete post.
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                      = ['array'];
@@ -85,5 +99,21 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
     private function translationIdFor(string $locale, ?BlogPost $post): ?int
     {
         return $post?->translation($locale)?->id;
+    }
+
+    /**
+     * Whether the editor put anything into this language block. HTML is
+     * stripped first, because an empty rich text editor still posts markup.
+     */
+    private function hasContent(string $locale): bool
+    {
+        $fields = (array) $this->input("translations.{$locale}", []);
+
+        $written = array_any(
+            $fields,
+            fn (mixed $value): bool => is_scalar($value) && trim(strip_tags((string) $value)) !== '',
+        );
+
+        return $written || (array) $this->file("translations.{$locale}", []) !== [];
     }
 }

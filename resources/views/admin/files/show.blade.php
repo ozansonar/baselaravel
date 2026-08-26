@@ -40,12 +40,6 @@
         </div>
     </div>
 
-    {{-- Flash --}}
-    @if(session('success'))
-        <div class="alert alert-success mb-4" data-aos="fade-up">
-            <i class="bi bi-check-circle me-1"></i> {{ session('success') }}
-        </div>
-    @endif
     @if($errors->any())
         <div class="alert alert-danger mb-4" data-aos="fade-up">
             <i class="bi bi-exclamation-triangle me-1"></i>

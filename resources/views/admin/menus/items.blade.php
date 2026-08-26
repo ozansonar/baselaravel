@@ -186,11 +186,6 @@
     <script src="{{ asset('assets/admin/js/menu-items.js') }}"></script>
     <script>
     (function () {
-        @if(session('success'))
-            if (window.AdminModal && typeof AdminModal.status === 'function') {
-                AdminModal.status({ title: 'Başarılı', message: @json(session('success')), type: 'success' });
-            }
-        @endif
         @if($errors->any())
             if (window.AdminModal && typeof AdminModal.status === 'function') {
                 AdminModal.status({ title: 'Hata', message: @json(implode('\n', $errors->all())), type: 'danger' });

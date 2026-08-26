@@ -99,6 +99,43 @@
         }
     };
 
+    /**
+     * validate[funcCall[FormValidation.rules.anyLanguageFilled]]
+     *
+     * For forms where no single language is mandatory but the record cannot be
+     * completely empty. Put it on a hidden input inside the form.
+     */
+    FormValidation.rules.anyLanguageFilled = function ($field) {
+        var form = $field[0].form || $field[0].closest('form');
+        var panes = form ? form.querySelectorAll('.tab-pane') : [];
+
+        if (panes.length === 0) {
+            return;
+        }
+
+        var filled = Array.prototype.some.call(panes, function (pane) {
+            return Array.prototype.some.call(
+                pane.querySelectorAll('input, select, textarea'),
+                function (element) {
+                    if (element.disabled || element.type === 'hidden') {
+                        return false;
+                    }
+
+                    if (element.type === 'file') {
+                        return element.files && element.files.length > 0;
+                    }
+
+                    // An empty rich text editor still writes markup back.
+                    return String(element.value || '').replace(/<[^>]*>/g, '').trim() !== '';
+                }
+            );
+        });
+
+        if (!filled) {
+            return 'En az bir dilde içerik girmelisiniz';
+        }
+    };
+
     // ==================== EDITOR SYNC ====================
 
     /**
