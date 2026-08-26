@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 final class BlogService
 {
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -93,7 +94,9 @@ final class BlogService
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = BlogPost::with(['category', 'author'])->latest();
+        $query = $this->onlyGroupRepresentatives(BlogPost::query(), BlogPost::class)
+            ->with(['category', 'author'])
+            ->latest();
 
         if (isset($filters['status'])) {
             match ($filters['status']) {
@@ -109,17 +112,21 @@ final class BlogService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search): void {
+            $this->whereGroupMatches($query, BlogPost::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('excerpt', 'like', "%{$search}%");
             });
         }
 
         if (!empty($filters['category_id'])) {
-            $query->where('blog_category_id', $filters['category_id']);
+            // The chosen category belongs to one language, so a post counts as
+            // a match when any of its translations sits in that group.
+            $this->whereGroupMatches($query, BlogPost::class, function ($q) use ($filters): void {
+                $q->where('blog_category_id', $filters['category_id']);
+            });
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), BlogPost::class);
     }
 
     /**
@@ -129,9 +136,9 @@ final class BlogService
     {
         return Cache::remember('blog.admin_stats', 300, function (): array {
             $counts = BlogPost::withTrashed()->selectRaw("
-                SUM(CASE WHEN deleted_at IS NULL THEN 1 ELSE 0 END) as total,
-                SUM(CASE WHEN deleted_at IS NULL AND is_published = 1 THEN 1 ELSE 0 END) as published,
-                SUM(CASE WHEN deleted_at IS NULL AND is_published = 0 THEN 1 ELSE 0 END) as draft,
+                COUNT(DISTINCT CASE WHEN deleted_at IS NULL THEN lang_group_id END) as total,
+                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_published = 1 THEN lang_group_id END) as published,
+                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_published = 0 THEN lang_group_id END) as draft,
                 COALESCE(SUM(CASE WHEN deleted_at IS NULL THEN views ELSE 0 END), 0) as total_views
             ")->first();
 
@@ -152,11 +159,11 @@ final class BlogService
         $now = now();
 
         $counts = BlogPost::withTrashed()
-            ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-            ->selectRaw('sum(case when deleted_at is null and is_published = 1 and published_at <= ? then 1 else 0 end) as published', [$now])
-            ->selectRaw('sum(case when deleted_at is null and is_published = 0 then 1 else 0 end) as draft')
-            ->selectRaw('sum(case when deleted_at is null and is_published = 1 and published_at > ? then 1 else 0 end) as scheduled', [$now])
-            ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+            ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+            ->selectRaw('count(distinct case when deleted_at is null and is_published = 1 and published_at <= ? then lang_group_id end) as published', [$now])
+            ->selectRaw('count(distinct case when deleted_at is null and is_published = 0 then lang_group_id end) as draft')
+            ->selectRaw('count(distinct case when deleted_at is null and is_published = 1 and published_at > ? then lang_group_id end) as scheduled', [$now])
+            ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
             ->first();
 
         return [
@@ -250,19 +257,18 @@ final class BlogService
 
     public function delete(BlogPost $post): void
     {
-        DB::transaction(function () use ($post): void {
-            $post->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($post);
+        $this->clearCache();
     }
 
     public function restore(int $id): BlogPost
     {
         $post = BlogPost::withTrashed()->findOrFail($id);
-        $post->restore();
+
+        $this->restoreTranslationGroup($post);
         $this->clearCache();
 
-        return $post;
+        return $post->refresh();
     }
 
     private function clearCache(): void

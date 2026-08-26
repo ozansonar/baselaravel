@@ -15,6 +15,7 @@ final class PopupService
 {
     use \App\Services\Concerns\LocalizedCache;
 
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -36,7 +37,7 @@ final class PopupService
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = Popup::withTrashed()->sorted();
+        $query = $this->onlyGroupRepresentatives(Popup::withTrashed(), Popup::class)->sorted();
 
         if (!empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
@@ -52,13 +53,13 @@ final class PopupService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search): void {
+            $this->whereGroupMatches($query, Popup::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), Popup::class);
     }
 
     public function findById(int $id): Popup
@@ -142,23 +143,18 @@ final class PopupService
 
     public function delete(Popup $popup): void
     {
-        DB::transaction(function () use ($popup): void {
-            if ($popup->image) {
-                $this->uploadService->deleteImage($popup->image);
-            }
-
-            $popup->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($popup);
+        $this->clearCache();
     }
 
     public function restore(int $id): Popup
     {
         $popup = Popup::withTrashed()->findOrFail($id);
-        $popup->restore();
+
+        $this->restoreTranslationGroup($popup);
         $this->clearCache();
 
-        return $popup;
+        return $popup->refresh();
     }
 
     /**
@@ -170,11 +166,11 @@ final class PopupService
             $today = now()->toDateString();
 
             $counts = Popup::withTrashed()
-                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
-                ->selectRaw("sum(case when deleted_at is null and is_active = 1 and (start_date is not null or end_date is not null) and (start_date is null or start_date <= '{$today}') and (end_date is null or end_date >= '{$today}') then 1 else 0 end) as scheduled")
-                ->selectRaw("sum(case when deleted_at is null and end_date is not null and end_date < '{$today}' then 1 else 0 end) as expired")
-                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
+                ->selectRaw("count(distinct case when deleted_at is null and is_active = 1 and (start_date is not null or end_date is not null) and (start_date is null or start_date <= '{$today}') and (end_date is null or end_date >= '{$today}') then lang_group_id end) as scheduled")
+                ->selectRaw("count(distinct case when deleted_at is null and end_date is not null and end_date < '{$today}' then lang_group_id end) as expired")
+                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
                 ->first();
 
             return [
@@ -193,9 +189,9 @@ final class PopupService
     public function statusCounts(): array
     {
         return [
-            'active'  => Popup::where('is_active', true)->count(),
-            'passive' => Popup::where('is_active', false)->count(),
-            'trashed' => Popup::onlyTrashed()->count(),
+            'active'  => $this->countGroups(Popup::where('is_active', true)),
+            'passive' => $this->countGroups(Popup::where('is_active', false)),
+            'trashed' => $this->countGroups(Popup::onlyTrashed()),
         ];
     }
 

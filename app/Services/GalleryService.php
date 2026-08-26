@@ -15,6 +15,7 @@ final class GalleryService
 {
     use \App\Services\Concerns\LocalizedCache;
 
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -57,7 +58,7 @@ final class GalleryService
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = GalleryItem::withTrashed()->sorted()->with('galleryCategory');
+        $query = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)->sorted()->with('galleryCategory');
 
         if (!empty($filters['type'])) {
             $type = GalleryType::tryFrom($filters['type']);
@@ -87,13 +88,13 @@ final class GalleryService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search): void {
+            $this->whereGroupMatches($query, GalleryItem::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), GalleryItem::class);
     }
 
     public function findById(int $id): GalleryItem
@@ -183,23 +184,18 @@ final class GalleryService
 
     public function delete(GalleryItem $item): void
     {
-        DB::transaction(function () use ($item): void {
-            if ($item->image) {
-                $this->uploadService->deleteImage($item->image);
-            }
-
-            $item->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($item);
+        $this->clearCache();
     }
 
     public function restore(int $id): GalleryItem
     {
         $item = GalleryItem::withTrashed()->findOrFail($id);
-        $item->restore();
+
+        $this->restoreTranslationGroup($item);
         $this->clearCache();
 
-        return $item;
+        return $item->refresh();
     }
 
     /**
@@ -209,11 +205,11 @@ final class GalleryService
     {
         return Cache::remember('admin.gallery.stats', 300, function (): array {
             $counts = GalleryItem::withTrashed()
-                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-                ->selectRaw('sum(case when deleted_at is null and type = ? then 1 else 0 end) as photos', [GalleryType::Photo->value])
-                ->selectRaw('sum(case when deleted_at is null and type = ? then 1 else 0 end) as videos', [GalleryType::Video->value])
-                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
-                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+                ->selectRaw('count(distinct case when deleted_at is null and type = ? then lang_group_id end) as photos', [GalleryType::Photo->value])
+                ->selectRaw('count(distinct case when deleted_at is null and type = ? then lang_group_id end) as videos', [GalleryType::Video->value])
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
+                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
                 ->first();
 
             return [
@@ -232,9 +228,9 @@ final class GalleryService
     public function statusCounts(): array
     {
         $counts = GalleryItem::withTrashed()->selectRaw("
-            SUM(CASE WHEN deleted_at IS NULL AND is_active = 1 THEN 1 ELSE 0 END) as active,
-            SUM(CASE WHEN deleted_at IS NULL AND is_active = 0 THEN 1 ELSE 0 END) as passive,
-            SUM(CASE WHEN deleted_at IS NOT NULL THEN 1 ELSE 0 END) as trashed
+            COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 1 THEN lang_group_id END) as active,
+            COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 0 THEN lang_group_id END) as passive,
+            COUNT(DISTINCT CASE WHEN deleted_at IS NOT NULL THEN lang_group_id END) as trashed
         ")->first();
 
         return [

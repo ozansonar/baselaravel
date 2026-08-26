@@ -225,6 +225,7 @@
                                                 @endif
                                                 <i class="bi bi-clock me-1"></i>{{ $post->created_at->translatedFormat('d M Y H:i') }}
                                             </span>
+                                            <x-language-badges :locales="$post->group_locales ?? []" />
                                         </div>
                                     </div>
                                 </td>

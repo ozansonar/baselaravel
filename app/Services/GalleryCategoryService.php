@@ -14,6 +14,7 @@ final class GalleryCategoryService
 {
     use \App\Services\Concerns\LocalizedCache;
 
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     /**
@@ -35,7 +36,16 @@ final class GalleryCategoryService
      */
     public function paginate(int $perPage = 15, ?array $filters = null): LengthAwarePaginator
     {
-        $query = GalleryCategory::withTrashed()->sorted()->withCount('galleryItems');
+        $query = $this->onlyGroupRepresentatives(GalleryCategory::withTrashed(), GalleryCategory::class)
+            ->sorted()
+            // Items hang off the translation they were added under, so the
+            // number that means something is the group's total.
+            ->selectRaw('gallery_categories.*, ('
+                . 'select count(*) from gallery_items'
+                . ' where gallery_items.deleted_at is null'
+                . ' and gallery_items.gallery_category_id in ('
+                . 'select g.id from gallery_categories as g where g.lang_group_id = gallery_categories.lang_group_id'
+                . ')) as gallery_items_count');
 
         if ($filters) {
             if (isset($filters['status']) && $filters['status'] !== '') {
@@ -50,7 +60,7 @@ final class GalleryCategoryService
             }
 
             if (isset($filters['search']) && $filters['search'] !== '') {
-                $query->where(function ($q) use ($filters): void {
+                $this->whereGroupMatches($query, GalleryCategory::class, function ($q) use ($filters): void {
                     $q->where('name', 'like', "%{$filters['search']}%")
                       ->orWhere('slug', 'like', "%{$filters['search']}%");
                 });
@@ -59,7 +69,7 @@ final class GalleryCategoryService
             $query->whereNull('deleted_at');
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), GalleryCategory::class);
     }
 
     /**
@@ -69,10 +79,10 @@ final class GalleryCategoryService
     {
         return Cache::remember('admin.gallery_categories.stats', 300, function (): array {
             $counts = GalleryCategory::withTrashed()
-                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 0 then 1 else 0 end) as passive')
-                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 0 then lang_group_id end) as passive')
+                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
                 ->first();
 
             return [
@@ -90,9 +100,9 @@ final class GalleryCategoryService
     public function statusCounts(): array
     {
         $counts = GalleryCategory::withTrashed()
-            ->selectRaw('SUM(CASE WHEN deleted_at IS NULL AND is_active = 1 THEN 1 ELSE 0 END) as active')
-            ->selectRaw('SUM(CASE WHEN deleted_at IS NULL AND is_active = 0 THEN 1 ELSE 0 END) as passive')
-            ->selectRaw('SUM(CASE WHEN deleted_at IS NOT NULL THEN 1 ELSE 0 END) as trashed')
+            ->selectRaw('COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 1 THEN lang_group_id END) as active')
+            ->selectRaw('COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 0 THEN lang_group_id END) as passive')
+            ->selectRaw('COUNT(DISTINCT CASE WHEN deleted_at IS NOT NULL THEN lang_group_id END) as trashed')
             ->first();
 
         return [
@@ -159,19 +169,18 @@ final class GalleryCategoryService
 
     public function delete(GalleryCategory $category): void
     {
-        DB::transaction(function () use ($category): void {
-            $category->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($category);
+        $this->clearCache();
     }
 
     public function restore(int $id): GalleryCategory
     {
         $category = GalleryCategory::withTrashed()->findOrFail($id);
-        $category->restore();
+
+        $this->restoreTranslationGroup($category);
         $this->clearCache();
 
-        return $category;
+        return $category->refresh();
     }
 
     private function clearCache(): void

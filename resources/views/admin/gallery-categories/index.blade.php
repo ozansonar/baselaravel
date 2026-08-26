@@ -161,6 +161,7 @@
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $category->name }}</span>
                                         <span class="cl-content-meta"><i class="bi bi-link-45deg me-1"></i>{{ $category->slug }}</span>
+                                        <x-language-badges :locales="$category->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="Öğe Sayısı">

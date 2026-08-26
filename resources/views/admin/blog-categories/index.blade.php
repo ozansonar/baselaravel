@@ -174,16 +174,7 @@
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $category->name }}</span>
                                         <span class="cl-content-meta"><i class="bi bi-link-45deg me-1"></i>{{ $category->slug }}</span>
-                                        {{-- One row per category; the flags say which languages it exists in. --}}
-                                        <span class="cl-lang-badges">
-                                            @foreach($languages as $code => $language)
-                                                @php $hasTranslation = in_array($code, $category->group_locales ?? [], true); @endphp
-                                                <span class="cl-lang-badge {{ $hasTranslation ? '' : 'cl-lang-badge--missing' }}"
-                                                      title="{{ $language->name }}{{ $hasTranslation ? '' : ' — çeviri yok' }}">
-                                                    <span class="cl-lang-badge__flag">{{ $language->flag }}</span>{{ strtoupper($code) }}
-                                                </span>
-                                            @endforeach
-                                        </span>
+                                        <x-language-badges :locales="$category->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="İkon" class="d-none d-md-table-cell">

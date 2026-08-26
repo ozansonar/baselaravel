@@ -15,6 +15,8 @@ final class BlogCategoryService
 {
     use \App\Services\Concerns\LocalizedCache;
 
+    use \App\Services\Concerns\ListsTranslationGroups;
+
     use \App\Services\Concerns\SyncsTranslations;
 
     /**
@@ -40,16 +42,7 @@ final class BlogCategoryService
      */
     public function paginate(int $perPage = 15, ?array $filters = null): LengthAwarePaginator
     {
-        $default = app(LanguageService::class)->defaultCode();
-
-        // The row that represents its group: the default language when that
-        // translation exists, otherwise the one created first.
-        $representatives = BlogCategory::withTrashed()
-            ->selectRaw('coalesce(min(case when locale = ? then id end), min(id))', [$default])
-            ->groupBy('lang_group_id');
-
-        $query = BlogCategory::withTrashed()
-            ->whereIn('id', $representatives)
+        $query = $this->onlyGroupRepresentatives(BlogCategory::withTrashed(), BlogCategory::class)
             ->sorted()
             // Posts hang off the translation they were written in, so the
             // number that means something is the group's total.
@@ -71,46 +64,14 @@ final class BlogCategoryService
             }
 
             if (isset($filters['search']) && $filters['search'] !== '') {
-                // Searching matches any translation, then the whole group shows.
-                $matching = BlogCategory::withTrashed()
-                    ->select('lang_group_id')
-                    ->where(function ($q) use ($filters): void {
-                        $q->where('name', 'like', "%{$filters['search']}%")
-                          ->orWhere('slug', 'like', "%{$filters['search']}%");
-                    });
-
-                $query->whereIn('lang_group_id', $matching);
+                $this->whereGroupMatches($query, BlogCategory::class, function ($q) use ($filters): void {
+                    $q->where('name', 'like', "%{$filters['search']}%")
+                      ->orWhere('slug', 'like', "%{$filters['search']}%");
+                });
             }
         }
 
-        $categories = $query->paginate($perPage);
-
-        return $this->attachGroupLocales($categories);
-    }
-
-    /**
-     * Hangs the group's language list on each row in one extra query, so the
-     * table can show which translations exist without an N+1.
-     */
-    private function attachGroupLocales(LengthAwarePaginator $categories): LengthAwarePaginator
-    {
-        $groupIds = collect($categories->items())->pluck('lang_group_id')->filter()->unique();
-
-        if ($groupIds->isEmpty()) {
-            return $categories;
-        }
-
-        $locales = BlogCategory::withTrashed()
-            ->whereIn('lang_group_id', $groupIds)
-            ->get(['lang_group_id', 'locale'])
-            ->groupBy('lang_group_id')
-            ->map(fn ($rows) => $rows->pluck('locale')->unique()->values()->all());
-
-        foreach ($categories->items() as $category) {
-            $category->setAttribute('group_locales', $locales[$category->lang_group_id] ?? []);
-        }
-
-        return $categories;
+        return $this->attachGroupLocales($query->paginate($perPage), BlogCategory::class);
     }
 
     /**
@@ -141,9 +102,9 @@ final class BlogCategoryService
     public function statusCounts(): array
     {
         return [
-            'active'  => BlogCategory::where('is_active', true)->distinct()->count('lang_group_id'),
-            'passive' => BlogCategory::where('is_active', false)->distinct()->count('lang_group_id'),
-            'trashed' => BlogCategory::onlyTrashed()->distinct()->count('lang_group_id'),
+            'active'  => $this->countGroups(BlogCategory::where('is_active', true)),
+            'passive' => $this->countGroups(BlogCategory::where('is_active', false)),
+            'trashed' => $this->countGroups(BlogCategory::onlyTrashed()),
         ];
     }
 
@@ -206,36 +167,17 @@ final class BlogCategoryService
         return $groupId;
     }
 
-    /**
-     * Deleting from the list removes the category in every language.
-     *
-     * The list shows one row per translation group, so leaving the siblings
-     * behind would look like the delete silently failed. A single translation
-     * is removed by emptying its tab in the form instead.
-     */
     public function delete(BlogCategory $category): void
     {
-        DB::transaction(function () use ($category): void {
-            BlogCategory::where('lang_group_id', $category->lang_group_id)
-                ->get()
-                ->each(fn (BlogCategory $row) => $row->delete());
-
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($category);
+        $this->clearCache();
     }
 
     public function restore(int $id): BlogCategory
     {
         $category = BlogCategory::withTrashed()->findOrFail($id);
 
-        DB::transaction(function () use ($category): void {
-            BlogCategory::withTrashed()
-                ->where('lang_group_id', $category->lang_group_id)
-                ->onlyTrashed()
-                ->get()
-                ->each(fn (BlogCategory $row) => $row->restore());
-        });
-
+        $this->restoreTranslationGroup($category);
         $this->clearCache();
 
         return $category->refresh();

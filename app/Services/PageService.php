@@ -15,6 +15,7 @@ final class PageService
 {
     use \App\Services\Concerns\LocalizedCache;
 
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -26,7 +27,7 @@ final class PageService
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = Page::withTrashed()->sorted();
+        $query = $this->onlyGroupRepresentatives(Page::withTrashed(), Page::class)->sorted();
 
         if (!empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
@@ -43,13 +44,13 @@ final class PageService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search): void {
+            $this->whereGroupMatches($query, Page::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('slug', 'like', "%{$search}%");
             });
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), Page::class);
     }
 
     /**
@@ -226,19 +227,18 @@ final class PageService
 
     public function delete(Page $page): void
     {
-        DB::transaction(function () use ($page): void {
-            $page->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($page);
+        $this->clearCache();
     }
 
     public function restore(int $id): Page
     {
         $page = Page::withTrashed()->findOrFail($id);
-        $page->restore();
+
+        $this->restoreTranslationGroup($page);
         $this->clearCache();
 
-        return $page;
+        return $page->refresh();
     }
 
     /**
@@ -248,10 +248,10 @@ final class PageService
     {
         return Cache::remember('admin.pages.stats', 300, function (): array {
             $counts = Page::withTrashed()
-                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-                ->selectRaw('sum(case when deleted_at is null and status = ? then 1 else 0 end) as published', [ContentStatus::Published->value])
-                ->selectRaw('sum(case when deleted_at is null and status = ? then 1 else 0 end) as draft', [ContentStatus::Draft->value])
-                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+                ->selectRaw('count(distinct case when deleted_at is null and status = ? then lang_group_id end) as published', [ContentStatus::Published->value])
+                ->selectRaw('count(distinct case when deleted_at is null and status = ? then lang_group_id end) as draft', [ContentStatus::Draft->value])
+                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
                 ->first();
 
             return [
@@ -269,10 +269,10 @@ final class PageService
     public function statusCounts(): array
     {
         return [
-            'published' => Page::where('status', ContentStatus::Published)->count(),
-            'draft'     => Page::where('status', ContentStatus::Draft)->count(),
-            'archived'  => Page::where('status', ContentStatus::Archived)->count(),
-            'trashed'   => Page::onlyTrashed()->count(),
+            'published' => $this->countGroups(Page::where('status', ContentStatus::Published)),
+            'draft'     => $this->countGroups(Page::where('status', ContentStatus::Draft)),
+            'archived'  => $this->countGroups(Page::where('status', ContentStatus::Archived)),
+            'trashed'   => $this->countGroups(Page::onlyTrashed()),
         ];
     }
 

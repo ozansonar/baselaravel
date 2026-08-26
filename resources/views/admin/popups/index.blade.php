@@ -179,6 +179,7 @@
                                         @if($popup->button_text)
                                             <span class="cl-content-meta">{{ $popup->button_text }}</span>
                                         @endif
+                                        <x-language-badges :locales="$popup->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="Boyut" class="d-none d-md-table-cell">
