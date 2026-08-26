@@ -192,6 +192,13 @@
 
     // ==================== ERROR REVEAL ====================
 
+    /** Where the plugin was told to render this field's message, if anywhere. */
+    function promptTargetOf(field) {
+        var id = field.getAttribute('data-prompt-target');
+
+        return id ? document.getElementById(id) : null;
+    }
+
     /**
      * Brings the first failing field into view — switching language tabs when
      * the error sits in a tab the user is not looking at.
@@ -223,14 +230,32 @@
         // Let the tab finish showing before measuring where to scroll.
         window.setTimeout(function () {
             var visible = field.offsetParent !== null;
-            // A field hidden behind a rich text editor cannot be scrolled to,
-            // so aim at the block that holds it.
-            var target = visible ? field : (field.closest('.col-12, .col-md-6, .card-dark') || field);
+            // A hidden field cannot be scrolled to — a rich text editor covers
+            // one, and the language guard is a hidden input — so aim at where
+            // its message was rendered, or at the block that holds it.
+            var target = visible
+                ? field
+                : (promptTargetOf(field) || field.closest('.col-12, .col-md-6, .card-dark') || field);
 
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (target.offsetParent !== null) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
 
             if (visible) {
                 field.focus({ preventScroll: true });
+            }
+
+            // A failure that belongs to the form rather than to one visible
+            // field gets a modal as well: the message sits at the top of a long
+            // page and the user is usually at the bottom, next to the button.
+            if (field.hasAttribute('data-fv-modal') && typeof AdminModal !== 'undefined') {
+                var slot = promptTargetOf(field);
+
+                AdminModal.status({
+                    title: 'Eksik bilgi',
+                    message: slot ? slot.textContent.trim() : 'Lütfen formu kontrol edin.',
+                    type: 'danger'
+                });
             }
         }, 200);
     }
