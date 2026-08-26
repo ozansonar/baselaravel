@@ -14,6 +14,7 @@
                             <label class="stg-label" for="code">Dil Kodu <span class="text-neon-red">*</span></label>
                             <input type="text" class="stg-input @error('code') is-invalid @enderror"
                                    id="code" name="code" value="{{ old('code', $language?->code) }}"
+                                   data-validation-engine="validate[required,custom[langCode]]"
                                    maxlength="2" placeholder="de" pattern="[A-Za-z]{2}" autocomplete="off">
                             <small class="stg-hint">İki harf (ISO 639-1): tr, en, de</small>
                             @error('code') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror

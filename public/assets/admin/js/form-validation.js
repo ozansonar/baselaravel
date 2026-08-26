@@ -75,6 +75,18 @@
             alertText: 'Sadece küçük harf, rakam ve tire kullanın'
         };
 
+        // validate[custom[sitePath]] — an in-site path, which has to start with /.
+        allRules.sitePath = {
+            regex: /^\/\S*$/,
+            alertText: '/ ile başlamalı ve boşluk içermemeli'
+        };
+
+        // validate[custom[langCode]] — an ISO 639-1 code: two lowercase letters.
+        allRules.langCode = {
+            regex: /^[a-z]{2}$/,
+            alertText: 'İki küçük harften oluşmalı (ör: tr, en)'
+        };
+
         // The bundled onlyLetterSp rule is ASCII only, which would reject
         // Ömer or Çağla; this mirrors the regex the FormRequests use.
         allRules.letters = {

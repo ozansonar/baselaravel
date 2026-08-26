@@ -243,7 +243,7 @@
                                 <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="oldUrl" name="old_url"
                                        placeholder="/eski-sayfa-adresi"
-                                       data-validation-engine="validate[required,maxSize[2048]]">
+                                       data-validation-engine="validate[required,custom[sitePath],maxSize[500]]">
                             </div>
                             <small class="form-text text-clr-muted">/ ile başlamalıdır</small>
                         </div>

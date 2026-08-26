@@ -63,7 +63,11 @@
                 <div class="card-body-custom">
                     <textarea id="body"
                               name="body"
+                              data-validation-engine="validate[required]"
+                              data-prompt-target="body_error"
                               class="@error('body') is-invalid @enderror">{{ old('body', $template->body) }}</textarea>
+                    {{-- TinyMCE hides the textarea, so the message needs its own slot. --}}
+                    <div id="body_error"></div>
                     @error('body')
                         <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
                     @enderror

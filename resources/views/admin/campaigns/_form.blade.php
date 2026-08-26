@@ -37,7 +37,11 @@
                 <div class="stg-field">
                     <label class="stg-label" for="body">Mail Metni <span class="text-neon-red">*</span></label>
                     <textarea id="body" name="body" class="stg-textarea campaign-editor @error('body') is-invalid @enderror"
+                              data-validation-engine="validate[required]"
+                              data-prompt-target="body_error"
                               rows="18">{{ old('body', $campaign?->body) }}</textarea>
+                    {{-- The editor hides the textarea, so the message needs its own slot. --}}
+                    <div id="body_error"></div>
                     <small class="stg-hint">
                         Görsel eklemek için araç çubuğundaki resim düğmesini kullanın. Görseller mailin
                         içine gömülerek gönderilir, böylece alıcının mail programı görselleri engellese
