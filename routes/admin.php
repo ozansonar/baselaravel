@@ -148,7 +148,9 @@ Route::prefix('dil-yazilari')->name('translations.')->group(function () {
 // Diller
 Route::prefix('diller')->name('languages.')->group(function () {
     Route::get('/',                        [LanguageController::class, 'index'])->name('index');
+    Route::get('yeni',                     [LanguageController::class, 'create'])->name('create');
     Route::post('/',                       [LanguageController::class, 'store'])->name('store');
+    Route::get('{language}/duzenle',       [LanguageController::class, 'edit'])->name('edit');
     Route::put('{language}',               [LanguageController::class, 'update'])->name('update');
     Route::post('{language}/varsayilan',   [LanguageController::class, 'makeDefault'])->name('default');
     Route::delete('{language}',            [LanguageController::class, 'destroy'])->name('destroy');

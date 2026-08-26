@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\UpdateLanguageRequest;
 use App\Models\Language;
 use App\Services\LanguageService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
@@ -19,26 +20,103 @@ final class LanguageController extends Controller
         private readonly LanguageService $languages,
     ) {}
 
-    public function index(): View
+    private const PER_PAGE = [10, 25, 50];
+
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', Language::class);
 
-        $languages = Language::orderByDesc('is_default')
+        $translated = $this->translatedLocales();
+
+        $query = Language::query();
+
+        if (($search = $request->string('search')->toString()) !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('native_name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        match ($request->string('status')->toString()) {
+            'active'   => $query->where('is_active', true),
+            'inactive' => $query->where('is_active', false),
+            'default'  => $query->where('is_default', true),
+            default    => null,
+        };
+
+        // "Interface files" is a filesystem fact, not a column, so it filters on
+        // the codes found on disk rather than in SQL.
+        match ($request->string('files')->toString()) {
+            'yes'   => $query->whereIn('code', $translated ?: ['']),
+            'no'    => $query->whereNotIn('code', $translated ?: ['']),
+            default => null,
+        };
+
+        $languages = $query
+            ->orderByDesc('is_default')
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
+        $all = Language::all();
+
         return view('admin.languages.index', [
             'languages'    => $languages,
-            'translated'   => $this->translatedLocales(),
+            'translated'   => $translated,
             'contentStats' => $this->contentCounts(),
+            'filtered'     => $request->hasAny(['search', 'status', 'files']),
             'stats'        => [
-                'total'    => $languages->count(),
-                'active'   => $languages->where('is_active', true)->count(),
-                'inactive' => $languages->where('is_active', false)->count(),
-                'default'  => $languages->firstWhere('is_default', true)?->code,
+                'total'    => $all->count(),
+                'active'   => $all->where('is_active', true)->count(),
+                'inactive' => $all->where('is_active', false)->count(),
+                'default'  => $all->firstWhere('is_default', true)?->code,
             ],
         ]);
+    }
+
+    public function create(): View
+    {
+        $this->authorize('create', Language::class);
+
+        return view('admin.languages.create', [
+            'suggestions' => $this->suggestions(),
+        ]);
+    }
+
+    public function edit(Language $language): View
+    {
+        $this->authorize('update', $language);
+
+        return view('admin.languages.edit', [
+            'language'     => $language,
+            'hasFiles'     => $this->hasTranslationFiles($language->code),
+            'contentCount' => $this->contentCounts()[$language->code] ?? 0,
+        ]);
+    }
+
+    /**
+     * Common languages offered as one-click fills on the create form, so the
+     * code, name and flag do not have to be looked up by hand.
+     *
+     * @return array<int, array{code: string, name: string, native: string, flag: string}>
+     */
+    private function suggestions(): array
+    {
+        $existing = Language::pluck('code')->all();
+
+        return array_values(array_filter([
+            ['code' => 'tr', 'name' => 'Türkçe',    'native' => 'Türkçe',    'flag' => '🇹🇷'],
+            ['code' => 'en', 'name' => 'İngilizce', 'native' => 'English',   'flag' => '🇬🇧'],
+            ['code' => 'de', 'name' => 'Almanca',   'native' => 'Deutsch',   'flag' => '🇩🇪'],
+            ['code' => 'fr', 'name' => 'Fransızca', 'native' => 'Français',  'flag' => '🇫🇷'],
+            ['code' => 'it', 'name' => 'İtalyanca', 'native' => 'Italiano',  'flag' => '🇮🇹'],
+            ['code' => 'es', 'name' => 'İspanyolca','native' => 'Español',   'flag' => '🇪🇸'],
+            ['code' => 'ru', 'name' => 'Rusça',     'native' => 'Русский',   'flag' => '🇷🇺'],
+            ['code' => 'ar', 'name' => 'Arapça',    'native' => 'العربية',    'flag' => '🇸🇦'],
+            ['code' => 'nl', 'name' => 'Felemenkçe','native' => 'Nederlands','flag' => '🇳🇱'],
+            ['code' => 'pt', 'name' => 'Portekizce','native' => 'Português', 'flag' => '🇵🇹'],
+        ], fn (array $row): bool => ! in_array($row['code'], $existing, true)));
     }
 
     public function store(StoreLanguageRequest $request): RedirectResponse

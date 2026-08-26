@@ -88,6 +88,101 @@ class LanguagePanelTest extends TestCase
         $this->assertStringContainsString('lang/de/ klasörü yok', $html);
     }
 
+    public function test_the_list_can_be_searched(): void
+    {
+        $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['search' => 'deu']))
+            ->assertOk()
+            ->assertSee('Deutsch')
+            ->assertDontSee('Italiano');
+    }
+
+    public function test_the_list_can_be_filtered_by_status(): void
+    {
+        $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['status' => 'inactive']))
+            ->assertOk()
+            ->assertSee('Deutsch')
+            ->assertDontSee('>Türkçe<', false);
+    }
+
+    /**
+     * "Has interface files" is a filesystem fact, not a column, so the filter
+     * has to work off the codes found on disk.
+     */
+    public function test_the_list_can_be_filtered_by_interface_files(): void
+    {
+        $withFiles = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['files' => 'yes']))
+            ->getContent();
+
+        $withoutFiles = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['files' => 'no']))
+            ->getContent();
+
+        // tr and en ship with lang/ directories; de, fr and it do not.
+        $this->assertStringContainsString('Türkçe', $withFiles);
+        $this->assertStringNotContainsString('Italiano', $withFiles);
+
+        $this->assertStringContainsString('Italiano', $withoutFiles);
+        $this->assertStringNotContainsString('>English<', $withoutFiles);
+    }
+
+    /**
+     * The counters describe the whole list, not the filtered slice — otherwise
+     * filtering would look like languages had disappeared.
+     */
+    public function test_the_counters_ignore_the_filter(): void
+    {
+        $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['search' => 'deu']))
+            ->assertOk()
+            ->assertSee('data-count="5"', false);
+    }
+
+    // ── Sayfalar ──
+
+    public function test_the_create_page_opens(): void
+    {
+        $this->actingAs($this->manager())
+            ->get(route('admin.languages.create'))
+            ->assertOk()
+            ->assertSee('Yeni Dil')
+            ->assertSee('name="code"', false);
+    }
+
+    /**
+     * A language already defined must not be offered as a quick fill.
+     */
+    public function test_the_create_page_only_suggests_languages_not_yet_added(): void
+    {
+        $html = $this->actingAs($this->manager())->get(route('admin.languages.create'))->getContent();
+
+        $this->assertStringContainsString('data-code="es"', $html);
+        $this->assertStringNotContainsString('data-code="tr"', $html);
+    }
+
+    public function test_the_edit_page_opens_with_the_current_values(): void
+    {
+        $german = Language::where('code', 'de')->firstOrFail();
+
+        $this->actingAs($this->manager())
+            ->get(route('admin.languages.edit', $german))
+            ->assertOk()
+            ->assertSee('Deutsch')
+            ->assertSee('value="de"', false);
+    }
+
+    public function test_editing_needs_the_manage_permission(): void
+    {
+        $viewer = $this->userWith([PermissionKey::LanguagesView]);
+
+        $this->actingAs($viewer)->get(route('admin.languages.create'))->assertForbidden();
+        $this->actingAs($viewer)
+            ->get(route('admin.languages.edit', Language::where('code', 'de')->firstOrFail()))
+            ->assertForbidden();
+    }
+
     // ── Ekleme ──
 
     public function test_a_language_can_be_added(): void
