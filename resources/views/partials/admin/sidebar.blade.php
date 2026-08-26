@@ -168,6 +168,14 @@
         @endcan
 
 
+        @can('viewAny', \App\Models\Language::class)
+        <a href="{{ route('admin.languages.index') }}"
+           class="nav-link {{ Route::is('admin.languages.*') ? 'active' : '' }}">
+            <i class="bi bi-translate"></i> Diller
+        </a>
+        @endcan
+
+
         @can('viewAny', \App\Models\Campaign::class)
         <a href="{{ route('admin.campaigns.index') }}"
            class="nav-link {{ Route::is('admin.campaigns.*') ? 'active' : '' }}">

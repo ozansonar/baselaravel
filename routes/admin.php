@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\SliderController;
@@ -134,6 +135,15 @@ Route::prefix('menus')->name('menus.')->group(function () {
     Route::put('items/{item}', [MenuItemController::class, 'update'])->name('items.update');
     Route::delete('items/{item}', [MenuItemController::class, 'destroy'])->name('items.destroy');
     Route::patch('items/{item}/restore', [MenuItemController::class, 'restore'])->name('items.restore')->withTrashed();
+});
+
+// Diller
+Route::prefix('diller')->name('languages.')->group(function () {
+    Route::get('/',                        [LanguageController::class, 'index'])->name('index');
+    Route::post('/',                       [LanguageController::class, 'store'])->name('store');
+    Route::put('{language}',               [LanguageController::class, 'update'])->name('update');
+    Route::post('{language}/varsayilan',   [LanguageController::class, 'makeDefault'])->name('default');
+    Route::delete('{language}',            [LanguageController::class, 'destroy'])->name('destroy');
 });
 
 // Mail kampanyaları (toplu gönderim)

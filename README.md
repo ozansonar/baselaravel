@@ -228,12 +228,34 @@ ekleyip izinlerini matristen verebilirsin.
 
 ## Çok dilli yapı
 
-Site birden fazla dilde yayınlanabilir. Diller **Ayarlar → Diller** ekranından
+Site birden fazla dilde yayınlanabilir. Diller **Admin → Diller** ekranından
 yönetilir; yeni dil eklemek için kod değiştirmek gerekmez. Kurulumla Türkçe
-(varsayılan) ve İngilizce aktif, Almanca/Fransızca/İtalyanca pasif gelir.
+(varsayılan) ve İngilizce yayında, Almanca/Fransızca/İtalyanca pasif gelir.
 
-**Tam olarak bir varsayılan dil** olur. Varsayılan dil pasife alınamaz ve
-silinemez; başka bir dili varsayılan yapmak öncekinin işaretini kaldırır.
+### Diller ekranı
+
+| İşlem | Nasıl |
+|---|---|
+| **Ekle** | "Dil Ekle" → iki harfli kod (`de`), ad, kendi dilindeki ad, bayrak emojisi |
+| **Güncelle** | Satırdaki kalem düğmesi |
+| **Yayına al / kaldır** | Düzenleme penceresindeki "Yayında" anahtarı |
+| **Varsayılan yap** | Satırdaki yıldız düğmesi |
+| **Sil** | Satırdaki çöp kutusu |
+
+Liste her dil için şunları gösterir: yayında mı, **arayüz çeviri dosyası var mı**
+(`lang/{kod}/`) ve o dilde kaç içerik kaydı olduğu — bir dili kaldırmadan önce
+neyin gizleneceğini görürsün.
+
+**Tam olarak bir varsayılan dil** olur ve bu kural arayüzde de uygulanır:
+varsayılan dilin silme ve varsayılan-yapma düğmeleri hiç görünmez, "Yayında"
+anahtarı kapatılamaz. Başka bir dili varsayılan yapmak öncekinin işaretini
+kaldırır; pasif bir dili varsayılan yaparsan otomatik yayına alınır. Son dil
+silinemez.
+
+> Yeni bir dil eklediğinde **içerik** hemen panelden dil sekmeleriyle girilebilir.
+> **Arayüz metinleri** için `lang/tr/` klasörünü yeni dil koduyla kopyalayıp
+> çevirmen gerekir; o zamana kadar arayüz varsayılan dilde görünür (ham anahtar
+> basılmaz). Ekran hangi dillerde bu dosyaların eksik olduğunu işaretler.
 
 ### Ziyaretçi hangi dili görür
 
@@ -426,6 +448,8 @@ composer test
   kullanılan her anahtarın tanımlı olması, arayüzün tarayıcı diline uyması
 - `LocalizedMenuTest` — dile göre navigasyon, menüsü olmayan dilin varsayılana
   düşmesi, menünün başka bir dile kopyalanması
+- `LanguagePanelTest` — dil ekleme/güncelleme/silme ekranı, "tek varsayılan"
+  kuralının her değişiklikten sonra korunması, yetki ayrımı
 
 ---
 

@@ -41,6 +41,8 @@ enum PermissionKey: string
     case FilesManage = 'files.manage';
     case FilesDelete = 'files.delete';
     case EditorUpload = 'editor.upload';
+    case LanguagesView = 'languages.view';
+    case LanguagesManage = 'languages.manage';
     case CampaignsView = 'campaigns.view';
     case CampaignsManage = 'campaigns.manage';
     case CampaignsSend = 'campaigns.send';
@@ -102,6 +104,8 @@ enum PermissionKey: string
             self::PopupsView => 'Popupları görüntüle',
             self::PopupsManage => 'Popup ekle ve düzenle',
             self::PopupsDelete => 'Popup sil',
+            self::LanguagesView => 'Dilleri görüntüle',
+            self::LanguagesManage => 'Dil ekle, düzenle ve sil',
             self::CampaignsView => 'Mail kampanyalarını görüntüle',
             self::CampaignsManage => 'Kampanya oluştur ve düzenle',
             self::CampaignsSend => 'Kampanya gönderimini başlat',
@@ -172,6 +176,8 @@ enum PermissionKey: string
             self::PopupsView => PermissionGroup::Content,
             self::PopupsManage => PermissionGroup::Content,
             self::PopupsDelete => PermissionGroup::Content,
+            self::LanguagesView,
+            self::LanguagesManage => PermissionGroup::System,
             self::CampaignsView,
             self::CampaignsManage,
             self::CampaignsSend,

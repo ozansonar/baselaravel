@@ -728,6 +728,41 @@ dosya bu çağrıları neden yasak olduklarını anlatmak için zaten adıyla an
 
 ---
 
+## 5k. Diller Ekranı — ✅ Eksik Tamamlandı
+
+Çok dilli yapı kurulurken `LanguageService` tüm kuralları taşıyordu ve servis
+seviyesinde test edilmişti, ama **panelde arayüzü hiç yapılmamıştı**. Diller
+yalnızca seeder'dan geliyordu; yeni dil eklemek veya çıkarmak için veritabanına
+elle dokunmak gerekiyordu.
+
+**Admin → Diller** ekranı eklendi: listeleme, ekleme, güncelleme, yayına
+alma/kaldırma, varsayılan yapma, silme.
+
+Ekran her dil için yayın durumunu, **arayüz çeviri dosyasının var olup
+olmadığını** (`lang/{kod}/site.php`) ve o dilde kaç içerik kaydı bulunduğunu
+gösteriyor — bir dil kaldırılmadan önce neyin gizleneceği görünüyor.
+
+"Tek varsayılan" kuralı arayüzde de uygulanıyor: varsayılan dilin silme ve
+varsayılan-yapma düğmeleri render edilmiyor, "Yayında" anahtarı disabled.
+Sunucu tarafı bunlara güvenmiyor, `LanguageService` aynı kuralları yeniden
+uyguluyor.
+
+### Yol üzerinde bulunan hata
+
+`$request->boolean('is_active', true)` işaretlenmemiş kutuyu da `true`
+yapıyordu — işaretsiz checkbox istekte hiç yer almadığı için varsayılan devreye
+giriyor ve **hiçbir dil formdan pasife alınamıyordu.** Varsayılan `false` oldu.
+
+### Testler
+
+`LanguagePanelTest` (21): ekran listeleme, çeviri dosyası eksikliği uyarısı,
+ekleme (kod doğrulama, büyük harf normalizasyonu, tekrar reddi), güncelleme,
+yayına alma/kaldırma, varsayılanın kapatılamaması, dört ardışık varsayılan
+değişikliğinden sonra hâlâ tek varsayılan olması, silme kısıtları, yetki
+ayrımı, değişikliğin ön yüz dil seçicisine ve `hreflang` etiketlerine yansıması.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
