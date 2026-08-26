@@ -22,7 +22,12 @@ kod yorumları ve değişken isimleri İngilizce olsun.
   görev hata vermeden **hiç çalışmaz** → `docs/SHARED-HOSTING.md`
 - `queue:work` → YASAK (pcntl yok), kuyruk `Queue::pop()` + `fire()` ile işlenir
 - Vite, npm, Node.js, Webpack → YASAK
-- jQuery, React, Vue, Angular, Livewire, Inertia → YASAK
+- React, Vue, Angular, Livewire, Inertia → YASAK
+- jQuery → sadece **jQuery Validation Engine 3.1.0** için yüklüdür (admin layout).
+  Başka hiçbir amaçla jQuery kullanma → YASAK, kendi kodun vanilla JS olacak
+- Form doğrulama: HTML5 validation (`required`, `type=email`, `minlength`) → YASAK.
+  Kurallar alanlara `data-validation-engine="validate[...]"` ile yazılır, form
+  `data-validate novalidate` ile devreye girer → `public/assets/admin/js/form-validation.js`
 - Inline style (`style="..."`) → YASAK, her zaman class kullan
 - Duplicate kod → YASAK, component/partial yap
 - SoftDeletes → HER MODELDE ZORUNLU
