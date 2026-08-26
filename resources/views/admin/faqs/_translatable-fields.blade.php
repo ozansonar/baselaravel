@@ -7,8 +7,37 @@
     @var \App\Models\Language $language
     @var \App\Models\Faq|null $translation
 --}}
+                {{-- Mobile Section Jumper --}}
+                <div class="d-lg-none mb-4">
+                    <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+                        <option value="" disabled selected>Bölüme git...</option>
+                        <option value="section-basic_{{ $language->code }}">Soru & Cevap</option>
+                        <option value="section-settings_{{ $language->code }}">Ayarlar</option>
+                    </select>
+                </div>
+
+                {{-- Form Layout --}}
+                <div class="row g-4 align-items-start">
+
+                    {{-- Sol Navigasyon (yalnızca desktop) --}}
+                    <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right" data-aos-delay="100">
+                        <div class="stg-nav-inner position-sticky stg-nav-sticky">
+                            <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic_{{ $language->code }}', this)">
+                                <i class="bi bi-question-circle"></i>
+                                <div><span>Soru & Cevap</span><small>Soru metni, cevabı</small></div>
+                            </a>
+                            <a href="#section-settings_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-settings_{{ $language->code }}', this)">
+                                <i class="bi bi-gear"></i>
+                                <div><span>Ayarlar</span><small>Sıralama, durum</small></div>
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Form İçeriği --}}
+                    <div class="col-12 col-lg-9">
+
                 {{-- Soru & Cevap --}}
-                <div class="card-dark mb-4" data-aos="fade-up">
+                <div class="card-dark mb-4" id="section-basic_{{ $language->code }}" data-aos="fade-up">
                     <div class="card-header-custom">
                         <div class="form-section-header mb-0">
                             <div class="form-section-icon bg-icon-teal"><i class="bi bi-question-circle"></i></div>
@@ -51,7 +80,7 @@
                 </div>
 
                 {{-- Ayarlar --}}
-                <div class="card-dark mb-4" data-aos="fade-up">
+                <div class="card-dark mb-4" id="section-settings_{{ $language->code }}" data-aos="fade-up">
                     <div class="card-header-custom">
                         <div class="form-section-header mb-0">
                             <div class="form-section-icon bg-icon-purple"><i class="bi bi-gear"></i></div>
@@ -88,3 +117,6 @@
                         </div>
                     </div>
                 </div>
+
+                    </div><!-- /col-12 col-lg-9 -->
+                </div><!-- /row -->
