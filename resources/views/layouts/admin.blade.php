@@ -26,6 +26,8 @@
     <link href="{{ asset('assets/vendor/dropzone/dropzone.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/jquery-validation-engine/css/validationEngine.jquery.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/select2/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/select2/css/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet">
     <link href="{{ versioned_asset('assets/admin/css/styles.css') }}" rel="stylesheet">
 
     @stack('styles')
@@ -70,6 +72,9 @@
 <script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
 <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine-tr.js') }}"></script>
 <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/js/select2.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/js/i18n/tr.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/js/i18n/en.js') }}"></script>
 <script src="{{ asset('assets/vendor/dropzone/dropzone.min.js') }}"></script>
 <script>Dropzone.autoDiscover = false;</script>
 <script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
@@ -80,6 +85,7 @@
 <script src="{{ versioned_asset('assets/admin/js/language-tabs.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/section-nav.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/form-validation.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/select2-init.js') }}"></script>
 @if(Route::has('admin.notifications.recent'))
 <script src="{{ versioned_asset('assets/admin/js/notification-bell.js') }}"></script>
 @endif
