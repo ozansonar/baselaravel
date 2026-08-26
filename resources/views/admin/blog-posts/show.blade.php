@@ -10,15 +10,18 @@
     if ($post->trashed()) {
         $statusBadge = 'inactive';
         $statusLabel = 'Silinmiş';
-    } elseif ($post->is_published && $post->published_at?->lte(now())) {
+    } elseif ($post->status === \App\Enums\ContentStatus::Published && $post->published_at?->lte(now())) {
         $statusBadge = 'active';
         $statusLabel = 'Yayında';
-    } elseif ($post->is_published && $post->published_at?->gt(now())) {
+    } elseif ($post->status === \App\Enums\ContentStatus::Published) {
         $statusBadge = 'info';
         $statusLabel = 'Zamanlanmış';
+    } elseif ($post->status === \App\Enums\ContentStatus::Archived) {
+        $statusBadge = 'inactive';
+        $statusLabel = 'Arşivlendi';
     }
 
-    $frontUrl = $post->is_published && $post->published_at?->lte(now())
+    $frontUrl = $post->status === \App\Enums\ContentStatus::Published && $post->published_at?->lte(now())
         ? route('blog.show', [$post->category->slug, $post->slug])
         : null;
 @endphp

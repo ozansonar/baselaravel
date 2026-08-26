@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\ContentStatus;
 use App\Models\BlogPost;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -100,11 +101,14 @@ final class BlogService
 
         if (isset($filters['status'])) {
             match ($filters['status']) {
-                'published' => $query->where('is_published', true)
+                // "Scheduled" is not stored; it is the published state with a
+                // date that has not arrived yet.
+                'published' => $query->where('status', ContentStatus::Published)
                     ->where('published_at', '<=', now()),
-                'draft'     => $query->where('is_published', false),
-                'scheduled' => $query->where('is_published', true)
+                'draft'     => $query->where('status', ContentStatus::Draft),
+                'scheduled' => $query->where('status', ContentStatus::Published)
                     ->where('published_at', '>', now()),
+                'archived'  => $query->where('status', ContentStatus::Archived),
                 'trashed'   => $query->onlyTrashed(),
                 default     => null,
             };
@@ -135,12 +139,14 @@ final class BlogService
     public function getAdminStats(): array
     {
         return Cache::remember('blog.admin_stats', 300, function (): array {
+            // "Published" means live on the site, so the date has to have
+            // arrived — same rule the status tabs and the front use.
             $counts = BlogPost::withTrashed()->selectRaw("
                 COUNT(DISTINCT CASE WHEN deleted_at IS NULL THEN lang_group_id END) as total,
-                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_published = 1 THEN lang_group_id END) as published,
-                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_published = 0 THEN lang_group_id END) as draft,
+                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND status = 'published' AND published_at <= ? THEN lang_group_id END) as published,
+                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND status = 'draft' THEN lang_group_id END) as draft,
                 COALESCE(SUM(CASE WHEN deleted_at IS NULL THEN views ELSE 0 END), 0) as total_views
-            ")->first();
+            ", [now()])->first();
 
             return [
                 'total'       => (int) $counts->total,
@@ -160,9 +166,10 @@ final class BlogService
 
         $counts = BlogPost::withTrashed()
             ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-            ->selectRaw('count(distinct case when deleted_at is null and is_published = 1 and published_at <= ? then lang_group_id end) as published', [$now])
-            ->selectRaw('count(distinct case when deleted_at is null and is_published = 0 then lang_group_id end) as draft')
-            ->selectRaw('count(distinct case when deleted_at is null and is_published = 1 and published_at > ? then lang_group_id end) as scheduled', [$now])
+            ->selectRaw("count(distinct case when deleted_at is null and status = 'published' and published_at <= ? then lang_group_id end) as published", [$now])
+            ->selectRaw("count(distinct case when deleted_at is null and status = 'draft' then lang_group_id end) as draft")
+            ->selectRaw("count(distinct case when deleted_at is null and status = 'published' and published_at > ? then lang_group_id end) as scheduled", [$now])
+            ->selectRaw("count(distinct case when deleted_at is null and status = 'archived' then lang_group_id end) as archived")
             ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
             ->first();
 
@@ -171,6 +178,7 @@ final class BlogService
             'published' => (int) $counts->published,
             'draft'     => (int) $counts->draft,
             'scheduled' => (int) $counts->scheduled,
+            'archived'  => (int) $counts->archived,
             'trashed'   => (int) $counts->trashed,
         ];
     }
@@ -214,10 +222,31 @@ final class BlogService
     }
 
     /**
+     * A post set to "published" with no date would never surface: the front
+     * only shows posts whose date has arrived. Publishing without picking a
+     * date therefore means "now", which is what the form promises.
+     *
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    private function normalizePublishDate(array $fields): array
+    {
+        $status = $fields['status'] ?? null;
+        $published = $status === ContentStatus::Published->value || $status === ContentStatus::Published;
+
+        if ($published && empty($fields['published_at'])) {
+            $fields['published_at'] = now();
+        }
+
+        return $fields;
+    }
+
+    /**
      * Save a post in every language the form supplied.
      *
-     * The publish flag and the author come from outside the language blocks:
-     * publishing is a decision about the post, not about one translation.
+     * The author comes from outside the language blocks; the publish state is
+     * per language, so a Turkish version can be live while the English one is
+     * still a draft.
      *
      * @param array<string, array<string, mixed>> $translations locale => fields
      * @param array<string, mixed> $shared
@@ -228,7 +257,7 @@ final class BlogService
             BlogPost::class,
             $translations,
             fn (array $fields, string $locale, ?BlogPost $existing, ?BlogPost $default): array =>
-                $this->prepareImageField($fields + $shared, $existing, 'blog', 'title', 'image', $default),
+                $this->prepareImageField($this->normalizePublishDate($fields) + $shared, $existing, 'blog', 'title', 'image', $default),
         );
 
         $this->clearCache();
@@ -246,7 +275,7 @@ final class BlogService
             BlogPost::class,
             $translations,
             fn (array $fields, string $locale, ?BlogPost $existing, ?BlogPost $default): array =>
-                $this->prepareImageField($fields + $shared, $existing, 'blog', 'title', 'image', $default),
+                $this->prepareImageField($this->normalizePublishDate($fields) + $shared, $existing, 'blog', 'title', 'image', $default),
             $post->lang_group_id,
         );
 

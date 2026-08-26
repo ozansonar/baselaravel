@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CommentStatus;
+use App\Enums\ContentStatus;
 use App\Traits\HasSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,7 +35,7 @@ class BlogPost extends Model
         'image',
         'meta_title',
         'meta_description',
-        'is_published',
+        'status',
         'published_at',
         'views',
     ];
@@ -43,7 +44,7 @@ class BlogPost extends Model
     {
         return [
             'blog_category_id' => 'integer',
-            'is_published'     => 'boolean',
+            'status'           => ContentStatus::class,
             'published_at'     => 'datetime',
             'views'            => 'integer',
         ];
@@ -94,7 +95,7 @@ class BlogPost extends Model
      */
     public function scopePublished(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->where('is_published', true)
+        return $query->where('status', ContentStatus::Published)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
     }

@@ -33,11 +33,8 @@
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button type="submit" name="is_published" value="0" class="btn-glass">
-            <i class="bi bi-file-earmark me-1"></i>Taslak Kaydet
-          </button>
-          <button type="submit" name="is_published" value="1" class="btn-teal">
-            <i class="bi bi-send me-1"></i>Yayınla
+          <button type="submit" class="btn-teal">
+            <i class="bi bi-check-lg me-1"></i>Kaydet
           </button>
         </div>
       </div>
@@ -85,11 +82,8 @@
                   </a>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                  <button type="submit" name="is_published" value="0" class="btn-glass">
-                    <i class="bi bi-file-earmark me-1"></i>Taslak Kaydet
-                  </button>
-                  <button type="submit" name="is_published" value="1" class="btn-teal">
-                    <i class="bi bi-send me-1"></i>İçeriği Yayınla
+                  <button type="submit" class="btn-teal">
+                    <i class="bi bi-check-lg me-1"></i>İçeriği Kaydet
                   </button>
                 </div>
               </div>

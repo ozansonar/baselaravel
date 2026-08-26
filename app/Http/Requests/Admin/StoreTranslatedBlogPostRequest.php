@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\ContentStatus;
 use App\Models\BlogPost;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 /**
  * A blog post arrives as one block of fields per language.
@@ -23,6 +25,12 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTranslatedBlogPostRequest extends FormRequest
 {
+    /** Fields that say a translation was actually written. */
+    private const CONTENT_FIELDS = [
+        'title', 'slug', 'excerpt', 'body', 'meta_title', 'meta_description',
+    ];
+
+
     public function authorize(): bool
     {
         return true;
@@ -46,7 +54,6 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
 
                 $fail('En az bir dilde içerik girmelisiniz.');
             }],
-            'is_published'  => ['nullable', 'boolean'],
         ];
 
         foreach ($languages->activeCodes() as $locale) {
@@ -71,6 +78,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
+            $rules["{$prefix}.status"]           = ['nullable', new Enum(ContentStatus::class)];
         }
 
         return $rules;
@@ -102,16 +110,20 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
     }
 
     /**
-     * Whether the editor put anything into this language block. HTML is
-     * stripped first, because an empty rich text editor still posts markup.
+     * Whether the editor put anything into this language block.
+     *
+     * Only the content fields count: the status select always posts a value,
+     * so counting it would make every untouched tab look started. HTML is
+     * stripped as well, because an empty rich text editor still posts markup.
      */
     private function hasContent(string $locale): bool
     {
         $fields = (array) $this->input("translations.{$locale}", []);
 
         $written = array_any(
-            $fields,
-            fn (mixed $value): bool => is_scalar($value) && trim(strip_tags((string) $value)) !== '',
+            self::CONTENT_FIELDS,
+            fn (string $field): bool => is_scalar($fields[$field] ?? null)
+                && trim(strip_tags((string) $fields[$field])) !== '',
         );
 
         return $written || (array) $this->file("translations.{$locale}", []) !== [];
