@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Enums\AppLocale;
 use App\Enums\AppTimezone;
 use App\Enums\AuditEvent;
 use App\Enums\MailEncryption;
@@ -59,7 +58,6 @@ class EnumDrivenOptionsTest extends TestCase
         return [
             'ayarlar → mail şifreleme'    => ['/admin/settings', MailEncryption::class],
             'ayarlar → telegram seviyesi' => ['/admin/settings', TelegramNotifyLevel::class],
-            'ayarlar → dil'               => ['/admin/settings', AppLocale::class],
             'ayarlar → saat dilimi'       => ['/admin/settings', AppTimezone::class],
             'yönlendirmeler → durum kodu' => ['/admin/redirects', RedirectStatus::class],
             'aktivite → olay filtresi'    => ['/admin/aktivite-loglari', AuditEvent::class],

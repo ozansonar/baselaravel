@@ -14,6 +14,7 @@ use App\Models\Campaign;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
+use App\Models\Setting;
 use App\Models\Redirect;
 use App\Models\User;
 use App\Observers\BlogCategoryObserver;
@@ -73,6 +74,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->applyConfiguredTimezone();
+
         Schema::defaultStringLength(191);
 
         // Carbon locale Türkçe — translatedFormat / isoFormat / diffForHumans
@@ -175,5 +178,31 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             });
         });
+    }
+
+    /**
+     * Apply the timezone chosen in the panel.
+     *
+     * Deliberately here rather than in a middleware: the scheduler runs in the
+     * console, where middleware never fires. With it in a middleware the site
+     * and the cron wrote timestamps in two different timezones — into the same
+     * columns.
+     */
+    private function applyConfiguredTimezone(): void
+    {
+        try {
+            $timezone = Setting::getValue('app_timezone');
+        } catch (\Throwable) {
+            // Before the settings table exists (a fresh clone, mid-migration)
+            // the config default is the right answer.
+            return;
+        }
+
+        if (! is_string($timezone) || $timezone === '' || ! in_array($timezone, timezone_identifiers_list(), true)) {
+            return;
+        }
+
+        config(['app.timezone' => $timezone]);
+        date_default_timezone_set($timezone);
     }
 }
