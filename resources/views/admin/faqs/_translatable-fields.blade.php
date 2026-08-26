@@ -27,7 +27,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.question") is-invalid @enderror"
                                        id="question_{{ $language->code }}" name="translations[{{ $language->code }}][question]"
-                                       data-validation-engine="validate[maxSize[500],condRequired[answer_{{ $language->code }}]]" value="{{ old("translations.{$language->code}.question", $translation?->question) }}"
+                                       data-validation-engine="validate[required,maxSize[500]]" value="{{ old("translations.{$language->code}.question", $translation?->question) }}"
                                        placeholder="Soruyu girin...">
                                 @error("translations.{$language->code}.question")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -40,7 +40,7 @@
                                 </label>
                                 <textarea class="form-control @error("translations.{$language->code}.answer") is-invalid @enderror"
                                           id="answer_{{ $language->code }}" name="translations[{{ $language->code }}][answer]"
-                                       data-validation-engine="validate[maxSize[10000],condRequired[question_{{ $language->code }}]]" rows="6"
+                                       data-validation-engine="validate[required,maxSize[10000]]" rows="6"
                                           placeholder="Cevabı yazın...">{{ old("translations.{$language->code}.answer", $translation?->answer) }}</textarea>
                                 @error("translations.{$language->code}.answer")
                                 <div class="invalid-feedback">{{ $message }}</div>

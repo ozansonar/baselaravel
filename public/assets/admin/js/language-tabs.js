@@ -29,92 +29,73 @@
         });
     }
 
-    // ==================== CLEARING A LANGUAGE ====================
+    // ==================== SAVE BUTTON LABELS ====================
 
-    /** Puts one language tab back to the state it had before anyone typed. */
-    function clearPane(pane) {
-        pane.querySelectorAll('input, select, textarea').forEach(function (field) {
-            if (field.type === 'hidden') {
-                return;
-            }
+    /**
+     * Saving concerns the tab on screen, so the button says which language it
+     * is about. "Kaydet" on its own reads like it saves everything.
+     */
+    function labelSpanOf(button) {
+        var span = button.querySelector('.lang-save-label');
 
-            if (field.type === 'checkbox' || field.type === 'radio') {
-                field.checked = false;
-
-                return;
-            }
-
-            if (field.tagName === 'SELECT') {
-                field.value = field.options.length ? field.options[0].value : '';
-
-                return;
-            }
-
-            // A sort order goes back to its default rather than to nothing.
-            field.value = field.dataset.fvDefault !== undefined ? field.dataset.fvDefault : '';
-        });
-
-        // Rich text editors keep their own copy of the content.
-        if (window.tinymce) {
-            pane.querySelectorAll('textarea').forEach(function (textarea) {
-                var editor = window.tinymce.get(textarea.id);
-
-                if (editor) {
-                    editor.setContent('');
-                }
-            });
+        if (span) {
+            return span;
         }
 
-        // Findings about fields that no longer hold anything.
-        pane.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
-        pane.querySelectorAll('.formError').forEach(function (el) { el.remove(); });
+        var text = '';
+
+        Array.prototype.slice.call(button.childNodes).forEach(function (node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                text += node.textContent;
+                button.removeChild(node);
+            }
+        });
+
+        span = document.createElement('span');
+        span.className = 'lang-save-label';
+        span.dataset.base = text.trim();
+        button.appendChild(span);
+
+        return span;
     }
 
-    function activePaneOf(listId) {
-        var list = document.getElementById(listId);
-        var active = list ? list.querySelector('.lang-tabs__btn.active') : null;
-        var target = active ? active.getAttribute('data-bs-target') : null;
+    function languageNameOf(button) {
+        var name = button.querySelector('span:not([class])');
 
-        return target ? document.querySelector(target) : null;
+        return name ? name.textContent.trim() : (button.dataset.locale || '').toUpperCase();
     }
 
-    function initClearButtons() {
-        document.addEventListener('click', function (event) {
-            var button = event.target.closest('[data-lang-clear]');
+    function labelSaveButtons(list) {
+        var form = list.closest('form');
+        var active = list.querySelector('.lang-tabs__btn.active');
 
-            if (!button) {
-                return;
-            }
+        if (!form || !active) {
+            return;
+        }
 
-            var listId = button.getAttribute('data-lang-clear');
-            var pane = activePaneOf(listId);
+        var language = languageNameOf(active);
 
-            if (!pane || typeof AdminModal === 'undefined') {
-                return;
-            }
+        Array.prototype.filter.call(
+            document.querySelectorAll('button[type="submit"], input[type="submit"]'),
+            function (button) { return button.form === form; }
+        ).forEach(function (button) {
+            var span = labelSpanOf(button);
+            span.textContent = span.dataset.base + ' · ' + language;
+        });
+    }
 
-            // The tab holds a flag, a name and sometimes a badge; the plain
-            // span is the language name.
-            var active = document.getElementById(listId).querySelector('.lang-tabs__btn.active');
-            var name = active.querySelector('span:not([class])');
-            var label = name ? name.textContent.trim() : (active.dataset.locale || '').toUpperCase();
+    function initSaveLabels() {
+        document.querySelectorAll('.lang-tabs').forEach(function (list) {
+            labelSaveButtons(list);
 
-            AdminModal.confirm({
-                title: 'Bu dili temizle',
-                message: label + ' sekmesindeki bütün girdiler silinecek. Diğer diller etkilenmez.',
-                type: 'warning',
-                confirmText: 'Evet, temizle',
-                confirmIcon: 'bi bi-eraser'
-            }).then(function (confirmed) {
-                if (confirmed) {
-                    clearPane(pane);
-                }
+            list.querySelectorAll('.lang-tabs__btn').forEach(function (button) {
+                button.addEventListener('shown.bs.tab', function () { labelSaveButtons(list); });
             });
         });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         initLanguageTabs();
-        initClearButtons();
+        initSaveLabels();
     });
 })();

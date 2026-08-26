@@ -8,24 +8,13 @@
     $code = $language->code;
 
     /**
-     * Client side rules for jQuery Validation Engine, mirroring
-     * StoreTranslatedBlogCategoryRequest: no language is mandatory by itself,
-     * but a tab the editor started filling has to carry a name.
+     * Client side rules for jQuery Validation Engine.
      *
-     * Only the content fields count — sort order and the visibility switch
-     * always carry a value, so they would make every tab look "started".
-     * condRequired has to come last: the plugin reads every entry after it as
-     * a field id.
+     * Only the tab on screen is validated, so a field is either required or it
+     * is not.
      */
-    $contentFields = ['name', 'icon'];
-
-    $rules = function (string $self, array $extra = []) use ($contentFields, $code): string {
-        $others = array_map(
-            static fn (string $field): string => $field . '_' . $code,
-            array_values(array_diff($contentFields, [$self])),
-        );
-
-        return 'validate[' . implode(',', array_merge($extra, ['condRequired[' . implode(',', $others) . ']'])) . ']';
+    $rules = function (array $extra = []): string {
+        return 'validate[' . implode(',', array_merge(['required'], $extra)) . ']';
     };
 @endphp
 
@@ -85,7 +74,7 @@
                                 value="{{ old("translations.{$code}.name", $translation?->name) }}"
                                 placeholder="Kategori adını yazın..."
                                 maxlength="255"
-                                data-validation-engine="{{ $rules('name', ['maxSize[255]']) }}"
+                                data-validation-engine="{{ $rules(['maxSize[255]']) }}"
                             >
                             @error("translations.{$code}.name")
                             <div class="invalid-feedback">{{ $message }}</div>

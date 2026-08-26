@@ -32,7 +32,7 @@
                                 class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                 id="title_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][title]"
-                                       data-validation-engine="validate[maxSize[255],condRequired[slug_{{ $language->code }},excerpt_{{ $language->code }},content_{{ $language->code }},meta_title_{{ $language->code }},meta_description_{{ $language->code }}]]"
+                                       data-validation-engine="validate[required,maxSize[255]]"
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
                                 oninput="generateSlug(this.value); updateCharCounter(this, 120); updateSeoPreview()"
@@ -117,7 +117,7 @@
                                 class="@error("translations.{$language->code}.content") is-invalid @enderror"
                                 id="content_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][content]"
-                                       data-validation-engine="validate[condRequired[title_{{ $language->code }},slug_{{ $language->code }},excerpt_{{ $language->code }},meta_title_{{ $language->code }},meta_description_{{ $language->code }}]]"
+                                       data-validation-engine="validate[required]"
                                 data-prompt-target="content_error_{{ $language->code }}"
                                 rows="12"
                             >{{ old("translations.{$language->code}.content", $translation?->content) }}</textarea>

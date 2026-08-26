@@ -45,14 +45,6 @@
         </div>
       </div>
 
-
-          {{-- The value is not posted anywhere; it is there because the plugin
-               discards findings on a field whose own value is empty. --}}
-          <input type="hidden" id="langGuard" value="1" data-fv-modal
-                 data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
-                 data-prompt-target="langGuardError">
-          <div id="langGuardError" class="d-none"></div>
-
           {{-- Her dil kendi sekmesinde --}}
           <x-language-tabs :languages="$formLanguages" :model="$post" id="postLangTabs">
             @foreach($formLanguages as $language)

@@ -109,49 +109,159 @@
         }
     };
 
-    /**
-     * validate[funcCall[FormValidation.rules.anyLanguageFilled]]
-     *
-     * For forms where no single language is mandatory but the record cannot be
-     * completely empty. Put it on a hidden input inside the form.
-     */
-    FormValidation.rules.anyLanguageFilled = function ($field) {
-        var form = $field[0].form || $field[0].closest('form');
-        var panes = form ? form.querySelectorAll('.tab-pane') : [];
+    // ==================== ACTIVE LANGUAGE ONLY ====================
 
-        if (panes.length === 0) {
-            return;
+    /**
+     * A multilingual form is one form with one field per language, and only the
+     * tab on screen is being worked on. Saving therefore concerns that tab: the
+     * rules of the hidden tabs are lifted before validation, and their fields
+     * are left out of the request entirely, so a half typed draft in another
+     * language neither blocks the save nor overwrites what is stored.
+     */
+    function fieldsOfInactivePanes(form) {
+        var active = form.querySelector('.tab-pane.active');
+
+        if (!active) {
+            return [];
         }
 
-        var filled = Array.prototype.some.call(panes, function (pane) {
-            return Array.prototype.some.call(
-                pane.querySelectorAll('input, select, textarea'),
-                function (element) {
-                    // data-fv-ignore marks fields that always carry a value —
-                    // a sort order, a switch that defaults to on — which would
-                    // otherwise make an untouched tab look filled in.
-                    if (element.disabled || element.type === 'hidden' || element.hasAttribute('data-fv-ignore')) {
-                        return false;
-                    }
+        var fields = [];
 
-                    if (element.type === 'checkbox' || element.type === 'radio') {
-                        return element.checked;
-                    }
+        form.querySelectorAll('.tab-pane').forEach(function (pane) {
+            if (pane === active) {
+                return;
+            }
 
-                    if (element.type === 'file') {
-                        return element.files && element.files.length > 0;
-                    }
-
-                    // An empty rich text editor still writes markup back.
-                    return String(element.value || '').replace(/<[^>]*>/g, '').trim() !== '';
-                }
-            );
+            pane.querySelectorAll('input, select, textarea').forEach(function (field) {
+                fields.push(field);
+            });
         });
 
-        if (!filled) {
-            return 'En az bir dilde içerik girmelisiniz';
+        return fields;
+    }
+
+    /** Only the visible tab carries rules while the form is being checked. */
+    function scopeRulesToActivePane(form) {
+        form.querySelectorAll('[data-fv-rule]').forEach(function (field) {
+            field.setAttribute('data-validation-engine', field.dataset.fvRule);
+            delete field.dataset.fvRule;
+        });
+
+        fieldsOfInactivePanes(form).forEach(function (field) {
+            var rule = field.getAttribute('data-validation-engine');
+
+            if (rule) {
+                field.dataset.fvRule = rule;
+                field.removeAttribute('data-validation-engine');
+            }
+
+            field.classList.remove('is-invalid');
+        });
+
+        form.querySelectorAll('.tab-pane:not(.active) .formError').forEach(function (el) {
+            el.remove();
+        });
+    }
+
+    /** Keeps the hidden tabs out of the payload once the save is going ahead. */
+    function excludeInactivePanes(form) {
+        fieldsOfInactivePanes(form).forEach(function (field) {
+            field.disabled = true;
+        });
+    }
+
+    // ==================== UNSAVED WORK IN OTHER TABS ====================
+
+    /**
+     * Only the visible tab is sent, so anything typed into another language and
+     * left behind is about to be lost when the page reloads. The editor is told
+     * before that happens rather than after.
+     */
+    function fieldIsDirty(field) {
+        if (field.type === 'hidden') {
+            return false;
         }
-    };
+
+        if (field.type === 'checkbox' || field.type === 'radio') {
+            return field.checked !== field.defaultChecked;
+        }
+
+        if (field.type === 'file') {
+            return field.files && field.files.length > 0;
+        }
+
+        if (field.tagName === 'SELECT') {
+            // With no option marked selected the browser picks the first one,
+            // and that is the untouched state — not a change.
+            var preselected = Array.prototype.findIndex.call(
+                field.options,
+                function (option) { return option.defaultSelected; }
+            );
+
+            return field.selectedIndex !== (preselected === -1 ? 0 : preselected);
+        }
+
+        return field.value !== field.defaultValue;
+    }
+
+    function languageNameOfPane(pane) {
+        var trigger = document.querySelector('[data-bs-target="#' + pane.id + '"]');
+
+        if (!trigger) {
+            return pane.id;
+        }
+
+        var name = trigger.querySelector('span:not([class])');
+
+        return name ? name.textContent.trim() : (trigger.dataset.locale || '').toUpperCase();
+    }
+
+    /** Languages holding edits that this save will not carry. */
+    function unsavedLanguages(form) {
+        var active = form.querySelector('.tab-pane.active');
+
+        if (!active) {
+            return [];
+        }
+
+        var languages = [];
+
+        form.querySelectorAll('.tab-pane').forEach(function (pane) {
+            if (pane === active) {
+                return;
+            }
+
+            var dirty = Array.prototype.some.call(
+                pane.querySelectorAll('input, select, textarea'),
+                fieldIsDirty
+            );
+
+            if (dirty) {
+                languages.push(languageNameOfPane(pane));
+            }
+        });
+
+        return languages;
+    }
+
+    function confirmDiscarding(form, languages, activeName) {
+        AdminModal.confirm({
+            title: 'Diğer dillerdeki değişiklikler',
+            message: languages.join(' ve ') + ' sekmesinde kaydedilmemiş değişiklik var. '
+                + 'Bu kayıt yalnızca ' + activeName + ' içeriğini kaydeder; diğerleri kaybolur.',
+            type: 'warning',
+            confirmText: 'Yine de kaydet',
+            confirmIcon: 'bi bi-check-lg',
+            cancelText: 'Vazgeç'
+        }).then(function (confirmed) {
+            if (!confirmed) {
+                return;
+            }
+
+            form.fvDiscardConfirmed = true;
+            form.requestSubmit();
+        });
+    }
 
     // ==================== EDITOR SYNC ====================
 
@@ -312,6 +422,7 @@
 
         form.classList.add(SUBMITTING_CLASS);
         form.setAttribute('aria-busy', 'true');
+        excludeInactivePanes(form);
 
         var clicked = form.fvClickedButton;
 
@@ -373,6 +484,7 @@
         $form.on('submit', function () {
             syncEditors();
             applyDefaults(form);
+            scopeRulesToActivePane(form);
         });
 
         $form.validationEngine('attach', $.extend({}, FormValidation.defaults, options || {}, {
@@ -383,7 +495,19 @@
                     return false;
                 }
 
-                return lockForm($validatedForm[0]);
+                var form = $validatedForm[0];
+                var pending = typeof AdminModal !== 'undefined' && !form.fvDiscardConfirmed
+                    ? unsavedLanguages(form)
+                    : [];
+
+                if (pending.length > 0) {
+                    var active = form.querySelector('.tab-pane.active');
+                    confirmDiscarding(form, pending, active ? languageNameOfPane(active) : 'bu dil');
+
+                    return false;
+                }
+
+                return lockForm(form);
             }
         }));
     }
