@@ -48,7 +48,7 @@
 
           {{-- The value is not posted anywhere; it is there because the plugin
                discards findings on a field whose own value is empty. --}}
-          <input type="hidden" id="langGuard" value="1"
+          <input type="hidden" id="langGuard" value="1" data-fv-modal
                  data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
                  data-prompt-target="langGuardError">
           <div id="langGuardError" class="mb-4">
