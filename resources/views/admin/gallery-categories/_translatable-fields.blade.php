@@ -58,7 +58,7 @@
                         class="form-control @error("translations.{$language->code}.name") is-invalid @enderror"
                         id="name_{{ $language->code }}"
                         name="translations[{{ $language->code }}][name]"
-                                       data-validation-engine="validate[maxSize[255]]"
+                                       data-validation-engine="validate[required,maxSize[255]]"
                         value="{{ old("translations.{$language->code}.name", $translation?->name) }}"
                         placeholder="Kategori adını yazın..."
                     >

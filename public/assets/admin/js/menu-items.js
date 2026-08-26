@@ -91,20 +91,42 @@
         radio.addEventListener('change', toggleLinkFields);
     });
 
+    // The server asks for a route or a URL depending on the link type
+    // (required_if), so the rule follows the field that is on screen — leaving
+    // it on the hidden one would flag a field nobody can see.
+    function requireOnly(wanted, other) {
+        wanted.setAttribute('data-validation-engine', 'validate[required]');
+        other.removeAttribute('data-validation-engine');
+        other.classList.remove('is-invalid');
+
+        // A field with no rule is never revisited, so its old message would
+        // otherwise sit there for good.
+        var container = other.closest('.stg-field, .mb-3, .col-md-6, .col-12') || other.parentElement;
+
+        if (container) {
+            container.querySelectorAll('.formError').forEach(function (el) { el.remove(); });
+        }
+    }
+
     function toggleLinkFields() {
         var type = document.querySelector('input[name="link_type"]:checked').value;
         if (type === 'route') {
             routeFields.classList.remove('d-none');
             urlFields.classList.add('d-none');
             urlInput.value = '';
+            requireOnly(routeNameSelect, urlInput);
         } else {
             routeFields.classList.add('d-none');
             urlFields.classList.remove('d-none');
             routeNameSelect.value = '';
             routeParamsList.innerHTML = '';
             routeParamsWrapper.classList.add('d-none');
+            requireOnly(urlInput, routeNameSelect);
         }
     }
+
+    // The modal opens with "route" preselected; match that from the start.
+    toggleLinkFields();
 
     // ── Route params dynamic UI ──
     var routeParamRules = {
