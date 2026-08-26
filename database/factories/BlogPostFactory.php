@@ -28,7 +28,7 @@ class BlogPostFactory extends Factory
             'image'            => null,
             'meta_title'       => fake()->sentence(4),
             'meta_description' => fake()->sentence(12),
-            'is_published'     => true,
+            'status'           => \App\Enums\ContentStatus::Published,
             'published_at'     => now()->subDays(fake()->numberBetween(0, 60)),
             'views'            => fake()->numberBetween(0, 5000),
         ];
@@ -37,7 +37,7 @@ class BlogPostFactory extends Factory
     public function draft(): static
     {
         return $this->state(fn (): array => [
-            'is_published' => false,
+            'status'       => \App\Enums\ContentStatus::Draft,
             'published_at' => null,
         ]);
     }

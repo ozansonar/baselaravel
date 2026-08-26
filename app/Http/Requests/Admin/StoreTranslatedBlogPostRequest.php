@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+use App\Enums\ContentStatus;
 use App\Models\BlogPost;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 /**
  * A blog post arrives as one block of fields per language.
@@ -23,6 +26,9 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTranslatedBlogPostRequest extends FormRequest
 {
+    use ValidatesTranslationBlocks;
+
+
     public function authorize(): bool
     {
         return true;
@@ -37,16 +43,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
         $post = $this->route('blog_post');
 
         $rules = [
-            'translations'  => ['required', 'array', function (string $attribute, mixed $value, callable $fail): void {
-                foreach (app(LanguageService::class)->activeCodes() as $locale) {
-                    if ($this->hasContent($locale)) {
-                        return;
-                    }
-                }
-
-                $fail('En az bir dilde içerik girmelisiniz.');
-            }],
-            'is_published'  => ['nullable', 'boolean'],
+            'translations'  => ['required', 'array', $this->atLeastOneLanguage()],
         ];
 
         foreach ($languages->activeCodes() as $locale) {
@@ -71,6 +68,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
+            $rules["{$prefix}.status"]           = ['nullable', new Enum(ContentStatus::class)];
         }
 
         return $rules;
@@ -102,18 +100,15 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
     }
 
     /**
-     * Whether the editor put anything into this language block. HTML is
-     * stripped first, because an empty rich text editor still posts markup.
+     * @return list<string>
      */
-    private function hasContent(string $locale): bool
+    protected function contentFields(): array
     {
-        $fields = (array) $this->input("translations.{$locale}", []);
+        return ['title', 'slug', 'excerpt', 'body', 'meta_title', 'meta_description'];
+    }
 
-        $written = array_any(
-            $fields,
-            fn (mixed $value): bool => is_scalar($value) && trim(strip_tags((string) $value)) !== '',
-        );
-
-        return $written || (array) $this->file("translations.{$locale}", []) !== [];
+    protected function emptyTranslationsMessage(): string
+    {
+        return 'En az bir dilde içerik girmelisiniz.';
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -20,6 +21,8 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTranslatedBlogCategoryRequest extends FormRequest
 {
+    use ValidatesTranslationBlocks;
+
     public function authorize(): bool
     {
         return true;
@@ -33,15 +36,7 @@ final class StoreTranslatedBlogCategoryRequest extends FormRequest
         $languages = app(LanguageService::class);
 
         $rules = [
-            'translations' => ['required', 'array', function (string $attribute, mixed $value, callable $fail): void {
-                foreach (app(LanguageService::class)->activeCodes() as $locale) {
-                    if ($this->hasContent($locale)) {
-                        return;
-                    }
-                }
-
-                $fail('En az bir dilde kategori adı girmelisiniz.');
-            }],
+            'translations' => ['required', 'array', $this->atLeastOneLanguage()],
         ];
 
         foreach ($languages->activeCodes() as $locale) {
@@ -79,15 +74,15 @@ final class StoreTranslatedBlogCategoryRequest extends FormRequest
     }
 
     /**
-     * Whether the editor put anything into this language block.
+     * @return list<string>
      */
-    private function hasContent(string $locale): bool
+    protected function contentFields(): array
     {
-        $fields = (array) $this->input("translations.{$locale}", []);
+        return ['name', 'icon'];
+    }
 
-        return array_any(
-            ['name', 'icon'],
-            fn (string $field): bool => trim((string) ($fields[$field] ?? '')) !== '',
-        );
+    protected function emptyTranslationsMessage(): string
+    {
+        return 'En az bir dilde kategori adı girmelisiniz.';
     }
 }

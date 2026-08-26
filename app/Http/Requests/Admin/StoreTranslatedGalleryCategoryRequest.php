@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * A category arrives as one block of fields per language; only the default
- * language has to be filled in.
+ * A category arrives as one block of fields per language. No language is
+ * mandatory on its own; see ValidatesTranslationBlocks.
  */
 final class StoreTranslatedGalleryCategoryRequest extends FormRequest
 {
+    use ValidatesTranslationBlocks;
+
     public function authorize(): bool
     {
         return true;
@@ -25,12 +28,11 @@ final class StoreTranslatedGalleryCategoryRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
 
-        $rules = ['translations' => ['required', 'array']];
+        $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix] = ['array'];
@@ -46,10 +48,21 @@ final class StoreTranslatedGalleryCategoryRequest extends FormRequest
 
         return $rules;
     }
+    /**
+     * @return list<string>
+     */
+    protected function contentFields(): array
+    {
+        return ['name'];
+    }
+
 
     /**
+
      * @return array<string, string>
+
      */
+
     public function messages(): array
     {
         $messages = [];

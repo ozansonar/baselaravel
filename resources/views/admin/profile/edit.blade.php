@@ -51,7 +51,7 @@
     </div>
 
     <!-- ==================== EDIT FORM ==================== -->
-    <form method="POST" action="{{ route('admin.profile.update') }}" enctype="multipart/form-data" id="profileForm">
+    <form method="POST" action="{{ route('admin.profile.update') }}" enctype="multipart/form-data" id="profileForm" data-validate novalidate>
         @csrf
         @method('PUT')
 
@@ -65,8 +65,8 @@
                             <div class="stg-field stg-half">
                                 <label class="stg-label" for="first_name">Ad</label>
                                 <input type="text" class="stg-input @error('first_name') is-invalid @enderror"
-                                       id="first_name" name="first_name"
-                                       value="{{ old('first_name', $user->first_name) }}" required>
+                                       id="first_name" name="first_name" data-validation-engine="validate[required,maxSize[100]]"
+                                       value="{{ old('first_name', $user->first_name) }}">
                                 @error('first_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -74,8 +74,8 @@
                             <div class="stg-field stg-half">
                                 <label class="stg-label" for="last_name">Soyad</label>
                                 <input type="text" class="stg-input @error('last_name') is-invalid @enderror"
-                                       id="last_name" name="last_name"
-                                       value="{{ old('last_name', $user->last_name) }}" required>
+                                       id="last_name" name="last_name" data-validation-engine="validate[required,maxSize[100]]"
+                                       value="{{ old('last_name', $user->last_name) }}">
                                 @error('last_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -84,8 +84,8 @@
                         <div class="stg-field">
                             <label class="stg-label" for="email">E-posta</label>
                             <input type="email" class="stg-input @error('email') is-invalid @enderror"
-                                   id="email" name="email"
-                                   value="{{ old('email', $user->email) }}" required>
+                                   id="email" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                                   value="{{ old('email', $user->email) }}">
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -93,7 +93,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="phone">Telefon</label>
                             <input type="tel" class="stg-input @error('phone') is-invalid @enderror"
-                                   id="phone" name="phone"
+                                   id="phone" name="phone" data-validation-engine="validate[custom[phone],maxSize[20]]"
                                    value="{{ old('phone', $user->phone) }}">
                             @error('phone')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -102,7 +102,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="bio">Biyografi</label>
                             <textarea class="stg-textarea @error('bio') is-invalid @enderror"
-                                      id="bio" name="bio" rows="3">{{ old('bio', $user->bio) }}</textarea>
+                                      id="bio" name="bio" data-validation-engine="validate[maxSize[1000]]" rows="3">{{ old('bio', $user->bio) }}</textarea>
                             @error('bio')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -110,7 +110,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="location">Konum</label>
                             <input type="text" class="stg-input @error('location') is-invalid @enderror"
-                                   id="location" name="location"
+                                   id="location" name="location" data-validation-engine="validate[maxSize[255]]"
                                    value="{{ old('location', $user->location) }}"
                                    placeholder="Örn: İstanbul, Türkiye">
                             @error('location')
@@ -140,7 +140,7 @@
                             <div class="stg-field stg-half">
                                 <label class="stg-label" for="password">Yeni Şifre</label>
                                 <input type="password" class="stg-input @error('password') is-invalid @enderror"
-                                       id="password" name="password"
+                                       id="password" name="password" data-validation-engine="validate[minSize[8]]"
                                        placeholder="Değiştirmek istemiyorsanız boş bırakın"
                                        autocomplete="new-password">
                                 @error('password')
@@ -151,7 +151,7 @@
                             <div class="stg-field stg-half">
                                 <label class="stg-label" for="password_confirmation">Şifre Tekrarı</label>
                                 <input type="password" class="stg-input"
-                                       id="password_confirmation" name="password_confirmation"
+                                       id="password_confirmation" name="password_confirmation" data-validation-engine="validate[equals[password]]"
                                        placeholder="Yeni şifreyi tekrar giriniz"
                                        autocomplete="new-password">
                             </div>
@@ -197,7 +197,7 @@
                             </button>
                             @if($user->avatar)
                                 <label class="d-flex align-items-center gap-2 mt-2" id="removeAvatarLabel">
-                                    <input type="checkbox" name="remove_avatar" value="1" id="removeAvatarCheck">
+                                    <input type="checkbox" name="remove_avatar" data-fv-ignore value="1" id="removeAvatarCheck">
                                     <small class="text-muted">Mevcut fotoğrafı kaldır</small>
                                 </label>
                             @endif

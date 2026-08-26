@@ -191,12 +191,16 @@
                                 if ($post->trashed()) {
                                     $statusBadge = 'inactive';
                                     $statusLabel = 'Silinmiş';
-                                } elseif ($post->is_published && $post->published_at?->lte(now())) {
+                                } elseif ($post->status === \App\Enums\ContentStatus::Published && $post->published_at?->lte(now())) {
                                     $statusBadge = 'active';
                                     $statusLabel = 'Yayında';
-                                } elseif ($post->is_published && $post->published_at?->gt(now())) {
+                                } elseif ($post->status === \App\Enums\ContentStatus::Published) {
+                                    // Published with a date that has not arrived yet.
                                     $statusBadge = 'info';
                                     $statusLabel = 'Zamanlanmış';
+                                } elseif ($post->status === \App\Enums\ContentStatus::Archived) {
+                                    $statusBadge = 'inactive';
+                                    $statusLabel = 'Arşivlendi';
                                 }
                             @endphp
                             <tr>
@@ -213,7 +217,7 @@
                                             <div class="cl-content-thumb draft"><i class="bi bi-file-earmark-text"></i></div>
                                         @endif
                                         <div class="cl-content-info">
-                                            @if($post->is_published && $post->published_at?->lte(now()))
+                                            @if($post->status === \App\Enums\ContentStatus::Published && $post->published_at?->lte(now()))
                                                 <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" target="_blank" class="cl-content-title cl-content-link">{{ Str::limit($post->title, 50) }} <i class="bi bi-box-arrow-up-right cl-link-icon"></i></a>
                                             @else
                                                 <span class="cl-content-title">{{ Str::limit($post->title, 50) }}</span>
@@ -249,7 +253,7 @@
                                 </td>
                                 <td data-label="Görüntülenme" class="d-none d-xl-table-cell">
                                     <div class="cl-views">
-                                        @if($post->is_published)
+                                        @if($post->status === \App\Enums\ContentStatus::Published && $post->published_at?->lte(now()))
                                             <i class="bi bi-eye me-1"></i> {{ number_format($post->views, 0, ',', '.') }}
                                         @else
                                             <span class="text-muted">--</span>
@@ -269,7 +273,7 @@
                                             </form>
                                         @else
                                             <a class="usr-action-btn" title="Detay" href="{{ route('admin.blog-posts.show', $post) }}"><i class="bi bi-eye"></i></a>
-                                            @if($post->is_published && $post->published_at?->lte(now()))
+                                            @if($post->status === \App\Enums\ContentStatus::Published && $post->published_at?->lte(now()))
                                                 <a class="usr-action-btn success" title="Sitede Görüntüle" href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
                                             @endif
                                             <a class="usr-action-btn" title="Düzenle" href="{{ route('admin.blog-posts.edit', $post) }}"><i class="bi bi-pencil"></i></a>

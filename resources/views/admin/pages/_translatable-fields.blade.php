@@ -32,9 +32,9 @@
                                 class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                 id="title_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][title]"
+                                       data-validation-engine="validate[maxSize[255],condRequired[slug_{{ $language->code }},excerpt_{{ $language->code }},content_{{ $language->code }},meta_title_{{ $language->code }},meta_description_{{ $language->code }}]]"
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
-                                required
                                 oninput="generateSlug(this.value); updateCharCounter(this, 120); updateSeoPreview()"
                             >
                             @error("translations.{$language->code}.title")
@@ -56,6 +56,7 @@
                                     class="form-control @error("translations.{$language->code}.slug") is-invalid @enderror"
                                     id="slug_{{ $language->code }}"
                                     name="translations[{{ $language->code }}][slug]"
+                                       data-validation-engine="validate[custom[slug],maxSize[255]]"
                                     value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                                     placeholder="otomatik-olusturulur"
                                     oninput="updateSeoPreview()"
@@ -93,6 +94,7 @@
                                 class="form-control @error("translations.{$language->code}.excerpt") is-invalid @enderror"
                                 id="excerpt_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][excerpt]"
+                                       data-validation-engine="validate[maxSize[500]]"
                                 rows="3"
                                 placeholder="Sayfanın kısa bir özetini yazın..."
                                 oninput="updateCharCounter(this, 300)"
@@ -115,8 +117,12 @@
                                 class="@error("translations.{$language->code}.content") is-invalid @enderror"
                                 id="content_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][content]"
+                                       data-validation-engine="validate[condRequired[title_{{ $language->code }},slug_{{ $language->code }},excerpt_{{ $language->code }},meta_title_{{ $language->code }},meta_description_{{ $language->code }}]]"
+                                data-prompt-target="content_error_{{ $language->code }}"
                                 rows="12"
                             >{{ old("translations.{$language->code}.content", $translation?->content) }}</textarea>
+                            {{-- TinyMCE hides the textarea, so the message needs its own slot. --}}
+                            <div id="content_error_{{ $language->code }}"></div>
                             @error("translations.{$language->code}.content")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -196,6 +202,7 @@
                                 class="form-control @error("translations.{$language->code}.meta_title") is-invalid @enderror"
                                 id="meta_title_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][meta_title]"
+                                       data-validation-engine="validate[maxSize[70]]"
                                 value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
                                 placeholder="SEO için özel başlık (boş bırakılırsa sayfa başlığı kullanılır)"
                                 oninput="updateSeoPreview(); updateCharCounter(this, 60)"
@@ -216,6 +223,7 @@
                                 class="form-control @error("translations.{$language->code}.meta_description") is-invalid @enderror"
                                 id="meta_description_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][meta_description]"
+                                       data-validation-engine="validate[maxSize[160]]"
                                 rows="3"
                                 placeholder="Arama sonuçlarında görünecek açıklama metni..."
                                 oninput="updateSeoPreview(); updateCharCounter(this, 160)"
@@ -253,7 +261,7 @@
                             <label class="form-label" for="status_{{ $language->code }}">
                                 Yayın Durumu <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select @error("translations.{$language->code}.status") is-invalid @enderror" id="status_{{ $language->code }}" name="translations[{{ $language->code }}][status]">
+                            <select class="form-select @error("translations.{$language->code}.status") is-invalid @enderror" id="status_{{ $language->code }}" name="translations[{{ $language->code }}][status]" data-fv-ignore>
                                 @foreach(\App\Enums\ContentStatus::cases() as $status)
                                 <option value="{{ $status->value }}" {{ old("translations.{$language->code}.status", $translation?->status?->value ?? 'published') === $status->value ? 'selected' : '' }}>
                                     {{ $status->label() }}
@@ -272,7 +280,7 @@
                                 type="datetime-local"
                                 class="form-control @error("translations.{$language->code}.published_at") is-invalid @enderror"
                                 id="published_at_{{ $language->code }}"
-                                name="translations[{{ $language->code }}][published_at]"
+                                name="translations[{{ $language->code }}][published_at]" data-fv-ignore
                                 value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}"
                             >
                             @error("translations.{$language->code}.published_at")
@@ -306,7 +314,7 @@
                                 type="number"
                                 class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
                                 id="sort_order_{{ $language->code }}"
-                                name="translations[{{ $language->code }}][sort_order]" data-fv-default="0"
+                                name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
                                 value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}"
                                 placeholder="0"
                                 min="0"

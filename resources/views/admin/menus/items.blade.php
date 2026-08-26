@@ -62,7 +62,7 @@
     <div class="modal fade" id="menuItemModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-theme">
             <div class="modal-content modal-content-theme">
-                <form method="POST" id="menuItemForm">
+                <form method="POST" id="menuItemForm" data-validate novalidate>
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
                     <input type="hidden" name="parent_id" id="parentIdInput" value="">
@@ -80,7 +80,7 @@
                                 <label for="itemLabel" class="form-label text-clr-secondary">Etiket <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-theme">
                                     <span class="input-group-text"><i class="bi bi-tag-fill"></i></span>
-                                    <input type="text" class="form-control form-control-theme" id="itemLabel" name="label" required maxlength="255" placeholder="Anasayfa">
+                                    <input type="text" class="form-control form-control-theme" id="itemLabel" name="label" maxlength="255" data-validation-engine="validate[required,maxSize[255]]" placeholder="Anasayfa">
                                 </div>
                             </div>
                             <div class="col-md-4">

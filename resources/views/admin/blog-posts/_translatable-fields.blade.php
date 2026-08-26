@@ -354,6 +354,30 @@
             <div class="card-body-custom">
               <div class="row g-3">
 
+                <!-- Yayın Durumu -->
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="status_{{ $language->code }}">
+                    Yayın Durumu <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select @error("translations.{$language->code}.status") is-invalid @enderror"
+                          id="status_{{ $language->code }}"
+                          name="translations[{{ $language->code }}][status]"
+                          data-fv-ignore>
+                    {{-- "Zamanlanmış" saklanan bir durum değil: yayında olup tarihi
+                         ileride olan yazı listede öyle görünür. --}}
+                    @foreach([\App\Enums\ContentStatus::Draft, \App\Enums\ContentStatus::Published, \App\Enums\ContentStatus::Archived] as $contentStatus)
+                      <option value="{{ $contentStatus->value }}"
+                        {{ old("translations.{$language->code}.status", $translation?->status?->value ?? \App\Enums\ContentStatus::Draft->value) === $contentStatus->value ? 'selected' : '' }}>
+                        {{ $contentStatus->label() }}
+                      </option>
+                    @endforeach
+                  </select>
+                  @error("translations.{$language->code}.status")
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                  <div class="form-text">Her dil kendi durumunu taşır</div>
+                </div>
+
                 <!-- Yayın Tarihi -->
                 <div class="col-12 col-md-6">
                   <label class="form-label" for="published_at_{{ $language->code }}">Yayın Tarihi</label>
@@ -367,7 +391,7 @@
                   @error("translations.{$language->code}.published_at")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
-                  <div class="form-text">Boş bırakılırsa hemen yayınlanır</div>
+                  <div class="form-text">İleri bir tarih seçersen yazı o tarihte yayınlanır; boş bırakırsan hemen</div>
                 </div>
 
               </div>

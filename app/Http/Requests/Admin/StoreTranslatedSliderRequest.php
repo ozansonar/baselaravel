@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * A slider arrives as one block of fields per language.
  *
- * The image is required for the default language on create only; other
+ * The image is required on create for the language actually being written; other
  * languages may reuse nothing and be filled in later, and an edit keeps the
  * artwork each language already has.
  */
 final class StoreTranslatedSliderRequest extends FormRequest
 {
+    use ValidatesTranslationBlocks;
+
     public function authorize(): bool
     {
         return true;
@@ -27,20 +30,19 @@ final class StoreTranslatedSliderRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
         $isCreate = $this->route('slider') === null;
 
-        $rules = ['translations' => ['required', 'array']];
+        $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                 = ['array'];
             $rules["{$prefix}.title"]       = [$required, 'string', 'max:255'];
             $rules["{$prefix}.subtitle"]    = ['nullable', 'string', 'max:500'];
             $rules["{$prefix}.image"]       = [
-                $isCreate && $locale === $default ? 'required' : 'nullable',
+                $isCreate && $this->hasContent($locale) ? 'required' : 'nullable',
                 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096',
             ];
             $rules["{$prefix}.button_text"] = ['nullable', 'string', 'max:100'];
@@ -51,10 +53,21 @@ final class StoreTranslatedSliderRequest extends FormRequest
 
         return $rules;
     }
+    /**
+     * @return list<string>
+     */
+    protected function contentFields(): array
+    {
+        return ['title', 'subtitle', 'button_text', 'button_url'];
+    }
+
 
     /**
+
      * @return array<string, string>
+
      */
+
     public function messages(): array
     {
         $messages = [];

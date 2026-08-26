@@ -51,7 +51,7 @@
     </select>
 </div>
 
-<form id="pageForm" method="POST" action="{{ route('admin.pages.store') }}" enctype="multipart/form-data">
+<form id="pageForm" method="POST" action="{{ route('admin.pages.store') }}" enctype="multipart/form-data" data-validate novalidate>
     @csrf
 
     <!-- Form Layout -->
@@ -91,6 +91,20 @@
         <div class="col-12 col-lg-9">
 
             {{-- Her dil kendi sekmesinde: başlık, içerik, görsel ve SEO alanları o dile ait --}}
+
+            {{-- The value is not posted anywhere; it is there because the plugin discards
+                 findings on a field whose own value is empty. --}}
+            <input type="hidden" id="langGuard" value="1"
+                   data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
+                   data-prompt-target="langGuardError">
+            <div id="langGuardError" class="mb-4">
+                @error('translations')
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ $message }}
+                    </div>
+                @enderror
+            </div>
+
             <x-language-tabs :languages="$formLanguages" id="pageLangTabs">
                 @foreach($formLanguages as $language)
                     <x-language-tab-pane
@@ -124,7 +138,7 @@
     </div><!-- /row -->
 </form>
 
-@include('partials.admin.tinymce')
+@include('partials.admin.tinymce', ['tinymceSelector' => 'textarea[id^=content_]'])
 
 @push('scripts')
 <script src="{{ versioned_asset('assets/admin/js/page-form.js') }}"></script>

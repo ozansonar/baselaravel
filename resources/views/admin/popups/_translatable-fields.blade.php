@@ -67,8 +67,9 @@
                                 </label>
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
-                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
-                                       placeholder="Popup başlığını girin..." required>
+                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]"
+                                       data-validation-engine="validate[maxSize[255],condRequired[description_{{ $language->code }},button_text_{{ $language->code }},button_url_{{ $language->code }}]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       placeholder="Popup başlığını girin...">
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -78,7 +79,8 @@
                             <div class="col-12">
                                 <label class="form-label" for="description_{{ $language->code }}">Açıklama</label>
                                 <textarea class="form-control @error("translations.{$language->code}.description") is-invalid @enderror"
-                                          id="description_{{ $language->code }}" name="translations[{{ $language->code }}][description]" rows="3"
+                                          id="description_{{ $language->code }}" name="translations[{{ $language->code }}][description]"
+                                       data-validation-engine="validate[maxSize[2000]]" rows="3"
                                           placeholder="Popup açıklamasını girin...">{{ old("translations.{$language->code}.description", $translation?->description) }}</textarea>
                                 @error("translations.{$language->code}.description")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -133,6 +135,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.button_text") is-invalid @enderror"
                                        id="button_text_{{ $language->code }}" name="translations[{{ $language->code }}][button_text]"
+                                       data-validation-engine="validate[maxSize[100]]"
                                        value="{{ old("translations.{$language->code}.button_text", $translation?->button_text) }}"
                                        placeholder="Detaylı Bilgi">
                                 @error("translations.{$language->code}.button_text")
@@ -146,6 +149,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.button_url") is-invalid @enderror"
                                        id="button_url_{{ $language->code }}" name="translations[{{ $language->code }}][button_url]"
+                                       data-validation-engine="validate[maxSize[500]]"
                                        value="{{ old("translations.{$language->code}.button_url", $translation?->button_url) }}"
                                        placeholder="/blog/...">
                                 @error("translations.{$language->code}.button_url")
@@ -174,7 +178,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="size_{{ $language->code }}">Popup Boyutu</label>
                                 <select class="form-select @error("translations.{$language->code}.size") is-invalid @enderror"
-                                        id="size_{{ $language->code }}" name="translations[{{ $language->code }}][size]">
+                                        id="size_{{ $language->code }}" name="translations[{{ $language->code }}][size]" data-fv-ignore>
                                     @foreach(\App\Enums\PopupSize::cases() as $size)
                                         <option value="{{ $size->value }}" {{ old("translations.{$language->code}.size", 'md') === $size->value ? 'selected' : '' }}>
                                             {{ $size->label() }}
@@ -191,7 +195,7 @@
                                 <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
                                 <input type="number"
                                        class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
-                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-fv-default="0"
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
                                        value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
                                 @error("translations.{$language->code}.sort_order")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -203,7 +207,7 @@
                             <div class="col-md-3">
                                 <label class="form-label" for="is_active_{{ $language->code }}">Durum</label>
                                 <select class="form-select @error("translations.{$language->code}.is_active") is-invalid @enderror"
-                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]">
+                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]" data-fv-ignore>
                                     <option value="1" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 1 ? 'selected' : '' }}>Aktif</option>
                                     <option value="0" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 0 ? 'selected' : '' }}>Pasif</option>
                                 </select>
@@ -242,7 +246,7 @@
                                 <label class="form-label" for="start_date_{{ $language->code }}">Başlangıç Tarihi</label>
                                 <input type="date"
                                        class="form-control @error("translations.{$language->code}.start_date") is-invalid @enderror"
-                                       id="start_date_{{ $language->code }}" name="translations[{{ $language->code }}][start_date]"
+                                       id="start_date_{{ $language->code }}" name="translations[{{ $language->code }}][start_date]" data-fv-ignore
                                        value="{{ old("translations.{$language->code}.start_date", $translation?->start_date?->format('Y-m-d')) }}">
                                 @error("translations.{$language->code}.start_date")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -255,7 +259,7 @@
                                 <label class="form-label" for="end_date_{{ $language->code }}">Bitiş Tarihi</label>
                                 <input type="date"
                                        class="form-control @error("translations.{$language->code}.end_date") is-invalid @enderror"
-                                       id="end_date_{{ $language->code }}" name="translations[{{ $language->code }}][end_date]"
+                                       id="end_date_{{ $language->code }}" name="translations[{{ $language->code }}][end_date]" data-fv-ignore
                                        value="{{ old("translations.{$language->code}.end_date", $translation?->end_date?->format('Y-m-d')) }}">
                                 @error("translations.{$language->code}.end_date")
                                 <div class="invalid-feedback">{{ $message }}</div>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Enums\PopupPage;
 use App\Enums\PopupSize;
 use App\Services\LanguageService;
@@ -15,6 +16,8 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTranslatedPopupRequest extends FormRequest
 {
+    use ValidatesTranslationBlocks;
+
     public function authorize(): bool
     {
         return true;
@@ -26,12 +29,11 @@ final class StoreTranslatedPopupRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
 
-        $rules = ['translations' => ['required', 'array']];
+        $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                  = ['array'];
@@ -51,10 +53,21 @@ final class StoreTranslatedPopupRequest extends FormRequest
 
         return $rules;
     }
+    /**
+     * @return list<string>
+     */
+    protected function contentFields(): array
+    {
+        return ['title', 'description', 'button_text', 'button_url'];
+    }
+
 
     /**
+
      * @return array<string, string>
+
      */
+
     public function messages(): array
     {
         $messages = [];

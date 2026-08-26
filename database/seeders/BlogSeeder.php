@@ -57,7 +57,7 @@ class BlogSeeder extends Seeder
                     'title'            => $p['title'],
                     'excerpt'          => $p['excerpt'],
                     'body'             => $body,
-                    'is_published'     => true,
+                    'status'           => \App\Enums\ContentStatus::Published,
                     'published_at'     => now()->subDays($p['days']),
                     'views'            => random_int(20, 400),
                 ],

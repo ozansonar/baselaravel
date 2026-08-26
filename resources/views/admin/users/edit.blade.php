@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <form id="userForm" method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data">
+    <form id="userForm" method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data" data-validate novalidate>
         @csrf
         @method('PUT')
         @include('admin.users._form', ['roles' => $roles, 'user' => $user])

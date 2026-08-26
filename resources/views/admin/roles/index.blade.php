@@ -245,7 +245,7 @@
     <div class="modal fade modal-custom" id="roleModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form method="POST" action="{{ route('admin.roles.store') }}" id="roleForm">
+                <form method="POST" action="{{ route('admin.roles.store') }}" id="roleForm" data-validate novalidate>
                     @csrf
                     <input type="hidden" name="_method" value="POST" id="roleFormMethod">
 
@@ -258,14 +258,14 @@
                         <div class="mb-3">
                             <label class="form-label text-clr-secondary" for="roleName">Rol Adı <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-theme @error('name') is-invalid @enderror"
-                                   id="roleName" name="name" value="{{ old('name') }}" required>
+                                   id="roleName" name="name" value="{{ old('name') }}" data-validation-engine="validate[required,maxSize[100]]">
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label text-clr-secondary" for="roleSlug">Rol Anahtarı <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-theme @error('slug') is-invalid @enderror"
-                                   id="roleSlug" name="slug" value="{{ old('slug') }}" placeholder="ornek-rol" required>
+                                   id="roleSlug" name="slug" value="{{ old('slug') }}" placeholder="ornek-rol" data-validation-engine="validate[required,custom[slug],maxSize[100]]">
                             <small class="form-text text-clr-muted">Kodda kullanılan benzersiz anahtar. Sistem rollerinde değiştirilemez.</small>
                             @error('slug')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>

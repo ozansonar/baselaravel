@@ -12,7 +12,7 @@
         </ol>
     </nav>
 
-    <form method="POST" action="{{ route('admin.languages.store') }}">
+    <form method="POST" action="{{ route('admin.languages.store') }}" data-validate novalidate>
         @csrf
 
         <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3" data-aos="fade-down">

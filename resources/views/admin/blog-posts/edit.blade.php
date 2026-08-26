@@ -39,11 +39,8 @@
                   title="Bu yazıyı Instagram + Facebook'ta paylaşmak için taslak oluşturur">
             <i class="bi bi-share me-1"></i>Sosyal Medyada Paylaş
           </button>
-          <button type="submit" name="is_published" value="0" class="btn-glass">
-            <i class="bi bi-file-earmark me-1"></i>Taslak Kaydet
-          </button>
-          <button type="submit" name="is_published" value="1" class="btn-teal">
-            <i class="bi bi-send me-1"></i>Güncelle
+          <button type="submit" class="btn-teal">
+            <i class="bi bi-check-lg me-1"></i>Kaydet
           </button>
         </div>
       </div>
@@ -91,11 +88,8 @@
                   </a>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                  <button type="submit" name="is_published" value="0" class="btn-glass">
-                    <i class="bi bi-file-earmark me-1"></i>Taslak Kaydet
-                  </button>
-                  <button type="submit" name="is_published" value="1" class="btn-teal">
-                    <i class="bi bi-send me-1"></i>Güncelle ve Yayınla
+                  <button type="submit" class="btn-teal">
+                    <i class="bi bi-check-lg me-1"></i>Değişiklikleri Kaydet
                   </button>
                 </div>
               </div>

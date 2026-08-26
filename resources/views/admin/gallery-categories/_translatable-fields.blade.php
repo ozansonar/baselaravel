@@ -29,9 +29,9 @@
                         class="form-control @error("translations.{$language->code}.name") is-invalid @enderror"
                         id="name_{{ $language->code }}"
                         name="translations[{{ $language->code }}][name]"
+                                       data-validation-engine="validate[maxSize[255]]"
                         value="{{ old("translations.{$language->code}.name", $isEdit ? $category->name : '') }}"
                         placeholder="Kategori adını yazın..."
-                        required
                     >
                     @error("translations.{$language->code}.name")
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -63,7 +63,7 @@
                         type="number"
                         class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
                         id="sort_order_{{ $language->code }}"
-                        name="translations[{{ $language->code }}][sort_order]" data-fv-default="0"
+                        name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
                         value="{{ old("translations.{$language->code}.sort_order", $isEdit ? $category->sort_order : 0) }}"
                         min="0"
                         max="999"
@@ -88,7 +88,7 @@
                                     class="form-check-input"
                                     type="checkbox"
                                     id="is_active_{{ $language->code }}"
-                                    name="translations[{{ $language->code }}][is_active]"
+                                    name="translations[{{ $language->code }}][is_active]" data-fv-ignore
                                     value="1"
                                     {{ old("translations.{$language->code}.is_active", $isEdit ? $category->is_active : true) ? 'checked' : '' }}
                                 >

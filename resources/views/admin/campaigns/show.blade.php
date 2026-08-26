@@ -289,10 +289,11 @@
                         <h6><i class="bi bi-send-check me-2 text-teal"></i>Test Gönderimi</h6>
                     </div>
                     <div class="card-body-custom">
-                        <form method="POST" action="{{ route('admin.campaigns.test', $campaign) }}">
+                        <form method="POST" action="{{ route('admin.campaigns.test', $campaign) }}" data-validate novalidate>
                             @csrf
                             <div class="stg-field mb-2">
-                                <input type="email" class="stg-input" name="test_email" required
+                                <input type="email" class="stg-input" name="test_email"
+                                       data-validation-engine="validate[required,custom[email]]"
                                        value="{{ auth()->user()->email }}" placeholder="test@ornek.com">
                             </div>
                             <button type="submit" class="btn-glass w-100">
@@ -392,7 +393,7 @@
             <div class="modal fade modal-custom" id="scheduleModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-theme">
                     <div class="modal-content modal-content-theme">
-                        <form method="POST" action="{{ route('admin.campaigns.send', $campaign) }}">
+                        <form method="POST" action="{{ route('admin.campaigns.send', $campaign) }}" data-validate novalidate>
                             @csrf
                             <div class="modal-header">
                                 <h6 class="modal-title"><i class="bi bi-clock me-2 text-teal"></i>Gönderimi Zamanla</h6>
@@ -401,7 +402,7 @@
                             <div class="modal-body">
                                 <div class="stg-field">
                                     <label class="stg-label" for="scheduled_at">Gönderim zamanı</label>
-                                    <input type="datetime-local" class="stg-input" id="scheduled_at" name="scheduled_at" required>
+                                    <input type="datetime-local" class="stg-input" id="scheduled_at" name="scheduled_at" data-validation-engine="validate[required]">
                                     <small class="stg-hint">
                                         Belirtilen saatten sonraki ilk cron turunda başlar. Alıcı listesi o an
                                         dondurulur, yani o tarihe kadar listeye eklenenler de dahil olur.

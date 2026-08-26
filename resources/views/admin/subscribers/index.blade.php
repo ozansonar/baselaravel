@@ -184,7 +184,7 @@
         <div class="modal fade modal-custom" id="addModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-theme">
                 <div class="modal-content modal-content-theme">
-                    <form method="POST" action="{{ route('admin.subscribers.store') }}">
+                    <form method="POST" action="{{ route('admin.subscribers.store') }}" data-validate novalidate>
                         @csrf
                         <div class="modal-header">
                             <h6 class="modal-title"><i class="bi bi-plus-lg me-2 text-teal"></i>Abone Ekle</h6>
@@ -193,7 +193,7 @@
                         <div class="modal-body">
                             <div class="stg-field mb-3">
                                 <label class="stg-label" for="sub_email">E-posta <span class="text-neon-red">*</span></label>
-                                <input type="email" class="stg-input" id="sub_email" name="email" required>
+                                <input type="email" class="stg-input" id="sub_email" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]">
                             </div>
                             <div class="stg-field mb-3">
                                 <label class="stg-label" for="sub_name">Ad Soyad</label>
@@ -222,7 +222,7 @@
         <div class="modal fade modal-custom" id="importModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-theme">
                 <div class="modal-content modal-content-theme">
-                    <form method="POST" action="{{ route('admin.subscribers.import') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('admin.subscribers.import') }}" enctype="multipart/form-data" data-validate novalidate>
                         @csrf
                         <div class="modal-header">
                             <h6 class="modal-title"><i class="bi bi-file-earmark-spreadsheet me-2 text-teal"></i>Excel / CSV Yükle</h6>
@@ -232,7 +232,8 @@
                             <div class="stg-field mb-3">
                                 <label class="stg-label" for="import_file">Dosya <span class="text-neon-red">*</span></label>
                                 <input type="file" class="stg-input" id="import_file" name="file"
-                                       accept=".xlsx,.xls,.ods,.csv,.txt" required>
+                                       accept=".xlsx,.xls,.ods,.csv,.txt"
+                                       data-validation-engine="validate[required]">
                                 <small class="stg-hint">
                                     Başlık satırında <code>Ad</code> ve <code>E-posta</code> sütunları olsun.
                                     Başlık yoksa adresler ilk sütundan okunur. En fazla 10 MB.

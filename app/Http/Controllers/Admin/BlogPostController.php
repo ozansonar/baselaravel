@@ -110,18 +110,9 @@ final class BlogPostController extends Controller
      */
     private function sharedFields(StoreTranslatedBlogPostRequest $request, ?BlogPost $post = null): array
     {
-        $published = $request->boolean('is_published');
-
-        $shared = [
-            'user_id'      => $request->user()->id,
-            'is_published' => $published,
-        ];
-
-        if ($published && $post?->published_at === null) {
-            $shared['published_at'] = now();
-        }
-
-        return $shared;
+        // The publish state now lives in each language block; only the author
+        // is shared across them.
+        return ['user_id' => $request->user()->id];
     }
 
     public function destroy(BlogPost $blogPost): RedirectResponse

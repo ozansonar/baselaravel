@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <form id="userForm" method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data">
+    <form id="userForm" method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data" data-validate novalidate>
         @csrf
         @include('admin.users._form', ['roles' => $roles])
     </form>

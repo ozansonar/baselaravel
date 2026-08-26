@@ -14,7 +14,7 @@
                             <label class="stg-label" for="code">Dil Kodu <span class="text-neon-red">*</span></label>
                             <input type="text" class="stg-input @error('code') is-invalid @enderror"
                                    id="code" name="code" value="{{ old('code', $language?->code) }}"
-                                   maxlength="2" required placeholder="de" pattern="[A-Za-z]{2}" autocomplete="off">
+                                   maxlength="2" placeholder="de" pattern="[A-Za-z]{2}" autocomplete="off">
                             <small class="stg-hint">İki harf (ISO 639-1): tr, en, de</small>
                             @error('code') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
@@ -24,7 +24,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="flag">Bayrak</label>
                             <input type="text" class="stg-input @error('flag') is-invalid @enderror"
-                                   id="flag" name="flag" value="{{ old('flag', $language?->flag) }}"
+                                   id="flag" name="flag" data-validation-engine="validate[maxSize[16]]" value="{{ old('flag', $language?->flag) }}"
                                    maxlength="16" placeholder="🇩🇪">
                             <small class="stg-hint">Emoji, dil seçicide görünür</small>
                             @error('flag') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -35,7 +35,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="sort_order">Sıra</label>
                             <input type="number" class="stg-input @error('sort_order') is-invalid @enderror"
-                                   id="sort_order" name="sort_order"
+                                   id="sort_order" name="sort_order" data-fv-ignore data-validation-engine="validate[custom[integer],min[0],max[255]]"
                                    value="{{ old('sort_order', $language?->sort_order ?? 0) }}" min="0" max="255">
                             <small class="stg-hint">Dil seçicideki sıra</small>
                             @error('sort_order') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -46,8 +46,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="name">Adı <span class="text-neon-red">*</span></label>
                             <input type="text" class="stg-input @error('name') is-invalid @enderror"
-                                   id="name" name="name" value="{{ old('name', $language?->name) }}"
-                                   required placeholder="Almanca">
+                                   id="name" name="name" data-validation-engine="validate[required,maxSize[60]]" value="{{ old('name', $language?->name) }}" placeholder="Almanca">
                             <small class="stg-hint">Panelde görünen ad</small>
                             @error('name') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
@@ -57,7 +56,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="native_name">Kendi Dilinde</label>
                             <input type="text" class="stg-input @error('native_name') is-invalid @enderror"
-                                   id="native_name" name="native_name"
+                                   id="native_name" name="native_name" data-validation-engine="validate[maxSize[60]]"
                                    value="{{ old('native_name', $language?->native_name) }}" placeholder="Deutsch">
                             <small class="stg-hint">Ziyaretçiye gösterilen ad</small>
                             @error('native_name') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -87,7 +86,7 @@
                             </small>
                         </div>
                         <label class="stg-switch">
-                            <input type="checkbox" name="is_active" value="1"
+                            <input type="checkbox" name="is_active" data-fv-ignore value="1"
                                    {{ old('is_active', $language?->is_active ?? true) ? 'checked' : '' }}
                                    {{ $language?->is_default ? 'disabled' : '' }}>
                             <span class="stg-switch-slider"></span>

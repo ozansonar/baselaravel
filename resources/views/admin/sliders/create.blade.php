@@ -29,9 +29,23 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.sliders.store') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.sliders.store') }}" enctype="multipart/form-data" data-validate novalidate>
         @csrf
                 {{-- Her dil kendi sekmesinde --}}
+
+                {{-- The value is not posted anywhere; it is there because the plugin discards
+                     findings on a field whose own value is empty. --}}
+                <input type="hidden" id="langGuard" value="1"
+                       data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
+                       data-prompt-target="langGuardError">
+                <div id="langGuardError" class="mb-4">
+                    @error('translations')
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
                 <x-language-tabs :languages="$formLanguages" id="sliderLangTabs">
                     @foreach($formLanguages as $language)
                         <x-language-tab-pane

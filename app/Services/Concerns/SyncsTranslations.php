@@ -122,16 +122,16 @@ trait SyncsTranslations
     /**
      * Keys that never say anything about whether a translation was written.
      *
-     * A sort order defaults to 0 and a visibility switch defaults to on, so
-     * every form posts them for every language — including the tabs the
-     * translator never opened. Counting them would turn an untouched tab into
-     * a row with a null title.
+     * A sort order defaults to 0, a visibility switch defaults to on and a
+     * status select always carries a value, so every form posts them for every
+     * language — including the tabs the translator never opened. Counting them
+     * would turn an untouched tab into a row with a null title.
      *
      * @return list<string>
      */
     protected function nonContentKeys(): array
     {
-        return ['locale', 'lang_group_id', 'id', 'sort_order', 'is_active'];
+        return ['locale', 'lang_group_id', 'id', 'sort_order', 'is_active', 'status', 'published_at'];
     }
 
     /**

@@ -16,7 +16,7 @@
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="name">Kampanya Adı <span class="text-neon-red">*</span></label>
                     <input type="text" class="stg-input @error('name') is-invalid @enderror"
-                           id="name" name="name" value="{{ old('name', $campaign?->name) }}" required
+                           id="name" name="name" data-validation-engine="validate[required,maxSize[191]]" value="{{ old('name', $campaign?->name) }}"
                            placeholder="Ağustos Bülteni">
                     <small class="stg-hint">Yalnızca panelde görünür, alıcılar görmez.</small>
                     @error('name') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -25,7 +25,7 @@
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="subject">Mail Konusu <span class="text-neon-red">*</span></label>
                     <input type="text" class="stg-input @error('subject') is-invalid @enderror"
-                           id="subject" name="subject" value="{{ old('subject', $campaign?->subject) }}" required
+                           id="subject" name="subject" data-validation-engine="validate[required,maxSize[191]]" value="{{ old('subject', $campaign?->subject) }}"
                            placeholder="Merhaba {name}, bu ayın haberleri">
                     <small class="stg-hint">
                         Kişiselleştirme: <code>{name}</code> alıcının adı, <code>{email}</code> adresi,
@@ -90,9 +90,9 @@
             <div class="card-body-custom">
                 @foreach($audiences as $audience)
                     <label class="stg-toggle-item cursor-pointer d-flex align-items-start gap-2 mb-2">
-                        <input type="radio" name="audience" value="{{ $audience->value }}"
+                        <input type="radio" name="audience" data-fv-ignore value="{{ $audience->value }}"
                                class="js-audience-radio mt-1"
-                               {{ $currentAudience === $audience->value ? 'checked' : '' }} required>
+                               {{ $currentAudience === $audience->value ? 'checked' : '' }}>
                         <div class="stg-toggle-info">
                             <span><i class="bi {{ $audience->icon() }} me-1"></i>{{ $audience->label() }}</span>
                             <small>{{ $audience->description() }}</small>
@@ -109,7 +109,7 @@
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info"><span>Yalnızca aktif üyeler</span></div>
                             <label class="stg-switch">
-                                <input type="checkbox" name="active_only" value="1"
+                                <input type="checkbox" name="active_only" data-fv-ignore value="1"
                                        {{ old('active_only', $filter['active_only'] ?? true) ? 'checked' : '' }}>
                                 <span class="stg-switch-slider"></span>
                             </label>
@@ -117,7 +117,7 @@
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info"><span>Yalnızca e-postası doğrulanmış</span></div>
                             <label class="stg-switch">
-                                <input type="checkbox" name="verified_only" value="1"
+                                <input type="checkbox" name="verified_only" data-fv-ignore value="1"
                                        {{ old('verified_only', $filter['verified_only'] ?? false) ? 'checked' : '' }}>
                                 <span class="stg-switch-slider"></span>
                             </label>
@@ -145,7 +145,7 @@
                                 <small>Abonenin kayıt olduğu dil</small>
                             </div>
                             <label class="stg-switch">
-                                <input type="checkbox" name="match_locale" value="1"
+                                <input type="checkbox" name="match_locale" data-fv-ignore value="1"
                                        {{ old('match_locale', $filter['match_locale'] ?? false) ? 'checked' : '' }}>
                                 <span class="stg-switch-slider"></span>
                             </label>
@@ -206,7 +206,7 @@
                             <small>Saatte {{ $hourlyLimit }} mail, her {{ App\Services\CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada {{ $perRunQuota }} adet</small>
                         </div>
                         <label class="stg-switch">
-                            <input type="checkbox" name="throttled" value="1"
+                            <input type="checkbox" name="throttled" data-fv-ignore value="1"
                                    {{ old('throttled', $campaign?->throttled ?? true) ? 'checked' : '' }}>
                             <span class="stg-switch-slider"></span>
                         </label>
@@ -218,7 +218,7 @@
 
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="locale">Dil</label>
-                    <select class="stg-select" id="locale" name="locale">
+                    <select class="stg-select" id="locale" name="locale" data-fv-ignore>
                         <option value="">Belirtme</option>
                         @foreach($languages as $language)
                             <option value="{{ $language->code }}" {{ old('locale', $campaign?->locale) === $language->code ? 'selected' : '' }}>
@@ -230,7 +230,7 @@
 
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="from_name">Gönderen Adı</label>
-                    <input type="text" class="stg-input" id="from_name" name="from_name"
+                    <input type="text" class="stg-input" id="from_name" name="from_name" data-validation-engine="validate[maxSize[191]]"
                            value="{{ old('from_name', $campaign?->from_name) }}"
                            placeholder="{{ \App\Models\Setting::getValue('site_name', config('app.name')) }}">
                 </div>
@@ -238,7 +238,7 @@
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="from_email">Gönderen Adresi</label>
                     <input type="email" class="stg-input @error('from_email') is-invalid @enderror"
-                           id="from_email" name="from_email" value="{{ old('from_email', $campaign?->from_email) }}"
+                           id="from_email" name="from_email" data-validation-engine="validate[custom[email],maxSize[191]]" value="{{ old('from_email', $campaign?->from_email) }}"
                            placeholder="{{ config('mail.from.address') }}">
                     <small class="stg-hint">SPF/DKIM kayıtları olmayan bir adres spam'e düşer.</small>
                     @error('from_email') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -247,7 +247,7 @@
                 <div class="stg-field">
                     <label class="stg-label" for="reply_to">Yanıt Adresi</label>
                     <input type="email" class="stg-input @error('reply_to') is-invalid @enderror"
-                           id="reply_to" name="reply_to" value="{{ old('reply_to', $campaign?->reply_to) }}">
+                           id="reply_to" name="reply_to" data-validation-engine="validate[custom[email],maxSize[191]]" value="{{ old('reply_to', $campaign?->reply_to) }}">
                     @error('reply_to') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                 </div>
             </div>
