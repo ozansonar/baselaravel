@@ -155,6 +155,31 @@
         }
     }
 
+    // ==================== FIELD DEFAULTS ====================
+
+    /**
+     * data-fv-default="0" — an emptied field falls back to its default instead
+     * of travelling to the server as null. Applied on blur so the user sees the
+     * value that will actually be saved, and again on submit as a safety net.
+     */
+    function applyDefaults(form) {
+        form.querySelectorAll('[data-fv-default]').forEach(function (field) {
+            if (String(field.value || '').trim() === '') {
+                field.value = field.dataset.fvDefault;
+            }
+        });
+    }
+
+    function watchDefaults(form) {
+        form.querySelectorAll('[data-fv-default]').forEach(function (field) {
+            field.addEventListener('blur', function () {
+                if (String(field.value || '').trim() === '') {
+                    field.value = field.dataset.fvDefault;
+                }
+            });
+        });
+    }
+
     // ==================== ERROR REVEAL ====================
 
     /**
@@ -270,9 +295,14 @@
 
         var $form = $(form);
 
-        // Bound before the engine attaches so the editor content is already in
-        // the textarea by the time the rules run.
-        $form.on('submit', syncEditors);
+        watchDefaults(form);
+
+        // Bound before the engine attaches so the editor content and the field
+        // defaults are already in place by the time the rules run.
+        $form.on('submit', function () {
+            syncEditors();
+            applyDefaults(form);
+        });
 
         $form.validationEngine('attach', $.extend({}, FormValidation.defaults, options || {}, {
             onValidationComplete: function ($validatedForm, valid) {

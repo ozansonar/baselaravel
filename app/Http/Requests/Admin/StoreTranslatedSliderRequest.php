@@ -45,7 +45,7 @@ final class StoreTranslatedSliderRequest extends FormRequest
             ];
             $rules["{$prefix}.button_text"] = ['nullable', 'string', 'max:100'];
             $rules["{$prefix}.button_url"]  = ['nullable', 'string', 'max:500'];
-            $rules["{$prefix}.sort_order"]  = ['nullable', 'integer', 'min:0'];
+            $rules["{$prefix}.sort_order"]  = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.is_active"]   = ['nullable', 'boolean'];
         }
 

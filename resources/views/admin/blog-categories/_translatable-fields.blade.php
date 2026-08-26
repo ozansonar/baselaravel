@@ -149,7 +149,7 @@
                                 type="number"
                                 class="form-control @error("translations.{$code}.sort_order") is-invalid @enderror"
                                 id="sort_order_{{ $code }}"
-                                name="translations[{{ $code }}][sort_order]"
+                                name="translations[{{ $code }}][sort_order]" data-fv-default="0"
                                 value="{{ old("translations.{$code}.sort_order", $translation?->sort_order ?? 0) }}"
                                 min="0"
                                 max="999"

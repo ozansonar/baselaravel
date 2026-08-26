@@ -46,7 +46,7 @@ final class StoreTranslatedPopupRequest extends FormRequest
             $rules["{$prefix}.start_date"]   = ['nullable', 'date'];
             $rules["{$prefix}.end_date"]     = ['nullable', 'date', "after_or_equal:{$prefix}.start_date"];
             $rules["{$prefix}.is_active"]    = ['nullable', 'boolean'];
-            $rules["{$prefix}.sort_order"]   = ['nullable', 'integer', 'min:0'];
+            $rules["{$prefix}.sort_order"]   = ['nullable', 'integer', 'min:0', 'max:65535'];
         }
 
         return $rules;

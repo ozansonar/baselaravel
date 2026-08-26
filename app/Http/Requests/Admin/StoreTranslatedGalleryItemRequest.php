@@ -47,8 +47,8 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
                 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096',
             ];
             $rules["{$prefix}.video_url"]  = ['nullable', "required_if:{$prefix}.type,video", 'string', 'max:500', 'url'];
-            $rules["{$prefix}.duration"]   = ['nullable', 'integer', 'min:0'];
-            $rules["{$prefix}.sort_order"] = ['nullable', 'integer', 'min:0'];
+            $rules["{$prefix}.duration"]   = ['nullable', 'integer', 'min:0', 'max:65535'];
+            $rules["{$prefix}.sort_order"] = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.is_active"]  = ['nullable', 'boolean'];
         }
 
