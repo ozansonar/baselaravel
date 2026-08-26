@@ -8,13 +8,18 @@
     @var \App\Models\Slider|null $translation
 --}}
 
+@php
+    // Server side asks for artwork only on the default language of a new record.
+    $imageRequired = $language->is_default && ! $translation?->image;
+@endphp
+
         {{-- Mobile Section Jumper --}}
         <div class="d-lg-none mb-4" data-aos="fade-up">
             <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
                 <option value="" disabled selected>Bölüme git...</option>
-                <option value="section-basic">Temel Bilgiler</option>
-                <option value="section-media">Görsel</option>
-                <option value="section-button">Buton Ayarları</option>
+                <option value="section-basic-{{ $language->code }}">Temel Bilgiler</option>
+                <option value="section-media-{{ $language->code }}">Görsel</option>
+                <option value="section-button-{{ $language->code }}">Buton Ayarları</option>
             </select>
         </div>
 
@@ -24,15 +29,15 @@
             {{-- Sol Navigasyon (desktop) --}}
             <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right">
                 <div class="stg-nav-inner position-sticky stg-nav-sticky">
-                    <a href="#section-basic" class="stg-nav-item active" onclick="scrollToSection('section-basic', this)">
+                    <a href="#section-basic-{{ $language->code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic-{{ $language->code }}', this)">
                         <i class="bi bi-sliders"></i>
                         <div><span>Temel Bilgiler</span><small>Başlık, alt başlık, durum</small></div>
                     </a>
-                    <a href="#section-media" class="stg-nav-item" onclick="scrollToSection('section-media', this)">
+                    <a href="#section-media-{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media-{{ $language->code }}', this)">
                         <i class="bi bi-image"></i>
                         <div><span>Görsel</span><small>Slider görseli</small></div>
                     </a>
-                    <a href="#section-button" class="stg-nav-item" onclick="scrollToSection('section-button', this)">
+                    <a href="#section-button-{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-button-{{ $language->code }}', this)">
                         <i class="bi bi-link-45deg"></i>
                         <div><span>Buton Ayarları</span><small>Buton metni ve URL</small></div>
                     </a>
@@ -43,7 +48,7 @@
             <div class="col-12 col-lg-9">
 
                 {{-- SECTION 1: TEMEL BİLGİLER --}}
-                <div class="card-dark mb-4" id="section-basic" data-aos="fade-up">
+                <div class="card-dark mb-4" id="section-basic-{{ $language->code }}" data-aos="fade-up">
                     <div class="card-header-custom">
                         <div class="form-section-header mb-0">
                             <div class="form-section-icon bg-icon-teal"><i class="bi bi-sliders"></i></div>
@@ -58,12 +63,12 @@
                             {{-- Başlık --}}
                             <div class="col-12">
                                 <label class="form-label" for="title_{{ $language->code }}">
-                                    Başlık <span class="text-danger">*</span>
+                                    Başlık @if($language->is_default)<span class="text-danger">*</span>@endif
                                 </label>
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                        id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
-                                       placeholder="Slider başlığını girin..." required>
+                                       placeholder="Slider başlığını girin..." @if($language->is_default) required @endif>
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -111,7 +116,7 @@
                 </div>
 
                 {{-- SECTION 2: GÖRSEL --}}
-                <div class="card-dark mb-4" id="section-media" data-aos="fade-up">
+                <div class="card-dark mb-4" id="section-media-{{ $language->code }}" data-aos="fade-up">
                     <div class="card-header-custom">
                         <div class="form-section-header mb-0">
                             <div class="form-section-icon bg-icon-purple"><i class="bi bi-image"></i></div>
@@ -125,11 +130,11 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label" for="image_{{ $language->code }}">
-                                    Slider Görseli <span class="text-danger">*</span>
+                                    Slider Görseli @if($imageRequired)<span class="text-danger">*</span>@endif
                                 </label>
                                 <input type="file"
                                        class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" required>
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" @if($imageRequired) required @endif>
                                 @error("translations.{$language->code}.image")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -140,7 +145,7 @@
                 </div>
 
                 {{-- SECTION 3: BUTON AYARLARI --}}
-                <div class="card-dark mb-4" id="section-button" data-aos="fade-up">
+                <div class="card-dark mb-4" id="section-button-{{ $language->code }}" data-aos="fade-up">
                     <div class="card-header-custom">
                         <div class="form-section-header mb-0">
                             <div class="form-section-icon bg-icon-blue"><i class="bi bi-link-45deg"></i></div>
@@ -183,3 +188,6 @@
                     </div>
                 </div>
 
+
+            </div>{{-- /col-lg-9 --}}
+        </div>{{-- /row --}}

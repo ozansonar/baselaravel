@@ -12,7 +12,10 @@
 {{-- Which tab was open when validation failed, so the user comes back to it --}}
 <input type="hidden" name="active_locale" id="{{ $id }}ActiveLocale" value="{{ $activeLocale }}">
 
-<ul class="nav nav-tabs lang-tabs mb-0" id="{{ $id }}" role="tablist">
+<ul class="nav lang-tabs mb-0" id="{{ $id }}" role="tablist" aria-label="İçerik dili">
+    <li class="lang-tabs__label" aria-hidden="true">
+        <i class="bi bi-translate"></i><span class="d-none d-sm-inline">İçerik dili</span>
+    </li>
     @foreach($languages as $language)
         @php
             $translation = $model?->translation($language->code);
@@ -39,9 +42,13 @@
                 <span>{{ $language->name }}</span>
 
                 @if($language->is_default)
-                    <span class="lang-tabs__badge lang-tabs__badge--default" title="Varsayılan dil">Varsayılan</span>
+                    <span class="lang-tabs__badge lang-tabs__badge--default" title="Varsayılan dil">
+                        <i class="bi bi-star-fill"></i> Varsayılan
+                    </span>
                 @elseif($model && ! $translation)
-                    <span class="lang-tabs__badge lang-tabs__badge--missing" title="Bu dilde henüz içerik yok">Çeviri yok</span>
+                    <span class="lang-tabs__badge lang-tabs__badge--missing" title="Bu dilde henüz içerik yok">
+                        <i class="bi bi-dash-circle"></i> Çeviri yok
+                    </span>
                 @endif
 
                 @if($hasErrors)
