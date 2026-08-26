@@ -9,8 +9,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * A category arrives as one block of fields per language; only the default
- * language has to be filled in.
+ * A category arrives as one block of fields per language.
+ *
+ * No single language is mandatory: a category may exist in English only. What
+ * is required is that at least one language block is filled, and that a block
+ * the editor did touch carries a name.
+ *
+ * Sort order and the visibility switch always carry a value, so only the
+ * content fields decide whether a block counts as touched.
  */
 final class StoreTranslatedBlogCategoryRequest extends FormRequest
 {
@@ -25,12 +31,22 @@ final class StoreTranslatedBlogCategoryRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
 
-        $rules = ['translations' => ['required', 'array']];
+        $rules = [
+            'translations' => ['required', 'array', function (string $attribute, mixed $value, callable $fail): void {
+                foreach (app(LanguageService::class)->activeCodes() as $locale) {
+                    if ($this->hasContent($locale)) {
+                        return;
+                    }
+                }
+
+                $fail('En az bir dilde kategori adı girmelisiniz.');
+            }],
+        ];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            // A language the editor left untouched stays optional.
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix] = ['array'];
@@ -60,5 +76,18 @@ final class StoreTranslatedBlogCategoryRequest extends FormRequest
         }
 
         return $messages;
+    }
+
+    /**
+     * Whether the editor put anything into this language block.
+     */
+    private function hasContent(string $locale): bool
+    {
+        $fields = (array) $this->input("translations.{$locale}", []);
+
+        return array_any(
+            ['name', 'icon'],
+            fn (string $field): bool => trim((string) ($fields[$field] ?? '')) !== '',
+        );
     }
 }
