@@ -763,6 +763,61 @@ ayrımı, değişikliğin ön yüz dil seçicisine ve `hreflang` etiketlerine ya
 
 ---
 
+## 5l. Dil Yazıları Ekranı — ✅ Kuruldu
+
+Arayüz metinleri yalnızca `lang/` dosyalarındaydı; değiştirmek için kod
+düzenlemek gerekiyordu. **Admin → Dil Yazıları** ekranı eklendi: 231 metin,
+dile göre sekmeler, bölümlere ayrılmış form, anlık arama.
+
+### Neden dosyaya değil veritabanına yazıyor
+
+İki seçenek vardı ve seçim performansla ilgili değil:
+
+- **Dosyaya yazmak** okuma açısından en hızlısı (opcache), ama deploy `git pull`
+  ile yapılıyor — her deploy kullanıcının tüm düzenlemelerini sessizce silerdi.
+  Ayrıca `lang/` dizininin üretimde yazılabilir olması gerekirdi.
+- **Veritabanı + cache** deploy güvenli. Dosya varsayılan kalıyor, tablo yalnızca
+  değiştirilenleri tutuyor. "Varsayılana dön" ancak bu ayrım sayesinde anlamlı.
+  Mail şablonlarındaki desenin aynısı.
+
+Performans farkı yok: bir dilin değişiklikleri tek dizi olarak
+`rememberForever` ile cache'leniyor ve Laravel çeviri grubunu istek başına bir
+kez yüklerken üzerine biniyor. Isınmış sayfa render'ı **sıfır** sorgu atıyor;
+test bunu ölçüyor.
+
+### Nasıl çalışıyor
+
+`DatabaseOverrideLoader`, Laravel'in dosya yükleyicisini sarıyor. Her `__()`
+çağrısı ve her Blade `@lang` olduğu gibi kalıyor — tek satır view değişmedi.
+
+Ekrandaki anahtar listesi **varsayılan dilin dosyasından** okunuyor, yani kodda
+yeni bir metin eklendiğinde panelde kendiliğinden beliriyor.
+
+Varsayılana eşit değer override olarak saklanmıyor, siliniyor: aksi hâlde metin
+donar ve ileride dosyadaki varsayılan değişse bile siteye ulaşmazdı.
+
+### Yol üzerinde bulunan üç sorun
+
+1. **`TranslationService` singleton değildi.** Yükleyici kendi örneğini tutuyor
+   ve istek içi hafızası vardı; ikinci bir örnek kaydederken kendi hafızasını
+   temizlerken yükleyici bayat değeri sunmaya devam ediyordu.
+2. **Kaydetme mesajı yanıltıcıydı:** "228 metin varsayılana döndü" diyordu, oysa
+   hiçbir şey geri alınmamış, sadece dokunulmamış alanlar varsayılana eşitti.
+   Artık yalnızca gerçekten geri alınanlar sayılıyor.
+3. **`Schema::hasTable()` her soğuk yüklemede fazladan sorgu atıyordu** — yalnızca
+   ilk migration öncesi var olan bir durumu korumak için, sonsuza kadar. Zaten
+   var olan try/catch bunu bedelsiz kapsıyor.
+
+### Testler
+
+`TranslationOverrideTest` (21): çözümleme, dil kapsamı, yer tutucuların
+korunması, varsayılana eşit değerin saklanmaması, boş değerin varsayılana
+dönmesi, tanımsız anahtarın yazılamaması, sayaçların yalnızca gerçek
+değişikliği bildirmesi, ısınmış sayfanın sıfır sorgu atması, panel akışı ve
+yetki ayrımı.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki

@@ -290,13 +290,34 @@ trait'ini servise ekleyin, formu `<x-language-tabs>` ile sarın ve alanları
 
 ### Arayüz metinleri
 
-İçerik veritabanından gelir, **arayüz** ise `lang/{kod}/site.php` dosyalarından:
-buton, başlık, form etiketi, placeholder ve `aria-label` dahil. Kurulumla `tr`
+İçerik veritabanından gelir, **arayüz metinleri** (buton, başlık, form etiketi,
+placeholder, `aria-label`) `lang/{kod}/site.php` dosyalarından. Kurulumla `tr`
 ve `en` dosyaları gelir.
 
-Yeni dil eklediğinizde `lang/tr/site.php` dosyasını yeni kodun klasörüne
-kopyalayıp değerleri çevirin. Dosya yoksa arayüz varsayılan dile düşer, ham
-anahtar (`site.nav.home`) sayfaya basılmaz.
+Bu metinler **Admin → Dil Yazıları** ekranından düzenlenebilir. Çalışma şekli:
+
+- Dosya **varsayılan** olarak kalır, veritabanı yalnızca **değiştirdiklerini**
+  tutar
+- Değiştirilen metin dosyanın üzerine biner, geri kalan her şey dosyadan gelir
+- "Varsayılana Dön" ile bir dilin tüm değişiklikleri silinir, dosya hâline döner
+- Bir alanı boşaltmak da o metni varsayılana döndürür
+
+Neden dosyaya yazmıyor: **deploy `git pull` ile yapılıyor.** Değişiklikler
+`lang/` dosyalarına yazılsaydı her deploy hepsini sessizce silerdi. Dosyayı
+varsayılan tutmak ayrıca "varsayılana dön"ü mümkün kılıyor.
+
+**Performans:** bir dilin tüm değişiklikleri tek dizi olarak
+`Cache::rememberForever` ile tutulur ve Laravel çeviri grubunu istek başına bir
+kez yüklerken üzerine bindirilir. Yani ısınmış bir sayfa render'ı **sıfır**
+sorgu atar — test bunu doğruluyor.
+
+Yeni dil eklediğinde `lang/tr/site.php` dosyasını yeni kodun klasörüne
+kopyalayıp değerleri çevir; dosya yoksa arayüz varsayılan dile düşer, ham
+anahtar (`site.nav.home`) sayfaya basılmaz. Panelden de girebilirsin ama
+dosyaya yazmak sürüm kontrolüne girdiği için tercih edilir.
+
+> Menüdeki bağlantı etiketleri buradan değil, **Menü Yönetimi**'nden gelir —
+> onlar veritabanı içeriğidir.
 
 `InterfaceTranslationTest` iki şeyi bekçilik eder: dil dosyalarının anahtar
 kümesi birebir aynıdır (eksik anahtar sayfayı sessizce yarı çevrilmiş gösterir)
@@ -450,6 +471,8 @@ composer test
   düşmesi, menünün başka bir dile kopyalanması
 - `LanguagePanelTest` — dil ekleme/güncelleme/silme ekranı, "tek varsayılan"
   kuralının her değişiklikten sonra korunması, yetki ayrımı
+- `TranslationOverrideTest` — arayüz metinlerinin panelden düzenlenmesi,
+  varsayılana eşit değerin saklanmaması, ısınmış sayfanın sıfır sorgu atması
 
 ---
 

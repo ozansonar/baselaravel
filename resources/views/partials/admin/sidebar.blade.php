@@ -168,6 +168,14 @@
         @endcan
 
 
+        @can('viewAny', \App\Models\Translation::class)
+        <a href="{{ route('admin.translations.index') }}"
+           class="nav-link {{ Route::is('admin.translations.*') ? 'active' : '' }}">
+            <i class="bi bi-fonts"></i> Dil Yazıları
+        </a>
+        @endcan
+
+
         @can('viewAny', \App\Models\Language::class)
         <a href="{{ route('admin.languages.index') }}"
            class="nav-link {{ Route::is('admin.languages.*') ? 'active' : '' }}">

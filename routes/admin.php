@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubscriberController;
+use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\Admin\UserController;
@@ -135,6 +136,13 @@ Route::prefix('menus')->name('menus.')->group(function () {
     Route::put('items/{item}', [MenuItemController::class, 'update'])->name('items.update');
     Route::delete('items/{item}', [MenuItemController::class, 'destroy'])->name('items.destroy');
     Route::patch('items/{item}/restore', [MenuItemController::class, 'restore'])->name('items.restore')->withTrashed();
+});
+
+// Dil yazıları (arayüz metinleri)
+Route::prefix('dil-yazilari')->name('translations.')->group(function () {
+    Route::get('/',          [TranslationController::class, 'index'])->name('index');
+    Route::put('/',          [TranslationController::class, 'update'])->name('update');
+    Route::post('sifirla',   [TranslationController::class, 'reset'])->name('reset');
 });
 
 // Diller

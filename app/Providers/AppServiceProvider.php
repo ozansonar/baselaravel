@@ -27,6 +27,8 @@ use App\Observers\RedirectObserver;
 use App\Observers\UserObserver;
 use App\Services\MenuItemService;
 use App\Services\MenuService;
+use App\Services\TranslationService;
+use App\Translation\DatabaseOverrideLoader;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Events\MessageFailed;
@@ -51,6 +53,19 @@ class AppServiceProvider extends ServiceProvider
         // memo — which only helps if the instance is shared.
         $this->app->singleton(MenuService::class);
         $this->app->singleton(MenuItemService::class);
+
+        // Shared instance on purpose: the loader holds one of these and keeps a
+        // per-request memo of the overrides. A second instance would clear its
+        // own memo on save while the loader kept serving the stale one.
+        $this->app->singleton(TranslationService::class);
+
+        // Interface texts stay in lang/ files; the panel's edits are laid over
+        // them at load time. Decorating the loader keeps every __() call and
+        // every Blade @lang untouched.
+        $this->app->extend('translation.loader', fn ($loader, $app) => new DatabaseOverrideLoader(
+            $loader,
+            $app->make(TranslationService::class),
+        ));
     }
 
     /**
