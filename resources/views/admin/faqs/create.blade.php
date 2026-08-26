@@ -29,9 +29,7 @@
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <form method="POST" action="{{ route('admin.faqs.store') }}" data-validate novalidate>
+    <form method="POST" action="{{ route('admin.faqs.store') }}" data-validate novalidate>
                 @csrf
 
                 {{-- Her dil kendi sekmesinde --}}
@@ -64,7 +62,5 @@
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
+    </form>
 @endsection

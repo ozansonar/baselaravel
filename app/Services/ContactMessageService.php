@@ -61,6 +61,8 @@ final class ContactMessageService
 
         $message = ContactMessage::create($data);
 
+        $this->clearCache();
+
         $adminEmail = config('mail.admin_address', config('mail.from.address'));
         if ($adminEmail) {
             try {
@@ -80,25 +82,32 @@ final class ContactMessageService
     {
         if (!$message->is_read) {
             $message->markAsRead();
+            $this->clearCache();
         }
     }
 
     public function markAllAsRead(): int
     {
-        return ContactMessage::unread()->update([
+        $affected = ContactMessage::unread()->update([
             'is_read' => true,
             'read_at' => now(),
         ]);
+
+        $this->clearCache();
+
+        return $affected;
     }
 
     public function delete(ContactMessage $message): void
     {
         $message->delete();
+        $this->clearCache();
     }
 
     public function restore(ContactMessage $message): void
     {
         $message->restore();
+        $this->clearCache();
     }
 
     public function unreadCount(): int
