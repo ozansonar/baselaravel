@@ -17,6 +17,10 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 
 ## Kırmızı Çizgiler
 
+- `Schedule::command()` ve `->runInBackground()` → YASAK, `Schedule::call()` +
+  `Artisan::call()` kullan. Hosting'de alt süreç açılamıyor; ihlal edilirse
+  görev hata vermeden **hiç çalışmaz** → `docs/SHARED-HOSTING.md`
+- `queue:work` → YASAK (pcntl yok), kuyruk `Queue::pop()` + `fire()` ile işlenir
 - Vite, npm, Node.js, Webpack → YASAK
 - jQuery, React, Vue, Angular, Livewire, Inertia → YASAK
 - Inline style (`style="..."`) → YASAK, her zaman class kullan

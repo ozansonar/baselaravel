@@ -93,28 +93,35 @@ composer dev
 
 ## Zamanlanmış görevler (cron)
 
-Sunucuya **tek bir cron satırı** eklemek yeterli:
+Hosting panelinde **tek bir** cron tanımlanır, her dakika çalışacak şekilde:
 
-```bash
-* * * * * cd /proje/yolu && php artisan schedule:run >> /dev/null 2>&1
+```
+php /home/KULLANICI/public_html/artisan schedule:run >> /dev/null 2>&1
 ```
 
-`routes/console.php` içinde tanımlı görevler:
+Laravel scheduler hangi görevin zamanı geldiğine kendisi karar verir; her görev
+için ayrı cron tanımlamaya gerek yoktur.
 
-| Görev | Sıklık | Açıklama |
-|---|---|---|
-| `queue-worker` | Her dakika | Kuyruktaki işleri işler |
-| `analytics-aggregate-daily` | 02:00 | Ziyaret kayıtlarını günlük özete indirger |
-| `analytics-anonymize-ips` | 03:00 | 90 günden eski IP'leri maskeler (KVKK) |
-| `backup-daily` | 03:00 | Veritabanı + `public/uploads` → ZIP |
-| `audit-logs-prune` | Pazar 03:30 | 90 günden eski aktivite loglarını siler |
-| `analytics-prune-old` | Pazar 04:00 | 365 günden eski ham ziyaret kayıtlarını siler |
+| Saat | Görev |
+|------|-------|
+| her dakika | Kuyruk işlerini işler |
+| her 5 dakika | Toplu mail gönderimi (`campaigns:dispatch`) |
+| 02:00 | Günlük ziyaret istatistiklerini toplar |
+| 03:00 | 90 günden eski IP'leri maskeler (KVKK) |
+| 03:30 Pazar | 90 günden eski denetim kayıtlarını siler |
+| 04:00 Pazar | 365 günden eski ziyaret kayıtlarını siler |
+| 05:00 | Veritabanı + uploads yedeği alır |
 
-> **Kuyruk hakkında:** paylaşımlı hosting'de `pcntl` eklentisi bulunmadığı için
-> `queue:work` kullanılmaz. Bunun yerine cron her dakika kuyruktan iş çekip
-> çalıştırır. Supervisor kurabildiğin bir sunucudaysan `queue:work`'e geçebilirsin.
+Kontrol:
 
----
+```bash
+php artisan schedule:list
+```
+
+> **Önemli:** Bu proje shared hosting'de alt süreç açamıyor. Zamanlanmış
+> görevler `Schedule::command()` ile **tanımlanamaz** — öyle tanımlanan bir
+> görev hata vermeden hiç çalışmaz. Ayrıntı ve kurallar:
+> [docs/SHARED-HOSTING.md](docs/SHARED-HOSTING.md)
 
 ## Yazma izinleri
 
@@ -434,4 +441,5 @@ preset'i bu hizalamayı bozar. Stil kontrolü için yalnızca `pint --test`.
 
 - `CLAUDE.md` — proje kuralları (zorunlu)
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
+- `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `resources/views/admin-theme/README.md` — tema referansı

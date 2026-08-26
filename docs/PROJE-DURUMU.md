@@ -676,6 +676,58 @@ yazılıyor ve sonraki kampanyalara dahil edilmiyor.
 
 ---
 
+## 5j. Shared Hosting Uyumu — ✅ Kritik Hata Düzeltildi
+
+Kullanıcının hosting kuralları belgesi (`cron-rules.md`) incelendiğinde
+projedeki **yedi zamanlanmış görevin altısının hiç çalışmadığı** ortaya çıktı.
+
+`Schedule::command()` komutu ayrı bir süreçte çalıştırmaya çalışıyor; hosting'de
+`exec()` ve türevleri kapalı olduğu için alt süreç açılamıyor. Kritik olan:
+**hata fırlatmıyor.** Görev `schedule:list` çıktısında görünüyor, sırası
+geliyor, hiçbir şey olmuyor.
+
+Sessizce çalışmayanlar:
+
+- `backup:run` — gece yedeği (yedek olmadığı, yedeğe ihtiyaç duyulunca anlaşılır)
+- `analytics:anonymize-ips` — KVKK gereği IP maskeleme
+- `analytics:aggregate-daily`, `analytics:prune-old`
+- `audit-logs:prune`
+- `campaigns:dispatch` — yeni yazılan toplu mail modülü (yani hiç mail gitmezdi)
+
+Yalnızca `Schedule::call()` ile yazılmış kuyruk işleyicisi çalışıyordu.
+
+### Yapılan
+
+Hepsi `Schedule::call(fn () => Artisan::call(...))` biçimine çevrildi —
+aynı süreçte çalışır, alt süreç veya özel uzantı gerektirmez.
+
+Bundan doğan üç ayrıntı:
+
+1. **İsim zorunlu oldu.** `withoutOverlapping()` kilidi görev adına bakıyor;
+   `Schedule::command()` adı komuttan alıyordu, `call()` alamıyor.
+2. **Hata izolasyonu eklendi.** Tüm görevler tek PHP sürecini paylaştığı için
+   birinde çıkan istisna geri kalanını da düşürürdü; her komut `try/catch`
+   içine alındı ve hata loglanıyor.
+3. **Saatler ayrıştırıldı.** Aynı dakikaya denk gelen görevler tek süreçte arka
+   arkaya çalışıyor. Yedekleme (en yavaş iş) 03:00'ten 05:00'e alındı.
+
+### Doküman
+
+`cron-rules.md` kök dizinden `docs/SHARED-HOSTING.md`'ye taşındı ve genişletildi:
+mevcut görev takvimi, cron'un çalıştığını doğrulama, deploy sonrası kontrol
+listesi, mail ve upload kısıtlamaları. CLAUDE.md'ye kırmızı çizgi olarak,
+README'ye cron bölümüne bağlandı.
+
+### Bekçi
+
+`ScheduleUsesCallablesTest` (11): hiçbir görev `Schedule::command()` ile
+tanımlanmamış, `runInBackground()` kullanılmamış, her görevin adı var, beklenen
+yedi görev kayıtlı, mail gönderim aralığı `CampaignDispatcher::RUN_INTERVAL_MINUTES`
+ile uyumlu. Yasak çağrı kontrolü kaynak kodun token'larından yapılıyor —
+dosya bu çağrıları neden yasak olduklarını anlatmak için zaten adıyla anıyor.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
