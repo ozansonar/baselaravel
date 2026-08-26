@@ -29,7 +29,7 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
     {
         $languages = app(LanguageService::class);
         $default = $languages->defaultCode();
-        $isCreate = $this->route('galleryItem') === null;
+        $isCreate = $this->route('gallery_item') === null;
 
         $rules = ['translations' => ['required', 'array']];
 
