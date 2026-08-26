@@ -35,6 +35,9 @@ final class BlogCategoryController extends Controller
             'stats'        => $this->blogCategoryService->getAdminStats(),
             'statusCounts' => $this->blogCategoryService->statusCounts(),
             'perPage'      => $perPage,
+            // Keyed by code so the table can turn a group's locale list into
+            // flags without hitting the database per row.
+            'languages'    => $this->blogCategoryService->formLanguages()->keyBy('code'),
         ]);
     }
 

@@ -174,11 +174,21 @@
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $category->name }}</span>
                                         <span class="cl-content-meta"><i class="bi bi-link-45deg me-1"></i>{{ $category->slug }}</span>
+                                        {{-- One row per category; the flags say which languages it exists in. --}}
+                                        <span class="cl-lang-badges">
+                                            @foreach($languages as $code => $language)
+                                                @php $hasTranslation = in_array($code, $category->group_locales ?? [], true); @endphp
+                                                <span class="cl-lang-badge {{ $hasTranslation ? '' : 'cl-lang-badge--missing' }}"
+                                                      title="{{ $language->name }}{{ $hasTranslation ? '' : ' — çeviri yok' }}">
+                                                    <span class="cl-lang-badge__flag">{{ $language->flag }}</span>{{ strtoupper($code) }}
+                                                </span>
+                                            @endforeach
+                                        </span>
                                     </div>
                                 </td>
                                 <td data-label="İkon" class="d-none d-md-table-cell">
                                     @if($category->icon)
-                                        <span class="text-teal"><i class="bi {{ $category->icon }} me-1"></i> {{ $category->icon }}</span>
+                                        <span class="text-teal"><i class="{{ Str::startsWith($category->icon, 'bi-') ? 'bi ' . $category->icon : $category->icon }} me-1"></i> {{ $category->icon }}</span>
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
