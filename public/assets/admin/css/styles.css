@@ -32744,3 +32744,52 @@ input.is-loading {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Language badges (one list row per translation group)
+   ========================================================================== */
+
+.cl-lang-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.cl-lang-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(20, 184, 166, .14);
+  border: 1px solid rgba(20, 184, 166, .3);
+  border-radius: 999px;
+  color: var(--teal-light);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 1.6;
+}
+
+/* A language the category has not been translated into yet. */
+.cl-lang-badge--missing {
+  background: transparent;
+  border-color: var(--border-color);
+  border-style: dashed;
+  color: var(--text-secondary);
+  opacity: .65;
+}
+
+.cl-lang-badge__flag {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.cl-lang-badge--missing .cl-lang-badge__flag {
+  filter: grayscale(1);
+}
+
+[data-theme="light"] .cl-lang-badge {
+  color: var(--teal-primary);
+}
