@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\ContentStatus;
 use App\Enums\GalleryType;
 use App\Enums\PopupPage;
 use App\Models\BlogCategory;
@@ -69,11 +70,14 @@ class TranslatedContentFormsTest extends TestCase
         $this->assertSame('How do I sign up?', $turkish->translation('en')?->question);
     }
 
+    /**
+     * The form sends only the tab being saved, so one language block is a
+     * complete submission and the rest can be filled in later.
+     */
     public function test_an_faq_needs_only_the_default_language(): void
     {
         $this->post('/admin/faqs', ['translations' => [
             'tr' => ['question' => 'Tek dil', 'answer' => 'Cevap', 'is_active' => 1],
-            'en' => ['question' => '', 'answer' => ''],
         ]])->assertSessionHasNoErrors();
 
         $this->assertSame(1, Faq::count());
@@ -220,16 +224,19 @@ class TranslatedContentFormsTest extends TestCase
     {
         $this->post('/admin/sliders', ['translations' => [
             'tr' => ['title' => 'Kampanya', 'image' => UploadedFile::fake()->image('tr.jpg', 1200, 600), 'is_active' => 1, 'sort_order' => 0],
-            'en' => ['title' => 'Campaign', 'is_active' => 1, 'sort_order' => 0],
         ]])->assertSessionHasNoErrors();
 
         $turkish = Slider::where('locale', 'tr')->firstOrFail();
         $turkishImage = $turkish->image;
 
-        $this->assertSame($turkishImage, $turkish->translation('en')?->image);
+        // English added from its own tab, before its artwork exists.
+        $this->put("/admin/sliders/{$turkish->id}", ['translations' => [
+            'en' => ['title' => 'Campaign', 'is_active' => 1, 'sort_order' => 0],
+        ]])->assertSessionHasNoErrors();
+
+        $this->assertSame($turkishImage, $turkish->fresh()->translation('en')?->image);
 
         $this->put("/admin/sliders/{$turkish->id}", ['translations' => [
-            'tr' => ['title' => 'Kampanya', 'is_active' => 1, 'sort_order' => 0],
             'en' => ['title' => 'Campaign', 'image' => UploadedFile::fake()->image('en.jpg', 1200, 600), 'is_active' => 1, 'sort_order' => 0],
         ]])->assertSessionHasNoErrors();
 
@@ -369,26 +376,36 @@ class TranslatedContentFormsTest extends TestCase
     }
 
     /**
-     * Publishing is a decision about the post, so it reaches every language the
-     * form saved.
+     * Publishing is decided per language: the form carries a status inside each
+     * language block, so a finished Turkish post can go live while its English
+     * translation is still a draft.
      */
-    public function test_publishing_a_post_applies_to_every_language(): void
+    public function test_each_language_carries_its_own_publish_status(): void
     {
         $turkishCategory = BlogCategory::factory()->create(['locale' => 'tr']);
         $englishCategory = BlogCategory::factory()->create(['locale' => 'en']);
 
         $this->post('/admin/blog-posts', [
-            'is_published' => 1,
             'translations' => [
-                'tr' => ['title' => 'Yayında', 'body' => '<p>tr</p>', 'blog_category_id' => $turkishCategory->id],
-                'en' => ['title' => 'Published', 'body' => '<p>en</p>', 'blog_category_id' => $englishCategory->id],
+                'tr' => [
+                    'title'            => 'Yayında',
+                    'body'             => '<p>tr</p>',
+                    'blog_category_id' => $turkishCategory->id,
+                    'status'           => ContentStatus::Published->value,
+                ],
+                'en' => [
+                    'title'            => 'Draft',
+                    'body'             => '<p>en</p>',
+                    'blog_category_id' => $englishCategory->id,
+                    'status'           => ContentStatus::Draft->value,
+                ],
             ],
         ])->assertSessionHasNoErrors();
 
         $turkish = BlogPost::where('locale', 'tr')->firstOrFail();
 
-        $this->assertTrue($turkish->is_published);
-        $this->assertTrue($turkish->translation('en')?->is_published);
+        $this->assertSame(ContentStatus::Published, $turkish->status);
+        $this->assertSame(ContentStatus::Draft, $turkish->translation('en')?->status);
     }
 
     public function test_a_blog_post_records_the_author_on_every_language(): void
