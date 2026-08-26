@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 final class FaqService
 {
     use \App\Services\Concerns\LocalizedCache;
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     /**
@@ -30,7 +31,7 @@ final class FaqService
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = Faq::withTrashed()->sorted();
+        $query = $this->onlyGroupRepresentatives(Faq::withTrashed(), Faq::class)->sorted();
 
         if (!empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
@@ -46,13 +47,13 @@ final class FaqService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search): void {
+            $this->whereGroupMatches($query, Faq::class, function ($q) use ($search): void {
                 $q->where('question', 'like', "%{$search}%")
                     ->orWhere('answer', 'like', "%{$search}%");
             });
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), Faq::class);
     }
 
     public function findById(int $id): Faq
@@ -111,19 +112,18 @@ final class FaqService
 
     public function delete(Faq $faq): void
     {
-        DB::transaction(function () use ($faq): void {
-            $faq->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($faq);
+        $this->clearCache();
     }
 
     public function restore(int $id): Faq
     {
         $faq = Faq::withTrashed()->findOrFail($id);
-        $faq->restore();
+
+        $this->restoreTranslationGroup($faq);
         $this->clearCache();
 
-        return $faq;
+        return $faq->refresh();
     }
 
     /**
@@ -133,10 +133,10 @@ final class FaqService
     {
         return Cache::remember('admin.faqs.stats', 300, function (): array {
             $counts = Faq::withTrashed()
-                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 0 then 1 else 0 end) as passive')
-                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 0 then lang_group_id end) as passive')
+                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
                 ->first();
 
             return [
@@ -154,9 +154,9 @@ final class FaqService
     public function statusCounts(): array
     {
         return [
-            'active'  => Faq::where('is_active', true)->count(),
-            'passive' => Faq::where('is_active', false)->count(),
-            'trashed' => Faq::onlyTrashed()->count(),
+            'active'  => $this->countGroups(Faq::where('is_active', true)),
+            'passive' => $this->countGroups(Faq::where('is_active', false)),
+            'trashed' => $this->countGroups(Faq::onlyTrashed()),
         ];
     }
 

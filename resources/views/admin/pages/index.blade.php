@@ -176,6 +176,7 @@
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $page->title }}</span>
                                         <span class="cl-content-meta"><i class="bi bi-link-45deg me-1"></i>/{{ $page->slug }}</span>
+                                        <x-language-badges :locales="$page->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="Durum">

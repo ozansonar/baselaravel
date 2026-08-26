@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 final class SliderService
 {
     use \App\Services\Concerns\LocalizedCache;
+    use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
@@ -34,7 +35,7 @@ final class SliderService
      */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $query = Slider::withTrashed()->sorted();
+        $query = $this->onlyGroupRepresentatives(Slider::withTrashed(), Slider::class)->sorted();
 
         if (!empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
@@ -50,13 +51,13 @@ final class SliderService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search): void {
+            $this->whereGroupMatches($query, Slider::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('subtitle', 'like', "%{$search}%");
             });
         }
 
-        return $query->paginate($perPage);
+        return $this->attachGroupLocales($query->paginate($perPage), Slider::class);
     }
 
     public function findById(int $id): Slider
@@ -140,23 +141,18 @@ final class SliderService
 
     public function delete(Slider $slider): void
     {
-        DB::transaction(function () use ($slider): void {
-            if ($slider->image) {
-                $this->uploadService->deleteImage($slider->image);
-            }
-
-            $slider->delete();
-            $this->clearCache();
-        });
+        $this->deleteTranslationGroup($slider);
+        $this->clearCache();
     }
 
     public function restore(int $id): Slider
     {
         $slider = Slider::withTrashed()->findOrFail($id);
-        $slider->restore();
+
+        $this->restoreTranslationGroup($slider);
         $this->clearCache();
 
-        return $slider;
+        return $slider->refresh();
     }
 
     /**
@@ -166,10 +162,10 @@ final class SliderService
     {
         return Cache::remember('admin.sliders.stats', 300, function (): array {
             $counts = Slider::withTrashed()
-                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
-                ->selectRaw('sum(case when deleted_at is null and is_active = 0 then 1 else 0 end) as passive')
-                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
+                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
+                ->selectRaw('count(distinct case when deleted_at is null and is_active = 0 then lang_group_id end) as passive')
+                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
                 ->first();
 
             return [
@@ -187,9 +183,9 @@ final class SliderService
     public function statusCounts(): array
     {
         return [
-            'active'  => Slider::where('is_active', true)->count(),
-            'passive' => Slider::where('is_active', false)->count(),
-            'trashed' => Slider::onlyTrashed()->count(),
+            'active'  => $this->countGroups(Slider::where('is_active', true)),
+            'passive' => $this->countGroups(Slider::where('is_active', false)),
+            'trashed' => $this->countGroups(Slider::onlyTrashed()),
         ];
     }
 

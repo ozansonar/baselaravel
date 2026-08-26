@@ -199,6 +199,7 @@
                                         @if($item->description)
                                             <span class="cl-content-meta">{{ Str::limit($item->description, 60) }}</span>
                                         @endif
+                                        <x-language-badges :locales="$item->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="Tür" class="d-none d-md-table-cell">

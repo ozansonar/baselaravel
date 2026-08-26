@@ -169,6 +169,7 @@
                                 <td data-label="Soru">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ Str::limit($faq->question, 60) }}</span>
+                                        <x-language-badges :locales="$faq->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="Cevap" class="d-none d-md-table-cell">

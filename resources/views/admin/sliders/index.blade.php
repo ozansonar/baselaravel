@@ -184,6 +184,7 @@
                                         @if($slider->subtitle)
                                             <span class="cl-content-meta">{{ Str::limit($slider->subtitle, 40) }}</span>
                                         @endif
+                                        <x-language-badges :locales="$slider->group_locales ?? []" />
                                     </div>
                                 </td>
                                 <td data-label="Buton" class="d-none d-md-table-cell">
