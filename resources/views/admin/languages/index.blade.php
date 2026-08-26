@@ -71,6 +71,13 @@
         </div>
     </div>
 
+    <div class="alert alert-info mb-4" data-aos="fade-up" data-aos-delay="60">
+        <i class="bi bi-info-circle me-1"></i>
+        <strong>Varsayılan dil</strong> her zaman bir tanedir; pasife alınamaz ve silinemez.
+        Tarayıcı diline uyan bir dil yoksa ziyaretçi bu dili görür, çevrilmemiş içerik de
+        bu dilden gösterilir.
+    </div>
+
     {{-- SECTION 2: STATUS TABS --}}
     <div class="cl-status-tabs mb-4" data-aos="fade-up" data-aos-delay="80">
         <a href="{{ route('admin.languages.index', request()->except(['status', 'page'])) }}"
@@ -242,13 +249,6 @@
         <span class="text-clr-secondary">
             {{ $languages->count() }} / {{ $stats['total'] }} dil gösteriliyor
         </span>
-    </div>
-
-    <div class="alert alert-info" data-aos="fade-up">
-        <i class="bi bi-info-circle me-1"></i>
-        <strong>Varsayılan dil</strong> her zaman bir tanedir; pasife alınamaz ve silinemez.
-        Tarayıcı diline uyan bir dil yoksa ziyaretçi bu dili görür, çevrilmemiş içerik de
-        bu dilden gösterilir.
     </div>
 
     @can('create', App\Models\Language::class)
