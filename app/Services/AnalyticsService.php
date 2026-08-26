@@ -247,6 +247,153 @@ class AnalyticsService
         }
     }
 
+    /**
+     * Default window for "who is on the site right now".
+     *
+     * A view is recorded once per page load, so someone reading a long article
+     * stops producing hits. Five minutes is the usual compromise: long enough
+     * that a reader does not blink out, short enough to still mean "now".
+     */
+    public const ACTIVE_WINDOW_MINUTES = 5;
+
+    /**
+     * Sessions seen in the last few minutes, with the page each one is on.
+     *
+     * One row per visitor rather than per hit: the latest view of each session
+     * is the page they are looking at, and the rest of the session tells us how
+     * long they have been around and how much they have read.
+     *
+     * @return Collection<int, object>
+     */
+    public function getActiveVisitors(int $windowMinutes = self::ACTIVE_WINDOW_MINUTES, bool $excludeBots = true): Collection
+    {
+        $since = now()->subMinutes($windowMinutes);
+
+        // The newest hit of each active session. Portable across MySQL and
+        // SQLite, unlike a window function.
+        $latestIds = PageView::query()
+            ->selectRaw('MAX(id) as id')
+            ->where('viewed_at', '>=', $since)
+            ->when($excludeBots, fn ($q) => $q->where('is_bot', false))
+            ->groupBy('session_id')
+            ->pluck('id');
+
+        if ($latestIds->isEmpty()) {
+            return collect();
+        }
+
+        $current = PageView::query()
+            ->with('user:id,first_name,last_name,email')
+            ->whereIn('id', $latestIds)
+            ->orderByDesc('viewed_at')
+            ->get();
+
+        // Session totals in one query instead of one per visitor.
+        $sessions = $current->pluck('session_id')->all();
+
+        $totals = PageView::query()
+            ->selectRaw('session_id, COUNT(*) as page_count, MIN(viewed_at) as started_at, MIN(id) as first_id')
+            ->whereIn('session_id', $sessions)
+            ->groupBy('session_id')
+            ->get()
+            ->keyBy('session_id');
+
+        // Where the visitor came from is a property of how the session started,
+        // not of the page they happen to be on now — by the second click the
+        // referrer is this site itself.
+        $entries = PageView::query()
+            ->whereIn('id', $totals->pluck('first_id')->filter())
+            ->get(['id', 'session_id', 'url_path', 'referrer_domain'])
+            ->keyBy('session_id');
+
+        return $current->map(function (PageView $view) use ($totals, $entries): object {
+            $total = $totals->get($view->session_id);
+            $entry = $entries->get($view->session_id);
+            $startedAt = $total?->started_at ? Carbon::parse($total->started_at) : $view->viewed_at;
+
+            return (object) [
+                'id'              => $view->id,
+                'session_id'      => $view->session_id,
+                'url_path'        => $view->url_path,
+                'url'             => $view->url,
+                'ip_address'      => $view->ip_address,
+                'ip_masked'       => (bool) $view->ip_masked,
+                'device_type'     => $view->device_type,
+                'browser'         => $view->browser,
+                'os'              => $view->os,
+                'referrer_domain' => $entry?->referrer_domain ?? $view->referrer_domain,
+                'entry_path'      => $entry?->url_path ?? $view->url_path,
+                'is_bot'          => (bool) $view->is_bot,
+                'bot_name'        => $view->bot_name,
+                'user'            => $view->user?->only(['id', 'first_name', 'last_name', 'email']),
+                'viewed_at'       => $view->viewed_at,
+                'seconds_ago'     => (int) max(0, $view->viewed_at->diffInSeconds(now())),
+                'page_count'      => (int) ($total->page_count ?? 1),
+                'session_seconds' => (int) max(0, $startedAt->diffInSeconds($view->viewed_at, false)),
+            ];
+        });
+    }
+
+    /**
+     * How many distinct sessions are active right now.
+     */
+    public function getOnlineCount(int $windowMinutes = self::ACTIVE_WINDOW_MINUTES, bool $excludeBots = true): int
+    {
+        return (int) PageView::query()
+            ->where('viewed_at', '>=', now()->subMinutes($windowMinutes))
+            ->when($excludeBots, fn ($q) => $q->where('is_bot', false))
+            ->distinct()
+            ->count('session_id');
+    }
+
+    /**
+     * The page-by-page feed, newest first.
+     *
+     * Passing the highest id already on screen returns only what happened
+     * since, so the panel can append instead of redrawing the whole list.
+     *
+     * @return Collection<int, PageView>
+     */
+    public function getLiveFeed(int $limit = 30, ?int $afterId = null, bool $excludeBots = true): Collection
+    {
+        return PageView::query()
+            ->with('user:id,first_name,last_name')
+            ->when($excludeBots, fn ($q) => $q->where('is_bot', false))
+            ->when($afterId !== null, fn ($q) => $q->where('id', '>', $afterId))
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Which pages the active visitors are on, busiest first.
+     *
+     * @return array<int, array{label: string, count: int}>
+     */
+    public function getActivePages(int $windowMinutes = self::ACTIVE_WINDOW_MINUTES, int $limit = 10): array
+    {
+        $latestIds = PageView::query()
+            ->selectRaw('MAX(id) as id')
+            ->where('viewed_at', '>=', now()->subMinutes($windowMinutes))
+            ->where('is_bot', false)
+            ->groupBy('session_id')
+            ->pluck('id');
+
+        if ($latestIds->isEmpty()) {
+            return [];
+        }
+
+        return PageView::query()
+            ->selectRaw('url_path as label, COUNT(*) as count')
+            ->whereIn('id', $latestIds)
+            ->groupBy('url_path')
+            ->orderByDesc('count')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($row): array => ['label' => (string) $row->label, 'count' => (int) $row->count])
+            ->all();
+    }
+
     public function paginateVisits(array $filters, int $perPage = 50): LengthAwarePaginator
     {
         $query = PageView::query()->orderByDesc('viewed_at');

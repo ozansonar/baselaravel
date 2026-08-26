@@ -23,6 +23,9 @@
             <p class="page-subtitle">Sayfa görüntüleme, tekil ziyaretçi, cihaz ve trafik kaynak dağılımı.</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.analytics.live') }}" class="btn-teal">
+                <i class="bi bi-broadcast"></i> Canlı Ziyaretçiler
+            </a>
             <a href="{{ route('admin.analytics.visits', request()->query()) }}" class="btn-glass">
                 <i class="bi bi-list-ul"></i> Tüm Ziyaretler
             </a>
