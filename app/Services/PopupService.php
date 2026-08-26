@@ -165,12 +165,12 @@ final class PopupService
         return Cache::remember('admin.popups.stats', 300, function (): array {
             $today = now()->toDateString();
 
-            $counts = Popup::withTrashed()
-                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
-                ->selectRaw("count(distinct case when deleted_at is null and is_active = 1 and (start_date is not null or end_date is not null) and (start_date is null or start_date <= '{$today}') and (end_date is null or end_date >= '{$today}') then lang_group_id end) as scheduled")
-                ->selectRaw("count(distinct case when deleted_at is null and end_date is not null and end_date < '{$today}' then lang_group_id end) as expired")
-                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
+            $counts = $this->onlyGroupRepresentatives(Popup::withTrashed(), Popup::class)
+                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
+                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
+                ->selectRaw("sum(case when deleted_at is null and is_active = 1 and (start_date is not null or end_date is not null) and (start_date is null or start_date <= '{$today}') and (end_date is null or end_date >= '{$today}') then 1 else 0 end) as scheduled")
+                ->selectRaw("sum(case when deleted_at is null and end_date is not null and end_date < '{$today}' then 1 else 0 end) as expired")
+                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
                 ->first();
 
             return [

@@ -78,11 +78,11 @@ final class GalleryCategoryService
     public function getAdminStats(): array
     {
         return Cache::remember('admin.gallery_categories.stats', 300, function (): array {
-            $counts = GalleryCategory::withTrashed()
-                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
-                ->selectRaw('count(distinct case when deleted_at is null and is_active = 0 then lang_group_id end) as passive')
-                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
+            $counts = $this->onlyGroupRepresentatives(GalleryCategory::withTrashed(), GalleryCategory::class)
+                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
+                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
+                ->selectRaw('sum(case when deleted_at is null and is_active = 0 then 1 else 0 end) as passive')
+                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
                 ->first();
 
             return [
@@ -99,10 +99,10 @@ final class GalleryCategoryService
      */
     public function statusCounts(): array
     {
-        $counts = GalleryCategory::withTrashed()
-            ->selectRaw('COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 1 THEN lang_group_id END) as active')
-            ->selectRaw('COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 0 THEN lang_group_id END) as passive')
-            ->selectRaw('COUNT(DISTINCT CASE WHEN deleted_at IS NOT NULL THEN lang_group_id END) as trashed')
+        $counts = $this->onlyGroupRepresentatives(GalleryCategory::withTrashed(), GalleryCategory::class)
+            ->selectRaw('SUM(CASE WHEN deleted_at IS NULL AND is_active = 1 THEN 1 ELSE 0 END) as active')
+            ->selectRaw('SUM(CASE WHEN deleted_at IS NULL AND is_active = 0 THEN 1 ELSE 0 END) as passive')
+            ->selectRaw('SUM(CASE WHEN deleted_at IS NOT NULL THEN 1 ELSE 0 END) as trashed')
             ->first();
 
         return [

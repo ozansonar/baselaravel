@@ -141,10 +141,10 @@ final class BlogService
         return Cache::remember('blog.admin_stats', 300, function (): array {
             // "Published" means live on the site, so the date has to have
             // arrived — same rule the status tabs and the front use.
-            $counts = BlogPost::withTrashed()->selectRaw("
-                COUNT(DISTINCT CASE WHEN deleted_at IS NULL THEN lang_group_id END) as total,
-                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND status = 'published' AND published_at <= ? THEN lang_group_id END) as published,
-                COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND status = 'draft' THEN lang_group_id END) as draft,
+            $counts = $this->onlyGroupRepresentatives(BlogPost::withTrashed(), BlogPost::class)->selectRaw("
+                SUM(CASE WHEN deleted_at IS NULL THEN 1 ELSE 0 END) as total,
+                SUM(CASE WHEN deleted_at IS NULL AND status = 'published' AND published_at <= ? THEN 1 ELSE 0 END) as published,
+                SUM(CASE WHEN deleted_at IS NULL AND status = 'draft' THEN 1 ELSE 0 END) as draft,
                 COALESCE(SUM(CASE WHEN deleted_at IS NULL THEN views ELSE 0 END), 0) as total_views
             ", [now()])->first();
 
@@ -164,13 +164,13 @@ final class BlogService
     {
         $now = now();
 
-        $counts = BlogPost::withTrashed()
-            ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-            ->selectRaw("count(distinct case when deleted_at is null and status = 'published' and published_at <= ? then lang_group_id end) as published", [$now])
-            ->selectRaw("count(distinct case when deleted_at is null and status = 'draft' then lang_group_id end) as draft")
-            ->selectRaw("count(distinct case when deleted_at is null and status = 'published' and published_at > ? then lang_group_id end) as scheduled", [$now])
-            ->selectRaw("count(distinct case when deleted_at is null and status = 'archived' then lang_group_id end) as archived")
-            ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
+        $counts = $this->onlyGroupRepresentatives(BlogPost::withTrashed(), BlogPost::class)
+            ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
+            ->selectRaw("sum(case when deleted_at is null and status = 'published' and published_at <= ? then 1 else 0 end) as published", [$now])
+            ->selectRaw("sum(case when deleted_at is null and status = 'draft' then 1 else 0 end) as draft")
+            ->selectRaw("sum(case when deleted_at is null and status = 'published' and published_at > ? then 1 else 0 end) as scheduled", [$now])
+            ->selectRaw("sum(case when deleted_at is null and status = 'archived' then 1 else 0 end) as archived")
+            ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
             ->first();
 
         return [

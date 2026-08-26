@@ -96,11 +96,15 @@ trait ListsTranslationGroups
     /**
      * Counts records rather than translations.
      *
+     * The count follows the same row the list shows, so a group whose English
+     * translation is passive while its Turkish one is active is not counted in
+     * both places.
+     *
      * @param Builder<Model> $query
      */
     protected function countGroups(Builder $query): int
     {
-        return $query->distinct()->count('lang_group_id');
+        return $this->onlyGroupRepresentatives($query, $query->getModel()::class)->count();
     }
 
     /**
