@@ -48,49 +48,6 @@
         </div>
       </div>
 
-      <!-- Mobile Section Jumper -->
-      <div class="d-lg-none mb-4">
-        <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
-          <option value="" disabled selected>Bölüme git...</option>
-          <option value="section-basic">Temel Bilgiler</option>
-          <option value="section-content">İçerik Editörü</option>
-          <option value="section-media">Medya Yönetimi</option>
-          <option value="section-seo">SEO Ayarları</option>
-          <option value="section-publish">Yayın Ayarları</option>
-        </select>
-      </div>
-
-      <!-- Form Layout -->
-      <div class="row g-4 align-items-start">
-
-        <!-- Sol Navigasyon (yalnızca desktop) -->
-        <div class="col-lg-3 d-none d-lg-block">
-          <div class="stg-nav-inner position-sticky stg-nav-sticky">
-            <a href="#section-basic" class="stg-nav-item active" onclick="scrollToSection('section-basic', this)">
-              <i class="bi bi-text-paragraph"></i>
-              <div><span>Temel Bilgiler</span><small>Başlık, slug, kategori</small></div>
-            </a>
-            <a href="#section-content" class="stg-nav-item" onclick="scrollToSection('section-content', this)">
-              <i class="bi bi-body-text"></i>
-              <div><span>İçerik Editörü</span><small>Ana metin ve özet</small></div>
-            </a>
-            <a href="#section-media" class="stg-nav-item" onclick="scrollToSection('section-media', this)">
-              <i class="bi bi-images"></i>
-              <div><span>Medya Yönetimi</span><small>Kapak görseli</small></div>
-            </a>
-            <a href="#section-seo" class="stg-nav-item" onclick="scrollToSection('section-seo', this)">
-              <i class="bi bi-search"></i>
-              <div><span>SEO Ayarları</span><small>Meta başlık, açıklama</small></div>
-            </a>
-            <a href="#section-publish" class="stg-nav-item" onclick="scrollToSection('section-publish', this)">
-              <i class="bi bi-calendar-event"></i>
-              <div><span>Yayın Ayarları</span><small>Durum, tarih</small></div>
-            </a>
-          </div>
-        </div>
-
-        <!-- Form İçeriği -->
-        <div class="col-12 col-lg-9">
 
           {{-- Her dil kendi sekmesinde --}}
           <x-language-tabs :languages="$formLanguages" :model="$post" id="postLangTabs">
@@ -129,8 +86,6 @@
             </div>
           </div>
 
-        </div><!-- /col-12 col-lg-9 -->
-      </div><!-- /row -->
 </form>
 
 @include('partials.admin.tinymce', ['tinymceSelector' => 'textarea[id^=body_]'])
