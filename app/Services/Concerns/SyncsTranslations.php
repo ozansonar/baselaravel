@@ -99,6 +99,21 @@ trait SyncsTranslations
     }
 
     /**
+     * Keys that never say anything about whether a translation was written.
+     *
+     * A sort order defaults to 0 and a visibility switch defaults to on, so
+     * every form posts them for every language — including the tabs the
+     * translator never opened. Counting them would turn an untouched tab into
+     * a row with a null title.
+     *
+     * @return list<string>
+     */
+    protected function nonContentKeys(): array
+    {
+        return ['locale', 'lang_group_id', 'id', 'sort_order', 'is_active'];
+    }
+
+    /**
      * A block counts as empty when the translator filled in nothing at all;
      * checkboxes and hidden defaults must not make it look filled.
      *
@@ -107,7 +122,7 @@ trait SyncsTranslations
     protected function isEmptyBlock(array $fields): bool
     {
         foreach ($fields as $key => $value) {
-            if (in_array($key, ['locale', 'lang_group_id', 'id'], true)) {
+            if (in_array($key, $this->nonContentKeys(), true)) {
                 continue;
             }
 
