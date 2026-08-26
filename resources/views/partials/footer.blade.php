@@ -70,8 +70,10 @@
                     <p class="mb-2"><a class="footer-link d-inline-flex gap-2 p-0" href="tel:{{ preg_replace('/\s+/', '', $fPhone) }}"><i class="fa-solid fa-phone"></i>{{ format_phone($fPhone) }}</a></p>
                 @endif
                 @if($fEmail)
-                    <p class="mb-0"><a class="footer-link d-inline-flex gap-2 p-0" href="mailto:{{ $fEmail }}"><i class="fa-solid fa-envelope"></i>{{ $fEmail }}</a></p>
+                    <p class="mb-3"><a class="footer-link d-inline-flex gap-2 p-0" href="mailto:{{ $fEmail }}"><i class="fa-solid fa-envelope"></i>{{ $fEmail }}</a></p>
                 @endif
+
+                @include('partials.newsletter-form')
             </div>
         </div>
 

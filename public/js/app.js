@@ -154,3 +154,76 @@ window.showConfirmModal = function (options) {
     });
     modal.show();
 };
+
+/**
+ * Newsletter sign-up in the footer.
+ *
+ * Posts without leaving the page: someone who subscribes from the bottom of an
+ * article should not lose their place in it.
+ */
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('newsletterForm');
+        if (!form) return;
+
+        var note = document.getElementById('newsletterNote');
+        var button = document.getElementById('newsletterSubmit');
+        var input = document.getElementById('newsletterEmail');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (!input.value || !input.checkValidity()) {
+                show(input.validationMessage || 'Geçerli bir e-posta adresi girin.', false);
+                return;
+            }
+
+            var original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            fetch(form.getAttribute('action') || window.newsletterUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ email: input.value })
+            })
+                .then(function (response) {
+                    return response.json().then(function (data) {
+                        return { ok: response.ok, data: data };
+                    });
+                })
+                .then(function (result) {
+                    button.disabled = false;
+                    button.innerHTML = original;
+
+                    if (result.ok && result.data.success) {
+                        form.reset();
+                        show(result.data.message, true);
+                        return;
+                    }
+
+                    var errors = result.data.errors || {};
+                    show(errors.email ? errors.email[0] : (result.data.message || 'İşlem tamamlanamadı.'), false);
+                })
+                .catch(function () {
+                    button.disabled = false;
+                    button.innerHTML = original;
+                    show('Bağlantı hatası. Lütfen tekrar deneyin.', false);
+                });
+        });
+
+        function show(message, ok) {
+            if (!note) return;
+            note.textContent = message;
+            note.className = 'footer-newsletter__note d-block mt-2 ' + (ok ? 'text-success' : 'text-warning');
+        }
+    });
+})();

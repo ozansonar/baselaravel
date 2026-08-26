@@ -93,28 +93,35 @@ composer dev
 
 ## Zamanlanmış görevler (cron)
 
-Sunucuya **tek bir cron satırı** eklemek yeterli:
+Hosting panelinde **tek bir** cron tanımlanır, her dakika çalışacak şekilde:
 
-```bash
-* * * * * cd /proje/yolu && php artisan schedule:run >> /dev/null 2>&1
+```
+php /home/KULLANICI/public_html/artisan schedule:run >> /dev/null 2>&1
 ```
 
-`routes/console.php` içinde tanımlı görevler:
+Laravel scheduler hangi görevin zamanı geldiğine kendisi karar verir; her görev
+için ayrı cron tanımlamaya gerek yoktur.
 
-| Görev | Sıklık | Açıklama |
-|---|---|---|
-| `queue-worker` | Her dakika | Kuyruktaki işleri işler |
-| `analytics-aggregate-daily` | 02:00 | Ziyaret kayıtlarını günlük özete indirger |
-| `analytics-anonymize-ips` | 03:00 | 90 günden eski IP'leri maskeler (KVKK) |
-| `backup-daily` | 03:00 | Veritabanı + `public/uploads` → ZIP |
-| `audit-logs-prune` | Pazar 03:30 | 90 günden eski aktivite loglarını siler |
-| `analytics-prune-old` | Pazar 04:00 | 365 günden eski ham ziyaret kayıtlarını siler |
+| Saat | Görev |
+|------|-------|
+| her dakika | Kuyruk işlerini işler |
+| her 5 dakika | Toplu mail gönderimi (`campaigns:dispatch`) |
+| 02:00 | Günlük ziyaret istatistiklerini toplar |
+| 03:00 | 90 günden eski IP'leri maskeler (KVKK) |
+| 03:30 Pazar | 90 günden eski denetim kayıtlarını siler |
+| 04:00 Pazar | 365 günden eski ziyaret kayıtlarını siler |
+| 05:00 | Veritabanı + uploads yedeği alır |
 
-> **Kuyruk hakkında:** paylaşımlı hosting'de `pcntl` eklentisi bulunmadığı için
-> `queue:work` kullanılmaz. Bunun yerine cron her dakika kuyruktan iş çekip
-> çalıştırır. Supervisor kurabildiğin bir sunucudaysan `queue:work`'e geçebilirsin.
+Kontrol:
 
----
+```bash
+php artisan schedule:list
+```
+
+> **Önemli:** Bu proje shared hosting'de alt süreç açamıyor. Zamanlanmış
+> görevler `Schedule::command()` ile **tanımlanamaz** — öyle tanımlanan bir
+> görev hata vermeden hiç çalışmaz. Ayrıntı ve kurallar:
+> [docs/SHARED-HOSTING.md](docs/SHARED-HOSTING.md)
 
 ## Yazma izinleri
 
@@ -221,12 +228,34 @@ ekleyip izinlerini matristen verebilirsin.
 
 ## Çok dilli yapı
 
-Site birden fazla dilde yayınlanabilir. Diller **Ayarlar → Diller** ekranından
+Site birden fazla dilde yayınlanabilir. Diller **Admin → Diller** ekranından
 yönetilir; yeni dil eklemek için kod değiştirmek gerekmez. Kurulumla Türkçe
-(varsayılan) ve İngilizce aktif, Almanca/Fransızca/İtalyanca pasif gelir.
+(varsayılan) ve İngilizce yayında, Almanca/Fransızca/İtalyanca pasif gelir.
 
-**Tam olarak bir varsayılan dil** olur. Varsayılan dil pasife alınamaz ve
-silinemez; başka bir dili varsayılan yapmak öncekinin işaretini kaldırır.
+### Diller ekranı
+
+| İşlem | Nasıl |
+|---|---|
+| **Ekle** | "Dil Ekle" → iki harfli kod (`de`), ad, kendi dilindeki ad, bayrak emojisi |
+| **Güncelle** | Satırdaki kalem düğmesi |
+| **Yayına al / kaldır** | Düzenleme penceresindeki "Yayında" anahtarı |
+| **Varsayılan yap** | Satırdaki yıldız düğmesi |
+| **Sil** | Satırdaki çöp kutusu |
+
+Liste her dil için şunları gösterir: yayında mı, **arayüz çeviri dosyası var mı**
+(`lang/{kod}/`) ve o dilde kaç içerik kaydı olduğu — bir dili kaldırmadan önce
+neyin gizleneceğini görürsün.
+
+**Tam olarak bir varsayılan dil** olur ve bu kural arayüzde de uygulanır:
+varsayılan dilin silme ve varsayılan-yapma düğmeleri hiç görünmez, "Yayında"
+anahtarı kapatılamaz. Başka bir dili varsayılan yapmak öncekinin işaretini
+kaldırır; pasif bir dili varsayılan yaparsan otomatik yayına alınır. Son dil
+silinemez.
+
+> Yeni bir dil eklediğinde **içerik** hemen panelden dil sekmeleriyle girilebilir.
+> **Arayüz metinleri** için `lang/tr/` klasörünü yeni dil koduyla kopyalayıp
+> çevirmen gerekir; o zamana kadar arayüz varsayılan dilde görünür (ham anahtar
+> basılmaz). Ekran hangi dillerde bu dosyaların eksik olduğunu işaretler.
 
 ### Ziyaretçi hangi dili görür
 
@@ -261,13 +290,34 @@ trait'ini servise ekleyin, formu `<x-language-tabs>` ile sarın ve alanları
 
 ### Arayüz metinleri
 
-İçerik veritabanından gelir, **arayüz** ise `lang/{kod}/site.php` dosyalarından:
-buton, başlık, form etiketi, placeholder ve `aria-label` dahil. Kurulumla `tr`
+İçerik veritabanından gelir, **arayüz metinleri** (buton, başlık, form etiketi,
+placeholder, `aria-label`) `lang/{kod}/site.php` dosyalarından. Kurulumla `tr`
 ve `en` dosyaları gelir.
 
-Yeni dil eklediğinizde `lang/tr/site.php` dosyasını yeni kodun klasörüne
-kopyalayıp değerleri çevirin. Dosya yoksa arayüz varsayılan dile düşer, ham
-anahtar (`site.nav.home`) sayfaya basılmaz.
+Bu metinler **Admin → Dil Yazıları** ekranından düzenlenebilir. Çalışma şekli:
+
+- Dosya **varsayılan** olarak kalır, veritabanı yalnızca **değiştirdiklerini**
+  tutar
+- Değiştirilen metin dosyanın üzerine biner, geri kalan her şey dosyadan gelir
+- "Varsayılana Dön" ile bir dilin tüm değişiklikleri silinir, dosya hâline döner
+- Bir alanı boşaltmak da o metni varsayılana döndürür
+
+Neden dosyaya yazmıyor: **deploy `git pull` ile yapılıyor.** Değişiklikler
+`lang/` dosyalarına yazılsaydı her deploy hepsini sessizce silerdi. Dosyayı
+varsayılan tutmak ayrıca "varsayılana dön"ü mümkün kılıyor.
+
+**Performans:** bir dilin tüm değişiklikleri tek dizi olarak
+`Cache::rememberForever` ile tutulur ve Laravel çeviri grubunu istek başına bir
+kez yüklerken üzerine bindirilir. Yani ısınmış bir sayfa render'ı **sıfır**
+sorgu atar — test bunu doğruluyor.
+
+Yeni dil eklediğinde `lang/tr/site.php` dosyasını yeni kodun klasörüne
+kopyalayıp değerleri çevir; dosya yoksa arayüz varsayılan dile düşer, ham
+anahtar (`site.nav.home`) sayfaya basılmaz. Panelden de girebilirsin ama
+dosyaya yazmak sürüm kontrolüne girdiği için tercih edilir.
+
+> Menüdeki bağlantı etiketleri buradan değil, **Menü Yönetimi**'nden gelir —
+> onlar veritabanı içeriğidir.
 
 `InterfaceTranslationTest` iki şeyi bekçilik eder: dil dosyalarının anahtar
 kümesi birebir aynıdır (eksik anahtar sayfayı sessizce yarı çevrilmiş gösterir)
@@ -283,6 +333,87 @@ dil varsayılan dilin menüsüne düşer, site hiçbir zaman navigasyonsuz kalma
 tüm öğe ağacıyla birlikte başka bir dile kopyalar. Kopya yapıyı ve bağlantıları
 korur, geriye yalnızca etiketleri çevirmek kalır. Sayfa bağlantıları kopyalanırken
 hedef dilin slug'ına çevrilir; o dilde çevirisi yoksa slug olduğu gibi kalır.
+
+---
+
+## Toplu mail (kampanyalar)
+
+**Admin → Mail Kampanyaları**'ndan üyelere, bülten listesine, Excel'den
+yüklediğin kişilere veya elle yazdığın adreslere toplu mail gönderilir.
+
+### Gönderim hızı
+
+Mail sağlayıcıları listeyi tek seferde boşaltan hesapları kısıtlar veya
+kara listeye alır. Bu yüzden gönderim saate yayılır:
+
+```
+cron her 5 dakikada bir çalışır  →  saatte 12 tur
+saatlik limit 100                →  tur başına ceil(100/12) = 9 mail
+```
+
+Saatlik limit **son 60 dakikada gerçekten gönderilen** mail sayısından
+hesaplanır, saate bakılarak değil — cron kaçarsa veya iki kez çalışırsa limit
+yine aşılmaz. Ayarlar → Mail altından değiştirilir:
+
+| Ayar | Anlamı |
+|---|---|
+| `mail_hourly_limit` | Saatte gönderilecek en fazla mail (0 = gönderim durur) |
+| `mail_batch_max` | Tur başına sabit adet. 0 ise limitten hesaplanır |
+| `mail_max_attempts` | Başarısız bir adres kaç kez denenir |
+| `newsletter_enabled` | Ön yüzdeki abonelik formunu gösterir/gizler |
+
+Cron kurulumu için [Zamanlanmış görevler](#zamanlanmış-görevler-cron) bölümüne
+bak; `campaigns:dispatch` komutu scheduler'a bağlıdır.
+
+### Akış
+
+1. **Taslak oluştur** — konu, içerik (TinyMCE), ekler, alıcı kitlesi
+2. **Onay ekranı** — kaç kişiye gideceği, alıcılardan örnek, cron ne zaman
+   çalışacak, tahmini bitiş
+3. **Onayla** — alıcı listesi o an dondurulur, kampanya sıraya girer
+4. **İzle** — gönderilen / sırada / gönderilemeyen sayıları, ilerleme çubuğu,
+   sıradaki cron için geri sayım. Gönderim sürerken duraklat veya iptal et.
+
+Göndermeden önce kendine test maili atabilirsin; konusu `[TEST]` ile işaretlenir
+ve listeye gitmez.
+
+### Alıcı kaynakları
+
+- **Site üyeleri** — rol, aktiflik ve e-posta doğrulaması ile filtrelenir
+- **Mail listesi** — ön yüz formundan veya panelden eklenen aboneler
+- **Excel / CSV** — `.xlsx` ve `.csv`. Başlık satırı `Ad` / `E-posta` olarak
+  eşleştirilir, başlık yoksa adres sütunu otomatik bulunur. Panelde **örnek
+  şablon indirme** düğmesi vardır. Türkçe Excel'in noktalı virgüllü CSV'si ve
+  BOM'u desteklenir.
+- **Elle giriş** — her satıra bir kişi:
+  `Ad Soyad <mail@ornek.com>`, `Ad Soyad;mail@ornek.com` veya yalnızca adres
+
+Aynı adres birden fazla kaynakta olsa da tek mail alır.
+
+### İçerik
+
+`{name}`, `{email}` ve `{site_name}` her alıcı için ayrı doldurulur.
+
+**Görseller mailin içine gömülür** (CID), bağlantı olarak eklenmez: mail
+programlarının çoğu uzak görselleri varsayılan olarak engeller ve mail
+iletildiğinde ya da çevrimdışı okunduğunda bağlantılı görsel tamamen kaybolur.
+Sitenin dışındaki görseller olduğu gibi bırakılır.
+
+### Abonelikten çıkma
+
+Her mail alıcıya özel bir çıkış bağlantısı taşır — hem gövdede hem
+`List-Unsubscribe` başlığında, yani mail programı kendi "abonelikten çık"
+düğmesini gösterir. Bağlantı giriş gerektirmez.
+
+Elle girilen ve Excel'den yüklenen alıcılar da kendi çıkış anahtarını alır.
+Çıkan adres `subscribers` tablosuna engelleme kaydı olarak yazılır ve sonraki
+kampanyaların hiçbirine dahil edilmez.
+
+### Yetkiler
+
+Taslak yazmak ile göndermek ayrı yetkilerdir: `campaigns.manage` içerik
+hazırlar, `campaigns.send` tüm listeye ulaşan gönderimi başlatır. Kurulumla
+editör rolü yalnızca taslak hazırlayabilir.
 
 ---
 
@@ -320,6 +451,13 @@ composer test
   CASCADE kalmadığını doğrular
 - `EnumDrivenOptionsTest` — enum case'lerinin ekranlara düştüğünü doğrular
 - `RedirectTargetValidationTest` — açık yönlendirme koruması
+- `CampaignDispatchTest` — saatlik limit ve tur kotası matematiği, kotanın
+  pencere kayınca serbest kalması, duraklat/sürdür/iptal, alıcı listesinin
+  dondurulması, tekrar denemenin başarısızlık sayılmaması
+- `CampaignPanelTest` — taslak→onay→gönderim akışı, Excel/elle giriş, yetki
+  ayrımı, abonelik ve çıkış
+- `CampaignMailContentTest` — görsellerin CID olarak gömülmesi, dış görsellere
+  dokunulmaması, dizin dışına çıkan yolun reddi, CSV/XLSX okuma
 - `NoBuildToolchainTest` — `package.json`, `vite.config.js`, `node_modules`,
   `resources/js` gibi build tool kalıntılarının geri girmediğini ve hiçbir
   view'ın `@vite` / `mix()` kullanmadığını doğrular
@@ -331,6 +469,10 @@ composer test
   kullanılan her anahtarın tanımlı olması, arayüzün tarayıcı diline uyması
 - `LocalizedMenuTest` — dile göre navigasyon, menüsü olmayan dilin varsayılana
   düşmesi, menünün başka bir dile kopyalanması
+- `LanguagePanelTest` — dil ekleme/güncelleme/silme ekranı, "tek varsayılan"
+  kuralının her değişiklikten sonra korunması, yetki ayrımı
+- `TranslationOverrideTest` — arayüz metinlerinin panelden düzenlenmesi,
+  varsayılana eşit değerin saklanmaması, ısınmış sayfanın sıfır sorgu atması
 
 ---
 
@@ -346,4 +488,5 @@ preset'i bu hizalamayı bozar. Stil kontrolü için yalnızca `pint --test`.
 
 - `CLAUDE.md` — proje kuralları (zorunlu)
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
+- `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `resources/views/admin-theme/README.md` — tema referansı

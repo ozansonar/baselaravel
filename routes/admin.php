@@ -24,7 +24,11 @@ use App\Http\Controllers\Admin\PopupController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SubscriberController;
+use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\Admin\UserController;
@@ -116,6 +120,8 @@ Route::patch('redirects/{redirect}/toggle-active', [RedirectController::class, '
 Route::prefix('analytics')->name('analytics.')->group(function () {
     Route::get('/', [AnalyticsController::class, 'index'])->name('index');
     Route::get('/visits', [AnalyticsController::class, 'visits'])->name('visits');
+    Route::get('/canli', [AnalyticsController::class, 'live'])->name('live');
+    Route::get('/canli/veri', [AnalyticsController::class, 'liveData'])->name('live.data');
     Route::get('/chart/{type}', [AnalyticsController::class, 'chart'])->name('chart');
 });
 
@@ -130,6 +136,51 @@ Route::prefix('menus')->name('menus.')->group(function () {
     Route::put('items/{item}', [MenuItemController::class, 'update'])->name('items.update');
     Route::delete('items/{item}', [MenuItemController::class, 'destroy'])->name('items.destroy');
     Route::patch('items/{item}/restore', [MenuItemController::class, 'restore'])->name('items.restore')->withTrashed();
+});
+
+// Dil yazıları (arayüz metinleri)
+Route::prefix('dil-yazilari')->name('translations.')->group(function () {
+    Route::get('/',          [TranslationController::class, 'index'])->name('index');
+    Route::put('/',          [TranslationController::class, 'update'])->name('update');
+    Route::post('sifirla',   [TranslationController::class, 'reset'])->name('reset');
+});
+
+// Diller
+Route::prefix('diller')->name('languages.')->group(function () {
+    Route::get('/',                        [LanguageController::class, 'index'])->name('index');
+    Route::post('/',                       [LanguageController::class, 'store'])->name('store');
+    Route::put('{language}',               [LanguageController::class, 'update'])->name('update');
+    Route::post('{language}/varsayilan',   [LanguageController::class, 'makeDefault'])->name('default');
+    Route::delete('{language}',            [LanguageController::class, 'destroy'])->name('destroy');
+});
+
+// Mail kampanyaları (toplu gönderim)
+Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
+    Route::get('/',                        [CampaignController::class, 'index'])->name('index');
+    Route::get('yeni',                     [CampaignController::class, 'create'])->name('create');
+    Route::get('sablon-indir',             [CampaignController::class, 'template'])->name('template');
+    Route::post('/',                       [CampaignController::class, 'store'])->name('store');
+    Route::get('{campaign}',               [CampaignController::class, 'show'])->name('show');
+    Route::get('{campaign}/duzenle',       [CampaignController::class, 'edit'])->name('edit');
+    Route::put('{campaign}',               [CampaignController::class, 'update'])->name('update');
+    Route::post('{campaign}/gonder',       [CampaignController::class, 'send'])->name('send');
+    Route::post('{campaign}/duraklat',     [CampaignController::class, 'pause'])->name('pause');
+    Route::post('{campaign}/surdur',       [CampaignController::class, 'resume'])->name('resume');
+    Route::post('{campaign}/iptal',        [CampaignController::class, 'cancel'])->name('cancel');
+    Route::post('{campaign}/test',         [CampaignController::class, 'sendTest'])->name('test');
+    Route::delete('{campaign}/ek/{attachment}', [CampaignController::class, 'destroyAttachment'])->name('attachments.destroy');
+    Route::delete('{campaign}',            [CampaignController::class, 'destroy'])->name('destroy');
+    Route::patch('{campaign}/geri-yukle',  [CampaignController::class, 'restore'])->name('restore')->withTrashed();
+});
+
+// Mail listesi (aboneler)
+Route::prefix('aboneler')->name('subscribers.')->group(function () {
+    Route::get('/',                       [SubscriberController::class, 'index'])->name('index');
+    Route::post('/',                      [SubscriberController::class, 'store'])->name('store');
+    Route::post('ice-aktar',              [SubscriberController::class, 'import'])->name('import');
+    Route::post('{subscriber}/cikar',     [SubscriberController::class, 'unsubscribe'])->name('unsubscribe');
+    Route::delete('{subscriber}',         [SubscriberController::class, 'destroy'])->name('destroy');
+    Route::patch('{subscriber}/geri-yukle', [SubscriberController::class, 'restore'])->name('restore')->withTrashed();
 });
 
 // Settings

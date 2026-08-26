@@ -27,6 +27,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 
 // Language switcher
+// Newsletter — abonelik ve abonelikten çıkma.
+// Çıkış bağlantısı her kampanya mailinin altında yer alır; giriş gerektirmez.
+Route::post('/bulten/abone-ol', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])
+    ->middleware('throttle:10,1')
+    ->name('newsletter.subscribe');
+Route::get('/bulten/cikis/{token}', [\App\Http\Controllers\NewsletterController::class, 'unsubscribe'])
+    ->name('newsletter.unsubscribe');
+
 Route::get('/dil/{code}', LocaleController::class)->name('locale.switch');
 
 // Contact

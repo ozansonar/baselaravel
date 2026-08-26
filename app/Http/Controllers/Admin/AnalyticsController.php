@@ -71,6 +71,69 @@ class AnalyticsController extends Controller
         ]);
     }
 
+    /**
+     * Who is on the site right now.
+     *
+     * The page itself is a shell; the numbers come from liveData() on a timer,
+     * so watching it does not mean reloading the whole panel every few seconds.
+     */
+    public function live(Request $request): View
+    {
+        $this->authorize('view-analytics');
+
+        return view('admin.analytics.live', [
+            'windowMinutes' => $this->resolveWindow($request),
+            'includeBots'   => $request->boolean('include_bots'),
+        ]);
+    }
+
+    /**
+     * The polling endpoint behind the live screen.
+     */
+    public function liveData(Request $request): JsonResponse
+    {
+        $this->authorize('view-analytics');
+
+        $window = $this->resolveWindow($request);
+        $excludeBots = ! $request->boolean('include_bots');
+        $afterId = $request->integer('after_id') ?: null;
+
+        $visitors = $this->analyticsService->getActiveVisitors($window, $excludeBots);
+
+        return response()->json([
+            'online'      => $this->analyticsService->getOnlineCount($window, $excludeBots),
+            'window'      => $window,
+            'server_time' => now()->format('H:i:s'),
+            'visitors'    => $visitors->values(),
+            'pages'       => $this->analyticsService->getActivePages($window),
+            'feed'        => $this->analyticsService->getLiveFeed(30, $afterId, $excludeBots)
+                ->map(fn ($view): array => [
+                    'id'          => $view->id,
+                    'url_path'    => $view->url_path,
+                    'device_type' => $view->device_type,
+                    'browser'     => $view->browser,
+                    'is_bot'      => (bool) $view->is_bot,
+                    'bot_name'    => $view->bot_name,
+                    'user'        => $view->user?->full_name,
+                    'session_id'  => substr((string) $view->session_id, 0, 8),
+                    'at'          => $view->viewed_at?->format('H:i:s'),
+                ])->values(),
+        ]);
+    }
+
+    /**
+     * Keep the window to values the screen offers, so a hand-edited query
+     * cannot ask for a year of data on a polling endpoint.
+     */
+    private function resolveWindow(Request $request): int
+    {
+        $window = (int) $request->integer('window', AnalyticsService::ACTIVE_WINDOW_MINUTES);
+
+        return in_array($window, [1, 5, 15, 30, 60], true)
+            ? $window
+            : AnalyticsService::ACTIVE_WINDOW_MINUTES;
+    }
+
     public function chart(Request $request, string $type): JsonResponse
     {
         $this->authorize('view-analytics');

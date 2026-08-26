@@ -188,13 +188,7 @@ abstract class BaseMail extends Mailable
     {
         $this->buildSharedData();
 
-        if ($this->mailLogoPath && !$this->logoEmbedded) {
-            $this->logoEmbedded = true;
-            $logoPath = $this->mailLogoPath;
-            $this->withSymfonyMessage(function (\Symfony\Component\Mime\Email $email) use ($logoPath): void {
-                $email->embedFromPath($logoPath, 'mail-logo');
-            });
-        }
+        $this->embedMailLogo();
 
         $dbTemplate = $this->resolveDbTemplate();
 
@@ -211,6 +205,26 @@ abstract class BaseMail extends Mailable
         return new Content(
             view: $this->emailView(),
         );
+    }
+
+    /**
+     * Attach the site logo as an inline image.
+     *
+     * The layout references it as cid:mail-logo, so a subclass that builds its
+     * own content() has to call this or the logo arrives broken.
+     */
+    protected function embedMailLogo(): void
+    {
+        if (! $this->mailLogoPath || $this->logoEmbedded) {
+            return;
+        }
+
+        $this->logoEmbedded = true;
+        $logoPath = $this->mailLogoPath;
+
+        $this->withSymfonyMessage(function (\Symfony\Component\Mime\Email $email) use ($logoPath): void {
+            $email->embedFromPath($logoPath, 'mail-logo');
+        });
     }
 
     /**

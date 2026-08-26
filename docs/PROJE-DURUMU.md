@@ -600,6 +600,224 @@ yapıyor — biçim değil, kullanıcının okuduğu kelimeler korunuyor mu diye
 
 ---
 
+## 5i. Toplu Mail (Kampanyalar) — ✅ Kuruldu
+
+Üyelere, bülten listesine, Excel'den yüklenen veya elle girilen adreslere toplu
+mail gönderimi. Cron ile arka planda, saatlik limite göre yayarak.
+
+### Gönderim motoru
+
+İki limit birlikte çalışıyor:
+
+- **Saatlik tavan** sert sınır. Saate bakılarak değil, **son 60 dakikada
+  gerçekten gönderilen** satır sayılarak uygulanıyor; kaçan veya iki kez
+  çalışan bir cron limiti aşamıyor.
+- **Tur kotası** yalnızca yayma amaçlı. 5 dakikalık cron → saatte 12 tur →
+  100 limitinde tur başına `ceil(100/12) = 9` mail. Amaç listeyi başlar
+  başlamaz boşaltmamak; mail sağlayıcıları bunu kısıtlama sebebi sayıyor.
+
+Kampanya "yayma kapalı" işaretlenirse tur kotası atlanıyor ama saatlik tavan
+yine geçerli.
+
+Alıcılar `campaign_recipients` tablosuna satır satır yazılıyor. Kampanya tek
+seferde "gönderilmiyor"; başlarken kitle donduruluyor ve cron bu tabloyu azar
+azar boşaltıyor. Saatlik limit, çökme sonrası kaldığı yerden devam ve kişi
+bazlı teslim durumu ancak bu sayede mümkün.
+
+### Akış
+
+Form asla doğrudan göndermiyor: taslak kaydediliyor, **onay ekranı** gerçek
+alıcı sayısını, alıcılardan örneği, cron'un ne zaman çalışacağını ve tahmini
+bitişi gösteriyor, gönderim ancak açık onaydan sonra başlıyor.
+
+### Görseller
+
+**CID olarak gömülüyor**, bağlantı olarak değil. Mail programlarının çoğu uzak
+görselleri varsayılan engelliyor; bağlantılı görsel mail iletildiğinde veya
+çevrimdışı okunduğunda tamamen kayboluyor. Site dışındaki görseller olduğu gibi
+bırakılıyor — gönderim döngüsünden üçüncü parti URL'e istek atılmıyor.
+
+### Excel
+
+`openspout/openspout` kullanılıyor (akış tabanlı; tüm sayfayı belleğe almıyor,
+paylaşımlı hostingte on binlerce satır güvenli). Başlık satırı isimle
+eşleştiriliyor, başlık yoksa adres sütunu bulunuyor. Türkçe Excel'in noktalı
+virgüllü CSV'si ve BOM'u destekleniyor. Panelde örnek şablon indirme var.
+
+### Yol üzerinde bulunan üç kusur
+
+1. **`emailBody` sessizce boşalıyordu.** Laravel, mailable'ın public
+   özelliklerini `Content(with:)` verisinden **sonra** uyguluyor; `BaseMail`'in
+   `public ?string $emailBody = null` alanı geçilen gövdeyi eziyordu. Kampanya
+   mailleri boş gövdeyle gidiyordu.
+2. **`CampaignMail` logoyu gömmüyordu.** Logo gömme `BaseMail::content()`
+   içindeydi; onu override eden alt sınıf `cid:mail-logo` referansını
+   bırakıyor ama eki eklemiyordu. Gömme ayrı bir metoda çıkarıldı.
+3. **Tekrar denenecek alıcı başarısız sayılıyordu.** `failed_count` her
+   denemede artıyor, ilerleme çubuğu olmayan bir ilerlemeyi gösteriyordu.
+   Artık yalnızca hakkı tükenen alıcı başarısız sayılıyor.
+
+Ayrıca: alıcı listesi boşken onaylanan kampanya `Scheduled` durumunda kalıyor,
+cron sonsuza kadar başlatmayı deniyordu — zamanlama ve başlatma tek transaction'a
+alındı.
+
+### Abonelikten çıkma
+
+Her mail alıcıya özel çıkış bağlantısı taşıyor (gövde + `List-Unsubscribe`
+başlığı). Elle girilen ve Excel'den yüklenen alıcılar da kendi anahtarını
+alıyor — ilk kurulumda yalnızca abonelerde vardı, yani listede olmayan kişinin
+çıkış yolu yoktu. Çıkan adres `subscribers` tablosuna engelleme kaydı olarak
+yazılıyor ve sonraki kampanyalara dahil edilmiyor.
+
+### Testler
+
+`CampaignDispatchTest` (28), `CampaignPanelTest` (25),
+`CampaignMailContentTest` (17).
+
+---
+
+## 5j. Shared Hosting Uyumu — ✅ Kritik Hata Düzeltildi
+
+Kullanıcının hosting kuralları belgesi (`cron-rules.md`) incelendiğinde
+projedeki **yedi zamanlanmış görevin altısının hiç çalışmadığı** ortaya çıktı.
+
+`Schedule::command()` komutu ayrı bir süreçte çalıştırmaya çalışıyor; hosting'de
+`exec()` ve türevleri kapalı olduğu için alt süreç açılamıyor. Kritik olan:
+**hata fırlatmıyor.** Görev `schedule:list` çıktısında görünüyor, sırası
+geliyor, hiçbir şey olmuyor.
+
+Sessizce çalışmayanlar:
+
+- `backup:run` — gece yedeği (yedek olmadığı, yedeğe ihtiyaç duyulunca anlaşılır)
+- `analytics:anonymize-ips` — KVKK gereği IP maskeleme
+- `analytics:aggregate-daily`, `analytics:prune-old`
+- `audit-logs:prune`
+- `campaigns:dispatch` — yeni yazılan toplu mail modülü (yani hiç mail gitmezdi)
+
+Yalnızca `Schedule::call()` ile yazılmış kuyruk işleyicisi çalışıyordu.
+
+### Yapılan
+
+Hepsi `Schedule::call(fn () => Artisan::call(...))` biçimine çevrildi —
+aynı süreçte çalışır, alt süreç veya özel uzantı gerektirmez.
+
+Bundan doğan üç ayrıntı:
+
+1. **İsim zorunlu oldu.** `withoutOverlapping()` kilidi görev adına bakıyor;
+   `Schedule::command()` adı komuttan alıyordu, `call()` alamıyor.
+2. **Hata izolasyonu eklendi.** Tüm görevler tek PHP sürecini paylaştığı için
+   birinde çıkan istisna geri kalanını da düşürürdü; her komut `try/catch`
+   içine alındı ve hata loglanıyor.
+3. **Saatler ayrıştırıldı.** Aynı dakikaya denk gelen görevler tek süreçte arka
+   arkaya çalışıyor. Yedekleme (en yavaş iş) 03:00'ten 05:00'e alındı.
+
+### Doküman
+
+`cron-rules.md` kök dizinden `docs/SHARED-HOSTING.md`'ye taşındı ve genişletildi:
+mevcut görev takvimi, cron'un çalıştığını doğrulama, deploy sonrası kontrol
+listesi, mail ve upload kısıtlamaları. CLAUDE.md'ye kırmızı çizgi olarak,
+README'ye cron bölümüne bağlandı.
+
+### Bekçi
+
+`ScheduleUsesCallablesTest` (11): hiçbir görev `Schedule::command()` ile
+tanımlanmamış, `runInBackground()` kullanılmamış, her görevin adı var, beklenen
+yedi görev kayıtlı, mail gönderim aralığı `CampaignDispatcher::RUN_INTERVAL_MINUTES`
+ile uyumlu. Yasak çağrı kontrolü kaynak kodun token'larından yapılıyor —
+dosya bu çağrıları neden yasak olduklarını anlatmak için zaten adıyla anıyor.
+
+---
+
+## 5k. Diller Ekranı — ✅ Eksik Tamamlandı
+
+Çok dilli yapı kurulurken `LanguageService` tüm kuralları taşıyordu ve servis
+seviyesinde test edilmişti, ama **panelde arayüzü hiç yapılmamıştı**. Diller
+yalnızca seeder'dan geliyordu; yeni dil eklemek veya çıkarmak için veritabanına
+elle dokunmak gerekiyordu.
+
+**Admin → Diller** ekranı eklendi: listeleme, ekleme, güncelleme, yayına
+alma/kaldırma, varsayılan yapma, silme.
+
+Ekran her dil için yayın durumunu, **arayüz çeviri dosyasının var olup
+olmadığını** (`lang/{kod}/site.php`) ve o dilde kaç içerik kaydı bulunduğunu
+gösteriyor — bir dil kaldırılmadan önce neyin gizleneceği görünüyor.
+
+"Tek varsayılan" kuralı arayüzde de uygulanıyor: varsayılan dilin silme ve
+varsayılan-yapma düğmeleri render edilmiyor, "Yayında" anahtarı disabled.
+Sunucu tarafı bunlara güvenmiyor, `LanguageService` aynı kuralları yeniden
+uyguluyor.
+
+### Yol üzerinde bulunan hata
+
+`$request->boolean('is_active', true)` işaretlenmemiş kutuyu da `true`
+yapıyordu — işaretsiz checkbox istekte hiç yer almadığı için varsayılan devreye
+giriyor ve **hiçbir dil formdan pasife alınamıyordu.** Varsayılan `false` oldu.
+
+### Testler
+
+`LanguagePanelTest` (21): ekran listeleme, çeviri dosyası eksikliği uyarısı,
+ekleme (kod doğrulama, büyük harf normalizasyonu, tekrar reddi), güncelleme,
+yayına alma/kaldırma, varsayılanın kapatılamaması, dört ardışık varsayılan
+değişikliğinden sonra hâlâ tek varsayılan olması, silme kısıtları, yetki
+ayrımı, değişikliğin ön yüz dil seçicisine ve `hreflang` etiketlerine yansıması.
+
+---
+
+## 5l. Dil Yazıları Ekranı — ✅ Kuruldu
+
+Arayüz metinleri yalnızca `lang/` dosyalarındaydı; değiştirmek için kod
+düzenlemek gerekiyordu. **Admin → Dil Yazıları** ekranı eklendi: 231 metin,
+dile göre sekmeler, bölümlere ayrılmış form, anlık arama.
+
+### Neden dosyaya değil veritabanına yazıyor
+
+İki seçenek vardı ve seçim performansla ilgili değil:
+
+- **Dosyaya yazmak** okuma açısından en hızlısı (opcache), ama deploy `git pull`
+  ile yapılıyor — her deploy kullanıcının tüm düzenlemelerini sessizce silerdi.
+  Ayrıca `lang/` dizininin üretimde yazılabilir olması gerekirdi.
+- **Veritabanı + cache** deploy güvenli. Dosya varsayılan kalıyor, tablo yalnızca
+  değiştirilenleri tutuyor. "Varsayılana dön" ancak bu ayrım sayesinde anlamlı.
+  Mail şablonlarındaki desenin aynısı.
+
+Performans farkı yok: bir dilin değişiklikleri tek dizi olarak
+`rememberForever` ile cache'leniyor ve Laravel çeviri grubunu istek başına bir
+kez yüklerken üzerine biniyor. Isınmış sayfa render'ı **sıfır** sorgu atıyor;
+test bunu ölçüyor.
+
+### Nasıl çalışıyor
+
+`DatabaseOverrideLoader`, Laravel'in dosya yükleyicisini sarıyor. Her `__()`
+çağrısı ve her Blade `@lang` olduğu gibi kalıyor — tek satır view değişmedi.
+
+Ekrandaki anahtar listesi **varsayılan dilin dosyasından** okunuyor, yani kodda
+yeni bir metin eklendiğinde panelde kendiliğinden beliriyor.
+
+Varsayılana eşit değer override olarak saklanmıyor, siliniyor: aksi hâlde metin
+donar ve ileride dosyadaki varsayılan değişse bile siteye ulaşmazdı.
+
+### Yol üzerinde bulunan üç sorun
+
+1. **`TranslationService` singleton değildi.** Yükleyici kendi örneğini tutuyor
+   ve istek içi hafızası vardı; ikinci bir örnek kaydederken kendi hafızasını
+   temizlerken yükleyici bayat değeri sunmaya devam ediyordu.
+2. **Kaydetme mesajı yanıltıcıydı:** "228 metin varsayılana döndü" diyordu, oysa
+   hiçbir şey geri alınmamış, sadece dokunulmamış alanlar varsayılana eşitti.
+   Artık yalnızca gerçekten geri alınanlar sayılıyor.
+3. **`Schema::hasTable()` her soğuk yüklemede fazladan sorgu atıyordu** — yalnızca
+   ilk migration öncesi var olan bir durumu korumak için, sonsuza kadar. Zaten
+   var olan try/catch bunu bedelsiz kapsıyor.
+
+### Testler
+
+`TranslationOverrideTest` (21): çözümleme, dil kapsamı, yer tutucuların
+korunması, varsayılana eşit değerin saklanmaması, boş değerin varsayılana
+dönmesi, tanımsız anahtarın yazılamaması, sayaçların yalnızca gerçek
+değişikliği bildirmesi, ısınmış sayfanın sıfır sorgu atması, panel akışı ve
+yetki ayrımı.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki

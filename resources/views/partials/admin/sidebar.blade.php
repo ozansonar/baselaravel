@@ -158,8 +158,44 @@
 
         @can('view-analytics')
         <a href="{{ route('admin.analytics.index') }}"
-           class="nav-link {{ Route::is('admin.analytics.*') ? 'active' : '' }}">
+           class="nav-link {{ Route::is('admin.analytics.index') || Route::is('admin.analytics.visits') ? 'active' : '' }}">
             <i class="bi bi-graph-up-arrow"></i> Analitik
+        </a>
+        <a href="{{ route('admin.analytics.live') }}"
+           class="nav-link {{ Route::is('admin.analytics.live*') ? 'active' : '' }}">
+            <i class="bi bi-broadcast"></i> Canlı Ziyaretçiler
+        </a>
+        @endcan
+
+
+        @can('viewAny', \App\Models\Translation::class)
+        <a href="{{ route('admin.translations.index') }}"
+           class="nav-link {{ Route::is('admin.translations.*') ? 'active' : '' }}">
+            <i class="bi bi-fonts"></i> Dil Yazıları
+        </a>
+        @endcan
+
+
+        @can('viewAny', \App\Models\Language::class)
+        <a href="{{ route('admin.languages.index') }}"
+           class="nav-link {{ Route::is('admin.languages.*') ? 'active' : '' }}">
+            <i class="bi bi-translate"></i> Diller
+        </a>
+        @endcan
+
+
+        @can('viewAny', \App\Models\Campaign::class)
+        <a href="{{ route('admin.campaigns.index') }}"
+           class="nav-link {{ Route::is('admin.campaigns.*') ? 'active' : '' }}">
+            <i class="bi bi-megaphone-fill"></i> Mail Kampanyaları
+        </a>
+        @endcan
+
+
+        @can('viewAny', \App\Models\Subscriber::class)
+        <a href="{{ route('admin.subscribers.index') }}"
+           class="nav-link {{ Route::is('admin.subscribers.*') ? 'active' : '' }}">
+            <i class="bi bi-envelope-heart-fill"></i> Mail Listesi
         </a>
         @endcan
 
