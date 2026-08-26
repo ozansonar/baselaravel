@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * A category arrives as one block of fields per language; only the default
- * language has to be filled in.
+ * A category arrives as one block of fields per language. No language is
+ * mandatory on its own; see ValidatesTranslationBlocks.
  */
 final class StoreTranslatedGalleryCategoryRequest extends FormRequest
 {
-    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+    use ValidatesTranslationBlocks;
 
     public function authorize(): bool
     {

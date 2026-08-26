@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Enums\ContentStatus;
 use App\Models\BlogPost;
 use App\Services\LanguageService;
@@ -25,7 +26,7 @@ use Illuminate\Validation\Rules\Enum;
  */
 final class StoreTranslatedBlogPostRequest extends FormRequest
 {
-    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+    use ValidatesTranslationBlocks;
 
 
     public function authorize(): bool

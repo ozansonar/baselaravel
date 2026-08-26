@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * An FAQ entry arrives as one block of fields per language; only the default
- * language has to be filled in.
+ * An FAQ entry arrives as one block of fields per language. No language is
+ * mandatory on its own; see ValidatesTranslationBlocks.
  */
 final class StoreTranslatedFaqRequest extends FormRequest
 {
-    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+    use ValidatesTranslationBlocks;
 
     public function authorize(): bool
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Enums\PopupPage;
 use App\Enums\PopupSize;
 use App\Services\LanguageService;
@@ -15,7 +16,7 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTranslatedPopupRequest extends FormRequest
 {
-    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+    use ValidatesTranslationBlocks;
 
     public function authorize(): bool
     {

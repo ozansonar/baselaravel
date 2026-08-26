@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * A slider arrives as one block of fields per language.
  *
- * The image is required for the default language on create only; other
+ * The image is required on create for the language actually being written; other
  * languages may reuse nothing and be filled in later, and an edit keeps the
  * artwork each language already has.
  */
 final class StoreTranslatedSliderRequest extends FormRequest
 {
-    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+    use ValidatesTranslationBlocks;
 
     public function authorize(): bool
     {
