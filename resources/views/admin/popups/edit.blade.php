@@ -38,13 +38,7 @@
                 <input type="hidden" id="langGuard" value="1" data-fv-modal
                        data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
                        data-prompt-target="langGuardError">
-                <div id="langGuardError" class="mb-4">
-                    @error('translations')
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ $message }}
-                        </div>
-                    @enderror
-                </div>
+                <div id="langGuardError" class="d-none"></div>
 
                 <x-language-tabs :languages="$formLanguages" :model="$popup" id="popupLangTabs">
                     @foreach($formLanguages as $language)

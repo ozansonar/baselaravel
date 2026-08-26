@@ -47,6 +47,12 @@
                  data-message="{{ session('success') ?? session('error') ?? session('warning') ?? session('info') }}"></div>
             @endif
 
+            {{-- A form level validation error has no field to sit next to, so it
+                 is shown the same way a flash message is. --}}
+            @error('translations')
+            <div id="formErrorData" class="d-none" data-message="{{ $message }}"></div>
+            @enderror
+
             @yield('content')
         </div>
     </main>
@@ -79,14 +85,28 @@
 <script>AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 50 });</script>
 <script>
 (function() {
+    if (typeof AdminModal === 'undefined') {
+        return;
+    }
+
     var flash = document.getElementById('flashData');
-    if (flash && typeof AdminModal !== 'undefined') {
+    if (flash) {
         AdminModal.status({
             title: flash.dataset.title,
             message: flash.dataset.message,
             type: flash.dataset.type
         });
         flash.remove();
+    }
+
+    var formError = document.getElementById('formErrorData');
+    if (formError) {
+        AdminModal.status({
+            title: 'Eksik bilgi',
+            message: formError.dataset.message,
+            type: 'danger'
+        });
+        formError.remove();
     }
 })();
 </script>
