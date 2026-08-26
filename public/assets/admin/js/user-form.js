@@ -7,20 +7,6 @@
  * - Avatar name sync
  */
 
-// ========== Section Navigation ==========
-function scrollToSection(id, el) {
-    var target = document.getElementById(id);
-    if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    document.querySelectorAll('.stg-nav-item').forEach(function (n) {
-        n.classList.remove('active');
-    });
-    if (el) {
-        el.classList.add('active');
-    }
-}
-
 // ========== Avatar Preview ==========
 function previewAvatar(input) {
     if (input.files && input.files[0]) {
