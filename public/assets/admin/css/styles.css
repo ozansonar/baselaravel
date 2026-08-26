@@ -32458,70 +32458,156 @@ body.mlib-lightbox-open {
    Language tabs (multilingual content forms)
    ========================================================================== */
 
+/* Segmented pill bar: the group reads as one control, so the active language
+   is obvious at a glance instead of blending into the page background. */
 .lang-tabs {
-  border-bottom: 1px solid var(--border-color);
+  display: inline-flex;
+  align-items: stretch;
   gap: 4px;
-  flex-wrap: wrap;
+  max-width: 100%;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .14);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.lang-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.lang-tabs .nav-item {
+  flex: 0 0 auto;
+}
+
+.lang-tabs__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 0 12px 0 10px;
+  margin-right: 2px;
+  border-right: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .lang-tabs__btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: 10px 10px 0 0;
+  padding: 9px 16px;
   background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
   color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  transition: background-color .15s ease, color .15s ease;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all .2s ease;
 }
 
 .lang-tabs__btn:hover {
-  background: var(--bg-hover, rgba(255, 255, 255, .04));
+  background: var(--bg-input);
   color: var(--text-primary);
+}
+
+.lang-tabs__btn:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .lang-tabs__btn.active {
-  background: var(--bg-input);
-  border-color: var(--border-color);
-  color: var(--text-primary);
+  background: rgba(20, 184, 166, .12);
+  border-color: rgba(20, 184, 166, .45);
+  color: var(--teal-light);
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(20, 184, 166, .14);
+}
+
+/* Only the selected language shows a full-colour flag; the rest stay muted. */
+.lang-tabs__flag {
+  font-size: 16px;
+  line-height: 1;
+  transition: filter .2s ease, opacity .2s ease;
+}
+
+.lang-tabs__btn:not(.active) .lang-tabs__flag {
+  filter: grayscale(.6);
+  opacity: .7;
 }
 
 .lang-tabs__btn--invalid {
-  color: var(--bs-danger, #ef4444);
+  color: #f87171;
 }
 
-.lang-tabs__flag {
-  font-size: 15px;
-  line-height: 1;
+.lang-tabs__btn--invalid.active {
+  background: rgba(239, 68, 68, .12);
+  border-color: rgba(239, 68, 68, .45);
+  color: #fca5a5;
+  box-shadow: 0 2px 12px rgba(239, 68, 68, .14);
 }
 
 .lang-tabs__badge {
-  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
   border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .02em;
-  text-transform: uppercase;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.7;
 }
 
 .lang-tabs__badge--default {
-  background: rgba(20, 184, 166, .15);
-  color: #14b8a6;
+  background: rgba(20, 184, 166, .16);
+  color: var(--teal-light);
 }
 
 .lang-tabs__badge--missing {
-  background: rgba(249, 115, 22, .15);
-  color: #f97316;
+  background: rgba(249, 115, 22, .16);
+  color: #fb923c;
 }
 
 .lang-tabs__error {
-  font-size: 13px;
+  font-size: 12px;
+  color: #f87171;
 }
 
 .lang-tabs__content {
   padding-top: 20px;
+}
+
+/* Light mode needs the darker teal to keep the label readable on the tint. */
+[data-theme="light"] .lang-tabs {
+  box-shadow: 0 4px 18px rgba(15, 23, 42, .06);
+}
+
+[data-theme="light"] .lang-tabs__btn.active,
+[data-theme="light"] .lang-tabs__badge--default {
+  color: var(--teal-primary);
+}
+
+@media (max-width: 575px) {
+  .lang-tabs {
+    display: flex;
+    width: 100%;
+    border-radius: 12px;
+  }
+  .lang-tabs__label {
+    padding-left: 8px;
+    padding-right: 10px;
+  }
+  .lang-tabs__btn {
+    padding: 8px 12px;
+  }
 }
