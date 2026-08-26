@@ -117,8 +117,15 @@
             return Array.prototype.some.call(
                 pane.querySelectorAll('input, select, textarea'),
                 function (element) {
-                    if (element.disabled || element.type === 'hidden') {
+                    // data-fv-ignore marks fields that always carry a value —
+                    // a sort order, a switch that defaults to on — which would
+                    // otherwise make an untouched tab look filled in.
+                    if (element.disabled || element.type === 'hidden' || element.hasAttribute('data-fv-ignore')) {
                         return false;
+                    }
+
+                    if (element.type === 'checkbox' || element.type === 'radio') {
+                        return element.checked;
                     }
 
                     if (element.type === 'file') {

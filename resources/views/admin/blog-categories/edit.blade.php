@@ -37,12 +37,7 @@
         </div>
     </div>
 
-    <!-- Form -->
-    <div class="row g-4 align-items-start" data-aos="fade-up">
-        <div class="col-12 col-lg-9 mx-auto">
-            @include('admin.blog-categories._form', ['category' => $category])
-        </div>
-    </div>
+    @include('admin.blog-categories._form', ['category' => $category])
 
 @endsection
 
