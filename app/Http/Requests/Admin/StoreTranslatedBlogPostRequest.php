@@ -30,7 +30,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
     {
         $languages = app(LanguageService::class);
         $default = $languages->defaultCode();
-        $post = $this->route('blogPost');
+        $post = $this->route('blog_post');
 
         $rules = [
             'translations'  => ['required', 'array'],

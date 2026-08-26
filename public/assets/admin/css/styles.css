@@ -32616,34 +32616,47 @@ body.mlib-lightbox-open {
    Form validation (jQuery Validation Engine 3.1.0)
    ========================================================================== */
 
-/* Prompts are always rendered inline, right under the field they belong to. */
+/* Prompts render inline, under the field but clearly detached from it.
+   The .inline variant has to be named explicitly: the plugin stylesheet
+   strips the border and the radius through .formError.inline .formErrorContent. */
 .formError {
   position: relative;
   top: 0;
   left: 0;
   display: block;
   width: 100%;
-  margin-top: 6px;
   cursor: default;
   text-align: left;
 }
 
-.formError .formErrorContent {
-  display: flex;
+/* inline-flex so the pill hugs its message instead of stretching into a bar.
+   The gap lives here rather than on .formError, whose margin the plugin
+   overwrites with an inline style. */
+.formError .formErrorContent,
+.formError.inline .formErrorContent {
+  display: inline-flex;
   align-items: flex-start;
-  gap: 7px;
+  gap: 8px;
   width: auto;
+  max-width: 100%;
   min-width: 0;
-  padding: 7px 12px;
-  background: rgba(239, 68, 68, .12);
-  border: 1px solid rgba(239, 68, 68, .35);
-  border-radius: 8px;
-  box-shadow: none;
+  margin-top: 10px;
+  padding: 9px 15px;
+  background: rgba(239, 68, 68, .13);
+  border: 1px solid rgba(239, 68, 68, .32);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, .08);
   color: #fca5a5;
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
   line-height: 1.5;
+  animation: fv-prompt-in .22s ease-out;
+}
+
+@keyframes fv-prompt-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
 }
 
 .formError .formErrorContent::before {
@@ -32652,7 +32665,7 @@ body.mlib-lightbox-open {
   font-family: bootstrap-icons !important;
   font-size: 13px;
   font-weight: normal;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 /* The engine also builds an arrow node; inline prompts do not need one. */
@@ -32660,9 +32673,11 @@ body.mlib-lightbox-open {
   display: none;
 }
 
-.formError.greenPopup .formErrorContent {
-  background: rgba(16, 185, 129, .12);
-  border-color: rgba(16, 185, 129, .35);
+.formError.greenPopup .formErrorContent,
+.formError.inline.greenPopup .formErrorContent {
+  background: rgba(16, 185, 129, .13);
+  border-color: rgba(16, 185, 129, .32);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, .08);
   color: #6ee7b7;
 }
 
@@ -32670,19 +32685,23 @@ body.mlib-lightbox-open {
   content: "\f26e";
 }
 
-.formError.blackPopup .formErrorContent {
+.formError.blackPopup .formErrorContent,
+.formError.inline.blackPopup .formErrorContent {
   background: rgba(148, 163, 184, .12);
   border-color: rgba(148, 163, 184, .3);
+  box-shadow: none;
   color: var(--text-secondary);
 }
 
-[data-theme="light"] .formError .formErrorContent {
+[data-theme="light"] .formError .formErrorContent,
+[data-theme="light"] .formError.inline .formErrorContent {
   background: rgba(239, 68, 68, .08);
   border-color: rgba(239, 68, 68, .3);
   color: #b91c1c;
 }
 
-[data-theme="light"] .formError.greenPopup .formErrorContent {
+[data-theme="light"] .formError.greenPopup .formErrorContent,
+[data-theme="light"] .formError.inline.greenPopup .formErrorContent {
   background: rgba(16, 185, 129, .08);
   border-color: rgba(16, 185, 129, .3);
   color: #047857;
@@ -32719,5 +32738,9 @@ input.is-loading {
 @media (prefers-reduced-motion: reduce) {
   .fv-spinner {
     animation-duration: 1.8s;
+  }
+
+  .formError .formErrorContent {
+    animation: none;
   }
 }
