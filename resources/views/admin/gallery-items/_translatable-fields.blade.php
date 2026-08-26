@@ -12,9 +12,9 @@
         <div class="d-lg-none mb-4" data-aos="fade-up">
             <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
                 <option value="" disabled selected>Bölüme git...</option>
-                <option value="section-basic">Temel Bilgiler</option>
-                <option value="section-media">Görsel</option>
-                <option value="section-video">Video Bilgileri</option>
+                <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
+                <option value="section-media_{{ $language->code }}">Görsel</option>
+                <option value="section-video_{{ $language->code }}">Video Bilgileri</option>
             </select>
         </div>
 
@@ -24,15 +24,15 @@
             {{-- Sol Navigasyon (desktop) --}}
             <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right">
                 <div class="stg-nav-inner position-sticky stg-nav-sticky">
-                    <a href="#section-basic" class="stg-nav-item active" onclick="scrollToSection('section-basic', this)">
+                    <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic_{{ $language->code }}', this)">
                         <i class="bi bi-info-circle"></i>
                         <div><span>Temel Bilgiler</span><small>Başlık, tür, kategori, durum</small></div>
                     </a>
-                    <a href="#section-media" class="stg-nav-item" onclick="scrollToSection('section-media', this)">
+                    <a href="#section-media_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media_{{ $language->code }}', this)">
                         <i class="bi bi-image"></i>
                         <div><span>Görsel</span><small>Fotoğraf yükleme</small></div>
                     </a>
-                    <a href="#section-video" class="stg-nav-item" onclick="scrollToSection('section-video', this)">
+                    <a href="#section-video_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-video_{{ $language->code }}', this)">
                         <i class="bi bi-camera-video"></i>
                         <div><span>Video Bilgileri</span><small>Video URL ve süre</small></div>
                     </a>
@@ -223,3 +223,5 @@
                     </div>
                 </div>
 
+            </div><!-- /col-12 col-lg-9 -->
+        </div><!-- /row -->

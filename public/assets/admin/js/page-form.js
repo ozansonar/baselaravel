@@ -59,23 +59,6 @@
     }
   };
 
-  /* ==================== SECTION NAVIGATION ==================== */
-  window.scrollToSection = function (sectionId, navItem) {
-    var section = document.getElementById(sectionId);
-    if (!section) return;
-
-    var offset = 20;
-    var top = section.getBoundingClientRect().top + window.pageYOffset - offset;
-    window.scrollTo({ top: top, behavior: 'smooth' });
-
-    if (navItem) {
-      document.querySelectorAll('.stg-nav-item').forEach(function (item) {
-        item.classList.remove('active');
-      });
-      navItem.classList.add('active');
-    }
-  };
-
   /* ==================== SCROLL SPY ==================== */
   function updateActiveNav() {
     var sections = document.querySelectorAll('.card-dark[id^="section-"]');

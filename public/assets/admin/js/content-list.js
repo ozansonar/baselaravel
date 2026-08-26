@@ -15,14 +15,5 @@
     });
   };
 
-  // ==================== SECTION NAVIGATION ====================
-  window.scrollToSection = function (id, el) {
-    var target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    document.querySelectorAll('.stg-nav-item').forEach(function (item) { item.classList.remove('active'); });
-    if (el) el.classList.add('active');
-  };
 
 })();
