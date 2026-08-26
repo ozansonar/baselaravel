@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Services\LanguageService;
+use App\Services\LocaleResolver;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Decides which language the visitor sees.
  *
- * Order of preference:
- *   1. A language the visitor picked from the switcher (kept in the session)
- *   2. The best match from the browser's Accept-Language header
- *   3. The default language
+ * Front pages carry their language in the URL (/en/blog), so that segment wins
+ * outright — the same address must always show the same language, or search
+ * engines and shared links would see whatever the last visitor picked.
  *
- * Only active languages count; anything else falls through to the default, so a
- * visitor never lands on a language the site does not publish.
+ * Requests without such a segment (the bare root, the sitemap, e-mail links)
+ * fall back to the visitor's own preference.
  */
 final class SetLocale
 {
@@ -26,11 +27,18 @@ final class SetLocale
 
     public function __construct(
         private readonly LanguageService $languages,
+        private readonly LocaleResolver $resolver,
     ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
-        app()->setLocale($this->resolveLocale($request));
+        $locale = $this->fromUrl($request) ?? $this->resolver->fromRequest($request);
+
+        app()->setLocale($locale);
+
+        // Every route() call in the app can now stay language-unaware: the
+        // {locale} segment is filled in from here.
+        URL::defaults(['locale' => $locale]);
 
         // The timezone is applied in AppServiceProvider instead: doing it here
         // covered web requests only, so anything the scheduler wrote — backups,
@@ -40,60 +48,47 @@ final class SetLocale
         return $next($request);
     }
 
-    private function resolveLocale(Request $request): string
-    {
-        $chosen = $request->hasSession() ? $request->session()->get(self::SESSION_KEY) : null;
-
-        if (is_string($chosen) && $this->languages->isSupported($chosen)) {
-            return $chosen;
-        }
-
-        return $this->fromBrowser($request) ?? $this->languages->defaultCode();
-    }
-
     /**
-     * Best supported language from Accept-Language, honouring its q-values.
+     * The language segment of a localized route.
      *
-     * "de-DE" matches a site language of "de", so a visitor with a regional
-     * variant still gets the language rather than the default.
+     * A code the site does not publish is a dead address rather than a reason
+     * to quietly show another language, so it 404s.
      */
-    private function fromBrowser(Request $request): ?string
+    private function fromUrl(Request $request): ?string
     {
-        $header = (string) $request->header('Accept-Language', '');
+        $route = $request->route();
 
-        if ($header === '') {
+        // Only the front group carries the language in its first segment; the
+        // panel has its own {locale} parameters that mean something else.
+        if ($route === null || ! str_starts_with($route->uri(), '{locale}')) {
             return null;
         }
 
-        $supported = $this->languages->activeCodes();
-        $candidates = [];
+        $code = $route->parameter('locale');
 
-        foreach (explode(',', $header) as $part) {
-            $bits = explode(';q=', trim($part));
-            $tag = strtolower(trim($bits[0]));
-
-            if ($tag === '' || $tag === '*') {
-                continue;
-            }
-
-            $quality = isset($bits[1]) ? (float) $bits[1] : 1.0;
-            $candidates[] = ['tag' => $tag, 'quality' => $quality];
+        if (! is_string($code)) {
+            return null;
         }
 
-        usort($candidates, static fn (array $a, array $b): int => $b['quality'] <=> $a['quality']);
+        // A fresh install has no language rows yet; the configured default
+        // still has to serve pages, or the whole site would 404.
+        $supported = $this->languages->isSupported($code)
+            || ($this->languages->activeCodes() === [] && $code === $this->languages->defaultCode());
 
-        foreach ($candidates as $candidate) {
-            if (in_array($candidate['tag'], $supported, true)) {
-                return $candidate['tag'];
-            }
+        abort_unless($supported, 404);
 
-            $base = explode('-', $candidate['tag'])[0];
-
-            if (in_array($base, $supported, true)) {
-                return $base;
-            }
+        // Remembered so the language-less URLs — the root, e-mail links — keep
+        // following the visitor.
+        if ($request->hasSession()) {
+            $request->session()->put(self::SESSION_KEY, $code);
         }
 
-        return null;
+        // Controller arguments are filled positionally, so the language segment
+        // would arrive as the first one — /tr/hakkimizda would look up the page
+        // "tr". It has done its job here; URL::defaults puts it back on the way
+        // out.
+        $route->forgetParameter('locale');
+
+        return $code;
     }
 }

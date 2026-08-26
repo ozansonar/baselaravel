@@ -145,7 +145,7 @@ class LocalizedMenuTest extends TestCase
             'is_active'  => true,
         ]);
 
-        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
+        $html = $this->get('/en')->getContent();
 
         $this->assertStringContainsString('Get in touch', $html);
         $this->assertStringNotContainsString('>İletişim<', $html);

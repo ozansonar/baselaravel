@@ -245,5 +245,8 @@ final class GalleryService
         $this->forgetLocalized('gallery.photos');
         $this->forgetLocalized('gallery.videos');
         Cache::forget('admin.gallery.stats');
+        // Photos are listed in the sitemap as image entries, so a new or
+        // removed one has to reach it straight away.
+        Cache::forget('sitemap.urls');
     }
 }

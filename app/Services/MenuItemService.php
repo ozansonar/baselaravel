@@ -116,6 +116,9 @@ final class MenuItemService
     {
         $currentRoute = request()->route()?->getName() ?? '';
         $currentPath = '/' . trim(request()->path(), '/');
+        // Front URLs carry the language as their first segment, so a menu item
+        // stored as a plain path (/hakkimizda) still has to match /tr/hakkimizda.
+        $pathWithoutLocale = $this->stripLocale($currentPath);
 
         if ($item->link_type === 'route' && $item->route_name) {
             if ($item->route_name === $currentRoute) {
@@ -134,7 +137,7 @@ final class MenuItemService
 
         if ($item->link_type === 'url' && $item->url) {
             $itemPath = '/' . trim(parse_url($item->url, PHP_URL_PATH) ?? '', '/');
-            if ($itemPath !== '/' && $itemPath === $currentPath) {
+            if ($itemPath !== '/' && ($itemPath === $currentPath || $itemPath === $pathWithoutLocale)) {
                 return true;
             }
         }
@@ -146,6 +149,23 @@ final class MenuItemService
         }
 
         return false;
+    }
+
+    /**
+     * The same path without its language segment, so stored links written
+     * before the prefix — or copied from another language — still match.
+     */
+    private function stripLocale(string $path): string
+    {
+        $prefix = '/' . app()->getLocale();
+
+        if ($path === $prefix) {
+            return '/';
+        }
+
+        return str_starts_with($path, $prefix . '/')
+            ? substr($path, strlen($prefix))
+            : $path;
     }
 
     public function getAvailableRoutes(): array

@@ -110,7 +110,7 @@ class InterfaceTranslationTest extends TestCase
 
     public function test_the_home_page_is_rendered_in_turkish_by_default(): void
     {
-        $html = $this->withHeaders(['Accept-Language' => 'tr'])->get('/')->getContent();
+        $html = $this->followingRedirects()->withHeaders(['Accept-Language' => 'tr'])->get('/')->getContent();
 
         $this->assertStringContainsString(__('site.nav.home', [], 'tr'), $html);
         $this->assertStringContainsString(__('site.actions.get_start', [], 'tr'), $html);
@@ -118,7 +118,7 @@ class InterfaceTranslationTest extends TestCase
 
     public function test_the_home_page_is_rendered_in_english_for_an_english_browser(): void
     {
-        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
+        $html = $this->followingRedirects()->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
 
         $this->assertStringContainsString('Get Started', $html);
         $this->assertStringContainsString('Explore Content', $html);
@@ -129,7 +129,7 @@ class InterfaceTranslationTest extends TestCase
     {
         $this->get(route('locale.switch', 'en'));
 
-        $html = $this->get('/')->getContent();
+        $html = $this->followingRedirects()->get('/')->getContent();
 
         $this->assertStringContainsString('Gallery', $html);
         $this->assertStringContainsString('Contact', $html);
@@ -138,7 +138,7 @@ class InterfaceTranslationTest extends TestCase
 
     public function test_the_sign_in_page_is_translated(): void
     {
-        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/giris')->getContent();
+        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/en/giris')->getContent();
 
         $this->assertStringContainsString('Email Address', $html);
         $this->assertStringContainsString('Remember me', $html);
@@ -147,7 +147,7 @@ class InterfaceTranslationTest extends TestCase
 
     public function test_the_contact_form_labels_are_translated(): void
     {
-        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/iletisim')->getContent();
+        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/en/iletisim')->getContent();
 
         $this->assertStringContainsString('Your Message', $html);
         $this->assertStringContainsString('Working Hours', $html);
@@ -159,7 +159,7 @@ class InterfaceTranslationTest extends TestCase
      */
     public function test_the_hero_headline_renders_its_markup(): void
     {
-        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
+        $html = $this->followingRedirects()->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
 
         $this->assertStringContainsString('<span class="grad">to the next level</span>', $html);
         $this->assertStringNotContainsString('&lt;span', $html);
@@ -173,7 +173,7 @@ class InterfaceTranslationTest extends TestCase
         \App\Models\Language::where('code', 'de')->update(['is_active' => true]);
         app(LanguageService::class)->clearCache();
 
-        $html = $this->withHeaders(['Accept-Language' => 'de-DE,de;q=0.9'])->get('/')->getContent();
+        $html = $this->followingRedirects()->withHeaders(['Accept-Language' => 'de-DE,de;q=0.9'])->get('/')->getContent();
 
         $this->assertSame('de', app()->getLocale());
         $this->assertStringNotContainsString('site.nav.home', $html, 'Çevrilmemiş dilde ham anahtar görünüyor');

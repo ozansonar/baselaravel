@@ -46,14 +46,14 @@ class EmailVerificationTest extends TestCase
     public function test_the_account_area_is_closed_until_the_address_is_verified(): void
     {
         $this->actingAs($this->unverifiedUser())
-            ->get('/hesabim')
+            ->get('/tr/hesabim')
             ->assertRedirect(route('verification.notice'));
     }
 
     public function test_a_verified_user_reaches_the_account_area(): void
     {
         $this->actingAs(User::factory()->create())
-            ->get('/hesabim')
+            ->get('/tr/hesabim')
             ->assertOk();
     }
 
@@ -131,7 +131,7 @@ class EmailVerificationTest extends TestCase
         Role::firstOrCreate(['slug' => 'user'], ['name' => 'Kullanıcı']);
         Setting::setValue('registration_enabled', '1');
 
-        $this->post('/kayit', [
+        $this->post('/tr/kayit', [
             'first_name'            => 'Yeni',
             'last_name'             => 'Uye',
             'email'                 => 'yeni-uye@example.test',

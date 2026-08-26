@@ -60,7 +60,7 @@ class TimezoneSettingTest extends TestCase
         Setting::setValue('app_timezone', 'America/New_York', 'general', 'text');
         $this->applyTimezone();
 
-        $fromWeb = $this->get('/')->isSuccessful() ? config('app.timezone') : null;
+        $fromWeb = $this->get('/tr')->isSuccessful() ? config('app.timezone') : null;
         $fromConsole = config('app.timezone');
 
         $this->assertSame('America/New_York', $fromWeb);

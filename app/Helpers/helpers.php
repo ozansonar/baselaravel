@@ -127,3 +127,17 @@ if (!function_exists('site_initials')) {
         return implode('', $letters);
     }
 }
+
+if (!function_exists('page_url')) {
+    /**
+     * A dynamic page's address in the language being read.
+     *
+     * Slugs are per language, so a hard-coded one (hakkimizda) would 404 for a
+     * visitor reading English once the page is translated. The slug is looked
+     * up in its own language group first.
+     */
+    function page_url(string $slug): string
+    {
+        return app(\App\Services\LocalizedUrlService::class)->page($slug);
+    }
+}

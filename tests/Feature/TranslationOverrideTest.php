@@ -197,7 +197,7 @@ class TranslationOverrideTest extends TestCase
         $this->service()->save('tr', self::GROUP, ['nav.home' => 'Ana Sayfam']);
 
         // Warm the cache the way the first request would.
-        $this->get('/')->assertOk();
+        $this->get('/tr')->assertOk();
 
         $queries = 0;
         DB::listen(function ($query) use (&$queries): void {
@@ -206,7 +206,7 @@ class TranslationOverrideTest extends TestCase
             }
         });
 
-        $this->get('/')->assertOk();
+        $this->get('/tr')->assertOk();
 
         $this->assertSame(0, $queries, 'Çeviri tablosu her istekte sorgulanıyor');
     }
@@ -280,7 +280,7 @@ class TranslationOverrideTest extends TestCase
 
         // The test client sends Accept-Language: en by default, so the locale
         // has to be asked for explicitly.
-        $html = $this->withHeaders(['Accept-Language' => 'tr'])->get('/')->getContent();
+        $html = $this->get('/tr')->getContent();
         $this->assertStringContainsString('Ana Sayfam', $html);
     }
 

@@ -2,6 +2,10 @@
     $languageService = app(\App\Services\LanguageService::class);
     $availableLanguages = $languageService->active();
     $currentLanguage = $languageService->findByCode(app()->getLocale()) ?? $languageService->default();
+    // The same page in each language. Content with no translation yet has no
+    // address of its own, so that language falls back to its home page rather
+    // than to a dead link.
+    $languageUrls = app(\App\Services\LocalizedUrlService::class)->alternates();
 @endphp
 
 {{-- A single language is not a choice, so the switcher stays hidden. --}}
@@ -17,7 +21,8 @@
             @foreach($availableLanguages as $language)
                 <li>
                     <a class="dropdown-item {{ $language->code === $currentLanguage->code ? 'active' : '' }}"
-                       href="{{ route('locale.switch', $language->code) }}"
+                       href="{{ $languageUrls[$language->code] ?? route('home', ['locale' => $language->code]) }}"
+                       hreflang="{{ $language->code }}"
                        @if($language->code === $currentLanguage->code) aria-current="true" @endif>
                         <span class="lang-switcher__flag">{{ $language->flag }}</span>
                         {{ $language->native_name ?: $language->name }}

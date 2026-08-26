@@ -59,7 +59,7 @@ class AccountPasswordChangeTest extends TestCase
         $user = $this->user();
 
         $this->actingAs($user)
-            ->put('/hesabim/profil', $this->payload([
+            ->put('/tr/hesabim/profil', $this->payload([
                 'current_password'      => 'eski-sifre-123',
                 'password'              => 'yeni-sifre-456',
                 'password_confirmation' => 'yeni-sifre-456',
@@ -76,7 +76,7 @@ class AccountPasswordChangeTest extends TestCase
 
         $this->actingAs($user)
             ->from('/hesabim/profil')
-            ->put('/hesabim/profil', $this->payload([
+            ->put('/tr/hesabim/profil', $this->payload([
                 'password'              => 'yeni-sifre-456',
                 'password_confirmation' => 'yeni-sifre-456',
             ]))
@@ -91,7 +91,7 @@ class AccountPasswordChangeTest extends TestCase
 
         $this->actingAs($user)
             ->from('/hesabim/profil')
-            ->put('/hesabim/profil', $this->payload([
+            ->put('/tr/hesabim/profil', $this->payload([
                 'current_password'      => 'yanlis-sifre',
                 'password'              => 'yeni-sifre-456',
                 'password_confirmation' => 'yeni-sifre-456',
@@ -107,7 +107,7 @@ class AccountPasswordChangeTest extends TestCase
 
         $this->actingAs($user)
             ->from('/hesabim/profil')
-            ->put('/hesabim/profil', $this->payload([
+            ->put('/tr/hesabim/profil', $this->payload([
                 'current_password'      => 'eski-sifre-123',
                 'password'              => 'eski-sifre-123',
                 'password_confirmation' => 'eski-sifre-123',
@@ -124,7 +124,7 @@ class AccountPasswordChangeTest extends TestCase
         $user = $this->user();
 
         $this->actingAs($user)
-            ->put('/hesabim/profil', $this->payload(['first_name' => 'Güncel']))
+            ->put('/tr/hesabim/profil', $this->payload(['first_name' => 'Güncel']))
             ->assertSessionHasNoErrors();
 
         $fresh = $user->fresh();
@@ -135,7 +135,7 @@ class AccountPasswordChangeTest extends TestCase
 
     public function test_the_form_asks_for_the_current_password(): void
     {
-        $html = $this->actingAs($this->user())->get('/hesabim/profil')->getContent();
+        $html = $this->actingAs($this->user())->get('/tr/hesabim/profil')->getContent();
 
         $this->assertStringContainsString('name="current_password"', $html);
     }
