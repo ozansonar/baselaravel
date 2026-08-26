@@ -247,6 +247,20 @@
     }
 
     /**
+     * Every submit button that belongs to this form.
+     *
+     * A button may sit outside the form and point at it with form="id" — the
+     * page header does exactly that on several screens — and element.form
+     * resolves both cases.
+     */
+    function submitButtonsOf(form) {
+        return Array.prototype.filter.call(
+            document.querySelectorAll('button[type="submit"], input[type="submit"]'),
+            function (button) { return button.form === form; }
+        );
+    }
+
+    /**
      * Locks the form for good: the buttons go dead and the clicked one spins.
      * Returns false when a submit is already running, which cancels the second.
      */
@@ -270,8 +284,14 @@
             form.appendChild(carrier);
         }
 
-        form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (button) {
-            if (button === clicked) {
+        var buttons = submitButtonsOf(form);
+
+        // Nothing was clicked when the submit came from a script or the Enter
+        // key; spin the first button so there is still visible feedback.
+        var spinning = clicked && buttons.indexOf(clicked) !== -1 ? clicked : buttons[0];
+
+        buttons.forEach(function (button) {
+            if (button === spinning) {
                 spin(button);
             }
 
@@ -282,12 +302,12 @@
         return true;
     }
 
-    /** Remembers which submit button started this round. */
+    /** Remembers which submit button started this round, wherever it sits. */
     function trackSubmitButton(form) {
-        form.addEventListener('click', function (event) {
+        document.addEventListener('click', function (event) {
             var button = event.target.closest('button[type="submit"], input[type="submit"]');
 
-            if (button && form.contains(button)) {
+            if (button && button.form === form) {
                 form.fvClickedButton = button;
             }
         }, true);
