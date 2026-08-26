@@ -209,18 +209,26 @@
      * user back to the tab they just fixed.
      */
     function revealFirstError(form, invalidFields) {
-        var field = Array.prototype.filter.call(invalidFields || [], function (element) {
+        var fields = Array.prototype.filter.call(invalidFields || [], function (element) {
             return element && form.contains(element);
-        })[0];
+        });
+
+        // The tab the user is working in comes first: being thrown into another
+        // language while fixing this one is disorienting, and the other tab is
+        // reported only once nothing is left to fix here.
+        var pane = form.querySelector('.tab-pane.active');
+        var field = (pane && fields.filter(function (element) {
+            return pane.contains(element);
+        })[0]) || fields[0];
 
         if (!field) {
             return;
         }
 
-        var pane = field.closest('.tab-pane');
+        var owner = field.closest('.tab-pane');
 
-        if (pane && !pane.classList.contains('active') && typeof bootstrap !== 'undefined') {
-            var trigger = document.querySelector('[data-bs-target="#' + pane.id + '"]');
+        if (owner && !owner.classList.contains('active') && typeof bootstrap !== 'undefined') {
+            var trigger = document.querySelector('[data-bs-target="#' + owner.id + '"]');
 
             if (trigger) {
                 bootstrap.Tab.getOrCreateInstance(trigger).show();
