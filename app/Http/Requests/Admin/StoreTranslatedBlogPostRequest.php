@@ -49,7 +49,8 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
         foreach ($languages->activeCodes() as $locale) {
             // A language the editor left untouched stays optional; the moment a
             // block holds anything, it has to be a complete post.
-            $required = $this->hasContent($locale) ? 'required' : 'nullable';
+            // A language only reaches us when the editor was on that tab.
+            $required = $this->isSubmitted($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                      = ['array'];

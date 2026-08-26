@@ -58,16 +58,6 @@
         </li>
     @endforeach
 
-    @if($languages->count() > 1)
-        {{-- Abandoning a half filled language should not mean emptying every
-             field by hand; a started tab is one the form insists on. --}}
-        <li class="lang-tabs__tools">
-            <button type="button" class="lang-tabs__clear" data-lang-clear="{{ $id }}"
-                    title="Bu dildeki girdileri temizle">
-                <i class="bi bi-eraser"></i><span class="d-none d-md-inline">Bu dili temizle</span>
-            </button>
-        </li>
-    @endif
 </ul>
 
 <div class="tab-content lang-tabs__content" id="{{ $id }}Content">

@@ -68,7 +68,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                        id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]"
-                                       data-validation-engine="validate[maxSize[255],condRequired[description_{{ $language->code }},button_text_{{ $language->code }},button_url_{{ $language->code }}]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       data-validation-engine="validate[required,maxSize[255]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                        placeholder="Popup başlığını girin...">
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>

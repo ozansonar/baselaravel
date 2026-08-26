@@ -36,7 +36,8 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
         $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $this->hasContent($locale) ? 'required' : 'nullable';
+            // A language only reaches us when the editor was on that tab.
+            $required = $this->isSubmitted($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                         = ['array'];
@@ -45,7 +46,7 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
             $rules["{$prefix}.type"]                = [$required, Rule::enum(GalleryType::class)];
             $rules["{$prefix}.gallery_category_id"] = ['nullable', 'integer', 'exists:gallery_categories,id'];
             $rules["{$prefix}.image"]               = [
-                $isCreate && $this->hasContent($locale) ? 'required' : 'nullable',
+                $isCreate && $this->isSubmitted($locale) ? 'required' : 'nullable',
                 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096',
             ];
             $rules["{$prefix}.video_url"]  = ['nullable', "required_if:{$prefix}.type,video", 'string', 'max:500', 'url'];

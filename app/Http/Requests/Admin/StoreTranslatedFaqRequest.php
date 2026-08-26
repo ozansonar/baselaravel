@@ -31,7 +31,8 @@ final class StoreTranslatedFaqRequest extends FormRequest
         $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $this->hasContent($locale) ? 'required' : 'nullable';
+            // A language only reaches us when the editor was on that tab.
+            $required = $this->isSubmitted($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                = ['array'];

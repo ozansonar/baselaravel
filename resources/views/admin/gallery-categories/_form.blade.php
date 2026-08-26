@@ -13,13 +13,6 @@
     @endif
     {{-- Her dil kendi sekmesinde --}}
 
-    {{-- The value is not posted anywhere; it is there because the plugin discards
-         findings on a field whose own value is empty. --}}
-    <input type="hidden" id="langGuard" value="1" data-fv-modal
-           data-validation-engine="validate[funcCall[FormValidation.rules.anyLanguageFilled]]"
-           data-prompt-target="langGuardError">
-    <div id="langGuardError" class="d-none"></div>
-
     <x-language-tabs :languages="$formLanguages" :model="$isEdit ? $category : null" id="galleryCategoryLangTabs">
         @foreach($formLanguages as $language)
             <x-language-tab-pane
