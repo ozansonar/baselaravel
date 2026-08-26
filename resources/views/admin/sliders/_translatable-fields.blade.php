@@ -67,8 +67,9 @@
                                 </label>
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
-                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
-                                       placeholder="Slider başlığını girin..." @if($language->is_default) required @endif>
+                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]"
+                                       data-validation-engine="validate[maxSize[255],condRequired[subtitle_{{ $language->code }},button_text_{{ $language->code }},button_url_{{ $language->code }}]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       placeholder="Slider başlığını girin..." @if($language->is_default) @endif>
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -79,7 +80,8 @@
                                 <label class="form-label" for="subtitle_{{ $language->code }}">Alt Başlık</label>
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.subtitle") is-invalid @enderror"
-                                       id="subtitle_{{ $language->code }}" name="translations[{{ $language->code }}][subtitle]" value="{{ old("translations.{$language->code}.subtitle", $translation?->subtitle) }}"
+                                       id="subtitle_{{ $language->code }}" name="translations[{{ $language->code }}][subtitle]"
+                                       data-validation-engine="validate[maxSize[500]]" value="{{ old("translations.{$language->code}.subtitle", $translation?->subtitle) }}"
                                        placeholder="Slider alt başlığını girin...">
                                 @error("translations.{$language->code}.subtitle")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -91,7 +93,7 @@
                                 <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
                                 <input type="number"
                                        class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
-                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-fv-default="0"
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
                                        value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
                                 @error("translations.{$language->code}.sort_order")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -103,7 +105,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="is_active_{{ $language->code }}">Durum</label>
                                 <select class="form-select @error("translations.{$language->code}.is_active") is-invalid @enderror"
-                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]">
+                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]" data-fv-ignore>
                                     <option value="1" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 1 ? 'selected' : '' }}>Aktif</option>
                                     <option value="0" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 0 ? 'selected' : '' }}>Pasif</option>
                                 </select>
@@ -134,7 +136,7 @@
                                 </label>
                                 <input type="file"
                                        class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" @if($imageRequired) required @endif>
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" @if($imageRequired) @endif>
                                 @error("translations.{$language->code}.image")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -163,6 +165,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.button_text") is-invalid @enderror"
                                        id="button_text_{{ $language->code }}" name="translations[{{ $language->code }}][button_text]"
+                                       data-validation-engine="validate[maxSize[100]]"
                                        value="{{ old("translations.{$language->code}.button_text", $translation?->button_text) }}"
                                        placeholder="Keşfet">
                                 @error("translations.{$language->code}.button_text")
@@ -177,6 +180,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.button_url") is-invalid @enderror"
                                        id="button_url_{{ $language->code }}" name="translations[{{ $language->code }}][button_url]"
+                                       data-validation-engine="validate[maxSize[500]]"
                                        value="{{ old("translations.{$language->code}.button_url", $translation?->button_url) }}"
                                        placeholder="/blog/...">
                                 @error("translations.{$language->code}.button_url")

@@ -17,6 +17,8 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTranslatedGalleryItemRequest extends FormRequest
 {
+    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+
     public function authorize(): bool
     {
         return true;
@@ -28,13 +30,12 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
         $isCreate = $this->route('gallery_item') === null;
 
-        $rules = ['translations' => ['required', 'array']];
+        $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                         = ['array'];
@@ -43,7 +44,7 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
             $rules["{$prefix}.type"]                = [$required, Rule::enum(GalleryType::class)];
             $rules["{$prefix}.gallery_category_id"] = ['nullable', 'integer', 'exists:gallery_categories,id'];
             $rules["{$prefix}.image"]               = [
-                $isCreate && $locale === $default ? 'required' : 'nullable',
+                $isCreate && $this->hasContent($locale) ? 'required' : 'nullable',
                 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096',
             ];
             $rules["{$prefix}.video_url"]  = ['nullable', "required_if:{$prefix}.type,video", 'string', 'max:500', 'url'];
@@ -54,10 +55,21 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
 
         return $rules;
     }
+    /**
+     * @return list<string>
+     */
+    protected function contentFields(): array
+    {
+        return ['title', 'description', 'video_url'];
+    }
+
 
     /**
+
      * @return array<string, string>
+
      */
+
     public function messages(): array
     {
         $messages = [];

@@ -13,6 +13,8 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 final class StoreTranslatedFaqRequest extends FormRequest
 {
+    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+
     public function authorize(): bool
     {
         return true;
@@ -24,12 +26,11 @@ final class StoreTranslatedFaqRequest extends FormRequest
     public function rules(): array
     {
         $languages = app(LanguageService::class);
-        $default = $languages->defaultCode();
 
-        $rules = ['translations' => ['required', 'array']];
+        $rules = ['translations' => ['required', 'array', $this->atLeastOneLanguage()]];
 
         foreach ($languages->activeCodes() as $locale) {
-            $required = $locale === $default ? 'required' : 'nullable';
+            $required = $this->hasContent($locale) ? 'required' : 'nullable';
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                = ['array'];
@@ -41,10 +42,21 @@ final class StoreTranslatedFaqRequest extends FormRequest
 
         return $rules;
     }
+    /**
+     * @return list<string>
+     */
+    protected function contentFields(): array
+    {
+        return ['question', 'answer'];
+    }
+
 
     /**
+
      * @return array<string, string>
+
      */
+
     public function messages(): array
     {
         $messages = [];

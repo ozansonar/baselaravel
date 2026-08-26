@@ -26,8 +26,9 @@
                                 </label>
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.question") is-invalid @enderror"
-                                       id="question_{{ $language->code }}" name="translations[{{ $language->code }}][question]" value="{{ old("translations.{$language->code}.question", $translation?->question) }}"
-                                       placeholder="Soruyu girin..." required>
+                                       id="question_{{ $language->code }}" name="translations[{{ $language->code }}][question]"
+                                       data-validation-engine="validate[maxSize[500],condRequired[answer_{{ $language->code }}]]" value="{{ old("translations.{$language->code}.question", $translation?->question) }}"
+                                       placeholder="Soruyu girin...">
                                 @error("translations.{$language->code}.question")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -38,8 +39,9 @@
                                     Cevap <span class="text-danger">*</span>
                                 </label>
                                 <textarea class="form-control @error("translations.{$language->code}.answer") is-invalid @enderror"
-                                          id="answer_{{ $language->code }}" name="translations[{{ $language->code }}][answer]" rows="6"
-                                          placeholder="Cevabı yazın..." required>{{ old("translations.{$language->code}.answer", $translation?->answer) }}</textarea>
+                                          id="answer_{{ $language->code }}" name="translations[{{ $language->code }}][answer]"
+                                       data-validation-engine="validate[maxSize[10000],condRequired[question_{{ $language->code }}]]" rows="6"
+                                          placeholder="Cevabı yazın...">{{ old("translations.{$language->code}.answer", $translation?->answer) }}</textarea>
                                 @error("translations.{$language->code}.answer")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -65,7 +67,7 @@
                                 <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
                                 <input type="number"
                                        class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
-                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-fv-default="0"
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
                                        value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
                                 @error("translations.{$language->code}.sort_order")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -75,7 +77,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="is_active_{{ $language->code }}">Durum</label>
                                 <select class="form-select @error("translations.{$language->code}.is_active") is-invalid @enderror"
-                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]">
+                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]" data-fv-ignore>
                                     <option value="1" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 1 ? 'selected' : '' }}>Aktif</option>
                                     <option value="0" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 0 ? 'selected' : '' }}>Pasif</option>
                                 </select>

@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<form action="{{ route('admin.mail-templates.update', $template) }}" method="POST" id="templateForm">
+<form action="{{ route('admin.mail-templates.update', $template) }}" method="POST" id="templateForm" data-validate novalidate>
     @csrf
     @method('PUT')
 
@@ -44,7 +44,7 @@
                         <input type="text"
                                class="stg-input @error('subject') is-invalid @enderror"
                                id="subject"
-                               name="subject"
+                               name="subject" data-validation-engine="validate[required,maxSize[191]]"
                                value="{{ old('subject', $template->subject) }}"
                                placeholder="E-posta konu satırı">
                         @error('subject')
@@ -84,7 +84,7 @@
                                 <small>Pasif olduğunda sistem varsayılan şablonu kullanır</small>
                             </div>
                             <label class="stg-switch">
-                                <input type="hidden" name="is_active" value="0">
+                                <input type="hidden" name="is_active" data-fv-ignore value="0">
                                 <input type="checkbox" name="is_active" value="1" {{ $template->is_active ? 'checked' : '' }}>
                                 <span class="stg-switch-slider"></span>
                             </label>

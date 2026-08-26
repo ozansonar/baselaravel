@@ -25,10 +25,7 @@ use Illuminate\Validation\Rules\Enum;
  */
 final class StoreTranslatedBlogPostRequest extends FormRequest
 {
-    /** Fields that say a translation was actually written. */
-    private const CONTENT_FIELDS = [
-        'title', 'slug', 'excerpt', 'body', 'meta_title', 'meta_description',
-    ];
+    use \App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 
 
     public function authorize(): bool
@@ -45,15 +42,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
         $post = $this->route('blog_post');
 
         $rules = [
-            'translations'  => ['required', 'array', function (string $attribute, mixed $value, callable $fail): void {
-                foreach (app(LanguageService::class)->activeCodes() as $locale) {
-                    if ($this->hasContent($locale)) {
-                        return;
-                    }
-                }
-
-                $fail('En az bir dilde içerik girmelisiniz.');
-            }],
+            'translations'  => ['required', 'array', $this->atLeastOneLanguage()],
         ];
 
         foreach ($languages->activeCodes() as $locale) {
@@ -110,22 +99,15 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
     }
 
     /**
-     * Whether the editor put anything into this language block.
-     *
-     * Only the content fields count: the status select always posts a value,
-     * so counting it would make every untouched tab look started. HTML is
-     * stripped as well, because an empty rich text editor still posts markup.
+     * @return list<string>
      */
-    private function hasContent(string $locale): bool
+    protected function contentFields(): array
     {
-        $fields = (array) $this->input("translations.{$locale}", []);
+        return ['title', 'slug', 'excerpt', 'body', 'meta_title', 'meta_description'];
+    }
 
-        $written = array_any(
-            self::CONTENT_FIELDS,
-            fn (string $field): bool => is_scalar($fields[$field] ?? null)
-                && trim(strip_tags((string) $fields[$field])) !== '',
-        );
-
-        return $written || (array) $this->file("translations.{$locale}", []) !== [];
+    protected function emptyTranslationsMessage(): string
+    {
+        return 'En az bir dilde içerik girmelisiniz.';
     }
 }

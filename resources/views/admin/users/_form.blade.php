@@ -62,7 +62,7 @@
                         </div>
                         <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden onchange="previewAvatar(this)">
                         @if($isEdit && $u->avatar)
-                            <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
+                            <input type="hidden" name="remove_avatar" data-fv-ignore id="removeAvatarFlag" value="0">
                         @endif
                     </div>
                 </div>
@@ -88,16 +88,16 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="stg-label">Ad <span class="text-neon-red">*</span></label>
-                        <input type="text" class="stg-input @error('first_name') is-invalid @enderror" name="first_name" id="firstName"
-                               placeholder="Kullanıcının adı" value="{{ old('first_name', $u?->first_name) }}" required>
+                        <input type="text" class="stg-input @error('first_name') is-invalid @enderror" name="first_name" data-validation-engine="validate[required,custom[letters],maxSize[50]]" id="firstName"
+                               placeholder="Kullanıcının adı" value="{{ old('first_name', $u?->first_name) }}">
                         @error('first_name')
                             <div class="text-neon-red fs-13 mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="stg-label">Soyad <span class="text-neon-red">*</span></label>
-                        <input type="text" class="stg-input @error('last_name') is-invalid @enderror" name="last_name" id="lastName"
-                               placeholder="Kullanıcının soyadı" value="{{ old('last_name', $u?->last_name) }}" required>
+                        <input type="text" class="stg-input @error('last_name') is-invalid @enderror" name="last_name" data-validation-engine="validate[required,custom[letters],maxSize[50]]" id="lastName"
+                               placeholder="Kullanıcının soyadı" value="{{ old('last_name', $u?->last_name) }}">
                         @error('last_name')
                             <div class="text-neon-red fs-13 mt-1">{{ $message }}</div>
                         @enderror
@@ -106,8 +106,8 @@
                         <label class="stg-label">E-posta Adresi <span class="text-neon-red">*</span></label>
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-envelope"></i></span>
-                            <input type="email" class="stg-input @error('email') is-invalid @enderror" name="email" id="email"
-                                   placeholder="ornek@mail.com" value="{{ old('email', $u?->email) }}" required>
+                            <input type="email" class="stg-input @error('email') is-invalid @enderror" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]" id="email"
+                                   placeholder="ornek@mail.com" value="{{ old('email', $u?->email) }}">
                         </div>
                         @error('email')
                             <div class="text-neon-red fs-13 mt-1">{{ $message }}</div>
@@ -117,7 +117,7 @@
                         <label class="stg-label">Telefon</label>
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-telephone"></i></span>
-                            <input type="tel" class="stg-input @error('phone') is-invalid @enderror" name="phone" id="phone"
+                            <input type="tel" class="stg-input @error('phone') is-invalid @enderror" name="phone" data-validation-engine="validate[custom[phone],maxSize[20]]" id="phone"
                                    placeholder="+90 5XX XXX XX XX" value="{{ old('phone', $u?->phone) }}">
                         </div>
                         @error('phone')
@@ -134,7 +134,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="stg-label">Cinsiyet</label>
-                        <select class="stg-select @error('gender') is-invalid @enderror" name="gender" id="gender">
+                        <select class="stg-select @error('gender') is-invalid @enderror" name="gender" data-fv-ignore id="gender">
                             <option value="">Seçiniz</option>
                             @foreach(\App\Enums\Gender::cases() as $gender)
                                 <option value="{{ $gender->value }}" {{ old('gender', $u?->gender?->value) === $gender->value ? 'selected' : '' }}>
@@ -150,7 +150,7 @@
                         <label class="stg-label">Konum</label>
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-geo-alt"></i></span>
-                            <input type="text" class="stg-input @error('location') is-invalid @enderror" name="location" id="location"
+                            <input type="text" class="stg-input @error('location') is-invalid @enderror" name="location" data-validation-engine="validate[maxSize[100]]" id="location"
                                    placeholder="Şehir, Ülke" value="{{ old('location', $u?->location) }}">
                         </div>
                         @error('location')
@@ -159,7 +159,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="stg-label">Departman</label>
-                        <select class="stg-select @error('department') is-invalid @enderror" name="department" id="department">
+                        <select class="stg-select @error('department') is-invalid @enderror" name="department" data-fv-ignore id="department">
                             <option value="">Seçiniz</option>
                             @foreach(\App\Enums\Department::cases() as $dept)
                                 <option value="{{ $dept->value }}" {{ old('department', $u?->department?->value) === $dept->value ? 'selected' : '' }}>
@@ -173,7 +173,7 @@
                     </div>
                     <div class="col-12">
                         <label class="stg-label">Biyografi</label>
-                        <textarea class="stg-textarea @error('bio') is-invalid @enderror" name="bio" id="bio" rows="3"
+                        <textarea class="stg-textarea @error('bio') is-invalid @enderror" name="bio" data-validation-engine="validate[maxSize[500]]" id="bio" rows="3"
                                   placeholder="Kullanıcı hakkında kısa bilgi...">{{ old('bio', $u?->bio) }}</textarea>
                         <small class="text-muted">Maksimum 500 karakter</small>
                         @error('bio')
@@ -203,7 +203,8 @@
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-lock"></i></span>
                             <input type="password" class="stg-input @error('password') is-invalid @enderror" name="password" id="password"
-                                   placeholder="Güçlü bir şifre girin" {{ !$isEdit ? 'required' : '' }}>
+                                   placeholder="Güçlü bir şifre girin"
+                                   data-validation-engine="validate[{{ $isEdit ? '' : 'required,' }}minSize[8]]">
                             <button type="button" class="stg-input-prefix btn-unstyled" onclick="togglePassword('password', this)">
                                 <i class="bi bi-eye"></i>
                             </button>
@@ -226,7 +227,8 @@
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-lock-fill"></i></span>
                             <input type="password" class="stg-input" name="password_confirmation" id="passwordConfirm"
-                                   placeholder="Şifreyi tekrar girin" {{ !$isEdit ? 'required' : '' }}>
+                                   placeholder="Şifreyi tekrar girin"
+                                   data-validation-engine="validate[{{ $isEdit ? '' : 'required,' }}equals[password]]">
                             <button type="button" class="stg-input-prefix btn-unstyled" onclick="togglePassword('passwordConfirm', this)">
                                 <i class="bi bi-eye"></i>
                             </button>
@@ -242,7 +244,7 @@
                     @endif
                     <div class="col-md-6">
                         <label class="stg-label">Durum <span class="text-neon-red">*</span></label>
-                        <select class="stg-select @error('is_active') is-invalid @enderror" name="is_active" id="userStatus">
+                        <select class="stg-select @error('is_active') is-invalid @enderror" name="is_active" data-fv-ignore id="userStatus">
                             <option value="1" {{ old('is_active', $u?->is_active ?? 1) == 1 ? 'selected' : '' }}>Aktif</option>
                             <option value="0" {{ old('is_active', $u?->is_active ?? 1) == 0 ? 'selected' : '' }}>Pasif</option>
                         </select>

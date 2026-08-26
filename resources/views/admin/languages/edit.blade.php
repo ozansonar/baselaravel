@@ -12,7 +12,7 @@
         </ol>
     </nav>
 
-    <form method="POST" action="{{ route('admin.languages.update', $language) }}">
+    <form method="POST" action="{{ route('admin.languages.update', $language) }}" data-validate novalidate>
         @csrf
         @method('PUT')
 

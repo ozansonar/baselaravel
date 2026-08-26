@@ -183,7 +183,7 @@
             <div class="modal fade" id="editMenuModal{{ $menu->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-theme">
                     <div class="modal-content modal-content-theme">
-                        <form method="POST" action="{{ route('admin.menus.update', $menu) }}">
+                        <form method="POST" action="{{ route('admin.menus.update', $menu) }}" data-validate novalidate>
                             @csrf
                             @method('PUT')
                             <div class="modal-header modal-header-theme">
@@ -198,7 +198,7 @@
                                     <div class="input-group input-group-theme">
                                         <span class="input-group-text"><i class="bi bi-list"></i></span>
                                         <input type="text" class="form-control form-control-theme" id="menu_name_{{ $menu->id }}"
-                                               name="name" value="{{ $menu->name }}" required>
+                                               name="name" value="{{ $menu->name }}" data-validation-engine="validate[required,maxSize[100]]">
                                     </div>
                                 </div>
                                 <div class="form-check form-switch">

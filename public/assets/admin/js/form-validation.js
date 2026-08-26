@@ -42,6 +42,9 @@
             focusFirstField: false,
             showArrow: false,
             autoHidePrompt: false,
+            // One message at a time: an empty required field should say it is
+            // required, not also complain about its format.
+            maxErrorsPerField: 1,
             addFailureCssClassToField: 'is-invalid',
             addSuccessCssClassToField: ''
         }
@@ -70,6 +73,13 @@
         allRules.slug = {
             regex: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
             alertText: 'Sadece küçük harf, rakam ve tire kullanın'
+        };
+
+        // The bundled onlyLetterSp rule is ASCII only, which would reject
+        // Ömer or Çağla; this mirrors the regex the FormRequests use.
+        allRules.letters = {
+            regex: /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/,
+            alertText: 'Bu alanda sadece harf kullanılabilir'
         };
     }
 

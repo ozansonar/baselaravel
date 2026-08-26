@@ -62,8 +62,9 @@
                                 </label>
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
-                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
-                                       placeholder="Galeri öğesi başlığını girin..." required>
+                                       id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]"
+                                       data-validation-engine="validate[maxSize[255],condRequired[description_{{ $language->code }},video_url_{{ $language->code }}]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       placeholder="Galeri öğesi başlığını girin...">
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -73,7 +74,8 @@
                             <div class="col-12">
                                 <label class="form-label" for="description_{{ $language->code }}">Açıklama</label>
                                 <textarea class="form-control @error("translations.{$language->code}.description") is-invalid @enderror"
-                                          id="description_{{ $language->code }}" name="translations[{{ $language->code }}][description]" rows="3"
+                                          id="description_{{ $language->code }}" name="translations[{{ $language->code }}][description]"
+                                       data-validation-engine="validate[maxSize[2000]]" rows="3"
                                           placeholder="Kısa bir açıklama girin...">{{ old("translations.{$language->code}.description", $translation?->description) }}</textarea>
                                 @error("translations.{$language->code}.description")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -86,7 +88,7 @@
                                     Tür <span class="text-danger">*</span>
                                 </label>
                                 <select class="form-select @error("translations.{$language->code}.type") is-invalid @enderror"
-                                        id="type_{{ $language->code }}" name="translations[{{ $language->code }}][type]" required>
+                                        id="type_{{ $language->code }}" name="translations[{{ $language->code }}][type]" data-fv-ignore>
                                     @foreach($types as $type)
                                         <option value="{{ $type->value }}" {{ old("translations.{$language->code}.type", 'photo') === $type->value ? 'selected' : '' }}>
                                             {{ $type->label() }}
@@ -102,7 +104,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="gallery_category_id_{{ $language->code }}">Kategori</label>
                                 <select class="form-select @error("translations.{$language->code}.gallery_category_id") is-invalid @enderror"
-                                        id="gallery_category_id_{{ $language->code }}" name="translations[{{ $language->code }}][gallery_category_id]">
+                                        id="gallery_category_id_{{ $language->code }}" name="translations[{{ $language->code }}][gallery_category_id]" data-fv-ignore>
                                     <option value="">Seçiniz</option>
                                     {{-- Categories are translated too, so this tab only offers the
                                          category rows belonging to the same language. --}}
@@ -122,7 +124,7 @@
                                 <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
                                 <input type="number"
                                        class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
-                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-fv-default="0"
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
                                        value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
                                 @error("translations.{$language->code}.sort_order")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -134,7 +136,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="is_active_{{ $language->code }}">Durum</label>
                                 <select class="form-select @error("translations.{$language->code}.is_active") is-invalid @enderror"
-                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]">
+                                        id="is_active_{{ $language->code }}" name="translations[{{ $language->code }}][is_active]" data-fv-ignore>
                                     <option value="1" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 1 ? 'selected' : '' }}>Aktif</option>
                                     <option value="0" {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? 1) == 0 ? 'selected' : '' }}>Pasif</option>
                                 </select>
@@ -165,7 +167,7 @@
                                 </label>
                                 <input type="file"
                                        class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" required>
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*">
                                 @error("translations.{$language->code}.image")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -194,6 +196,7 @@
                                 <input type="url"
                                        class="form-control @error("translations.{$language->code}.video_url") is-invalid @enderror"
                                        id="video_url_{{ $language->code }}" name="translations[{{ $language->code }}][video_url]"
+                                       data-validation-engine="validate[custom[url],maxSize[500]]"
                                        value="{{ old("translations.{$language->code}.video_url", $translation?->video_url) }}"
                                        placeholder="https://www.youtube.com/watch?v=...">
                                 @error("translations.{$language->code}.video_url")
@@ -208,6 +211,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.duration") is-invalid @enderror"
                                        id="duration_{{ $language->code }}" name="translations[{{ $language->code }}][duration]"
+                                       data-validation-engine="validate[custom[integer],min[0],max[65535]]"
                                        value="{{ old("translations.{$language->code}.duration", $translation?->duration) }}"
                                        placeholder="03:45">
                                 @error("translations.{$language->code}.duration")

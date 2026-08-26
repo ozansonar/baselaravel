@@ -232,7 +232,7 @@
                     <h5 class="modal-title" id="redirectModalTitle">Yeni Yönlendirme</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
-                <form id="redirectForm" method="POST" action="{{ route('admin.redirects.store') }}">
+                <form id="redirectForm" method="POST" action="{{ route('admin.redirects.store') }}" data-validate novalidate>
                     @csrf
                     <input type="hidden" name="_method" id="redirectFormMethod" value="POST">
                     <div class="modal-body modal-body-theme">
@@ -242,7 +242,8 @@
                             <div class="input-group input-group-theme">
                                 <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="oldUrl" name="old_url"
-                                       placeholder="/eski-sayfa-adresi" required>
+                                       placeholder="/eski-sayfa-adresi"
+                                       data-validation-engine="validate[required,maxSize[2048]]">
                             </div>
                             <small class="form-text text-clr-muted">/ ile başlamalıdır</small>
                         </div>
@@ -250,7 +251,7 @@
                         {{-- Durum Kodu --}}
                         <div class="mb-3">
                             <label for="statusCode" class="form-label text-clr-secondary">Durum Kodu <span class="text-danger">*</span></label>
-                            <select class="form-select form-select-theme" id="statusCode" name="status_code" required>
+                            <select class="form-select form-select-theme" id="statusCode" name="status_code" data-fv-ignore>
                                 @foreach(\App\Enums\RedirectStatus::cases() as $status)
                                     <option value="{{ $status->value }}"
                                             data-redirects="{{ $status->redirectsSomewhere() ? '1' : '0' }}"

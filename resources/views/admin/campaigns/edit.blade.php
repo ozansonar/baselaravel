@@ -12,7 +12,7 @@
         </ol>
     </nav>
 
-    <form method="POST" action="{{ route('admin.campaigns.update', $campaign) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.campaigns.update', $campaign) }}" enctype="multipart/form-data" data-validate novalidate>
         @csrf
         @method('PUT')
 
