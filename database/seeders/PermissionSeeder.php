@@ -74,6 +74,10 @@ class PermissionSeeder extends Seeder
             P::CommentsView, P::CommentsModerate,
             P::NotificationsView, P::NotificationsManage,
             P::AnalyticsView,
+            // An editor may draft a campaign and see the list, but starting a
+            // send to everyone is left to an admin — it cannot be taken back.
+            P::CampaignsView, P::CampaignsManage,
+            P::SubscribersView,
         ];
 
         $moderator = [

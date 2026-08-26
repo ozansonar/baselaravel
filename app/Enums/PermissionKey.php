@@ -41,6 +41,12 @@ enum PermissionKey: string
     case FilesManage = 'files.manage';
     case FilesDelete = 'files.delete';
     case EditorUpload = 'editor.upload';
+    case CampaignsView = 'campaigns.view';
+    case CampaignsManage = 'campaigns.manage';
+    case CampaignsSend = 'campaigns.send';
+    case CampaignsDelete = 'campaigns.delete';
+    case SubscribersView = 'subscribers.view';
+    case SubscribersManage = 'subscribers.manage';
     case MessagesView = 'messages.view';
     case MessagesReply = 'messages.reply';
     case MessagesDelete = 'messages.delete';
@@ -96,6 +102,12 @@ enum PermissionKey: string
             self::PopupsView => 'Popupları görüntüle',
             self::PopupsManage => 'Popup ekle ve düzenle',
             self::PopupsDelete => 'Popup sil',
+            self::CampaignsView => 'Mail kampanyalarını görüntüle',
+            self::CampaignsManage => 'Kampanya oluştur ve düzenle',
+            self::CampaignsSend => 'Kampanya gönderimini başlat',
+            self::CampaignsDelete => 'Kampanya sil',
+            self::SubscribersView => 'Mail listesini görüntüle',
+            self::SubscribersManage => 'Mail listesini düzenle ve içe aktar',
             self::MenusView => 'Menüleri görüntüle',
             self::MenusManage => 'Menü düzenle ve sırala',
             self::MenusDelete => 'Menü öğesi sil',
@@ -160,6 +172,12 @@ enum PermissionKey: string
             self::PopupsView => PermissionGroup::Content,
             self::PopupsManage => PermissionGroup::Content,
             self::PopupsDelete => PermissionGroup::Content,
+            self::CampaignsView,
+            self::CampaignsManage,
+            self::CampaignsSend,
+            self::CampaignsDelete,
+            self::SubscribersView,
+            self::SubscribersManage => PermissionGroup::Communication,
             self::MenusView => PermissionGroup::Content,
             self::MenusManage => PermissionGroup::Content,
             self::MenusDelete => PermissionGroup::Content,

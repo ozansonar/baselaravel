@@ -662,3 +662,23 @@ img { max-width: 100%; height: auto; }
 .mobile-nav .d-grid .lang-switcher__toggle {
     justify-content: center;
 }
+
+/* ── Footer newsletter ───────────────────────────────────────────── */
+.footer-newsletter h5 { margin-bottom: .75rem; }
+
+.footer-newsletter__form .input-group .form-control {
+    background: rgba(255, 255, 255, .06);
+    border-color: rgba(255, 255, 255, .14);
+    color: #fff;
+}
+
+.footer-newsletter__form .input-group .form-control::placeholder { color: rgba(255, 255, 255, .45); }
+
+.footer-newsletter__form .input-group .form-control:focus {
+    background: rgba(255, 255, 255, .1);
+    border-color: var(--brand, #4f46e5);
+    box-shadow: none;
+    color: #fff;
+}
+
+.footer-newsletter__note { min-height: 1.25rem; font-size: .8125rem; }

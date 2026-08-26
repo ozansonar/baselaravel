@@ -286,6 +286,87 @@ hedef dilin slug'ına çevrilir; o dilde çevirisi yoksa slug olduğu gibi kalı
 
 ---
 
+## Toplu mail (kampanyalar)
+
+**Admin → Mail Kampanyaları**'ndan üyelere, bülten listesine, Excel'den
+yüklediğin kişilere veya elle yazdığın adreslere toplu mail gönderilir.
+
+### Gönderim hızı
+
+Mail sağlayıcıları listeyi tek seferde boşaltan hesapları kısıtlar veya
+kara listeye alır. Bu yüzden gönderim saate yayılır:
+
+```
+cron her 5 dakikada bir çalışır  →  saatte 12 tur
+saatlik limit 100                →  tur başına ceil(100/12) = 9 mail
+```
+
+Saatlik limit **son 60 dakikada gerçekten gönderilen** mail sayısından
+hesaplanır, saate bakılarak değil — cron kaçarsa veya iki kez çalışırsa limit
+yine aşılmaz. Ayarlar → Mail altından değiştirilir:
+
+| Ayar | Anlamı |
+|---|---|
+| `mail_hourly_limit` | Saatte gönderilecek en fazla mail (0 = gönderim durur) |
+| `mail_batch_max` | Tur başına sabit adet. 0 ise limitten hesaplanır |
+| `mail_max_attempts` | Başarısız bir adres kaç kez denenir |
+| `newsletter_enabled` | Ön yüzdeki abonelik formunu gösterir/gizler |
+
+Cron kurulumu için [Zamanlanmış görevler](#zamanlanmış-görevler-cron) bölümüne
+bak; `campaigns:dispatch` komutu scheduler'a bağlıdır.
+
+### Akış
+
+1. **Taslak oluştur** — konu, içerik (TinyMCE), ekler, alıcı kitlesi
+2. **Onay ekranı** — kaç kişiye gideceği, alıcılardan örnek, cron ne zaman
+   çalışacak, tahmini bitiş
+3. **Onayla** — alıcı listesi o an dondurulur, kampanya sıraya girer
+4. **İzle** — gönderilen / sırada / gönderilemeyen sayıları, ilerleme çubuğu,
+   sıradaki cron için geri sayım. Gönderim sürerken duraklat veya iptal et.
+
+Göndermeden önce kendine test maili atabilirsin; konusu `[TEST]` ile işaretlenir
+ve listeye gitmez.
+
+### Alıcı kaynakları
+
+- **Site üyeleri** — rol, aktiflik ve e-posta doğrulaması ile filtrelenir
+- **Mail listesi** — ön yüz formundan veya panelden eklenen aboneler
+- **Excel / CSV** — `.xlsx` ve `.csv`. Başlık satırı `Ad` / `E-posta` olarak
+  eşleştirilir, başlık yoksa adres sütunu otomatik bulunur. Panelde **örnek
+  şablon indirme** düğmesi vardır. Türkçe Excel'in noktalı virgüllü CSV'si ve
+  BOM'u desteklenir.
+- **Elle giriş** — her satıra bir kişi:
+  `Ad Soyad <mail@ornek.com>`, `Ad Soyad;mail@ornek.com` veya yalnızca adres
+
+Aynı adres birden fazla kaynakta olsa da tek mail alır.
+
+### İçerik
+
+`{name}`, `{email}` ve `{site_name}` her alıcı için ayrı doldurulur.
+
+**Görseller mailin içine gömülür** (CID), bağlantı olarak eklenmez: mail
+programlarının çoğu uzak görselleri varsayılan olarak engeller ve mail
+iletildiğinde ya da çevrimdışı okunduğunda bağlantılı görsel tamamen kaybolur.
+Sitenin dışındaki görseller olduğu gibi bırakılır.
+
+### Abonelikten çıkma
+
+Her mail alıcıya özel bir çıkış bağlantısı taşır — hem gövdede hem
+`List-Unsubscribe` başlığında, yani mail programı kendi "abonelikten çık"
+düğmesini gösterir. Bağlantı giriş gerektirmez.
+
+Elle girilen ve Excel'den yüklenen alıcılar da kendi çıkış anahtarını alır.
+Çıkan adres `subscribers` tablosuna engelleme kaydı olarak yazılır ve sonraki
+kampanyaların hiçbirine dahil edilmez.
+
+### Yetkiler
+
+Taslak yazmak ile göndermek ayrı yetkilerdir: `campaigns.manage` içerik
+hazırlar, `campaigns.send` tüm listeye ulaşan gönderimi başlatır. Kurulumla
+editör rolü yalnızca taslak hazırlayabilir.
+
+---
+
 ## E-posta doğrulama
 
 Kayıt olan kullanıcıya doğrulama bağlantısı gönderilir ve `/hesabim` alanı
@@ -320,6 +401,13 @@ composer test
   CASCADE kalmadığını doğrular
 - `EnumDrivenOptionsTest` — enum case'lerinin ekranlara düştüğünü doğrular
 - `RedirectTargetValidationTest` — açık yönlendirme koruması
+- `CampaignDispatchTest` — saatlik limit ve tur kotası matematiği, kotanın
+  pencere kayınca serbest kalması, duraklat/sürdür/iptal, alıcı listesinin
+  dondurulması, tekrar denemenin başarısızlık sayılmaması
+- `CampaignPanelTest` — taslak→onay→gönderim akışı, Excel/elle giriş, yetki
+  ayrımı, abonelik ve çıkış
+- `CampaignMailContentTest` — görsellerin CID olarak gömülmesi, dış görsellere
+  dokunulmaması, dizin dışına çıkan yolun reddi, CSV/XLSX okuma
 - `NoBuildToolchainTest` — `package.json`, `vite.config.js`, `node_modules`,
   `resources/js` gibi build tool kalıntılarının geri girmediğini ve hiçbir
   view'ın `@vite` / `mix()` kullanmadığını doğrular

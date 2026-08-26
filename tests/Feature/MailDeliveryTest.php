@@ -196,8 +196,11 @@ class MailDeliveryTest extends TestCase
                 continue;
             }
 
+            // Instantiate the mail class itself, not wherever templateKey() is
+            // declared — a mail that does not override it would resolve to the
+            // abstract base.
             $method = new \ReflectionMethod($class, 'templateKey');
-            $key = $method->invoke($method->getDeclaringClass()->newInstanceWithoutConstructor());
+            $key = $method->invoke((new \ReflectionClass($class))->newInstanceWithoutConstructor());
 
             if ($key !== null && ! MailTemplate::where('key', $key)->exists()) {
                 $missing[] = class_basename($class) . " → {$key}";

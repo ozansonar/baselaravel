@@ -10,12 +10,14 @@ use App\Listeners\UpdateMailLogOnSent;
 use App\Models\BlogCategory;
 use App\Models\BlogComment;
 use App\Models\BlogPost;
+use App\Models\Campaign;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Redirect;
 use App\Models\User;
 use App\Observers\BlogCategoryObserver;
+use App\Observers\CampaignObserver;
 use App\Observers\BlogCommentObserver;
 use App\Observers\BlogPostObserver;
 use App\Observers\MenuItemObserver;
@@ -65,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureRateLimiting();
         $this->configureAuthorization();
+
+        Campaign::observe(CampaignObserver::class);
 
         User::observe(UserObserver::class);
         BlogComment::observe(BlogCommentObserver::class);

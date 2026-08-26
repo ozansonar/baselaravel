@@ -70,3 +70,11 @@ Schedule::command('backup:run')
     ->name('backup-daily')
     ->dailyAt('03:00')
     ->withoutOverlapping(60);
+
+// Bulk mail — every 5 minutes, sending only what the hourly limit allows.
+// The interval must match CampaignDispatcher::RUN_INTERVAL_MINUTES, which is
+// what the per-run quota is derived from.
+Schedule::command('campaigns:dispatch')
+    ->name('campaigns-dispatch')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10);

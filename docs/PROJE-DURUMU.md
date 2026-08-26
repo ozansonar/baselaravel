@@ -600,6 +600,82 @@ yapıyor — biçim değil, kullanıcının okuduğu kelimeler korunuyor mu diye
 
 ---
 
+## 5i. Toplu Mail (Kampanyalar) — ✅ Kuruldu
+
+Üyelere, bülten listesine, Excel'den yüklenen veya elle girilen adreslere toplu
+mail gönderimi. Cron ile arka planda, saatlik limite göre yayarak.
+
+### Gönderim motoru
+
+İki limit birlikte çalışıyor:
+
+- **Saatlik tavan** sert sınır. Saate bakılarak değil, **son 60 dakikada
+  gerçekten gönderilen** satır sayılarak uygulanıyor; kaçan veya iki kez
+  çalışan bir cron limiti aşamıyor.
+- **Tur kotası** yalnızca yayma amaçlı. 5 dakikalık cron → saatte 12 tur →
+  100 limitinde tur başına `ceil(100/12) = 9` mail. Amaç listeyi başlar
+  başlamaz boşaltmamak; mail sağlayıcıları bunu kısıtlama sebebi sayıyor.
+
+Kampanya "yayma kapalı" işaretlenirse tur kotası atlanıyor ama saatlik tavan
+yine geçerli.
+
+Alıcılar `campaign_recipients` tablosuna satır satır yazılıyor. Kampanya tek
+seferde "gönderilmiyor"; başlarken kitle donduruluyor ve cron bu tabloyu azar
+azar boşaltıyor. Saatlik limit, çökme sonrası kaldığı yerden devam ve kişi
+bazlı teslim durumu ancak bu sayede mümkün.
+
+### Akış
+
+Form asla doğrudan göndermiyor: taslak kaydediliyor, **onay ekranı** gerçek
+alıcı sayısını, alıcılardan örneği, cron'un ne zaman çalışacağını ve tahmini
+bitişi gösteriyor, gönderim ancak açık onaydan sonra başlıyor.
+
+### Görseller
+
+**CID olarak gömülüyor**, bağlantı olarak değil. Mail programlarının çoğu uzak
+görselleri varsayılan engelliyor; bağlantılı görsel mail iletildiğinde veya
+çevrimdışı okunduğunda tamamen kayboluyor. Site dışındaki görseller olduğu gibi
+bırakılıyor — gönderim döngüsünden üçüncü parti URL'e istek atılmıyor.
+
+### Excel
+
+`openspout/openspout` kullanılıyor (akış tabanlı; tüm sayfayı belleğe almıyor,
+paylaşımlı hostingte on binlerce satır güvenli). Başlık satırı isimle
+eşleştiriliyor, başlık yoksa adres sütunu bulunuyor. Türkçe Excel'in noktalı
+virgüllü CSV'si ve BOM'u destekleniyor. Panelde örnek şablon indirme var.
+
+### Yol üzerinde bulunan üç kusur
+
+1. **`emailBody` sessizce boşalıyordu.** Laravel, mailable'ın public
+   özelliklerini `Content(with:)` verisinden **sonra** uyguluyor; `BaseMail`'in
+   `public ?string $emailBody = null` alanı geçilen gövdeyi eziyordu. Kampanya
+   mailleri boş gövdeyle gidiyordu.
+2. **`CampaignMail` logoyu gömmüyordu.** Logo gömme `BaseMail::content()`
+   içindeydi; onu override eden alt sınıf `cid:mail-logo` referansını
+   bırakıyor ama eki eklemiyordu. Gömme ayrı bir metoda çıkarıldı.
+3. **Tekrar denenecek alıcı başarısız sayılıyordu.** `failed_count` her
+   denemede artıyor, ilerleme çubuğu olmayan bir ilerlemeyi gösteriyordu.
+   Artık yalnızca hakkı tükenen alıcı başarısız sayılıyor.
+
+Ayrıca: alıcı listesi boşken onaylanan kampanya `Scheduled` durumunda kalıyor,
+cron sonsuza kadar başlatmayı deniyordu — zamanlama ve başlatma tek transaction'a
+alındı.
+
+### Abonelikten çıkma
+
+Her mail alıcıya özel çıkış bağlantısı taşıyor (gövde + `List-Unsubscribe`
+başlığı). Elle girilen ve Excel'den yüklenen alıcılar da kendi anahtarını
+alıyor — ilk kurulumda yalnızca abonelerde vardı, yani listede olmayan kişinin
+çıkış yolu yoktu. Çıkan adres `subscribers` tablosuna engelleme kaydı olarak
+yazılıyor ve sonraki kampanyalara dahil edilmiyor.
+
+### Testler
+
+`CampaignDispatchTest` (28), `CampaignPanelTest` (25),
+`CampaignMailContentTest` (17).
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki

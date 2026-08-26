@@ -281,4 +281,16 @@ return [
         'features' => 'What We Offer',
         'cta' => "Let's take the next step together",
     ],
+
+    'newsletter' => [
+        'unsubscribe_title'  => 'Unsubscribe',
+        'unsubscribed'       => 'You have been unsubscribed',
+        'unsubscribed_lead'  => 'We will no longer send our newsletter to :email.',
+        'not_found'          => 'Invalid link',
+        'not_found_lead'     => 'This unsubscribe link is invalid or has expired.',
+        'subscribe'          => 'Subscribe to our newsletter',
+        'email_placeholder'  => 'Your email address',
+        'subscribed'         => 'Thanks for subscribing!',
+        'already_subscribed' => 'This address is already on the list.',
+    ],
 ];

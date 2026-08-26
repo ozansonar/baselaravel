@@ -284,4 +284,16 @@ return [
         'features' => 'Öne Çıkan Özelliklerimiz',
         'cta' => 'Bir sonraki adımı birlikte atalım',
     ],
+
+    'newsletter' => [
+        'unsubscribe_title'  => 'Abonelikten Çık',
+        'unsubscribed'       => 'Abonelikten çıkarıldınız',
+        'unsubscribed_lead'  => ':email adresine artık bülten göndermeyeceğiz.',
+        'not_found'          => 'Bağlantı geçersiz',
+        'not_found_lead'     => 'Bu abonelikten çıkma bağlantısı geçersiz veya süresi dolmuş olabilir.',
+        'subscribe'          => 'Bültene abone ol',
+        'email_placeholder'  => 'E-posta adresiniz',
+        'subscribed'         => 'Abone olduğunuz için teşekkürler!',
+        'already_subscribed' => 'Bu adres zaten kayıtlı.',
+    ],
 ];
