@@ -8,6 +8,20 @@
     @var \App\Models\Language $language
     @var \App\Models\BlogPost|null $translation
 --}}
+@php
+    /**
+     * Client side rules for jQuery Validation Engine.
+     *
+     * "required" only goes on the default language, exactly like
+     * StoreTranslatedBlogPostRequest: a translation may be filled in later.
+     */
+    $rules = function (array $extra = []) use ($language): string {
+        $list = $language->is_default ? array_merge(['required'], $extra) : $extra;
+
+        return $list === [] ? '' : 'validate[' . implode(',', $list) . ']';
+    };
+@endphp
+
           <!-- ==================== SECTION 1: TEMEL BİLGİLER ==================== -->
           <div class="card-dark mb-4" id="section-basic_{{ $language->code }}">
             <div class="card-header-custom">
@@ -25,7 +39,7 @@
                 <!-- Başlık -->
                 <div class="col-12">
                   <label class="form-label" for="title_{{ $language->code }}">
-                    İçerik Başlığı <span class="text-danger">*</span>
+                    İçerik Başlığı @if($language->is_default)<span class="text-danger">*</span>@endif
                   </label>
                   <input
                     type="text"
@@ -35,7 +49,7 @@
                     value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                     placeholder="İçeriğin ana başlığını yazın..."
                     maxlength="120"
-                    required
+                    data-validation-engine="{{ $rules(['maxSize[120]']) }}"
                     oninput="updateCharCounter(this, 120); generateSlug(this.value); updateSeoPreview()"
                   >
                   @error("translations.{$language->code}.title")
@@ -59,8 +73,11 @@
                       name="translations[{{ $language->code }}][slug]"
                       value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                       placeholder="otomatik-oluşturulur"
+                      data-validation-engine="validate[custom[slug],maxSize[255]]"
+                      data-prompt-target="slug_error_{{ $language->code }}"
                     >
                   </div>
+                  <div id="slug_error_{{ $language->code }}"></div>
                   @error("translations.{$language->code}.slug")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -70,9 +87,9 @@
                 <!-- Kategori -->
                 <div class="col-12">
                   <label class="form-label" for="blog_category_id_{{ $language->code }}">
-                    Kategori <span class="text-danger">*</span>
+                    Kategori @if($language->is_default)<span class="text-danger">*</span>@endif
                   </label>
-                  <select class="form-select @error("translations.{$language->code}.blog_category_id") is-invalid @enderror" id="blog_category_id_{{ $language->code }}" name="translations[{{ $language->code }}][blog_category_id]" required>
+                  <select class="form-select @error("translations.{$language->code}.blog_category_id") is-invalid @enderror" id="blog_category_id_{{ $language->code }}" name="translations[{{ $language->code }}][blog_category_id]" data-validation-engine="{{ $rules() }}">
                     <option value="">Kategori seçin...</option>
                     {{-- Categories are translated too, so a post is tied to the category
                        row in its own language. --}}
@@ -118,6 +135,7 @@
                     rows="3"
                     maxlength="300"
                     placeholder="İçeriğin kısa bir özetini yazın (listeleme sayfalarında görünür)..."
+                    data-validation-engine="validate[maxSize[300]]"
                     oninput="updateCharCounter(this, 300)"
                   >{{ old("translations.{$language->code}.excerpt", $translation?->excerpt) }}</textarea>
                   @error("translations.{$language->code}.excerpt")
@@ -132,14 +150,18 @@
                 <!-- Ana İçerik -->
                 <div class="col-12">
                   <label class="form-label" for="body_{{ $language->code }}">
-                    Ana İçerik <span class="text-danger">*</span>
+                    Ana İçerik @if($language->is_default)<span class="text-danger">*</span>@endif
                   </label>
                   <textarea
                     class="@error("translations.{$language->code}.body") is-invalid @enderror"
                     id="body_{{ $language->code }}"
                     name="translations[{{ $language->code }}][body]"
                     rows="12"
+                    data-validation-engine="{{ $rules() }}"
+                    data-prompt-target="body_error_{{ $language->code }}"
                   >{{ old("translations.{$language->code}.body", $translation?->body) }}</textarea>
+                  {{-- TinyMCE hides the textarea, so the message needs its own slot. --}}
+                  <div id="body_error_{{ $language->code }}"></div>
                   @error("translations.{$language->code}.body")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -175,6 +197,9 @@
                     id="image_{{ $language->code }}"
                     name="translations[{{ $language->code }}][image]"
                     accept="image/png,image/jpeg,image/webp"
+                    data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
+                    data-max-size="4"
+                    data-accept="image/jpeg,image/png,image/webp"
                   >
                   @error("translations.{$language->code}.image")
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -222,6 +247,7 @@
                     value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
                     maxlength="60"
                     placeholder="SEO için özel başlık (boş bırakılırsa içerik başlığı kullanılır)"
+                    data-validation-engine="validate[maxSize[60]]"
                     oninput="updateCharCounter(this, 60); updateSeoPreview()"
                   >
                   @error("translations.{$language->code}.meta_title")
@@ -243,6 +269,7 @@
                     rows="3"
                     maxlength="160"
                     placeholder="Arama sonuçlarında görünecek açıklama metni..."
+                    data-validation-engine="validate[maxSize[160]]"
                     oninput="updateCharCounter(this, 160); updateSeoPreview()"
                   >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
                   @error("translations.{$language->code}.meta_description")

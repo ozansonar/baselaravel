@@ -3,7 +3,9 @@
 @section('title', 'Yeni İçerik Oluştur')
 
 @section('content')
-<form method="POST" action="{{ route('admin.blog-posts.store') }}" enctype="multipart/form-data" id="blogPostForm">
+{{-- data-validate hands the form to form-validation.js; the rules themselves
+     live on the fields as data-validation-engine attributes. --}}
+<form method="POST" action="{{ route('admin.blog-posts.store') }}" enctype="multipart/form-data" id="blogPostForm" data-validate novalidate>
     @csrf
 
       <!-- Breadcrumb -->
@@ -125,7 +127,7 @@
       </div><!-- /row -->
 </form>
 
-@include('partials.admin.tinymce', ['tinymceSelector' => '#body'])
+@include('partials.admin.tinymce', ['tinymceSelector' => 'textarea[id^=body_]'])
 @endsection
 
 @push('scripts')

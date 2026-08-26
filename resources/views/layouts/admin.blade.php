@@ -25,6 +25,7 @@
     <link href="{{ asset('assets/vendor/dm-serif-display/dm-serif-display.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/dropzone/dropzone.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/jquery-validation-engine/css/validationEngine.jquery.css') }}" rel="stylesheet">
     <link href="{{ versioned_asset('assets/admin/css/styles.css') }}" rel="stylesheet">
 
     @stack('styles')
@@ -59,6 +60,10 @@
 
 {{-- JS (Self-hosted) --}}
 <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+{{-- jQuery is here for one reason only: the Validation Engine plugin below. --}}
+<script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine-tr.js') }}"></script>
+<script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
 <script src="{{ asset('assets/vendor/dropzone/dropzone.min.js') }}"></script>
 <script>Dropzone.autoDiscover = false;</script>
 <script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
@@ -67,6 +72,7 @@
 <script src="{{ versioned_asset('assets/admin/js/global-modals.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/stat-counter.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/language-tabs.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/form-validation.js') }}"></script>
 @if(Route::has('admin.notifications.recent'))
 <script src="{{ versioned_asset('assets/admin/js/notification-bell.js') }}"></script>
 @endif
