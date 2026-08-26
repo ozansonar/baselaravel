@@ -13,14 +13,53 @@ class BlogSeeder extends Seeder
 {
     public function run(): void
     {
+        // Each category is seeded in both languages, sharing a lang_group_id so
+        // the panel shows one row with two flags and an English post can point
+        // at the English category.
         $categories = [
-            ['name' => 'Duyurular',  'slug' => 'duyurular',  'icon' => 'fa-solid fa-bullhorn',       'sort_order' => 1],
-            ['name' => 'Rehberler',  'slug' => 'rehberler',  'icon' => 'fa-solid fa-book-open',      'sort_order' => 2],
-            ['name' => 'Teknoloji',  'slug' => 'teknoloji',  'icon' => 'fa-solid fa-microchip',      'sort_order' => 3],
+            [
+                'icon' => 'fa-solid fa-bullhorn',
+                'sort_order' => 1,
+                'tr' => ['name' => 'Duyurular', 'slug' => 'duyurular'],
+                'en' => ['name' => 'Announcements', 'slug' => 'announcements'],
+            ],
+            [
+                'icon' => 'fa-solid fa-book-open',
+                'sort_order' => 2,
+                'tr' => ['name' => 'Rehberler', 'slug' => 'rehberler'],
+                'en' => ['name' => 'Guides', 'slug' => 'guides'],
+            ],
+            [
+                'icon' => 'fa-solid fa-microchip',
+                'sort_order' => 3,
+                'tr' => ['name' => 'Teknoloji', 'slug' => 'teknoloji'],
+                'en' => ['name' => 'Technology', 'slug' => 'technology'],
+            ],
         ];
 
         foreach ($categories as $cat) {
-            BlogCategory::updateOrCreate(['slug' => $cat['slug']], $cat);
+            // The Turkish row owns the group; re-running the seeder must not
+            // hand it a new one.
+            $turkish = BlogCategory::updateOrCreate(
+                ['locale' => 'tr', 'slug' => $cat['tr']['slug']],
+                [
+                    'name'       => $cat['tr']['name'],
+                    'icon'       => $cat['icon'],
+                    'sort_order' => $cat['sort_order'],
+                    'is_active'  => true,
+                ],
+            );
+
+            BlogCategory::updateOrCreate(
+                ['locale' => 'en', 'slug' => $cat['en']['slug']],
+                [
+                    'lang_group_id' => $turkish->lang_group_id,
+                    'name'          => $cat['en']['name'],
+                    'icon'          => $cat['icon'],
+                    'sort_order'    => $cat['sort_order'],
+                    'is_active'     => true,
+                ],
+            );
         }
 
         $author = User::where('email', 'admin@example.com')->first()
@@ -52,7 +91,7 @@ class BlogSeeder extends Seeder
             BlogPost::updateOrCreate(
                 ['slug' => \Illuminate\Support\Str::slug($p['title'])],
                 [
-                    'blog_category_id' => BlogCategory::where('slug', $p['cat'])->value('id'),
+                    'blog_category_id' => BlogCategory::where('locale', 'tr')->where('slug', $p['cat'])->value('id'),
                     'user_id'          => $author->id,
                     'title'            => $p['title'],
                     'excerpt'          => $p['excerpt'],
