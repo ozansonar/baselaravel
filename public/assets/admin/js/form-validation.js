@@ -195,15 +195,22 @@
     /**
      * Brings the first failing field into view — switching language tabs when
      * the error sits in a tab the user is not looking at.
+     *
+     * The field list comes from the plugin rather than from the DOM: prompts
+     * from the previous round are faded out over ~200ms, so a stale message
+     * is still on the page while this runs and reading the DOM would send the
+     * user back to the tab they just fixed.
      */
-    function revealFirstError(form) {
-        var prompt = form.querySelector('.formError');
+    function revealFirstError(form, invalidFields) {
+        var field = Array.prototype.filter.call(invalidFields || [], function (element) {
+            return element && form.contains(element);
+        })[0];
 
-        if (!prompt) {
+        if (!field) {
             return;
         }
 
-        var pane = prompt.closest('.tab-pane');
+        var pane = field.closest('.tab-pane');
 
         if (pane && !pane.classList.contains('active') && typeof bootstrap !== 'undefined') {
             var trigger = document.querySelector('[data-bs-target="#' + pane.id + '"]');
@@ -215,13 +222,14 @@
 
         // Let the tab finish showing before measuring where to scroll.
         window.setTimeout(function () {
-            prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            var visible = field.offsetParent !== null;
+            // A field hidden behind a rich text editor cannot be scrolled to,
+            // so aim at the block that holds it.
+            var target = visible ? field : (field.closest('.col-12, .col-md-6, .card-dark') || field);
 
-            var field = prompt.parentElement
-                ? prompt.parentElement.querySelector('.is-invalid')
-                : null;
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            if (field && field.offsetParent !== null) {
+            if (visible) {
                 field.focus({ preventScroll: true });
             }
         }, 200);
@@ -337,7 +345,7 @@
         $form.validationEngine('attach', $.extend({}, FormValidation.defaults, options || {}, {
             onValidationComplete: function ($validatedForm, valid) {
                 if (!valid) {
-                    revealFirstError($validatedForm[0]);
+                    revealFirstError($validatedForm[0], ($validatedForm.data('jqv') || {}).InvalidFields);
 
                     return false;
                 }
