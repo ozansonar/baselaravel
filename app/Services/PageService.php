@@ -247,11 +247,11 @@ final class PageService
     public function getAdminStats(): array
     {
         return Cache::remember('admin.pages.stats', 300, function (): array {
-            $counts = Page::withTrashed()
-                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-                ->selectRaw('count(distinct case when deleted_at is null and status = ? then lang_group_id end) as published', [ContentStatus::Published->value])
-                ->selectRaw('count(distinct case when deleted_at is null and status = ? then lang_group_id end) as draft', [ContentStatus::Draft->value])
-                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
+            $counts = $this->onlyGroupRepresentatives(Page::withTrashed(), Page::class)
+                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
+                ->selectRaw('sum(case when deleted_at is null and status = ? then 1 else 0 end) as published', [ContentStatus::Published->value])
+                ->selectRaw('sum(case when deleted_at is null and status = ? then 1 else 0 end) as draft', [ContentStatus::Draft->value])
+                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
                 ->first();
 
             return [

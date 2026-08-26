@@ -204,12 +204,12 @@ final class GalleryService
     public function getAdminStats(): array
     {
         return Cache::remember('admin.gallery.stats', 300, function (): array {
-            $counts = GalleryItem::withTrashed()
-                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-                ->selectRaw('count(distinct case when deleted_at is null and type = ? then lang_group_id end) as photos', [GalleryType::Photo->value])
-                ->selectRaw('count(distinct case when deleted_at is null and type = ? then lang_group_id end) as videos', [GalleryType::Video->value])
-                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
-                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
+            $counts = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)
+                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
+                ->selectRaw('sum(case when deleted_at is null and type = ? then 1 else 0 end) as photos', [GalleryType::Photo->value])
+                ->selectRaw('sum(case when deleted_at is null and type = ? then 1 else 0 end) as videos', [GalleryType::Video->value])
+                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
+                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
                 ->first();
 
             return [
@@ -227,10 +227,10 @@ final class GalleryService
      */
     public function statusCounts(): array
     {
-        $counts = GalleryItem::withTrashed()->selectRaw("
-            COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 1 THEN lang_group_id END) as active,
-            COUNT(DISTINCT CASE WHEN deleted_at IS NULL AND is_active = 0 THEN lang_group_id END) as passive,
-            COUNT(DISTINCT CASE WHEN deleted_at IS NOT NULL THEN lang_group_id END) as trashed
+        $counts = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)->selectRaw("
+            SUM(CASE WHEN deleted_at IS NULL AND is_active = 1 THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN deleted_at IS NULL AND is_active = 0 THEN 1 ELSE 0 END) as passive,
+            SUM(CASE WHEN deleted_at IS NOT NULL THEN 1 ELSE 0 END) as trashed
         ")->first();
 
         return [

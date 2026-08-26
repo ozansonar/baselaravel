@@ -161,11 +161,11 @@ final class SliderService
     public function getAdminStats(): array
     {
         return Cache::remember('admin.sliders.stats', 300, function (): array {
-            $counts = Slider::withTrashed()
-                ->selectRaw('count(distinct case when deleted_at is null then lang_group_id end) as total')
-                ->selectRaw('count(distinct case when deleted_at is null and is_active = 1 then lang_group_id end) as active')
-                ->selectRaw('count(distinct case when deleted_at is null and is_active = 0 then lang_group_id end) as passive')
-                ->selectRaw('count(distinct case when deleted_at is not null then lang_group_id end) as trashed')
+            $counts = $this->onlyGroupRepresentatives(Slider::withTrashed(), Slider::class)
+                ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
+                ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
+                ->selectRaw('sum(case when deleted_at is null and is_active = 0 then 1 else 0 end) as passive')
+                ->selectRaw('sum(case when deleted_at is not null then 1 else 0 end) as trashed')
                 ->first();
 
             return [
