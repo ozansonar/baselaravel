@@ -170,6 +170,99 @@
         });
     }
 
+    // ==================== UNSAVED WORK IN OTHER TABS ====================
+
+    /**
+     * Only the visible tab is sent, so anything typed into another language and
+     * left behind is about to be lost when the page reloads. The editor is told
+     * before that happens rather than after.
+     */
+    function fieldIsDirty(field) {
+        if (field.type === 'hidden') {
+            return false;
+        }
+
+        if (field.type === 'checkbox' || field.type === 'radio') {
+            return field.checked !== field.defaultChecked;
+        }
+
+        if (field.type === 'file') {
+            return field.files && field.files.length > 0;
+        }
+
+        if (field.tagName === 'SELECT') {
+            // With no option marked selected the browser picks the first one,
+            // and that is the untouched state — not a change.
+            var preselected = Array.prototype.findIndex.call(
+                field.options,
+                function (option) { return option.defaultSelected; }
+            );
+
+            return field.selectedIndex !== (preselected === -1 ? 0 : preselected);
+        }
+
+        return field.value !== field.defaultValue;
+    }
+
+    function languageNameOfPane(pane) {
+        var trigger = document.querySelector('[data-bs-target="#' + pane.id + '"]');
+
+        if (!trigger) {
+            return pane.id;
+        }
+
+        var name = trigger.querySelector('span:not([class])');
+
+        return name ? name.textContent.trim() : (trigger.dataset.locale || '').toUpperCase();
+    }
+
+    /** Languages holding edits that this save will not carry. */
+    function unsavedLanguages(form) {
+        var active = form.querySelector('.tab-pane.active');
+
+        if (!active) {
+            return [];
+        }
+
+        var languages = [];
+
+        form.querySelectorAll('.tab-pane').forEach(function (pane) {
+            if (pane === active) {
+                return;
+            }
+
+            var dirty = Array.prototype.some.call(
+                pane.querySelectorAll('input, select, textarea'),
+                fieldIsDirty
+            );
+
+            if (dirty) {
+                languages.push(languageNameOfPane(pane));
+            }
+        });
+
+        return languages;
+    }
+
+    function confirmDiscarding(form, languages, activeName) {
+        AdminModal.confirm({
+            title: 'Diğer dillerdeki değişiklikler',
+            message: languages.join(' ve ') + ' sekmesinde kaydedilmemiş değişiklik var. '
+                + 'Bu kayıt yalnızca ' + activeName + ' içeriğini kaydeder; diğerleri kaybolur.',
+            type: 'warning',
+            confirmText: 'Yine de kaydet',
+            confirmIcon: 'bi bi-check-lg',
+            cancelText: 'Vazgeç'
+        }).then(function (confirmed) {
+            if (!confirmed) {
+                return;
+            }
+
+            form.fvDiscardConfirmed = true;
+            form.requestSubmit();
+        });
+    }
+
     // ==================== EDITOR SYNC ====================
 
     /**
@@ -402,7 +495,19 @@
                     return false;
                 }
 
-                return lockForm($validatedForm[0]);
+                var form = $validatedForm[0];
+                var pending = typeof AdminModal !== 'undefined' && !form.fvDiscardConfirmed
+                    ? unsavedLanguages(form)
+                    : [];
+
+                if (pending.length > 0) {
+                    var active = form.querySelector('.tab-pane.active');
+                    confirmDiscarding(form, pending, active ? languageNameOfPane(active) : 'bu dil');
+
+                    return false;
+                }
+
+                return lockForm(form);
             }
         }));
     }
