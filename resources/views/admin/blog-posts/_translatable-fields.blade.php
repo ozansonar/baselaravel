@@ -22,6 +22,50 @@
     };
 @endphp
 
+        {{-- Mobile Section Jumper --}}
+        <div class="d-lg-none mb-4">
+          <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+            <option value="" disabled selected>Bölüme git...</option>
+            <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
+            <option value="section-content_{{ $language->code }}">İçerik Editörü</option>
+            <option value="section-media_{{ $language->code }}">Medya Yönetimi</option>
+            <option value="section-seo_{{ $language->code }}">SEO Ayarları</option>
+            <option value="section-publish_{{ $language->code }}">Yayın Ayarları</option>
+          </select>
+        </div>
+
+        {{-- Form Layout --}}
+        <div class="row g-4 align-items-start">
+
+          {{-- Sol Navigasyon (yalnızca desktop) --}}
+          <div class="col-lg-3 d-none d-lg-block">
+            <div class="stg-nav-inner position-sticky stg-nav-sticky">
+              <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic_{{ $language->code }}', this)">
+                <i class="bi bi-text-paragraph"></i>
+                <div><span>Temel Bilgiler</span><small>Başlık, slug, kategori</small></div>
+              </a>
+              <a href="#section-content_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-content_{{ $language->code }}', this)">
+                <i class="bi bi-body-text"></i>
+                <div><span>İçerik Editörü</span><small>Ana metin ve özet</small></div>
+              </a>
+              <a href="#section-media_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media_{{ $language->code }}', this)">
+                <i class="bi bi-images"></i>
+                <div><span>Medya Yönetimi</span><small>Kapak görseli</small></div>
+              </a>
+              <a href="#section-seo_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-seo_{{ $language->code }}', this)">
+                <i class="bi bi-search"></i>
+                <div><span>SEO Ayarları</span><small>Meta başlık, açıklama</small></div>
+              </a>
+              <a href="#section-publish_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-publish_{{ $language->code }}', this)">
+                <i class="bi bi-calendar-event"></i>
+                <div><span>Yayın Ayarları</span><small>Durum, tarih</small></div>
+              </a>
+            </div>
+          </div>
+
+          {{-- Form İçeriği --}}
+          <div class="col-12 col-lg-9">
+
           <!-- ==================== SECTION 1: TEMEL BİLGİLER ==================== -->
           <div class="card-dark mb-4" id="section-basic_{{ $language->code }}">
             <div class="card-header-custom">
@@ -320,3 +364,5 @@
             </div>
           </div>
 
+          </div><!-- /col-12 col-lg-9 -->
+        </div><!-- /row -->
