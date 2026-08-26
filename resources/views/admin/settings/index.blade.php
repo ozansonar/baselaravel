@@ -115,8 +115,8 @@
                 <div><span>Telegram</span><small>Hata bildirimleri</small></div>
             </a>
             <a href="#stg-regional" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-regional')">
-                <i class="bi bi-globe2"></i>
-                <div><span>Bölgesel</span><small>Dil ve saat dilimi tercihleri</small></div>
+                <i class="bi bi-clock"></i>
+                <div><span>Saat Dilimi</span><small>Tarih ve saat gösterimi</small></div>
             </a>
             <a href="#stg-system" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-system')">
                 <i class="bi bi-gear"></i>
@@ -1149,22 +1149,11 @@
 
                 <div class="stg-section">
                     <div class="stg-panel-header">
-                        <h5><i class="bi bi-globe2 me-2 text-teal"></i>Bölgesel Ayarlar</h5>
-                        <p>Dil ve saat dilimi tercihleri</p>
+                        <h5><i class="bi bi-clock me-2 text-teal"></i>Saat Dilimi</h5>
+                        <p>Tarih ve saat gösteriminde kullanılacak saat dilimi</p>
                     </div>
 
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="stg-field">
-                                <label class="stg-label">Dil</label>
-                                <select class="stg-select" name="settings[app_locale]">
-                                    @foreach(\App\Enums\AppLocale::cases() as $locale)
-                                        <option value="{{ $locale->value }}" @selected($s('app_locale', \App\Enums\AppLocale::default()->value) === $locale->value)>{{ $locale->label() }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="stg-hint">Uygulamanın arayüz dili</span>
-                            </div>
-                        </div>
                         <div class="col-md-6">
                             <div class="stg-field">
                                 <label class="stg-label">Saat Dilimi</label>
@@ -1174,9 +1163,33 @@
                                         <option value="{{ $tz->value }}" @selected($currentTz === $tz->value)>{{ $tz->label() }}</option>
                                     @endforeach
                                 </select>
-                                <span class="stg-hint">Tarih ve saat gösteriminde kullanılacak saat dilimi</span>
+                                <span class="stg-hint">
+                                    Blog yayın tarihleri, mail logları, canlı ziyaretçi ekranı ve kampanya
+                                    zamanlaması dahil, tarih gösterilen her yerde kullanılır.
+                                    Şu an: <strong>{{ now()->format('d.m.Y H:i') }}</strong>
+                                </span>
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Language used to live here as a second dropdown that nothing read.
+                         The real default language is the starred row on the Diller screen. --}}
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Site dili</strong> buradan değil
+                        @can('viewAny', \App\Models\Language::class)
+                            <a href="{{ route('admin.languages.index') }}" class="alert-link">Diller</a>
+                        @else
+                            <strong>Diller</strong>
+                        @endcan
+                        ekranından yönetilir; oradaki varsayılan dil, tarayıcı diline uymayan
+                        ziyaretçilere gösterilen dildir. Arayüz metinleri için
+                        @can('viewAny', \App\Models\Translation::class)
+                            <a href="{{ route('admin.translations.index') }}" class="alert-link">Dil Yazıları</a>
+                        @else
+                            <strong>Dil Yazıları</strong>
+                        @endcan
+                        ekranına bakın.
                     </div>
                 </div>
 
@@ -1188,7 +1201,6 @@
             </form>
         </div>
 
-        {{-- ══════════════ 13. SİSTEM ══════════════ --}}
         <div class="stg-panel" id="stg-system">
 
             {{-- Sistem Durumu --}}

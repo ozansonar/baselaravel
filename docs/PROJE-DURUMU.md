@@ -818,6 +818,61 @@ yetki ayrımı.
 
 ---
 
+## 5m. Bölgesel Ayarlar Temizliği — ✅ İki Kusur Kapatıldı
+
+Ayarlar → Bölgesel ekranı incelenirken iki sorun çıktı.
+
+### 1. Dil alanı hiçbir işe yaramıyordu
+
+`app_locale` ayarı kaydediliyordu ama **hiçbir yerde okunmuyordu.** Dili
+belirleyen zincir şu: oturumdaki seçim → `Accept-Language` → `languages`
+tablosundaki varsayılan. Bu ayara zincirin hiçbir adımı bakmıyordu.
+
+Yanıltıcıydı: altında "Uygulamanın arayüz dili" yazıyordu ama gerçek varsayılan
+Diller ekranındaki yıldızdı. Üstelik dropdown yalnızca `tr` ve `en` gösteriyordu
+çünkü eski `AppLocale` enum'undan besleniyordu — panelden eklenen bir dil orada
+görünmüyordu bile.
+
+Bu, çok dilli yapı kurulurken bırakılan bir artıktı: `app_locale` `languages`
+tablosundan önce vardı, dil kaynağı oraya taşınınca işlevsiz kaldı.
+
+Alan kaldırıldı, `AppLocale` enum'u silindi (başka kullanıcısı yoktu), bölüm
+"Bölgesel" yerine **"Saat Dilimi"** oldu ve yerine dilin nereden yönetildiğini
+söyleyen bir bilgi kutusu kondu (Diller ve Dil Yazıları ekranlarına bağlantılı).
+
+### 2. Saat dilimi cron'da uygulanmıyordu
+
+Saat dilimi `SetLocale` **middleware**'inde uygulanıyordu — yani yalnızca web
+isteklerinde. Scheduler konsolda çalışır ve middleware oraya hiç uğramaz.
+
+Sonuç: yönetici saat dilimini değiştirdiğinde web istekleri yeni saat dilimini,
+cron'un yazdığı her şey (yedek dosya adları, kampanya `sent_at` değerleri,
+analitik toplama) `config` varsayılanını kullanıyordu. **Aynı kolonlara iki
+farklı saat diliminde zaman damgası yazılıyordu.**
+
+Uygulama `AppServiceProvider::boot()`'a taşındı; hem web hem konsol için
+çalışıyor. Geçersiz bir değer ve ayar tablosu henüz yokken (taze klon, migration
+ortası) sessizce config varsayılanına düşüyor.
+
+### Tek nokta kuralı
+
+Artık her kavramın tek bir yeri var:
+
+| Ne | Nerede |
+|---|---|
+| Diller, varsayılan dil | Diller ekranı |
+| Arayüz metinleri | Dil Yazıları ekranı |
+| Saat dilimi | Ayarlar → Saat Dilimi |
+
+### Testler
+
+`TimezoneSettingTest` (9): ayarın uygulanması, konsolda da geçerli olması, web
+ve konsolun aynı değeri kullanması, ayar yokken config varsayılanının
+korunması, geçersiz değerin yok sayılması, ekranda dil dropdown'ının
+bulunmaması ve yönlendirmenin yetkiye göre link/düz metin olması.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki

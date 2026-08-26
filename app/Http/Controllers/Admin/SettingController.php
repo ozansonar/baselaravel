@@ -85,7 +85,8 @@ final class SettingController extends Controller
                 'telegram_notify_level',
             ];
             $maintenanceKeys = ['maintenance_mode', 'maintenance_message', 'maintenance_allowed_ips'];
-            $regionalKeys = ['app_locale', 'app_timezone'];
+            // Language is not a setting: the default lives on the languages table.
+            $regionalKeys = ['app_timezone'];
 
             // Skip empty password-type fields (keep existing value)
             $passwordKeys = [

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Models\Setting;
 use App\Services\LanguageService;
 use Closure;
 use Illuminate\Http\Request;
@@ -33,9 +32,10 @@ final class SetLocale
     {
         app()->setLocale($this->resolveLocale($request));
 
-        $timezone = Setting::getValue('app_timezone', config('app.timezone', 'Europe/Istanbul'));
-        config(['app.timezone' => $timezone]);
-        date_default_timezone_set($timezone);
+        // The timezone is applied in AppServiceProvider instead: doing it here
+        // covered web requests only, so anything the scheduler wrote — backups,
+        // campaign send times, analytics — used a different timezone from the
+        // same rows written through the site.
 
         return $next($request);
     }
