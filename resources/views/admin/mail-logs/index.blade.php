@@ -10,6 +10,64 @@
         // Süzgeçlerden herhangi biri açıksa hem başlıktaki sıfırlama düğmesi
         // hem de boş liste metni bunu bilmeli.
         $hasFilter = collect($filters)->filter(fn ($value) => (string) $value !== '')->isNotEmpty();
+
+        $quickDateLabels = [
+            'today'   => 'Bugün',
+            'week'    => 'Bu Hafta',
+            'month'   => 'Bu Ay',
+            'quarter' => 'Son 3 Ay',
+        ];
+
+        // Açık süzgeçler rozet olarak listeleniyor: yedi kutuyu tek tek okumak
+        // yerine ne olduğu bir bakışta görülsün, istenmeyeni tek tıkla atılsın.
+        $activeFilters = collect([
+            'status' => [
+                'label' => 'Durum',
+                'value' => $filters['status'] !== ''
+                    ? (\App\Enums\MailLogStatus::tryFrom($filters['status'])?->label() ?? $filters['status'])
+                    : '',
+            ],
+            'search' => [
+                'label' => 'Arama',
+                'value' => $filters['search'],
+            ],
+            'mailable' => [
+                'label' => 'Mail türü',
+                'value' => $filters['mailable'] !== ''
+                    ? ($mailableOptions[$filters['mailable']]['label'] ?? $filters['mailable'])
+                    : '',
+            ],
+            'recipient' => [
+                'label' => 'Alıcı',
+                'value' => $filters['recipient'],
+            ],
+            'user_id' => [
+                'label' => 'Tetikleyen',
+                'value' => match (true) {
+                    $filters['user_id'] === ''  => '',
+                    $filters['user_id'] === '0' => 'Sistem',
+                    default => (function () use ($filters, $userOptions) {
+                        $user = $userOptions->firstWhere('id', (int) $filters['user_id']);
+
+                        return $user
+                            ? (trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->email)
+                            : 'Kullanıcı #' . $filters['user_id'];
+                    })(),
+                },
+            ],
+            'date_filter' => [
+                'label' => 'Hızlı tarih',
+                'value' => $quickDateLabels[$filters['date_filter']] ?? '',
+            ],
+            'from' => [
+                'label' => 'Başlangıç',
+                'value' => $filters['from'] !== '' ? \Illuminate\Support\Carbon::parse($filters['from'])->format('d.m.Y') : '',
+            ],
+            'to' => [
+                'label' => 'Bitiş',
+                'value' => $filters['to'] !== '' ? \Illuminate\Support\Carbon::parse($filters['to'])->format('d.m.Y') : '',
+            ],
+        ])->filter(fn (array $chip): bool => $chip['value'] !== '');
     @endphp
 
     <!-- Breadcrumb -->
@@ -140,11 +198,17 @@
                     <input type="hidden" name="status" value="{{ $currentStatus }}">
                 @endif
 
-                <div class="cl-search">
+                <div class="cl-search {{ $filters['search'] !== '' ? 'cl-search--clearable' : '' }}">
                     <i class="bi bi-search"></i>
                     <input type="text" name="search" id="mailLogSearch"
                            placeholder="Alıcı, konu, mailable sınıfı veya hata metni ile ara..."
                            value="{{ $filters['search'] }}">
+                    @if($filters['search'] !== '')
+                        <a href="{{ route('admin.mail-logs.index', request()->except(['search', 'page'])) }}"
+                           class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    @endif
                 </div>
 
                 {{-- Alanların hepsi başlıklı: seçim kutuları ile tarih alanları
@@ -210,13 +274,32 @@
                         </select>
                     </div>
 
+                    {{-- Tarih kutularının temizleme düğmesi başlık satırında: tarayıcının
+                         takvim ikonu alanın sağını kapladığı için kutu içine sığmıyor.
+                         Seçim kutularında bu düğme Select2'nin kendisinden geliyor. --}}
                     <div class="ml-field">
-                        <span>Başlangıç</span>
+                        <span>
+                            Başlangıç
+                            @if($filters['from'] !== '')
+                                <a href="{{ route('admin.mail-logs.index', request()->except(['from', 'page'])) }}"
+                                   class="ml-field-clear" title="Başlangıç tarihini temizle" aria-label="Başlangıç tarihini temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </span>
                         <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi">
                     </div>
 
                     <div class="ml-field">
-                        <span>Bitiş</span>
+                        <span>
+                            Bitiş
+                            @if($filters['to'] !== '')
+                                <a href="{{ route('admin.mail-logs.index', request()->except(['to', 'page'])) }}"
+                                   class="ml-field-clear" title="Bitiş tarihini temizle" aria-label="Bitiş tarihini temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </span>
                         <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi">
                     </div>
 
@@ -246,6 +329,28 @@
                     </p>
                 @endif
             </form>
+
+            @if($activeFilters->isNotEmpty())
+                <div class="ml-active-filters">
+                    <span class="ml-active-filters__title">Açık süzgeçler:</span>
+                    @foreach($activeFilters as $key => $chip)
+                        <span class="ml-filter-chip">
+                            <span class="ml-filter-chip__label">{{ $chip['label'] }}:</span>
+                            <span class="ml-filter-chip__value">{{ $chip['value'] }}</span>
+                            <a href="{{ route('admin.mail-logs.index', request()->except([$key, 'page'])) }}"
+                               class="ml-filter-chip__remove" title="{{ $chip['label'] }} süzgecini kaldır"
+                               aria-label="{{ $chip['label'] }} süzgecini kaldır">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        </span>
+                    @endforeach
+                    @if($activeFilters->count() > 1)
+                        <a href="{{ route('admin.mail-logs.index') }}" class="ml-filter-chip ml-filter-chip--reset">
+                            <i class="bi bi-arrow-counterclockwise"></i> Tümünü temizle
+                        </a>
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 
