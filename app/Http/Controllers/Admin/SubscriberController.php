@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\SubscriberStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Subscriber;
+use App\Models\SubscriberList;
 use App\Services\LanguageService;
 use App\Services\RecipientImportService;
+use App\Services\SubscriberListService;
 use App\Services\SubscriberService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,17 +22,23 @@ final class SubscriberController extends Controller
     public function __construct(
         private readonly SubscriberService $subscribers,
         private readonly RecipientImportService $importer,
+        private readonly SubscriberListService $lists,
     ) {}
 
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Subscriber::class);
 
+        $lists = $this->lists->all();
+
         return view('admin.subscribers.index', [
-            'subscribers' => $this->subscribers->paginate(25, $request->only(['status', 'locale', 'search'])),
+            'subscribers' => $this->subscribers->paginate(25, $request->only(['status', 'locale', 'search', 'list_id'])),
             'stats'       => $this->subscribers->stats(),
             'statuses'    => SubscriberStatus::cases(),
             'languages'   => app(LanguageService::class)->active(),
+            'lists'       => $lists,
+            'activeList'  => $request->integer('list_id') ?: null,
+            'defaultList' => $lists->firstWhere('is_default', true),
         ]);
     }
 
@@ -43,6 +51,8 @@ final class SubscriberController extends Controller
             'first_name' => ['nullable', 'string', 'max:191'],
             'last_name'  => ['nullable', 'string', 'max:191'],
             'locale'     => ['nullable', 'string', 'size:2'],
+            'list_ids'   => ['nullable', 'array'],
+            'list_ids.*' => ['integer', 'exists:subscriber_lists,id'],
         ]);
 
         $this->subscribers->subscribe(
@@ -51,6 +61,7 @@ final class SubscriberController extends Controller
             $validated['last_name'] ?? null,
             $validated['locale'] ?? null,
             'panel',
+            $validated['list_ids'] ?? [],
         );
 
         return back()->with('success', 'Abone eklendi.');
@@ -61,8 +72,10 @@ final class SubscriberController extends Controller
         $this->authorize('create', Subscriber::class);
 
         $validated = $request->validate([
-            'file'   => ['required', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
-            'locale' => ['nullable', 'string', 'size:2'],
+            'file'       => ['required', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
+            'locale'     => ['nullable', 'string', 'size:2'],
+            'list_ids'   => ['nullable', 'array'],
+            'list_ids.*' => ['integer', 'exists:subscriber_lists,id'],
         ], [
             'file.mimes' => 'Yalnızca Excel (.xlsx, .xls, .ods) veya CSV dosyası yükleyebilirsiniz.',
         ]);
@@ -73,7 +86,12 @@ final class SubscriberController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        $result = $this->subscribers->importMany($parsed['rows'], $validated['locale'] ?? null);
+        $result = $this->subscribers->importMany(
+            $parsed['rows'],
+            $validated['locale'] ?? null,
+            'import',
+            $validated['list_ids'] ?? [],
+        );
 
         return back()->with('success', sprintf(
             '%d yeni abone eklendi, %d kayıt güncellendi.%s',
@@ -81,6 +99,38 @@ final class SubscriberController extends Controller
             $result['updated'],
             $parsed['invalid'] > 0 ? " {$parsed['invalid']} geçersiz adres atlandı." : '',
         ));
+    }
+
+    /**
+     * Seçilen aboneleri bir listeye ekler ya da listeden çıkarır.
+     *
+     * Elle tek tek düzenlemek yerine toplu iş: mevcut bir aboneyi yeni açılan
+     * "Tedarikçiler" listesine taşımanın başka yolu yok.
+     */
+    public function bulkList(Request $request): RedirectResponse
+    {
+        $this->authorize('manageLists', Subscriber::class);
+
+        $validated = $request->validate([
+            'list_id'          => ['required', 'integer', 'exists:subscriber_lists,id'],
+            'action'           => ['required', 'in:add,remove'],
+            'subscriber_ids'   => ['required', 'array', 'min:1'],
+            'subscriber_ids.*' => ['integer', 'exists:subscribers,id'],
+        ], [
+            'subscriber_ids.required' => 'Önce en az bir abone seçin.',
+        ]);
+
+        $list = SubscriberList::findOrFail($validated['list_id']);
+
+        if ($validated['action'] === 'add') {
+            $added = $this->lists->addMany($list, $validated['subscriber_ids']);
+
+            return back()->with('success', sprintf('%d abone "%s" listesine eklendi.', $added, $list->name));
+        }
+
+        $removed = $this->lists->removeMany($list, $validated['subscriber_ids']);
+
+        return back()->with('success', sprintf('%d abone "%s" listesinden çıkarıldı.', $removed, $list->name));
     }
 
     public function unsubscribe(Subscriber $subscriber): RedirectResponse

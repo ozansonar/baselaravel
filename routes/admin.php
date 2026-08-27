@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubscriberController;
+use App\Http\Controllers\Admin\SubscriberListController;
 use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\UploadController;
@@ -190,9 +191,17 @@ Route::prefix('aboneler')->name('subscribers.')->group(function () {
     Route::get('/',                       [SubscriberController::class, 'index'])->name('index');
     Route::post('/',                      [SubscriberController::class, 'store'])->name('store');
     Route::post('ice-aktar',              [SubscriberController::class, 'import'])->name('import');
+    Route::post('toplu-liste',            [SubscriberController::class, 'bulkList'])->name('bulk-list');
     Route::post('{subscriber}/cikar',     [SubscriberController::class, 'unsubscribe'])->name('unsubscribe');
     Route::delete('{subscriber}',         [SubscriberController::class, 'destroy'])->name('destroy');
     Route::patch('{subscriber}/geri-yukle', [SubscriberController::class, 'restore'])->name('restore')->withTrashed();
+});
+
+// Abone listeleri (tedarikçiler, pazarlamacılar, bülten…)
+Route::prefix('abone-listeleri')->name('subscriber-lists.')->group(function () {
+    Route::post('/',                  [SubscriberListController::class, 'store'])->name('store');
+    Route::put('{subscriberList}',    [SubscriberListController::class, 'update'])->name('update');
+    Route::delete('{subscriberList}', [SubscriberListController::class, 'destroy'])->name('destroy');
 });
 
 // Settings

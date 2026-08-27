@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\SubscriberListService;
 use App\Services\SubscriberService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,12 +24,18 @@ final class NewsletterController extends Controller
             'last_name'  => ['nullable', 'string', 'max:191'],
         ]);
 
+        // Site formundan gelen herkes varsayılan işaretli listeye düşüyor;
+        // kurulumda bu "Bülten" listesi. İşaretli liste yoksa kayıt yine
+        // açılıyor, sadece hiçbir listeye girmiyor.
+        $defaultList = app(SubscriberListService::class)->default();
+
         $this->subscribers->subscribe(
             $validated['email'],
             $validated['first_name'] ?? null,
             $validated['last_name'] ?? null,
             app()->getLocale(),
             'form',
+            $defaultList !== null ? [$defaultList->id] : [],
         );
 
         return response()->json([

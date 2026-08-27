@@ -1,4 +1,4 @@
-{{-- Shared by create and edit. Vars: $campaign (nullable), $audiences, $roles, $languages, $hourlyLimit, $perRunQuota, $audienceCounts --}}
+{{-- Shared by create and edit. Vars: $campaign (nullable), $audiences, $roles, $languages, $hourlyLimit, $perRunQuota, $audienceCounts, $subscriberLists --}}
 @php
     use App\Enums\CampaignAudience;
     use App\Services\CampaignDispatcher;
@@ -34,6 +34,7 @@
     }
 
     $importedCount = count($filter['recipients'] ?? []);
+    $selectedLists = array_map('intval', $filter['list_ids'] ?? []);
 @endphp
 
 <div class="row g-4">
@@ -173,7 +174,7 @@
                                 <label class="cmp-check">
                                     <input type="checkbox" name="role_ids[]" data-fv-ignore value="{{ $role->id }}"
                                            {{ in_array($role->id, old('role_ids', $filter['role_ids'] ?? []), false) ? 'checked' : '' }}>
-                                    <span>{{ $role->name }}</span>
+                                    <span class="cmp-check__text">{{ $role->name }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -183,7 +184,39 @@
 
                 {{-- Mailing list --}}
                 <div class="js-audience-panel cmp-panel" data-audience="subscribers">
-                    <div class="stg-toggle-list">
+                    {{-- Hangi listelere gideceği: hiçbiri seçilmezse liste ayrımı
+                         yapılmaz, tüm aboneler hedeflenir. --}}
+                    <div class="stg-field">
+                        <label class="stg-label">Listeler</label>
+
+                        @forelse($subscriberLists as $list)
+                            <label class="cmp-check">
+                                <input type="checkbox" name="list_ids[]" data-fv-ignore value="{{ $list->id }}"
+                                       {{ in_array($list->id, old('list_ids', $selectedLists), false) ? 'checked' : '' }}>
+                                <span class="cmp-check__text">
+                                    {{ $list->name }}
+                                    @if($list->is_default)
+                                        <span class="cmp-check__tag">varsayılan</span>
+                                    @endif
+                                </span>
+                                <span class="cmp-check__count">{{ number_format($list->active_members_count, 0, ',', '.') }}</span>
+                            </label>
+                        @empty
+                            <p class="stg-hint mb-0">
+                                Henüz liste yok.
+                                <a href="{{ route('admin.subscribers.index') }}" class="text-teal">Mail listesi</a>
+                                sayfasından oluşturabilirsiniz.
+                            </p>
+                        @endforelse
+
+                        @if($subscriberLists->isNotEmpty())
+                            <small class="stg-hint">
+                                Hiçbirini seçmezseniz tüm abonelere gider. Birden fazla listede olan kişi maili bir kez alır.
+                            </small>
+                        @endif
+                    </div>
+
+                    <div class="stg-toggle-list mt-2">
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info">
                                 <span>Yalnızca kampanya diliyle eşleşenler</span>

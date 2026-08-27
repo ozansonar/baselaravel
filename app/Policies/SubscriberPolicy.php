@@ -29,4 +29,17 @@ final class SubscriberPolicy
     {
         return $user->hasPermission(PermissionKey::SubscribersManage);
     }
+
+    /**
+     * Abone listelerini (tedarikçiler, pazarlamacılar…) yönetme yetkisi.
+     *
+     * Liste bir abone kaydı değil, o yüzden model isteyen delete/update ile
+     * sorulamıyor; yetki yine aboneleri yönetme yetkisi — listeyi düzenleyen
+     * kişi zaten aboneleri de düzenliyor, ayrı bir izin çifti izin listesini
+     * gereksiz kalabalık yapardı.
+     */
+    public function manageLists(User $user): bool
+    {
+        return $user->hasPermission(PermissionKey::SubscribersManage);
+    }
 }

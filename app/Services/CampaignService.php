@@ -272,6 +272,16 @@ final class CampaignService
     {
         $query = Subscriber::query()->where('status', SubscriberStatus::Subscribed);
 
+        // Hangi listelere gideceği seçilmişse yalnızca o listelerin üyeleri.
+        // Boş bırakılırsa liste ayrımı yapılmaz, tüm aboneler hedeflenir.
+        $listIds = array_filter(array_map('intval', $campaign->audience_filter['list_ids'] ?? []));
+
+        if ($listIds !== []) {
+            // İki listede birden olan kişi tek kez alsın diye whereHas; sonraki
+            // dedupe zaten adresi tekilleştiriyor ama sorgu da satırı çoğaltmıyor.
+            $query->whereHas('lists', fn ($sub) => $sub->whereIn('subscriber_lists.id', $listIds));
+        }
+
         // A campaign written in one language should not land in the inbox of
         // someone who signed up in another.
         if (($campaign->audience_filter['match_locale'] ?? false) && $campaign->locale) {

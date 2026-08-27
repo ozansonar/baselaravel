@@ -20,6 +20,9 @@
         </div>
         @can('create', App\Models\Subscriber::class)
             <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#listsModal">
+                    <i class="bi bi-collection"></i> Listeler
+                </button>
                 <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#importModal">
                     <i class="bi bi-file-earmark-spreadsheet"></i> Excel/CSV Yükle
                 </button>
@@ -70,6 +73,37 @@
         </div>
     </div>
 
+    {{-- Listelerin ne işe yaradığı --}}
+    <div class="nt-info-note mb-4" data-aos="fade-up" data-aos-delay="120">
+        <i class="bi bi-collection-fill"></i>
+        <div>
+            <strong>Aboneler listelere ayrılır, kampanya bir listeye gönderilir.</strong>
+            Tedarikçiler, pazarlamacılar, bülten… Bir kişi birden fazla listede olabilir;
+            iki listeye birden gönderdiğinizde maili yine bir kez alır. Site formundan
+            kaydolanlar <strong>{{ $defaultList?->name ?? 'varsayılan liste' }}</strong> listesine düşer.
+            Abonelikten çıkan bir adrese hangi listede olursa olsun mail gitmez.
+        </div>
+    </div>
+
+    {{-- LİSTE SEKMELERİ --}}
+    <div class="cl-status-tabs mb-4" data-aos="fade-up" data-aos-delay="140">
+        <a href="{{ route('admin.subscribers.index', request()->except(['list_id', 'page'])) }}"
+           class="cl-status-tab {{ $activeList === null ? 'active' : '' }}">
+            <span>Tüm Aboneler</span>
+            <span class="cl-tab-count">{{ $stats['total'] }}</span>
+        </a>
+        @foreach($lists as $list)
+            <a href="{{ route('admin.subscribers.index', array_merge(request()->except(['list_id', 'page']), ['list_id' => $list->id])) }}"
+               class="cl-status-tab {{ $activeList === $list->id ? 'active' : '' }}">
+                @if($list->is_default)
+                    <i class="bi bi-star-fill text-neon-orange" title="Site formundan gelenler buraya düşer"></i>
+                @endif
+                <span>{{ $list->name }}</span>
+                <span class="cl-tab-count">{{ $list->active_members_count }}</span>
+            </a>
+        @endforeach
+    </div>
+
     {{-- FILTERS --}}
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card-body-custom">
@@ -106,34 +140,78 @@
     </div>
 
     {{-- TABLE --}}
+    {{-- Toplu liste işlemi: mevcut bir aboneyi yeni açılan listeye taşımanın
+         tek tek düzenlemekten başka yolu yoktu.
+
+         Form tabloyu sarmıyor — satırlardaki tekil işlemler de form, iç içe
+         form geçersiz. Satır kutuları HTML5 form niteliğiyle buraya bağlanıyor. --}}
+    @can('create', App\Models\Subscriber::class)
+        @if($lists->isNotEmpty())
+            <form method="POST" action="{{ route('admin.subscribers.bulk-list') }}" id="bulkListForm">
+                @csrf
+                <div class="sub-bulk d-none" id="bulkBar">
+                    <span class="sub-bulk__count"><strong id="bulkCount">0</strong> abone seçildi</span>
+                    <select class="cl-filter-select" name="list_id" aria-label="Liste">
+                        @foreach($lists as $list)
+                            <option value="{{ $list->id }}">{{ $list->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" name="action" value="add" class="btn-teal btn-sm">
+                        <i class="bi bi-plus-lg"></i> Listeye ekle
+                    </button>
+                    <button type="submit" name="action" value="remove" class="btn-glass btn-sm">
+                        <i class="bi bi-dash-lg"></i> Listeden çıkar
+                    </button>
+                    <button type="button" class="sub-bulk__clear" id="bulkClear">Seçimi bırak</button>
+                </div>
+            </form>
+        @endif
+    @endcan
+
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="200">
         <div class="card-body-custom p-0">
             <div class="table-responsive">
                 <table class="cl-table">
                     <thead>
                         <tr>
+                            <th class="sub-check-col">
+                                <input type="checkbox" id="bulkSelectAll" aria-label="Tümünü seç">
+                            </th>
                             <th>E-posta</th>
                             <th class="d-none d-md-table-cell">Ad</th>
                             <th class="d-none d-md-table-cell">Soyad</th>
+                            <th class="d-none d-xl-table-cell">Listeler</th>
                             <th class="d-none d-lg-table-cell">Dil</th>
                             <th>Durum</th>
-                            <th class="d-none d-xl-table-cell">Kayıt</th>
+                            <th class="d-none d-xxl-table-cell">Kayıt</th>
                             <th class="text-end">İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($subscribers as $subscriber)
                             <tr>
+                                <td class="sub-check-col">
+                                    <input type="checkbox" form="bulkListForm" name="subscriber_ids[]"
+                                           value="{{ $subscriber->id }}" class="js-bulk-row"
+                                           aria-label="{{ $subscriber->email }} seç">
+                                </td>
                                 <td class="fw-semibold">{{ $subscriber->email }}</td>
                                 <td class="d-none d-md-table-cell">{{ $subscriber->first_name ?: '—' }}</td>
                                 <td class="d-none d-md-table-cell">{{ $subscriber->last_name ?: '—' }}</td>
+                                <td class="d-none d-xl-table-cell">
+                                    @forelse($subscriber->lists as $list)
+                                        <span class="sub-list-tag">{{ $list->name }}</span>
+                                    @empty
+                                        <span class="text-clr-secondary">—</span>
+                                    @endforelse
+                                </td>
                                 <td class="d-none d-lg-table-cell">{{ $subscriber->locale ? strtoupper($subscriber->locale) : '—' }}</td>
                                 <td>
                                     <span class="menu-manage-tag menu-manage-tag--{{ $subscriber->status->badgeClass() }}">
                                         {{ $subscriber->status->label() }}
                                     </span>
                                 </td>
-                                <td class="d-none d-xl-table-cell">
+                                <td class="d-none d-xxl-table-cell">
                                     <small class="text-clr-secondary">{{ $subscriber->subscribed_at?->format('d.m.Y') ?? '—' }}</small>
                                 </td>
                                 <td class="text-end">
@@ -160,9 +238,14 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
-                                    <i class="bi bi-envelope-heart d-block mb-2" style="font-size: 2rem;"></i>
-                                    Henüz abone yok.
+                                <td colspan="9" class="text-center py-5">
+                                    <i class="bi bi-envelope-heart d-block mb-2 fs-2"></i>
+                                    @if($activeList !== null)
+                                        Bu listede henüz kimse yok. Aboneleri seçip
+                                        <strong>Listeye ekle</strong> ile taşıyabilirsiniz.
+                                    @else
+                                        Henüz abone yok.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
@@ -211,7 +294,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="stg-field">
+                            <div class="stg-field mb-3">
                                 <label class="stg-label" for="sub_locale">Dil</label>
                                 <select class="stg-select" id="sub_locale" name="locale">
                                     <option value="">Belirtme</option>
@@ -219,6 +302,18 @@
                                         <option value="{{ $language->code }}">{{ $language->flag }} {{ $language->native_name }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="stg-field">
+                                <label class="stg-label">Listeler</label>
+                                @forelse($lists as $list)
+                                    <label class="cmp-check">
+                                        <input type="checkbox" name="list_ids[]" data-fv-ignore value="{{ $list->id }}"
+                                               {{ $activeList === $list->id || ($activeList === null && $list->is_default) ? 'checked' : '' }}>
+                                        <span class="cmp-check__text">{{ $list->name }}</span>
+                                    </label>
+                                @empty
+                                    <small class="stg-hint">Henüz liste yok, önce "Listeler"den bir tane oluşturun.</small>
+                                @endforelse
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -257,7 +352,7 @@
                                     </a>
                                 @endcan
                             </div>
-                            <div class="stg-field">
+                            <div class="stg-field mb-3">
                                 <label class="stg-label" for="import_locale">Dil</label>
                                 <select class="stg-select" id="import_locale" name="locale">
                                     <option value="">Belirtme</option>
@@ -266,6 +361,19 @@
                                     @endforeach
                                 </select>
                                 <small class="stg-hint">Dosyadaki herkes bu dile atanır.</small>
+                            </div>
+                            <div class="stg-field">
+                                <label class="stg-label">Listeler</label>
+                                @forelse($lists as $list)
+                                    <label class="cmp-check">
+                                        <input type="checkbox" name="list_ids[]" data-fv-ignore value="{{ $list->id }}"
+                                               {{ $activeList === $list->id || ($activeList === null && $list->is_default) ? 'checked' : '' }}>
+                                        <span class="cmp-check__text">{{ $list->name }}</span>
+                                    </label>
+                                @empty
+                                    <small class="stg-hint">Henüz liste yok, önce "Listeler"den bir tane oluşturun.</small>
+                                @endforelse
+                                <small class="stg-hint">Dosyadaki herkes seçilen listelere eklenir.</small>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -276,5 +384,91 @@
                 </div>
             </div>
         </div>
+
+        {{-- Liste yönetimi --}}
+        <div class="modal fade modal-custom" id="listsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-theme">
+                <div class="modal-content modal-content-theme">
+                    <div class="modal-header">
+                        <h6 class="modal-title"><i class="bi bi-collection me-2 text-teal"></i>Abone Listeleri</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="stg-hint mb-3">
+                            Kampanyalar bu listelerden birine ya da birkaçına gönderilir.
+                            Yıldızlı liste site formundan kaydolanların düştüğü listedir.
+                        </p>
+
+                        <div class="sub-lists">
+                            @foreach($lists as $list)
+                                <form method="POST" action="{{ route('admin.subscriber-lists.update', $list) }}" class="sub-list-row">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="sub-list-row__fields">
+                                        <input type="text" class="stg-input" name="name" value="{{ $list->name }}"
+                                               aria-label="Liste adı" required>
+                                        <input type="text" class="stg-input" name="description" value="{{ $list->description }}"
+                                               placeholder="Açıklama (isteğe bağlı)" aria-label="Açıklama">
+                                    </div>
+                                    <label class="cmp-check sub-list-row__default">
+                                        <input type="checkbox" name="is_default" value="1" {{ $list->is_default ? 'checked' : '' }}>
+                                        <span class="cmp-check__text">Varsayılan</span>
+                                    </label>
+                                    <span class="sub-list-row__count">{{ $list->active_members_count }} kişi</span>
+                                    <button type="submit" class="usr-action-btn" title="Kaydet"><i class="bi bi-check-lg"></i></button>
+                                </form>
+                            @endforeach
+                        </div>
+
+                        @can('manageLists', App\Models\Subscriber::class)
+                            @if($lists->count() > 1)
+                                <div class="sub-lists-delete">
+                                    <form method="POST" action="{{ route('admin.subscriber-lists.destroy', $lists->first()) }}"
+                                          id="deleteListForm">
+                                        @csrf
+                                        @method('DELETE')
+                                        <label class="stg-label" for="deleteListSelect">Liste sil</label>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <select class="cl-filter-select" id="deleteListSelect"
+                                                    data-url-template="{{ route('admin.subscriber-lists.destroy', ['subscriberList' => 'LIST_ID']) }}">
+                                                @foreach($lists as $list)
+                                                    <option value="{{ $list->id }}">{{ $list->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="btn-glass btn-sm text-neon-red">
+                                                <i class="bi bi-trash3"></i> Sil
+                                            </button>
+                                        </div>
+                                        <small class="stg-hint">
+                                            Liste silinir, aboneler silinmez — yalnızca bu listeden çıkarılır.
+                                        </small>
+                                    </form>
+                                </div>
+                            @endif
+                        @endcan
+
+                        <hr class="my-4">
+
+                        <form method="POST" action="{{ route('admin.subscriber-lists.store') }}" data-validate novalidate>
+                            @csrf
+                            <label class="stg-label">Yeni liste</label>
+                            <div class="sub-list-row">
+                                <div class="sub-list-row__fields">
+                                    <input type="text" class="stg-input" name="name" placeholder="Tedarikçiler"
+                                           data-validation-engine="validate[required,maxSize[191]]" aria-label="Liste adı">
+                                    <input type="text" class="stg-input" name="description"
+                                           placeholder="Açıklama (isteğe bağlı)" aria-label="Açıklama">
+                                </div>
+                                <button type="submit" class="btn-teal btn-sm"><i class="bi bi-plus-lg"></i> Ekle</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endcan
 @endsection
+
+@push('scripts')
+<script src="{{ versioned_asset('assets/admin/js/subscribers.js') }}"></script>
+@endpush

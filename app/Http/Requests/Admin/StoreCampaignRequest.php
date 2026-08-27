@@ -50,6 +50,8 @@ class StoreCampaignRequest extends FormRequest
 
             // Mailing list
             'match_locale' => ['nullable', 'boolean'],
+            'list_ids'     => ['nullable', 'array'],
+            'list_ids.*'   => ['integer', 'exists:subscriber_lists,id'],
 
             // Excel / CSV
             'recipient_file' => ['nullable', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
@@ -181,6 +183,8 @@ class StoreCampaignRequest extends FormRequest
             ],
             CampaignAudience::Subscribers => [
                 'match_locale' => $this->boolean('match_locale'),
+                // Boş bırakılırsa liste ayrımı yapılmaz: tüm aboneler.
+                'list_ids'     => array_map('intval', $this->input('list_ids', [])),
             ],
             CampaignAudience::Import, CampaignAudience::Manual => [
                 'recipients' => $this->recipients(),
