@@ -7,12 +7,15 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\SubscriberSource;
 use App\Enums\SubscriberStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ImportSubscribersRequest;
+use App\Http\Requests\Admin\UpdateSubscriberRequest;
 use App\Models\Subscriber;
 use App\Models\SubscriberList;
 use App\Services\LanguageService;
 use App\Services\RecipientImportService;
 use App\Services\SubscriberListService;
 use App\Services\SubscriberService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -106,37 +109,92 @@ final class SubscriberController extends Controller
         return back()->with('success', 'Abone eklendi.');
     }
 
-    public function import(Request $request): RedirectResponse
+    /**
+     * Kayıtlı abonenin bilgilerini düzeltir.
+     *
+     * Listeye yanlış yazılmış bir ad ya da adres, kampanya gönderilene kadar
+     * fark edilmiyordu; tek çare kaydı silip yeniden eklemekti, o da kayıt
+     * tarihini ve liste üyeliklerini kaybettiriyordu.
+     */
+    public function update(UpdateSubscriberRequest $request, Subscriber $subscriber): RedirectResponse
+    {
+        $this->authorize('update', $subscriber);
+
+        // list_ids her zaman gönderiliyor, boş olsa bile: işaretsiz bir onay
+        // kutusu istekte hiç yer almıyor, bu yüzden "hepsinin işareti
+        // kaldırıldı" ile "listelere dokunulmadı" aynı görünüyordu ve abone
+        // hiçbir listeden çıkarılamıyordu.
+        $this->subscribers->update($subscriber, [
+            'list_ids' => $request->input('list_ids', []),
+        ] + $request->validated());
+
+        return back()->with('success', 'Abone güncellendi.');
+    }
+
+    /**
+     * Yüklenen dosyayı okuyup kaydetmeden önce ekrana döker.
+     *
+     * Eskiden dosya doğrudan içeri alınıyordu ve sonuç "12 geçersiz adres
+     * atlandı" cümlesinden ibaretti: hangi satırın neden atlandığı
+     * görünmüyordu, düzeltmek için dosyayı Excel'de açıp aramak gerekiyordu.
+     * Artık satırlar kararlarıyla birlikte dönüyor, kullanıcı ekranda
+     * düzeltiyor ve düzeltilmiş hâli kaydediliyor.
+     */
+    public function importPreview(Request $request): JsonResponse
     {
         $this->authorize('create', Subscriber::class);
 
-        $validated = $request->validate([
-            'file'       => ['required', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
-            'locale'     => ['nullable', 'string', 'size:2'],
-            'list_ids'   => ['nullable', 'array'],
-            'list_ids.*' => ['integer', 'exists:subscriber_lists,id'],
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
         ], [
-            'file.mimes' => 'Yalnızca Excel (.xlsx, .xls, .ods) veya CSV dosyası yükleyebilirsiniz.',
+            'file.required' => 'Bir dosya seçin.',
+            'file.mimes'    => 'Yalnızca Excel (.xlsx, .xls, .ods) veya CSV dosyası yükleyebilirsiniz.',
         ]);
 
         try {
-            $parsed = $this->importer->parse($request->file('file'));
+            return response()->json($this->importer->preview($request->file('file')));
         } catch (RuntimeException $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * İçe aktarımı kaydeder.
+     *
+     * Satırlar geldiyse onlar yazılır — kullanıcı önizlemede düzeltmiş
+     * olabilir, dosyayı tekrar okumak o emeği çöpe atardı. Satır yoksa
+     * dosya doğrudan okunur; önizlemeden geçmeden yükleme yolu açık kalıyor.
+     */
+    public function import(ImportSubscribersRequest $request): RedirectResponse
+    {
+        $this->authorize('create', Subscriber::class);
+
+        $rows = $request->rows();
+        $atlanan = 0;
+
+        if ($rows === []) {
+            try {
+                $parsed = $this->importer->parse($request->file('file'));
+            } catch (RuntimeException $e) {
+                return back()->with('error', $e->getMessage());
+            }
+
+            $rows = $parsed['rows'];
+            $atlanan = $parsed['invalid'];
         }
 
         $result = $this->subscribers->importMany(
-            $parsed['rows'],
-            $validated['locale'] ?? null,
+            $rows,
+            $request->input('locale') ?: null,
             'import',
-            $validated['list_ids'] ?? [],
+            $request->input('list_ids', []),
         );
 
         return back()->with('success', sprintf(
             '%d yeni abone eklendi, %d kayıt güncellendi.%s',
             $result['added'],
             $result['updated'],
-            $parsed['invalid'] > 0 ? " {$parsed['invalid']} geçersiz adres atlandı." : '',
+            $atlanan > 0 ? " {$atlanan} geçersiz adres atlandı." : '',
         ));
     }
 
@@ -179,6 +237,22 @@ final class SubscriberController extends Controller
         $this->subscribers->unsubscribeByToken($subscriber->unsubscribe_token);
 
         return back()->with('success', 'Abonelik durduruldu.');
+    }
+
+    /**
+     * Çıkmış aboneyi geri alır.
+     *
+     * Listeye eklemek durumu değiştirmiyor, bu yüzden yanlışlıkla "çıkar"a
+     * basıldığında geri dönüşün görünür bir yolu olmalı; yoksa tek çare kaydı
+     * silip yeniden eklemek oluyor ve kayıt tarihi kayboluyor.
+     */
+    public function resubscribe(Subscriber $subscriber): RedirectResponse
+    {
+        $this->authorize('update', $subscriber);
+
+        $this->subscribers->resubscribe($subscriber);
+
+        return back()->with('success', 'Abonelik yeniden başlatıldı.');
     }
 
     public function destroy(Subscriber $subscriber): RedirectResponse

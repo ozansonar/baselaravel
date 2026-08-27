@@ -255,6 +255,186 @@ class SubscriberListTest extends TestCase
         $this->assertSame(2, $suppliers->subscribers()->count());
     }
 
+    /**
+     * Listeye yanlış girilmiş bir ad ya da adres, kaydı silip yeniden eklemeden
+     * düzeltilebilmeli — silmek kayıt tarihini ve liste üyeliklerini kaybettirir.
+     */
+    public function test_a_subscriber_can_be_corrected(): void
+    {
+        $liste = $this->lists()->create(['name' => 'Tedarikçiler']);
+        $abone = app(SubscriberService::class)->subscribe('mehmt@ornek.com', 'Mehmt', 'Demirr', 'tr', 'panel', [$liste->id]);
+
+        $this->actingAs($this->manager())
+            ->put(route('admin.subscribers.update', $abone), [
+                'email'      => 'mehmet@ornek.com',
+                'first_name' => 'Mehmet',
+                'last_name'  => 'Demir',
+                'locale'     => 'tr',
+                'status'     => SubscriberStatus::Subscribed->value,
+                'list_ids'   => [$liste->id],
+            ])
+            ->assertRedirect();
+
+        $abone->refresh();
+
+        $this->assertSame('mehmet@ornek.com', $abone->email);
+        $this->assertSame('Mehmet', $abone->first_name);
+        $this->assertSame('Demir', $abone->last_name);
+        $this->assertSame(1, $abone->lists()->count());
+    }
+
+    /**
+     * Adresine dokunmadan yalnızca adını düzelten biri "bu e-posta zaten
+     * kayıtlı" hatası almamalı: benzersizlik kendi kaydı hariç sınanıyor.
+     */
+    public function test_correcting_only_the_name_keeps_the_same_address(): void
+    {
+        $abone = app(SubscriberService::class)->subscribe('kisi@ornek.com', 'Yanlis', 'Isim');
+
+        $this->actingAs($this->manager())
+            ->put(route('admin.subscribers.update', $abone), [
+                'email'      => 'kisi@ornek.com',
+                'first_name' => 'Doğru',
+                'last_name'  => 'İsim',
+                'status'     => SubscriberStatus::Subscribed->value,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('Doğru', $abone->refresh()->first_name);
+    }
+
+    public function test_a_subscriber_cannot_take_another_ones_address(): void
+    {
+        $service = app(SubscriberService::class);
+        $service->subscribe('dolu@ornek.com', 'Dolu', 'Kayit');
+        $abone = $service->subscribe('bos@ornek.com', 'Bos', 'Kayit');
+
+        $this->actingAs($this->manager())
+            ->put(route('admin.subscribers.update', $abone), [
+                'email'      => 'dolu@ornek.com',
+                'first_name' => 'Bos',
+                'last_name'  => 'Kayit',
+                'status'     => SubscriberStatus::Subscribed->value,
+            ])
+            ->assertSessionHasErrors('email');
+    }
+
+    /**
+     * İşaretsiz onay kutusu istekte hiç yer almıyor; "hepsinin işareti
+     * kaldırıldı" ile "listelere dokunulmadı" karışırsa abone hiçbir listeden
+     * çıkarılamaz.
+     */
+    public function test_clearing_every_list_removes_the_subscriber_from_them(): void
+    {
+        $liste = $this->lists()->create(['name' => 'Tedarikçiler']);
+        $abone = app(SubscriberService::class)->subscribe('cikan@ornek.com', 'Cikan', 'Kisi', null, 'panel', [$liste->id]);
+
+        $this->actingAs($this->manager())
+            ->put(route('admin.subscribers.update', $abone), [
+                'email'      => 'cikan@ornek.com',
+                'first_name' => 'Cikan',
+                'last_name'  => 'Kisi',
+                'status'     => SubscriberStatus::Subscribed->value,
+                // list_ids gönderilmiyor: tarayıcıda tüm kutular boşken olan tam bu.
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(0, $abone->lists()->count());
+    }
+
+    /**
+     * Önizleme, geçersiz satırı atmak yerine nedeniyle birlikte döndürüyor;
+     * kullanıcı ekranda düzeltebilsin diye.
+     */
+    public function test_the_import_preview_reports_every_row_with_its_verdict(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'onizleme') . '.csv';
+        file_put_contents($path, "Ad;Soyad;E-posta\n"
+            . "Zeynep;Kaya;zeynep@ornek.com\n"
+            . "Burak;Sahin;bozuk-adres\n"
+            . "Elif;Aydin;elif@ornek.com\n"
+            . "Deniz;Yildiz;elif@ornek.com\n");
+
+        $veri = $this->actingAs($this->manager())
+            ->post(route('admin.subscribers.import.preview'), [
+                'file' => new UploadedFile($path, 'liste.csv', null, null, true),
+            ])
+            ->assertOk()
+            ->json();
+
+        $this->assertSame(4, $veri['total']);
+        $this->assertSame(2, $veri['valid']);
+        $this->assertSame(2, $veri['invalid']);
+        $this->assertSame('Geçersiz e-posta biçimi', $veri['rows'][1]['reason']);
+        $this->assertSame('Dosyada tekrar ediyor', $veri['rows'][3]['reason']);
+    }
+
+    /**
+     * Önizlemede düzeltilen satırlar kaydedilmeli; dosya tekrar okunsaydı
+     * kullanıcının emeği çöpe giderdi.
+     */
+    public function test_rows_corrected_in_the_preview_are_what_gets_saved(): void
+    {
+        $liste = $this->lists()->create(['name' => 'Tedarikçiler']);
+
+        $this->actingAs($this->manager())
+            ->post(route('admin.subscribers.import'), [
+                'rows' => [
+                    ['email' => 'duzeltilmis@ornek.com', 'first_name' => 'Burak', 'last_name' => 'Şahin'],
+                    ['email' => 'ikinci@ornek.com', 'first_name' => 'Elif', 'last_name' => 'Aydın'],
+                ],
+                'list_ids' => [$liste->id],
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(2, $liste->subscribers()->count());
+        $this->assertDatabaseHas('subscribers', ['email' => 'duzeltilmis@ornek.com', 'first_name' => 'Burak']);
+    }
+
+    /**
+     * İstemci denetimi atlatılsa bile sunucu son söz.
+     */
+    public function test_the_server_refuses_an_invalid_address_among_the_rows(): void
+    {
+        $this->actingAs($this->manager())
+            ->post(route('admin.subscribers.import'), [
+                'rows' => [
+                    ['email' => 'gecerli@ornek.com', 'first_name' => 'Gecerli', 'last_name' => 'Kayit'],
+                    ['email' => 'hala-bozuk', 'first_name' => 'Bozuk', 'last_name' => 'Kayit'],
+                ],
+            ])
+            ->assertSessionHasErrors('rows.1.email');
+
+        $this->assertDatabaseMissing('subscribers', ['email' => 'gecerli@ornek.com']);
+    }
+
+    /**
+     * Listeye eklemek durumu değiştirmiyor — çıkış kaydı bilerek duruyor —
+     * ama yanlışlıkla çıkarılan birini geri almanın bir yolu olmalı.
+     */
+    public function test_an_unsubscribed_person_can_be_brought_back(): void
+    {
+        $liste = $this->lists()->create(['name' => 'Tedarikçiler']);
+        $service = app(SubscriberService::class);
+        $abone = $service->subscribe('geri@ornek.com', 'Geri', 'Gelen', null, 'panel', [$liste->id]);
+        $service->unsubscribeByToken($abone->unsubscribe_token);
+
+        $this->assertSame(SubscriberStatus::Unsubscribed, $abone->refresh()->status);
+
+        $this->actingAs($this->manager())
+            ->post(route('admin.subscribers.resubscribe', $abone))
+            ->assertRedirect();
+
+        $abone->refresh();
+
+        $this->assertSame(SubscriberStatus::Subscribed, $abone->status);
+        $this->assertNull($abone->unsubscribed_at);
+        // Liste üyeliği çıkışta da korunuyordu, geri alışta da bozulmamalı.
+        $this->assertSame(1, $abone->lists()->count());
+    }
+
     public function test_bulk_action_moves_selected_subscribers_into_a_list(): void
     {
         $suppliers = $this->lists()->create(['name' => 'Tedarikçiler']);

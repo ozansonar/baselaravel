@@ -35177,3 +35177,84 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     font-size: 16px;
   }
 }
+
+/* ==========================================================================
+   Abone içe aktarma önizlemesi
+   ========================================================================== */
+
+/* Dosya okunduktan sonra açılan bölüm; üstündeki alanlardan çizgiyle ayrılıyor. */
+.sub-preview {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.sub-preview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sub-preview__summary {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Uzun listede modal büyümesin, tablo kendi içinde kaysın. */
+.sub-preview__scroll {
+  max-height: 46vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.sub-preview__table {
+  margin: 0;
+}
+
+/* Başlık kayarken görünür kalsın: hangi sütunu düzenlediğin kaybolmamalı. */
+.sub-preview__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-card);
+}
+
+.sub-preview__num {
+  width: 48px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Düzeltilmesi gereken satır: kırmızı şerit, gözle taranabilsin. */
+.sub-preview__row--hatali td:first-child {
+  box-shadow: inset 3px 0 0 var(--neon-red, #ef4444);
+}
+
+.sub-preview__reason {
+  display: block;
+  margin-top: 4px;
+  color: var(--neon-red, #ef4444);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+/* Tablo içinde alan yüksekliği satırı şişirmesin. */
+.stg-input--sm {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+@media (max-width: 767.98px) {
+  .sub-preview__scroll {
+    max-height: 55vh;
+  }
+}
