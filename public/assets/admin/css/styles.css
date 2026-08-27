@@ -33886,3 +33886,35 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     min-width: 0;
   }
 }
+
+/* ---- Mail logları: durum sütunundaki açıklamalar ---- */
+
+/* Hata metni satırda görünüyor: kullanıcı detaya girmeden nedenini okumalı. */
+/* Alıcı artık konunun altında duruyor: küçük ve ikincil. */
+.ml-mail-info .ml-recipient {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  max-width: 340px;
+}
+
+.ml-mail-info .ml-recipient i {
+  color: var(--teal-primary);
+}
+
+.ml-error-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--neon-red);
+  word-break: break-word;
+}
+
+.ml-pending-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}

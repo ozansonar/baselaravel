@@ -27,7 +27,7 @@
 
     <!-- ==================== SECTION 1: STAT CARDS ==================== -->
     <div class="row g-4 mb-4">
-        <div class="col-xxl col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
             <div class="usr-stat-card">
                 <div class="usr-stat-icon usr-stat-icon-blue">
                     <i class="bi bi-envelope"></i>
@@ -35,10 +35,11 @@
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Toplam Mail</span>
                     <h3 class="usr-stat-value" data-count="{{ $stats['total'] }}">0</h3>
+                    <span class="usr-stat-change">Bugün {{ $stats['today'] }} mail</span>
                 </div>
             </div>
         </div>
-        <div class="col-xxl col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="100">
             <div class="usr-stat-card">
                 <div class="usr-stat-icon usr-stat-icon-green">
                     <i class="bi bi-check-circle"></i>
@@ -49,7 +50,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xxl col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="200">
             <div class="usr-stat-card">
                 <div class="usr-stat-icon usr-stat-icon-orange">
                     <i class="bi bi-x-circle"></i>
@@ -60,7 +61,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xxl col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="300">
             <div class="usr-stat-card">
                 <div class="usr-stat-icon usr-stat-icon-teal">
                     <i class="bi bi-hourglass-split"></i>
@@ -68,22 +69,28 @@
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Beklemede</span>
                     <h3 class="usr-stat-value" data-count="{{ $stats['pending'] ?? 0 }}">0</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-xxl col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="usr-stat-card">
-                <div class="usr-stat-icon usr-stat-icon-purple">
-                    <i class="bi bi-calendar-check"></i>
-                </div>
-                <div class="usr-stat-info">
-                    <span class="usr-stat-label">Bugün</span>
-                    <h3 class="usr-stat-value" data-count="{{ $stats['today'] }}">0</h3>
+                    <span class="usr-stat-change">Kuyrukta {{ $queuedJobs }} iş</span>
                 </div>
             </div>
         </div>
     </div>
 
+
+    <!-- Sayfanın nasıl çalıştığı -->
+    <div class="nt-info-note mb-4" data-aos="fade-up" data-aos-delay="50">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+            <strong>Beklemedeki mailler kuyrukta sıralarını bekliyor.</strong>
+            Gönderim kuyruğu dakikada bir çalışan zamanlanmış görevle ilerler; sıra
+            gelmeden mail çıkmaz. Beklemeyi kısa kesmek için satırdaki
+            <i class="bi bi-send-fill text-teal"></i> <strong>Şimdi Gönder</strong>
+            düğmesini kullanabilirsiniz. Başarısız olanlar ise
+            <i class="bi bi-arrow-repeat"></i> ile aynı alıcıya yeniden gönderilir.
+            @if($queuedJobs > 0)
+                Şu an kuyrukta <strong>{{ $queuedJobs }}</strong> iş var.
+            @endif
+        </div>
+    </div>
 
     <!-- ==================== SECTION 2: STATUS TABS ==================== -->
     @php
@@ -158,7 +165,6 @@
                     <thead>
                         <tr>
                             <th>E-posta</th>
-                            <th>Alıcı</th>
                             <th>Durum</th>
                             <th class="d-none d-lg-table-cell">Tarih</th>
                             <th class="cl-th-actions">İşlem</th>
@@ -177,22 +183,29 @@
                                             @if($log->subject)
                                                 <span class="ml-mail-subject">{{ \Illuminate\Support\Str::limit($log->subject, 60) }}</span>
                                             @endif
+                                            {{-- Alıcı konunun altında: ayrı sütun tabloyu taşırıyordu. --}}
+                                            <span class="ml-recipient"><i class="bi bi-arrow-right-short"></i>{{ $log->to }}</span>
                                         </div>
                                     </div>
-                                </td>
-                                <td data-label="Alıcı">
-                                    <span class="ml-recipient">{{ $log->to }}</span>
                                 </td>
                                 <td data-label="Durum">
                                     <span class="ord-status-badge {{ $log->status->cssClass() }}"><i class="bi {{ $log->status->icon() }}"></i> {{ $log->status->label() }}</span>
                                     @if($log->status === \App\Enums\MailLogStatus::Failed && $log->error_message)
-                                        <span class="ml-error-hint" title="{{ $log->error_message }}"><i class="bi bi-info-circle"></i></span>
+                                        {{-- Hata, tıklamadan görünmeli: listeye bakan kişi neden gitmediğini merak ediyor. --}}
+                                        <span class="ml-error-text" title="{{ $log->error_message }}">
+                                            <i class="bi bi-exclamation-circle me-1"></i>{{ \Illuminate\Support\Str::limit($log->error_message, 45) }}
+                                        </span>
+                                    @elseif($log->status === \App\Enums\MailLogStatus::Pending)
+                                        <span class="ml-pending-text"><i class="bi bi-hourglass-split me-1"></i>Kuyrukta sırasını bekliyor</span>
                                     @endif
                                 </td>
                                 <td data-label="Tarih" class="d-none d-lg-table-cell">
                                     <div class="ml-date-info">
                                         <span class="ml-date">{{ $log->created_at->translatedFormat('d M Y') }}</span>
-                                        <span class="ml-time">{{ $log->created_at->format('H:i') }}</span>
+                                        <span class="ml-time">{{ $log->created_at->format('H:i') }} · {{ $log->created_at->diffForHumans() }}</span>
+                                        @if($log->status === \App\Enums\MailLogStatus::Sent && $log->sent_at)
+                                            <span class="ml-time"><i class="bi bi-check2 me-1"></i>Gönderim: {{ $log->sent_at->format('H:i') }}</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td data-label="İşlem">
@@ -200,17 +213,27 @@
                                         <a href="{{ route('admin.mail-logs.show', $log) }}" class="usr-action-btn" title="Detay">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        @if($log->body)
-                                        <button class="usr-action-btn" title="Yeniden Gönder" onclick="resendMail({{ $log->id }}, this)">
-                                            <i class="bi bi-arrow-repeat"></i>
-                                        </button>
+                                        @if($log->status === \App\Enums\MailLogStatus::Pending)
+                                            <button type="button" class="usr-action-btn success ml-send-now" title="Şimdi Gönder"
+                                                    data-url="{{ route('admin.mail-logs.send-now', $log) }}"
+                                                    data-recipient="{{ $log->to }}"
+                                                    data-subject="{{ $log->subject }}">
+                                                <i class="bi bi-send-fill"></i>
+                                            </button>
+                                        @elseif($log->body)
+                                            <button type="button" class="usr-action-btn ml-resend" title="Yeniden Gönder"
+                                                    data-url="{{ route('admin.mail-logs.resend', $log) }}"
+                                                    data-recipient="{{ $log->to }}"
+                                                    data-subject="{{ $log->subject }}">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-5">
+                                <td colspan="4" class="text-center text-muted py-5">
                                     <i class="bi bi-envelope-x d-block fs-1 mb-2"></i>
                                     Mail logu bulunamadı.
                                 </td>
@@ -226,85 +249,8 @@
     </div>
 
 
-    {{-- Resend Confirm Modal --}}
-    <div class="modal fade" id="resendConfirmModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center py-4">
-                    <div class="mt-modal-icon mt-modal-icon--warning mb-3">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </div>
-                    <h5 class="mb-2">Yeniden Gönder</h5>
-                    <p class="text-muted">Bu e-postayı aynı alıcıya yeniden göndermek istediğinize emin misiniz?</p>
-                    <div class="d-flex gap-2 justify-content-center mt-4">
-                        <button type="button" class="btn-glass" data-bs-dismiss="modal">İptal</button>
-                        <button type="button" class="btn-teal" id="resendConfirmBtn">
-                            <i class="bi bi-arrow-repeat me-1"></i> Gönder
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 @endsection
 
 @push('scripts')
-<script>
-var pendingResendLogId = null;
-var pendingResendBtn = null;
-
-function resendMail(logId, btn) {
-    if (!logId) return;
-    pendingResendLogId = logId;
-    pendingResendBtn = btn;
-    var modal = new bootstrap.Modal(document.getElementById('resendConfirmModal'));
-    modal.show();
-}
-
-document.getElementById('resendConfirmBtn').addEventListener('click', function () {
-    var logId = pendingResendLogId;
-    var btn = pendingResendBtn;
-    if (!logId) return;
-
-    var confirmBtn = this;
-    var confirmOrigHtml = confirmBtn.innerHTML;
-    confirmBtn.disabled = true;
-    confirmBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Gönderiliyor...';
-
-    fetch('{{ url("admin/mail-logs") }}/' + logId + '/resend', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        bootstrap.Modal.getInstance(document.getElementById('resendConfirmModal')).hide();
-        AdminModal.status({
-            title: data.success ? 'Başarılı' : 'Hata',
-            message: data.message,
-            type: data.success ? 'success' : 'danger'
-        });
-    })
-    .catch(function() {
-        bootstrap.Modal.getInstance(document.getElementById('resendConfirmModal')).hide();
-        AdminModal.status({ title: 'Hata', message: 'E-posta yeniden gönderilemedi.', type: 'danger' });
-    })
-    .finally(function() {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = confirmOrigHtml;
-        pendingResendLogId = null;
-        pendingResendBtn = null;
-    });
-});
-
-// Search on enter
-document.getElementById('mailLogSearch')?.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        document.getElementById('filterForm').submit();
-    }
-});
-</script>
+<script src="{{ versioned_asset('assets/admin/js/mail-logs.js') }}"></script>
 @endpush
