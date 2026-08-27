@@ -8,7 +8,7 @@
     @php
         $activeEvent = $filters['event'];
         $hasFilter   = $filters['q'] !== '' || $filters['user_id'] !== '' || $filters['model'] !== ''
-            || $filters['from'] !== '' || $filters['to'] !== '' || $activeEvent !== '';
+            || $filters['ip'] !== '' || $filters['from'] !== '' || $filters['to'] !== '' || $activeEvent !== '';
     @endphp
 
     {{-- Breadcrumb --}}
@@ -119,48 +119,76 @@
                     <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Açıklama, IP veya adres içinde ara...">
                 </div>
 
-                <div class="cl-filters">
-                    <select class="cl-filter-select" name="user_id" onchange="document.getElementById('alFilterForm').submit()">
-                        <option value="">Tüm kullanıcılar</option>
-                        <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ (string) $filters['user_id'] === (string) $user->id ? 'selected' : '' }}>
-                                {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->email }}
-                            </option>
-                        @endforeach
-                    </select>
+                {{-- Alanların hepsi başlıklı: seçim kutuları ile tarih alanları
+                     aynı hizada dursun. --}}
+                <div class="cl-filters al-filters">
+                    <div class="al-field">
+                        <span>Kullanıcı</span>
+                        <select class="cl-filter-select" name="user_id" aria-label="Kullanıcı"
+                                data-select2-search="always"
+                                onchange="document.getElementById('alFilterForm').submit()">
+                            <option value="">Tüm kullanıcılar</option>
+                            <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" {{ (string) $filters['user_id'] === (string) $user->id ? 'selected' : '' }}>
+                                    {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->email }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <select class="cl-filter-select" name="model" onchange="document.getElementById('alFilterForm').submit()">
-                        <option value="">Tüm kayıt türleri</option>
-                        @foreach($modelOptions as $class => $option)
-                            <option value="{{ $class }}" {{ $filters['model'] === $class ? 'selected' : '' }}>
-                                {{ $option['label'] }} ({{ $option['count'] }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="al-field">
+                        <span>Kayıt türü</span>
+                        <select class="cl-filter-select" name="model" aria-label="Kayıt türü"
+                                data-select2-search="always"
+                                onchange="document.getElementById('alFilterForm').submit()">
+                            <option value="">Tüm kayıt türleri</option>
+                            @foreach($modelOptions as $class => $option)
+                                <option value="{{ $class }}" {{ $filters['model'] === $class ? 'selected' : '' }}>
+                                    {{ $option['label'] }} ({{ $option['count'] }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <label class="al-date-field">
+                    <div class="al-field">
+                        <span>IP adresi</span>
+                        <select class="cl-filter-select" name="ip" aria-label="IP adresi"
+                                data-select2-search="always"
+                                onchange="document.getElementById('alFilterForm').submit()">
+                            <option value="">Tüm IP adresleri</option>
+                            @foreach($ipOptions as $ip => $count)
+                                <option value="{{ $ip }}" {{ $filters['ip'] === (string) $ip ? 'selected' : '' }}>
+                                    {{ $ip }} ({{ $count }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="al-field">
                         <span>Başlangıç</span>
-                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}">
-                    </label>
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi">
+                    </div>
 
-                    <label class="al-date-field">
+                    <div class="al-field">
                         <span>Bitiş</span>
-                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}">
-                    </label>
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi">
+                    </div>
 
-                    <div class="cl-toolbar-actions ms-auto">
-                        <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
-                        <a href="{{ route('admin.audit-logs.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                        </a>
-                        <div class="cl-per-page">
-                            <label for="alPerPage">Göster:</label>
-                            <select id="alPerPage" name="per_page" onchange="document.getElementById('alFilterForm').submit()">
-                                @foreach($perPageOptions as $option)
-                                    <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
-                                @endforeach
-                            </select>
+                    <div class="al-field al-field--actions ms-auto">
+                        <div class="cl-toolbar-actions">
+                            <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
+                            <a href="{{ route('admin.audit-logs.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                            <div class="cl-per-page">
+                                <label for="alPerPage">Göster:</label>
+                                <select id="alPerPage" name="per_page" onchange="document.getElementById('alFilterForm').submit()">
+                                    @foreach($perPageOptions as $option)
+                                        <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -258,15 +286,7 @@
                 </table>
             </div>
 
-            @if($logs->total() > 0)
-                <div class="cl-pagination-wrapper">
-                    <div class="cl-pagination-info">
-                        Toplam <strong>{{ $logs->total() }}</strong> kayıt ·
-                        Sayfa {{ $logs->currentPage() }}/{{ $logs->lastPage() }}
-                    </div>
-                    {{ $logs->links() }}
-                </div>
-            @endif
+            @include('partials.admin.pagination', ['paginator' => $logs, 'itemLabel' => 'kayıt'])
         </div>
     </div>
 

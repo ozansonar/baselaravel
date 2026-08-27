@@ -259,15 +259,9 @@
         @method('DELETE')
     </form>
 
-    @if($notifications->hasPages())
-        <div class="cl-pagination-wrapper mt-3">
-            <div class="cl-pagination-info">
-                Toplam <strong>{{ $notifications->total() }}</strong> bildirim ·
-                Sayfa {{ $notifications->currentPage() }}/{{ $notifications->lastPage() }}
-            </div>
-            {{ $notifications->links() }}
-        </div>
-    @endif
+    <div class="mt-3">
+        @include('partials.admin.pagination', ['paginator' => $notifications, 'itemLabel' => 'bildirim'])
+    </div>
 
     {{-- ==================== SECTION 4: ÖZET ==================== --}}
     @if($typeSummary !== [])

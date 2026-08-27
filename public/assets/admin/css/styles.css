@@ -33276,27 +33276,48 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
    AKTİVİTE LOGLARI (/admin/aktivite-loglari)
    ============================================ */
 
-/* Süzgeç satırındaki tarih alanları: etiketi üstte küçük yazı. */
-.al-date-field {
+/* Süzgeç satırındaki her alan başlıklı: seçim kutuları ile tarih alanları
+   böylece aynı hizada başlar ve aynı hizada biter. */
+.al-field {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 150px;
 }
 
-.al-date-field > span {
+.al-field > span {
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   color: var(--text-muted);
   padding-left: 2px;
+  line-height: 1.4;
 }
 
-.al-date-field input {
+.al-field input[type="date"] {
   color-scheme: dark;
 }
 
-[data-theme="light"] .al-date-field input {
+[data-theme="light"] .al-field input[type="date"] {
   color-scheme: light;
+}
+
+/* Tarih kutusu, yanındaki seçim kutusuyla aynı yükseklikte olsun. */
+.al-field input[type="date"] {
+  height: 36px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Düğmeler alanların alt kenarına hizalanır. */
+.al-field--actions {
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+/* Select2 kutusu, yanındaki tarih alanıyla aynı yüksekliği tutsun. */
+.al-filters .select2-container--bootstrap-5 .select2-selection {
+  min-height: 36px;
 }
 
 /* Satırlarda iki kademeli bilgi: üstte olay, altta zaman/ayrıntı. */
@@ -33359,4 +33380,48 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     font-size: 12px;
     margin-right: 0;
   }
+}
+
+/* Select2 güvenlik ağı — tema sınıfı (bootstrap-5) bir sebeple gelmezse
+   kütüphanenin kendi varsayılanı beyaz bir liste çiziyor ve panel içinde
+   yamalı duruyor. Taban sınıflar da panelin renklerine bağlandı. */
+.select2-dropdown {
+  background-color: var(--bg-card);
+  border-color: var(--teal-primary);
+  color: var(--text-primary);
+}
+
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--text-primary);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-top-color: var(--text-secondary);
+}
+
+.select2-container--default .select2-results__option {
+  color: var(--text-secondary);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: rgba(20, 184, 166, 0.12);
+  color: var(--text-primary);
+}
+
+.select2-container--default .select2-results__option[data-selected="true"] {
+  background-color: var(--teal-primary);
+  color: var(--text-white);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
 }

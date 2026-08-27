@@ -246,6 +246,61 @@ class AuditLogPageTest extends TestCase
         ));
     }
 
+    public function test_the_ip_filter_narrows_the_list(): void
+    {
+        $admin = $this->admin();
+
+        $this->log(['ip_address' => '10.0.0.5', 'label' => 'Ofisten yapıldı']);
+        $this->log(['ip_address' => '203.0.113.9', 'label' => 'Disaridan yapildi']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.audit-logs.index', ['ip' => '203.0.113.9']))
+            ->assertOk()
+            ->assertSee('Disaridan yapildi')
+            ->assertDontSee('Ofisten yapıldı');
+    }
+
+    /**
+     * IP süzgeci elle yazılmıyor: seçenekler kayıtlarda geçen adreslerden,
+     * çok kullanılan başta olacak şekilde kuruluyor.
+     */
+    public function test_the_ip_options_come_from_the_records(): void
+    {
+        $this->admin();
+
+        $this->log(['ip_address' => '10.0.0.5']);
+        $this->log(['ip_address' => '10.0.0.5']);
+        $this->log(['ip_address' => '203.0.113.9']);
+        $this->log(['ip_address' => null]);
+
+        $this->assertSame(
+            ['10.0.0.5' => 2, '203.0.113.9' => 1],
+            $this->service()->ipOptions(),
+        );
+    }
+
+    /**
+     * Sayfalama panelin kendi bileşeniyle çiziliyor; Laravel'in varsayılan
+     * görünümü panele yabancı düşüyor ve çeviri anahtarlarını ham gösteriyor.
+     */
+    public function test_the_pager_is_the_panels_own(): void
+    {
+        $admin = $this->admin();
+
+        foreach (range(1, 30) as $i) {
+            $this->log(['label' => "Kayıt {$i}"]);
+        }
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.audit-logs.index', ['per_page' => 25]))
+            ->assertOk()
+            ->getContent() ?: '';
+
+        $this->assertStringContainsString('cl-page-btn', $html);
+        $this->assertStringNotContainsString('pagination.previous', $html);
+        $this->assertStringContainsString('arası gösteriliyor', $html);
+    }
+
     /**
      * Denetim kaydı herkese açık değil: izni olmayan rol listeyi göremez.
      */

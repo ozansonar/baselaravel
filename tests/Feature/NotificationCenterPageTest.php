@@ -231,6 +231,27 @@ class NotificationCenterPageTest extends TestCase
     }
 
     /**
+     * Sayfalama panelin kendi bileşeniyle çiziliyor; Laravel'in varsayılan
+     * görünümü panele yabancı düşüyor ve çeviri anahtarlarını ham gösteriyor.
+     */
+    public function test_the_pager_is_the_panels_own(): void
+    {
+        $admin = $this->userWithRole('admin', 'nt-admin@example.com');
+
+        foreach (range(1, 35) as $i) {
+            $this->notify(['title' => "Bildirim {$i}"]);
+        }
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.notifications.index'))
+            ->assertOk()
+            ->getContent() ?: '';
+
+        $this->assertStringContainsString('cl-page-btn', $html);
+        $this->assertStringNotContainsString('pagination.previous', $html);
+    }
+
+    /**
      * Aynı işin başarılı ve başarısız hâli tek satırda toplanmalı: okuyan için
      * ikisi de "Yedekleme".
      */

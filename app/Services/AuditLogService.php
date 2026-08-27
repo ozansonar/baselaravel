@@ -101,6 +101,27 @@ final class AuditLogService
     }
 
     /**
+     * Kayıtlarda geçen IP adresleri — "bu adresten neler yapıldı" sorusu
+     * denetim kaydının en sık sorulanı, o yüzden elle yazmak yerine seçilir.
+     *
+     * @return array<string, int> ip => adet
+     */
+    public function ipOptions(int $limit = 100): array
+    {
+        /** @var array<string, int> $options */
+        $options = AuditLog::query()
+            ->selectRaw('ip_address, count(*) as total')
+            ->whereNotNull('ip_address')
+            ->groupBy('ip_address')
+            ->orderByDesc('total')
+            ->limit($limit)
+            ->pluck('total', 'ip_address')
+            ->all();
+
+        return $options;
+    }
+
+    /**
      * En çok işlem yapanlar — denetim kaydına bakan kişinin ikinci sorusu.
      *
      * @return list<array{name: string, count: int, percent: int}>
@@ -176,6 +197,10 @@ final class AuditLogService
 
         if (($filters['model'] ?? '') !== '') {
             $query->where('auditable_type', $filters['model']);
+        }
+
+        if (($filters['ip'] ?? '') !== '') {
+            $query->where('ip_address', $filters['ip']);
         }
 
         if (($filters['from'] ?? '') !== '') {
