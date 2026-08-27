@@ -15,6 +15,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/export-temp/*
+!/storage/app/export-temp/.gitkeep
 /vendor
 Thumbs.db
 /public/uploads/*

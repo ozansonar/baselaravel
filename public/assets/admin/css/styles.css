@@ -36674,3 +36674,25 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 .rdr-tips strong {
   color: var(--text-secondary);
 }
+
+/* ── Dışa Aktarma Menüsü ────────────────────────────────────────────────── */
+/* Menü, araç çubuğunun altındaki tablo kartının üstünde açılmalı: kartlar
+   ayrı yığınlar oluşturduğu için menü yükseltilmezse ikinci seçenek kartın
+   arkasında kalıyor. */
+.export-menu {
+  position: relative;
+  z-index: 1055;
+}
+
+/* Menüyü taşıyan kartın kendisi de yükselmeli: AOS animasyonunun transform'u
+   her karta ayrı bir yığın bağlamı veriyor, o yüzden menünün z-index'i tek
+   başına altındaki tablo kartını aşmaya yetmiyor. */
+.card-dark:has(.export-menu),
+.card-glass:has(.export-menu) {
+  position: relative;
+  z-index: 5;
+}
+
+.export-menu .dropdown-menu {
+  min-width: 160px;
+}

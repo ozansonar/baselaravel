@@ -31,7 +31,7 @@ final class UserController extends Controller
             : 10;
 
         return view('admin.users.index', [
-            'users'        => $this->userService->paginate($perPage, $request->only(['status', 'search', 'role'])),
+            'users'        => $this->userService->paginate($perPage, $request->only($this->userService->filterKeys())),
             'roles'        => $this->roleService->all(),
             'stats'        => $this->userService->getAdminStats(),
             'statusCounts' => $this->userService->getStatusCounts(),
