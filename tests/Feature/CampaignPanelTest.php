@@ -340,6 +340,119 @@ class CampaignPanelTest extends TestCase
     }
 
     /**
+     * On dosya seçilince on istek aynı anda gidiyor.
+     *
+     * Bekleyen ekler oturumda tutulurken her istek oturumu baştan okuyup sonunda
+     * geri yazıyordu: en son biten diğerlerinin kaydını eziyor, on dosyanın
+     * yüklendiğini gören kullanıcı kampanyada üç ek buluyordu. Kayıt artık
+     * satır başına ayrı.
+     */
+    public function test_every_uploaded_attachment_survives_until_the_campaign_is_saved(): void
+    {
+        $editor = $this->editor();
+        $tokens = [];
+
+        foreach (range(1, 10) as $i) {
+            $tokens[] = $this->actingAs($editor)
+                ->postJson(route('admin.campaigns.attachments.upload'), [
+                    'file' => UploadedFile::fake()->create($i . '.jpg', 20, 'image/jpeg'),
+                ])
+                ->assertOk()
+                ->json('token');
+        }
+
+        $this->actingAs($editor)->post(route('admin.campaigns.store'), $this->payload([
+            'attachment_tokens' => $tokens,
+        ]));
+
+        $attachments = Campaign::firstOrFail()->attachments()->orderBy('id')->get();
+
+        $this->assertCount(10, $attachments, 'Yüklenen her ek kampanyaya bağlanmalı');
+        $this->assertSame(
+            ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg', '10.jpg'],
+            $attachments->pluck('original_name')->all(),
+            'Ekler yükleme sırasını korumalı',
+        );
+    }
+
+    /**
+     * Bekleyen ek oturumdan bağımsız: oturum tazelense de yükleme kaybolmamalı.
+     * Eşzamanlı isteklerin oturumu birbirine ezmesi tam olarak bu etkiyi
+     * yaratıyordu.
+     */
+    public function test_a_pending_attachment_outlives_the_session(): void
+    {
+        $editor = $this->editor();
+
+        $token = $this->actingAs($editor)
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Katalog.pdf', 20, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->json('token');
+
+        $this->flushSession();
+
+        $this->actingAs($editor)->post(route('admin.campaigns.store'), $this->payload([
+            'attachment_tokens' => [$token],
+        ]));
+
+        $this->assertSame(1, Campaign::firstOrFail()->attachments()->count());
+    }
+
+    /**
+     * Belirteç sahibine bağlı: başkasının bekleyen dosyası iliştirilemez.
+     */
+    public function test_someone_elses_pending_attachment_is_not_attached(): void
+    {
+        $token = $this->actingAs($this->editor())
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Gizli.pdf', 20, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->json('token');
+
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload([
+            'attachment_tokens' => [$token],
+        ]));
+
+        $this->assertSame(0, Campaign::firstOrFail()->attachments()->count());
+    }
+
+    /**
+     * Form terk edilince dosya diskte kalıyor; temizliği cron yapıyor. Taze
+     * bekleyene dokunulmamalı, kullanıcı hâlâ formda olabilir.
+     */
+    public function test_stale_pending_attachments_are_purged_but_fresh_ones_stay(): void
+    {
+        $editor = $this->editor();
+
+        $eski = $this->actingAs($editor)
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Unutulmus.pdf', 20, 'application/pdf'),
+            ])->json('token');
+
+        $this->actingAs($editor)
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Taze.pdf', 20, 'application/pdf'),
+            ])->assertOk();
+
+        $eskiKayit = \App\Models\CampaignAttachment::where('token', $eski)->firstOrFail();
+        $eskiKayit->forceFill(['created_at' => now()->subDays(2)])->save();
+        $yol = UploadService::basePath($eskiKayit->path);
+
+        $this->artisan('campaigns:purge-attachments')->assertSuccessful();
+
+        $this->assertSame(0, \App\Models\CampaignAttachment::where('token', $eski)->count());
+        $this->assertFileDoesNotExist($yol);
+        $this->assertSame(
+            1,
+            \App\Models\CampaignAttachment::whereNull('campaign_id')->count(),
+            'Taze bekleyen ek durmalı',
+        );
+    }
+
+    /**
      * Belirteç yalnızca oturumda gerçek yola çevriliyor. Uydurulmuş bir belirteç
      * sessizce atlanmalı — istemciye yol verilseydi, kaydederken başka bir yol
      * göndererek sunucudaki herhangi bir dosya kampanyaya iliştirilebilirdi.

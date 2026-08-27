@@ -89,6 +89,14 @@ Schedule::call($run('audit-logs:prune', ['--days' => \App\Services\AuditLogServi
     ->at('03:30')
     ->withoutOverlapping();
 
+// Kampanya ekleri: kaydedilmeden bırakılmış yüklemeler bir günlük bekleme
+// sonrası siliniyor. Dosya kampanyadan önce yüklendiği için form terk
+// edilirse public/uploads altında sahipsiz kalıyor.
+Schedule::call($run('campaigns:purge-attachments'))
+    ->name('campaigns-purge-attachments')
+    ->dailyAt('04:15')
+    ->withoutOverlapping();
+
 // Automatic backup — nightly (DB + uploads → ZIP).
 // Given its own slot at 05:00: tasks due in the same minute run one after
 // another inside a single PHP process, and the backup is by far the slowest

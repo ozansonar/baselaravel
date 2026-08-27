@@ -9,6 +9,7 @@ use App\Enums\CampaignRecipientStatus;
 use App\Enums\CampaignStatus;
 use App\Enums\SubscriberStatus;
 use App\Models\Campaign;
+use App\Models\CampaignAttachment;
 use App\Models\CampaignRecipient;
 use App\Models\Subscriber;
 use App\Support\PersonName;
@@ -634,11 +635,6 @@ final class CampaignService
     public const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
     /**
-     * Kampanyaya değil oturuma bağlı, henüz kaydedilmemiş ekler.
-     */
-    private const PENDING_KEY = 'campaign.pending_attachments';
-
-    /**
      * @return array{per_file: int, post_max: int, max_files: int}
      */
     public function attachmentLimits(): array
@@ -647,7 +643,8 @@ final class CampaignService
     }
 
     /**
-     * Tek bir eki peşin yükler ve kampanya kaydedilene kadar oturumda tutar.
+     * Tek bir eki peşin yükler ve kampanya kaydedilene kadar kampanyasız bir
+     * satırda bekletir.
      *
      * Ekler kampanya formuyla tek POST'ta gitseydi birkaç dosya post_max_size'ı
      * aşar, PHP gövdeyi komple atar ve CSRF alanı da onunla gittiği için istek
@@ -655,9 +652,15 @@ final class CampaignService
      * kaybederdi. Her dosya kendi küçük isteğiyle gelince o tavana hiç
      * yaklaşılmıyor ve bir dosyanın başarısızlığı taslağı etkilemiyor.
      *
+     * Bekleyen kayıt oturumda tutulurken bu kez başka bir şey kayboluyordu: on
+     * dosya seçilince on istek aynı anda gidiyor, her biri oturumu baştan okuyup
+     * sonunda geri yazıyor ve en son biten diğerlerinin kaydını eziyordu. On
+     * dosyanın yüklendiğini gören kullanıcı kampanyada üçünü buluyordu. Her
+     * yükleme artık kendi satırını yazıyor, kimse kimsenin kaydına dokunmuyor.
+     *
      * Dönen belirteç dosya yolunu taşımaz. Yol istemciye verilseydi, kaydederken
      * başka bir yol gönderip sunucudaki herhangi bir dosyayı kampanyaya
-     * iliştirmek mümkün olurdu; belirteç ile gerçek yol yalnızca oturumda eşleşir.
+     * iliştirmek mümkün olurdu.
      *
      * @return array{token: string, name: string, size: int}
      */
@@ -671,14 +674,15 @@ final class CampaignService
         $path = $this->uploadService->uploadFile($file, self::UPLOAD_FOLDER, $name);
         $token = (string) Str::uuid();
 
-        $pending = $this->pending();
-        $pending[$token] = [
+        CampaignAttachment::create([
+            'campaign_id'   => null,
+            'token'         => $token,
+            'user_id'       => auth()->id(),
             'path'          => $path,
             'original_name' => $original,
             'mime_type'     => $mime,
             'size'          => $size,
-        ];
-        session()->put(self::PENDING_KEY, $pending);
+        ]);
 
         return ['token' => $token, 'name' => $original, 'size' => $size];
     }
@@ -689,15 +693,19 @@ final class CampaignService
      */
     public function discardPendingAttachment(string $token): bool
     {
-        $pending = $this->pending();
+        $bekleyen = CampaignAttachment::query()
+            ->pending(auth()->id())
+            ->where('token', $token)
+            ->first();
 
-        if (! isset($pending[$token])) {
+        if ($bekleyen === null) {
             return false;
         }
 
-        $this->uploadService->deleteFile($pending[$token]['path']);
-        unset($pending[$token]);
-        session()->put(self::PENDING_KEY, $pending);
+        $this->uploadService->deleteFile($bekleyen->path);
+        // Yumuşak silme değil: kayıt yalnızca dosyanın adresi, dosya gittiyse
+        // satırın saklanacak bir tarafı kalmıyor.
+        $bekleyen->forceDelete();
 
         return true;
     }
@@ -705,26 +713,35 @@ final class CampaignService
     /**
      * Peşin yüklenmiş ekleri kampanyaya bağlar.
      *
-     * Dosya zaten diskte, burada yalnızca kaydı oluşuyor. Oturumda tanınmayan
-     * bir belirteç sessizce atlanıyor: kullanıcı iki sekmede çalışmış ya da
-     * oturum yenilenmiş olabilir, bu kaydı durduracak bir hata değil.
+     * Dosya zaten diskte, satır da: burada yalnızca kampanya sahipleniyor.
+     * Tanınmayan bir belirteç sessizce atlanıyor — kullanıcı iki sekmede
+     * çalışmış ya da eki kaldırmış olabilir, bu kaydı durduracak bir hata değil.
+     *
+     * Sıra kullanıcının yükleme sırası: forma hangi sırayla eklendiyse
+     * kampanyada da o sırayla görünmeli.
      *
      * @param array<int, string> $tokens
      */
     public function attachPending(Campaign $campaign, array $tokens): void
     {
-        $pending = $this->pending();
+        $tokens = array_values(array_filter($tokens, 'is_string'));
 
-        foreach ($tokens as $token) {
-            if (! is_string($token) || ! isset($pending[$token])) {
-                continue;
-            }
-
-            $campaign->attachments()->create($pending[$token]);
-            unset($pending[$token]);
+        if ($tokens === []) {
+            return;
         }
 
-        session()->put(self::PENDING_KEY, $pending);
+        $bekleyenler = CampaignAttachment::query()
+            ->pending(auth()->id())
+            ->whereIn('token', $tokens)
+            ->get()
+            ->keyBy('token');
+
+        foreach ($tokens as $token) {
+            $bekleyenler->get($token)?->update([
+                'campaign_id' => $campaign->id,
+                'token'       => null,
+            ]);
+        }
     }
 
     /**
@@ -732,19 +749,36 @@ final class CampaignService
      */
     public function discardAllPending(): void
     {
-        foreach ($this->pending() as $token => $_) {
-            $this->discardPendingAttachment((string) $token);
-        }
+        CampaignAttachment::query()
+            ->pending(auth()->id())
+            ->get()
+            ->each(fn (CampaignAttachment $ek) => $this->discardPendingAttachment((string) $ek->token));
     }
 
     /**
-     * @return array<string, array{path: string, original_name: string, mime_type: string, size: int}>
+     * Sahipsiz kalmış bekleyen ekleri siler.
+     *
+     * Kullanıcı dosyayı yükleyip kampanyayı kaydetmeden çıkarsa satır da dosya
+     * da kalıyor. Bunu kimse fark etmediği için temizliği zamanlanmış görev
+     * yapıyor; taze bekleyenlere dokunulmuyor, kullanıcı hâlâ formda olabilir.
+     *
+     * @return int silinen ek sayısı
      */
-    private function pending(): array
+    public function purgeStalePendingAttachments(int $hours = 24): int
     {
-        $pending = session()->get(self::PENDING_KEY, []);
+        $silinen = 0;
 
-        return is_array($pending) ? $pending : [];
+        CampaignAttachment::query()
+            ->whereNull('campaign_id')
+            ->where('created_at', '<', now()->subHours($hours))
+            ->get()
+            ->each(function (CampaignAttachment $ek) use (&$silinen): void {
+                $this->uploadService->deleteFile($ek->path);
+                $ek->forceDelete();
+                $silinen++;
+            });
+
+        return $silinen;
     }
 
     /**
