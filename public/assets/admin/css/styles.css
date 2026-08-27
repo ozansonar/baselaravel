@@ -35781,15 +35781,6 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   opacity: .5;
 }
 
-/* Kampanya listesi ilerleme çubuğu. Yüzde satır içi değişkenle geliyor —
-   değer veriden hesaplanıyor, sınıfla ifade edilemez. */
-.cmp-progress {
-  height: 6px;
-}
-
-.cmp-progress__bar {
-  width: var(--cmp-progress, 0%);
-}
 
 /* ==========================================================================
    Kişiselleştirme değişkeni ekleme düğmeleri
@@ -35846,4 +35837,113 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 
 @media (max-width: 575.98px) {
   .cmp-tag__label { display: none; }
+}
+
+/* ==========================================================================
+   Kampanya listesi satırı
+   ========================================================================== */
+
+.cmp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Kitleyi anlatan rozet: satır gözle taranırken kampanyanın kime gittiği
+   okumadan seçilsin. Renk paleti abone kaynaklarıyla aynı. */
+.cmp-row__icon {
+  --cmp-accent: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cmp-accent) 14%, transparent);
+  color: var(--cmp-accent);
+  font-size: 15px;
+}
+
+.cmp-row__icon--teal  { --cmp-accent: var(--teal-primary); }
+.cmp-row__icon--blue  { --cmp-accent: var(--neon-blue); }
+.cmp-row__icon--green { --cmp-accent: var(--neon-green); }
+.cmp-row__icon--muted { --cmp-accent: var(--text-muted); }
+
+.cmp-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cmp-row__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.cmp-row__name:hover { color: var(--teal-primary); }
+
+.cmp-row__subject {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* İlerleme: sayı, yüzde ve çubuk bir arada. Yalnızca çubuk varken "kaç kişi
+   kaldı" sorusu ancak üstüne gelince cevaplanıyordu. */
+.cmp-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 130px;
+}
+
+.cmp-bar__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cmp-bar__count {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-bar__pct {
+  color: var(--teal-primary);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-bar__fail {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--neon-red, #ef4444);
+  font-size: 11px;
+}
+
+.cmp-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.cmp-progress__bar {
+  width: var(--cmp-progress, 0%);
+  border-radius: 999px;
+  transition: width .4s ease;
 }
