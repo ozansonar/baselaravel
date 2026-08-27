@@ -84,7 +84,7 @@
 
             if (counter) {
                 var filled = all.filter(function (row) {
-                    var email = row.querySelector('input[type="email"]');
+                    var email = row.querySelector('input[name$="[email]"]');
 
                     return email && email.value.trim() !== '';
                 }).length;
@@ -106,7 +106,7 @@
             list.appendChild(row);
             refresh();
 
-            var email = row.querySelector('input[type="email"]');
+            var email = row.querySelector('input[name$="[email]"]');
 
             if (email) {
                 email.focus();
@@ -129,7 +129,7 @@
         });
 
         list.addEventListener('input', function (event) {
-            if (event.target.type === 'email') {
+            if (/\[email\]$/.test(event.target.name || '')) {
                 refresh();
             }
         });
