@@ -229,6 +229,7 @@ Route::get('mail-logs', [MailLogController::class, 'index'])->name('mail-logs.in
 Route::get('mail-logs/{mailLog}', [MailLogController::class, 'show'])->name('mail-logs.show');
 Route::get('mail-logs/{mailLog}/body', [MailLogController::class, 'body'])->name('mail-logs.body');
 Route::post('mail-logs/{mailLog}/resend', [MailLogController::class, 'resend'])->name('mail-logs.resend');
+Route::post('mail-logs/{mailLog}/send-now', [MailLogController::class, 'sendNow'])->name('mail-logs.send-now');
 
 // File Manager (general-purpose uploads: PDF/Word/Excel/image)
 Route::prefix('files')->name('files.')->group(function () {

@@ -23,8 +23,16 @@
             <h1 class="page-title"><i class="bi bi-envelope-open me-2"></i>Mail Detayı</h1>
             <p class="page-subtitle">{{ Str::limit($mailLog->subject, 80) }}</p>
         </div>
-        <div class="d-flex gap-2">
-            @if($mailLog->body)
+        <div class="d-flex gap-2 flex-wrap">
+            @if($mailLog->status === \App\Enums\MailLogStatus::Pending)
+                {{-- Bekleyen mail listede olduğu gibi buradan da beklemeden gönderilebilir. --}}
+                <button type="button" class="btn-teal ml-send-now"
+                        data-url="{{ route('admin.mail-logs.send-now', $mailLog) }}"
+                        data-recipient="{{ $mailLog->to }}"
+                        data-subject="{{ $mailLog->subject }}">
+                    <i class="bi bi-send-fill me-1"></i> Şimdi Gönder
+                </button>
+            @elseif($mailLog->body)
                 <button type="button" class="btn-teal" id="resendBtn">
                     <i class="bi bi-arrow-repeat me-1"></i> Yeniden Gönder
                 </button>
@@ -174,6 +182,8 @@
 @endpush
 
 @push('scripts')
+{{-- "Şimdi Gönder" düğmesinin davranışı listeyle ortak. --}}
+<script src="{{ versioned_asset('assets/admin/js/mail-logs.js') }}"></script>
 <script>
 (function() {
     'use strict';

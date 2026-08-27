@@ -47,31 +47,11 @@ $run = static function (string $command, array $parameters = []): callable {
 // Process queued jobs every minute (shared hosting - no supervisor).
 // queue:work requires the pcntl extension, which is not available here.
 // Instead, pop and fire jobs directly via the Queue API — no Worker class.
-Schedule::call(function () {
-    $maxJobs = 20;
-    $maxTime = 50; // seconds, leave margin for cron minute
-    $start = time();
-    $processed = 0;
-
-    $queue = app('queue')->connection('database');
-
-    while ($processed < $maxJobs && (time() - $start) < $maxTime) {
-        $job = $queue->pop('default');
-
-        if (!$job) {
-            break;
-        }
-
-        try {
-            $job->fire();
-            $job->delete();
-            $processed++;
-        } catch (\Throwable $e) {
-            $job->fail($e);
-            report($e);
-        }
-    }
-})->name('queue-worker')->everyMinute()->withoutOverlapping(2);
+// Aynı mantık panelden de tetikleniyor ("şimdi gönder"), o yüzden tek yerde.
+Schedule::call(fn () => app(\App\Services\QueueRunner::class)->drain())
+    ->name('queue-worker')
+    ->everyMinute()
+    ->withoutOverlapping(2);
 
 // Bulk mail — every 5 minutes, sending only what the hourly limit allows.
 // The interval must match CampaignDispatcher::RUN_INTERVAL_MINUTES, which is

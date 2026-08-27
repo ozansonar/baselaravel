@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Enums\MailLogStatus;
 use App\Mail\BaseMail;
+use App\Models\MailLog;
 use Illuminate\Contracts\Mail\Mailable;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -80,7 +82,7 @@ final class MailService
         $this->purgeMailer();
 
         try {
-            Mail::raw($body, function (\Illuminate\Mail\Message $message) use ($to, $subject): void {
+            Mail::raw($body, function (Message $message) use ($to, $subject): void {
                 $message->to($to)->subject($subject);
             });
 
@@ -100,7 +102,7 @@ final class MailService
     /**
      * Resend an email using the stored HTML body from a mail log.
      */
-    public function resendFromLog(\App\Models\MailLog $mailLog): bool
+    public function resendFromLog(MailLog $mailLog): bool
     {
         if (empty($mailLog->body)) {
             throw new \RuntimeException('Bu mailin içeriği kayıtlı değil, yeniden gönderilemez.');
@@ -109,33 +111,7 @@ final class MailService
         $this->purgeMailer();
 
         try {
-            Mail::html($mailLog->body, function (\Illuminate\Mail\Message $message) use ($mailLog): void {
-                $message->to($mailLog->to)->subject($mailLog->subject);
-
-                if ($mailLog->from) {
-                    $message->from($mailLog->from);
-                }
-
-                if ($mailLog->cc) {
-                    foreach (array_map('trim', explode(',', $mailLog->cc)) as $cc) {
-                        if ($cc) {
-                            $message->cc($cc);
-                        }
-                    }
-                }
-
-                if ($mailLog->bcc) {
-                    foreach (array_map('trim', explode(',', $mailLog->bcc)) as $bcc) {
-                        if ($bcc) {
-                            $message->bcc($bcc);
-                        }
-                    }
-                }
-
-                if ($mailLog->reply_to) {
-                    $message->replyTo($mailLog->reply_to);
-                }
-            });
+            Mail::html($mailLog->body, fn (Message $message) => $this->applyRecipients($message, $mailLog));
 
             $this->mailLogService->logMail(
                 to: $mailLog->to,
@@ -165,6 +141,80 @@ final class MailService
             );
 
             return false;
+        }
+    }
+
+    /**
+     * Kuyrukta bekleyen bir maili şimdi gönderir.
+     *
+     * Yeniden gönderme değil: yeni bir kayıt açmaz, bekleyen kaydın kendisini
+     * kapatır. Kuyruktaki iş hâlâ duruyorsa çift gönderim olurdu; bu yüzden
+     * yalnızca kuyruk boşaldıktan sonra çağrılır (MailLogController).
+     */
+    public function sendPendingNow(MailLog $mailLog): bool
+    {
+        if ($mailLog->status !== MailLogStatus::Pending) {
+            throw new \RuntimeException('Bu mail zaten işlenmiş.');
+        }
+
+        if (empty($mailLog->body)) {
+            throw new \RuntimeException('Mailin içeriği kayıtlı değil, elle gönderilemez.');
+        }
+
+        $this->purgeMailer();
+
+        try {
+            Mail::html($mailLog->body, fn (Message $message) => $this->applyRecipients($message, $mailLog));
+
+            $mailLog->update([
+                'status'        => MailLogStatus::Sent,
+                'sent_at'       => now(),
+                'error_message' => null,
+            ]);
+
+            Cache::forget('admin.mail_logs.stats');
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Bekleyen mail elle gönderilemedi', [
+                'mail_log_id' => $mailLog->id,
+                'error'       => $e->getMessage(),
+            ]);
+
+            $mailLog->update([
+                'status'        => MailLogStatus::Failed,
+                'error_message' => $e->getMessage(),
+            ]);
+
+            Cache::forget('admin.mail_logs.stats');
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Kayıttaki gönderen, alıcı ve yanıt adreslerini mesaja uygular.
+     */
+    private function applyRecipients(Message $message, MailLog $mailLog): void
+    {
+        $message->to($mailLog->to)->subject((string) $mailLog->subject);
+
+        if ($mailLog->from) {
+            $message->from($mailLog->from);
+        }
+
+        foreach (['cc' => 'cc', 'bcc' => 'bcc'] as $field => $method) {
+            if (! $mailLog->{$field}) {
+                continue;
+            }
+
+            foreach (array_filter(array_map('trim', explode(',', (string) $mailLog->{$field}))) as $address) {
+                $message->{$method}($address);
+            }
+        }
+
+        if ($mailLog->reply_to) {
+            $message->replyTo($mailLog->reply_to);
         }
     }
 
