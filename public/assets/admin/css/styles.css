@@ -35947,3 +35947,10 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   border-radius: 999px;
   transition: width .4s ease;
 }
+
+/* Durum penceresi mesajı textContent ile yazılıyor; çok satırlı bildirimlerde
+   (birden fazla dosya eklenemediğinde her biri ayrı satırda) satır sonları
+   korunsun. Tek satırlık mesajlarda hiçbir şey değişmiyor. */
+#gsm-message {
+  white-space: pre-line;
+}

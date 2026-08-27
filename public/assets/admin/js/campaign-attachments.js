@@ -61,21 +61,59 @@
         }).length;
     }
 
-    function hataGoster(mesaj) {
+    /**
+     * Bir seçimde eklenemeyen dosyalar.
+     *
+     * Her dosya için ayrı ayrı pencere açmak işe yaramıyordu: pencere bir
+     * öncekini eziyor ve kullanıcı yalnızca son dosyanın mesajını görüyordu.
+     * On dosya seçip yedisini listede bulan biri, üçünün neden düştüğünü
+     * öğrenemiyordu. Bu yüzden sorunlar biriktirilip tek seferde bildiriliyor.
+     */
+    var sorunlar = [];
+
+    /** Sunucuya gitmiş ve henüz sonuçlanmamış yükleme sayısı. */
+    var bekleyen = 0;
+
+    function sorunEkle(mesaj) {
+        sorunlar.push(mesaj);
+    }
+
+    /**
+     * Biriken sorunları tek pencerede bildirir.
+     *
+     * Yalnızca bütün yüklemeler sonuçlandığında çağrılıyor; yoksa sunucudan
+     * sırayla dönen hatalar yine ayrı ayrı pencere açardı.
+     */
+    function sorunlariBildir() {
+        if (bekleyen > 0 || sorunlar.length === 0) {
+            return;
+        }
+
+        var bildirilecek = sorunlar.slice();
+        sorunlar = [];
+
+        var baslik = bildirilecek.length === 1
+            ? 'Ek eklenemedi'
+            : bildirilecek.length + ' dosya eklenemedi';
+
         if (window.AdminModal && typeof window.AdminModal.status === 'function') {
-            window.AdminModal.status({ title: 'Ek eklenemedi', message: mesaj, type: 'danger' });
+            window.AdminModal.status({
+                title: baslik,
+                message: bildirilecek.join('\n'),
+                type: 'danger'
+            });
 
             return;
         }
 
         var kutu = document.createElement('div');
         kutu.className = 'invalid-feedback d-block';
-        kutu.textContent = mesaj;
+        kutu.textContent = bildirilecek.join(' ');
         liste.appendChild(kutu);
 
         setTimeout(function () {
             kutu.remove();
-        }, 6000);
+        }, 8000);
     }
 
     /**
@@ -128,7 +166,8 @@
                 satir.remove();
             }).catch(function () {
                 dugme.disabled = false;
-                hataGoster('Ek kaldırılamadı, tekrar deneyin.');
+                sorunEkle('Ek kaldırılamadı, tekrar deneyin.');
+                sorunlariBildir();
             });
         });
 
@@ -141,6 +180,10 @@
      */
     function yukle(dosya) {
         var ui = satirOlustur(dosya);
+
+        // Sunucudan dönen hatalar da tek pencerede toplansın diye sayaç:
+        // hepsi sonuçlanmadan bildirim yapılmıyor.
+        bekleyen++;
         var veri = new FormData();
         veri.append('file', dosya);
 
@@ -177,17 +220,23 @@
                 ui.satir.appendChild(gizli);
 
                 kaldirDugmesi(ui.satir, cevap.token);
+                bekleyen--;
+                sorunlariBildir();
 
                 return;
             }
 
             ui.satir.remove();
-            hataGoster(cevap.message || (dosya.name + ' yüklenemedi.'));
+            sorunEkle(cevap.message || (dosya.name + ' yüklenemedi.'));
+            bekleyen--;
+            sorunlariBildir();
         });
 
         istek.addEventListener('error', function () {
             ui.satir.remove();
-            hataGoster(dosya.name + ' yüklenemedi; bağlantınızı kontrol edin.');
+            sorunEkle(dosya.name + ' yüklenemedi; bağlantınızı kontrol edin.');
+            bekleyen--;
+            sorunlariBildir();
         });
 
         istek.send(veri);
@@ -208,7 +257,7 @@
 
         dosyalar.forEach(function (dosya) {
             if (yuklenenSayisi() + kayitliEkSayisi() >= ayar.maxFiles) {
-                hataGoster('En fazla ' + ayar.maxFiles + ' ek ekleyebilirsiniz.');
+                sorunEkle(dosya.name + ' eklenmedi: en fazla ' + ayar.maxFiles + ' ek olabilir.');
 
                 return;
             }
@@ -217,9 +266,9 @@
             // yavaş bağlantıda dakikalarca yükleyip sonunda hata almak yerine
             // kullanıcı anında öğreniyor.
             if (dosya.size > ayar.maxBytes) {
-                hataGoster(
-                    dosya.name + ' çok büyük (' + okunurBoyut(dosya.size) + '). ' +
-                    'Sunucunun kabul ettiği en büyük dosya ' + okunurBoyut(ayar.maxBytes) + '.'
+                sorunEkle(
+                    dosya.name + ' çok büyük (' + okunurBoyut(dosya.size) + '), ' +
+                    'en fazla ' + okunurBoyut(ayar.maxBytes) + ' olabilir.'
                 );
 
                 return;
@@ -230,6 +279,10 @@
 
         // Alan boşaltılıyor: aynı dosya tekrar seçilebilsin ve file-input.js'in
         // kendi listesi yüklenenlerle karışmasın.
+        // Hiç yükleme başlamadıysa (hepsi elenmişse) sonucu burada bildir;
+        // yükleme varsa son isteğin sonucu bildirimi tetikleyecek.
+        sorunlariBildir();
+
         if (dosyalar.length > 0) {
             temizleniyor = true;
             input.value = '';
