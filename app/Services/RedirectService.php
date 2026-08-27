@@ -16,11 +16,48 @@ final class RedirectService
     {
         $query = Redirect::query();
 
+        // Çöp kutusu ayrı bir görünüm: silinmiş kayıtlar listeye karışmıyor,
+        // istendiğinde yalnız onlar gösteriliyor.
+        if (($filters['trashed'] ?? '') === '1') {
+            $query->onlyTrashed();
+        }
+
         if ($filters) {
             $this->applyFilters($query, $filters);
         }
 
-        return $query->orderByDesc('id')->paginate($perPage);
+        $this->applySort($query, (string) ($filters['sort'] ?? ''));
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Listede seçilebilecek sıralamalar. İstekten gelen değer bu kümeyle
+     * sınırlı; serbest bırakılsaydı sütun adı doğrudan sorguya girerdi.
+     *
+     * @var array<string, string>
+     */
+    public const SORT_OPTIONS = [
+        'recent'    => 'En yeni eklenen',
+        'oldest'    => 'İlk eklenen',
+        'hits'      => 'En çok kullanılan',
+        'last_hit'  => 'En son kullanılan',
+        'path'      => 'Yola göre (A-Z)',
+    ];
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<Redirect> $query
+     */
+    private function applySort(\Illuminate\Database\Eloquent\Builder $query, string $sort): void
+    {
+        match ($sort) {
+            'oldest'   => $query->orderBy('id'),
+            'hits'     => $query->orderByDesc('hit_count')->orderByDesc('id'),
+            // Hiç kullanılmamış kayıtların tarihi yok; sona düşsünler.
+            'last_hit' => $query->orderByRaw('last_hit_at IS NULL')->orderByDesc('last_hit_at')->orderByDesc('id'),
+            'path'     => $query->orderBy('old_url'),
+            default    => $query->orderByDesc('id'),
+        };
     }
 
     /**
@@ -29,9 +66,14 @@ final class RedirectService
     private function applyFilters(\Illuminate\Database\Eloquent\Builder $query, array $filters): void
     {
         if (isset($filters['search']) && $filters['search'] !== '') {
-            $query->where(function ($q) use ($filters): void {
-                $q->where('old_url', 'like', "%{$filters['search']}%")
-                  ->orWhere('new_url', 'like', "%{$filters['search']}%");
+            // Joker karakterler düz metin sayılıyor; ESCAPE açıkça bildiriliyor
+            // çünkü ters bölüyü kaçış sayan tek veritabanı MySQL.
+            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+
+            $query->where(function ($q) use ($term): void {
+                $q->whereRaw("old_url LIKE ? ESCAPE '\\'", [$term])
+                    ->orWhereRaw("new_url LIKE ? ESCAPE '\\'", [$term])
+                    ->orWhereRaw("note LIKE ? ESCAPE '\\'", [$term]);
             });
         }
 
@@ -45,6 +87,22 @@ final class RedirectService
                 'inactive' => $query->where('is_active', false),
                 default    => null,
             };
+        }
+
+        // Hiç kullanılmamış yönlendirme ya yanlış yazılmıştır ya da artık
+        // gereksizdir; ikisi de gözden geçirilmeye değer.
+        match ($filters['usage'] ?? '') {
+            'used'   => $query->where('hit_count', '>', 0),
+            'unused' => $query->where('hit_count', 0),
+            default  => null,
+        };
+
+        if (! empty($filters['from'])) {
+            $query->whereDate('created_at', '>=', $filters['from']);
+        }
+
+        if (! empty($filters['to'])) {
+            $query->whereDate('created_at', '<=', $filters['to']);
         }
     }
 
