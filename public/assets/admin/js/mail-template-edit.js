@@ -8,6 +8,17 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /**
+ * Hata bildirimi panelin kendi modalıyla; tarayıcının alert kutusu kullanılmaz.
+ */
+function showError(title, message) {
+    AdminModal.status({
+        title: title,
+        message: message,
+        type: 'danger'
+    });
+}
+
+/**
  * Copy variable to clipboard when copy button clicked.
  */
 function initCopyButtons() {
@@ -15,12 +26,18 @@ function initCopyButtons() {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
             var text = this.getAttribute('data-clipboard');
+
+            // Pano izni yoksa ya da sayfa güvenli bağlamda değilse yazma
+            // reddediliyor; ikon değişmediği için kullanıcı kopyalandığını
+            // sanıyordu.
             navigator.clipboard.writeText(text).then(function () {
                 var icon = btn.querySelector('i');
                 icon.className = 'bi bi-check-lg text-success';
                 setTimeout(function () {
                     icon.className = 'bi bi-clipboard';
                 }, 1500);
+            }).catch(function () {
+                showError('Kopyalanamadı', 'Değişken panoya kopyalanamadı, elle seçip kopyalayabilirsiniz: ' + text);
             });
         });
     });
@@ -81,7 +98,15 @@ function initPreview() {
             },
             body: JSON.stringify({ subject: subject, body: body })
         })
-        .then(function (response) { return response.json(); })
+        .then(function (response) {
+            // Hata yanıtı JSON olmayabilir (oturum düştüyse giriş sayfası
+            // döner); gövdeyi ayrıştırmadan önce durum kodu sınanıyor.
+            if (!response.ok) {
+                throw new Error('Sunucu ' + response.status + ' döndü.');
+            }
+
+            return response.json();
+        })
         .then(function (data) {
             document.getElementById('previewSubject').textContent = data.subject;
 
@@ -95,8 +120,7 @@ function initPreview() {
             modal.show();
         })
         .catch(function (err) {
-            console.error('Preview error:', err);
-            alert('Önizleme yüklenirken hata oluştu.');
+            showError('Önizleme açılamadı', err.message || 'Şablon önizlemesi yüklenirken bir hata oluştu.');
         })
         .finally(function () {
             btnPreview.disabled = false;
