@@ -288,6 +288,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="subscribers" :total="$subscribers->total()" />
                         </div>
                     </div>
                 </div>

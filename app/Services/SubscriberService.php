@@ -286,7 +286,26 @@ final class SubscriberService
      * @param array<string, mixed>|null $filters
      * @return LengthAwarePaginator<int, Subscriber>
      */
-    public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['search', 'status', 'source', 'locale', 'list_id', 'unlisted', 'from', 'to', 'sort'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed>|null $filters
+     * @return Builder<Subscriber>
+     */
+    public function query(?array $filters = null): Builder
     {
         $filters ??= [];
 
@@ -339,7 +358,15 @@ final class SubscriberService
             default  => $query->latest('id'),
         };
 
-        return $query->paginate($perPage)->withQueryString();
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed>|null $filters
+     */
+    public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
+    {
+        return $this->query($filters)->paginate($perPage)->withQueryString();
     }
 
     /**

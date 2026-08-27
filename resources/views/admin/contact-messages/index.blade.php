@@ -153,6 +153,8 @@
                             <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }} mesaj</option>
                         @endforeach
                     </select>
+
+                    <x-export-menu export="contact-messages" :total="$messages->total()" />
                 </div>
             </div>
 

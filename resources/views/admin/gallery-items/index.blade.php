@@ -154,6 +154,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="gallery-items" :total="$items->total()" />
                 </div>
             </form>
         </div>

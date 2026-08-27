@@ -64,6 +64,10 @@ return [
         'sliders'          => App\Exports\SliderExport::class,
         'popups'           => App\Exports\PopupExport::class,
         'faqs'             => App\Exports\FaqExport::class,
+        'gallery-categories' => App\Exports\GalleryCategoryExport::class,
+        'gallery-items'      => App\Exports\GalleryItemExport::class,
+        'contact-messages'   => App\Exports\ContactMessageExport::class,
+        'subscribers'        => App\Exports\SubscriberExport::class,
     ],
 
 ];

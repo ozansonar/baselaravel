@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class GalleryCategoryService
 {
@@ -34,7 +35,26 @@ final class GalleryCategoryService
     /**
      * @param array<string, mixed>|null $filters
      */
-    public function paginate(int $perPage = 15, ?array $filters = null): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'search'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed>|null $filters
+     * @return Builder<GalleryCategory>
+     */
+    public function query(?array $filters = null): Builder
     {
         $query = $this->onlyGroupRepresentatives(GalleryCategory::withTrashed(), GalleryCategory::class)
             ->sorted()
@@ -69,7 +89,15 @@ final class GalleryCategoryService
             $query->whereNull('deleted_at');
         }
 
-        return $this->attachGroupLocales($query->paginate($perPage), GalleryCategory::class);
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed>|null $filters
+     */
+    public function paginate(int $perPage = 15, ?array $filters = null): LengthAwarePaginator
+    {
+        return $this->attachGroupLocales($this->query($filters)->paginate($perPage), GalleryCategory::class);
     }
 
     /**

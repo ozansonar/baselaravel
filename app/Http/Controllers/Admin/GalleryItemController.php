@@ -30,7 +30,7 @@ final class GalleryItemController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'type', 'category', 'search']);
+        $filters = $request->only($this->galleryService->filterKeys());
 
         return view('admin.gallery-items.index', [
             'items'        => $this->galleryService->paginate($perPage, $filters),
