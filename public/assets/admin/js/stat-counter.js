@@ -55,7 +55,7 @@
     }
 
     function initCounters() {
-        var elements = document.querySelectorAll('.usr-stat-value[data-count]');
+        var elements = document.querySelectorAll('.usr-stat-value[data-count], .nt-stat-value[data-count]');
         if (!elements.length) return;
 
         if ('IntersectionObserver' in window) {

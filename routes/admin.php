@@ -82,9 +82,15 @@ Route::get('aktivite-loglari/{auditLog}', [AuditLogController::class, 'show'])->
 // Notifications (Admin Notification Center)
 Route::get('bildirimler',                        [NotificationController::class, 'index'])->name('notifications.index');
 Route::get('bildirimler/recent',                 [NotificationController::class, 'recent'])->name('notifications.recent');
-Route::post('bildirimler/{notification}/okundu', [NotificationController::class, 'markRead'])->name('notifications.mark-read');
-Route::post('bildirimler/tumunu-okundu',         [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
-Route::delete('bildirimler/{notification}',      [NotificationController::class, 'destroy'])->name('notifications.destroy');
+Route::post('bildirimler/{notification}/okundu',   [NotificationController::class, 'markRead'])->name('notifications.mark-read');
+Route::post('bildirimler/{notification}/okunmadi', [NotificationController::class, 'markUnread'])->name('notifications.mark-unread');
+Route::post('bildirimler/tumunu-okundu',          [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+// Toplu işlemler tekil silme kuralından ÖNCE: "toplu-sil" de bir {notification}
+// parametresi gibi görünür ve sonra tanımlanırsa oraya takılır.
+Route::post('bildirimler/toplu-okundu',           [NotificationController::class, 'bulkMarkRead'])->name('notifications.bulk-mark-read');
+Route::delete('bildirimler/toplu-sil',            [NotificationController::class, 'bulkDestroy'])->name('notifications.bulk-destroy');
+Route::delete('bildirimler/tumunu-sil',           [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
+Route::delete('bildirimler/{notification}',       [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
 // Backups
 Route::get('yedekler',                  [BackupController::class, 'index'])->name('backups.index');

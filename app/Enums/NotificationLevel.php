@@ -34,6 +34,37 @@ enum NotificationLevel: string
         };
     }
 
+    /**
+     * Bildirim listesindeki yuvarlak ikonun tema sınıfı.
+     *
+     * Tema ikon renklerini olay türüne göre adlandırmış (system, security,
+     * user...); buradaki eşleme seviyenin anlamını o renklere bağlıyor:
+     * kırmızı hata, turuncu uyarı, mavi bilgi, yeşil başarı.
+     */
+    public function iconVariant(): string
+    {
+        return match ($this) {
+            self::Critical => 'critical',
+            self::Error    => 'security',
+            self::Warning  => 'update',
+            self::Info     => 'system',
+            self::Success  => 'user',
+        };
+    }
+
+    /**
+     * Bildirim kartındaki seviye etiketinin tema sınıfı.
+     */
+    public function tagVariant(): string
+    {
+        return match ($this) {
+            self::Critical, self::Error => 'critical',
+            self::Warning               => 'warning',
+            self::Info                  => 'info',
+            self::Success               => 'success',
+        };
+    }
+
     public function icon(): string
     {
         return match ($this) {

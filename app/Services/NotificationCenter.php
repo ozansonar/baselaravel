@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\NotificationLevel;
 use App\Models\AdminNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -90,6 +91,156 @@ final class NotificationCenter
             ->forUser($userId)
             ->unread()
             ->count();
+    }
+
+    /**
+     * Bildirim merkezindeki özet kutuları.
+     *
+     * @return array{total: int, unread: int, today: int, critical: int}
+     */
+    public static function stats(?int $userId = null): array
+    {
+        $base = static fn (): Builder => AdminNotification::query()->forUser($userId);
+
+        return [
+            'total'    => $base()->count(),
+            'unread'   => $base()->whereNull('read_at')->count(),
+            'today'    => $base()->whereDate('created_at', now()->toDateString())->count(),
+            'critical' => $base()->whereIn('level', [NotificationLevel::Critical->value, NotificationLevel::Error->value])->count(),
+        ];
+    }
+
+    /**
+     * Sekme rozetleri için seviye başına adet.
+     *
+     * @return array<string, int>
+     */
+    public static function levelCounts(?int $userId = null): array
+    {
+        /** @var array<string, int> $counts */
+        $counts = AdminNotification::query()
+            ->forUser($userId)
+            ->selectRaw('level, count(*) as total')
+            ->groupBy('level')
+            ->pluck('total', 'level')
+            ->all();
+
+        return $counts;
+    }
+
+    /**
+     * "Bildirim Özeti" kartındaki dağılım — hangi olay ne sıklıkta bildirim
+     * üretiyor.
+     *
+     * Aynı işin başarılı ve başarısız hâli ayrı type değerleri taşıyor
+     * (backup_completed / backup_failed); okuyan için ikisi de "Yedekleme"
+     * olduğundan satırlar etikete göre birleştirilir.
+     *
+     * @return list<array{label: string, count: int, percent: int, color: string}>
+     */
+    public static function typeSummary(?int $userId = null, int $limit = 6): array
+    {
+        $rows = AdminNotification::query()
+            ->forUser($userId)
+            ->selectRaw('type, count(*) as total')
+            ->groupBy('type')
+            ->get();
+
+        /** @var array<string, array{label: string, count: int, color: string}> $merged */
+        $merged = [];
+
+        foreach ($rows as $row) {
+            $sample = new AdminNotification(['type' => $row->type]);
+            $label = $sample->typeLabel();
+
+            $merged[$label] ??= ['label' => $label, 'count' => 0, 'color' => self::summaryColor($sample->typeTagVariant())];
+            $merged[$label]['count'] += (int) $row->total;
+        }
+
+        $summary = array_values($merged);
+
+        usort($summary, static fn (array $a, array $b): int => $b['count'] <=> $a['count']);
+
+        $summary = array_slice($summary, 0, $limit);
+        $highest = $summary === [] ? 0 : (int) max(array_column($summary, 'count'));
+
+        return array_map(static function (array $row) use ($highest): array {
+            // Çubuklar en yoğun türe göre ölçekleniyor; toplam içindeki pay
+            // değil, birbirine göre büyüklük okunuyor. Genişlik satır içi style
+            // yerine sınıfla verildiği için beşin katına yuvarlanıyor.
+            $row['percent'] = $highest > 0 ? (int) (round($row['count'] / $highest * 100 / 5) * 5) : 0;
+
+            return $row;
+        }, $summary);
+    }
+
+    /**
+     * Tema etiket sınıfını özet çubuğunun renk sınıfına çevirir.
+     */
+    private static function summaryColor(string $variant): string
+    {
+        return match ($variant) {
+            'security' => 'c-red',
+            'content'  => 'c-purple',
+            'update'   => 'c-orange',
+            'user'     => 'c-green',
+            default    => 'c-blue',
+        };
+    }
+
+    /**
+     * Okundu işaretini geri al — yanlışlıkla okunan bildirim listede kalsın.
+     */
+    public static function markUnread(int $notificationId, ?int $userId = null): bool
+    {
+        return AdminNotification::query()
+            ->where('id', $notificationId)
+            ->forUser($userId)
+            ->update(['read_at' => null]) > 0;
+    }
+
+    /**
+     * @param list<int> $ids
+     */
+    public static function markManyRead(array $ids, ?int $userId = null): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        return AdminNotification::query()
+            ->whereIn('id', $ids)
+            ->forUser($userId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+    }
+
+    /**
+     * Seçilen bildirimleri sil.
+     *
+     * Başka bir yöneticiye özel bildirim silinemez: forUser zaten yalnızca
+     * kendi bildirimlerini ve herkese açık olanları kapsar.
+     *
+     * @param list<int> $ids
+     */
+    public static function deleteMany(array $ids, ?int $userId = null): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        return AdminNotification::query()
+            ->whereIn('id', $ids)
+            ->forUser($userId)
+            ->delete();
+    }
+
+    /**
+     * Listeyi tamamen boşalt.
+     */
+    public static function deleteAll(?int $userId = null): int
+    {
+        return AdminNotification::query()->forUser($userId)->delete();
     }
 
     /**
