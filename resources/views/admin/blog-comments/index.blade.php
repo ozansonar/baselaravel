@@ -134,7 +134,7 @@
                 @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="commentSearch" placeholder="Ad, e-posta veya yorum içeriğinde ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="commentSearch" placeholder="Ad, e-posta veya yorum içeriğinde ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.blog-comments.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -142,7 +142,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -167,7 +167,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>Kişi</th>
                             <th>Yazı</th>
@@ -180,7 +180,7 @@
                     <tbody id="commentsTableBody">
                         @forelse($comments as $comment)
                             <tr data-status="{{ $comment->trashed() ? 'trashed' : $comment->status->value }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox comment-checkbox" value="{{ $comment->id }}" onchange="updateBulk()"></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox comment-checkbox" value="{{ $comment->id }}" onchange="updateBulk()" data-fv-ignore></td>
                                 <td data-label="Kişi">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $comment->name }}</span>

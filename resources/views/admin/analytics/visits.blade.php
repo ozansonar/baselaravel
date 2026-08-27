@@ -88,22 +88,22 @@
             <form method="GET" action="{{ route('admin.analytics.visits') }}" class="cl-toolbar" id="visitsFilterForm">
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="url" id="urlSearch" placeholder="Sayfa URL'si ile ara..." value="{{ $filters['url'] ?? '' }}">
+                    <input type="text" name="url" id="urlSearch" placeholder="Sayfa URL'si ile ara..." value="{{ $filters['url'] ?? '' }}" data-fv-ignore>
                 </div>
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="is_bot" id="filterBot" onchange="document.getElementById('visitsFilterForm').submit()">
+                    <select class="cl-filter-select" name="is_bot" id="filterBot" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Trafik</option>
                         <option value="0" {{ ($filters['is_bot'] ?? '') === '0' ? 'selected' : '' }}>Sadece İnsan</option>
                         <option value="1" {{ ($filters['is_bot'] ?? '') === '1' ? 'selected' : '' }}>Sadece Bot</option>
                     </select>
-                    <select class="cl-filter-select" name="device_type" id="filterDevice" onchange="document.getElementById('visitsFilterForm').submit()">
+                    <select class="cl-filter-select" name="device_type" id="filterDevice" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Cihazlar</option>
                         @foreach(['desktop' => 'Masaüstü', 'mobile' => 'Mobil', 'tablet' => 'Tablet', 'bot' => 'Bot', 'other' => 'Diğer'] as $val => $label)
                             <option value="{{ $val }}" {{ ($filters['device_type'] ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
-                    <input type="date" name="from" class="cl-filter-select" value="{{ $filters['from'] ?? '' }}" placeholder="Başlangıç" title="Başlangıç tarihi" onchange="document.getElementById('visitsFilterForm').submit()">
-                    <input type="date" name="to" class="cl-filter-select" value="{{ $filters['to'] ?? '' }}" placeholder="Bitiş" title="Bitiş tarihi" onchange="document.getElementById('visitsFilterForm').submit()">
+                    <input type="date" name="from" class="cl-filter-select" value="{{ $filters['from'] ?? '' }}" placeholder="Başlangıç" title="Başlangıç tarihi" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                    <input type="date" name="to" class="cl-filter-select" value="{{ $filters['to'] ?? '' }}" placeholder="Bitiş" title="Bitiş tarihi" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     @if(!empty(array_filter($filters)))

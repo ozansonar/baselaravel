@@ -116,7 +116,7 @@
 
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Açıklama, IP veya adres içinde ara...">
+                    <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Açıklama, IP veya adres içinde ara..." data-fv-ignore>
                 </div>
 
                 {{-- Alanların hepsi başlıklı: seçim kutuları ile tarih alanları
@@ -126,7 +126,7 @@
                         <span>Kullanıcı</span>
                         <select class="cl-filter-select" name="user_id" aria-label="Kullanıcı"
                                 data-select2-search="always"
-                                onchange="document.getElementById('alFilterForm').submit()">
+                                onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kullanıcılar</option>
                             <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
                             @foreach($users as $user)
@@ -141,7 +141,7 @@
                         <span>Kayıt türü</span>
                         <select class="cl-filter-select" name="model" aria-label="Kayıt türü"
                                 data-select2-search="always"
-                                onchange="document.getElementById('alFilterForm').submit()">
+                                onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kayıt türleri</option>
                             @foreach($modelOptions as $class => $option)
                                 <option value="{{ $class }}" {{ $filters['model'] === $class ? 'selected' : '' }}>
@@ -155,7 +155,7 @@
                         <span>IP adresi</span>
                         <select class="cl-filter-select" name="ip" aria-label="IP adresi"
                                 data-select2-search="always"
-                                onchange="document.getElementById('alFilterForm').submit()">
+                                onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                             <option value="">Tüm IP adresleri</option>
                             @foreach($ipOptions as $ip => $count)
                                 <option value="{{ $ip }}" {{ $filters['ip'] === (string) $ip ? 'selected' : '' }}>
@@ -167,12 +167,12 @@
 
                     <div class="al-field">
                         <span>Başlangıç</span>
-                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi">
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi" data-fv-ignore>
                     </div>
 
                     <div class="al-field">
                         <span>Bitiş</span>
-                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi">
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi" data-fv-ignore>
                     </div>
 
                     <div class="al-field al-field--actions ms-auto">
@@ -183,7 +183,7 @@
                             </a>
                             <div class="cl-per-page">
                                 <label for="alPerPage">Göster:</label>
-                                <select id="alPerPage" name="per_page" onchange="document.getElementById('alFilterForm').submit()">
+                                <select id="alPerPage" name="per_page" onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                                     @foreach($perPageOptions as $option)
                                         <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
                                     @endforeach

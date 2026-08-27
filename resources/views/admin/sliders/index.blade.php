@@ -121,7 +121,7 @@
                 @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="sliderSearch" placeholder="Slider başlığı ile ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="sliderSearch" placeholder="Slider başlığı ile ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.sliders.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -129,7 +129,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -153,7 +153,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>Görsel</th>
                             <th>Başlık</th>
@@ -166,7 +166,7 @@
                     <tbody id="slidersTableBody">
                         @forelse($sliders as $slider)
                             <tr data-status="{{ $slider->trashed() ? 'trashed' : ($slider->is_active ? 'active' : 'passive') }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox slider-checkbox" value="{{ $slider->id }}" onchange="updateBulk()"></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox slider-checkbox" value="{{ $slider->id }}" onchange="updateBulk()" data-fv-ignore></td>
                                 <td data-label="Görsel">
                                     @if($slider->image)
                                         <img src="{{ upload_url($slider->image, 'thumb') }}"

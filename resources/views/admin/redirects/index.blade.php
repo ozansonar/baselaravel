@@ -83,18 +83,18 @@
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="text" id="redirectSearch" name="search" value="{{ request('search') }}"
-                           placeholder="Eski veya yeni URL ile ara...">
+                           placeholder="Eski veya yeni URL ile ara..." data-fv-ignore>
                 </div>
 
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="status_code" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" name="status_code" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Kodlar</option>
                         @foreach(\App\Enums\RedirectStatus::cases() as $status)
                             <option value="{{ $status->value }}" @selected(request('status_code') === (string) $status->value)>{{ $status->label() }}</option>
                         @endforeach
                     </select>
 
-                    <select class="cl-filter-select" name="status" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" name="status" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Durumlar</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
                         <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Pasif</option>
@@ -107,7 +107,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -181,7 +181,7 @@
                                                type="checkbox"
                                                data-id="{{ $redirect->id }}"
                                                data-url="{{ route('admin.redirects.toggle-active', $redirect) }}"
-                                               {{ $redirect->is_active ? 'checked' : '' }}>
+                                               {{ $redirect->is_active ? 'checked' : '' }} data-fv-ignore>
                                     </div>
                                 </td>
                                 <td class="text-end">
@@ -271,6 +271,7 @@
                             <div class="input-group input-group-theme">
                                 <span class="input-group-text"><i class="bi bi-arrow-right"></i></span>
                                 <input type="text" class="form-control form-control-theme" id="newUrl" name="new_url"
+                                       data-validation-engine="validate[maxSize[500]]"
                                        placeholder="/yeni-sayfa-adresi">
                             </div>
                             <small class="form-text text-clr-muted">
@@ -284,12 +285,13 @@
                         <div class="mb-3">
                             <label for="redirectNote" class="form-label text-clr-secondary">Not</label>
                             <textarea class="form-control form-control-theme" id="redirectNote" name="note"
+                                      data-validation-engine="validate[maxSize[500]]"
                                       rows="2" placeholder="Opsiyonel açıklama..."></textarea>
                         </div>
 
                         {{-- Aktif --}}
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="redirectIsActive" name="is_active" value="1" checked>
+                            <input class="form-check-input" type="checkbox" id="redirectIsActive" name="is_active" value="1" checked data-fv-ignore>
                             <label class="form-check-label text-clr-secondary" for="redirectIsActive">Aktif</label>
                         </div>
                     </div>

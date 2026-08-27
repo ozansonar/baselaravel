@@ -127,7 +127,7 @@
                 @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="pageSearch" placeholder="Sayfa adı veya slug ile ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="pageSearch" placeholder="Sayfa adı veya slug ile ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.pages.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -135,7 +135,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -159,7 +159,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>Sayfa</th>
                             <th>Durum</th>
@@ -171,7 +171,7 @@
                     <tbody id="pagesTableBody">
                         @forelse($pages as $page)
                             <tr data-status="{{ $page->trashed() ? 'trashed' : $page->status->value }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox page-checkbox" value="{{ $page->id }}" onchange="updateBulk()"></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox page-checkbox" value="{{ $page->id }}" onchange="updateBulk()" data-fv-ignore></td>
                                 <td data-label="Sayfa">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $page->title }}</span>

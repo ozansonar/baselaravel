@@ -121,7 +121,7 @@
                 @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="categorySearch" placeholder="Kategori adı ile ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="categorySearch" placeholder="Kategori adı ile ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.gallery-categories.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -129,7 +129,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach

@@ -124,7 +124,7 @@
                 @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="categorySearch" placeholder="Kategori adı veya slug ile ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="categorySearch" placeholder="Kategori adı veya slug ile ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.blog-categories.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -132,7 +132,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -156,7 +156,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>Kategori</th>
                             <th class="d-none d-md-table-cell">İkon</th>
@@ -169,7 +169,7 @@
                     <tbody id="categoriesTableBody">
                         @forelse($categories as $category)
                             <tr data-status="{{ $category->trashed() ? 'trashed' : ($category->is_active ? 'active' : 'passive') }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox category-checkbox" value="{{ $category->id }}" onchange="updateBulk()"></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox category-checkbox" value="{{ $category->id }}" onchange="updateBulk()" data-fv-ignore></td>
                                 <td data-label="Kategori">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $category->name }}</span>

@@ -23,7 +23,7 @@
 
         {{-- Mobile Section Jumper --}}
         <div class="d-lg-none mb-4">
-          <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+          <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0" data-fv-ignore>
             <option value="" disabled selected>Bölüme git...</option>
             <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
             <option value="section-content_{{ $language->code }}">İçerik Editörü</option>
@@ -376,7 +376,7 @@
                     id="published_at_{{ $language->code }}"
                     name="translations[{{ $language->code }}][published_at]"
                     value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}"
-                  >
+                   data-validation-engine="validate[custom[date]]">
                   @error("translations.{$language->code}.published_at")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror

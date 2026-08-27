@@ -94,11 +94,11 @@
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="search" id="translationSearch" placeholder="Metin veya anahtar ara… (örn: giriş, nav.home)"
-                           autocomplete="off">
+                           autocomplete="off" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <label class="d-flex align-items-center gap-2 mb-0">
-                        <input type="checkbox" id="onlyChanged">
+                        <input type="checkbox" id="onlyChanged" data-fv-ignore>
                         <span class="text-clr-secondary small">Yalnızca değiştirilenler</span>
                     </label>
                     <span class="text-clr-secondary small ms-3" id="searchCount"></span>
@@ -143,11 +143,13 @@
                                     @if($row['multiline'])
                                         <textarea class="stg-textarea" id="k{{ md5($row['key']) }}"
                                                   name="values[{{ $row['key'] }}]" rows="3"
+                                                  data-validation-engine="validate[maxSize[5000]]"
                                                   data-default="{{ $row['default'] }}"
                                                   {{ $canEdit ? '' : 'disabled' }}>{{ $row['value'] }}</textarea>
                                     @else
                                         <input type="text" class="stg-input" id="k{{ md5($row['key']) }}"
                                                name="values[{{ $row['key'] }}]" value="{{ $row['value'] }}"
+                                               data-validation-engine="validate[maxSize[5000]]"
                                                data-default="{{ $row['default'] }}"
                                                {{ $canEdit ? '' : 'disabled' }}>
                                     @endif

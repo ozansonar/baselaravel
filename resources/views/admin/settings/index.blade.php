@@ -152,28 +152,28 @@
                     <div class="stg-field">
                         <label class="stg-label">Proje Adı</label>
                         <input type="text" class="stg-input" name="settings[site_name]"
-                               value="{{ $s('site_name', config('app.name')) }}" placeholder="Projenizin adını girin">
+                               value="{{ $s('site_name', config('app.name')) }}" placeholder="Projenizin adını girin" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Proje genelinde kullanılacak ana isim (navbar, footer, e-postalar, SEO vb.)</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Site Başlığı</label>
                         <input type="text" class="stg-input" name="settings[site_title]"
-                               value="{{ $s('site_title') }}" placeholder="Site başlığını girin">
+                               value="{{ $s('site_title') }}" placeholder="Site başlığını girin" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Tarayıcı sekmesinde ve başlık çubuğunda görüntülenir</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Site Açıklaması</label>
                         <textarea class="stg-textarea" name="settings[site_description]" rows="3"
-                                  placeholder="Kısa bir açıklama yazın">{{ $s('site_description') }}</textarea>
+                                  placeholder="Kısa bir açıklama yazın" data-validation-engine="validate[maxSize[10000]]">{{ $s('site_description') }}</textarea>
                         <small class="stg-hint">Ana sayfada ve meta description'da kullanılır</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Site Anahtar Kelimeleri</label>
                         <textarea class="stg-textarea" name="settings[site_keywords]" rows="2"
-                                  placeholder="virgülle ayırarak yazın">{{ $s('site_keywords') }}</textarea>
+                                  placeholder="virgülle ayırarak yazın" data-validation-engine="validate[maxSize[10000]]">{{ $s('site_keywords') }}</textarea>
                         <small class="stg-hint">SEO için meta keywords. Virgülle ayırarak yazın</small>
                     </div>
                 </div>
@@ -199,7 +199,7 @@
                                 @endif
                             </div>
                             <div class="stg-logo-actions">
-                                <input type="file" id="logoFileInput" name="files[site_logo]" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
+                                <input type="file" id="logoFileInput" name="files[site_logo]" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/png,image/jpeg,image/svg+xml,image/webp">
                                 <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('logoFileInput').click()">
                                     <i class="bi bi-upload"></i> Logo Yükle
                                 </button>
@@ -222,7 +222,7 @@
                                 @endif
                             </div>
                             <div class="stg-logo-actions">
-                                <input type="file" id="faviconFileInput" name="files[site_favicon]" accept="image/png,image/x-icon,image/svg+xml" hidden>
+                                <input type="file" id="faviconFileInput" name="files[site_favicon]" accept="image/png,image/x-icon,image/svg+xml" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/png,image/x-icon,image/svg+xml">
                                 <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('faviconFileInput').click()">
                                     <i class="bi bi-upload"></i> Favicon Yükle
                                 </button>
@@ -241,14 +241,14 @@
                     <div class="stg-field">
                         <label class="stg-label">Footer Metni</label>
                         <input type="text" class="stg-input" name="settings[footer_text]"
-                               value="{{ $s('footer_text') }}" placeholder="Footer metin bilgisi">
+                               value="{{ $s('footer_text') }}" placeholder="Footer metin bilgisi" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Site alt kısmında görünecek telif hakkı metni</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Footer Kredi Metni</label>
                         <input type="text" class="stg-input" name="settings[footer_credit]"
-                               value="{{ $s('footer_credit') }}" placeholder="Örn: Acme Yazılım tarafından geliştirildi">
+                               value="{{ $s('footer_credit') }}" placeholder="Örn: Acme Yazılım tarafından geliştirildi" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Footer'ın sağ tarafında görünür. Boş bırakılırsa hiç gösterilmez.</small>
                     </div>
                 </div>
@@ -279,25 +279,25 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Telefon (Birincil)</label>
                             <input type="text" class="stg-input" name="settings[contact_phone]"
-                                   value="{{ $s('contact_phone') }}" placeholder="+90 555 123 45 67">
+                                   value="{{ $s('contact_phone') }}" placeholder="+90 555 123 45 67" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                         <div class="stg-field stg-half">
                             <label class="stg-label">Telefon (İkincil)</label>
                             <input type="text" class="stg-input" name="settings[contact_phone_2]"
-                                   value="{{ $s('contact_phone_2') }}" placeholder="+90 555 987 65 43">
+                                   value="{{ $s('contact_phone_2') }}" placeholder="+90 555 987 65 43" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">E-posta Adresi</label>
                         <input type="email" class="stg-input" name="settings[contact_email]"
-                               value="{{ $s('contact_email') }}" placeholder="iletisim@domain.com">
+                               value="{{ $s('contact_email') }}" placeholder="iletisim@domain.com" data-validation-engine="validate[custom[email],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Yönetici Bildirim E-postası</label>
                         <input type="email" class="stg-input" name="settings[admin_notification_email]"
-                               value="{{ $s('admin_notification_email') }}" placeholder="bildirim@domain.com">
+                               value="{{ $s('admin_notification_email') }}" placeholder="bildirim@domain.com" data-validation-engine="validate[custom[email],maxSize[10000]]">
                         <small class="stg-help-text">Sistem bildirimleri ve hata uyarıları bu adrese gönderilir. Boşsa "İletişim E-posta Adresi" kullanılır.</small>
                     </div>
                 </div>
@@ -310,13 +310,13 @@
                     <div class="stg-field">
                         <label class="stg-label">Açık Adres</label>
                         <textarea class="stg-textarea" name="settings[contact_address]" rows="3"
-                                  placeholder="Tam adres bilgisi">{{ $s('contact_address') }}</textarea>
+                                  placeholder="Tam adres bilgisi" data-validation-engine="validate[maxSize[10000]]">{{ $s('contact_address') }}</textarea>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Google Maps Embed Kodu</label>
                         <textarea class="stg-textarea" name="settings[contact_map_embed]" rows="4"
-                                  placeholder="<iframe src='...'></iframe> veya Google Maps linki">{{ $s('contact_map_embed') }}</textarea>
+                                  placeholder="<iframe src='...'></iframe> veya Google Maps linki" data-validation-engine="validate[maxSize[10000]]">{{ $s('contact_map_embed') }}</textarea>
                         <small class="stg-hint">Google Maps'ten alacağınız embed iframe kodunu veya linki yapıştırın</small>
                     </div>
                 </div>
@@ -330,18 +330,18 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Hafta İçi</label>
                             <input type="text" class="stg-input" name="settings[working_hours_weekday]"
-                                   value="{{ $s('working_hours_weekday', '08:00 - 18:00') }}" placeholder="08:00 - 18:00">
+                                   value="{{ $s('working_hours_weekday', '08:00 - 18:00') }}" placeholder="08:00 - 18:00" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                         <div class="stg-field stg-half">
                             <label class="stg-label">Cumartesi</label>
                             <input type="text" class="stg-input" name="settings[working_hours_saturday]"
-                                   value="{{ $s('working_hours_saturday', '09:00 - 16:00') }}" placeholder="09:00 - 16:00">
+                                   value="{{ $s('working_hours_saturday', '09:00 - 16:00') }}" placeholder="09:00 - 16:00" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                     </div>
                     <div class="stg-field">
                         <label class="stg-label">Pazar</label>
                         <input type="text" class="stg-input" name="settings[working_hours_sunday]"
-                               value="{{ $s('working_hours_sunday', 'Kapalı') }}" placeholder="Kapalı">
+                               value="{{ $s('working_hours_sunday', 'Kapalı') }}" placeholder="Kapalı" data-validation-engine="validate[maxSize[10000]]">
                     </div>
                 </div>
             </form>
@@ -370,38 +370,38 @@
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-facebook me-2 text-primary"></i>Facebook</label>
                         <input type="url" class="stg-input" name="settings[social_facebook]"
-                               value="{{ $s('social_facebook') }}" placeholder="https://facebook.com/sayfaniz">
+                               value="{{ $s('social_facebook') }}" placeholder="https://facebook.com/sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-instagram me-2 text-instagram"></i>Instagram</label>
                         <input type="url" class="stg-input" name="settings[social_instagram]"
-                               value="{{ $s('social_instagram') }}" placeholder="https://instagram.com/sayfaniz">
+                               value="{{ $s('social_instagram') }}" placeholder="https://instagram.com/sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-twitter-x me-2"></i>X (Twitter)</label>
                         <input type="url" class="stg-input" name="settings[social_twitter]"
-                               value="{{ $s('social_twitter') }}" placeholder="https://x.com/sayfaniz">
+                               value="{{ $s('social_twitter') }}" placeholder="https://x.com/sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-youtube me-2 text-danger"></i>YouTube</label>
                         <input type="url" class="stg-input" name="settings[social_youtube]"
-                               value="{{ $s('social_youtube') }}" placeholder="https://youtube.com/@kanaliniz">
+                               value="{{ $s('social_youtube') }}" placeholder="https://youtube.com/@kanaliniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-whatsapp me-2 text-success"></i>WhatsApp</label>
                         <input type="text" class="stg-input" name="settings[social_whatsapp]"
-                               value="{{ $s('social_whatsapp') }}" placeholder="https://wa.me/905551234567 veya telefon numarası">
+                               value="{{ $s('social_whatsapp') }}" placeholder="https://wa.me/905551234567 veya telefon numarası" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">WhatsApp linki veya telefon numarası (ör: +905051234567)</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-tiktok me-2"></i>TikTok</label>
                         <input type="url" class="stg-input" name="settings[social_tiktok]"
-                               value="{{ $s('social_tiktok') }}" placeholder="https://tiktok.com/@sayfaniz">
+                               value="{{ $s('social_tiktok') }}" placeholder="https://tiktok.com/@sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
                 </div>
             </form>
@@ -430,14 +430,14 @@
                     <div class="stg-field">
                         <label class="stg-label">Ana Sayfa Başlığı (Title)</label>
                         <input type="text" class="stg-input" name="settings[seo_home_title]"
-                               value="{{ $s('seo_home_title') }}" placeholder="Kurumsal Web Sitesi | {{ $s('site_name', config('app.name')) }}">
+                               value="{{ $s('seo_home_title') }}" placeholder="Kurumsal Web Sitesi | {{ $s('site_name', config('app.name')) }}" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">60 karakter altında tutmanız önerilir</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Ana Sayfa Açıklaması (Meta Description)</label>
                         <textarea class="stg-textarea" name="settings[seo_home_description]" rows="3"
-                                  placeholder="Arama sonuçlarında görünecek açıklama">{{ $s('seo_home_description') }}</textarea>
+                                  placeholder="Arama sonuçlarında görünecek açıklama" data-validation-engine="validate[maxSize[10000]]">{{ $s('seo_home_description') }}</textarea>
                         <small class="stg-hint">155 karakter altında tutmanız önerilir</small>
                     </div>
 
@@ -464,7 +464,7 @@
                         <div class="stg-input-group">
                             <span class="stg-input-prefix">GA</span>
                             <input type="text" class="stg-input" name="settings[google_analytics_id]"
-                                   value="{{ $s('google_analytics_id') }}" placeholder="G-XXXXXXXXXX">
+                                   value="{{ $s('google_analytics_id') }}" placeholder="G-XXXXXXXXXX" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                         <small class="stg-hint">Google Analytics 4 ölçüm kimliği</small>
                     </div>
@@ -474,20 +474,20 @@
                         <div class="stg-input-group">
                             <span class="stg-input-prefix">GTM</span>
                             <input type="text" class="stg-input" name="settings[google_tag_manager_id]"
-                                   value="{{ $s('google_tag_manager_id') }}" placeholder="GTM-XXXXXXX">
+                                   value="{{ $s('google_tag_manager_id') }}" placeholder="GTM-XXXXXXX" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Facebook Pixel ID</label>
                         <input type="text" class="stg-input" name="settings[facebook_pixel_id]"
-                               value="{{ $s('facebook_pixel_id') }}" placeholder="XXXXXXXXXXXXXXX">
+                               value="{{ $s('facebook_pixel_id') }}" placeholder="XXXXXXXXXXXXXXX" data-validation-engine="validate[maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Özel Head Kodu</label>
                         <textarea class="stg-textarea font-mono" name="settings[custom_head_code]" rows="4"
-                                  placeholder="<script> veya <meta> etiketleri">{{ $s('custom_head_code') }}</textarea>
+                                  placeholder="<script> veya <meta> etiketleri" data-validation-engine="validate[maxSize[10000]]">{{ $s('custom_head_code') }}</textarea>
                         <small class="stg-hint">&lt;head&gt; etiketinin sonuna eklenecek özel kod (Google doğrulama, analitik vb.)</small>
                     </div>
                 </div>
@@ -501,13 +501,13 @@
                     <div class="stg-field">
                         <label class="stg-label">OG Başlık</label>
                         <input type="text" class="stg-input" name="settings[og_title]"
-                               value="{{ $s('og_title') }}" placeholder="{{ $s('site_name', config('app.name')) }} - Kurumsal Web Sitesi">
+                               value="{{ $s('og_title') }}" placeholder="{{ $s('site_name', config('app.name')) }} - Kurumsal Web Sitesi" data-validation-engine="validate[maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">OG Açıklama</label>
                         <textarea class="stg-textarea" name="settings[og_description]" rows="2"
-                                  placeholder="Sosyal medya paylaşımlarında görünecek açıklama">{{ $s('og_description') }}</textarea>
+                                  placeholder="Sosyal medya paylaşımlarında görünecek açıklama" data-validation-engine="validate[maxSize[10000]]">{{ $s('og_description') }}</textarea>
                     </div>
                 </div>
             </form>
@@ -546,7 +546,7 @@
                                 @endif
                             </div>
                             <div class="stg-logo-actions">
-                                <input type="file" id="ogImageInput" name="files[og_image]" accept="image/*" hidden>
+                                <input type="file" id="ogImageInput" name="files[og_image]" accept="image/*" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml">
                                 <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('ogImageInput').click()">
                                     <i class="bi bi-upload"></i> Görsel Yükle
                                 </button>
@@ -570,7 +570,7 @@
                             <label class="stg-switch">
                                 <input type="hidden" name="settings[registration_enabled]" value="0">
                                 <input type="checkbox" name="settings[registration_enabled]" value="1"
-                                       {{ $s('registration_enabled', '1') === '1' ? 'checked' : '' }}>
+                                       {{ $s('registration_enabled', '1') === '1' ? 'checked' : '' }} data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
                         </div>
@@ -583,7 +583,7 @@
                                 <input type="hidden" name="settings[maintenance_mode]" value="0">
                                 <input type="checkbox" name="settings[maintenance_mode]" value="1"
                                        {{ $s('maintenance_mode') === '1' ? 'checked' : '' }}
-                                       onchange="document.getElementById('maintenanceDetails').classList.toggle('d-none', !this.checked)">
+                                       onchange="document.getElementById('maintenanceDetails').classList.toggle('d-none', !this.checked)" data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
                         </div>
@@ -600,14 +600,14 @@
                         <div class="stg-field">
                             <label class="stg-label">Bakım Modu Mesajı</label>
                             <textarea name="settings[maintenance_message]" class="stg-input" rows="3"
-                                      placeholder="Sitemiz şu anda planlı bakım çalışması nedeniyle geçici olarak kullanım dışıdır.">{{ $s('maintenance_message') }}</textarea>
+                                      placeholder="Sitemiz şu anda planlı bakım çalışması nedeniyle geçici olarak kullanım dışıdır." data-validation-engine="validate[maxSize[10000]]">{{ $s('maintenance_message') }}</textarea>
                             <small class="stg-hint">Boş bırakılırsa varsayılan mesaj gösterilir</small>
                         </div>
 
                         <div class="stg-field">
                             <label class="stg-label">İzin Verilen IP Adresleri</label>
                             <textarea name="settings[maintenance_allowed_ips]" class="stg-input" rows="4"
-                                      placeholder="192.168.1.1&#10;10.0.0.1">{{ $s('maintenance_allowed_ips') }}</textarea>
+                                      placeholder="192.168.1.1&#10;10.0.0.1" data-validation-engine="validate[maxSize[10000]]">{{ $s('maintenance_allowed_ips') }}</textarea>
                             <small class="stg-hint">Her satıra bir IP adresi yazın. Bu IP'lerden gelen ziyaretçiler bakım modunda da siteyi görebilir.</small>
                         </div>
                     </div>
@@ -638,12 +638,12 @@
                         <div class="stg-field stg-field-wide">
                             <label class="stg-label">SMTP Sunucu Adresi</label>
                             <input type="text" class="stg-input" name="settings[mail_host]"
-                                   value="{{ $s('mail_host') }}" placeholder="smtp.example.com">
+                                   value="{{ $s('mail_host') }}" placeholder="smtp.example.com" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                         <div class="stg-field flex-1">
                             <label class="stg-label">Port</label>
                             <input type="number" class="stg-input" name="settings[mail_port]"
-                                   value="{{ $s('mail_port', '587') }}" placeholder="587">
+                                   value="{{ $s('mail_port', '587') }}" placeholder="587" data-validation-engine="validate[custom[integer],min[1],max[65535]]">
                         </div>
                     </div>
 
@@ -651,19 +651,19 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Kullanıcı Adı</label>
                             <input type="text" class="stg-input" name="settings[mail_username]"
-                                   value="{{ $s('mail_username') }}" placeholder="user@domain.com">
+                                   value="{{ $s('mail_username') }}" placeholder="user@domain.com" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                         <div class="stg-field stg-half">
                             <label class="stg-label">Şifre</label>
                             <input type="password" class="stg-input" name="settings[mail_password]"
-                                   value="{{ $s('mail_password') }}" placeholder="SMTP şifresi">
+                                   value="{{ $s('mail_password') }}" placeholder="SMTP şifresi" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                     </div>
 
                     <div class="stg-row">
                         <div class="stg-field stg-half">
                             <label class="stg-label">Şifreleme</label>
-                            <select class="stg-select" name="settings[mail_encryption]">
+                            <select class="stg-select" name="settings[mail_encryption]" data-fv-ignore>
                                 @foreach(\App\Enums\MailEncryption::cases() as $enc)
                                     <option value="{{ $enc->value }}" @selected($s('mail_encryption', \App\Enums\MailEncryption::Tls->value) === $enc->value)>{{ $enc->label() }}</option>
                                 @endforeach
@@ -672,14 +672,14 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Gönderen Adı</label>
                             <input type="text" class="stg-input" name="settings[mail_from_name]"
-                                   value="{{ $s('mail_from_name') }}" placeholder="Gönderen adı">
+                                   value="{{ $s('mail_from_name') }}" placeholder="Gönderen adı" data-validation-engine="validate[maxSize[10000]]">
                         </div>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Gönderen E-posta</label>
                         <input type="email" class="stg-input" name="settings[mail_from_address]"
-                               value="{{ $s('mail_from_address') }}" placeholder="noreply@domain.com">
+                               value="{{ $s('mail_from_address') }}" placeholder="noreply@domain.com" data-validation-engine="validate[custom[email],maxSize[10000]]">
                     </div>
 
                 </div>
@@ -695,7 +695,7 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Saatlik Mail Limiti</label>
                             <input type="number" class="stg-input" name="settings[mail_hourly_limit]" min="0" step="1"
-                                   value="{{ $s('mail_hourly_limit', '100') }}" placeholder="100">
+                                   value="{{ $s('mail_hourly_limit', '100') }}" placeholder="100" data-validation-engine="validate[custom[integer],min[0],max[100000]]">
                             <small class="stg-hint">
                                 Son 60 dakikada gönderilen mail sayılarak uygulanır, hiçbir koşulda aşılmaz.
                                 Sağlayıcınızın verdiği saatlik kotayı yazın. 0 yazarsanız gönderim durur.
@@ -704,7 +704,7 @@
                         <div class="stg-field stg-half">
                             <label class="stg-label">Tur Başına Mail</label>
                             <input type="number" class="stg-input" name="settings[mail_batch_max]" min="0" step="1"
-                                   value="{{ $s('mail_batch_max', '0') }}" placeholder="0">
+                                   value="{{ $s('mail_batch_max', '0') }}" placeholder="0" data-validation-engine="validate[custom[integer],min[0],max[100000]]">
                             <small class="stg-hint">
                                 Zamanlanmış görev {{ \App\Services\CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada bir çalışır.
                                 <strong>0</strong> bırakırsanız saatlik limit turlara kendiliğinden bölünür — önerilen budur.
@@ -715,7 +715,7 @@
                     <div class="stg-field stg-half">
                         <label class="stg-label">Yeniden Deneme Sayısı</label>
                         <input type="number" class="stg-input" name="settings[mail_max_attempts]" min="1" max="10" step="1"
-                               value="{{ $s('mail_max_attempts', '3') }}" placeholder="3">
+                               value="{{ $s('mail_max_attempts', '3') }}" placeholder="3" data-validation-engine="validate[custom[integer],min[1],max[10]]">
                         <small class="stg-hint">Gönderilemeyen bir mail kaç kez daha denensin. Bu sayıya ulaşan alıcı başarısız sayılır.</small>
                     </div>
                 </div>
@@ -729,18 +729,18 @@
 
                     <div class="stg-field">
                         <label class="stg-label">Alıcı E-posta</label>
-                        <input type="email" class="stg-input" placeholder="test@example.com" id="testEmailInput">
+                        <input type="email" class="stg-input" placeholder="test@example.com" id="testEmailInput" data-fv-ignore>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Konu</label>
                         <input type="text" class="stg-input" id="testEmailSubject"
-                               value="{{ $s('site_name', config('app.name')) }} — E-posta Bilgilendirmesi">
+                               value="{{ $s('site_name', config('app.name')) }} — E-posta Bilgilendirmesi" data-fv-ignore>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Mesaj</label>
-                        <textarea class="stg-textarea" id="testEmailMessage" rows="5">Merhaba, bu e-posta {{ $s('site_name', config('app.name')) }} platformu üzerinden gönderilmiştir. E-posta yapılandırmanız başarıyla tamamlanmıştır. Herhangi bir sorunuz olursa bizimle iletişime geçebilirsiniz.</textarea>
+                        <textarea class="stg-textarea" id="testEmailMessage" rows="5" data-fv-ignore>Merhaba, bu e-posta {{ $s('site_name', config('app.name')) }} platformu üzerinden gönderilmiştir. E-posta yapılandırmanız başarıyla tamamlanmıştır. Herhangi bir sorunuz olursa bizimle iletişime geçebilirsiniz.</textarea>
                     </div>
 
                     <button type="button" class="stg-btn stg-btn-sm" id="sendTestEmailBtn"><i class="bi bi-send"></i> Test Maili Gönder</button>
@@ -767,7 +767,7 @@
                                 @endif
                             </div>
                             <div class="stg-logo-actions">
-                                <input type="file" id="mailLogoFileInput" name="files[mail_logo]" accept="image/png,image/jpeg,image/webp" hidden>
+                                <input type="file" id="mailLogoFileInput" name="files[mail_logo]" accept="image/png,image/jpeg,image/webp" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/png,image/jpeg,image/webp">
                                 <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('mailLogoFileInput').click()">
                                     <i class="bi bi-upload"></i> Logo Yükle
                                 </button>
@@ -795,14 +795,14 @@
                         <div class="stg-mode-cards">
                             <label class="stg-mode-card {{ $s('mail_mode', 'normal') === 'normal' ? 'active' : '' }}">
                                 <input type="radio" name="settings[mail_mode]" value="normal"
-                                       {{ $s('mail_mode', 'normal') === 'normal' ? 'checked' : '' }}>
+                                       {{ $s('mail_mode', 'normal') === 'normal' ? 'checked' : '' }} data-fv-ignore>
                                 <i class="bi bi-send-check"></i>
                                 <strong>Normal Mod</strong>
                                 <small>Mailler asıl alıcıya gider</small>
                             </label>
                             <label class="stg-mode-card {{ $s('mail_mode') === 'developer' ? 'active' : '' }}">
                                 <input type="radio" name="settings[mail_mode]" value="developer"
-                                       {{ $s('mail_mode') === 'developer' ? 'checked' : '' }}>
+                                       {{ $s('mail_mode') === 'developer' ? 'checked' : '' }} data-fv-ignore>
                                 <i class="bi bi-bug"></i>
                                 <strong>Developer / Test Mod</strong>
                                 <small>Tüm mailler test adreslerine yönlendirilir</small>
@@ -813,7 +813,7 @@
                     <div class="stg-field stg-mail-test-addresses {{ $s('mail_mode') === 'developer' ? '' : 'd-none' }}" id="mailTestAddressesField">
                         <label class="stg-label">Test E-posta Adresleri</label>
                         <input type="text" class="stg-input" name="settings[mail_test_addresses]"
-                               value="{{ $s('mail_test_addresses') }}" placeholder="ornek@gmail.com,diger@gmail.com">
+                               value="{{ $s('mail_test_addresses') }}" placeholder="ornek@gmail.com,diger@gmail.com" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Virgülle ayırarak birden fazla adres yazabilirsiniz. Tüm giden mailler bu adreslere yönlendirilecektir.</small>
                     </div>
                 </div>
@@ -847,7 +847,7 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtPrimaryColor"
                                        name="settings[mail_theme_primary_color]"
-                                       value="{{ $s('mail_theme_primary_color', '#4f46e5') }}">
+                                       value="{{ $s('mail_theme_primary_color', '#4f46e5') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtPrimaryColorHex"
                                        value="{{ $s('mail_theme_primary_color', '#4f46e5') }}" maxlength="7" readonly>
                             </div>
@@ -857,7 +857,7 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtPrimaryDarkColor"
                                        name="settings[mail_theme_primary_dark_color]"
-                                       value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}">
+                                       value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtPrimaryDarkColorHex"
                                        value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}" maxlength="7" readonly>
                             </div>
@@ -870,7 +870,7 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtBgColor"
                                        name="settings[mail_theme_bg_color]"
-                                       value="{{ $s('mail_theme_bg_color', '#f8fafc') }}">
+                                       value="{{ $s('mail_theme_bg_color', '#f8fafc') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtBgColorHex"
                                        value="{{ $s('mail_theme_bg_color', '#f8fafc') }}" maxlength="7" readonly>
                             </div>
@@ -880,7 +880,7 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtCardBgColor"
                                        name="settings[mail_theme_card_bg_color]"
-                                       value="{{ $s('mail_theme_card_bg_color', '#ffffff') }}">
+                                       value="{{ $s('mail_theme_card_bg_color', '#ffffff') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtCardBgColorHex"
                                        value="{{ $s('mail_theme_card_bg_color', '#ffffff') }}" maxlength="7" readonly>
                             </div>
@@ -893,7 +893,7 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtTextColor"
                                        name="settings[mail_theme_text_color]"
-                                       value="{{ $s('mail_theme_text_color', '#334155') }}">
+                                       value="{{ $s('mail_theme_text_color', '#334155') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtTextColorHex"
                                        value="{{ $s('mail_theme_text_color', '#334155') }}" maxlength="7" readonly>
                             </div>
@@ -903,7 +903,7 @@
                             <div class="stg-color-field">
                                 <input type="color" class="stg-color-picker" id="mtMutedColor"
                                        name="settings[mail_theme_muted_color]"
-                                       value="{{ $s('mail_theme_muted_color', '#64748b') }}">
+                                       value="{{ $s('mail_theme_muted_color', '#64748b') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtMutedColorHex"
                                        value="{{ $s('mail_theme_muted_color', '#64748b') }}" maxlength="7" readonly>
                             </div>
@@ -922,7 +922,7 @@
                         <label class="stg-label">Footer Yazısı</label>
                         <textarea class="stg-textarea" name="settings[mail_theme_footer_text]" rows="3"
                                   id="mtFooterText"
-                                  placeholder="Sizinle çalışmaktan mutluluk duyuyoruz.">{{ $s('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.') }}</textarea>
+                                  placeholder="Sizinle çalışmaktan mutluluk duyuyoruz." data-validation-engine="validate[maxSize[10000]]">{{ $s('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.') }}</textarea>
                         <small class="stg-hint">E-posta footer bölümünde görünecek açıklama metni</small>
                     </div>
 
@@ -933,7 +933,7 @@
                                 <input type="hidden" name="settings[mail_theme_social_links]" value="0">
                                 <input type="checkbox" name="settings[mail_theme_social_links]" value="1"
                                        id="mtSocialLinks"
-                                       {{ $s('mail_theme_social_links', '1') === '1' ? 'checked' : '' }}>
+                                       {{ $s('mail_theme_social_links', '1') === '1' ? 'checked' : '' }} data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
                             <span class="stg-switch-text">Footer'da sosyal medya ikonlarını göster</span>
@@ -1022,7 +1022,7 @@
                             <label class="stg-switch">
                                 <input type="hidden" name="settings[recaptcha_enabled]" value="0">
                                 <input type="checkbox" name="settings[recaptcha_enabled]" value="1"
-                                       {{ $s('recaptcha_enabled', '0') === '1' ? 'checked' : '' }}>
+                                       {{ $s('recaptcha_enabled', '0') === '1' ? 'checked' : '' }} data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
                         </div>
@@ -1039,14 +1039,14 @@
                     <div class="stg-field">
                         <label class="stg-label">Site Key (Public Key)</label>
                         <input type="text" class="stg-input" name="settings[recaptcha_site_key]"
-                               value="{{ $s('recaptcha_site_key') }}" placeholder="6Lc...">
+                               value="{{ $s('recaptcha_site_key') }}" placeholder="6Lc..." data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Google reCAPTCHA admin panelinden aldığınız site anahtarı</small>
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Secret Key (Private Key)</label>
                         <input type="password" class="stg-input" name="settings[recaptcha_secret_key]"
-                               value="" placeholder="{{ $s('recaptcha_secret_key') ? '●●●●●●●● (değiştirmek için yeni key girin)' : '' }}">
+                               value="" placeholder="{{ $s('recaptcha_secret_key') ? '●●●●●●●● (değiştirmek için yeni key girin)' : '' }}" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Google reCAPTCHA admin panelinden aldığınız gizli anahtar</small>
                     </div>
                 </div>
@@ -1083,7 +1083,7 @@
                                 <input type="hidden" name="settings[telegram_enabled]" value="0">
                                 <input type="checkbox" class="form-check-input" role="switch"
                                        id="telegramEnabledSwitch" name="settings[telegram_enabled]"
-                                       value="1" {{ $tgEnabled ? 'checked' : '' }}>
+                                       value="1" {{ $tgEnabled ? 'checked' : '' }} data-fv-ignore>
                             </div>
                             <span class="stg-switch-text">Telegram bildirimlerini etkinleştir</span>
                         </div>
@@ -1102,7 +1102,7 @@
                         <label class="stg-label">Bot Token</label>
                         <input type="password" class="stg-input" name="settings[telegram_bot_token]"
                                value="" placeholder="{{ $s('telegram_bot_token') ? '●●●●●●●● (değiştirmek için yeni token girin)' : '123456789:ABC-DEF1234ghIkl-zyx57W2v1u123ew11' }}"
-                               autocomplete="new-password">
+                               autocomplete="new-password" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">
                             <a href="https://t.me/BotFather" target="_blank" rel="noopener" class="text-teal">@BotFather</a> üzerinden <code>/newbot</code> komutu ile yeni bir bot oluşturup token alabilirsin. Boş bırakırsan mevcut değer korunur.
                         </small>
@@ -1111,7 +1111,7 @@
                     <div class="stg-field">
                         <label class="stg-label">Chat ID</label>
                         <input type="text" class="stg-input" name="settings[telegram_chat_id]"
-                               value="{{ $s('telegram_chat_id') }}" placeholder="123456789 veya -1001234567890">
+                               value="{{ $s('telegram_chat_id') }}" placeholder="123456789 veya -1001234567890" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">
                             Bildirimi alacak kullanıcı/grup ID'si. Botla sohbet başlattıktan sonra
                             <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> adresinden öğrenebilirsin (<code>chat.id</code>).
@@ -1129,7 +1129,7 @@
 
                     <div class="stg-field">
                         @php $tgLevel = $s('telegram_notify_level', \App\Enums\TelegramNotifyLevel::default()->value); @endphp
-                        <select class="stg-input" name="settings[telegram_notify_level]">
+                        <select class="stg-input" name="settings[telegram_notify_level]" data-fv-ignore>
                             @foreach(\App\Enums\TelegramNotifyLevel::cases() as $level)
                                 <option value="{{ $level->value }}" @selected($tgLevel === $level->value)>{{ $level->label() }}</option>
                             @endforeach
@@ -1193,7 +1193,7 @@
                         <div class="col-md-6">
                             <div class="stg-field">
                                 <label class="stg-label">Saat Dilimi</label>
-                                <select class="stg-select" name="settings[app_timezone]">
+                                <select class="stg-select" name="settings[app_timezone]" data-fv-ignore>
                                     @php $currentTz = $s('app_timezone', \App\Enums\AppTimezone::default()->value); @endphp
                                     @foreach(\App\Enums\AppTimezone::cases() as $tz)
                                         <option value="{{ $tz->value }}" @selected($currentTz === $tz->value)>{{ $tz->label() }}</option>

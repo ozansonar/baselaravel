@@ -202,7 +202,7 @@
                     <i class="bi bi-search"></i>
                     <input type="text" name="search" id="mailLogSearch"
                            placeholder="Alıcı, konu, mailable sınıfı veya hata metni ile ara..."
-                           value="{{ $filters['search'] }}">
+                           value="{{ $filters['search'] }}" data-fv-ignore>
                     @if($filters['search'] !== '')
                         <a href="{{ route('admin.mail-logs.index', request()->except(['search', 'page'])) }}"
                            class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
@@ -218,7 +218,7 @@
                         <span>Mail türü</span>
                         <select class="cl-filter-select" name="mailable" aria-label="Mail türü"
                                 data-select2-search="always"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm mail türleri</option>
                             @foreach($mailableOptions as $class => $option)
                                 <option value="{{ $class }}" {{ $filters['mailable'] === (string) $class ? 'selected' : '' }}>
@@ -232,7 +232,7 @@
                         <span>Alıcı</span>
                         <select class="cl-filter-select" name="recipient" aria-label="Alıcı"
                                 data-select2-search="always"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm alıcılar</option>
                             {{-- Listede olmayan bir adres elle geldiyse (eski bağlantı,
                                  çok sayıda alıcı) seçim kaybolmasın. --}}
@@ -251,7 +251,7 @@
                         <span>Tetikleyen</span>
                         <select class="cl-filter-select" name="user_id" aria-label="Tetikleyen kullanıcı"
                                 data-select2-search="always"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kullanıcılar</option>
                             <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
                             @foreach($userOptions as $user)
@@ -265,7 +265,7 @@
                     <div class="ml-field">
                         <span>Hızlı tarih</span>
                         <select class="cl-filter-select" name="date_filter" id="filterDate" aria-label="Hızlı tarih"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm Tarihler</option>
                             <option value="today" {{ $filters['date_filter'] === 'today' ? 'selected' : '' }}>Bugün</option>
                             <option value="week" {{ $filters['date_filter'] === 'week' ? 'selected' : '' }}>Bu Hafta</option>
@@ -287,7 +287,7 @@
                                 </a>
                             @endif
                         </span>
-                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi">
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi" data-fv-ignore>
                     </div>
 
                     <div class="ml-field">
@@ -300,7 +300,7 @@
                                 </a>
                             @endif
                         </span>
-                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi">
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi" data-fv-ignore>
                     </div>
 
                     <div class="ml-field ml-field--actions ms-auto">
@@ -311,7 +311,7 @@
                             </a>
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
-                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                                     @foreach($perPageOptions as $pp)
                                         <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                                     @endforeach

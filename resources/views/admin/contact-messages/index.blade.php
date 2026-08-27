@@ -141,14 +141,14 @@
                             <input type="hidden" name="per_page" value="{{ request('per_page') }}">
                         @endif
                         <i class="bi bi-search"></i>
-                        <input type="text" name="search" placeholder="Mesajlarda ara..." value="{{ request('search') }}" id="msgSearchInput">
+                        <input type="text" name="search" placeholder="Mesajlarda ara..." value="{{ request('search') }}" id="msgSearchInput" data-fv-ignore>
                     </form>
                 </div>
                 <div class="msg-list-actions">
                     @if(request('search'))
                         <a href="{{ route('admin.contact-messages.index', request()->except(['search', 'page'])) }}" class="msg-action-sm" title="Aramayı Temizle"><i class="bi bi-x-circle"></i></a>
                     @endif
-                    <select class="msg-sort-select" id="perPageSelect" onchange="changePerPage(this.value)">
+                    <select class="msg-sort-select" id="perPageSelect" onchange="changePerPage(this.value)" data-fv-ignore>
                         @foreach([10, 25, 50, 100] as $pp)
                             <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }} mesaj</option>
                         @endforeach
@@ -163,7 +163,7 @@
                          data-id="{{ $message->id }}"
                          onclick="openMessage({{ $message->id }})">
                         <div class="msg-item-check">
-                            <input type="checkbox" class="usr-checkbox msg-checkbox" value="{{ $message->id }}" onclick="event.stopPropagation(); toggleBulk()">
+                            <input type="checkbox" class="usr-checkbox msg-checkbox" value="{{ $message->id }}" onclick="event.stopPropagation(); toggleBulk()" data-fv-ignore>
                         </div>
                         <div class="msg-avatar msg-avatar--{{ $message->trashed() ? 'gray' : ($message->is_read ? 'teal' : 'orange') }}">
                             {{ strtoupper(mb_substr($message->name, 0, 1)) }}{{ strtoupper(mb_substr(explode(' ', $message->name)[1] ?? '', 0, 1)) }}
@@ -266,7 +266,7 @@
                             <button class="cm-reply-close" onclick="toggleReplyForm()"><i class="bi bi-x-lg"></i></button>
                         </div>
                         <div class="cm-reply-to" id="replyToInfo"></div>
-                        <textarea class="cm-reply-textarea" id="replyBody" rows="6" placeholder="Yanıtınızı buraya yazın..."></textarea>
+                        <textarea class="cm-reply-textarea" id="replyBody" rows="6" placeholder="Yanıtınızı buraya yazın..." data-fv-ignore></textarea>
                         <div class="cm-reply-footer">
                             <span class="cm-reply-hint"><i class="bi bi-info-circle"></i> Yanıt e-posta olarak gönderilecektir</span>
                             <div class="d-flex gap-2">

@@ -121,7 +121,7 @@
                 @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="faqSearch" placeholder="Soru veya cevap içeriğinde ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="faqSearch" placeholder="Soru veya cevap içeriğinde ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.faqs.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -129,7 +129,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -153,7 +153,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>Soru</th>
                             <th class="d-none d-md-table-cell">Cevap</th>
@@ -165,7 +165,7 @@
                     <tbody id="faqsTableBody">
                         @forelse($faqs as $faq)
                             <tr data-status="{{ $faq->trashed() ? 'trashed' : ($faq->is_active ? 'active' : 'passive') }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox faq-checkbox" value="{{ $faq->id }}" onchange="updateBulk()"></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox faq-checkbox" value="{{ $faq->id }}" onchange="updateBulk()" data-fv-ignore></td>
                                 <td data-label="Soru">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ Str::limit($faq->question, 60) }}</span>

@@ -172,7 +172,7 @@
                     <h6 class="mb-0"><i class="bi bi-grid-3x3 me-2 text-teal"></i>İzin Matrisi</h6>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <select class="form-select form-select-sm form-control-theme" style="width:auto" id="matrixCategoryFilter">
+                    <select class="form-select form-select-sm form-control-theme" style="width:auto" id="matrixCategoryFilter" data-fv-ignore>
                         <option value="all">Tüm Kategoriler</option>
                         @foreach($matrix as $key => $section)
                             <option value="{{ $key }}">{{ $section['group']->label() }}</option>
@@ -221,7 +221,7 @@
                                             @endphp
                                             <td>
                                                 <label class="rp-check {{ $granted ? 'granted' : '' }}">
-                                                    <input type="checkbox"
+                                                    <input type="checkbox" data-fv-ignore
                                                            name="permissions[{{ $role->slug }}][]"
                                                            value="{{ $permission->key }}"
                                                            @checked($granted)
@@ -273,7 +273,8 @@
                         <div class="mb-3">
                             <label class="form-label text-clr-secondary" for="roleDescription">Açıklama</label>
                             <textarea class="form-control form-control-theme" id="roleDescription"
-                                      name="description" rows="2">{{ old('description') }}</textarea>
+                                      name="description" rows="2"
+                                      data-validation-engine="validate[maxSize[255]]">{{ old('description') }}</textarea>
                         </div>
                     </div>
 

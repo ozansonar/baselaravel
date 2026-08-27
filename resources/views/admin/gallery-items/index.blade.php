@@ -117,12 +117,12 @@
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="text" id="contentSearch" name="search" value="{{ request('search') }}"
-                           placeholder="Başlık veya açıklama ile ara...">
+                           placeholder="Başlık veya açıklama ile ara..." data-fv-ignore>
                 </div>
 
                 {{-- Filters Row --}}
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="type" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" name="type" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Türler</option>
                         @foreach($types as $type)
                             <option value="{{ $type->value }}" {{ request('type') === $type->value ? 'selected' : '' }}>
@@ -131,7 +131,7 @@
                         @endforeach
                     </select>
 
-                    <select class="cl-filter-select" name="category" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" name="category" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Kategoriler</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ (int) request('category') === $cat->id ? 'selected' : '' }}>
@@ -148,7 +148,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select id="perPage" name="per_page" onchange="document.getElementById('filterForm').submit()">
+                        <select id="perPage" name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
