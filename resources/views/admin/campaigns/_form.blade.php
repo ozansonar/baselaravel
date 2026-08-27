@@ -91,24 +91,31 @@
                 <h6><i class="bi bi-paperclip me-2 text-teal"></i>Ekler</h6>
             </div>
             <div class="card-body-custom">
-                @if($campaign && $campaign->attachments->isNotEmpty())
-                    <div class="cmp-attachments mb-3">
-                        @foreach($campaign->attachments as $attachment)
-                            <div class="cmp-attachment">
-                                <i class="bi bi-file-earmark-fill"></i>
-                                <span class="cmp-attachment__name">{{ $attachment->original_name }}</span>
-                                <span class="cmp-attachment__size">{{ $attachment->humanSize() }}</span>
-                                <button type="button" class="usr-action-btn danger"
-                                        onclick="removeAttachment({{ $attachment->id }})" title="Kaldır">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
+                {{-- Kayıtlı ve yeni eklenen dosyalar tek sayaç kapsamında: numara
+                     ikisi boyunca kesintisiz akıyor ve mailde göründükleri sırayla
+                     aynı oluyor. Numarayı CSS sayacı veriyor, JS değil — aradan bir
+                     dosya silindiğinde kalanlar kendiliğinden yeniden numaralanıyor,
+                     elle yeniden yazmak gerekmiyor. --}}
+                <div class="cmp-attach-list">
+                    @if($campaign && $campaign->attachments->isNotEmpty())
+                        <div class="cmp-attachments mb-3">
+                            @foreach($campaign->attachments as $attachment)
+                                <div class="cmp-attachment">
+                                    <i class="bi bi-file-earmark-fill"></i>
+                                    <span class="cmp-attachment__name">{{ $attachment->original_name }}</span>
+                                    <span class="cmp-attachment__size">{{ $attachment->humanSize() }}</span>
+                                    <button type="button" class="usr-action-btn danger"
+                                            onclick="removeAttachment({{ $attachment->id }})" title="Kaldır">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
 
-                {{-- Seçilen dosyalar buraya yüklenir; kampanya kaydedilince bağlanır. --}}
-                <div class="cmp-attachments mb-3" id="pendingAttachments"></div>
+                    {{-- Seçilen dosyalar buraya yüklenir; kampanya kaydedilince bağlanır. --}}
+                    <div class="cmp-attachments mb-3" id="pendingAttachments"></div>
+                </div>
 
                 <div class="stg-field">
                     {{-- name yok: dosyalar forma binmiyor, tek tek kendi isteğiyle

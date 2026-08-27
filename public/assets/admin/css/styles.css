@@ -35748,3 +35748,35 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   background: #fff;
   border-radius: 8px;
 }
+
+/* Ek listesinde sıra numarası.
+   Numarayı CSS sayacı veriyor: aradan bir dosya silindiğinde kalanlar
+   kendiliğinden yeniden numaralanıyor, JS'in listeyi baştan yazması
+   gerekmiyor. Sayaç iki listeyi de kapsayan sarmalayıcıda sıfırlanıyor,
+   böylece kayıtlı eklerden yeni eklenenlere kesintisiz akıyor. */
+.cmp-attach-list {
+  counter-reset: ek;
+}
+
+.cmp-attach-list .cmp-attachment {
+  counter-increment: ek;
+}
+
+.cmp-attach-list .cmp-attachment::before {
+  content: counter(ek);
+  flex: 0 0 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Yüklenirken numara da soluyor; satırın tamamı geçici olduğunu göstersin. */
+.cmp-attach-list .cmp-attachment--yukleniyor::before {
+  opacity: .5;
+}
