@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\FileBrowserController;
 use App\Http\Controllers\Admin\GalleryCategoryController;
 use App\Http\Controllers\Admin\GalleryItemController;
 use App\Http\Controllers\Admin\HealthController;
@@ -101,6 +102,14 @@ Route::get('yedekler/indir/{filename}', [BackupController::class, 'download'])->
 // adı gibi görünüyor ve sonra tanımlanırsa {filename} kuralına takılır.
 Route::delete('yedekler/toplu-sil',     [BackupController::class, 'bulkDestroy'])->name('backups.bulk-destroy');
 Route::delete('yedekler/{filename}',    [BackupController::class, 'destroy'])->where('filename', '[A-Za-z0-9\-_.]+')->name('backups.destroy');
+
+// Editörün dosya seçicisi: public/uploads dizinini gezip dosya seçmek, yüklemek
+// ve silmek için. Dosya yöneticisi tabloyu listeliyor, bu uçlar diski.
+Route::prefix('dosya-secici')->name('file-browser.')->group(function () {
+    Route::get('/',        [FileBrowserController::class, 'index'])->name('index');
+    Route::post('/',       [FileBrowserController::class, 'store'])->name('store');
+    Route::delete('/',     [FileBrowserController::class, 'destroy'])->name('destroy');
+});
 
 // Contact Messages
 Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');

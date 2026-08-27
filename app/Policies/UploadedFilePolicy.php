@@ -38,4 +38,17 @@ final class UploadedFilePolicy
     {
         return $user->hasPermission(PermissionKey::FilesDelete);
     }
+
+    /**
+     * Kaydı olmayan bir dosyayı silme yetkisi.
+     *
+     * Editörün dosya seçicisi diski listeliyor ve orada uploaded_files
+     * karşılığı bulunmayan dosyalar da var (editörden yüklenenler tabloya
+     * yazılmıyor). Böyle bir dosya için delete()'e verilecek bir model yok;
+     * izin aynı, yalnızca imza modelsiz.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->hasPermission(PermissionKey::FilesDelete);
+    }
 }

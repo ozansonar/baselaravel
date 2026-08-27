@@ -1,4 +1,7 @@
 {{-- TinyMCE 8 - Mail Template Editor --}}
+{{-- Seçici modalı: kampanya editörüyle aynı bileşen. --}}
+@include('partials.admin.file-picker')
+
 @push('scripts')
 <script src="{{ asset('assets/vendor/tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
 <script>
@@ -93,6 +96,22 @@
         link_assume_external_targets: true,
         table_responsive_width: true,
         browser_spellcheck: true,
+        // "Bir resim arayın" düğmesi panelin dosya seçicisini açıyor; kampanya
+        // editörüyle aynı davransın diye burada da tanımlı.
+        file_picker_types: 'image',
+        file_picker_callback: function (callback, value, meta) {
+            if (!window.FilePicker) {
+                return;
+            }
+
+            window.FilePicker.open({
+                type: meta.filetype === 'image' ? 'image' : '',
+                onSelect: function (dosya) {
+                    callback(dosya.url, { alt: '', title: dosya.name });
+                }
+            });
+        },
+
         contextmenu: 'link image table',
         promotion: false,
         branding: false,

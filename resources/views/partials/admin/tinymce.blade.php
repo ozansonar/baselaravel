@@ -3,6 +3,10 @@
     $tinymceSelector = $tinymceSelector ?? '#content';
 @endphp
 
+{{-- Seçici modalı editörle birlikte geliyor: ikisi aynı yapılandırmayı
+     paylaştığı için editörün olduğu her ekranda düğme çalışır durumda olsun. --}}
+@include('partials.admin.file-picker')
+
 @push('scripts')
 <script src="{{ asset('assets/vendor/tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
 <script>
@@ -111,6 +115,24 @@
                 .catch(function (err) {
                     reject(err.message || 'Yükleme başarısız');
                 });
+            });
+        },
+
+        // "Bir resim arayın" düğmesi: kendi dosya seçicimizi açıyor.
+        //
+        // TinyMCE'nin GPL derlemesinde dosya yöneticisi yok (o özellik ücretli
+        // paketlerde). Bu kanca, hangi yönetici kullanılırsa kullanılsın
+        // bağlantı noktası; buraya panelin kendi seçicisi takılı.
+        file_picker_callback: function (callback, value, meta) {
+            if (!window.FilePicker) {
+                return;
+            }
+
+            window.FilePicker.open({
+                type: meta.filetype === 'image' ? 'image' : '',
+                onSelect: function (dosya) {
+                    callback(dosya.url, { alt: '', title: dosya.name });
+                }
             });
         },
 

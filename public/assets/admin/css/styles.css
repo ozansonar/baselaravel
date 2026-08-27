@@ -35288,3 +35288,205 @@ body.tox-fullscreen [data-aos][data-aos] {
 body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
   z-index: 1200;
 }
+
+/* ==========================================================================
+   Editörün dosya seçicisi
+   ========================================================================== */
+
+.fp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fp-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fp-toolbar__actions .stg-input {
+  width: 200px;
+}
+
+/* Klasör yolu: uzun yollarda satır atlasın, kutuyu taşırmasın. */
+.fp-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fp-crumb {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+
+.fp-crumb:hover { background: var(--bg-input); color: var(--text-primary); }
+.fp-crumb--aktif { color: var(--text-teal); font-weight: 600; }
+.fp-crumb__sep { color: var(--text-muted); font-size: 12px; }
+
+.fp-status {
+  min-height: 20px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.fp-status--hata { color: var(--neon-red, #ef4444); }
+.fp-status--iyi  { color: var(--text-teal); }
+
+/* Izgara: dar ekranda kendiliğinden sütun düşürüyor. */
+.fp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.fp-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-input);
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.fp-tile:hover { border-color: var(--text-teal); transform: translateY(-2px); }
+
+/* Seçili kutu yalnızca kenarlıkla değil halkayla da işaretli: kenarlık rengi
+   tek başına renk körlüğünde ayırt edilemiyor. */
+.fp-tile--secili {
+  border-color: var(--text-teal);
+  box-shadow: 0 0 0 2px var(--text-teal) inset;
+}
+
+.fp-tile__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-base);
+  color: var(--text-muted);
+  font-size: 30px;
+  overflow: hidden;
+}
+
+.fp-tile__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fp-tile--klasor .fp-tile__preview { color: var(--text-teal); }
+
+.fp-tile__ext {
+  position: absolute;
+  bottom: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.fp-tile__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+
+.fp-tile__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 12.5px;
+}
+
+.fp-tile__meta { color: var(--text-muted); font-size: 11px; }
+
+/* Silme düğmesi yalnızca üstüne gelince görünüyor: her kutuda duran kırmızı
+   bir çöp kutusu ızgarayı okunmaz hâle getiriyordu. */
+.fp-tile__delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(15, 18, 32, .78);
+  color: var(--neon-red, #ef4444);
+  font-size: 12px;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity .2s ease, background .2s ease;
+}
+
+.fp-tile:hover .fp-tile__delete,
+.fp-tile__delete:focus-visible { opacity: 1; }
+.fp-tile__delete:hover { background: rgba(239, 68, 68, .2); }
+
+.fp-empty {
+  grid-column: 1 / -1;
+  padding: 32px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.fp-selected {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+@media (max-width: 575.98px) {
+  .fp-toolbar__actions { width: 100%; }
+  .fp-toolbar__actions .stg-input { flex: 1; width: auto; }
+  .fp-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+}
+
+/* Seçici, TinyMCE'nin görsel diyalogundan açılıyor ve onun üstünde durmalı.
+   Bootstrap modalı 1055'te, TinyMCE diyalogu 1100'de — seçici arkada kalıyordu.
+
+   1300 de yetmiyor: TinyMCE diyalogu, gövdeye eklenmiş ve kendisi 1300 olan
+   DIV.tox kapsayıcısının içinde duruyor. Eşit z-index'te DOM sırası karar
+   veriyor ve o kapsayıcı bizim sarmalayıcımızdan sonra geldiği için kazanıyor.
+   Bu yüzden değer onun üstüne, 1400'e çekildi. Perde de birlikte yükseliyor ki
+   diyalog ikisinin arasında asılı kalmasın.
+
+   Yalnızca seçici açıkken geçerli: gövdeye fp-acik sınıfı JS tarafından
+   ekleniyor, diğer modallar kendi sırasında kalıyor. */
+#filePickerModal { z-index: 1400; }
+body.fp-acik .modal-backdrop { z-index: 1390; }
