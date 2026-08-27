@@ -33630,3 +33630,259 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     flex: none;
   }
 }
+
+/* ============================================
+   SİSTEM SAĞLIK (/admin/sistem-saglik)
+   ============================================ */
+
+/* Genel durum şeridi: renk, o anki en kötü sonuca göre. */
+.sh-overall {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 22px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--text-muted);
+}
+
+.sh-overall--ok       { border-left-color: var(--neon-green); }
+.sh-overall--warning  { border-left-color: var(--neon-orange); }
+.sh-overall--critical { border-left-color: var(--neon-red); }
+
+.sh-overall__icon {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 26px;
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--text-secondary);
+}
+
+.sh-overall--ok .sh-overall__icon {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--neon-green);
+}
+
+.sh-overall--warning .sh-overall__icon {
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--neon-orange);
+}
+
+.sh-overall--critical .sh-overall__icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--neon-red);
+}
+
+.sh-overall__body {
+  flex: 1;
+  min-width: 220px;
+}
+
+.sh-overall__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sh-overall__hint {
+  margin: 4px 0 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sh-overall__time {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.sh-counters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sh-counter {
+  min-width: 84px;
+  padding: 10px 14px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+}
+
+.sh-counter strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.sh-counter small {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sh-counter--ok strong       { color: var(--neon-green); }
+.sh-counter--warning strong  { color: var(--neon-orange); }
+.sh-counter--critical strong { color: var(--neon-red); }
+
+/* Tek kontrol kartı. */
+.sh-check {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--text-muted);
+  transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.sh-check:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.sh-check--ok       { border-left-color: var(--neon-green); }
+.sh-check--warning  { border-left-color: var(--neon-orange); }
+.sh-check--critical { border-left-color: var(--neon-red); }
+
+.sh-check__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sh-check__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 17px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.sh-check--ok .sh-check__icon       { color: var(--neon-green); }
+.sh-check--warning .sh-check__icon  { color: var(--neon-orange); }
+.sh-check--critical .sh-check__icon { color: var(--neon-red); }
+
+.sh-check__title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sh-check__label {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sh-check__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.sh-check--ok .sh-check__status       { color: var(--neon-green); }
+.sh-check--warning .sh-check__status  { color: var(--neon-orange); }
+.sh-check--critical .sh-check__status { color: var(--neon-red); }
+
+.sh-check__message {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* Teknik ayrıntı: sürüm, sayı, yol — eşit genişlikli yazı okumayı kolaylaştırır. */
+.sh-check__detail {
+  margin: 6px 0 0;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.sh-check__foot {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.sh-check__what,
+.sh-check__hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.sh-check__what {
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+}
+
+.sh-check__hint {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(249, 115, 22, 0.08);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  color: var(--text-secondary);
+}
+
+.sh-check--critical .sh-check__hint {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+.sh-check__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--teal-light);
+  text-decoration: none;
+}
+
+.sh-check__action:hover {
+  color: var(--teal-primary);
+  text-decoration: underline;
+}
+
+@media (max-width: 575.98px) {
+  .sh-overall {
+    padding: 18px;
+  }
+
+  .sh-counters {
+    width: 100%;
+  }
+
+  .sh-counter {
+    flex: 1;
+    min-width: 0;
+  }
+}
