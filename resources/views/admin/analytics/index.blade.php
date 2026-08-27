@@ -179,8 +179,24 @@
                 <div class="analytics-panel-header">
                     <div>
                         <h5 class="analytics-panel-title"><i class="bi bi-trophy-fill text-warning me-2"></i>En Çok Ziyaret Edilen Sayfalar</h5>
-                        <small class="text-clr-muted">Top 10 URL</small>
+                        <small class="text-clr-muted">{{ count($topPages) }} sayfa · en çok görüntülenenden başlayarak</small>
                     </div>
+                    @if(! empty($topPages))
+                        <div class="anl-tabletools">
+                            <div class="anl-tabletools__search">
+                                <i class="bi bi-search"></i>
+                                <label class="visually-hidden" for="topPagesSearch">Sayfalarda ara</label>
+                                <input type="text" id="topPagesSearch" class="stg-input stg-input--sm"
+                                       placeholder="Sayfa yolunda ara..." autocomplete="off"
+                                       data-validation-engine="validate[maxSize[191]]">
+                            </div>
+                            <select class="cl-filter-select" id="topPagesPerPage" aria-label="Sayfa başına satır" data-fv-ignore>
+                                @foreach([10, 25, 50] as $adet)
+                                    <option value="{{ $adet }}">{{ $adet }} satır</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                 </div>
                 <div class="analytics-panel-body">
                     @if(empty($topPages))
@@ -189,13 +205,11 @@
                             <p>Henüz sayfa ziyareti yok</p>
                         </div>
                     @else
-                        <div class="analytics-top-pages">
+                        @php $enYuksek = max(array_column($topPages, 'count')) ?: 1; @endphp
+                        <div class="analytics-top-pages" id="topPagesList" data-page-size="10">
                             @foreach($topPages as $idx => $page)
-                                @php
-                                    $max = max(array_column($topPages, 'count')) ?: 1;
-                                    $pct = (int) round(($page['count'] / $max) * 100);
-                                @endphp
-                                <div class="analytics-top-row">
+                                <div class="analytics-top-row anl-row"
+                                     data-search="{{ mb_strtolower($page['path']) }}">
                                     <div class="analytics-top-rank">#{{ $idx + 1 }}</div>
                                     <div class="analytics-top-main">
                                         <div class="analytics-top-path">
@@ -203,13 +217,15 @@
                                             <span>{{ $page['path'] }}</span>
                                         </div>
                                         <div class="analytics-top-bar-wrap">
-                                            <div class="analytics-top-bar" style="width: {{ $pct }}%"></div>
+                                            {{-- Oran veriden geliyor, biçim CSS'te: genişlik değişkenle veriliyor. --}}
+                                            <div class="analytics-top-bar" style="--anl-top-bar: {{ (int) round(($page['count'] / $enYuksek) * 100) }}%"></div>
                                         </div>
                                     </div>
                                     <div class="analytics-top-count">{{ number_format($page['count']) }}</div>
                                 </div>
                             @endforeach
                         </div>
+                        <div class="anl-pager" id="topPagesPager" data-empty-text="Bu aramayla eşleşen sayfa yok."></div>
                     @endif
                 </div>
             </div>
@@ -313,11 +329,35 @@
         <div class="analytics-panel-header">
             <div>
                 <h5 class="analytics-panel-title"><i class="bi bi-clock-history text-teal me-2"></i>Son Ziyaretler</h5>
-                <small class="text-clr-muted">En son 20 kayıt ({{ $includeBots ? 'botlar dahil' : 'sadece insan' }})</small>
+                <small class="text-clr-muted">
+                    Son {{ number_format($recentVisits->count()) }} kayıt ({{ $includeBots ? 'botlar dahil' : 'sadece insan' }})
+                </small>
             </div>
-            <a href="{{ route('admin.analytics.visits') }}" class="btn-glass btn-sm">
-                <i class="bi bi-arrow-right"></i> Tümünü Gör
-            </a>
+            <div class="anl-tabletools">
+                @if($recentVisits->isNotEmpty())
+                    <div class="anl-tabletools__search">
+                        <i class="bi bi-search"></i>
+                        <label class="visually-hidden" for="recentSearch">Ziyaretlerde ara</label>
+                        <input type="text" id="recentSearch" class="stg-input stg-input--sm"
+                               placeholder="Sayfa, IP, tarayıcı veya kaynak ara..." autocomplete="off"
+                               data-validation-engine="validate[maxSize[191]]">
+                    </div>
+                    <select class="cl-filter-select" id="recentDevice" aria-label="Cihaz türü" data-fv-ignore>
+                        <option value="">Tüm cihazlar</option>
+                        @foreach(['desktop' => 'Masaüstü', 'mobile' => 'Mobil', 'tablet' => 'Tablet', 'bot' => 'Bot', 'other' => 'Diğer'] as $tur => $etiket)
+                            <option value="{{ $tur }}">{{ $etiket }}</option>
+                        @endforeach
+                    </select>
+                    <select class="cl-filter-select" id="recentPerPage" aria-label="Sayfa başına satır" data-fv-ignore>
+                        @foreach([10, 25, 50] as $adet)
+                            <option value="{{ $adet }}">{{ $adet }} satır</option>
+                        @endforeach
+                    </select>
+                @endif
+                <a href="{{ route('admin.analytics.visits') }}" class="btn-glass btn-sm">
+                    <i class="bi bi-arrow-right"></i> Tümünü Gör
+                </a>
+            </div>
         </div>
         <div class="analytics-panel-body p-0">
             <div class="table-responsive">
@@ -332,14 +372,16 @@
                             <th>Kaynak</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recentVisitsBody" data-page-size="10">
                         @forelse($recentVisits as $visit)
-                        <tr>
+                        <tr class="anl-row"
+                            data-device="{{ $visit->device_type }}"
+                            data-search="{{ mb_strtolower($visit->url_path . ' ' . $visit->ip_address . ' ' . ($visit->browser ?? '') . ' ' . ($visit->referrer_domain ?? 'direct')) }}">
                             <td class="text-nowrap small text-clr-secondary">
                                 {{ $visit->viewed_at->format('d.m H:i') }}
                                 <small class="d-block text-clr-muted">{{ $visit->viewed_at->diffForHumans() }}</small>
                             </td>
-                            <td class="text-truncate" style="max-width: 280px;">
+                            <td class="text-truncate anl-cell-path">
                                 <a href="{{ $visit->url }}" target="_blank" class="analytics-page-link" title="{{ $visit->url }}">
                                     {{ $visit->url_path }}
                                 </a>
@@ -375,7 +417,7 @@
                         @empty
                         <tr>
                             <td colspan="6" class="text-center text-clr-secondary py-5">
-                                <i class="bi bi-inbox" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                                <i class="bi bi-inbox anl-empty-icon"></i>
                                 <p class="mt-2 mb-0">Henüz ziyaret kaydı yok</p>
                             </td>
                         </tr>
@@ -383,13 +425,16 @@
                     </tbody>
                 </table>
             </div>
+            <div class="anl-pager anl-pager--table" id="recentPager" data-empty-text="Bu süzgeçle eşleşen ziyaret yok."></div>
         </div>
     </div>
 
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{{-- Kütüphane projede duruyor; CDN'den çekmek dış bir servise bağımlılık
+     demekti: erişilemediğinde grafikler sessizce boş kalıyordu. --}}
+<script src="{{ versioned_asset('assets/vendor/chartjs/chart.umd.min.js') }}"></script>
 <script>
     window.analyticsConfig = {
         dailyChart: @json($dailyChart),

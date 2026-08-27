@@ -36286,3 +36286,108 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   .analytics-feed__row--new { animation: none; }
   .anl-count { transition: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ANALİTİK PANELİ — tablo araçları (anl-)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Panel başlığındaki arama ve süzgeç kutuları. */
+.anl-tabletools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.anl-tabletools__search {
+  position: relative;
+}
+
+.anl-tabletools__search > i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.anl-tabletools__search .stg-input {
+  padding-left: 30px;
+  min-width: 210px;
+}
+
+/* Tarayıcıda çizilen sayfalama. */
+.anl-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.anl-pager--table {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.anl-pager__info,
+.anl-pager__empty {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.anl-pager__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.anl-pager__btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.anl-pager__btn:hover:not(:disabled) {
+  border-color: var(--teal-primary);
+  color: var(--teal-primary);
+}
+
+.anl-pager__btn.active {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 14%, transparent);
+  color: var(--teal-primary);
+  font-weight: 600;
+}
+
+.anl-pager__btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+/* Sayfa içi style'dan taşınanlar. */
+.anl-cell-path {
+  max-width: 280px;
+}
+
+.anl-empty-icon {
+  font-size: 2.5rem;
+  opacity: .3;
+}
+
+/* Oran veriden geliyor, biçim burada: çubuk genişliği değişkenle veriliyor. */
+.analytics-top-bar {
+  width: var(--anl-top-bar, 0%);
+}

@@ -18,6 +18,14 @@ class AnalyticsController extends Controller
         private readonly AnalyticsService $analyticsService,
     ) {}
 
+    /**
+     * Panelde tutulan son ziyaret sayısı.
+     *
+     * Tablo tarayıcıda süzülüp sayfalandığı için liste bir sayfadan uzun;
+     * ayrıntılı arama yine "Tüm Ziyaretler" ekranında yapılıyor.
+     */
+    private const RECENT_VISIT_LIMIT = 100;
+
     public function index(Request $request): View
     {
         $this->authorize('view-analytics');
@@ -41,12 +49,14 @@ class AnalyticsController extends Controller
             'totalRecords'     => $totalRecords,
             'stats'            => $this->analyticsService->getStats($from, $to, !$includeBots),
             'dailyChart'       => $this->analyticsService->getDailyChart($from, $to, !$includeBots),
-            'topPages'         => $this->analyticsService->getTopPages($from, $to, 10, !$includeBots),
+            // Panelde tablolar kendi içinde süzülüp sayfalanıyor; ilk ona
+            // sığmayan sayfalar da elde olsun diye liste geniş çekiliyor.
+            'topPages'         => $this->analyticsService->getTopPages($from, $to, 50, !$includeBots),
             'deviceBreakdown'  => $this->analyticsService->getDeviceBreakdown($from, $to),
             'browserBreakdown' => $this->analyticsService->getBrowserBreakdown($from, $to),
             'referrers'        => $this->analyticsService->getReferrerBreakdown($from, $to),
             'botActivity'      => $this->analyticsService->getBotActivity($from, $to),
-            'recentVisits'     => $this->analyticsService->getRecentVisits(20, !$includeBots),
+            'recentVisits'     => $this->analyticsService->getRecentVisits(self::RECENT_VISIT_LIMIT, !$includeBots),
         ]);
     }
 

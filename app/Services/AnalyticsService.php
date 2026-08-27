@@ -222,7 +222,10 @@ class AnalyticsService
 
     public function getRecentVisits(int $limit = 20, bool $excludeBots = true): Collection
     {
+        // Üye adı listede görünüyor; ilişki önden yüklenmezse satır başına
+        // ayrı sorgu açılır.
         $query = PageView::query()
+            ->with('user')
             ->orderByDesc('viewed_at')
             ->limit($limit);
 

@@ -286,6 +286,71 @@ class VisitLogTest extends TestCase
             ->assertSee('gezinmeler kaydedilmez', false);
     }
 
+    // ── Analitik paneli ──
+
+    /**
+     * Grafik kütüphanesi projede duruyor; CDN'den çekmek dış bir servise
+     * bağımlılık demek — erişilemediğinde grafikler sessizce boş kalır.
+     */
+    public function test_the_dashboard_loads_the_chart_library_from_the_project(): void
+    {
+        $html = $this->actingAs($this->analyst())
+            ->get(route('admin.analytics.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('assets/vendor/chartjs/chart.umd.min.js', $html);
+        $this->assertStringNotContainsString('cdn.jsdelivr.net', $html);
+    }
+
+    /**
+     * Panel tabloları tarayıcıda süzülüp sayfalanıyor: veri bir sayfadan uzun
+     * gelmeli, yoksa sayfalamanın süzeceği bir şey olmaz.
+     */
+    public function test_the_dashboard_tables_carry_more_than_one_page_of_data(): void
+    {
+        foreach (range(1, 60) as $i) {
+            $this->visit([
+                'url_path'  => '/sayfa-' . ($i % 20),
+                'viewed_at' => now()->subMinutes($i),
+            ]);
+        }
+
+        $response = $this->actingAs($this->analyst())
+            ->get(route('admin.analytics.index'))
+            ->assertOk();
+
+        $this->assertGreaterThan(10, $response->viewData('recentVisits')->count());
+        $this->assertGreaterThan(10, count($response->viewData('topPages')));
+
+        $html = $response->getContent();
+        $this->assertStringContainsString('recentPager', $html);
+        $this->assertStringContainsString('topPagesPager', $html);
+        $this->assertStringContainsString('recentDevice', $html);
+    }
+
+    /**
+     * Panelin son ziyaret listesi de üye adını gösteriyor; ilişki önden
+     * yüklenmezse yüz satırlık liste yüz sorgu açar.
+     */
+    public function test_the_dashboard_does_not_query_per_recent_visit(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (range(1, 15) as $i) {
+            $this->visit(['url_path' => '/uye-' . $i, 'user_id' => $user->id, 'viewed_at' => now()->subMinutes($i)]);
+        }
+
+        $analyst = $this->analyst();
+
+        DB::enableQueryLog();
+        $this->actingAs($analyst)->get(route('admin.analytics.index'))->assertOk();
+        $sorgular = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $this->assertLessThan(40, $sorgular, 'Son ziyaret listesi satır başına sorgu açıyor');
+    }
+
     public function test_a_user_without_the_permission_cannot_see_the_log(): void
     {
         $this->actingAs(User::factory()->create())
