@@ -257,6 +257,200 @@
                 </div>
             </div>
 
+            {{-- ═══════════ SIRADAKİ TUR ═══════════ --}}
+            @if($nextBatch->isNotEmpty())
+                <div class="card-dark mb-4" data-aos="fade-up">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h6><i class="bi bi-hourglass-split me-2 text-teal"></i>Önümüzdeki Turda Gidecekler</h6>
+                        <span class="cmp-badge">{{ $nextBatch->count() }} adres</span>
+                    </div>
+                    <div class="card-body-custom">
+                        <p class="stg-hint mb-3">
+                            Zamanlanmış görev
+                            @if($nextRunAt)
+                                <strong>{{ $nextRunAt->format('H:i') }}</strong>
+                            @endif
+                            çalıştığında sırayla bu adreslere gidecek. Listeden çıkarırsanız
+                            bu turda da sonrakilerde de gönderilmez.
+                        </p>
+                        <ol class="cmp-next">
+                            @foreach($nextBatch as $aday)
+                                <li class="cmp-next__row">
+                                    <span class="cmp-next__mail">{{ $aday->email }}</span>
+                                    @if($aday->full_name)
+                                        <span class="cmp-next__name">{{ $aday->full_name }}</span>
+                                    @endif
+                                    @can('update', $campaign)
+                                        <form method="POST" class="cmp-next__form"
+                                              action="{{ route('admin.campaigns.recipients.exclude', [$campaign, $aday]) }}">
+                                            @csrf
+                                            <button type="submit" class="usr-action-btn danger" title="Gönderimden çıkar">
+                                                <i class="bi bi-person-dash"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+                                </li>
+                            @endforeach
+                        </ol>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ═══════════ ALICI LİSTESİ ═══════════ --}}
+            @if($campaign->total_recipients > 0 || $recipients->total() > 0)
+                <div class="card-dark mb-4" data-aos="fade-up">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h6><i class="bi bi-people me-2 text-teal"></i>Alıcılar</h6>
+                        <span class="cmp-badge">{{ number_format($recipients->total()) }}</span>
+                    </div>
+
+                    <div class="card-body-custom">
+                        {{-- Süzgeç GET: seçilen durum adres çubuğunda kalsın,
+                             sayfa yenilendiğinde ya da paylaşıldığında kaybolmasın. --}}
+                        <form method="GET" action="{{ route('admin.campaigns.show', $campaign) }}"
+                              class="cmp-recipients__filter" data-validate novalidate>
+                            <div class="cmp-chip-row">
+                                <a href="{{ route('admin.campaigns.show', $campaign) }}"
+                                   class="cmp-chip {{ $recipientFilter['status'] === '' ? 'cmp-chip--aktif' : '' }}">
+                                    Tümü
+                                    <span class="cmp-chip__count">{{ number_format(array_sum($breakdown)) }}</span>
+                                </a>
+                                @foreach($statuses as $case)
+                                    <a href="{{ route('admin.campaigns.show', [$campaign, 'rstatus' => $case->value]) }}"
+                                       class="cmp-chip cmp-chip--{{ $case->badgeClass() }} {{ $recipientFilter['status'] === $case->value ? 'cmp-chip--aktif' : '' }}">
+                                        {{ $case->label() }}
+                                        <span class="cmp-chip__count">{{ number_format($breakdown[$case->value] ?? 0) }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+
+                            <div class="cmp-recipients__search">
+                                @if($recipientFilter['status'] !== '')
+                                    <input type="hidden" name="rstatus" value="{{ $recipientFilter['status'] }}">
+                                @endif
+                                <label class="visually-hidden" for="rsearch">Alıcı ara</label>
+                                <input type="text" class="stg-input stg-input--sm" id="rsearch" name="rsearch"
+                                       value="{{ $recipientFilter['search'] }}"
+                                       data-validation-engine="validate[maxSize[191]]"
+                                       placeholder="E-posta veya ad ara...">
+                                <button type="submit" class="btn-glass btn-sm">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                                @if($recipientFilter['search'] !== '')
+                                    <a href="{{ route('admin.campaigns.show', [$campaign, 'rstatus' => $recipientFilter['status'] ?: null]) }}"
+                                       class="btn-glass btn-sm" title="Aramayı temizle">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card-body-custom p-0">
+                        <div class="table-responsive">
+                            <table class="cl-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cmp-recipients__num">#</th>
+                                        <th>Alıcı</th>
+                                        <th>Durum</th>
+                                        <th class="d-none d-lg-table-cell">Gönderim</th>
+                                        <th class="d-none d-xl-table-cell">Not</th>
+                                        <th class="cl-th-actions">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recipients as $index => $alici)
+                                        <tr>
+                                            <td class="cmp-recipients__num">
+                                                {{ $recipients->firstItem() + $index }}
+                                            </td>
+                                            <td data-label="Alıcı">
+                                                <div class="cmp-recipient">
+                                                    <span class="cmp-recipient__mail">{{ $alici->email }}</span>
+                                                    @if($alici->full_name)
+                                                        <span class="cmp-recipient__name">{{ $alici->full_name }}</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td data-label="Durum">
+                                                <span class="menu-manage-tag menu-manage-tag--{{ $alici->status->badgeClass() }}">
+                                                    {{ $alici->status->label() }}
+                                                </span>
+                                            </td>
+                                            <td data-label="Gönderim" class="d-none d-lg-table-cell">
+                                                @if($alici->sent_at)
+                                                    <div class="sub-date">
+                                                        <span>{{ $alici->sent_at->translatedFormat('d M, H:i') }}</span>
+                                                        <small>{{ $alici->sent_at->diffForHumans() }}</small>
+                                                    </div>
+                                                @elseif($alici->attempts > 0)
+                                                    <small class="text-clr-secondary">{{ $alici->attempts }} deneme</small>
+                                                @else
+                                                    <span class="text-clr-secondary">—</span>
+                                                @endif
+                                            </td>
+                                            <td data-label="Not" class="d-none d-xl-table-cell">
+                                                @if($alici->error)
+                                                    <small class="text-neon-red" title="{{ $alici->error }}">
+                                                        {{ \Illuminate\Support\Str::limit($alici->error, 60) }}
+                                                    </small>
+                                                @else
+                                                    <span class="text-clr-secondary">—</span>
+                                                @endif
+                                            </td>
+                                            <td data-label="İşlem">
+                                                @can('update', $campaign)
+                                                    <div class="usr-actions">
+                                                        @if($alici->status === App\Enums\CampaignRecipientStatus::Skipped)
+                                                            <form method="POST" action="{{ route('admin.campaigns.recipients.restore', [$campaign, $alici]) }}">
+                                                                @csrf
+                                                                <button type="submit" class="usr-action-btn success" title="Sıraya geri al">
+                                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                                </button>
+                                                            </form>
+                                                        @elseif($alici->status !== App\Enums\CampaignRecipientStatus::Sent)
+                                                            <form method="POST" action="{{ route('admin.campaigns.recipients.exclude', [$campaign, $alici]) }}">
+                                                                @csrf
+                                                                <button type="submit" class="usr-action-btn danger" title="Gönderimden çıkar">
+                                                                    <i class="bi bi-person-dash"></i>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            {{-- Gönderilmiş adres geri alınamaz: mail yola çıktı. --}}
+                                                            <span class="text-clr-secondary" title="Mail gönderildi">—</span>
+                                                        @endif
+                                                    </div>
+                                                @endcan
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5">
+                                                <i class="bi bi-people d-block mb-2 fs-2 text-muted"></i>
+                                                <span class="text-muted">
+                                                    @if($recipientFilter['search'] !== '' || $recipientFilter['status'] !== '')
+                                                        Bu süzgeçle eşleşen alıcı yok.
+                                                    @else
+                                                        Alıcı listesi gönderim onaylanınca oluşur.
+                                                    @endif
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if($recipients->hasPages())
+                        <div class="card-body-custom">
+                            {{ $recipients->links() }}
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             @if($failures->isNotEmpty())
                 <div class="card-dark mb-4" data-aos="fade-up">
                     <div class="card-header-custom">
@@ -347,14 +541,26 @@
 
             @if($campaign->attachments->isNotEmpty())
                 <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
-                    <div class="card-header-custom"><h6><i class="bi bi-paperclip me-2 text-teal"></i>Ekler</h6></div>
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h6><i class="bi bi-paperclip me-2 text-teal"></i>Ekler</h6>
+                        <span class="cmp-badge">{{ $campaign->attachments->count() }}</span>
+                    </div>
                     <div class="card-body-custom">
-                        @foreach($campaign->attachments as $attachment)
-                            <div class="d-flex justify-content-between align-items-center py-1">
-                                <span class="text-truncate"><i class="bi bi-file-earmark me-2"></i>{{ $attachment->original_name }}</span>
-                                <small class="text-clr-secondary flex-shrink-0">{{ $attachment->humanSize() }}</small>
-                            </div>
-                        @endforeach
+                        <ol class="cmp-files">
+                            @foreach($campaign->attachments as $attachment)
+                                {{-- Sıra numarası mailde göründüğü sırayla aynı; ek
+                                     konuşulurken "üçüncü dosya" demek mümkün olsun. --}}
+                                <li class="cmp-file">
+                                    <a href="{{ upload_url($attachment->path) }}" class="cmp-file__link"
+                                       target="_blank" rel="noopener"
+                                       title="{{ $attachment->original_name }} — yeni sekmede aç">
+                                        <i class="bi bi-file-earmark-arrow-down cmp-file__icon"></i>
+                                        <span class="cmp-file__name">{{ $attachment->original_name }}</span>
+                                    </a>
+                                    <span class="cmp-file__size">{{ $attachment->humanSize() }}</span>
+                                </li>
+                            @endforeach
+                        </ol>
                     </div>
                 </div>
             @endif

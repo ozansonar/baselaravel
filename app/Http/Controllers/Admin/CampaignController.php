@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\CampaignAudience;
+use App\Enums\CampaignRecipientStatus;
 use App\Enums\CampaignStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCampaignRequest;
 use App\Http\Requests\Admin\UpdateCampaignRequest;
 use App\Models\Campaign;
+use App\Models\CampaignRecipient;
 use App\Models\Role;
 use App\Models\Subscriber;
 use App\Models\User;
@@ -94,22 +96,33 @@ final class CampaignController extends Controller
      * A campaign is never sent straight from the form — it lands here first and
      * only starts once someone approves it against a real recipient count.
      */
-    public function show(Campaign $campaign): View
+    public function show(Request $request, Campaign $campaign): View
     {
         $this->authorize('view', $campaign);
 
-        $pending = (int) $campaign->recipients()
-            ->where('status', \App\Enums\CampaignRecipientStatus::Pending)
-            ->count();
+        $breakdown = $this->recipientBreakdown($campaign);
+        $pending = $breakdown[CampaignRecipientStatus::Pending->value] ?? 0;
 
         return view('admin.campaigns.show', [
             'campaign'  => $campaign->load('attachments', 'author'),
-            'breakdown' => $this->recipientBreakdown($campaign),
+            'breakdown' => $breakdown,
             'preview'   => $this->campaigns->previewAudience($campaign),
             'failures'  => $campaign->recipients()
                 ->where('status', \App\Enums\CampaignRecipientStatus::Failed)
                 ->limit(20)
                 ->get(),
+            // Alıcı listesi ekranda: kime gittiği, kime gitmediği ve nedeni
+            // görünmeden kampanyanın yönetilebilir bir tarafı yok.
+            'recipients'      => $this->recipientList($campaign, $request),
+            'recipientFilter' => [
+                'status' => (string) $request->string('rstatus')->value(),
+                'search' => (string) $request->string('rsearch')->trim()->value(),
+            ],
+            'statuses' => CampaignRecipientStatus::cases(),
+            // Sıradaki tur: gönderimle birebir aynı seçim.
+            'nextBatch' => $campaign->status === CampaignStatus::Sending
+                ? $this->dispatcher->nextBatch($campaign)
+                : collect(),
             'pendingCount'  => $pending,
             'hourlyLimit'   => $this->dispatcher->hourlyLimit(),
             'perRunQuota'   => $this->dispatcher->perRunQuota(),
@@ -454,6 +467,77 @@ final class CampaignController extends Controller
     /**
      * @return array<string, int>
      */
+    /**
+     * Ekranda gösterilecek alıcı sayfası.
+     *
+     * Durum süzgeci ve arama sunucuda: on binlerce alıcılı bir kampanyada
+     * tamamını tarayıcıya yollamak sayfayı kilitler.
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\CampaignRecipient>
+     */
+    private function recipientList(Campaign $campaign, Request $request)
+    {
+        $status = (string) $request->string('rstatus')->value();
+        $search = (string) $request->string('rsearch')->trim()->value();
+
+        return $campaign->recipients()
+            ->when(
+                CampaignRecipientStatus::tryFrom($status) !== null,
+                fn ($query) => $query->where('status', $status),
+            )
+            ->when($search !== '', function ($query) use ($search): void {
+                // Joker karakterler düz metin sayılıyor, yoksa "%" tüm listeyi getirir.
+                $term = '%' . addcslashes($search, '%_\\') . '%';
+
+                $query->where(function ($inner) use ($term): void {
+                    $inner->where('email', 'like', $term)
+                        ->orWhere('first_name', 'like', $term)
+                        ->orWhere('last_name', 'like', $term);
+                });
+            })
+            ->orderBy('id')
+            ->paginate(25, ['*'], 'ralici')
+            ->withQueryString();
+    }
+
+    /**
+     * Bir alıcıyı gönderim dışında bırakır.
+     *
+     * Kayıt silinmiyor, "atlandı" işaretleniyor: kimin listede olduğu ve neden
+     * gitmediği kampanya sonrası da görülebilmeli. Gönderilmiş bir adres geri
+     * alınamaz, çünkü mail çoktan yola çıktı.
+     */
+    public function excludeRecipient(Campaign $campaign, CampaignRecipient $recipient): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+        abort_unless($recipient->campaign_id === $campaign->id, 404);
+
+        if ($recipient->status === CampaignRecipientStatus::Sent) {
+            return back()->with('error', 'Bu adrese mail gönderilmiş, listeden çıkarılamaz.');
+        }
+
+        $recipient->update(['status' => CampaignRecipientStatus::Skipped]);
+
+        return back()->with('success', $recipient->email . ' gönderim dışında bırakıldı.');
+    }
+
+    /**
+     * Yanlışlıkla çıkarılan alıcıyı sıraya geri koyar.
+     */
+    public function restoreRecipient(Campaign $campaign, CampaignRecipient $recipient): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+        abort_unless($recipient->campaign_id === $campaign->id, 404);
+
+        if ($recipient->status !== CampaignRecipientStatus::Skipped) {
+            return back()->with('error', 'Yalnızca çıkarılmış bir adres sıraya geri alınabilir.');
+        }
+
+        $recipient->update(['status' => CampaignRecipientStatus::Pending]);
+
+        return back()->with('success', $recipient->email . ' yeniden sıraya alındı.');
+    }
+
     private function recipientBreakdown(Campaign $campaign): array
     {
         return $campaign->recipients()
