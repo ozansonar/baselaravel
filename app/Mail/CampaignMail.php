@@ -8,6 +8,7 @@ use App\Models\Campaign;
 use App\Models\CampaignRecipient;
 use App\Models\Setting;
 use App\Services\UploadService;
+use App\Support\EmailHtml;
 use App\Support\PersonName;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
@@ -63,7 +64,11 @@ final class CampaignMail extends BaseMail
         $this->buildSharedData();
         $this->embedMailLogo();
 
-        $body = $this->embedImages($this->personalise($this->campaign->body));
+        // Görseller önce kapsayıcı genişliğine sığdırılıyor: editör onları özgün
+        // ölçüsüyle kaydediyor ve 600 pikselik şablonda taşıyorlardı.
+        $body = $this->embedImages(
+            EmailHtml::constrainImages($this->personalise($this->campaign->body)),
+        );
 
         // Registered after embedImages has collected them.
         if ($this->inlineImages !== []) {

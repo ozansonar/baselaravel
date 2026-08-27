@@ -202,6 +202,9 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
     // durumu değişiyor: kimin neden gitmediği sonradan da görülebilmeli.
     Route::post('{campaign}/alici/{recipient}/cikar',  [CampaignController::class, 'excludeRecipient'])->name('recipients.exclude');
     Route::post('{campaign}/alici/{recipient}/geri-al', [CampaignController::class, 'restoreRecipient'])->name('recipients.restore');
+    Route::post('{campaign}/alicilar/toplu',       [CampaignController::class, 'bulkRecipients'])->name('recipients.bulk');
+    Route::post('{campaign}/alicilar/yeniden-dene', [CampaignController::class, 'retryFailed'])->name('recipients.retry');
+    Route::get('{campaign}/alicilar/disa-aktar',   [CampaignController::class, 'exportRecipients'])->name('recipients.export');
     Route::delete('{campaign}',            [CampaignController::class, 'destroy'])->name('destroy');
     Route::patch('{campaign}/geri-yukle',  [CampaignController::class, 'restore'])->name('restore')->withTrashed();
 });
