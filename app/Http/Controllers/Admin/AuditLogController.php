@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Enums\AuditEvent;
+use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -16,36 +17,44 @@ use Illuminate\View\View;
  */
 final class AuditLogController extends Controller
 {
+    /**
+     * Listede gösterilebilecek kayıt sayıları; istekten gelen değer bu kümeyle
+     * sınırlı, aksi hâlde tek istekle tüm tablo çekilebilirdi.
+     */
+    private const PER_PAGE_OPTIONS = [25, 50, 100];
+
+    public function __construct(
+        private readonly AuditLogService $service,
+    ) {}
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', AuditLog::class);
 
-        $query = AuditLog::query()->with('user:id,first_name,last_name,email');
+        $filters = [
+            'event'   => $request->string('event')->value(),
+            'user_id' => $request->string('user_id')->value(),
+            'model'   => $request->string('model')->value(),
+            'from'    => $request->string('from')->value(),
+            'to'      => $request->string('to')->value(),
+            'q'       => $request->string('q')->trim()->value(),
+        ];
 
-        if ($request->filled('event')) {
-            $query->where('event', $request->string('event')->toString());
-        }
-        if ($request->filled('user_id')) {
-            $query->where('user_id', (int) $request->input('user_id'));
-        }
-        if ($request->filled('model')) {
-            // Kullanıcı input'undaki LIKE wildcard'ları (%, _) escape et — yanlış eşleşmeyi önle
-            $modelName = addcslashes($request->string('model')->toString(), '%_\\');
-            $query->where('auditable_type', 'like', '%\\' . $modelName);
-        }
-        if ($request->filled('from')) {
-            $query->where('created_at', '>=', $request->date('from'));
-        }
-        if ($request->filled('to')) {
-            $query->where('created_at', '<=', $request->date('to'));
-        }
-
-        $logs = $query->orderByDesc('created_at')->paginate(50)->withQueryString();
+        $perPage = (int) $request->input('per_page', 50);
+        $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : 50;
 
         return view('admin.audit-logs.index', [
-            'logs'       => $logs,
-            'users'      => User::query()->select('id', 'first_name', 'last_name', 'email')->orderBy('id')->get(),
-            'eventTypes' => AuditEvent::cases(),
+            'logs'           => $this->service->paginate($filters, $perPage),
+            'stats'          => $this->service->stats(),
+            'eventCounts'    => $this->service->eventCounts(),
+            'modelOptions'   => $this->service->modelOptions(),
+            'topActors'      => $this->service->topActors(),
+            'users'          => User::query()->select('id', 'first_name', 'last_name', 'email')->orderBy('first_name')->get(),
+            'eventTypes'     => AuditEvent::cases(),
+            'filters'        => $filters,
+            'perPage'        => $perPage,
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
+            'retentionDays'  => AuditLogService::RETENTION_DAYS,
         ]);
     }
 
@@ -54,6 +63,7 @@ final class AuditLogController extends Controller
         $this->authorize('view', $auditLog);
 
         $auditLog->load('user');
+
         return view('admin.audit-logs.show', ['log' => $auditLog]);
     }
 }

@@ -33271,3 +33271,92 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
 .nt-summary-fill--90 { width: 90%; }
 .nt-summary-fill--95 { width: 95%; }
 .nt-summary-fill--100 { width: 100%; }
+
+/* ============================================
+   AKTİVİTE LOGLARI (/admin/aktivite-loglari)
+   ============================================ */
+
+/* Süzgeç satırındaki tarih alanları: etiketi üstte küçük yazı. */
+.al-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.al-date-field > span {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  padding-left: 2px;
+}
+
+.al-date-field input {
+  color-scheme: dark;
+}
+
+[data-theme="light"] .al-date-field input {
+  color-scheme: light;
+}
+
+/* Satırlarda iki kademeli bilgi: üstte olay, altta zaman/ayrıntı. */
+.al-table .cl-content-meta {
+  display: block;
+  margin-top: 2px;
+}
+
+.al-time,
+.al-label {
+  display: block;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.al-system {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* IP bir kimlik: eşit genişlikli yazı tipi rakamları hizalı tutar. */
+.al-ip {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 575.98px) {
+  .al-table .al-label {
+    font-size: 12.5px;
+  }
+
+  .al-table .cl-content-meta {
+    white-space: normal;
+  }
+
+  .al-table tbody td,
+  .al-table thead th {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Tarih kelime kelime kırılıyordu; tek satırda ve küçük kalsın. */
+  .al-table .al-time {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  /* İşlem rozeti dar ekranda yalnızca ikonuyla görünür — açıklama zaten ne
+     olduğunu yazıyor, kazanılan yer detay düğmesine gidiyor. */
+  .al-table .usr-status-badge {
+    font-size: 0;
+    padding: 6px 8px;
+  }
+
+  .al-table .usr-status-badge i {
+    font-size: 12px;
+    margin-right: 0;
+  }
+}
