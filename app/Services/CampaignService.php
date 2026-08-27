@@ -57,7 +57,22 @@ final class CampaignService
         }
 
         return DB::transaction(function () use ($campaign, $data): Campaign {
+            $onceki = [
+                'audience' => $campaign->audience,
+                'filter'   => $campaign->audience_filter,
+            ];
+
             $campaign->update($this->fields($data));
+
+            // Kitle değiştiyse önden hazırlanmış liste artık başka bir seçimi
+            // anlatıyor; bırakılırsa kampanya, formda görünenden bambaşka bir
+            // adres kümesine gider. Mail çıkmışsa dokunulmuyor.
+            $kitleDegisti = $campaign->audience !== $onceki['audience']
+                || $campaign->audience_filter != $onceki['filter'];
+
+            if ($kitleDegisti && $campaign->recipients()->exists() && ! $this->hasDeliveries($campaign)) {
+                $this->dropPreparedRecipients($campaign);
+            }
 
             // Ekler artık forma değil kendi isteğine biniyor; doğrudan dosya
             // gönderen çağrılar (testler, programatik kullanım) için ikisi de açık.
@@ -132,7 +147,11 @@ final class CampaignService
             $campaign->update([
                 'status'           => CampaignStatus::Sending,
                 'started_at'       => $campaign->started_at ?? now(),
-                'total_recipients' => $campaign->recipients()->count(),
+                // Gönderim dışında bırakılanlar toplama girmiyor: giremeyecek
+                // adresler sayılırsa ilerleme çubuğu asla %100'e ulaşmaz.
+                'total_recipients' => $campaign->recipients()
+                    ->where('status', '!=', CampaignRecipientStatus::Skipped)
+                    ->count(),
             ]);
 
             return $campaign->refresh();
@@ -182,6 +201,66 @@ final class CampaignService
         });
 
         return $campaign->refresh();
+    }
+
+    /**
+     * Gönderimden önce alıcı listesini oluşturur.
+     *
+     * Liste yalnızca gönderim onaylanınca donduğu için istenmeyen bir adresi
+     * ayıklamanın tek yolu kampanyayı başlatmaktı; taslakta görünen tek şey on
+     * kişilik bir örnekti. Liste onay öncesinde de kurulabiliyor: yönetici tam
+     * listeyi süzgeçleyip çıkaracağını çıkarıyor, sonra onaylıyor. start()
+     * hazır listeyi yeniden kurmadığı için bu ayıklama gönderime taşınıyor.
+     *
+     * @param  bool $refresh Kaynak liste değiştiyse listeyi baştan kurar
+     * @return int hazırlanan alıcı sayısı
+     */
+    public function prepareRecipients(Campaign $campaign, bool $refresh = false): int
+    {
+        if (! $campaign->isEditable()) {
+            throw new RuntimeException('Gönderimi başlamış bir kampanyanın alıcı listesi kurulamaz.');
+        }
+
+        return DB::transaction(function () use ($campaign, $refresh): int {
+            $existing = $campaign->recipients()->count();
+
+            if ($existing > 0 && ! $refresh) {
+                return $existing;
+            }
+
+            if ($existing > 0) {
+                $this->dropPreparedRecipients($campaign);
+            }
+
+            return $this->buildRecipients($campaign);
+        });
+    }
+
+    /**
+     * Henüz gönderime girmemiş alıcı satırlarını siler.
+     *
+     * Yumuşak silme değil kalıcı silme: yeniden kurulan liste aynı adresleri
+     * içeriyor ve silinmiş satırlar durum sayımlarına takılmasa bile tablo her
+     * yenilemede bir kat daha şişerdi. Mail çıkmışsa liste dokunulmaz kalır;
+     * kime gittiğinin kaydı listenin tazeliğinden önce gelir.
+     */
+    private function dropPreparedRecipients(Campaign $campaign): void
+    {
+        if ($this->hasDeliveries($campaign)) {
+            throw new RuntimeException('Bu kampanyadan mail çıkmış, alıcı listesi yeniden kurulamaz.');
+        }
+
+        $campaign->recipients()->forceDelete();
+    }
+
+    /**
+     * Kampanyadan en az bir mail çıkmış mı?
+     */
+    private function hasDeliveries(Campaign $campaign): bool
+    {
+        return $campaign->recipients()
+            ->whereIn('status', [CampaignRecipientStatus::Sent, CampaignRecipientStatus::Failed])
+            ->exists();
     }
 
     /**
@@ -385,11 +464,18 @@ final class CampaignService
      */
     public function previewAudience(Campaign $campaign): array
     {
-        // Once it has started the frozen list is the truth, not the filter.
+        // Once it has been frozen the list is the truth, not the filter.
         if ($campaign->recipients()->exists()) {
+            // Çıkarılan adresler sayıma girmiyor: onay ekranındaki sayı, gerçekte
+            // kaç kişiye gideceğini söylemezse ayıklama yapmanın anlamı kalmaz.
+            $gidecek = $campaign->recipients()
+                ->where('status', '!=', CampaignRecipientStatus::Skipped);
+
+            $count = (clone $gidecek)->count();
+
             return [
-                'count'  => $campaign->recipients()->count(),
-                'sample' => $campaign->recipients()
+                'count'  => $count,
+                'sample' => (clone $gidecek)
                     ->orderBy('id')
                     ->limit(10)
                     ->get(['first_name', 'last_name', 'email'])
@@ -399,7 +485,7 @@ final class CampaignService
                         'email'      => $row->email,
                     ])
                     ->all(),
-                'error'  => null,
+                'error'  => $count === 0 ? 'Listedeki her adres gönderim dışında bırakılmış.' : null,
             ];
         }
 

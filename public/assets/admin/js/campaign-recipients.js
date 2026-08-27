@@ -128,3 +128,37 @@
 
     tazele();
 })();
+
+/**
+ * Listeyi yenileme: kaynak listeden baştan kurar, ayıklananlar geri gelir.
+ *
+ * Toplu işlem bloğundan ayrı duruyor; o blok seçim kutuları yoksa hiç
+ * çalışmıyor, yenileme düğmesi ise listeden bağımsız.
+ */
+(function () {
+    var dugme = document.querySelector('.js-refresh-list');
+
+    if (!dugme) {
+        return;
+    }
+
+    dugme.addEventListener('click', function () {
+        var cikarilan = parseInt(dugme.dataset.excluded || '0', 10);
+
+        AdminModal.confirm({
+            title: 'Listeyi Yenile',
+            message: 'Alıcı listesi kaynağından baştan kurulacak; aradan geçen sürede ' +
+                'listeye eklenenler de dahil olur.',
+            detailTitle: cikarilan > 0
+                ? 'Gönderim dışında bıraktığınız ' + cikarilan + ' adres geri gelecek'
+                : '',
+            type: 'warning',
+            confirmText: 'Evet, Yenile',
+            confirmIcon: 'bi bi-arrow-repeat'
+        }).then(function (onay) {
+            if (onay) {
+                document.getElementById('recipientRefreshForm').submit();
+            }
+        });
+    });
+})();

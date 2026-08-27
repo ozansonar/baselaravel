@@ -198,6 +198,9 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
     Route::post('{campaign}/iptal',        [CampaignController::class, 'cancel'])->name('cancel');
     Route::post('{campaign}/test',         [CampaignController::class, 'sendTest'])->name('test');
     Route::delete('{campaign}/ek/{attachment}', [CampaignController::class, 'destroyAttachment'])->name('attachments.destroy');
+    // Alıcı listesi gönderimden önce de kurulabiliyor: yönetici listeyi görüp
+    // ayıklamadan onaylamak zorunda kalmamalı.
+    Route::post('{campaign}/alicilar/hazirla',     [CampaignController::class, 'prepareRecipients'])->name('recipients.prepare');
     // Alıcıyı gönderim dışında bırakma / sıraya geri alma. Kayıt silinmiyor,
     // durumu değişiyor: kimin neden gitmediği sonradan da görülebilmeli.
     Route::post('{campaign}/alici/{recipient}/cikar',  [CampaignController::class, 'excludeRecipient'])->name('recipients.exclude');
