@@ -14,6 +14,10 @@
  * makes the browser block the submit with a message nobody can see. The engine
  * validates hidden fields too and we bring the offending tab forward instead.
  *
+ * Fields may also carry an input mask — data-fv-mask="letters|digits|decimal" —
+ * which strips characters the field cannot accept while they are being typed.
+ * The mask and the rule are two halves of one guarantee, not alternatives.
+ *
  * The module also owns the submit lifecycle. Once a form passes, every submit
  * button turns into a disabled spinner, so a second click cannot fire a second
  * POST and the user gets immediate feedback that the save started.
@@ -120,6 +124,88 @@
             return 'Görsel en fazla ' + maxMb + ' MB olabilir';
         }
     };
+
+    // ==================== INPUT MASKS ====================
+
+    /**
+     * data-fv-mask="letters|digits|decimal"
+     *
+     * Kurallar gönderimde denetler; maske yanlış karakterin yazılmasını en
+     * baştan engeller. İkisi birlikte çalışır: maske olmadan kullanıcı hatayı
+     * ancak kaydete basınca görür, maske tek başına da yeterli değildir çünkü
+     * boş bırakma ve uzunluk gibi kuralları bilmez.
+     *
+     * Desenler `custom[letters]`, `custom[integer]` ve `custom[number]` ile
+     * bilerek aynı: maskenin geçirdiği bir değeri kural reddederse kullanıcı
+     * düzeltemeyeceği bir hataya bakar.
+     */
+    var MASKS = {
+        letters: function (value) {
+            return value.replace(/[^a-zA-ZçÇğĞıİöÖşŞüÜ\s]/g, '');
+        },
+        digits: function (value) {
+            return value.replace(/\D/g, '');
+        },
+        decimal: function (value) {
+            // Türkçe klavyede ondalık ayırıcı virgül; nokta bekleyen sunucuya
+            // gitmeden çevriliyor.
+            var cleaned = value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+            var firstDot = cleaned.indexOf('.');
+
+            if (firstDot === -1) {
+                return cleaned;
+            }
+
+            // İkinci ve sonraki noktalar atılıyor: "1.2.3" geçerli bir sayı değil.
+            return cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+        }
+    };
+
+    /**
+     * Alanı maskeden geçirir ve imleci yerinde bırakır.
+     *
+     * Doğrudan value ataması imleci metnin sonuna atıyor; ortadan düzeltme
+     * yapan biri her tuşta sona fırlar. Silinen karakter sayısı kadar geri
+     * alınarak imleç kullanıcının bıraktığı yerde tutuluyor.
+     */
+    function applyMask(field, mask) {
+        var before = field.value;
+        var after = mask(before);
+
+        if (after === before) {
+            return;
+        }
+
+        var caret = field.selectionStart;
+        var removedBeforeCaret = before.slice(0, caret).length - mask(before.slice(0, caret)).length;
+
+        field.value = after;
+
+        if (field.type !== 'email' && field.type !== 'number') {
+            // Bu iki türde tarayıcı seçim aralığı vermiyor, çağrı hata atar.
+            field.setSelectionRange(caret - removedBeforeCaret, caret - removedBeforeCaret);
+        }
+    }
+
+    /**
+     * Maske belge düzeyinde dinleniyor: sonradan eklenen satırlar (alıcı
+     * satırları, tekrarlanan alan grupları) ayrıca bağlanmak zorunda kalmasın.
+     */
+    function watchMasks() {
+        document.addEventListener('input', function (event) {
+            var field = event.target;
+
+            if (!field || !field.dataset || !field.dataset.fvMask) {
+                return;
+            }
+
+            var mask = MASKS[field.dataset.fvMask];
+
+            if (mask) {
+                applyMask(field, mask);
+            }
+        });
+    }
 
     // ==================== ACTIVE LANGUAGE ONLY ====================
 
@@ -531,6 +617,10 @@
             setup(form, options);
         }
     };
+
+    // Maske form dışındaki alanlarda da geçerli (süzgeç çubukları gibi), bu
+    // yüzden data-validate beklemeden bağlanıyor.
+    watchMasks();
 
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('form[data-validate]').forEach(function (form) {
