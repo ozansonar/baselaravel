@@ -6,7 +6,7 @@
     <h1 class="auth-card__title">{{ __('site.register.join_us') }}</h1>
     <p class="auth-card__sub">{{ __('site.register.free_account') }}</p>
 
-    <form method="POST" action="{{ route('register') }}">
+    <form method="POST" action="{{ route('register') }}" data-validate novalidate>
         @csrf
 
         {{-- First / Last name --}}
@@ -16,7 +16,9 @@
                 <input type="text"
                        class="form-control @error('first_name') is-invalid @enderror"
                        id="first_name" name="first_name" value="{{ old('first_name') }}"
-                       placeholder="{{ __('site.register.first_name_ph') }}" required autofocus autocomplete="given-name">
+                       data-validation-engine="validate[required,custom[letters],minSize[2],maxSize[50]]"
+                       data-fv-mask="letters"
+                       placeholder="{{ __('site.register.first_name_ph') }}" autofocus autocomplete="given-name">
                 @error('first_name')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -26,7 +28,9 @@
                 <input type="text"
                        class="form-control @error('last_name') is-invalid @enderror"
                        id="last_name" name="last_name" value="{{ old('last_name') }}"
-                       placeholder="{{ __('site.register.last_name_ph') }}" required autocomplete="family-name">
+                       data-validation-engine="validate[required,custom[letters],minSize[2],maxSize[50]]"
+                       data-fv-mask="letters"
+                       placeholder="{{ __('site.register.last_name_ph') }}" autocomplete="family-name">
                 @error('last_name')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -38,10 +42,11 @@
             <label for="email" class="form-label">{{ __('site.login.email') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                <input type="email"
+                <input type="text"
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email') }}"
-                       placeholder="ornek@mail.com" required autocomplete="email">
+                       data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                       placeholder="ornek@mail.com" autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -53,9 +58,13 @@
             <label for="phone" class="form-label">{{ __('site.register.phone') }} <span class="text-muted fw-normal">{{ __('site.misc.optional') }}</span></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                <input type="tel"
+                {{-- Sunucu burada biçim dayatıyor (regex: rakam, boşluk, - + parantez),
+                     bu yüzden custom[phone] var. Maske yok: digits maskesi "+90"ı
+                     ve parantezleri silerdi, oysa sunucu ikisini de kabul ediyor. --}}
+                <input type="text"
                        class="form-control @error('phone') is-invalid @enderror"
                        id="phone" name="phone" value="{{ old('phone') }}"
+                       data-validation-engine="validate[custom[phone],maxSize[20]]"
                        placeholder="05XX XXX XX XX" autocomplete="tel">
                 @error('phone')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -71,7 +80,8 @@
                 <input type="password"
                        class="form-control @error('password') is-invalid @enderror"
                        id="password" name="password"
-                       placeholder="••••••••" required autocomplete="new-password">
+                       data-validation-engine="validate[required,minSize[8]]"
+                       placeholder="••••••••" autocomplete="new-password">
                 @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -87,7 +97,8 @@
                 <input type="password"
                        class="form-control"
                        id="password_confirmation" name="password_confirmation"
-                       placeholder="••••••••" required autocomplete="new-password">
+                       data-validation-engine="validate[required,equals[password]]"
+                       placeholder="••••••••" autocomplete="new-password">
             </div>
         </div>
 

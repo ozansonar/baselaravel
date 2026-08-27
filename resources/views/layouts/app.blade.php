@@ -91,6 +91,7 @@
     <link href="{{ asset('assets/vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/fonts/fonts.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/fontawesome/css/all.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/jquery-validation-engine/css/validationEngine.jquery.css') }}" rel="stylesheet">
     <link href="{{ versioned_asset('css/app.css') }}" rel="stylesheet">
 
     @stack('styles')
@@ -184,6 +185,12 @@
 
     {{-- JS --}}
     <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    {{-- Form doğrulama motoru. jQuery yalnızca bunun için yükleniyor; kendi
+         kodumuz vanilla. Front dosyası admin'inkinden ayrı: js/form-validation.js --}}
+    <script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine-tr.js') }}"></script>
+    <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
+    <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
     <script src="{{ versioned_asset('js/app.js') }}"></script>
     @include('partials.flash-message')
 

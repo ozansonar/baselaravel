@@ -682,3 +682,77 @@ img { max-width: 100%; height: auto; }
 }
 
 .footer-newsletter__note { min-height: 1.25rem; font-size: .8125rem; }
+
+/* ==========================================================================
+   Form doğrulama (jQuery Validation Engine 3.1.0)
+   ========================================================================== */
+
+/* Mesajlar alanın altına, ondan ayrık bir hap olarak çiziliyor. ".inline"
+   ayrıca yazılmak zorunda: eklentinin kendi stili .formError.inline
+   .formErrorContent üzerinden kenarlığı ve yuvarlaklığı siliyor. */
+.formError {
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    cursor: default;
+    text-align: left;
+}
+
+/* inline-flex: hap mesajını sarsın, bar gibi tüm satıra yayılmasın. Boşluk
+   burada duruyor çünkü .formError'ın margin'ini eklenti satır içi stille
+   eziyor. */
+.formError .formErrorContent,
+.formError.inline .formErrorContent {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: .5rem;
+    padding: .5rem .875rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm, 10px);
+    box-shadow: var(--shadow-sm);
+    color: #b91c1c;
+    font-family: var(--font-body);
+    font-size: .8125rem;
+    font-weight: 500;
+    line-height: 1.5;
+    animation: fv-prompt-in .22s ease-out;
+}
+
+@keyframes fv-prompt-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Front bootstrap-icons yüklemiyor, Font Awesome kullanıyor: ikon oradan
+   geliyor (f06a = circle-exclamation), yoksa yerinde boş kare kalırdı. */
+.formError .formErrorContent::before {
+    content: "\f06a";
+    flex: 0 0 auto;
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif;
+    font-weight: 900;
+    font-size: .8125rem;
+    line-height: 1.5;
+}
+
+/* Eklenti bir ok düğümü de kuruyor; satır içi mesajın oka ihtiyacı yok. */
+.formError .formErrorArrow { display: none; }
+
+.formError.greenPopup .formErrorContent,
+.formError.inline.greenPopup .formErrorContent {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+}
+
+.formError.greenPopup .formErrorContent::before { content: "\f058"; }
+
+@media (prefers-reduced-motion: reduce) {
+    .formError .formErrorContent { animation: none; }
+}

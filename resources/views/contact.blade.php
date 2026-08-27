@@ -81,7 +81,7 @@
                 {{-- Contact form --}}
                 <div class="col-lg-7">
                     <div class="field-card">
-                        <form action="{{ route('contact.store') }}" method="POST">
+                        <form action="{{ route('contact.store') }}" method="POST" data-validate novalidate>
                             @csrf
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -89,7 +89,8 @@
                                     <input type="text"
                                            class="form-control @error('name') is-invalid @enderror"
                                            id="name" name="name" value="{{ old('name') }}"
-                                           placeholder="{{ __('site.contact.name') }}" required autocomplete="name">
+                                           data-validation-engine="validate[required,maxSize[255]]"
+                                           placeholder="{{ __('site.contact.name') }}" autocomplete="name">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -97,10 +98,11 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label" for="email">{{ __('site.contact.email') }} <span class="text-brand">*</span></label>
-                                    <input type="email"
+                                    <input type="text"
                                            class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email" value="{{ old('email') }}"
-                                           placeholder="{{ __('site.contact.email_ph') }}" required autocomplete="email">
+                                           data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                                           placeholder="{{ __('site.contact.email_ph') }}" autocomplete="email">
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -108,9 +110,13 @@
 
                                 <div class="col-12">
                                     <label class="form-label" for="phone">{{ __('site.contact.phone') }}</label>
-                                    <input type="tel"
+                                    {{-- Sunucu bu alanda biçim dayatmıyor (nullable|string|max:20),
+                                         bu yüzden custom[phone] yok: istemcinin sunucudan dar olması
+                                         dahili numara yazan kullanıcıyı formdan atardı. --}}
+                                    <input type="text"
                                            class="form-control @error('phone') is-invalid @enderror"
                                            id="phone" name="phone" value="{{ old('phone') }}"
+                                           data-validation-engine="validate[maxSize[20]]"
                                            placeholder="{{ __('site.contact.phone_ph') }}" autocomplete="tel">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -122,7 +128,8 @@
                                     <input type="text"
                                            class="form-control @error('subject') is-invalid @enderror"
                                            id="subject" name="subject" value="{{ old('subject') }}"
-                                           placeholder="{{ __('site.contact.subject_ph') }}" required>
+                                           data-validation-engine="validate[required,maxSize[255]]"
+                                           placeholder="{{ __('site.contact.subject_ph') }}">
                                     @error('subject')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -132,7 +139,8 @@
                                     <label class="form-label" for="message">{{ __('site.contact.message') }} <span class="text-brand">*</span></label>
                                     <textarea class="form-control @error('message') is-invalid @enderror"
                                               id="message" name="message" rows="5"
-                                              placeholder="{{ __('site.contact.message_ph') }}" required minlength="10">{{ old('message') }}</textarea>
+                                              data-validation-engine="validate[required,minSize[10],maxSize[5000]]"
+                                              placeholder="{{ __('site.contact.message_ph') }}">{{ old('message') }}</textarea>
                                     @error('message')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

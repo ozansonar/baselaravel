@@ -23,8 +23,9 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 - `queue:work` → YASAK (pcntl yok), kuyruk `Queue::pop()` + `fire()` ile işlenir
 - Vite, npm, Node.js, Webpack → YASAK
 - React, Vue, Angular, Livewire, Inertia → YASAK
-- jQuery → sadece **jQuery Validation Engine 3.1.0** için yüklüdür (admin layout).
-  Başka hiçbir amaçla jQuery kullanma → YASAK, kendi kodun vanilla JS olacak
+- jQuery → sadece **jQuery Validation Engine 3.1.0** için yüklüdür; **hem admin
+  hem front layout'ta**. Başka hiçbir amaçla jQuery kullanma → YASAK, kendi
+  kodun vanilla JS olacak
 - Form doğrulama: HTML5 validation (`required`, `type=email`, `minlength`) → YASAK.
   Kurallar alanlara `data-validation-engine="validate[...]"` ile yazılır, form
   `data-validate novalidate` ile devreye girer → `public/assets/admin/js/form-validation.js`
@@ -126,6 +127,10 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 ## Dosya Ayrımı (Front vs Admin)
 
 - Front ve admin CSS/JS dosyaları **TAMAMEN AYRI** → aynı dosya iki taraf için KULLANILMAZ
+  - Tek istisna `assets/vendor/` altındaki hazır kütüphaneler (Bootstrap, jQuery,
+    Validation Engine): bunlar iki tarafça da paylaşılır. Kendi yazdığımız her
+    dosyanın front ve admin sürümü ayrıdır — doğrulama motorunun sarmalayıcısı
+    bile iki kez var: `assets/admin/js/form-validation.js` ve `js/form-validation.js`
 - **Admin CSS:** `public/assets/admin/css/styles.css`
 - **Admin JS:** `public/assets/admin/js/app.js` + sayfa özel JS'ler `public/assets/admin/js/` altında
 - **Front CSS:** `public/css/` altında

@@ -22,7 +22,7 @@
                     <p class="section__lead mb-4">{{ __('site.account.profile_lead') }}</p>
 
                     <div class="field-card">
-                        <form action="{{ route('account.profile.update') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('account.profile.update') }}" method="POST" enctype="multipart/form-data" data-validate novalidate>
                             @csrf
                             @method('PUT')
 
@@ -38,13 +38,15 @@
                                     <label class="form-label" for="avatar">{{ __('site.account.avatar') }}</label>
                                     <input type="file"
                                            class="form-control @error('avatar') is-invalid @enderror"
-                                           id="avatar" name="avatar" accept="image/*">
+                                           id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp"
+                                           data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
+                                           data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                                     @error('avatar')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                     @if($user->avatar)
                                         <div class="form-check mt-2">
-                                            <input type="checkbox" class="form-check-input" id="remove_avatar" name="remove_avatar" value="1">
+                                            <input type="checkbox" class="form-check-input" id="remove_avatar" name="remove_avatar" value="1" data-fv-ignore>
                                             <label class="form-check-label" for="remove_avatar">{{ __('site.account.remove_avatar') }}</label>
                                         </div>
                                     @endif
@@ -57,7 +59,9 @@
                                     <input type="text"
                                            class="form-control @error('first_name') is-invalid @enderror"
                                            id="first_name" name="first_name"
-                                           value="{{ old('first_name', $user->first_name) }}" required>
+                                           data-validation-engine="validate[required,custom[letters],maxSize[50]]"
+                                           data-fv-mask="letters"
+                                           value="{{ old('first_name', $user->first_name) }}">
                                     @error('first_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -68,7 +72,9 @@
                                     <input type="text"
                                            class="form-control @error('last_name') is-invalid @enderror"
                                            id="last_name" name="last_name"
-                                           value="{{ old('last_name', $user->last_name) }}" required>
+                                           data-validation-engine="validate[required,custom[letters],maxSize[50]]"
+                                           data-fv-mask="letters"
+                                           value="{{ old('last_name', $user->last_name) }}">
                                     @error('last_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -76,10 +82,11 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label" for="email">{{ __('site.account.email') }} <span class="text-brand">*</span></label>
-                                    <input type="email"
+                                    <input type="text"
                                            class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email"
-                                           value="{{ old('email', $user->email) }}" required>
+                                           data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                                           value="{{ old('email', $user->email) }}">
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -87,9 +94,13 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label" for="phone">{{ __('site.contact.phone') }}</label>
-                                    <input type="tel"
+                                    {{-- Sunucu biçim dayatmıyor (nullable|string|max:20); custom[phone]
+                                         konsaydı istemci sunucudan dar olur, dahili numara yazan
+                                         kullanıcı profilini kaydedemezdi. --}}
+                                    <input type="text"
                                            class="form-control @error('phone') is-invalid @enderror"
                                            id="phone" name="phone"
+                                           data-validation-engine="validate[maxSize[20]]"
                                            value="{{ old('phone', $user->phone) }}" placeholder="{{ __('site.account.phone_ph') }}">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -108,6 +119,8 @@
                                     <input type="password"
                                            class="form-control @error('current_password') is-invalid @enderror"
                                            id="current_password" name="current_password"
+                                           data-validation-engine="validate[funcCallRequired[FormValidation.rules.requiredWithPassword]]"
+                                           data-fv-required-with="password"
                                            placeholder="{{ __('site.account.current_password_ph') }}" autocomplete="current-password">
                                     @error('current_password')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -118,7 +131,9 @@
                                     <label class="form-label" for="password">{{ __('site.account.new_password') }}</label>
                                     <input type="password"
                                            class="form-control @error('password') is-invalid @enderror"
-                                           id="password" name="password" placeholder="{{ __('site.account.new_password_ph') }}" autocomplete="new-password">
+                                           id="password" name="password"
+                                           data-validation-engine="validate[minSize[8]]"
+                                           placeholder="{{ __('site.account.new_password_ph') }}" autocomplete="new-password">
                                     @error('password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -129,6 +144,7 @@
                                     <input type="password"
                                            class="form-control"
                                            id="password_confirmation" name="password_confirmation"
+                                           data-validation-engine="validate[equals[password]]"
                                            placeholder="{{ __('site.account.repeat_password_ph') }}" autocomplete="new-password">
                                 </div>
                             </div>

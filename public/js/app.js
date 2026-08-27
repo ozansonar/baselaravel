@@ -175,8 +175,10 @@ window.showConfirmModal = function (options) {
         form.addEventListener('submit', function (event) {
             event.preventDefault();
 
-            if (!input.value || !input.checkValidity()) {
-                show(input.validationMessage || 'Geçerli bir e-posta adresi girin.', false);
+            // Doğrulama motoru karar veriyor. Tarayıcının checkValidity'si
+            // kullanılmıyor: mesajı biçimlendirilemiyor, Türkçeleştirilemiyor ve
+            // sunucudaki kuralla uyuşmadığı yerde kullanıcıyı yanlış yönlendiriyor.
+            if (window.FormValidation && !window.FormValidation.isValid(form)) {
                 return;
             }
 
