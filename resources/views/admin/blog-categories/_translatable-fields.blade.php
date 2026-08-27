@@ -74,8 +74,7 @@
                                 value="{{ old("translations.{$code}.name", $translation?->name) }}"
                                 placeholder="Kategori adını yazın..."
                                 maxlength="255"
-                                data-validation-engine="{{ $rules(['maxSize[255]']) }}"
-                            >
+                                data-validation-engine="{{ $rules(['maxSize[255]']) }}">
                             @error("translations.{$code}.name")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -99,8 +98,7 @@
                                     maxlength="100"
                                     data-validation-engine="validate[maxSize[100]]"
                                     data-prompt-target="icon_error_{{ $code }}"
-                                    oninput="updateIconPreview(this)"
-                                >
+                                    oninput="updateIconPreview(this)">
                             </div>
                             <div id="icon_error_{{ $code }}"></div>
                             @error("translations.{$code}.icon")
@@ -135,16 +133,12 @@
                         <div class="col-12 col-md-6">
                             <label class="form-label" for="sort_order_{{ $code }}">Sıralama</label>
                             <input
-                                type="number"
+                                type="text"
                                 class="form-control @error("translations.{$code}.sort_order") is-invalid @enderror"
                                 id="sort_order_{{ $code }}"
                                 name="translations[{{ $code }}][sort_order]" data-fv-default="0"
                                 value="{{ old("translations.{$code}.sort_order", $translation?->sort_order ?? 0) }}"
-                                min="0"
-                                max="999"
-                                data-validation-engine="validate[custom[integer],min[0],max[999]]"
-                                data-fv-ignore
-                            >
+                                data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[999]]">
                             @error("translations.{$code}.sort_order")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -171,8 +165,7 @@
                                             name="translations[{{ $code }}][is_active]"
                                             value="1"
                                             data-fv-ignore
-                                            {{ old("translations.{$code}.is_active", $translation?->is_active ?? true) ? 'checked' : '' }}
-                                        >
+                                            {{ old("translations.{$code}.is_active", $translation?->is_active ?? true) ? 'checked' : '' }}>
                                     </div>
                                 </div>
                             </div>

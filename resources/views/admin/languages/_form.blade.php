@@ -15,7 +15,7 @@
                             <input type="text" class="stg-input @error('code') is-invalid @enderror"
                                    id="code" name="code" value="{{ old('code', $language?->code) }}"
                                    data-validation-engine="validate[required,custom[langCode]]"
-                                   maxlength="2" placeholder="de" pattern="[A-Za-z]{2}" autocomplete="off">
+                                   maxlength="2" placeholder="de" autocomplete="off">
                             <small class="stg-hint">İki harf (ISO 639-1): tr, en, de</small>
                             @error('code') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
@@ -35,9 +35,9 @@
                     <div class="col-md-4">
                         <div class="stg-field">
                             <label class="stg-label" for="sort_order">Sıra</label>
-                            <input type="number" class="stg-input @error('sort_order') is-invalid @enderror"
-                                   id="sort_order" name="sort_order" data-fv-ignore data-validation-engine="validate[custom[integer],min[0],max[255]]"
-                                   value="{{ old('sort_order', $language?->sort_order ?? 0) }}" min="0" max="255">
+                            <input type="text" class="stg-input @error('sort_order') is-invalid @enderror"
+                                   id="sort_order" name="sort_order" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[255]]"
+                                   value="{{ old('sort_order', $language?->sort_order ?? 0) }}">
                             <small class="stg-hint">Dil seçicideki sıra</small>
                             @error('sort_order') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>

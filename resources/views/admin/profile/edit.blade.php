@@ -83,7 +83,7 @@
                         </div>
                         <div class="stg-field">
                             <label class="stg-label" for="email">E-posta</label>
-                            <input type="email" class="stg-input @error('email') is-invalid @enderror"
+                            <input type="text" class="stg-input @error('email') is-invalid @enderror"
                                    id="email" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]"
                                    value="{{ old('email', $user->email) }}">
                             @error('email')
@@ -92,7 +92,7 @@
                         </div>
                         <div class="stg-field">
                             <label class="stg-label" for="phone">Telefon</label>
-                            <input type="tel" class="stg-input @error('phone') is-invalid @enderror"
+                            <input type="text" class="stg-input @error('phone') is-invalid @enderror"
                                    id="phone" name="phone" data-validation-engine="validate[custom[phone],maxSize[20]]"
                                    value="{{ old('phone', $user->phone) }}">
                             @error('phone')

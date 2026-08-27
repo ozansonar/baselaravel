@@ -30,7 +30,7 @@
             <div class="col-12 col-md-6">
                 <label class="form-label" for="sections_story_experience_year">Tecrübe Yılı</label>
                 <input type="text" class="form-control" id="sections_story_experience_year" name="sections[story][experience_year]"
-                    value="{{ $story['experience_year'] ?? '' }}" placeholder="Ör: 50+" data-validation-engine="validate[custom[integer],max[9999]]">
+                    value="{{ $story['experience_year'] ?? '' }}" placeholder="Ör: 50+" data-fv-mask="digits" data-validation-engine="validate[custom[integer],max[9999]]">
             </div>
             <div class="col-12">
                 <label class="form-label" for="sections_story_title">Başlık</label>
@@ -186,8 +186,8 @@
                 <div class="row g-3">
                     <div class="col-12 col-md-3">
                         <label class="form-label">Sayı</label>
-                        <input type="number" class="form-control" name="sections[stats][{{ $i }}][number]"
-                            value="{{ $stat['number'] ?? '' }}" placeholder="Ör: 50" min="0" data-validation-engine="validate[custom[number]]">
+                        <input type="text" class="form-control" name="sections[stats][{{ $i }}][number]"
+                            value="{{ $stat['number'] ?? '' }}" placeholder="Ör: 50" data-fv-mask="decimal" data-validation-engine="validate[custom[number]]">
                     </div>
                     <div class="col-12 col-md-3">
                         <label class="form-label">Son Ek</label>

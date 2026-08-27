@@ -60,8 +60,7 @@
                         name="translations[{{ $language->code }}][name]"
                                        data-validation-engine="validate[required,maxSize[255]]"
                         value="{{ old("translations.{$language->code}.name", $translation?->name) }}"
-                        placeholder="Kategori adını yazın..."
-                    >
+                        placeholder="Kategori adını yazın...">
                     @error("translations.{$language->code}.name")
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -89,14 +88,11 @@
                 <div class="col-12 col-md-6">
                     <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
                     <input
-                        type="number"
+                        type="text"
                         class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
                         id="sort_order_{{ $language->code }}"
-                        name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
-                        value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}"
-                        min="0"
-                        max="999"
-                    >
+                        name="translations[{{ $language->code }}][sort_order]" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-default="0"
+                        value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}">
                     @error("translations.{$language->code}.sort_order")
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -122,8 +118,7 @@
                                     id="is_active_{{ $language->code }}"
                                     name="translations[{{ $language->code }}][is_active]" data-fv-ignore
                                     value="1"
-                                    {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? true) ? 'checked' : '' }}
-                                >
+                                    {{ old("translations.{$language->code}.is_active", $translation?->is_active ?? true) ? 'checked' : '' }}>
                             </div>
                         </div>
                     </div>

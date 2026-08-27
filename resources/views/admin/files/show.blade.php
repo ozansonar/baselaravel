@@ -306,7 +306,7 @@
                         <i class="bi bi-pencil me-1"></i> Bilgileri Düzenle
                     </h6>
 
-                    <form method="POST" action="{{ route('admin.files.update', $file) }}">
+                    <form method="POST" action="{{ route('admin.files.update', $file) }}" data-validate novalidate>
                         @csrf
                         @method('PATCH')
 
