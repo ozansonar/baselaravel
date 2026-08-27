@@ -56,7 +56,14 @@ return [
     | kullanır; yeni bir liste eklemek için buraya bir satır yeter.
     */
     'lists' => [
-        'users' => App\Exports\UserExport::class,
+        'users'            => App\Exports\UserExport::class,
+        'blog-categories'  => App\Exports\BlogCategoryExport::class,
+        'blog-posts'       => App\Exports\BlogPostExport::class,
+        'blog-comments'    => App\Exports\BlogCommentExport::class,
+        'pages'            => App\Exports\PageExport::class,
+        'sliders'          => App\Exports\SliderExport::class,
+        'popups'           => App\Exports\PopupExport::class,
+        'faqs'             => App\Exports\FaqExport::class,
     ],
 
 ];

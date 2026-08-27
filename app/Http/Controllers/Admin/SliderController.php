@@ -28,7 +28,7 @@ final class SliderController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->sliderService->filterKeys());
 
         return view('admin.sliders.index', [
             'sliders'      => $this->sliderService->paginate($perPage, $filters),

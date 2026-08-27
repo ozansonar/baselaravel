@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class BlogCategoryService
 {
@@ -40,7 +41,26 @@ final class BlogCategoryService
      * same tabbed form — so the list mirrors it: a category appears once, with
      * the languages it has been translated into.
      */
-    public function paginate(int $perPage = 15, ?array $filters = null): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'search'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed>|null $filters
+     * @return Builder<BlogCategory>
+     */
+    public function query(?array $filters = null): Builder
     {
         $query = $this->onlyGroupRepresentatives(BlogCategory::withTrashed(), BlogCategory::class)
             ->sorted()
@@ -71,7 +91,15 @@ final class BlogCategoryService
             }
         }
 
-        return $this->attachGroupLocales($query->paginate($perPage), BlogCategory::class);
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed>|null $filters
+     */
+    public function paginate(int $perPage = 15, ?array $filters = null): LengthAwarePaginator
+    {
+        return $this->attachGroupLocales($this->query($filters)->paginate($perPage), BlogCategory::class);
     }
 
     /**

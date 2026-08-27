@@ -135,6 +135,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="faqs" :total="$faqs->total()" />
                     <div class="cl-bulk-actions d-none" id="bulkActions">
                         <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
                         <button type="button" class="usr-action-btn danger" onclick="openBulkDeleteModal()" title="Sil"><i class="bi bi-trash"></i></button>

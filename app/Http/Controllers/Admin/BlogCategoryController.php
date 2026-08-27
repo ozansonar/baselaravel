@@ -28,7 +28,7 @@ final class BlogCategoryController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->blogCategoryService->filterKeys());
 
         return view('admin.blog-categories.index', [
             'categories'   => $this->blogCategoryService->paginate($perPage, $filters),

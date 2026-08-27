@@ -31,9 +31,7 @@ final class BlogPostController extends Controller
             : 25;
 
         return view('admin.blog-posts.index', [
-            'posts'        => $this->blogService->paginate($perPage, $request->only([
-                'status', 'category_id', 'search',
-            ])),
+            'posts'        => $this->blogService->paginate($perPage, $request->only($this->blogService->filterKeys())),
             'categories'   => BlogCategory::active()->sorted()->get(),
             'stats'        => $this->blogService->getAdminStats(),
             'statusCounts' => $this->blogService->getStatusCounts(),

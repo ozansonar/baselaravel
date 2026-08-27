@@ -25,7 +25,7 @@ final class BlogCommentController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search', 'post_id']);
+        $filters = $request->only($this->commentService->filterKeys());
 
         return view('admin.blog-comments.index', [
             'comments'     => $this->commentService->paginate($perPage, $filters),

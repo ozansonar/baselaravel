@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class BlogService
 {
@@ -93,7 +94,26 @@ final class BlogService
     /**
      * @param array<string, mixed> $filters
      */
-    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'category_id', 'search'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<BlogPost>
+     */
+    public function query(array $filters = []): Builder
     {
         $query = $this->onlyGroupRepresentatives(BlogPost::query(), BlogPost::class)
             ->with(['category', 'author'])
@@ -130,7 +150,15 @@ final class BlogService
             });
         }
 
-        return $this->attachGroupLocales($query->paginate($perPage), BlogPost::class);
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        return $this->attachGroupLocales($this->query($filters)->paginate($perPage), BlogPost::class);
     }
 
     /**

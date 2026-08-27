@@ -28,7 +28,7 @@ final class PageController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->pageService->filterKeys());
 
         return view('admin.pages.index', [
             'pages'        => $this->pageService->paginate($perPage, $filters),
