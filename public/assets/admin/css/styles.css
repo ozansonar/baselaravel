@@ -34977,3 +34977,175 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     overflow-x: auto !important;
   }
 }
+
+/* ============================================
+   DOSYA ALANI (file-input.js)
+   ============================================ */
+
+/* Tarayıcının kendi dosya kontrolü biçimlenemiyor ve Türkçeleşemiyordu.
+   Asıl <input> saydam olarak bu kutunun üstüne yayılıyor: tıklama ve
+   sürükle-bırak tarayıcının kendi davranışı, taklit değil. */
+.fu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.fu:hover,
+.fu--over {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 7%, transparent);
+}
+
+/* Girdi kutunun tamamını kaplıyor; görünmez ama tıklanabilir. */
+.fu__native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.fu__native:focus-visible + .fu__icon,
+.fu:focus-within {
+  outline: 2px solid color-mix(in srgb, var(--teal-primary) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.fu__icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 12%, transparent);
+  transition: background 0.2s ease;
+}
+
+.fu:hover .fu__icon,
+.fu--over .fu__icon {
+  background: color-mix(in srgb, var(--teal-primary) 20%, transparent);
+}
+
+.fu__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu__label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fu__hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Seçilen dosyalar. Boşken yer kaplamıyor, doluyken çağrı metninin yerini
+   alıyor — iki bilgi yan yana durunca hangisinin güncel olduğu belirsizdi. */
+.fu__files {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fu--dolu .fu__text {
+  display: none;
+}
+
+.fu--dolu .fu__files {
+  display: flex;
+}
+
+.fu__file {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.fu__file-name {
+  color: var(--text-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu__file-size {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Temizleme düğmesi saydam girdinin üstünde durmalı, yoksa tıklama alta geçip
+   dosya seçme penceresini açar. */
+.fu__clear {
+  position: relative;
+  z-index: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.fu--dolu .fu__clear {
+  display: inline-flex;
+}
+
+.fu__clear:hover {
+  color: var(--neon-red);
+  background: color-mix(in srgb, var(--neon-red) 15%, transparent);
+}
+
+/* Sunucudan ya da doğrulama motorundan gelen hata kutunun kendisinde görünür. */
+.fu:has(.is-invalid) {
+  border-color: var(--neon-red);
+  border-style: solid;
+  background: color-mix(in srgb, var(--neon-red) 6%, transparent);
+}
+
+.fu:has(.is-invalid) .fu__icon {
+  color: var(--neon-red);
+  background: color-mix(in srgb, var(--neon-red) 12%, transparent);
+}
+
+@media (max-width: 575.98px) {
+  .fu {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .fu__icon {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
