@@ -189,7 +189,7 @@ class AdminContentCrudTest extends TestCase
             'tr' => ['question' => 'Kargo ne zaman gelir?', 'answer' => 'İki iş günü içinde.', 'is_active' => 1],
         ]])->assertSessionHasNoErrors();
 
-        $this->get('/sikca-sorulan-sorular')
+        $this->get('/tr/sikca-sorulan-sorular')
             ->assertOk()
             ->assertSee('Kargo ne zaman gelir?', false);
     }

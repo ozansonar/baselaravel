@@ -32794,3 +32794,227 @@ input.is-loading {
   color: var(--teal-primary);
 }
 
+
+/* ============================================
+   SELECT2 4.1.0 (Bootstrap 5 teması)
+   ============================================
+   Tema Bootstrap'ın kendi açık renklerini (#fff / #212529 / #0d6efd)
+   sabit yazıyor; panel karanlık ve aydınlık modda kendi token'larını
+   kullandığı için burada tamamı token'lara bağlanıyor. Böylece Select2
+   değiştirdiği <select> ile aynı görünür ve tema değişince o da değişir. */
+
+.select2-container {
+  max-width: 100%;
+}
+
+/* ---- Kapalı hâldeki kutu ---- */
+.select2-container--bootstrap-5 .select2-selection {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  min-height: 42px;
+  box-shadow: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+  padding: 10px 38px 10px 14px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px 11px;
+}
+
+[data-theme="light"] .select2-container--bootstrap-5 .select2-selection--single {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+  color: var(--text-primary);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered .select2-selection__placeholder {
+  color: var(--text-muted);
+}
+
+.select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+  border-color: var(--teal-primary);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+/* Açıkken kutu ile panel tek parça görünür; kalan kenar rengi de teal olmalı. */
+.select2-container--bootstrap-5.select2-container--open.select2-container--below .select2-selection,
+.select2-container--bootstrap-5.select2-container--open.select2-container--above .select2-selection {
+  border-color: var(--teal-primary);
+}
+
+/* ---- Çoklu seçim etiketleri ---- */
+.select2-container--bootstrap-5 .select2-selection--multiple {
+  padding: 7px 14px 3px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice {
+  background: rgba(20, 184, 166, 0.14);
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  padding: 3px 8px;
+  margin-bottom: 4px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice .select2-selection__choice__remove,
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__clear,
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__clear {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2394a3b8'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e");
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice .select2-selection__choice__remove:hover,
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__clear:hover,
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__clear:hover {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ef4444'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e");
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-search .select2-search__field {
+  color: var(--text-primary);
+  font-size: 13.5px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-search .select2-search__field::placeholder {
+  color: var(--text-muted);
+}
+
+/* ---- Açılan panel ---- */
+.select2-container--bootstrap-5 .select2-dropdown {
+  background-color: var(--bg-card);
+  border: 1px solid var(--teal-primary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13.5px;
+  padding: 8px 12px;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field:focus {
+  border-color: var(--teal-primary);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  padding: 8px 12px;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--highlighted {
+  background-color: rgba(20, 184, 166, 0.12);
+  color: var(--text-primary);
+}
+
+/* Seçili olan kayıt: Select2 aria-selected'ı klavyeyle gezilen satır için de
+   kullanıyor, o yüzden yalnızca --selected sınıfına bakılıyor. */
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--selected {
+  background-color: var(--teal-primary);
+  color: var(--text-white);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__message,
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--disabled {
+  color: var(--text-muted);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[role="group"] .select2-results__group {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* ---- Pasif ---- */
+.select2-container--bootstrap-5.select2-container--disabled .select2-selection,
+.select2-container--bootstrap-5.select2-container--disabled.select2-container--focus .select2-selection {
+  background-color: rgba(148, 163, 184, 0.08);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+/* ---- Doğrulama hatası — motor orijinal <select>'e is-invalid ekliyor ---- */
+.is-invalid + .select2-container--bootstrap-5 .select2-selection,
+select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
+  border-color: var(--neon-red);
+}
+
+.is-invalid + .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.is-invalid + .select2-container--bootstrap-5.select2-container--open .select2-selection {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+/* ---- Değiştirdiği alanın ölçüsünü koruyan varyantlar ---- */
+.stg-select + .select2-container--bootstrap-5 .select2-selection,
+.stg-input + .select2-container--bootstrap-5 .select2-selection {
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.stg-select + .select2-container--bootstrap-5 .select2-selection--single,
+.stg-input + .select2-container--bootstrap-5 .select2-selection--single {
+  padding: 10px 38px 10px 14px;
+}
+
+/* Temadaki .form-select-sm~ kuralları taban kuralımızdan daha spesifik, bu
+   yüzden köşe yarıçapı burada tekrar veriliyor. */
+.form-select-sm + .select2-container--bootstrap-5 .select2-selection,
+.cl-filter-select + .select2-container--bootstrap-5 .select2-selection {
+  font-size: 13px;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+}
+
+.form-select-sm + .select2-container--bootstrap-5 .select2-dropdown,
+.cl-filter-select + .select2-container--bootstrap-5 .select2-dropdown {
+  border-radius: var(--radius-sm);
+}
+
+.form-select-sm + .select2-container--bootstrap-5 .select2-selection--single,
+.cl-filter-select + .select2-container--bootstrap-5 .select2-selection--single {
+  padding: 8px 32px 8px 12px;
+  background-position: right 10px center;
+}
+
+.cl-filter-select + .select2-container--bootstrap-5 {
+  min-width: 150px;
+}
+
+.msg-sort-select + .select2-container--bootstrap-5 .select2-selection {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  min-height: 30px;
+}
+
+.msg-sort-select + .select2-container--bootstrap-5 .select2-selection--single {
+  padding: 6px 26px 6px 8px;
+  background-position: right 7px center;
+  background-size: 12px 9px;
+}
+
+.msg-sort-select + .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}

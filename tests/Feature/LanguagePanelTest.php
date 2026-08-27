@@ -421,7 +421,7 @@ class LanguagePanelTest extends TestCase
                 'code' => 'de', 'name' => 'Almanca', 'native_name' => 'Deutsch', 'flag' => '🇩🇪', 'is_active' => '1',
             ]);
 
-        $html = $this->get('/')->getContent();
+        $html = $this->followingRedirects()->get('/')->getContent();
 
         $this->assertStringContainsString('Deutsch', $html);
         $this->assertStringContainsString('hreflang="de"', $html);
@@ -434,7 +434,7 @@ class LanguagePanelTest extends TestCase
                 'code' => 'en', 'name' => 'İngilizce',
             ]);
 
-        $html = $this->get('/')->getContent();
+        $html = $this->followingRedirects()->get('/')->getContent();
 
         $this->assertStringNotContainsString('hreflang="en"', $html);
     }

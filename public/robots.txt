@@ -1,9 +1,20 @@
 User-agent: *
 Allow: /
+
+# Panel ve hesap alanları — her dil önekinde
 Disallow: /admin/
-Disallow: /hesabim/
-Disallow: /siparis/
-Disallow: /sepet
+Disallow: /*/hesabim
+Disallow: /*/siparis
+Disallow: /*/sepet
+Disallow: /*/giris
+Disallow: /*/kayit
+Disallow: /*/sifremi-unuttum
+Disallow: /*/sifre-sifirla/
+Disallow: /*/cikis
+Disallow: /*/e-posta-dogrula
+
+# Dil önekinden önceki eski adresler (kalıcı yönlendirme ile karşılanır)
+Disallow: /hesabim
 Disallow: /giris
 Disallow: /kayit
 Disallow: /sifremi-unuttum

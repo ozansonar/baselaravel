@@ -30,8 +30,10 @@ final class UpdateProfileRequest extends FormRequest
             'location'   => ['nullable', 'string', 'max:255'],
             'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             // Changing a password requires proving the current one, so a hijacked
-            // session cannot lock the real owner out.
-            'current_password' => ['required_with:password', 'current_password'],
+            // session cannot lock the real owner out. Without nullable the rule
+            // also ran on an empty field, so saving the profile without touching
+            // the password failed with "şifre yanlış".
+            'current_password' => ['nullable', 'required_with:password', 'current_password'],
             'password'   => ['nullable', 'string', 'min:8', 'confirmed', 'different:current_password'],
         ];
     }

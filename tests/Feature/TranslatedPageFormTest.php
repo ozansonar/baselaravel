@@ -131,16 +131,34 @@ class TranslatedPageFormTest extends TestCase
     /**
      * A translator should be able to fill the default language now and come
      * back for the rest later.
+     *
+     * The form sends only the tab being saved — the others are left out of the
+     * request entirely — so a single language block is a complete submission.
      */
     public function test_only_the_default_language_is_required(): void
     {
         $this->post('/admin/pages', ['translations' => [
             'tr' => ['title' => 'Yalnızca Türkçe', 'content' => '<p>tr</p>', 'status' => 'published'],
-            'en' => ['title' => '', 'content' => ''],
         ]])->assertSessionHasNoErrors();
 
         $this->assertSame(1, Page::count());
         $this->assertSame('tr', Page::first()->locale);
+    }
+
+    /**
+     * A language block that does arrive is the one being saved, so leaving it
+     * half filled is a mistake rather than "not translated yet".
+     */
+    public function test_a_language_that_is_sent_has_to_be_complete(): void
+    {
+        $this->from('/admin/pages/create')
+            ->post('/admin/pages', ['translations' => [
+                'tr' => ['title' => 'Yalnızca Türkçe', 'content' => '<p>tr</p>', 'status' => 'published'],
+                'en' => ['title' => '', 'content' => ''],
+            ]])
+            ->assertSessionHasErrors('translations.en.title');
+
+        $this->assertSame(0, Page::count());
     }
 
     public function test_the_default_language_cannot_be_left_empty(): void
@@ -188,10 +206,10 @@ class TranslatedPageFormTest extends TestCase
     }
 
     /**
-     * An empty tab on edit means "not translated yet", never "wipe what is
-     * already there".
+     * Saving from one tab must never touch the others: the languages the
+     * request does not carry keep exactly what is stored.
      */
-    public function test_an_empty_tab_does_not_erase_an_existing_translation(): void
+    public function test_a_language_that_is_not_sent_keeps_its_translation(): void
     {
         $this->post('/admin/pages', $this->payload())->assertSessionHasNoErrors();
 
@@ -199,7 +217,6 @@ class TranslatedPageFormTest extends TestCase
 
         $this->put("/admin/pages/{$turkish->id}", ['translations' => [
             'tr' => ['title' => 'Hakkımızda', 'content' => '<p>Türkçe içerik</p>', 'status' => 'published'],
-            'en' => ['title' => '', 'content' => ''],
         ]])->assertSessionHasNoErrors();
 
         $this->assertSame('About Us', $turkish->fresh()->translation('en')?->title);

@@ -31,11 +31,16 @@
     @hasSection('canonical')
     <link rel="canonical" href="@yield('canonical')">
     @endif
-    {{-- Search engines are told about every language this page is published in --}}
-    @foreach(app(\App\Services\LanguageService::class)->active() as $altLanguage)
-    <link rel="alternate" hreflang="{{ $altLanguage->code }}" href="{{ route('locale.switch', $altLanguage->code) }}">
+    {{-- Search engines are told about every language this page is published in.
+         Only real translations are listed: claiming a version that does not
+         exist gets the whole set ignored. --}}
+    @php $alternateUrls = app(\App\Services\LocalizedUrlService::class)->alternates(); @endphp
+    @foreach($alternateUrls as $alternateCode => $alternateUrl)
+    <link rel="alternate" hreflang="{{ $alternateCode }}" href="{{ $alternateUrl }}">
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ route('locale.switch', app(\App\Services\LanguageService::class)->defaultCode()) }}">
+    @if($alternateUrls !== [])
+    <link rel="alternate" hreflang="x-default" href="{{ $alternateUrls[app(\App\Services\LanguageService::class)->defaultCode()] ?? reset($alternateUrls) }}">
+    @endif
     <link rel="alternate" type="application/rss+xml" title="{{ $siteName }} Blog" href="{{ route('feed') }}">
     @stack('pagination-meta')
 
@@ -134,9 +139,9 @@
             '@context'    => 'https://schema.org',
             '@type'       => 'WebSite',
             'name'        => $siteName,
-            'url'         => url('/'),
+            'url'         => route('home'),
             'description' => $siteDesc,
-            'inLanguage'  => 'tr',
+            'inLanguage'  => app()->getLocale(),
         ];
     @endphp
     <script type="application/ld+json">{!! json_encode($orgJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>

@@ -55,9 +55,9 @@
             {{-- Corporate pages --}}
             <div class="col-6 col-lg-2">
                 <h5>{{ __('site.nav.corporate') }}</h5>
-                <a class="footer-link" href="{{ url('/hakkimizda') }}">{{ __('site.nav.about') }}</a>
-                <a class="footer-link" href="{{ url('/gizlilik-politikasi') }}">{{ __('site.nav.privacy') }}</a>
-                <a class="footer-link" href="{{ url('/kullanim-kosullari') }}">{{ __('site.nav.terms') }}</a>
+                <a class="footer-link" href="{{ page_url('hakkimizda') }}">{{ __('site.nav.about') }}</a>
+                <a class="footer-link" href="{{ page_url('gizlilik-politikasi') }}">{{ __('site.nav.privacy') }}</a>
+                <a class="footer-link" href="{{ page_url('kullanim-kosullari') }}">{{ __('site.nav.terms') }}</a>
             </div>
 
             {{-- Contact --}}

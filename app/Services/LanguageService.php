@@ -175,5 +175,8 @@ final class LanguageService
     {
         Cache::forget(self::CACHE_KEY_ACTIVE);
         Cache::forget(self::CACHE_KEY_DEFAULT);
+        // Switching a language on or off adds or removes a whole language's
+        // URLs, so the sitemap is stale the moment this changes.
+        Cache::forget('sitemap.urls');
     }
 }

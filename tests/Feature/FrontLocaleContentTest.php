@@ -60,7 +60,7 @@ class FrontLocaleContentTest extends TestCase
         $this->faqPair();
 
         $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
-            ->get('/sikca-sorulan-sorular')
+            ->get('/en/sikca-sorulan-sorular')
             ->assertOk()
             ->assertSee('How do I sign up?', false)
             ->assertDontSee('Nasıl üye olurum?', false);
@@ -77,7 +77,7 @@ class FrontLocaleContentTest extends TestCase
         ]);
 
         $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
-            ->get('/sikca-sorulan-sorular')
+            ->get('/en/sikca-sorulan-sorular')
             ->assertOk()
             ->assertSee('How do I sign up?', false)
             ->assertSee('Yalnızca Türkçe soru', false);
@@ -149,12 +149,12 @@ class FrontLocaleContentTest extends TestCase
         ]);
 
         $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
-            ->get('/about-us')
+            ->get('/en/about-us')
             ->assertOk()
             ->assertSee('English text', false);
 
         $this->withHeaders(['Accept-Language' => 'tr'])
-            ->get('/hakkimizda')
+            ->get('/tr/hakkimizda')
             ->assertOk()
             ->assertSee('Türkçe metin', false);
     }
@@ -201,7 +201,7 @@ class FrontLocaleContentTest extends TestCase
 
         $before = ob_get_level();
 
-        $this->get('/aciklamasiz-sayfa')->assertOk();
+        $this->get('/tr/aciklamasiz-sayfa')->assertOk();
 
         $this->assertSame($before, ob_get_level(), 'Sayfa render edilirken çıktı tamponu açık kaldı');
     }
@@ -274,13 +274,13 @@ class FrontLocaleContentTest extends TestCase
         $this->blogPair();
 
         $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
-            ->get('/blog')
+            ->get('/en/blog')
             ->assertOk()
             ->assertSee('English Post', false)
             ->assertDontSee('Türkçe Yazı', false);
 
         $this->withHeaders(['Accept-Language' => 'tr'])
-            ->get('/blog')
+            ->get('/tr/blog')
             ->assertOk()
             ->assertSee('Türkçe Yazı', false);
     }
@@ -298,7 +298,7 @@ class FrontLocaleContentTest extends TestCase
         ]);
 
         $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
-            ->get('/blog')
+            ->get('/en/blog')
             ->assertOk()
             ->assertSee('English Post', false)
             ->assertSee('Yalnızca Türkçe Yazı', false);
@@ -309,12 +309,12 @@ class FrontLocaleContentTest extends TestCase
         $this->blogPair();
 
         $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
-            ->get('/blog/announcements/english-post')
+            ->get('/en/blog/announcements/english-post')
             ->assertOk()
             ->assertSee('English Post', false);
 
         $this->withHeaders(['Accept-Language' => 'tr'])
-            ->get('/blog/duyurular/turkce-yazi')
+            ->get('/tr/blog/duyurular/turkce-yazi')
             ->assertOk()
             ->assertSee('Türkçe Yazı', false);
     }

@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -77,6 +78,12 @@ class AppServiceProvider extends ServiceProvider
         $this->applyConfiguredTimezone();
 
         Schema::defaultStringLength(191);
+
+        // Front routes carry their language in the URL. Mails, the scheduler
+        // and console commands build those URLs with no request to read the
+        // language from, so the site default stands in and route('home') keeps
+        // working everywhere; SetLocale overrides it per request.
+        URL::defaults(['locale' => $this->defaultLocaleCode()]);
 
         // Carbon locale Türkçe — translatedFormat / isoFormat / diffForHumans
         // 'Nis', 'Nisan', 'Pzt' gibi Türkçe çıktı versin. config('app.locale')
@@ -188,6 +195,21 @@ class AppServiceProvider extends ServiceProvider
      * and the cron wrote timestamps in two different timezones — into the same
      * columns.
      */
+    /**
+     * The site's default language, safe to ask for before the database exists.
+     *
+     * boot() also runs during a fresh install and during migrations, where the
+     * languages table may not be there yet.
+     */
+    private function defaultLocaleCode(): string
+    {
+        try {
+            return app(\App\Services\LanguageService::class)->defaultCode();
+        } catch (\Throwable) {
+            return (string) config('app.locale', 'tr');
+        }
+    }
+
     private function applyConfiguredTimezone(): void
     {
         try {

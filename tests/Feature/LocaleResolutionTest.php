@@ -35,7 +35,7 @@ class LocaleResolutionTest extends TestCase
      */
     private function localeAfterVisit(array $headers = []): string
     {
-        $this->withHeaders($headers + ['Accept-Language' => ''])->get('/')->assertOk();
+        $this->withHeaders($headers + ['Accept-Language' => ''])->get('/')->assertRedirect();
 
         return app()->getLocale();
     }
@@ -124,17 +124,19 @@ class LocaleResolutionTest extends TestCase
 
     public function test_the_switcher_lists_the_active_languages(): void
     {
-        $html = $this->get('/')->getContent();
+        $html = $this->followingRedirects()->get('/')->getContent();
 
-        $this->assertStringContainsString(route('locale.switch', 'en'), $html);
+        // The switcher links straight to the page in the other language rather
+        // than to a switching endpoint, so the link is the address itself.
+        $this->assertStringContainsString('href="' . route('home', ['locale' => 'en']) . '"', $html);
         $this->assertStringContainsString('Türkçe', $html);
         $this->assertStringContainsString('English', $html);
-        $this->assertStringNotContainsString(route('locale.switch', 'de'), $html, 'Pasif dil seçicide görünüyor');
+        $this->assertStringNotContainsString(route('home', ['locale' => 'de']) . '"', $html, 'Pasif dil seçicide görünüyor');
     }
 
     public function test_the_page_declares_the_active_language(): void
     {
-        $html = $this->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
+        $html = $this->followingRedirects()->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])->get('/')->getContent();
 
         $this->assertStringContainsString('<html lang="en"', $html);
         $this->assertStringContainsString('hreflang="tr"', $html);
@@ -150,7 +152,7 @@ class LocaleResolutionTest extends TestCase
         Language::where('code', '!=', 'tr')->update(['is_active' => false]);
         app(LanguageService::class)->clearCache();
 
-        $html = $this->get('/')->getContent();
+        $html = $this->followingRedirects()->get('/')->getContent();
 
         $this->assertStringNotContainsString('lang-switcher', $html);
     }
