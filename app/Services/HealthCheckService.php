@@ -15,12 +15,69 @@ use Illuminate\Support\Facades\Http;
  * Her kontrol şu yapıyı döner:
  *  ['key' => string, 'label' => string, 'status' => 'ok|warning|critical',
  *   'message' => string, 'detail' => ?string]
+ *
+ * runAll() bunlara ekranın kullandığı bağlamı ekler: ikon, kontrolün ne işe
+ * yaradığı, sorun hâlinde ne yapılacağı ve ilgili panel sayfası.
  */
 final class HealthCheckService
 {
     public const STATUS_OK       = 'ok';
     public const STATUS_WARNING  = 'warning';
     public const STATUS_CRITICAL = 'critical';
+
+    /**
+     * Kontrolün ekrandaki yüzü: ne işe yaradığı, sorun çıkınca ne yapılacağı
+     * ve varsa ilgili panel sayfası.
+     *
+     * Kontrolün kendi mantığı buraya karışmaz; burada yalnızca kontrolü okuyan
+     * kişinin ihtiyaç duyduğu bağlam durur.
+     *
+     * @var array<string, array{icon: string, what: string, hint: string, route: ?string}>
+     */
+    private const META = [
+        'db' => [
+            'icon'  => 'bi-database-fill-check',
+            'what'  => 'Uygulamanın veritabanına bağlanıp sürümünü okur.',
+            'hint'  => 'Bağlantı bilgilerini .env dosyasından doğrulayın; sunucu MySQL servisi ayakta mı bakın.',
+            'route' => null,
+        ],
+        'queue' => [
+            'icon'  => 'bi-stack',
+            'what'  => 'Kuyrukta bekleyen ve son 24 saatte başarısız olan işleri sayar.',
+            'hint'  => 'Bekleyen iş birikiyorsa kuyruk tetikleyicisinin (cron) çalıştığını doğrulayın.',
+            'route' => null,
+        ],
+        'disk' => [
+            'icon'  => 'bi-hdd-fill',
+            'what'  => 'Sunucu diskinin ne kadarının dolu olduğuna bakar.',
+            'hint'  => 'Eski yedekleri indirip silin, kullanılmayan görselleri temizleyin.',
+            'route' => 'admin.backups.index',
+        ],
+        'telegram' => [
+            'icon'  => 'bi-send-fill',
+            'what'  => 'Telegram bildirimlerinin açık ve bot bilgilerinin geçerli olduğunu doğrular.',
+            'hint'  => 'Ayarlar → Telegram bölümünden bot token ve chat id değerlerini kontrol edin.',
+            'route' => 'admin.settings.index',
+        ],
+        'storage' => [
+            'icon'  => 'bi-folder-fill',
+            'what'  => 'Yükleme ve önbellek dizinlerine yazılabildiğini sınar.',
+            'hint'  => 'İlgili dizinlerin sahipliğini ve 775 iznini kontrol edin.',
+            'route' => null,
+        ],
+        'php_ext' => [
+            'icon'  => 'bi-plug-fill',
+            'what'  => 'Uygulamanın ihtiyaç duyduğu PHP modüllerinin yüklü olduğuna bakar.',
+            'hint'  => 'Eksik modülü hosting panelinden ya da php.ini üzerinden etkinleştirin.',
+            'route' => null,
+        ],
+        'last_backup' => [
+            'icon'  => 'bi-archive-fill',
+            'what'  => 'En son yedeğin ne zaman alındığını söyler.',
+            'hint'  => 'Yedekler sayfasından elle yedek alın; otomatik yedek görevinin çalıştığını doğrulayın.',
+            'route' => 'admin.backups.index',
+        ],
+    ];
 
     /**
      * Tüm kontrolleri çalıştır + özet skor + zaman damgası döner.
@@ -42,6 +99,16 @@ final class HealthCheckService
             $this->checkPhpExtensions(),
             $this->checkLastBackup(),
         ];
+
+        $checks = array_map(fn (array $check): array => $this->decorate($check), $checks);
+
+        // Sorunlu kontroller başa: ekranı açan kişi önce neyin bozuk olduğunu
+        // görmeli, sağlıklı olanlar altta kalabilir.
+        usort($checks, static function (array $a, array $b): int {
+            $weight = ['critical' => 0, 'warning' => 1, 'ok' => 2];
+
+            return ($weight[$a['status']] ?? 3) <=> ($weight[$b['status']] ?? 3);
+        });
 
         $counts = ['ok' => 0, 'warning' => 0, 'critical' => 0];
         foreach ($checks as $c) {
@@ -246,6 +313,28 @@ final class HealthCheckService
             return $this->result('last_backup', 'Son Yedek', self::STATUS_WARNING,
                 'Tarih parse hatası', $e->getMessage());
         }
+    }
+
+    /**
+     * Kontrol sonucuna ekranın ihtiyaç duyduğu bağlamı ekler.
+     *
+     * @param array<string, mixed> $check
+     * @return array<string, mixed>
+     */
+    private function decorate(array $check): array
+    {
+        $meta = self::META[$check['key']] ?? ['icon' => 'bi-activity', 'what' => '', 'hint' => '', 'route' => null];
+
+        return $check + [
+            'icon' => $meta['icon'],
+            'what' => $meta['what'],
+            // İpucu yalnızca sorun varken işe yarar; sağlıklı kontrolde
+            // ekranı gereksiz doldurur.
+            'hint' => $check['status'] === self::STATUS_OK ? null : $meta['hint'],
+            'url'  => $meta['route'] !== null
+                ? rescue(static fn (): ?string => route($meta['route']), null, false)
+                : null,
+        ];
     }
 
     /** @return array<string, mixed> */

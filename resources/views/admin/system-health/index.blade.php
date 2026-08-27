@@ -1,187 +1,160 @@
 @extends('layouts.admin')
 
 @section('title', 'Sistem Sağlık')
+@section('page_title', 'Sistem Sağlık')
+@section('page_description', 'Sistemin kritik parçalarının durumu tek ekranda')
 
 @section('content')
-<div class="container-fluid py-4 sh-page">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-        <div>
-            <h2 class="page-title mb-1">
-                <i class="bi bi-heart-pulse text-warning me-2"></i> Sistem Sağlık
-            </h2>
-            <small class="text-muted">10 kritik sistem kontrolü — DB, queue, disk, IG token, AI, Telegram, storage, PHP, son paylaşım, son yedek</small>
-        </div>
-        <button type="button" class="btn-teal" id="shRefreshBtn">
-            <i class="bi bi-arrow-clockwise me-1"></i> Yeniden Kontrol Et
-        </button>
-    </div>
-
-    {{-- Genel durum kartı --}}
     @php
-        $overall = $health['summary']['overall'];
-        $overallLabel = match($overall) {
-            'ok'       => 'Tüm Sistem Sağlıklı',
-            'warning'  => 'Bazı Uyarılar Var',
-            'critical' => 'Kritik Sorunlar Var',
-            default    => 'Bilinmeyen',
+        $summary = $health['summary'];
+        $overall = $summary['overall'];
+        $overallLabel = match ($overall) {
+            'ok'       => 'Tüm sistem sağlıklı',
+            'warning'  => 'Dikkat isteyen noktalar var',
+            'critical' => 'Kritik sorun var',
+            default    => 'Bilinmiyor',
         };
-        $overallIcon = match($overall) {
-            'ok'       => 'bi-check-circle-fill',
+        $overallHint = match ($overall) {
+            'ok'       => 'Bütün kontroller beklenen sonucu verdi.',
+            'warning'  => 'Sistem çalışıyor ama aşağıdaki başlıklar yakında sorun çıkarabilir.',
+            'critical' => 'Aşağıdaki kırmızı başlık şu anda işleyişi bozuyor; önce onunla ilgilenin.',
+            default    => '',
+        };
+        $overallIcon = match ($overall) {
+            'ok'       => 'bi-shield-check',
             'warning'  => 'bi-exclamation-triangle-fill',
             'critical' => 'bi-x-octagon-fill',
             default    => 'bi-question-circle',
         };
+        $checkedAt = \Illuminate\Support\Carbon::parse($health['checked_at']);
+        $checkNames = collect($health['checks'])->pluck('label')->implode(', ');
     @endphp
-    <div class="card-dark mb-4 sh-overall sh-overall--{{ $overall }}">
-        <div class="card-body-custom d-flex align-items-center gap-3 flex-wrap">
-            <div class="sh-overall__icon">
-                <i class="bi {{ $overallIcon }}"></i>
+
+    {{-- Breadcrumb --}}
+    <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{{ route('admin.dashboard') }}" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a>
+            </li>
+            <li class="breadcrumb-item active text-teal">Sistem Sağlık</li>
+        </ol>
+    </nav>
+
+    {{-- Page Header --}}
+    <div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-3" data-aos="fade-down">
+        <div>
+            <h1 class="page-title">Sistem Sağlık</h1>
+            <p class="page-subtitle">{{ $summary['total'] }} kontrol çalıştırıldı — {{ $checkNames }}</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.system-health.json') }}" class="btn-glass" target="_blank" rel="noopener"
+               title="İzleme araçları için ham çıktı">
+                <i class="bi bi-braces"></i> JSON çıktısı
+            </a>
+            <button type="button" class="btn-teal" id="shRefreshBtn" data-url="{{ route('admin.system-health.json') }}">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span data-default>Yeniden Kontrol Et</span>
+                <span data-loading class="d-none"><i class="bi bi-arrow-repeat bk-spin"></i> Kontrol ediliyor…</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- ==================== SECTION 1: GENEL DURUM ==================== --}}
+    <div class="sh-overall sh-overall--{{ $overall }} mb-4" data-aos="fade-up">
+        <div class="sh-overall__icon"><i class="bi {{ $overallIcon }}"></i></div>
+
+        <div class="sh-overall__body">
+            <h2 class="sh-overall__title">{{ $overallLabel }}</h2>
+            <p class="sh-overall__hint">{{ $overallHint }}</p>
+            <span class="sh-overall__time">
+                <i class="bi bi-clock me-1"></i>Son kontrol: {{ $checkedAt->translatedFormat('d F Y, H:i:s') }}
+                ({{ $checkedAt->diffForHumans() }})
+            </span>
+        </div>
+
+        <div class="sh-counters">
+            <div class="sh-counter sh-counter--ok">
+                <strong>{{ $summary['ok'] }}</strong>
+                <small>Sağlıklı</small>
             </div>
-            <div class="flex-grow-1">
-                <h5 class="mb-1">{{ $overallLabel }}</h5>
-                <small class="text-muted">
-                    Son kontrol: <span id="shCheckedAt">{{ \Carbon\Carbon::parse($health['checked_at'])->format('d.m.Y H:i:s') }}</span>
-                </small>
+            <div class="sh-counter sh-counter--warning">
+                <strong>{{ $summary['warning'] }}</strong>
+                <small>Uyarı</small>
             </div>
-            <div class="d-flex gap-3 flex-wrap">
-                <div class="sh-counter sh-counter--ok">
-                    <strong>{{ $health['summary']['ok'] }}</strong>
-                    <small>Sağlıklı</small>
-                </div>
-                <div class="sh-counter sh-counter--warning">
-                    <strong>{{ $health['summary']['warning'] }}</strong>
-                    <small>Uyarı</small>
-                </div>
-                <div class="sh-counter sh-counter--critical">
-                    <strong>{{ $health['summary']['critical'] }}</strong>
-                    <small>Kritik</small>
-                </div>
+            <div class="sh-counter sh-counter--critical">
+                <strong>{{ $summary['critical'] }}</strong>
+                <small>Kritik</small>
             </div>
         </div>
     </div>
 
-    {{-- Kontrol kartları --}}
-    <div class="row g-3" id="shChecksGrid">
-        @foreach($health['checks'] as $check)
-            <div class="col-md-6 col-xl-4">
-                <div class="sh-check-card sh-check-card--{{ $check['status'] }}">
-                    <div class="sh-check-card__header">
-                        <span class="sh-check-card__icon">
-                            @if($check['status'] === 'ok')
-                                <i class="bi bi-check-circle-fill"></i>
-                            @elseif($check['status'] === 'warning')
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                            @else
-                                <i class="bi bi-x-octagon-fill"></i>
-                            @endif
-                        </span>
-                        <span class="sh-check-card__label">{{ $check['label'] }}</span>
+    {{-- Sayfanın nasıl çalıştığı --}}
+    <div class="nt-info-note mb-4" data-aos="fade-up" data-aos-delay="50">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+            <strong>Kontroller bu sayfayı her açtığınızda yeniden çalışır.</strong>
+            Sonuçlar saklanmaz, gördüğünüz durum o anın fotoğrafıdır. Sorunlu kontroller
+            listenin başında; her kartın altında ne işe yaradığı, sorun hâlinde ne
+            yapılacağı ve varsa ilgili sayfanın bağlantısı yazar.
+        </div>
+    </div>
+
+    {{-- ==================== SECTION 2: KONTROLLER ==================== --}}
+    <div class="row g-4" id="shChecksGrid">
+        @foreach($health['checks'] as $index => $check)
+            @php
+                $statusLabel = match ($check['status']) {
+                    'ok'       => 'Sağlıklı',
+                    'warning'  => 'Uyarı',
+                    'critical' => 'Kritik',
+                    default    => 'Bilinmiyor',
+                };
+                $statusIcon = match ($check['status']) {
+                    'ok'       => 'bi-check-circle-fill',
+                    'warning'  => 'bi-exclamation-triangle-fill',
+                    'critical' => 'bi-x-octagon-fill',
+                    default    => 'bi-question-circle',
+                };
+            @endphp
+            <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ min($index * 60, 300) }}">
+                <div class="sh-check sh-check--{{ $check['status'] }}">
+                    <div class="sh-check__head">
+                        <div class="sh-check__icon"><i class="bi {{ $check['icon'] }}"></i></div>
+                        <div class="sh-check__title">
+                            <span class="sh-check__label">{{ $check['label'] }}</span>
+                            <span class="sh-check__status">
+                                <i class="bi {{ $statusIcon }}"></i> {{ $statusLabel }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="sh-check-card__message">{{ $check['message'] }}</div>
+
+                    <p class="sh-check__message">{{ $check['message'] }}</p>
+
                     @if($check['detail'])
-                        <div class="sh-check-card__detail">{{ $check['detail'] }}</div>
+                        <p class="sh-check__detail">{{ $check['detail'] }}</p>
                     @endif
+
+                    <div class="sh-check__foot">
+                        @if($check['what'])
+                            <p class="sh-check__what"><i class="bi bi-question-circle me-1"></i>{{ $check['what'] }}</p>
+                        @endif
+
+                        @if($check['hint'])
+                            <p class="sh-check__hint"><i class="bi bi-lightbulb-fill me-1"></i>{{ $check['hint'] }}</p>
+                        @endif
+
+                        @if($check['url'] && $check['status'] !== 'ok')
+                            <a href="{{ $check['url'] }}" class="sh-check__action">
+                                İlgili sayfaya git <i class="bi bi-arrow-right"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
         @endforeach
     </div>
-</div>
 @endsection
 
-@push('styles')
-<style>
-.sh-overall {
-    border-left: 4px solid #6b7280;
-    transition: border-color 0.2s;
-}
-.sh-overall--ok       { border-left-color: #10b981; }
-.sh-overall--warning  { border-left-color: #f59e0b; }
-.sh-overall--critical { border-left-color: #ef4444; }
-.sh-overall__icon {
-    width: 56px; height: 56px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-}
-.sh-overall--ok .sh-overall__icon       { background: rgba(16,185,129,0.12); color: #10b981; }
-.sh-overall--warning .sh-overall__icon  { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.sh-overall--critical .sh-overall__icon { background: rgba(239,68,68,0.12);  color: #ef4444; }
-
-.sh-counter {
-    text-align: center;
-    padding: 8px 14px;
-    border-radius: 8px;
-    background: rgba(0,0,0,0.3);
-    min-width: 70px;
-}
-.sh-counter strong { display: block; font-size: 1.4rem; color: #e5e7eb; }
-.sh-counter small  { color: #9ca3af; font-size: 0.7rem; text-transform: uppercase; }
-.sh-counter--ok       strong { color: #6ee7b7; }
-.sh-counter--warning  strong { color: #fcd34d; }
-.sh-counter--critical strong { color: #fca5a5; }
-
-/* Check kartları */
-.sh-check-card {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-left: 3px solid #6b7280;
-    border-radius: 8px;
-    padding: 14px 16px;
-    height: 100%;
-    transition: all 0.15s;
-}
-.sh-check-card:hover { background: rgba(0,0,0,0.4); }
-.sh-check-card--ok       { border-left-color: #10b981; }
-.sh-check-card--warning  { border-left-color: #f59e0b; }
-.sh-check-card--critical { border-left-color: #ef4444; background: rgba(239,68,68,0.05); }
-
-.sh-check-card__header {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 6px;
-}
-.sh-check-card__icon { font-size: 1rem; }
-.sh-check-card--ok       .sh-check-card__icon { color: #10b981; }
-.sh-check-card--warning  .sh-check-card__icon { color: #f59e0b; }
-.sh-check-card--critical .sh-check-card__icon { color: #ef4444; }
-.sh-check-card__label   { color: #e5e7eb; font-weight: 600; font-size: 0.9rem; }
-.sh-check-card__message { color: #d1d5db; font-size: 0.85rem; line-height: 1.4; }
-.sh-check-card__detail  { color: #6b7280; font-size: 0.75rem; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
-</style>
-@endpush
-
 @push('scripts')
-<script>
-(function () {
-    'use strict';
-    var btn = document.getElementById('shRefreshBtn');
-    if (! btn) return;
-    var defaultLabel = btn.innerHTML;
-
-    btn.addEventListener('click', function () {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Kontrol ediliyor...';
-
-        fetch('{{ route('admin.system-health.json') }}', {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: { 'Accept': 'application/json' },
-        })
-        .then(function (r) { return r.json(); })
-        .then(function () {
-            // Yeni JSON geldi — sayfayı yenile (kart'ları yeniden render etmek yerine)
-            window.location.reload();
-        })
-        .catch(function (e) {
-            AdminModal.status({
-                title: 'Kontrol Başarısız',
-                message: e.message,
-                type: 'danger',
-            });
-            btn.disabled = false;
-            btn.innerHTML = defaultLabel;
-        });
-    });
-})();
-</script>
+<script src="{{ versioned_asset('assets/admin/js/system-health.js') }}"></script>
 @endpush
