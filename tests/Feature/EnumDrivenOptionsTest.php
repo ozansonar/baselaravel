@@ -51,7 +51,10 @@ class EnumDrivenOptionsTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: class-string<\BackedEnum>}>
+     * Üçüncü değer, seçeneğin ekranda hangi biçimde göründüğü: çoğu ekranda
+     * <select> seçeneği, aktivite loglarında ise süzgeç sekmesinin bağlantısı.
+     *
+     * @return array<string, array{0: string, 1: class-string<\BackedEnum>, 2?: string}>
      */
     public static function screens(): array
     {
@@ -60,7 +63,7 @@ class EnumDrivenOptionsTest extends TestCase
             'ayarlar → telegram seviyesi' => ['/admin/settings', TelegramNotifyLevel::class],
             'ayarlar → saat dilimi'       => ['/admin/settings', AppTimezone::class],
             'yönlendirmeler → durum kodu' => ['/admin/redirects', RedirectStatus::class],
-            'aktivite → olay filtresi'    => ['/admin/aktivite-loglari', AuditEvent::class],
+            'aktivite → olay filtresi'    => ['/admin/aktivite-loglari', AuditEvent::class, 'event=%s'],
         ];
     }
 
@@ -68,13 +71,13 @@ class EnumDrivenOptionsTest extends TestCase
      * @param class-string<\BackedEnum> $enum
      */
     #[DataProvider('screens')]
-    public function test_every_enum_case_reaches_the_screen(string $route, string $enum): void
+    public function test_every_enum_case_reaches_the_screen(string $route, string $enum, string $needle = 'value="%s"'): void
     {
         $html = $this->actingAs($this->admin())->get($route)->getContent();
 
         foreach ($enum::cases() as $case) {
             $this->assertStringContainsString(
-                'value="' . $case->value . '"',
+                sprintf($needle, $case->value),
                 $html,
                 sprintf('%s::%s seçeneği %s ekranında yok', class_basename($enum), $case->name, $route),
             );

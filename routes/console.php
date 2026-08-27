@@ -101,8 +101,8 @@ Schedule::call($run('analytics:prune-old'))
     ->at('04:00')
     ->withoutOverlapping();
 
-// Audit log cleanup — remove entries older than 90 days
-Schedule::call($run('audit-logs:prune', ['--days' => 90]))
+// Audit log cleanup — the same retention the screen tells the user about.
+Schedule::call($run('audit-logs:prune', ['--days' => \App\Services\AuditLogService::RETENTION_DAYS]))
     ->name('audit-logs-prune')
     ->weekly()
     ->sundays()
