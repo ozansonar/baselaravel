@@ -28,6 +28,33 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 - Form doğrulama: HTML5 validation (`required`, `type=email`, `minlength`) → YASAK.
   Kurallar alanlara `data-validation-engine="validate[...]"` ile yazılır, form
   `data-validate novalidate` ile devreye girer → `public/assets/admin/js/form-validation.js`
+- **Kuralsız alan → YASAK.** Kullanıcının veri girdiği her alan ya
+  `data-validation-engine` taşır ya da bilerek boş bırakıldığını söyleyen
+  `data-fv-ignore` taşır; ikisi de yoksa eksiktir. `validate[required]` tek
+  başına yeterli değil — alanın kabul ettiği en dar kural seçilir:
+
+  | Alan türü | Kural | Maske |
+  |---|---|---|
+  | Ad, soyad, şehir | `custom[letters]` | `letters` |
+  | E-posta | `custom[email]` | — |
+  | Telefon | `custom[phone]` | `digits` |
+  | Tam sayı (yaş, adet, sıra) | `custom[integer]` + `min[]`/`max[]` | `digits` |
+  | Ondalık (fiyat, oran) | `custom[number]` | `decimal` |
+  | URL | `custom[url]` | — |
+  | Slug | `custom[slug]` | — |
+  | Site içi yol | `custom[sitePath]` | — |
+  | Dil kodu | `custom[langCode]` | — |
+  | Tarih | `custom[date]` (+ `past[]`/`future[]`) | — |
+  | IP | `custom[ipv4]` | — |
+  | Serbest metin | `maxSize[n]` (+ gerekirse `minSize[n]`) | — |
+  | Görsel | `funcCall[FormValidation.rules.imageFile]` | — |
+  | Şifre tekrarı | `equals[alanId]` | — |
+
+  Maske `data-fv-mask="letters|digits|decimal"` ile eklenir; yanlış karakterin
+  yazılmasını en baştan engeller, kuralın yerini almaz.
+- **Her metin alanı `maxSize[n]` alır** ve bu sayı FormRequest'teki `max:` ile
+  birebir aynı olur. İstemci kuralı sunucudan gevşek olamaz; sunucu her zaman
+  son söz → detaylı rehber: `form-validation` skill'i
 - Inline style (`style="..."`) → YASAK, her zaman class kullan
 - Duplicate kod → YASAK, component/partial yap
 - SoftDeletes → HER MODELDE ZORUNLU

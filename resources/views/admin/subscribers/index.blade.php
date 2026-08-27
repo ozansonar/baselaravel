@@ -470,13 +470,17 @@
                                 <div class="col-sm-6">
                                     <div class="stg-field">
                                         <label class="stg-label" for="sub_first_name">Ad</label>
-                                        <input type="text" class="stg-input" id="sub_first_name" name="first_name">
+                                        <input type="text" class="stg-input" id="sub_first_name" name="first_name"
+                                               data-validation-engine="validate[custom[letters],maxSize[191]]"
+                                               data-fv-mask="letters">
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="stg-field">
                                         <label class="stg-label" for="sub_last_name">Soyad</label>
-                                        <input type="text" class="stg-input" id="sub_last_name" name="last_name">
+                                        <input type="text" class="stg-input" id="sub_last_name" name="last_name"
+                                               data-validation-engine="validate[custom[letters],maxSize[191]]"
+                                               data-fv-mask="letters">
                                     </div>
                                 </div>
                             </div>
@@ -592,8 +596,10 @@
                                     @method('PUT')
                                     <div class="sub-list-row__fields">
                                         <input type="text" class="stg-input" name="name" value="{{ $list->name }}"
-                                               aria-label="Liste adı" required>
+                                               data-validation-engine="validate[required,maxSize[191]]"
+                                               aria-label="Liste adı">
                                         <input type="text" class="stg-input" name="description" value="{{ $list->description }}"
+                                               data-validation-engine="validate[maxSize[500]]"
                                                placeholder="Açıklama (isteğe bağlı)" aria-label="Açıklama">
                                     </div>
                                     <label class="cmp-check sub-list-row__default">
@@ -643,6 +649,7 @@
                                     <input type="text" class="stg-input" name="name" placeholder="Tedarikçiler"
                                            data-validation-engine="validate[required,maxSize[191]]" aria-label="Liste adı">
                                     <input type="text" class="stg-input" name="description"
+                                           data-validation-engine="validate[maxSize[500]]"
                                            placeholder="Açıklama (isteğe bağlı)" aria-label="Açıklama">
                                 </div>
                                 <button type="submit" class="btn-teal btn-sm"><i class="bi bi-plus-lg"></i> Ekle</button>

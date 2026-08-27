@@ -273,19 +273,24 @@
                             <div class="cmp-row" data-row>
                                 <div class="cmp-row__field">
                                     <label class="cmp-row__label">E-posta <span class="text-neon-red">*</span></label>
-                                    <input type="email" class="stg-input" data-fv-ignore
+                                    <input type="email" class="stg-input"
+                                           data-validation-engine="validate[custom[email],maxSize[191]]"
                                            name="manual_rows[{{ $index }}][email]"
                                            value="{{ $row['email'] ?? '' }}" placeholder="ahmet@ornek.com">
                                 </div>
                                 <div class="cmp-row__field">
                                     <label class="cmp-row__label">Ad</label>
-                                    <input type="text" class="stg-input" data-fv-ignore
+                                    <input type="text" class="stg-input"
+                                           data-validation-engine="validate[custom[letters],maxSize[100]]"
+                                           data-fv-mask="letters"
                                            name="manual_rows[{{ $index }}][first_name]"
                                            value="{{ $row['first_name'] ?? '' }}" placeholder="Ahmet">
                                 </div>
                                 <div class="cmp-row__field">
                                     <label class="cmp-row__label">Soyad</label>
-                                    <input type="text" class="stg-input" data-fv-ignore
+                                    <input type="text" class="stg-input"
+                                           data-validation-engine="validate[custom[letters],maxSize[100]]"
+                                           data-fv-mask="letters"
                                            name="manual_rows[{{ $index }}][last_name]"
                                            value="{{ $row['last_name'] ?? '' }}" placeholder="Yılmaz">
                                 </div>
@@ -381,15 +386,18 @@
     <div class="cmp-row" data-row>
         <div class="cmp-row__field">
             <label class="cmp-row__label">E-posta <span class="text-neon-red">*</span></label>
-            <input type="email" class="stg-input" data-fv-ignore name="manual_rows[__INDEX__][email]" placeholder="ahmet@ornek.com">
+            <input type="email" class="stg-input" name="manual_rows[__INDEX__][email]"
+                   data-validation-engine="validate[custom[email],maxSize[191]]" placeholder="ahmet@ornek.com">
         </div>
         <div class="cmp-row__field">
             <label class="cmp-row__label">Ad</label>
-            <input type="text" class="stg-input" data-fv-ignore name="manual_rows[__INDEX__][first_name]" placeholder="Ahmet">
+            <input type="text" class="stg-input" name="manual_rows[__INDEX__][first_name]"
+                   data-validation-engine="validate[custom[letters],maxSize[100]]" data-fv-mask="letters" placeholder="Ahmet">
         </div>
         <div class="cmp-row__field">
             <label class="cmp-row__label">Soyad</label>
-            <input type="text" class="stg-input" data-fv-ignore name="manual_rows[__INDEX__][last_name]" placeholder="Yılmaz">
+            <input type="text" class="stg-input" name="manual_rows[__INDEX__][last_name]"
+                   data-validation-engine="validate[custom[letters],maxSize[100]]" data-fv-mask="letters" placeholder="Yılmaz">
         </div>
         <button type="button" class="cmp-row__remove" data-remove-row title="Bu alıcıyı çıkar">
             <i class="bi bi-trash3"></i><span>Sil</span>
