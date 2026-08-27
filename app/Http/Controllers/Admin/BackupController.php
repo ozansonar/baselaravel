@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkDeleteBackupsRequest;
 use App\Services\BackupService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -68,5 +69,33 @@ final class BackupController extends Controller
         return redirect()->route('admin.backups.index')
             ->with($ok ? 'success' : 'error',
                 $ok ? "Yedek silindi: {$filename}" : "Silinemedi: {$filename}");
+    }
+
+    /**
+     * Listeden seçilen yedekleri tek işlemde siler.
+     *
+     * Kullanıcı hangi filtreyle bakıyorsa oraya döner; silinemeyen dosya varsa
+     * kaçının gittiği ve kaçının kaldığı ayrı ayrı bildirilir.
+     */
+    public function bulkDestroy(BulkDeleteBackupsRequest $request): RedirectResponse
+    {
+        $this->authorize('delete-backups');
+
+        $result = $this->service->deleteMany($request->filenames());
+
+        $deleted = count($result['deleted']);
+        $failed = count($result['failed']);
+
+        $target = redirect()->route('admin.backups.index', $request->only(['q', 'sort']));
+
+        if ($deleted === 0) {
+            return $target->with('error', 'Hiçbir yedek silinemedi.');
+        }
+
+        if ($failed > 0) {
+            return $target->with('warning', "{$deleted} yedek silindi, {$failed} tanesi silinemedi.");
+        }
+
+        return $target->with('success', "{$deleted} yedek silindi.");
     }
 }

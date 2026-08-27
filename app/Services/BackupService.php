@@ -273,19 +273,67 @@ final class BackupService
      */
     public function delete(string $filename): bool
     {
-        // Path traversal koruması
-        if (str_contains($filename, '..') || str_contains($filename, '/')) {
+        if (! $this->removeFile($filename)) {
+            return false;
+        }
+
+        AuditLogger::custom('Yedek dosyası silindi', ['file' => $filename]);
+
+        return true;
+    }
+
+    /**
+     * Seçilen yedekleri tek işlemde sil.
+     *
+     * Bir dosyanın silinememesi kalanları durdurmaz: kullanıcı hangilerinin
+     * gittiğini, hangilerinin kaldığını tek seferde görmeli. Kayda da tek satır
+     * düşer, ondört ayrı satır değil.
+     *
+     * @param list<string> $filenames
+     * @return array{deleted: list<string>, failed: list<string>}
+     */
+    public function deleteMany(array $filenames): array
+    {
+        $deleted = [];
+        $failed = [];
+
+        foreach (array_unique($filenames) as $filename) {
+            if ($this->removeFile((string) $filename)) {
+                $deleted[] = (string) $filename;
+            } else {
+                $failed[] = (string) $filename;
+            }
+        }
+
+        if ($deleted !== []) {
+            AuditLogger::custom('Yedek dosyaları toplu silindi', [
+                'adet'     => count($deleted),
+                'dosyalar' => $deleted,
+            ]);
+        }
+
+        return ['deleted' => $deleted, 'failed' => $failed];
+    }
+
+    /**
+     * Yedek klasöründen tek dosya siler.
+     *
+     * Ad doğrudan istekten geldiği için klasör dışına çıkmaya çalışan her şey
+     * burada elenir.
+     */
+    private function removeFile(string $filename): bool
+    {
+        if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
             return false;
         }
 
         $path = storage_path('app/' . self::BACKUP_DIR . '/' . $filename);
-        if (! is_file($path)) return false;
 
-        if (@unlink($path)) {
-            AuditLogger::custom('Yedek dosyası silindi', ['file' => $filename]);
-            return true;
+        if (! is_file($path)) {
+            return false;
         }
-        return false;
+
+        return (bool) @unlink($path);
     }
 
     /**

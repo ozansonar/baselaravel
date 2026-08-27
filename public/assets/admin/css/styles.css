@@ -33155,4 +33155,12 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   .bk-table .cl-content-meta {
     white-space: normal;
   }
+
+  /* Yedeği ayırt eden şey adındaki tarih; üç nokta ile kesmek yerine iki
+     satıra sarılıyor. */
+  .bk-table .bk-file-name {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
 }

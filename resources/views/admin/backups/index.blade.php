@@ -182,6 +182,13 @@
                     </select>
 
                     <div class="cl-toolbar-actions ms-auto">
+                        {{-- Seçim yapıldığında beliren toplu işlem çubuğu --}}
+                        <div class="cl-bulk-actions d-none" id="bkBulkActions">
+                            <span class="cl-bulk-count"><span id="bkSelectedCount">0</span> seçili</span>
+                            <button type="button" class="usr-action-btn danger" id="bkBulkDeleteBtn" title="Seçilenleri Sil">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                         <button type="submit" class="usr-action-btn" title="Ara"><i class="bi bi-search"></i></button>
                         <a href="{{ route('admin.backups.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
                             <i class="bi bi-arrow-counterclockwise"></i>
@@ -199,6 +206,9 @@
                 <table class="cl-table bk-table">
                     <thead>
                         <tr>
+                            <th class="cl-th-checkbox">
+                                <input type="checkbox" class="usr-checkbox" id="bkSelectAll" aria-label="Tümünü seç">
+                            </th>
                             <th>Dosya</th>
                             <th class="d-none d-xl-table-cell">İçerik</th>
                             <th class="d-none d-sm-table-cell">Boyut</th>
@@ -223,6 +233,10 @@
                                 };
                             @endphp
                             <tr>
+                                <td data-label="Seç">
+                                    <input type="checkbox" class="usr-checkbox bk-checkbox" value="{{ $backup['name'] }}"
+                                           aria-label="{{ $backup['name'] }} seç">
+                                </td>
                                 <td data-label="Dosya">
                                     <div class="cl-content-cell">
                                         <div class="bk-file-icon">
@@ -284,7 +298,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-5">
+                                <td colspan="7" class="text-center text-muted py-5">
                                     <i class="bi bi-cloud-arrow-down d-block fs-1 mb-2 opacity-50"></i>
                                     @if($filters['q'])
                                         <strong>“{{ $filters['q'] }}”</strong> ile eşleşen yedek bulunamadı.
@@ -301,6 +315,13 @@
                     </tbody>
                 </table>
             </div>
+
+            <form method="POST" action="{{ route('admin.backups.bulk-destroy') }}" id="bkBulkForm" class="d-none">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="q" value="{{ $filters['q'] }}">
+                <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
+            </form>
 
             @if($backups !== [])
                 <div class="cl-pagination-wrapper">
