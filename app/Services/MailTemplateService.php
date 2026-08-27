@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\MailTemplate;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 final class MailTemplateService
@@ -16,11 +18,164 @@ final class MailTemplateService
     /**
      * Get all templates for admin listing.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, MailTemplate>
+     * @return EloquentCollection<int, MailTemplate>
      */
-    public function getAll(): \Illuminate\Database\Eloquent\Collection
+    public function getAll(): EloquentCollection
     {
         return MailTemplate::orderBy('name')->get();
+    }
+
+    /**
+     * Süzülmüş ve sıralanmış şablon listesi.
+     *
+     * Altı kayıtlık bir tablo için sayfalama yok; süzgeçler yine de sunucuda
+     * çalışıyor ki bağlantı paylaşılabilsin ve panelin diğer listeleriyle aynı
+     * davranış (rozetler, sıfırlama, boş durum) elde edilsin.
+     *
+     * @param array<string, mixed> $filters
+     * @return Collection<int, MailTemplate>
+     */
+    public function filter(array $filters): Collection
+    {
+        $query = MailTemplate::query();
+
+        if (($filters['status'] ?? '') !== '') {
+            $query->where('is_active', $filters['status'] === 'active');
+        }
+
+        if (($filters['search'] ?? '') !== '') {
+            $term = $this->likeTerm((string) $filters['search']);
+
+            $query->where(function (Builder $sub) use ($term): void {
+                $sub->whereRaw("name LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("`key` LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("description LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("subject LIKE ? ESCAPE '!'", [$term]);
+            });
+        }
+
+        $templates = match ($filters['sort'] ?? '') {
+            'recent' => $query->orderByDesc('updated_at')->get(),
+            'key'    => $query->orderBy('key')->get(),
+            default  => $query->orderBy('name')->get(),
+        };
+
+        // Değişkenler JSON sütununda; altı satır için sorguyu veritabanına
+        // özel JSON işlevlerine bağlamaktansa koleksiyonda süzmek yeterli.
+        if (($filters['variable'] ?? '') !== '') {
+            $templates = $templates->filter(
+                fn (MailTemplate $template): bool => in_array($filters['variable'], $template->variableKeys(), true),
+            );
+        }
+
+        if (($filters['origin'] ?? '') !== '') {
+            $wantsCustomized = $filters['origin'] === 'customized';
+
+            $templates = $templates->filter(
+                fn (MailTemplate $template): bool => $this->isCustomized($template) === $wantsCustomized,
+            );
+        }
+
+        return $templates->values();
+    }
+
+    /**
+     * Şablonun varsayılan içeriği biliniyor mu?
+     *
+     * Bilinmiyorsa "varsayılana dön" da yapılamaz; ekran bu durumda ne
+     * "özelleştirildi" ne de "varsayılan" demeli.
+     */
+    public function hasDefault(MailTemplate $template): bool
+    {
+        return isset($this->getDefaults()[$template->key]);
+    }
+
+    /**
+     * Şablon varsayılandan farklı mı?
+     *
+     * Karşılaştırma boşluklara duyarsız: kurulum sırasında yazılan içerik ile
+     * buradaki varsayılan aynı metni farklı girintilerle tutuyor, satır başları
+     * yüzünden her şablon "özelleştirilmiş" görünmemeli.
+     */
+    public function isCustomized(MailTemplate $template): bool
+    {
+        $default = $this->getDefaults()[$template->key] ?? null;
+
+        if ($default === null) {
+            return false;
+        }
+
+        return $this->normalize($template->subject) !== $this->normalize($default['subject'])
+            || $this->normalize($template->body) !== $this->normalize($default['body']);
+    }
+
+    /**
+     * Süzgeçteki değişken listesi — kaç şablonda geçtiğiyle birlikte.
+     *
+     * @return array<string, array{label: string, count: int}> değişken => bilgi
+     */
+    public function variableOptions(): array
+    {
+        $options = [];
+
+        foreach (MailTemplate::query()->get() as $template) {
+            foreach ($template->variables ?? [] as $variable) {
+                $key = (string) ($variable['key'] ?? '');
+
+                if ($key === '') {
+                    continue;
+                }
+
+                $options[$key] ??= ['label' => (string) ($variable['label'] ?? $key), 'count' => 0];
+                $options[$key]['count']++;
+            }
+        }
+
+        uasort($options, static fn (array $a, array $b): int => $b['count'] <=> $a['count'] ?: strcmp($a['label'], $b['label']));
+
+        return $options;
+    }
+
+    /**
+     * Özet kutuları.
+     *
+     * @return array{total: int, active: int, inactive: int, customized: int}
+     */
+    public function stats(): array
+    {
+        $templates = MailTemplate::query()->get();
+
+        return [
+            'total'      => $templates->count(),
+            'active'     => $templates->where('is_active', true)->count(),
+            'inactive'   => $templates->where('is_active', false)->count(),
+            'customized' => $templates->filter(fn (MailTemplate $t): bool => $this->isCustomized($t))->count(),
+        ];
+    }
+
+    /**
+     * Arama terimini LIKE kalıbına çevirir; % ve _ joker değil harf sayılır.
+     */
+    private function likeTerm(string $value): string
+    {
+        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
+    }
+
+    /**
+     * Karşılaştırma için içeriği sadeleştirir.
+     *
+     * HTML'de peş peşe gelen boşluklar, satır başları ve etiketlerin hemen
+     * içindeki/dışındaki boşluk okunan metni değiştirmiyor. Kurulumda yazılan
+     * içerik ile buradaki varsayılan aynı metni farklı girintilerle tuttuğu
+     * için bunlar temizlenmeden her şablon "özelleştirilmiş" görünürdü.
+     */
+    private function normalize(string $value): string
+    {
+        $value = (string) preg_replace('/\s+/', ' ', $value);
+        $value = (string) preg_replace('/>\s+/', '>', $value);
+        $value = (string) preg_replace('/\s+</', '<', $value);
+
+        return trim($value);
     }
 
     /**

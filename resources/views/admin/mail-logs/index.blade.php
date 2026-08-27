@@ -330,27 +330,10 @@
                 @endif
             </form>
 
-            @if($activeFilters->isNotEmpty())
-                <div class="ml-active-filters">
-                    <span class="ml-active-filters__title">Açık süzgeçler:</span>
-                    @foreach($activeFilters as $key => $chip)
-                        <span class="ml-filter-chip">
-                            <span class="ml-filter-chip__label">{{ $chip['label'] }}:</span>
-                            <span class="ml-filter-chip__value">{{ $chip['value'] }}</span>
-                            <a href="{{ route('admin.mail-logs.index', request()->except([$key, 'page'])) }}"
-                               class="ml-filter-chip__remove" title="{{ $chip['label'] }} süzgecini kaldır"
-                               aria-label="{{ $chip['label'] }} süzgecini kaldır">
-                                <i class="bi bi-x-lg"></i>
-                            </a>
-                        </span>
-                    @endforeach
-                    @if($activeFilters->count() > 1)
-                        <a href="{{ route('admin.mail-logs.index') }}" class="ml-filter-chip ml-filter-chip--reset">
-                            <i class="bi bi-arrow-counterclockwise"></i> Tümünü temizle
-                        </a>
-                    @endif
-                </div>
-            @endif
+            @include('partials.admin.filter-chips', [
+                'chips' => $activeFilters,
+                'route' => 'admin.mail-logs.index',
+            ])
         </div>
     </div>
 

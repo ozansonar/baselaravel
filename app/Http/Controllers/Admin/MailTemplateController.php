@@ -19,14 +19,58 @@ final class MailTemplateController extends Controller
         private readonly MailTemplateService $mailTemplateService,
     ) {}
 
-    public function index(): View
+    /**
+     * Kart listesinin sıralama seçenekleri; istekten gelen değer bu kümeyle
+     * sınırlı, tanınmayan bir değer ada göre sıralamaya düşer.
+     */
+    private const SORT_OPTIONS = [
+        'name'   => 'Ada göre (A-Z)',
+        'key'    => 'Anahtara göre',
+        'recent' => 'Son güncellenen',
+    ];
+
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', MailTemplate::class);
 
-        $templates = $this->mailTemplateService->getAll();
+        $sort = $request->string('sort')->value();
+        $sort = array_key_exists($sort, self::SORT_OPTIONS) ? $sort : '';
+
+        $filters = [
+            'status'   => $request->string('status')->value(),
+            'search'   => $request->string('search')->trim()->value(),
+            'variable' => $request->string('variable')->value(),
+            'origin'   => $request->string('origin')->value(),
+            'sort'     => $sort,
+        ];
+
+        // Sekme sayıları durum dışındaki süzgeçlere göre: "Pasif 1" yazıyorsa
+        // o sekmeye basınca gerçekten 1 kart gelmeli.
+        $scoped = $filters;
+        unset($scoped['status']);
+        $scopedTemplates = $this->mailTemplateService->filter($scoped);
+
+        $templates = $this->mailTemplateService->filter($filters);
 
         return view('admin.mail-templates.index', [
-            'templates' => $templates,
+            'templates'       => $templates,
+            // İçeriğin varsayılandan farklı olup olmadığı karta yazılıyor;
+            // görünüm bunu hesaplamasın diye burada tek seferde çıkarılıyor.
+            'origins'         => $templates->mapWithKeys(fn (MailTemplate $template): array => [
+                $template->id => [
+                    'has_default' => $this->mailTemplateService->hasDefault($template),
+                    'customized'  => $this->mailTemplateService->isCustomized($template),
+                ],
+            ])->all(),
+            'stats'           => $this->mailTemplateService->stats(),
+            'statusCounts'    => [
+                'all'      => $scopedTemplates->count(),
+                'active'   => $scopedTemplates->where('is_active', true)->count(),
+                'inactive' => $scopedTemplates->where('is_active', false)->count(),
+            ],
+            'variableOptions' => $this->mailTemplateService->variableOptions(),
+            'sortOptions'     => self::SORT_OPTIONS,
+            'filters'         => $filters,
         ]);
     }
 
