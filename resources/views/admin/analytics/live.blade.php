@@ -21,7 +21,8 @@
             </h1>
             <p class="page-subtitle">
                 Son <strong id="windowLabel">{{ $windowMinutes }}</strong> dakikada hareket eden ziyaretçiler ·
-                sunucu saati <span id="serverTime">—</span>
+                sunucu saati <span id="serverTime">—</span> ·
+                <span id="freshness" class="anl-freshness">bağlanıyor…</span>
             </p>
         </div>
         <div class="d-flex gap-2 flex-wrap align-items-center">
@@ -43,6 +44,25 @@
         </div>
     </div>
 
+    {{-- Bağlantı koptuğunda ekrandaki veri donuyor ama eski hâliyle doğru
+         görünüyordu; kullanıcı bakmaya devam ederken sayılar bayatlıyordu. --}}
+    <div class="alert alert-warning d-none" id="connectionAlert" role="alert" data-aos="fade-up">
+        <i class="bi bi-wifi-off me-1"></i>
+        <strong>Bağlantı kesildi.</strong> Ekrandaki veriler
+        <strong id="staleSince">son alınan durumu</strong> gösteriyor; yeniden denemeye devam ediliyor.
+    </div>
+
+    <div class="alert alert-info mb-4" data-aos="fade-up" data-aos-delay="40">
+        <i class="bi bi-info-circle me-1"></i>
+        Bu ekran <strong>{{ $refreshSeconds }} saniyede bir</strong> kendini yeniler; sekme arka plandayken
+        seyrekleşir. Bir ziyaretçi, seçili aralıkta en az bir sayfa açtıysa listede görünür.
+        <span class="d-block mt-1">
+            <strong>Yönetici, editör ve moderatör hesaplarıyla yapılan gezinmeler sayılmaz</strong> —
+            kendi ziyaretleriniz istatistikleri şişirmesin diye kayda alınmaz. Siteyi ziyaretçi
+            gözünden görmek için oturumu kapatın ya da gizli sekme kullanın.
+        </span>
+    </div>
+
     {{-- STATS --}}
     <div class="row g-4 mb-4">
         <div class="col-xxl-3 col-xl-6 col-sm-6" data-aos="fade-up" data-aos-delay="0">
@@ -50,7 +70,7 @@
                 <div class="usr-stat-icon usr-stat-icon-green"><i class="bi bi-broadcast"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Şu An Sitede</span>
-                    <h3 class="usr-stat-value" id="onlineCount">0</h3>
+                    <h3 class="usr-stat-value anl-count" id="onlineCount" aria-live="polite">0</h3>
                 </div>
             </div>
         </div>
@@ -59,7 +79,7 @@
                 <div class="usr-stat-icon usr-stat-icon-blue"><i class="bi bi-file-earmark-text-fill"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Açık Sayfa Sayısı</span>
-                    <h3 class="usr-stat-value" id="pageCount">0</h3>
+                    <h3 class="usr-stat-value anl-count" id="pageCount">0</h3>
                 </div>
             </div>
         </div>
@@ -68,7 +88,7 @@
                 <div class="usr-stat-icon usr-stat-icon-purple"><i class="bi bi-person-check-fill"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Üye Girişli</span>
-                    <h3 class="usr-stat-value" id="memberCount">0</h3>
+                    <h3 class="usr-stat-value anl-count" id="memberCount">0</h3>
                 </div>
             </div>
         </div>
@@ -77,7 +97,7 @@
                 <div class="usr-stat-icon usr-stat-icon-orange"><i class="bi bi-phone-fill"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Mobil</span>
-                    <h3 class="usr-stat-value" id="mobileCount">0</h3>
+                    <h3 class="usr-stat-value anl-count" id="mobileCount">0</h3>
                 </div>
             </div>
         </div>
@@ -135,53 +155,13 @@
     </div>
 @endsection
 
-@push('styles')
-<style>
-    /* Pulsing dot that shows polling is alive; freezes when paused. */
-    .live-dot {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--neon-green, #2ee6a8);
-        margin-right: 6px;
-        vertical-align: middle;
-        animation: live-pulse 1.6s ease-in-out infinite;
-    }
-    .live-dot--paused { animation: none; opacity: .35; }
-
-    @keyframes live-pulse {
-        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(46, 230, 168, .5); }
-        50%      { opacity: .55; box-shadow: 0 0 0 6px rgba(46, 230, 168, 0); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .live-dot { animation: none; }
-    }
-
-    .analytics-feed { max-height: 420px; overflow-y: auto; }
-    .analytics-feed__row {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 6px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, .06);
-        font-size: .85rem;
-    }
-    .analytics-feed__row:last-child { border-bottom: 0; }
-    .analytics-feed__row--new { animation: feed-in .6s ease-out; }
-    @keyframes feed-in { from { background: rgba(46, 230, 168, .12); } to { background: transparent; } }
-
-    .visitor-session { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .75rem; }
-</style>
-@endpush
-
 @push('scripts')
 <script>
     window.analyticsLive = {
         url: @js(route('admin.analytics.live.data')),
         window: {{ $windowMinutes }},
         includeBots: {{ $includeBots ? 'true' : 'false' }},
-        intervalMs: 10000
+        intervalMs: {{ $refreshSeconds * 1000 }}
     };
 </script>
 <script src="{{ versioned_asset('assets/admin/js/analytics-live.js') }}"></script>

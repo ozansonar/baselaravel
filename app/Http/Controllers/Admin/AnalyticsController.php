@@ -77,13 +77,22 @@ class AnalyticsController extends Controller
      * The page itself is a shell; the numbers come from liveData() on a timer,
      * so watching it does not mean reloading the whole panel every few seconds.
      */
+    /**
+     * Canlı ekranın kendini yenileme aralığı.
+     *
+     * Ekrandaki bilgi metni, JS yoklaması ve bayatlık göstergesi aynı sayıyı
+     * söylemeli; üçü ayrı yerde yazılınca biri değişince diğerleri yalan söyler.
+     */
+    private const LIVE_REFRESH_SECONDS = 10;
+
     public function live(Request $request): View
     {
         $this->authorize('view-analytics');
 
         return view('admin.analytics.live', [
-            'windowMinutes' => $this->resolveWindow($request),
-            'includeBots'   => $request->boolean('include_bots'),
+            'windowMinutes'  => $this->resolveWindow($request),
+            'includeBots'    => $request->boolean('include_bots'),
+            'refreshSeconds' => self::LIVE_REFRESH_SECONDS,
         ]);
     }
 
