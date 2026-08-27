@@ -134,6 +134,31 @@ final class CampaignDispatcher
      *
      * @return array{sent: int, failed: int, retrying: int}
      */
+    /**
+     * Bir sonraki turda sırada olan alıcılar.
+     *
+     * Kampanya ekranı "önümüzdeki turda hangi adresler gidecek" sorusunu bu
+     * metotla yanıtlıyor ve gönderim de aynı metodu kullanıyor: seçim iki yerde
+     * ayrı yazılsaydı ekranda görünen liste ile gerçekte gidenler zamanla
+     * birbirinden ayrılırdı.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, CampaignRecipient>
+     */
+    public function nextBatch(Campaign $campaign, ?int $budget = null): \Illuminate\Database\Eloquent\Collection
+    {
+        $budget ??= $this->remainingBudget();
+
+        $take = $campaign->throttled
+            ? min($budget, $this->perRunQuota())
+            : $budget;
+
+        return $campaign->recipients()
+            ->where('status', CampaignRecipientStatus::Pending)
+            ->orderBy('id')
+            ->limit(max(1, $take))
+            ->get();
+    }
+
     public function sendBatch(Campaign $campaign, ?int $budget = null): array
     {
         $budget ??= $this->remainingBudget();
@@ -142,15 +167,7 @@ final class CampaignDispatcher
             return ['sent' => 0, 'failed' => 0, 'retrying' => 0];
         }
 
-        $take = $campaign->throttled
-            ? min($budget, $this->perRunQuota())
-            : $budget;
-
-        $recipients = $campaign->recipients()
-            ->where('status', CampaignRecipientStatus::Pending)
-            ->orderBy('id')
-            ->limit(max(1, $take))
-            ->get();
+        $recipients = $this->nextBatch($campaign, $budget);
 
         if ($recipients->isEmpty()) {
             $this->completeIfDrained($campaign);

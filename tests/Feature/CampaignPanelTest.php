@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Enums\CampaignAudience;
+use App\Enums\CampaignRecipientStatus;
 use App\Enums\CampaignStatus;
 use App\Enums\PermissionKey;
 use App\Enums\SubscriberStatus;
@@ -14,6 +15,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Services\CampaignDispatcher;
 use App\Services\UploadService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -74,6 +76,46 @@ class CampaignPanelTest extends TestCase
             PermissionKey::CampaignsManage,
             PermissionKey::CampaignsSend,
         ]);
+    }
+
+    private function admin(): User
+    {
+        return $this->sender();
+    }
+
+    /**
+     * Gönderimi başlamış, alıcıları hazır bir kampanya.
+     *
+     * Alıcı yönetimi ancak liste dondurulduktan sonra anlamlı: taslakta
+     * gönderilecek satır henüz yok.
+     */
+    private function sendingCampaign(string $name = 'Gönderimdeki Kampanya'): Campaign
+    {
+        $campaign = Campaign::create([
+            'name'      => $name,
+            'subject'   => 'Konu',
+            'body'      => '<p>Gövde</p>',
+            'audience'  => CampaignAudience::Subscribers->value,
+            'status'    => CampaignStatus::Sending,
+            'user_id'   => $this->admin()->id,
+            'throttled' => true,
+            'started_at' => now(),
+        ]);
+
+        foreach (range(1, 5) as $i) {
+            $campaign->recipients()->create([
+                'email'             => "alici{$i}-" . uniqid() . '@ornek.com',
+                'first_name'        => 'Alici',
+                'last_name'         => "Kisi{$i}",
+                'status'            => CampaignRecipientStatus::Pending,
+                'attempts'          => 0,
+                'unsubscribe_token' => \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(64)),
+            ]);
+        }
+
+        $campaign->update(['total_recipients' => $campaign->recipients()->count()]);
+
+        return $campaign;
     }
 
     /**
@@ -352,6 +394,102 @@ class CampaignPanelTest extends TestCase
                 'file' => UploadedFile::fake()->create('Devasa.pdf', $tooBigKb, 'application/pdf'),
             ])
             ->assertStatus(422);
+    }
+
+    // ── Alıcı yönetimi ──
+
+    /**
+     * Kampanya ekranından bir adres gönderim dışında bırakılabilmeli: liste
+     * onaylandıktan sonra yanlış bir adres fark edildiğinde tek çare kampanyayı
+     * iptal etmek olmamalı.
+     */
+    public function test_a_recipient_can_be_excluded_from_the_send(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $recipient = $campaign->recipients()->where('status', CampaignRecipientStatus::Pending)->firstOrFail();
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.exclude', [$campaign, $recipient]))
+            ->assertRedirect();
+
+        $this->assertSame(CampaignRecipientStatus::Skipped, $recipient->refresh()->status);
+    }
+
+    /**
+     * Çıkarılan adres bir sonraki turda da sırada görünmemeli — ekranda
+     * "gidecekler" diye gösterilen liste ile gerçekte gidenler aynı olmalı.
+     */
+    public function test_an_excluded_recipient_leaves_the_next_batch(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $recipient = $campaign->recipients()->where('status', CampaignRecipientStatus::Pending)->firstOrFail();
+
+        $dispatcher = app(CampaignDispatcher::class);
+        $this->assertTrue($dispatcher->nextBatch($campaign)->contains('id', $recipient->id));
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.exclude', [$campaign, $recipient]));
+
+        $this->assertFalse($dispatcher->nextBatch($campaign)->contains('id', $recipient->id));
+    }
+
+    /**
+     * Gönderilmiş bir adres listeden çıkarılamaz: mail çoktan yola çıktı,
+     * "çıkardım" demek kullanıcıyı yanıltırdı.
+     */
+    public function test_an_already_sent_recipient_cannot_be_excluded(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $recipient = $campaign->recipients()->firstOrFail();
+        $recipient->update(['status' => CampaignRecipientStatus::Sent, 'sent_at' => now()]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.exclude', [$campaign, $recipient]))
+            ->assertRedirect();
+
+        $this->assertSame(CampaignRecipientStatus::Sent, $recipient->refresh()->status);
+    }
+
+    public function test_an_excluded_recipient_can_be_put_back_in_the_queue(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $recipient = $campaign->recipients()->where('status', CampaignRecipientStatus::Pending)->firstOrFail();
+        $recipient->update(['status' => CampaignRecipientStatus::Skipped]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.restore', [$campaign, $recipient]))
+            ->assertRedirect();
+
+        $this->assertSame(CampaignRecipientStatus::Pending, $recipient->refresh()->status);
+    }
+
+    /**
+     * Alıcı başka bir kampanyaya aitse istek reddedilmeli; yoksa kimlik
+     * numarasını değiştiren biri başka kampanyanın listesini bozabilir.
+     */
+    public function test_a_recipient_of_another_campaign_is_refused(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $other = $this->sendingCampaign('Başka Kampanya');
+        $recipient = $other->recipients()->firstOrFail();
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.exclude', [$campaign, $recipient]))
+            ->assertNotFound();
+    }
+
+    public function test_the_screen_lists_recipients_and_filters_them_by_status(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $campaign->recipients()->firstOrFail()->update([
+            'status' => CampaignRecipientStatus::Failed,
+            'error'  => 'SMTP reddetti',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.campaigns.show', [$campaign, 'rstatus' => CampaignRecipientStatus::Failed->value]))
+            ->assertOk()
+            ->assertSee('SMTP reddetti');
     }
 
     // ── Onay akışı ──

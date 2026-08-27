@@ -35490,3 +35490,213 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
    ekleniyor, diğer modallar kendi sırasında kalıyor. */
 #filePickerModal { z-index: 1400; }
 body.fp-acik .modal-backdrop { z-index: 1390; }
+
+/* ==========================================================================
+   Kampanya detayı — ekler, sıradaki tur, alıcı listesi
+   ========================================================================== */
+
+.cmp-badge {
+  padding: 3px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Ekler: numara mailde göründükleri sırayla aynı. */
+.cmp-files {
+  list-style: none;
+  counter-reset: ek;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cmp-file {
+  counter-increment: ek;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .02);
+}
+
+.cmp-file::before {
+  content: counter(ek);
+  flex: 0 0 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-file__link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.cmp-file__link:hover { color: var(--text-teal); }
+.cmp-file__link:hover .cmp-file__icon { transform: translateY(1px); }
+.cmp-file__icon { color: var(--text-teal); transition: transform .2s ease; }
+
+.cmp-file__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-file__size {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* Sıradaki tur: kısa liste, tek bakışta okunacak kadar. */
+.cmp-next {
+  list-style: none;
+  counter-reset: sira;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.cmp-next__row {
+  counter-increment: sira;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.cmp-next__row:last-child { border-bottom: 0; }
+
+.cmp-next__row::before {
+  content: counter(sira);
+  flex: 0 0 24px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cmp-next__mail {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.cmp-next__name {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.cmp-next__form { flex-shrink: 0; }
+
+/* Durum süzgeci: sayılar etiketin içinde, ayrı bir kutu aramaya gerek kalmasın. */
+.cmp-recipients__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cmp-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cmp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  text-decoration: none;
+  transition: border-color .2s ease, color .2s ease;
+}
+
+.cmp-chip:hover { border-color: var(--text-teal); color: var(--text-primary); }
+
+.cmp-chip--aktif {
+  border-color: var(--text-teal);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.cmp-chip__count {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-chip--success .cmp-chip__count { color: #34d399; }
+.cmp-chip--danger  .cmp-chip__count { color: #f87171; }
+.cmp-chip--warning .cmp-chip__count { color: #fbbf24; }
+
+.cmp-recipients__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cmp-recipients__search .stg-input { flex: 1; }
+
+.cmp-recipients__num {
+  width: 56px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-recipient {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cmp-recipient__mail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.cmp-recipient__name { color: var(--text-muted); font-size: 11.5px; }
+
+@media (max-width: 575.98px) {
+  .cmp-next__name { display: none; }
+  .cmp-recipients__num { width: 40px; }
+}

@@ -198,6 +198,10 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
     Route::post('{campaign}/iptal',        [CampaignController::class, 'cancel'])->name('cancel');
     Route::post('{campaign}/test',         [CampaignController::class, 'sendTest'])->name('test');
     Route::delete('{campaign}/ek/{attachment}', [CampaignController::class, 'destroyAttachment'])->name('attachments.destroy');
+    // Alıcıyı gönderim dışında bırakma / sıraya geri alma. Kayıt silinmiyor,
+    // durumu değişiyor: kimin neden gitmediği sonradan da görülebilmeli.
+    Route::post('{campaign}/alici/{recipient}/cikar',  [CampaignController::class, 'excludeRecipient'])->name('recipients.exclude');
+    Route::post('{campaign}/alici/{recipient}/geri-al', [CampaignController::class, 'restoreRecipient'])->name('recipients.restore');
     Route::delete('{campaign}',            [CampaignController::class, 'destroy'])->name('destroy');
     Route::patch('{campaign}/geri-yukle',  [CampaignController::class, 'restore'])->name('restore')->withTrashed();
 });
