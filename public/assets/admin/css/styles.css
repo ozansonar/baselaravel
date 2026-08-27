@@ -36391,3 +36391,240 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 .analytics-top-bar {
   width: var(--anl-top-bar, 0%);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   SİSTEM DURUMU (sys-)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tek cümlelik özet: ekranı açan önce "sorun var mı" sorusunun cevabını görür. */
+.sys-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+}
+
+.sys-verdict > i {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.sys-verdict strong {
+  display: block;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.sys-verdict span {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.sys-verdict.sys-ok {
+  border-color: color-mix(in srgb, var(--neon-green, #2ee6a8) 40%, transparent);
+  background: color-mix(in srgb, var(--neon-green, #2ee6a8) 8%, var(--bg-card));
+}
+
+.sys-verdict.sys-ok > i { color: var(--neon-green, #2ee6a8); }
+
+.sys-verdict.sys-warn {
+  border-color: color-mix(in srgb, var(--neon-orange, #f59e0b) 40%, transparent);
+  background: color-mix(in srgb, var(--neon-orange, #f59e0b) 8%, var(--bg-card));
+}
+
+.sys-verdict.sys-warn > i { color: var(--neon-orange, #f59e0b); }
+
+.sys-verdict.sys-danger {
+  border-color: color-mix(in srgb, var(--neon-red, #ef4444) 45%, transparent);
+  background: color-mix(in srgb, var(--neon-red, #ef4444) 8%, var(--bg-card));
+}
+
+.sys-verdict.sys-danger > i { color: var(--neon-red, #ef4444); }
+
+/* Ortam kartları */
+.sys-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.sys-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+}
+
+.sys-card--danger {
+  border-color: color-mix(in srgb, var(--neon-red, #ef4444) 45%, transparent);
+  background: color-mix(in srgb, var(--neon-red, #ef4444) 7%, var(--bg-card));
+}
+
+.sys-card__label {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--text-muted);
+}
+
+.sys-card__value {
+  font-size: 15px;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.sys-card__meta {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Değer / önerilen oranını gösteren çubuk. */
+.sys-meter {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+  overflow: hidden;
+  margin: 6px 0 2px;
+}
+
+.sys-meter__fill {
+  display: block;
+  height: 100%;
+  width: var(--sys-meter, 0%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #14b8a6, #06b6d4);
+  transition: width .4s ease;
+}
+
+.sys-meter__fill.is-full {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+}
+
+/* Yükleme limitleri */
+.sys-limits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.sys-limit {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+}
+
+.sys-limit.sys-ok .sys-limit__label > i { color: var(--neon-green, #2ee6a8); }
+.sys-limit.sys-warn .sys-limit__label > i { color: var(--neon-orange, #f59e0b); }
+.sys-limit.sys-danger .sys-limit__label > i { color: var(--neon-red, #ef4444); }
+
+.sys-limit.sys-danger {
+  border-color: color-mix(in srgb, var(--neon-red, #ef4444) 35%, transparent);
+}
+
+.sys-limit.sys-warn {
+  border-color: color-mix(in srgb, var(--neon-orange, #f59e0b) 30%, transparent);
+}
+
+.sys-limit.sys-danger .sys-meter__fill {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+}
+
+.sys-limit__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sys-limit__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-wrap: wrap;
+}
+
+.sys-limit__label code {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.sys-limit__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.sys-limit__value small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.sys-limit__note {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.sys-note {
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+/* Düzeltme kutusu: kopyalanabilir ayar bloğu. */
+.sys-fix {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--neon-orange, #f59e0b) 35%, transparent);
+  background: color-mix(in srgb, var(--neon-orange, #f59e0b) 6%, var(--bg-card));
+}
+
+.sys-fix__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.sys-fix__text {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.sys-fix__code {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, .35);
+  border: 1px solid var(--border-color);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  overflow-x: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sys-meter__fill { transition: none; }
+}
