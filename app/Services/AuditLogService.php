@@ -101,6 +101,30 @@ final class AuditLogService
     }
 
     /**
+     * Bir kaydın zaman sırasındaki komşuları.
+     *
+     * Denetim kaydı çoğu zaman tek satır değil, bir oturumun peş peşe yaptığı
+     * işlemler okunarak takip edilir; ileri/geri gezinme listeye dönmeden
+     * bunu mümkün kılar.
+     *
+     * @return array{previous: ?AuditLog, next: ?AuditLog}
+     */
+    public function neighbours(AuditLog $log): array
+    {
+        return [
+            // "Önceki" daha eski kayıt: liste yeniden eskiye sıralı.
+            'previous' => AuditLog::query()
+                ->where('created_at', '<', $log->created_at)
+                ->orderByDesc('created_at')
+                ->first(['id']),
+            'next' => AuditLog::query()
+                ->where('created_at', '>', $log->created_at)
+                ->orderBy('created_at')
+                ->first(['id']),
+        ];
+    }
+
+    /**
      * Kayıtlarda geçen IP adresleri — "bu adresten neler yapıldı" sorusu
      * denetim kaydının en sık sorulanı, o yüzden elle yazmak yerine seçilir.
      *

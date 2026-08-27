@@ -91,6 +91,62 @@ final class AuditLog extends Model
     }
 
     /**
+     * Detay ekranında gösterilecek değer kümesi ve başlığı.
+     *
+     * Olay türüne göre anlamlı olan taraf değişir: güncellemede eski/yeni
+     * kıyası, oluşturmada kaydın kendisi, silmede kaybolan kayıt, özel olayda
+     * ise işlemin bağlamı.
+     *
+     * @return array{title: string, hint: string, mode: string, rows: array<string, mixed>}
+     */
+    public function detailValues(): array
+    {
+        return match ($this->event) {
+            AuditEvent::Updated => [
+                'title' => 'Değişiklikler',
+                'hint'  => 'Yalnızca değeri değişen alanlar listelenir.',
+                'mode'  => 'diff',
+                'rows'  => $this->changedFields(),
+            ],
+            AuditEvent::Created => [
+                'title' => 'Oluşturulan kayıt',
+                'hint'  => 'Kayıt oluşturulduğunda alanların aldığı değerler.',
+                'mode'  => 'single',
+                'rows'  => is_array($this->new_values) ? $this->new_values : [],
+            ],
+            AuditEvent::Deleted => [
+                'title' => 'Silinen kayıt',
+                'hint'  => 'Silinmeden önceki son hâli.',
+                'mode'  => 'single',
+                'rows'  => is_array($this->old_values) ? $this->old_values : [],
+            ],
+            default => [
+                'title' => 'İşlem ayrıntısı',
+                'hint'  => 'İşlemi yapan kodun kayda bıraktığı bilgiler.',
+                'mode'  => 'single',
+                'rows'  => is_array($this->new_values) ? $this->new_values : [],
+            ],
+        };
+    }
+
+    /**
+     * Bir değeri ekranda okunacak hâle getirir.
+     *
+     * Ham JSON'da null "null", true "1" görünüyordu; denetim kaydına bakan
+     * kişi için ikisi de anlamsız.
+     */
+    public static function formatValue(mixed $value): string
+    {
+        return match (true) {
+            $value === null            => '—',
+            is_bool($value)            => $value ? 'Evet' : 'Hayır',
+            $value === ''              => '(boş)',
+            is_array($value)           => (string) json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            default                    => (string) $value,
+        };
+    }
+
+    /**
      * Old vs new değerleri kıyaslayıp sadece değişenleri döner.
      *
      * @return array<string, array{old: mixed, new: mixed}>

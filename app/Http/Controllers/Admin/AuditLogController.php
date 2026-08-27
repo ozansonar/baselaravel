@@ -66,6 +66,10 @@ final class AuditLogController extends Controller
 
         $auditLog->load('user');
 
-        return view('admin.audit-logs.show', ['log' => $auditLog]);
+        return view('admin.audit-logs.show', [
+            'log'           => $auditLog,
+            'neighbours'    => $this->service->neighbours($auditLog),
+            'retentionDays' => AuditLogService::RETENTION_DAYS,
+        ]);
     }
 }
