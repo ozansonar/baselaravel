@@ -5,6 +5,52 @@
 @section('page_description', 'Bülten abonelerini yönetin, Excel veya CSV ile toplu ekleyin')
 
 @section('content')
+
+    @php
+        use App\Enums\SubscriberSource;
+        use App\Enums\SubscriberStatus;
+
+        // Liste sekmesi kendi göstergesi; rozetlerde yer almıyor.
+        $chipFilters = collect($filters)->except('list_id');
+        $hasFilter = $chipFilters->filter(fn ($value) => (string) $value !== '')->isNotEmpty();
+
+        $activeFilters = collect([
+            'search' => ['label' => 'Arama', 'value' => $filters['search']],
+            'status' => [
+                'label' => 'Durum',
+                'value' => $filters['status'] !== ''
+                    ? (SubscriberStatus::tryFrom($filters['status'])?->label() ?? '')
+                    : '',
+            ],
+            'source' => [
+                'label' => 'Kaynak',
+                'value' => $filters['source'] !== ''
+                    ? (SubscriberSource::tryFrom($filters['source'])?->label() ?? '')
+                    : '',
+            ],
+            'locale' => [
+                'label' => 'Dil',
+                'value' => $filters['locale'] !== '' ? strtoupper($filters['locale']) : '',
+            ],
+            'unlisted' => [
+                'label' => 'Liste',
+                'value' => $filters['unlisted'] !== '' ? 'Hiçbir listede değil' : '',
+            ],
+            'from' => [
+                'label' => 'Başlangıç',
+                'value' => $filters['from'] !== '' ? \Illuminate\Support\Carbon::parse($filters['from'])->format('d.m.Y') : '',
+            ],
+            'to' => [
+                'label' => 'Bitiş',
+                'value' => $filters['to'] !== '' ? \Illuminate\Support\Carbon::parse($filters['to'])->format('d.m.Y') : '',
+            ],
+            'sort' => [
+                'label' => 'Sıralama',
+                'value' => $sortOptions[$filters['sort']] ?? '',
+            ],
+        ])->filter(fn (array $chip): bool => $chip['value'] !== '');
+    @endphp
+
     <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="breadcrumb-link"><i class="bi bi-house me-1"></i>Ana Sayfa</a></li>
@@ -18,8 +64,13 @@
             <h1 class="page-title">Mail Listesi</h1>
             <p class="page-subtitle">Bülten abonelerini yönetin, Excel veya CSV ile toplu ekleyin</p>
         </div>
+        <div class="d-flex gap-2 flex-wrap">
+            @if($hasFilter)
+                <a href="{{ route('admin.subscribers.index', request()->only('list_id')) }}" class="btn-glass">
+                    <i class="bi bi-arrow-counterclockwise"></i> Filtreleri Sıfırla
+                </a>
+            @endif
         @can('create', App\Models\Subscriber::class)
-            <div class="d-flex gap-2 flex-wrap">
                 <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#listsModal">
                     <i class="bi bi-collection"></i> Listeler
                 </button>
@@ -29,8 +80,8 @@
                 <button type="button" class="btn-teal" data-bs-toggle="modal" data-bs-target="#addModal">
                     <i class="bi bi-plus-lg"></i> Abone Ekle
                 </button>
-            </div>
         @endcan
+        </div>
     </div>
 
     {{-- STATS --}}
@@ -78,12 +129,27 @@
         <i class="bi bi-collection-fill"></i>
         <div>
             <strong>Aboneler listelere ayrılır, kampanya bir listeye gönderilir.</strong>
-            Tedarikçiler, pazarlamacılar, bülten… Bir kişi birden fazla listede olabilir;
-            iki listeye birden gönderdiğinizde maili yine bir kez alır. Site formundan
-            kaydolanlar <strong>{{ $defaultList?->name ?? 'varsayılan liste' }}</strong> listesine düşer.
+            Bir kişi birden fazla listede olabilir; iki listeye birden gönderdiğinizde
+            maili yine bir kez alır. Site formundan kaydolanlar
+            <strong>{{ $defaultList?->name ?? 'varsayılan liste' }}</strong> listesine düşer.
             Abonelikten çıkan bir adrese hangi listede olursa olsun mail gitmez.
         </div>
     </div>
+
+    {{-- Listesiz aboneler liste hedefli kampanyalarda gözden kaçıyor; sayfanın
+         uyarması gereken tek durum bu. --}}
+    @if($stats['unlisted'] > 0 && $filters['unlisted'] === '')
+        <div class="sub-warning mb-4" data-aos="fade-up" data-aos-delay="130">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                <strong>{{ number_format($stats['unlisted'], 0, ',', '.') }} aktif abone hiçbir listede değil.</strong>
+                Liste seçilerek gönderilen kampanyalarda bu kişilere mail gitmez.
+            </div>
+            <a href="{{ route('admin.subscribers.index', ['unlisted' => 1]) }}" class="btn-glass btn-sm">
+                Göster
+            </a>
+        </div>
+    @endif
 
     {{-- LİSTE SEKMELERİ --}}
     <div class="cl-status-tabs mb-4" data-aos="fade-up" data-aos-delay="140">
@@ -104,42 +170,136 @@
         @endforeach
     </div>
 
-    {{-- FILTERS --}}
+    {{-- ==================== SÜZGEÇLER ==================== --}}
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card-body-custom">
             <form method="GET" action="{{ route('admin.subscribers.index') }}" id="filterForm" class="cl-toolbar">
-                <div class="cl-search">
+                {{-- Liste sekmesi seçiliyken süzgeç değiştirmek sekmeden
+                     düşürmemeli. --}}
+                @if($filters['list_id'] !== '')
+                    <input type="hidden" name="list_id" value="{{ $filters['list_id'] }}">
+                @endif
+
+                <div class="cl-search {{ $filters['search'] !== '' ? 'cl-search--clearable' : '' }}">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Ad, soyad veya e-posta ile ara...">
+                    <input type="text" name="search" value="{{ $filters['search'] }}"
+                           placeholder="Ad, soyad veya e-posta ile ara...">
+                    @if($filters['search'] !== '')
+                        <a href="{{ route('admin.subscribers.index', request()->except(['search', 'page'])) }}"
+                           class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    @endif
                 </div>
-                <div class="cl-filters">
-                    <select class="cl-filter-select" name="status" onchange="document.getElementById('filterForm').submit()">
-                        <option value="">Tüm Durumlar</option>
-                        @foreach($statuses as $status)
-                            <option value="{{ $status->value }}" {{ request('status') === $status->value ? 'selected' : '' }}>
-                                {{ $status->label() }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <select class="cl-filter-select" name="locale" onchange="document.getElementById('filterForm').submit()">
-                        <option value="">Tüm Diller</option>
-                        @foreach($languages as $language)
-                            <option value="{{ $language->code }}" {{ request('locale') === $language->code ? 'selected' : '' }}>
-                                {{ $language->flag }} {{ $language->native_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="cl-toolbar-actions">
-                    <a href="{{ route('admin.subscribers.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                    </a>
+
+                <div class="cl-filters mt-filters">
+                    <div class="mt-field">
+                        <span>Durum</span>
+                        <select class="cl-filter-select" name="status" aria-label="Durum"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm durumlar</option>
+                            @foreach($statuses as $status)
+                                <option value="{{ $status->value }}" {{ $filters['status'] === $status->value ? 'selected' : '' }}>
+                                    {{ $status->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Kaynak</span>
+                        <select class="cl-filter-select" name="source" aria-label="Kaynak"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm kaynaklar</option>
+                            @foreach($sources as $source)
+                                <option value="{{ $source->value }}" {{ $filters['source'] === $source->value ? 'selected' : '' }}>
+                                    {{ $source->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Dil</span>
+                        <select class="cl-filter-select" name="locale" aria-label="Dil"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm diller</option>
+                            @foreach($languages as $language)
+                                <option value="{{ $language->code }}" {{ $filters['locale'] === $language->code ? 'selected' : '' }}>
+                                    {{ $language->flag }} {{ $language->native_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>
+                            Başlangıç
+                            @if($filters['from'] !== '')
+                                <a href="{{ route('admin.subscribers.index', request()->except(['from', 'page'])) }}"
+                                   class="ml-field-clear" title="Başlangıç tarihini temizle" aria-label="Başlangıç tarihini temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </span>
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Kayıt başlangıç tarihi">
+                    </div>
+
+                    <div class="mt-field">
+                        <span>
+                            Bitiş
+                            @if($filters['to'] !== '')
+                                <a href="{{ route('admin.subscribers.index', request()->except(['to', 'page'])) }}"
+                                   class="ml-field-clear" title="Bitiş tarihini temizle" aria-label="Bitiş tarihini temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </span>
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Kayıt bitiş tarihi">
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Sıralama</span>
+                        <select class="cl-filter-select" name="sort" aria-label="Sıralama"
+                                onchange="document.getElementById('filterForm').submit()">
+                            @foreach($sortOptions as $sortValue => $sortLabel)
+                                <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>{{ $sortLabel }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field mt-field--actions ms-auto">
+                        <div class="cl-toolbar-actions">
+                            <label class="cmp-check sub-unlisted-toggle">
+                                <input type="checkbox" name="unlisted" value="1"
+                                       {{ $filters['unlisted'] !== '' ? 'checked' : '' }}
+                                       onchange="document.getElementById('filterForm').submit()">
+                                <span class="cmp-check__text">Yalnızca listesizler</span>
+                            </label>
+                            <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
+                            <a href="{{ route('admin.subscribers.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                            <div class="cl-per-page">
+                                <label for="perPage">Göster:</label>
+                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                                    @foreach($perPageOptions as $option)
+                                        <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
+
+            @include('partials.admin.filter-chips', [
+                'chips' => $activeFilters,
+                'route' => 'admin.subscribers.index',
+            ])
         </div>
     </div>
 
-    {{-- TABLE --}}
     {{-- Toplu liste işlemi: mevcut bir aboneyi yeni açılan listeye taşımanın
          tek tek düzenlemekten başka yolu yoktu.
 
@@ -177,74 +337,107 @@
                             <th class="sub-check-col">
                                 <input type="checkbox" id="bulkSelectAll" aria-label="Tümünü seç">
                             </th>
-                            <th>E-posta</th>
-                            <th class="d-none d-md-table-cell">Ad</th>
-                            <th class="d-none d-md-table-cell">Soyad</th>
-                            <th class="d-none d-xl-table-cell">Listeler</th>
-                            <th class="d-none d-lg-table-cell">Dil</th>
+                            <th>Abone</th>
+                            <th class="d-none d-lg-table-cell">Listeler</th>
+                            <th class="d-none d-xl-table-cell">Kaynak</th>
                             <th>Durum</th>
                             <th class="d-none d-xxl-table-cell">Kayıt</th>
-                            <th class="text-end">İşlemler</th>
+                            <th class="cl-th-actions">İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($subscribers as $subscriber)
+                            @php $source = SubscriberSource::tryFrom((string) $subscriber->source); @endphp
                             <tr>
                                 <td class="sub-check-col">
                                     <input type="checkbox" form="bulkListForm" name="subscriber_ids[]"
                                            value="{{ $subscriber->id }}" class="js-bulk-row"
                                            aria-label="{{ $subscriber->email }} seç">
                                 </td>
-                                <td class="fw-semibold">{{ $subscriber->email }}</td>
-                                <td class="d-none d-md-table-cell">{{ $subscriber->first_name ?: '—' }}</td>
-                                <td class="d-none d-md-table-cell">{{ $subscriber->last_name ?: '—' }}</td>
-                                <td class="d-none d-xl-table-cell">
+                                <td data-label="Abone">
+                                    {{-- Ad ve adres tek hücrede: dokuz düz sütun
+                                         dar ekranda okunmuyordu. --}}
+                                    <div class="sub-person">
+                                        <span class="sub-person__avatar {{ $subscriber->status->badgeClass() === 'success' ? '' : 'sub-person__avatar--muted' }}">
+                                            {{ mb_strtoupper(mb_substr($subscriber->first_name ?: $subscriber->email, 0, 1)) }}
+                                        </span>
+                                        <span class="sub-person__text">
+                                            <span class="sub-person__email">{{ $subscriber->email }}</span>
+                                            <span class="sub-person__name">
+                                                {{ $subscriber->full_name ?? 'İsim girilmemiş' }}
+                                                @if($subscriber->locale)
+                                                    <span class="sub-person__locale">{{ strtoupper($subscriber->locale) }}</span>
+                                                @endif
+                                            </span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td data-label="Listeler" class="d-none d-lg-table-cell">
                                     @forelse($subscriber->lists as $list)
                                         <span class="sub-list-tag">{{ $list->name }}</span>
                                     @empty
-                                        <span class="text-clr-secondary">—</span>
+                                        <span class="sub-list-tag sub-list-tag--none">Listesiz</span>
                                     @endforelse
                                 </td>
-                                <td class="d-none d-lg-table-cell">{{ $subscriber->locale ? strtoupper($subscriber->locale) : '—' }}</td>
-                                <td>
+                                <td data-label="Kaynak" class="d-none d-xl-table-cell">
+                                    @if($source !== null)
+                                        <span class="sub-source sub-source--{{ $source->color() }}">
+                                            <i class="bi {{ $source->icon() }}"></i>{{ $source->label() }}
+                                        </span>
+                                    @else
+                                        <span class="text-clr-secondary">—</span>
+                                    @endif
+                                </td>
+                                <td data-label="Durum">
                                     <span class="menu-manage-tag menu-manage-tag--{{ $subscriber->status->badgeClass() }}">
                                         {{ $subscriber->status->label() }}
                                     </span>
                                 </td>
-                                <td class="d-none d-xxl-table-cell">
-                                    <small class="text-clr-secondary">{{ $subscriber->subscribed_at?->format('d.m.Y') ?? '—' }}</small>
+                                <td data-label="Kayıt" class="d-none d-xxl-table-cell">
+                                    <div class="sub-date">
+                                        <span>{{ $subscriber->created_at?->translatedFormat('d M Y') ?? '—' }}</span>
+                                        <small>{{ $subscriber->created_at?->diffForHumans() }}</small>
+                                    </div>
                                 </td>
-                                <td class="text-end">
-                                    @can('update', $subscriber)
-                                        @if($subscriber->status === App\Enums\SubscriberStatus::Subscribed)
-                                            <form method="POST" action="{{ route('admin.subscribers.unsubscribe', $subscriber) }}" class="d-inline">
+                                <td data-label="İşlemler">
+                                    <div class="usr-actions">
+                                        @can('update', $subscriber)
+                                            @if($subscriber->status === SubscriberStatus::Subscribed)
+                                                <form method="POST" action="{{ route('admin.subscribers.unsubscribe', $subscriber) }}" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="usr-action-btn" title="Abonelikten çıkar">
+                                                        <i class="bi bi-person-dash"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endcan
+                                        @can('delete', $subscriber)
+                                            <form method="POST" action="{{ route('admin.subscribers.destroy', $subscriber) }}" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="usr-action-btn" title="Abonelikten çıkar">
-                                                    <i class="bi bi-person-dash"></i>
+                                                @method('DELETE')
+                                                <button type="submit" class="usr-action-btn danger" title="Sil">
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
-                                        @endif
-                                    @endcan
-                                    @can('delete', $subscriber)
-                                        <form method="POST" action="{{ route('admin.subscribers.destroy', $subscriber) }}" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="usr-action-btn danger" title="Sil">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    @endcan
+                                        @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-5">
-                                    <i class="bi bi-envelope-heart d-block mb-2 fs-2"></i>
-                                    @if($activeList !== null)
-                                        Bu listede henüz kimse yok. Aboneleri seçip
-                                        <strong>Listeye ekle</strong> ile taşıyabilirsiniz.
+                                <td colspan="7" class="text-center py-5">
+                                    <i class="bi bi-envelope-heart d-block mb-2 fs-2 text-muted"></i>
+                                    @if($hasFilter)
+                                        <span class="text-muted">Bu filtreyle eşleşen abone yok.</span>
+                                        <br>
+                                        <a href="{{ route('admin.subscribers.index', request()->only('list_id')) }}" class="text-teal">Filtreleri temizle</a>
+                                    @elseif($activeList !== null)
+                                        <span class="text-muted">
+                                            Bu listede henüz kimse yok. Aboneleri seçip
+                                            <strong>Listeye ekle</strong> ile taşıyabilirsiniz.
+                                        </span>
                                     @else
-                                        Henüz abone yok.
+                                        <span class="text-muted">Henüz abone yok.</span>
                                     @endif
                                 </td>
                             </tr>
@@ -255,14 +448,7 @@
         </div>
     </div>
 
-    @if($subscribers->hasPages())
-        <div class="cl-pagination-wrapper" data-aos="fade-up">
-            <span class="text-clr-secondary">
-                {{ $subscribers->firstItem() }}–{{ $subscribers->lastItem() }} / {{ $subscribers->total() }} kayıt
-            </span>
-            {{ $subscribers->links('pagination::bootstrap-5') }}
-        </div>
-    @endif
+    @include('partials.admin.pagination', ['paginator' => $subscribers, 'itemLabel' => 'abone'])
 
     @can('create', App\Models\Subscriber::class)
         {{-- Add modal --}}

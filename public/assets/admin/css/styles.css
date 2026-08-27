@@ -34830,3 +34830,150 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   color: var(--neon-orange);
   background: color-mix(in srgb, var(--neon-orange) 14%, transparent);
 }
+
+/* ---------- Abone satırı ---------- */
+
+/* Ad, adres ve dil tek hücrede: dokuz düz sütun dar ekranda okunmuyordu. */
+.sub-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sub-person__avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 14%, transparent);
+}
+
+/* Ayrılmış ya da ulaşılamayan biri listede sönük dursun. */
+.sub-person__avatar--muted {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sub-person__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sub-person__email {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub-person__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sub-person__locale {
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Hiçbir listede olmayan kişi boş hücre değil, adı konmuş bir durum. */
+.sub-list-tag--none {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sub-source {
+  --sub-accent: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--sub-accent);
+  white-space: nowrap;
+}
+
+.sub-source i {
+  font-size: 11px;
+}
+
+.sub-source--teal  { --sub-accent: var(--teal-primary); }
+.sub-source--blue  { --sub-accent: var(--neon-blue); }
+.sub-source--green { --sub-accent: var(--neon-green); }
+.sub-source--muted { --sub-accent: var(--text-muted); }
+
+.sub-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sub-date small {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Listesiz aboneler liste hedefli kampanyalarda gözden kaçıyor; uyarı
+   satırın tamamını kaplıyor ve doğrudan o süzgece götürüyor. */
+.sub-warning {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--neon-orange) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neon-orange) 25%, transparent);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sub-warning > i {
+  font-size: 18px;
+  color: var(--neon-orange);
+}
+
+.sub-warning > div {
+  flex: 1;
+  min-width: 200px;
+}
+
+.sub-warning strong {
+  color: var(--text-primary);
+}
+
+/* Süzgeç çubuğundaki "yalnızca listesizler" anahtarı. */
+.sub-unlisted-toggle {
+  white-space: nowrap;
+}
+
+/* Dar ekranda durum/liste sekmeleri yan yana kayarak ilerlemeli.
+
+   Dosyanın en başındaki `[data-aos] { overflow: visible !important }` kuralı
+   (AOS animasyonlarının kırpılmasını önlemek için konmuş) sekme şeridini de
+   yakalıyor ve mobil kuraldaki `overflow-x: auto` işlemiyordu; şerit sayfayı
+   yana taşırıyordu. Kaydırma burada geri alınıyor — sekmeler tek satırda
+   kalıp kendi içinde kayıyor. */
+@media (max-width: 575.98px) {
+  .cl-status-tabs {
+    overflow-x: auto !important;
+  }
+}

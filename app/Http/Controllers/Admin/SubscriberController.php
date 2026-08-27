@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SubscriberSource;
 use App\Enums\SubscriberStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Subscriber;
@@ -25,20 +26,58 @@ final class SubscriberController extends Controller
         private readonly SubscriberListService $lists,
     ) {}
 
+    /**
+     * Listede gösterilebilecek kayıt sayıları; istekten gelen değer bu kümeyle
+     * sınırlı, aksi hâlde tek istekle tüm tablo çekilebilirdi.
+     */
+    private const PER_PAGE_OPTIONS = [25, 50, 100];
+
+    /**
+     * @var array<string, string>
+     */
+    private const SORT_OPTIONS = [
+        'recent' => 'En yeni kayıt',
+        'oldest' => 'En eski kayıt',
+        'email'  => 'E-postaya göre (A-Z)',
+    ];
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Subscriber::class);
 
+        $perPage = (int) $request->input('per_page', 25);
+        $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : 25;
+
+        $sort = $request->string('sort')->value();
+        $sort = array_key_exists($sort, self::SORT_OPTIONS) ? $sort : '';
+
+        $filters = [
+            'search'   => $request->string('search')->trim()->value(),
+            'status'   => $request->string('status')->value(),
+            'source'   => $request->string('source')->value(),
+            'locale'   => $request->string('locale')->value(),
+            'list_id'  => $request->string('list_id')->value(),
+            'unlisted' => $request->boolean('unlisted') ? '1' : '',
+            'from'     => $request->string('from')->value(),
+            'to'       => $request->string('to')->value(),
+            'sort'     => $sort,
+        ];
+
         $lists = $this->lists->all();
 
         return view('admin.subscribers.index', [
-            'subscribers' => $this->subscribers->paginate(25, $request->only(['status', 'locale', 'search', 'list_id'])),
-            'stats'       => $this->subscribers->stats(),
-            'statuses'    => SubscriberStatus::cases(),
-            'languages'   => app(LanguageService::class)->active(),
-            'lists'       => $lists,
-            'activeList'  => $request->integer('list_id') ?: null,
-            'defaultList' => $lists->firstWhere('is_default', true),
+            'subscribers'    => $this->subscribers->paginate($perPage, $filters),
+            'stats'          => $this->subscribers->stats(),
+            'statuses'       => SubscriberStatus::cases(),
+            'sources'        => SubscriberSource::cases(),
+            'languages'      => app(LanguageService::class)->active(),
+            'lists'          => $lists,
+            'activeList'     => $request->integer('list_id') ?: null,
+            'defaultList'    => $lists->firstWhere('is_default', true),
+            'filters'        => $filters,
+            'perPage'        => $perPage,
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
+            'sortOptions'    => self::SORT_OPTIONS,
         ]);
     }
 
