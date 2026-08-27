@@ -41,9 +41,16 @@ final class TranslationController extends Controller
         $defaults = $this->translations->fileLines($locale, self::GROUP);
         $overrides = $this->translations->overridesFor($locale, self::GROUP);
 
+        $defaultCode = $this->languages->defaultCode();
+
         return view('admin.translations.index', [
             'languages'      => $languages,
             'locale'         => $locale,
+            // Başka bir dili çevirirken kaynak metin ekranda dursun: kullanıcı
+            // aslını görmek için ikinci bir sekme açmak zorunda kalmasın.
+            'defaultCode'    => $defaultCode,
+            'defaultLabel'   => strtoupper($defaultCode),
+            'isDefaultLocale' => $locale === $defaultCode,
             'sections'       => $this->groupIntoSections($keys, $current, $defaults, $overrides),
             'overrideCounts' => $this->translations->overrideCounts(self::GROUP),
             'stats'          => [

@@ -36063,3 +36063,127 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 .lng-empty__icon {
   font-size: 2rem;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   DİL YAZILARI (trn-)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Kaydet çubuğu kaydırma boyunca üstte kalıyor: sayfa yüzlerce alan taşıdığı
+   için düzeltilen metnin yanında bir kaydetme yolu olmalı. Üst çubuğun
+   (64px) hemen altına yapışıyor. */
+.trn-savebar {
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color .25s, background .25s;
+}
+
+/* Bekleyen değişiklik varken çubuk kendini belli ediyor. */
+.trn-savebar.is-dirty {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 10%, var(--bg-card));
+}
+
+.trn-savebar__lang {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.trn-savebar__status {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.trn-savebar.is-dirty .trn-savebar__status {
+  color: var(--teal-primary);
+}
+
+.trn-savebar__button {
+  margin-left: auto;
+}
+
+/* Kaynak dildeki karşılık: çeviri alanının hemen altında, ikinci bir sekme
+   açmayı gereksiz kılacak kadar görünür ama alanın önüne geçmeyecek kadar sönük. */
+.trn-reference {
+  display: block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.trn-reference__tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 12%, transparent);
+}
+
+.trn-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.trn-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.trn-empty__icon {
+  font-size: 2rem;
+}
+
+/* Sayfa içi <style> bloğundan taşındı. */
+.translation-key {
+  font-size: .7rem;
+  opacity: .55;
+}
+
+.translation-badge {
+  font-size: .65rem;
+}
+
+.btn-link-teal {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--neon-teal, #2ee6a8);
+  font-size: .7rem;
+  cursor: pointer;
+}
+
+.btn-link-teal:hover {
+  text-decoration: underline;
+}
+
+.translation-row.is-hidden,
+.translation-section.is-hidden {
+  display: none;
+}
+
+@media (max-width: 575.98px) {
+  .trn-savebar__button { margin-left: 0; width: 100%; }
+}
