@@ -9,10 +9,30 @@ use App\Models\Redirect;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class RedirectService
 {
-    public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['search', 'status_code', 'status', 'usage', 'trashed', 'from', 'to', 'sort'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed>|null $filters
+     * @return Builder<Redirect>
+     */
+    public function query(?array $filters = null): Builder
     {
         $query = Redirect::query();
 
@@ -28,7 +48,15 @@ final class RedirectService
 
         $this->applySort($query, (string) ($filters['sort'] ?? ''));
 
-        return $query->paginate($perPage)->withQueryString();
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed>|null $filters
+     */
+    public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
+    {
+        return $this->query($filters)->paginate($perPage)->withQueryString();
     }
 
     /**

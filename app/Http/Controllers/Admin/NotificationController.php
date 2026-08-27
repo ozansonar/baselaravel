@@ -30,25 +30,9 @@ final class NotificationController extends Controller
             'q'           => $request->string('q')->trim()->value(),
         ];
 
-        $query = AdminNotification::query()->forUser($userId);
-
-        if ($filters['level'] !== '') {
-            $query->where('level', $filters['level']);
-        }
-
-        if ($filters['unread_only']) {
-            $query->whereNull('read_at');
-        }
-
-        if ($filters['q'] !== '') {
-            $search = '%' . $filters['q'] . '%';
-
-            $query->where(function ($sub) use ($search): void {
-                $sub->where('title', 'like', $search)->orWhere('message', 'like', $search);
-            });
-        }
-
-        $notifications = $query->orderByDesc('created_at')->paginate(30)->withQueryString();
+        $notifications = NotificationCenter::listQuery($userId, $filters)
+            ->paginate(30)
+            ->withQueryString();
 
         return view('admin.notifications.index', [
             'notifications' => $notifications,

@@ -202,6 +202,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="redirects" :total="$redirects->total()" />
                         </div>
                     </div>
                 </div>

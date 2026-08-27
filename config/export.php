@@ -68,6 +68,10 @@ return [
         'gallery-items'      => App\Exports\GalleryItemExport::class,
         'contact-messages'   => App\Exports\ContactMessageExport::class,
         'subscribers'        => App\Exports\SubscriberExport::class,
+        'audit-logs'         => App\Exports\AuditLogExport::class,
+        'mail-logs'          => App\Exports\MailLogExport::class,
+        'redirects'          => App\Exports\RedirectExport::class,
+        'notifications'      => App\Exports\NotificationExport::class,
     ],
 
 ];

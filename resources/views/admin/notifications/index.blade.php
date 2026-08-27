@@ -138,6 +138,8 @@
             <i class="bi bi-search"></i>
             <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Bildirimlerde ara..." data-fv-ignore>
         </form>
+
+        <x-export-menu export="notifications" :total="$notifications->total()" />
     </div>
 
     {{-- ==================== SECTION 3: NOTIFICATION LIST ==================== --}}

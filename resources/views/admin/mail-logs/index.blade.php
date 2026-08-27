@@ -317,6 +317,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="mail-logs" :total="$mailLogs->total()" />
                         </div>
                     </div>
                 </div>

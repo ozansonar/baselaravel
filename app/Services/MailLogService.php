@@ -76,13 +76,38 @@ final class MailLogService
      * @param array<string, mixed> $filters
      * @return LengthAwarePaginator<int, MailLog>
      */
-    public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'search', 'mailable', 'recipient', 'user_id', 'date_filter', 'from', 'to'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed>|null $filters
+     * @return Builder<MailLog>
+     */
+    public function query(?array $filters = null): Builder
     {
         return $this->filtered($filters ?? [])
             ->with('user:id,first_name,last_name,email')
-            ->recent()
-            ->paginate($perPage)
-            ->withQueryString();
+            ->recent();
+    }
+
+    /**
+     * @param array<string, mixed>|null $filters
+     */
+    public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
+    {
+        return $this->query($filters)->paginate($perPage)->withQueryString();
     }
 
     /**

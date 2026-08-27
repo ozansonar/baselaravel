@@ -189,6 +189,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="audit-logs" :total="$logs->total()" />
                         </div>
                     </div>
                 </div>
