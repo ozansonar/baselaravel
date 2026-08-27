@@ -278,67 +278,8 @@
     @endif
 
     <div class="row g-4">
-        {{-- ═══════════ 4. ÖNİZLEME ═══════════ --}}
+        {{-- ═══════════ 4. ALICI YÖNETİMİ ═══════════ --}}
         <div class="col-xl-8">
-            <div class="card-dark mb-4" data-aos="fade-up">
-                <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h6><i class="bi bi-envelope me-2 text-teal"></i>Mail Önizleme</h6>
-                    <span class="text-clr-secondary small">
-                        <strong>Konu:</strong> {{ $campaign->subject }}
-                    </span>
-                </div>
-                <div class="card-body-custom">
-                    {{-- Sandboxed: admin-authored HTML, rendered only to be looked at.
-
-                         Gövde ham hâliyle değil, mailin gördüğü hâliyle gösteriliyor:
-                         görseller kapsayıcı genişliğine sığdırılıyor ve içerik mailin
-                         600 pikselik sütununa alınıyor. Önizleme ile gelen mailin
-                         farklı görünmesi, tasarımın bozuk olduğunu ancak gönderimden
-                         sonra fark ettiriyordu. --}}
-                    <iframe srcdoc="{{ $bodyPreview }}" sandbox
-                            class="cmp-preview" title="Mail önizleme"></iframe>
-                </div>
-            </div>
-
-            {{-- ═══════════ SIRADAKİ TUR ═══════════ --}}
-            @if($nextBatch->isNotEmpty())
-                <div class="card-dark mb-4" data-aos="fade-up">
-                    <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h6><i class="bi bi-hourglass-split me-2 text-teal"></i>Önümüzdeki Turda Gidecekler</h6>
-                        <span class="cmp-badge">{{ $nextBatch->count() }} adres</span>
-                    </div>
-                    <div class="card-body-custom">
-                        <p class="stg-hint mb-3">
-                            Zamanlanmış görev
-                            @if($nextRunAt)
-                                <strong>{{ $nextRunAt->format('H:i') }}</strong>
-                            @endif
-                            çalıştığında sırayla bu adreslere gidecek. Listeden çıkarırsanız
-                            bu turda da sonrakilerde de gönderilmez.
-                        </p>
-                        <ol class="cmp-next">
-                            @foreach($nextBatch as $aday)
-                                <li class="cmp-next__row">
-                                    <span class="cmp-next__mail">{{ $aday->email }}</span>
-                                    @if($aday->full_name)
-                                        <span class="cmp-next__name">{{ $aday->full_name }}</span>
-                                    @endif
-                                    @can('update', $campaign)
-                                        <form method="POST" class="cmp-next__form"
-                                              action="{{ route('admin.campaigns.recipients.exclude', [$campaign, $aday]) }}">
-                                            @csrf
-                                            <button type="submit" class="usr-action-btn danger" title="Gönderimden çıkar">
-                                                <i class="bi bi-person-dash"></i>
-                                            </button>
-                                        </form>
-                                    @endcan
-                                </li>
-                            @endforeach
-                        </ol>
-                    </div>
-                </div>
-            @endif
-
             {{-- ═══════════ ALICI LİSTESİ ═══════════ --}}
             @if($recipientsReady || $campaign->total_recipients > 0)
                 <div class="card-dark mb-4" id="alicilar" data-aos="fade-up">
@@ -572,6 +513,45 @@
                 </div>
             @endif
 
+            {{-- ═══════════ SIRADAKİ TUR ═══════════ --}}
+            @if($nextBatch->isNotEmpty())
+                <div class="card-dark mb-4" data-aos="fade-up">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h6><i class="bi bi-hourglass-split me-2 text-teal"></i>Önümüzdeki Turda Gidecekler</h6>
+                        <span class="cmp-badge">{{ $nextBatch->count() }} adres</span>
+                    </div>
+                    <div class="card-body-custom">
+                        <p class="stg-hint mb-3">
+                            Zamanlanmış görev
+                            @if($nextRunAt)
+                                <strong>{{ $nextRunAt->format('H:i') }}</strong>
+                            @endif
+                            çalıştığında sırayla bu adreslere gidecek. Listeden çıkarırsanız
+                            bu turda da sonrakilerde de gönderilmez.
+                        </p>
+                        <ol class="cmp-next">
+                            @foreach($nextBatch as $aday)
+                                <li class="cmp-next__row">
+                                    <span class="cmp-next__mail">{{ $aday->email }}</span>
+                                    @if($aday->full_name)
+                                        <span class="cmp-next__name">{{ $aday->full_name }}</span>
+                                    @endif
+                                    @can('update', $campaign)
+                                        <form method="POST" class="cmp-next__form"
+                                              action="{{ route('admin.campaigns.recipients.exclude', [$campaign, $aday]) }}">
+                                            @csrf
+                                            <button type="submit" class="usr-action-btn danger" title="Gönderimden çıkar">
+                                                <i class="bi bi-person-dash"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+                                </li>
+                            @endforeach
+                        </ol>
+                    </div>
+                </div>
+            @endif
+
             @if($failures->isNotEmpty())
                 <div class="card-dark mb-4" data-aos="fade-up">
                     <div class="card-header-custom">
@@ -595,6 +575,38 @@
                     </div>
                 </div>
             @endif
+
+            {{-- ═══════════ MAİL ÖNİZLEME ═══════════ --}}
+            {{-- Katlı geliyor: sayfanın en uzun parçası bu, ama gövdeye bir kez
+                 bakılıp geçiliyor. Kapalıyken alıcı listesi ile ekler tek ekrana
+                 sığıyor. Açma işi <details>'e bırakıldı, JS'e gerek yok. --}}
+            <details class="card-dark cmp-fold mb-4" data-aos="fade-up">
+                {{-- Başlık satırı summary'nin içinde ayrı bir kutu: summary'nin
+                     kendisine display verilirse (card-header-custom da flex veriyor)
+                     tarayıcı onu özet saymayı bırakıyor, kart tıklamayla açılmıyor. --}}
+                <summary class="cmp-fold__head">
+                    <span class="card-header-custom cmp-fold__row">
+                        <span class="cmp-fold__title">
+                            <i class="bi bi-envelope me-2 text-teal"></i>Mail Önizleme
+                        </span>
+                        <span class="text-clr-secondary small">
+                            <strong>Konu:</strong> {{ $campaign->subject }}
+                        </span>
+                        <i class="bi bi-chevron-down cmp-fold__ok" aria-hidden="true"></i>
+                    </span>
+                </summary>
+                <div class="card-body-custom">
+                    {{-- Sandboxed: admin-authored HTML, rendered only to be looked at.
+
+                         Gövde ham hâliyle değil, mailin gördüğü hâliyle gösteriliyor:
+                         görseller kapsayıcı genişliğine sığdırılıyor ve içerik mailin
+                         600 pikselik sütununa alınıyor. Önizleme ile gelen mailin
+                         farklı görünmesi, tasarımın bozuk olduğunu ancak gönderimden
+                         sonra fark ettiriyordu. --}}
+                    <iframe srcdoc="{{ $bodyPreview }}" sandbox
+                            class="cmp-preview" title="Mail önizleme"></iframe>
+                </div>
+            </details>
         </div>
 
         {{-- ═══════════ 5. YAN PANEL ═══════════ --}}
@@ -777,6 +789,23 @@
 <style>
     .campaign-approve { border: 1px solid rgba(46, 230, 168, .35); }
     .campaign-sample summary { cursor: pointer; }
+
+    /* Katlanır kart: başlık satırının kendisi açma düğmesi.
+       summary'ye display verilmiyor — verilince tarayıcı onu özet saymıyor. */
+    .cmp-fold__head { cursor: pointer; list-style: none; }
+    .cmp-fold__head::-webkit-details-marker { display: none; }
+    .cmp-fold__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+    .cmp-fold__title { font-size: .95rem; font-weight: 600; }
+    .cmp-fold:not([open]) .cmp-fold__row { border-bottom: 0; }
+    .cmp-fold__ok { margin-left: auto; transition: transform .2s ease; }
+    .cmp-fold[open] .cmp-fold__ok { transform: rotate(180deg); }
+    @media (prefers-reduced-motion: reduce) { .cmp-fold__ok { transition: none; } }
     .campaign-meta .contact-info__label { font-size: .75rem; }
 
     .live-dot {
