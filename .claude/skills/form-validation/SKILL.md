@@ -223,7 +223,27 @@ Her yeni kuralın FormRequest'te bir karşılığı olmalı.
 
 ---
 
-## 8. Denetim
+## 8. Biçim kuralı ne zaman konur
+
+Biçim kuralı (`custom[email]`, `custom[url]`, `custom[phone]`…) **yalnızca
+sunucu da o biçimi zorunlu tutuyorsa** konur. Sunucunun kabul ettiği bir değeri
+istemcinin reddetmesi, çalışan bir sayfayı bozar: kullanıcı ilgisiz bir alanı
+değiştirmek için formu açar ve eski bir değerin kuralı yüzünden kaydedemez.
+
+İki somut örnek:
+
+- **Telefon:** motorun deseni `0212 555 00 00 / 123` gibi dahili ya da ikinci
+  numarayı reddediyor. Ayarlardaki telefon alanları serbest metin
+  (`nullable|string`), bu yüzden orada `maxSize` var, `custom[phone]` yok.
+- **Ad alanı:** `custom[letters]` nokta ve tireyi reddeder. Kullanıcı
+  ad/soyad alanlarında bu doğru, çünkü FormRequest'te birebir aynı regex var.
+  "Dr. Ahmet" yazılabilen bir ekip üyesi alanında ise yanlış — orada `maxSize`
+  kullanılır.
+
+Kısacası: sunucuda karşılığı olmayan bir biçim kuralı koymadan önce, o alana
+bugüne kadar ne yazılmış olabileceğini düşün.
+
+## 9. Denetim
 
 Kuralı ve işareti olmayan alanları bulmak için:
 
@@ -232,7 +252,24 @@ grep -rn "<input\|<select\|<textarea" resources/views/admin \
   | grep -v "data-validation-engine\|data-fv-ignore\|type=\"hidden\"\|type=\"submit\""
 ```
 
-Çok satıra yayılan etiketleri kaçırır; sonucu gözle doğrula.
+Bu grep iki durumu kaçırır, sonucu gözle doğrula:
+
+- **Çok satıra yayılan etiketler** — nitelikler alt satırdaysa eşleşmez.
+- **`@disabled(...)` / `{{ ... 'disabled' }}` taşıyan alanlar** — "disabled"
+  kelimesi Blade ifadesinin içinde geçtiği için alan atlanmış görünür, oysa
+  çalışma zamanında etkin olabilir.
+
+Kesin sonuç için sayfayı açıp tarayıcıda saymak en güvenilir yol:
+
+```js
+[...document.querySelectorAll('input,select,textarea')].filter(e =>
+  !['hidden','submit','button','reset'].includes(e.type) &&
+  !e.hasAttribute('data-validation-engine') && !e.hasAttribute('data-fv-ignore') &&
+  !e.readOnly && !e.disabled).map(e => e.name || e.id)
+```
+
+Döngüyle üretilen alanları (çeviri anahtarları, izin matrisi) yalnızca bu
+yöntem görür.
 
 ---
 

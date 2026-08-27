@@ -40,7 +40,7 @@
 
 <!-- Mobile Section Jumper -->
 <div class="d-lg-none mb-4">
-    <select class="form-select form-select-sm" onchange="scrollToSection(this.value); this.selectedIndex=0">
+    <select class="form-select form-select-sm" onchange="scrollToSection(this.value); this.selectedIndex=0" data-fv-ignore>
         <option value="" disabled selected>Bölüme git...</option>
         <option value="section-basic">Temel Bilgiler</option>
         <option value="section-content">İçerik Editörü</option>

@@ -25,33 +25,33 @@
             <div class="col-12 col-md-6">
                 <label class="form-label" for="sections_story_tag">Etiket</label>
                 <input type="text" class="form-control" id="sections_story_tag" name="sections[story][tag]"
-                    value="{{ $story['tag'] ?? '' }}" placeholder="Ör: Hikayemiz">
+                    value="{{ $story['tag'] ?? '' }}" placeholder="Ör: Hikayemiz" data-validation-engine="validate[maxSize[100]]">
             </div>
             <div class="col-12 col-md-6">
                 <label class="form-label" for="sections_story_experience_year">Tecrübe Yılı</label>
                 <input type="text" class="form-control" id="sections_story_experience_year" name="sections[story][experience_year]"
-                    value="{{ $story['experience_year'] ?? '' }}" placeholder="Ör: 50+">
+                    value="{{ $story['experience_year'] ?? '' }}" placeholder="Ör: 50+" data-validation-engine="validate[custom[integer],max[9999]]">
             </div>
             <div class="col-12">
                 <label class="form-label" for="sections_story_title">Başlık</label>
                 <input type="text" class="form-control" id="sections_story_title" name="sections[story][title]"
-                    value="{{ $story['title'] ?? '' }}" placeholder="Ör: 1975'ten Bu Yana Doğallığın Adresi">
+                    value="{{ $story['title'] ?? '' }}" placeholder="Ör: 1975'ten Bu Yana Doğallığın Adresi" data-validation-engine="validate[maxSize[255]]">
             </div>
             <div class="col-12">
                 <label class="form-label" for="sections_story_paragraphs">Hikaye Metni</label>
                 <textarea class="form-control" id="sections_story_paragraphs" name="sections[story][paragraphs]"
-                    rows="6" placeholder="Her paragrafı yeni satırla ayırın...">{{ $story['paragraphs'] ?? '' }}</textarea>
+                    rows="6" placeholder="Her paragrafı yeni satırla ayırın..." data-validation-engine="validate[maxSize[5000]]">{{ $story['paragraphs'] ?? '' }}</textarea>
                 <div class="form-text">Paragrafları boş satırla ayırın</div>
             </div>
             <div class="col-12">
                 <label class="form-label" for="sections_story_highlight">Vurgulu Alıntı</label>
                 <textarea class="form-control" id="sections_story_highlight" name="sections[story][highlight]"
-                    rows="2" placeholder="Ör: Doğanın bize verdiği her şeyin en iyisini...">{{ $story['highlight'] ?? '' }}</textarea>
+                    rows="2" placeholder="Ör: Doğanın bize verdiği her şeyin en iyisini..." data-validation-engine="validate[maxSize[1000]]">{{ $story['highlight'] ?? '' }}</textarea>
             </div>
             <div class="col-12">
                 <label class="form-label" for="sections_story_closing">Kapanış Metni</label>
                 <textarea class="form-control" id="sections_story_closing" name="sections[story][closing]"
-                    rows="2" placeholder="Ör: Bugün, modern hijyen standartlarını...">{{ $story['closing'] ?? '' }}</textarea>
+                    rows="2" placeholder="Ör: Bugün, modern hijyen standartlarını..." data-validation-engine="validate[maxSize[1000]]">{{ $story['closing'] ?? '' }}</textarea>
             </div>
         </div>
     </div>
@@ -86,18 +86,18 @@
                     <div class="col-12 col-md-4">
                         <label class="form-label">İkon</label>
                         <input type="text" class="form-control" name="sections[values][{{ $i }}][icon]"
-                            value="{{ $value['icon'] ?? '' }}" placeholder="fa-solid fa-seedling">
+                            value="{{ $value['icon'] ?? '' }}" placeholder="fa-solid fa-seedling" data-validation-engine="validate[maxSize[100]]">
                         <div class="form-text">FontAwesome ikon class'ı</div>
                     </div>
                     <div class="col-12 col-md-8">
                         <label class="form-label">Başlık</label>
                         <input type="text" class="form-control" name="sections[values][{{ $i }}][title]"
-                            value="{{ $value['title'] ?? '' }}" placeholder="Ör: %100 Doğal">
+                            value="{{ $value['title'] ?? '' }}" placeholder="Ör: %100 Doğal" data-validation-engine="validate[maxSize[255]]">
                     </div>
                     <div class="col-12">
                         <label class="form-label">Açıklama</label>
                         <textarea class="form-control" name="sections[values][{{ $i }}][description]"
-                            rows="2" placeholder="Değer açıklaması...">{{ $value['description'] ?? '' }}</textarea>
+                            rows="2" placeholder="Değer açıklaması..." data-validation-engine="validate[maxSize[1000]]">{{ $value['description'] ?? '' }}</textarea>
                     </div>
                 </div>
             </div>
@@ -137,17 +137,17 @@
                     <div class="col-12 col-md-3">
                         <label class="form-label">Yıl</label>
                         <input type="text" class="form-control" name="sections[timeline][{{ $i }}][year]"
-                            value="{{ $item['year'] ?? '' }}" placeholder="Ör: 1975">
+                            value="{{ $item['year'] ?? '' }}" placeholder="Ör: 1975" data-validation-engine="validate[maxSize[20]]">
                     </div>
                     <div class="col-12 col-md-9">
                         <label class="form-label">Başlık</label>
                         <input type="text" class="form-control" name="sections[timeline][{{ $i }}][title]"
-                            value="{{ $item['title'] ?? '' }}" placeholder="Ör: Kuruluş">
+                            value="{{ $item['title'] ?? '' }}" placeholder="Ör: Kuruluş" data-validation-engine="validate[maxSize[255]]">
                     </div>
                     <div class="col-12">
                         <label class="form-label">Açıklama</label>
                         <textarea class="form-control" name="sections[timeline][{{ $i }}][description]"
-                            rows="2" placeholder="Bu dönemin açıklaması...">{{ $item['description'] ?? '' }}</textarea>
+                            rows="2" placeholder="Bu dönemin açıklaması..." data-validation-engine="validate[maxSize[1000]]">{{ $item['description'] ?? '' }}</textarea>
                     </div>
                 </div>
             </div>
@@ -187,21 +187,21 @@
                     <div class="col-12 col-md-3">
                         <label class="form-label">Sayı</label>
                         <input type="number" class="form-control" name="sections[stats][{{ $i }}][number]"
-                            value="{{ $stat['number'] ?? '' }}" placeholder="Ör: 50" min="0">
+                            value="{{ $stat['number'] ?? '' }}" placeholder="Ör: 50" min="0" data-validation-engine="validate[custom[number]]">
                     </div>
                     <div class="col-12 col-md-3">
                         <label class="form-label">Son Ek</label>
                         <input type="text" class="form-control" name="sections[stats][{{ $i }}][suffix]"
-                            value="{{ $stat['suffix'] ?? '' }}" placeholder="Ör: +, K+">
+                            value="{{ $stat['suffix'] ?? '' }}" placeholder="Ör: +, K+" data-validation-engine="validate[maxSize[20]]">
                     </div>
                     <div class="col-12 col-md-3">
                         <label class="form-label">Etiket</label>
                         <input type="text" class="form-control" name="sections[stats][{{ $i }}][label]"
-                            value="{{ $stat['label'] ?? '' }}" placeholder="Ör: Yıllık Deneyim">
+                            value="{{ $stat['label'] ?? '' }}" placeholder="Ör: Yıllık Deneyim" data-validation-engine="validate[maxSize[255]]">
                     </div>
                     <div class="col-12 col-md-3">
                         <label class="form-label">Format</label>
-                        <select class="form-select" name="sections[stats][{{ $i }}][format]">
+                        <select class="form-select" name="sections[stats][{{ $i }}][format]" data-fv-ignore>
                             <option value="">Normal</option>
                             <option value="K" {{ ($stat['format'] ?? '') === 'K' ? 'selected' : '' }}>K (binler)</option>
                         </select>
@@ -245,17 +245,17 @@
                     <div class="col-12 col-md-6">
                         <label class="form-label">Ad Soyad</label>
                         <input type="text" class="form-control" name="sections[team][{{ $i }}][name]"
-                            value="{{ $member['name'] ?? '' }}" placeholder="Ör: Ahmet Yılmaz">
+                            value="{{ $member['name'] ?? '' }}" placeholder="Ör: Ahmet Yılmaz" data-validation-engine="validate[maxSize[255]]">
                     </div>
                     <div class="col-12 col-md-6">
                         <label class="form-label">Rol / Unvan</label>
                         <input type="text" class="form-control" name="sections[team][{{ $i }}][role]"
-                            value="{{ $member['role'] ?? '' }}" placeholder="Ör: Kurucu Baba">
+                            value="{{ $member['role'] ?? '' }}" placeholder="Ör: Kurucu Baba" data-validation-engine="validate[maxSize[255]]">
                     </div>
                     <div class="col-12">
                         <label class="form-label">Açıklama</label>
                         <textarea class="form-control" name="sections[team][{{ $i }}][description]"
-                            rows="2" placeholder="Kısa tanıtım metni...">{{ $member['description'] ?? '' }}</textarea>
+                            rows="2" placeholder="Kısa tanıtım metni..." data-validation-engine="validate[maxSize[1000]]">{{ $member['description'] ?? '' }}</textarea>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Fotoğraf</label>
@@ -266,7 +266,7 @@
                         </div>
                         @endif
                         <input type="file" class="form-control" name="sections[team][{{ $i }}][photo_file]"
-                            accept="image/png,image/jpeg,image/webp">
+                            accept="image/png,image/jpeg,image/webp" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                         <div class="form-text">PNG, JPG, WebP | Maks. 2 MB</div>
                     </div>
                 </div>
@@ -295,12 +295,12 @@
             <div class="col-12">
                 <label class="form-label" for="sections_cta_title">Başlık</label>
                 <input type="text" class="form-control" id="sections_cta_title" name="sections[cta][title]"
-                    value="{{ $cta['title'] ?? '' }}" placeholder="Ör: Doğallığı Tatmaya Hazır mısınız?">
+                    value="{{ $cta['title'] ?? '' }}" placeholder="Ör: Doğallığı Tatmaya Hazır mısınız?" data-validation-engine="validate[maxSize[255]]">
             </div>
             <div class="col-12">
                 <label class="form-label" for="sections_cta_description">Açıklama</label>
                 <textarea class="form-control" id="sections_cta_description" name="sections[cta][description]"
-                    rows="2" placeholder="Ör: Uzman ekibimizle sunduğumuz hizmetleri keşfedin...">{{ $cta['description'] ?? '' }}</textarea>
+                    rows="2" placeholder="Ör: Uzman ekibimizle sunduğumuz hizmetleri keşfedin..." data-validation-engine="validate[maxSize[1000]]">{{ $cta['description'] ?? '' }}</textarea>
             </div>
         </div>
     </div>

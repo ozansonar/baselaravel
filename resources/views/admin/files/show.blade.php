@@ -315,6 +315,7 @@
                                 <i class="bi bi-card-text me-1"></i>Başlık (admin için açıklama)
                             </label>
                             <input type="text" id="fmgrEditTitle" name="title" class="stg-input"
+                                   data-validation-engine="validate[maxSize[191]]"
                                    maxlength="191"
                                    value="{{ old('title', $file->title) }}"
                                    placeholder="Örn: Sertifika - Organik Üretim 2026">
@@ -326,6 +327,7 @@
                                     <i class="bi bi-universal-access me-1"></i>Alt Metin (SEO + erişilebilirlik)
                                 </label>
                                 <textarea id="fmgrEditAlt" name="alt_text" class="stg-input" rows="3"
+                                          data-validation-engine="validate[maxSize[500]]"
                                           maxlength="500"
                                           placeholder="Görselin ne anlattığını açıklayan kısa metin">{{ old('alt_text', $file->alt_text) }}</textarea>
                                 <small class="stg-hint">

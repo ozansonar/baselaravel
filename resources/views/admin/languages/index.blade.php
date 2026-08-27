@@ -110,11 +110,11 @@
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="search" name="search" value="{{ request('search') }}"
-                           placeholder="Dil adı veya kodu ile ara…" autocomplete="off">
+                           placeholder="Dil adı veya kodu ile ara…" autocomplete="off" data-fv-ignore>
                 </div>
 
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="files" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" name="files" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Arayüz çevirisi: tümü</option>
                         <option value="yes" {{ request('files') === 'yes' ? 'selected' : '' }}>Çevirisi olanlar</option>
                         <option value="no" {{ request('files') === 'no' ? 'selected' : '' }}>Çevirisi olmayanlar</option>

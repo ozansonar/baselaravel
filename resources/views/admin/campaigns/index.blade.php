@@ -104,7 +104,7 @@
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
-                           placeholder="Kampanya adı veya konu ile ara...">
+                           placeholder="Kampanya adı veya konu ile ara..." data-fv-ignore>
                 </div>
 
                 <div class="cl-toolbar-actions">
@@ -113,7 +113,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach($perPageList as $pp)
                                 <option value="{{ $pp }}" {{ (int) request('per_page', 15) === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach

@@ -60,10 +60,10 @@
 
             <div id="customDateWrap" class="d-flex gap-2 align-items-center flex-wrap {{ $range === 'custom' ? '' : 'd-none' }}">
                 <input type="date" class="form-control form-control-sm form-control-theme analytics-date-input"
-                       id="customFrom" value="{{ request('from', $from->toDateString()) }}">
+                       id="customFrom" value="{{ request('from', $from->toDateString()) }}" data-fv-ignore>
                 <span class="text-clr-secondary">—</span>
                 <input type="date" class="form-control form-control-sm form-control-theme analytics-date-input"
-                       id="customTo" value="{{ request('to', $to->toDateString()) }}">
+                       id="customTo" value="{{ request('to', $to->toDateString()) }}" data-fv-ignore>
                 <button class="btn-teal btn-sm" id="applyCustomRange">Uygula</button>
             </div>
 
@@ -73,7 +73,7 @@
                     {{ $from->format('d.m.Y') }} — {{ $to->format('d.m.Y') }}
                 </span>
                 <div class="form-check form-switch m-0">
-                    <input class="form-check-input" type="checkbox" id="includeBotsToggle" {{ $includeBots ? 'checked' : '' }}>
+                    <input class="form-check-input" type="checkbox" id="includeBotsToggle" {{ $includeBots ? 'checked' : '' }} data-fv-ignore>
                     <label class="form-check-label text-clr-secondary" for="includeBotsToggle">Botları dahil et</label>
                 </div>
             </div>

@@ -203,7 +203,7 @@
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="menu_active_{{ $menu->id }}"
-                                           name="is_active" value="1" {{ $menu->is_active ? 'checked' : '' }}>
+                                           name="is_active" value="1" data-fv-ignore {{ $menu->is_active ? 'checked' : '' }}>
                                     <label class="form-check-label text-clr-secondary" for="menu_active_{{ $menu->id }}">Aktif</label>
                                 </div>
                             </div>

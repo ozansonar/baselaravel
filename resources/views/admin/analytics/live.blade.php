@@ -25,13 +25,13 @@
             </p>
         </div>
         <div class="d-flex gap-2 flex-wrap align-items-center">
-            <select class="cl-filter-select" id="windowSelect" aria-label="Zaman aralığı">
+            <select class="cl-filter-select" id="windowSelect" aria-label="Zaman aralığı" data-fv-ignore>
                 @foreach([1 => '1 dakika', 5 => '5 dakika', 15 => '15 dakika', 30 => '30 dakika', 60 => '1 saat'] as $value => $label)
                     <option value="{{ $value }}" {{ $windowMinutes === $value ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
             <label class="stg-switch-inline d-flex align-items-center gap-2 mb-0">
-                <input type="checkbox" id="includeBots" {{ $includeBots ? 'checked' : '' }}>
+                <input type="checkbox" id="includeBots" {{ $includeBots ? 'checked' : '' }} data-fv-ignore>
                 <span class="text-clr-secondary small">Botları göster</span>
             </label>
             <button type="button" class="btn-glass" id="pauseBtn" title="Duraklat">

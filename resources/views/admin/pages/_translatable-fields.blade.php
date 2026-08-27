@@ -158,7 +158,7 @@
                                 id="image_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][image]"
                                 accept="image/png,image/jpeg,image/webp"
-                            >
+                             data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                             @error("translations.{$language->code}.image")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

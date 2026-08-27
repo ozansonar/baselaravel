@@ -125,12 +125,12 @@
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="text" id="contentSearch" name="search" value="{{ request('search') }}"
-                           placeholder="Başlık veya özet ile ara...">
+                           placeholder="Başlık veya özet ile ara..." data-fv-ignore>
                 </div>
 
                 {{-- Filters Row --}}
                 <div class="cl-filters">
-                    <select class="cl-filter-select" id="filterCategory" name="category_id" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" id="filterCategory" name="category_id" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Kategoriler</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
@@ -147,7 +147,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select id="perPage" name="per_page" onchange="document.getElementById('filterForm').submit()">
+                        <select id="perPage" name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ (int) request('per_page', 25) === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -172,7 +172,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>İçerik</th>
                             <th class="d-none d-md-table-cell">Kategori</th>
@@ -205,7 +205,7 @@
                             @endphp
                             <tr>
                                 <td data-label="Seç">
-                                    <input type="checkbox" class="usr-checkbox content-checkbox" value="{{ $post->id }}" onchange="updateBulk()">
+                                    <input type="checkbox" class="usr-checkbox content-checkbox" value="{{ $post->id }}" onchange="updateBulk()" data-fv-ignore>
                                 </td>
                                 <td data-label="İçerik">
                                     <div class="cl-content-cell">

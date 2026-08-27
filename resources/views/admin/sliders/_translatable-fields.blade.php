@@ -15,7 +15,7 @@
 
         {{-- Mobile Section Jumper --}}
         <div class="d-lg-none mb-4" data-aos="fade-up">
-            <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+            <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0" data-fv-ignore>
                 <option value="" disabled selected>Bölüme git...</option>
                 <option value="section-basic-{{ $language->code }}">Temel Bilgiler</option>
                 <option value="section-media-{{ $language->code }}">Görsel</option>
@@ -136,7 +136,7 @@
                                 </label>
                                 <input type="file"
                                        class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" @if($imageRequired) @endif>
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" @if($imageRequired) @endif data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                                 @error("translations.{$language->code}.image")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

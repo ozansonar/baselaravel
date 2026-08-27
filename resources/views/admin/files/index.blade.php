@@ -102,10 +102,10 @@
                     <i class="bi bi-search"></i>
                     <input type="text" name="q" id="fmgrSearch"
                            placeholder="Dosya adı, başlık veya alt metinde ara..."
-                           value="{{ $filters['q'] ?? '' }}">
+                           value="{{ $filters['q'] ?? '' }}" data-fv-ignore>
                 </div>
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="category" onchange="document.getElementById('filterForm').submit()">
+                    <select class="cl-filter-select" name="category" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                         <option value="">Tüm Kategoriler</option>
                         @foreach($categories as $value => $label)
                             <option value="{{ $value }}" {{ ($filters['category'] ?? '') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -114,11 +114,11 @@
                     <input type="date" class="cl-filter-select" name="date_from"
                            value="{{ $filters['date_from'] ?? '' }}"
                            onchange="document.getElementById('filterForm').submit()"
-                           title="Başlangıç tarihi">
+                           title="Başlangıç tarihi" data-fv-ignore>
                     <input type="date" class="cl-filter-select" name="date_to"
                            value="{{ $filters['date_to'] ?? '' }}"
                            onchange="document.getElementById('filterForm').submit()"
-                           title="Bitiş tarihi">
+                           title="Bitiş tarihi" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.files.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
@@ -126,7 +126,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" onchange="document.getElementById('filterForm').submit()">
+                        <select name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([12, 24, 48, 96] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach

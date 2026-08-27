@@ -99,11 +99,11 @@
                     <div class="usr-search">
                         <i class="bi bi-search"></i>
                         <input type="text" name="search" placeholder="Ad, e-posta veya rol ile ara..."
-                               value="{{ request('search') }}">
+                               value="{{ request('search') }}" data-fv-ignore>
                     </div>
 
                     <div class="usr-filters">
-                        <select class="usr-filter-select" name="role" onchange="document.getElementById('filterForm').submit()">
+                        <select class="usr-filter-select" name="role" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm Roller</option>
                             @foreach($roles as $role)
                                 <option value="{{ $role->slug }}" {{ request('role') === $role->slug ? 'selected' : '' }}>
@@ -114,7 +114,7 @@
                     </div>
 
                     <div class="usr-toolbar-actions">
-                        <select class="usr-filter-select" name="per_page" onchange="document.getElementById('filterForm').submit()">
+                        <select class="usr-filter-select" name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ (int) request('per_page', 10) === $pp ? 'selected' : '' }}>
                                     {{ $pp }} / sayfa
@@ -153,7 +153,7 @@
                     <thead>
                         <tr>
                             <th class="usr-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
                             </th>
                             <th>Kullanıcı</th>
                             <th>Rol</th>
@@ -165,7 +165,7 @@
                     <tbody id="userTableBody">
                         @forelse($users as $user)
                         <tr>
-                            <td><input type="checkbox" class="usr-checkbox" value="{{ $user->id }}" onchange="updateBulk()"></td>
+                            <td><input type="checkbox" class="usr-checkbox" value="{{ $user->id }}" onchange="updateBulk()" data-fv-ignore></td>
                             <td>
                                 <div class="usr-user-cell">
                                     <div class="usr-avatar">

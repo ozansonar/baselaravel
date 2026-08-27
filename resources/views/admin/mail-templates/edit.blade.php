@@ -89,7 +89,7 @@
                             </div>
                             <label class="stg-switch">
                                 <input type="hidden" name="is_active" data-fv-ignore value="0">
-                                <input type="checkbox" name="is_active" value="1" {{ $template->is_active ? 'checked' : '' }}>
+                                <input type="checkbox" name="is_active" value="1" data-fv-ignore {{ $template->is_active ? 'checked' : '' }}>
                                 <span class="stg-switch-slider"></span>
                             </label>
                         </div>

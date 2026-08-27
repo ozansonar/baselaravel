@@ -109,7 +109,7 @@
 
                 <div class="stg-field">
                     <input type="file" class="stg-input @error('attachments.*') is-invalid @enderror"
-                           name="attachments[]" multiple>
+                           name="attachments[]" multiple data-fv-ignore>
                     <small class="stg-hint">En fazla 10 dosya, her biri en fazla 10 MB.</small>
                     @error('attachments.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                 </div>
@@ -237,7 +237,7 @@
                         <label class="stg-label" for="recipient_file">Excel veya CSV dosyası</label>
                         <input type="file" class="stg-input @error('recipient_file') is-invalid @enderror"
                                id="recipient_file" name="recipient_file" accept=".xlsx,.xls,.ods,.csv,.txt"
-                               data-preview-url="{{ route('admin.campaigns.recipients.preview') }}">
+                               data-preview-url="{{ route('admin.campaigns.recipients.preview') }}" data-fv-ignore>
                         <small class="stg-hint">
                             Başlık satırında <code>Ad</code>, <code>Soyad</code> ve <code>E-posta</code>
                             sütunları olsun. Ad ile soyadı tek sütunda veren eski dosyalar da okunur.

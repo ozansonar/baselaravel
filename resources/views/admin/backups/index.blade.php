@@ -166,11 +166,11 @@
             <form method="GET" action="{{ route('admin.backups.index') }}" id="bkFilterForm" class="cl-toolbar">
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Dosya adı ile ara…">
+                    <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Dosya adı ile ara…" data-fv-ignore>
                 </div>
 
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="sort" onchange="document.getElementById('bkFilterForm').submit()">
+                    <select class="cl-filter-select" name="sort" onchange="document.getElementById('bkFilterForm').submit()" data-fv-ignore>
                         @foreach([
                             'newest'   => 'Önce en yeni',
                             'oldest'   => 'Önce en eski',
@@ -207,7 +207,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="bkSelectAll" aria-label="Tümünü seç">
+                                <input type="checkbox" class="usr-checkbox" id="bkSelectAll" aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>Dosya</th>
                             <th class="d-none d-xl-table-cell">İçerik</th>
@@ -235,7 +235,7 @@
                             <tr>
                                 <td data-label="Seç">
                                     <input type="checkbox" class="usr-checkbox bk-checkbox" value="{{ $backup['name'] }}"
-                                           aria-label="{{ $backup['name'] }} seç">
+                                           aria-label="{{ $backup['name'] }} seç" data-fv-ignore>
                                 </td>
                                 <td data-label="Dosya">
                                     <div class="cl-content-cell">

@@ -136,7 +136,7 @@
                 <input type="hidden" name="unread_only" value="1">
             @endif
             <i class="bi bi-search"></i>
-            <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Bildirimlerde ara...">
+            <input type="text" name="q" value="{{ $filters['q'] }}" placeholder="Bildirimlerde ara..." data-fv-ignore>
         </form>
     </div>
 
@@ -158,7 +158,7 @@
             <div class="nt-item {{ $notification->isUnread() ? 'unread' : '' }} {{ $notification->level === \App\Enums\NotificationLevel::Critical ? 'critical' : '' }}">
                 <div class="nt-item-left">
                     <input type="checkbox" class="nt-check" value="{{ $notification->id }}"
-                           aria-label="{{ $notification->title }} seç">
+                           aria-label="{{ $notification->title }} seç" data-fv-ignore>
                     <div class="nt-item-icon {{ $notification->level?->iconVariant() ?? 'system' }}">
                         <i class="bi {{ $notification->levelIcon() }}"></i>
                     </div>

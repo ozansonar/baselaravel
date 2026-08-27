@@ -10,7 +10,7 @@
 
         {{-- Mobile Section Jumper --}}
         <div class="d-lg-none mb-4" data-aos="fade-up">
-            <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0">
+            <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0" data-fv-ignore>
                 <option value="" disabled selected>Bölüme git...</option>
                 <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
                 <option value="section-media_{{ $language->code }}">Görsel</option>
@@ -107,7 +107,7 @@
                                 <label class="form-label" for="image_{{ $language->code }}">Popup Görseli</label>
                                 <input type="file"
                                        class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*">
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                                 @error("translations.{$language->code}.image")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -231,7 +231,7 @@
                                                 <input class="form-check-input" type="checkbox"
                                                        name="translations[{{ $language->code }}][pages][]" value="{{ $page->value }}"
                                                        id="page_{{ $page->value }}"
-                                                       {{ in_array($page->value, old("translations.{$language->code}.pages", ['all'])) ? 'checked' : '' }}>
+                                                       {{ in_array($page->value, old("translations.{$language->code}.pages", ['all'])) ? 'checked' : '' }} data-fv-ignore>
                                                 <label class="form-check-label" for="page_{{ $page->value }}">
                                                     {{ $page->label() }}
                                                 </label>

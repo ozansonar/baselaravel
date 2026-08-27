@@ -183,7 +183,7 @@
                 <div class="cl-search {{ $filters['search'] !== '' ? 'cl-search--clearable' : '' }}">
                     <i class="bi bi-search"></i>
                     <input type="text" name="search" value="{{ $filters['search'] }}"
-                           placeholder="Ad, soyad veya e-posta ile ara...">
+                           placeholder="Ad, soyad veya e-posta ile ara..." data-fv-ignore>
                     @if($filters['search'] !== '')
                         <a href="{{ route('admin.subscribers.index', request()->except(['search', 'page'])) }}"
                            class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
@@ -196,7 +196,7 @@
                     <div class="mt-field">
                         <span>Durum</span>
                         <select class="cl-filter-select" name="status" aria-label="Durum"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm durumlar</option>
                             @foreach($statuses as $status)
                                 <option value="{{ $status->value }}" {{ $filters['status'] === $status->value ? 'selected' : '' }}>
@@ -209,7 +209,7 @@
                     <div class="mt-field">
                         <span>Kaynak</span>
                         <select class="cl-filter-select" name="source" aria-label="Kaynak"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kaynaklar</option>
                             @foreach($sources as $source)
                                 <option value="{{ $source->value }}" {{ $filters['source'] === $source->value ? 'selected' : '' }}>
@@ -222,7 +222,7 @@
                     <div class="mt-field">
                         <span>Dil</span>
                         <select class="cl-filter-select" name="locale" aria-label="Dil"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm diller</option>
                             @foreach($languages as $language)
                                 <option value="{{ $language->code }}" {{ $filters['locale'] === $language->code ? 'selected' : '' }}>
@@ -242,7 +242,7 @@
                                 </a>
                             @endif
                         </span>
-                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Kayıt başlangıç tarihi">
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Kayıt başlangıç tarihi" data-fv-ignore>
                     </div>
 
                     <div class="mt-field">
@@ -255,13 +255,13 @@
                                 </a>
                             @endif
                         </span>
-                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Kayıt bitiş tarihi">
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Kayıt bitiş tarihi" data-fv-ignore>
                     </div>
 
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>{{ $sortLabel }}</option>
                             @endforeach
@@ -273,7 +273,7 @@
                             <label class="cmp-check sub-unlisted-toggle">
                                 <input type="checkbox" name="unlisted" value="1"
                                        {{ $filters['unlisted'] !== '' ? 'checked' : '' }}
-                                       onchange="document.getElementById('filterForm').submit()">
+                                       onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                                 <span class="cmp-check__text">Yalnızca listesizler</span>
                             </label>
                             <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
@@ -282,7 +282,7 @@
                             </a>
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
-                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                                     @foreach($perPageOptions as $option)
                                         <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
                                     @endforeach
@@ -311,7 +311,7 @@
                 @csrf
                 <div class="sub-bulk d-none" id="bulkBar">
                     <span class="sub-bulk__count"><strong id="bulkCount">0</strong> abone seçildi</span>
-                    <select class="cl-filter-select" name="list_id" aria-label="Liste">
+                    <select class="cl-filter-select" name="list_id" aria-label="Liste" data-fv-ignore>
                         @foreach($lists as $list)
                             <option value="{{ $list->id }}">{{ $list->name }}</option>
                         @endforeach
@@ -335,7 +335,7 @@
                     <thead>
                         <tr>
                             <th class="sub-check-col">
-                                <input type="checkbox" id="bulkSelectAll" aria-label="Tümünü seç">
+                                <input type="checkbox" id="bulkSelectAll" aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>Abone</th>
                             <th class="d-none d-lg-table-cell">Listeler</th>
@@ -351,7 +351,7 @@
                             <tr>
                                 <td class="sub-check-col">
                                     <input type="checkbox" form="bulkListForm" name="subscriber_ids[]"
-                                           value="{{ $subscriber->id }}" class="js-bulk-row"
+                                           value="{{ $subscriber->id }}" class="js-bulk-row" data-fv-ignore
                                            aria-label="{{ $subscriber->email }} seç">
                                 </td>
                                 <td data-label="Abone">
@@ -486,7 +486,7 @@
                             </div>
                             <div class="stg-field mb-3">
                                 <label class="stg-label" for="sub_locale">Dil</label>
-                                <select class="stg-select" id="sub_locale" name="locale">
+                                <select class="stg-select" id="sub_locale" name="locale" data-fv-ignore>
                                     <option value="">Belirtme</option>
                                     @foreach($languages as $language)
                                         <option value="{{ $language->code }}">{{ $language->flag }} {{ $language->native_name }}</option>
@@ -544,7 +544,7 @@
                             </div>
                             <div class="stg-field mb-3">
                                 <label class="stg-label" for="import_locale">Dil</label>
-                                <select class="stg-select" id="import_locale" name="locale">
+                                <select class="stg-select" id="import_locale" name="locale" data-fv-ignore>
                                     <option value="">Belirtme</option>
                                     @foreach($languages as $language)
                                         <option value="{{ $language->code }}">{{ $language->flag }} {{ $language->native_name }}</option>
@@ -603,7 +603,7 @@
                                                placeholder="Açıklama (isteğe bağlı)" aria-label="Açıklama">
                                     </div>
                                     <label class="cmp-check sub-list-row__default">
-                                        <input type="checkbox" name="is_default" value="1" {{ $list->is_default ? 'checked' : '' }}>
+                                        <input type="checkbox" name="is_default" value="1" data-fv-ignore {{ $list->is_default ? 'checked' : '' }}>
                                         <span class="cmp-check__text">Varsayılan</span>
                                     </label>
                                     <span class="sub-list-row__count">{{ $list->active_members_count }} kişi</span>
@@ -621,7 +621,7 @@
                                         @method('DELETE')
                                         <label class="stg-label" for="deleteListSelect">Liste sil</label>
                                         <div class="d-flex gap-2 flex-wrap">
-                                            <select class="cl-filter-select" id="deleteListSelect"
+                                            <select class="cl-filter-select" id="deleteListSelect" data-fv-ignore
                                                     data-url-template="{{ route('admin.subscriber-lists.destroy', ['subscriberList' => 'LIST_ID']) }}">
                                                 @foreach($lists as $list)
                                                     <option value="{{ $list->id }}">{{ $list->name }}</option>

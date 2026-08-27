@@ -159,7 +159,7 @@
                     <i class="bi bi-search"></i>
                     <input type="text" name="search" id="mtSearchInput"
                            placeholder="Şablon adı, anahtar, açıklama veya konu ile ara..."
-                           value="{{ $filters['search'] }}">
+                           value="{{ $filters['search'] }}" data-fv-ignore>
                     @if($filters['search'] !== '')
                         <a href="{{ route('admin.mail-templates.index', request()->except(['search', 'page'])) }}"
                            class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
@@ -175,7 +175,7 @@
                         <span>Değişken</span>
                         <select class="cl-filter-select" name="variable" aria-label="Değişken"
                                 data-select2-search="always"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm değişkenler</option>
                             @foreach($variableOptions as $variableKey => $option)
                                 <option value="{{ $variableKey }}" {{ $filters['variable'] === (string) $variableKey ? 'selected' : '' }}>
@@ -188,7 +188,7 @@
                     <div class="mt-field">
                         <span>İçerik</span>
                         <select class="cl-filter-select" name="origin" aria-label="İçerik durumu"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm içerikler</option>
                             <option value="customized" {{ $filters['origin'] === 'customized' ? 'selected' : '' }}>Özelleştirildi</option>
                             <option value="default" {{ $filters['origin'] === 'default' ? 'selected' : '' }}>Varsayılan</option>
@@ -198,7 +198,7 @@
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()">
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'name') === $sortValue ? 'selected' : '' }}>{{ $sortLabel }}</option>
                             @endforeach

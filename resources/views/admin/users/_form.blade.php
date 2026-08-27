@@ -60,7 +60,7 @@
                                 <i class="bi bi-trash me-1"></i> Kaldır
                             </button>
                         </div>
-                        <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden onchange="previewAvatar(this)">
+                        <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden onchange="previewAvatar(this)" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
                         @if($isEdit && $u->avatar)
                             <input type="hidden" name="remove_avatar" data-fv-ignore id="removeAvatarFlag" value="0">
                         @endif
@@ -88,7 +88,7 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="stg-label">Ad <span class="text-neon-red">*</span></label>
-                        <input type="text" class="stg-input @error('first_name') is-invalid @enderror" name="first_name" data-validation-engine="validate[required,custom[letters],maxSize[50]]" id="firstName"
+                        <input type="text" class="stg-input @error('first_name') is-invalid @enderror" name="first_name" data-validation-engine="validate[required,custom[letters],maxSize[50]]" data-fv-mask="letters" id="firstName"
                                placeholder="Kullanıcının adı" value="{{ old('first_name', $u?->first_name) }}">
                         @error('first_name')
                             <div class="text-neon-red fs-13 mt-1">{{ $message }}</div>
@@ -96,7 +96,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="stg-label">Soyad <span class="text-neon-red">*</span></label>
-                        <input type="text" class="stg-input @error('last_name') is-invalid @enderror" name="last_name" data-validation-engine="validate[required,custom[letters],maxSize[50]]" id="lastName"
+                        <input type="text" class="stg-input @error('last_name') is-invalid @enderror" name="last_name" data-validation-engine="validate[required,custom[letters],maxSize[50]]" data-fv-mask="letters" id="lastName"
                                placeholder="Kullanıcının soyadı" value="{{ old('last_name', $u?->last_name) }}">
                         @error('last_name')
                             <div class="text-neon-red fs-13 mt-1">{{ $message }}</div>
@@ -127,7 +127,7 @@
                     <div class="col-md-6">
                         <label class="stg-label">Doğum Tarihi</label>
                         <input type="date" class="stg-input @error('birth_date') is-invalid @enderror" name="birth_date" id="birthDate"
-                               value="{{ old('birth_date', $u?->birth_date?->format('Y-m-d')) }}">
+                               value="{{ old('birth_date', $u?->birth_date?->format('Y-m-d')) }}" data-validation-engine="validate[custom[date],past[now]]">
                         @error('birth_date')
                             <div class="text-neon-red fs-13 mt-1">{{ $message }}</div>
                         @enderror
@@ -302,7 +302,7 @@
                                 @endphp
                                 <label class="uf-role-card {{ $isChecked ? 'active' : '' }}" data-role="{{ $role->slug }}">
                                     <input type="checkbox" name="roles[]" value="{{ $role->id }}" class="d-none uf-role-checkbox"
-                                           {{ $isChecked ? 'checked' : '' }}>
+                                           {{ $isChecked ? 'checked' : '' }} data-fv-ignore>
                                     <div class="uf-role-card-icon {{ $accent }}"><i class="bi {{ $icon }}"></i></div>
                                     <div class="uf-role-card-info">
                                         <strong>{{ $role->name }}</strong>

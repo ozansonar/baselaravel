@@ -88,6 +88,7 @@
                                 <div class="input-group input-group-theme">
                                     <span class="input-group-text"><i class="bi bi-emoji-smile"></i></span>
                                     <input type="text" class="form-control form-control-theme" id="itemIcon" name="icon"
+                                           data-validation-engine="validate[maxSize[100]]"
                                            placeholder="fa-solid fa-house" maxlength="100">
                                 </div>
                             </div>
@@ -95,12 +96,12 @@
                             <div class="col-12">
                                 <label class="form-label text-clr-secondary">Bağlantı Tipi <span class="text-danger">*</span></label>
                                 <div class="menu-link-type-switch">
-                                    <input type="radio" class="btn-check" name="link_type" id="linkTypeRoute" value="route" checked>
+                                    <input type="radio" class="btn-check" name="link_type" id="linkTypeRoute" value="route" checked data-fv-ignore>
                                     <label class="menu-link-type-btn" for="linkTypeRoute">
                                         <i class="bi bi-signpost-split"></i>
                                         <span>Route <small class="d-block opacity-75">İç Sayfa</small></span>
                                     </label>
-                                    <input type="radio" class="btn-check" name="link_type" id="linkTypeUrl" value="url">
+                                    <input type="radio" class="btn-check" name="link_type" id="linkTypeUrl" value="url" data-fv-ignore>
                                     <label class="menu-link-type-btn" for="linkTypeUrl">
                                         <i class="bi bi-link-45deg"></i>
                                         <span>Custom URL <small class="d-block opacity-75">Harici / Özel</small></span>
@@ -110,7 +111,7 @@
 
                             <div class="col-12" id="routeFields">
                                 <label for="itemRouteName" class="form-label text-clr-secondary">Route Adı <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-theme" id="itemRouteName" name="route_name">
+                                <select class="form-select form-select-theme" id="itemRouteName" name="route_name" data-fv-ignore>
                                     <option value="">— Seçiniz —</option>
                                     @foreach($availableRoutes as $name => $label)
                                         <option value="{{ $name }}">{{ $label }} ({{ $name }})</option>
@@ -128,13 +129,14 @@
                                 <div class="input-group input-group-theme">
                                     <span class="input-group-text"><i class="bi bi-link"></i></span>
                                     <input type="text" class="form-control form-control-theme" id="itemUrl" name="url"
+                                           data-validation-engine="validate[maxSize[500]]"
                                            placeholder="/ozel-sayfa veya https://harici-site.com" maxlength="500">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="itemDisplayType" class="form-label text-clr-secondary">Görüntüleme Tipi</label>
-                                <select class="form-select form-select-theme" id="itemDisplayType" name="display_type">
+                                <select class="form-select form-select-theme" id="itemDisplayType" name="display_type" data-fv-ignore>
                                     <option value="link">Standart Link</option>
                                     <option value="dropdown">Dropdown (Alt Menü)</option>
                                     <option value="mega_menu">Mega Menu (Grid Card)</option>
@@ -143,7 +145,7 @@
 
                             <div class="col-md-6">
                                 <label for="itemTarget" class="form-label text-clr-secondary">Hedef</label>
-                                <select class="form-select form-select-theme" id="itemTarget" name="target">
+                                <select class="form-select form-select-theme" id="itemTarget" name="target" data-fv-ignore>
                                     <option value="_self">Aynı Sekme</option>
                                     <option value="_blank">Yeni Sekme</option>
                                 </select>
@@ -151,7 +153,7 @@
 
                             <div class="col-12">
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="itemIsActive" name="is_active" value="1" checked>
+                                    <input class="form-check-input" type="checkbox" id="itemIsActive" name="is_active" value="1" checked data-fv-ignore>
                                     <label class="form-check-label text-clr-secondary" for="itemIsActive">Aktif</label>
                                 </div>
                             </div>
