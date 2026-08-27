@@ -41,6 +41,20 @@ final class CampaignController extends Controller
      */
     private const PREVIEW_ROWS = 10;
 
+    /**
+     * Listede seçilebilecek sıralamalar. İstekten gelen değer bu kümeyle
+     * sınırlı; serbest bırakılsaydı sütun adı doğrudan sorguya girerdi.
+     *
+     * @var array<string, string>
+     */
+    private const SORT_OPTIONS = [
+        'recent'     => 'En yeni',
+        'oldest'     => 'En eski',
+        'name'       => 'Ada göre (A-Z)',
+        'recipients' => 'En çok alıcı',
+        'sent'       => 'En çok gönderim',
+    ];
+
     public function __construct(
         private readonly CampaignService $campaigns,
         private readonly CampaignDispatcher $dispatcher,
@@ -53,23 +67,65 @@ final class CampaignController extends Controller
         $perPage = (int) $request->integer('per_page', 15);
         $perPage = in_array($perPage, self::PER_PAGE, true) ? $perPage : 15;
 
-        $query = Campaign::query()->withCount('recipients')->latest('id');
+        $sort = $request->string('sort')->value();
+        $sort = array_key_exists($sort, self::SORT_OPTIONS) ? $sort : '';
 
-        if (($status = $request->string('status')->toString()) !== ''
-            && ($case = CampaignStatus::tryFrom($status)) !== null) {
+        $filters = [
+            'search'   => (string) $request->string('search')->trim()->value(),
+            'status'   => (string) $request->string('status')->value(),
+            'audience' => (string) $request->string('audience')->value(),
+            'from'     => (string) $request->string('from')->value(),
+            'to'       => (string) $request->string('to')->value(),
+            'sort'     => $sort,
+        ];
+
+        $query = Campaign::query()->withCount('recipients')->with('author');
+
+        if (($case = CampaignStatus::tryFrom($filters['status'])) !== null) {
             $query->where('status', $case);
         }
 
-        if (($search = $request->string('search')->toString()) !== '') {
-            $query->where(function ($q) use ($search): void {
-                $q->where('name', 'like', "%{$search}%")->orWhere('subject', 'like', "%{$search}%");
+        if (($audience = CampaignAudience::tryFrom($filters['audience'])) !== null) {
+            $query->where('audience', $audience);
+        }
+
+        if ($filters['search'] !== '') {
+            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
+            // getirmemeli.
+            $term = '%' . addcslashes($filters['search'], '%_\\') . '%';
+
+            $query->where(function ($q) use ($term): void {
+                $q->where('name', 'like', $term)->orWhere('subject', 'like', $term);
             });
         }
+
+        // Tarih aralığı oluşturulma gününe göre; bitiş günü de dâhil olsun diye
+        // gün sonuna kadar alınıyor.
+        if ($filters['from'] !== '') {
+            $query->whereDate('created_at', '>=', $filters['from']);
+        }
+
+        if ($filters['to'] !== '') {
+            $query->whereDate('created_at', '<=', $filters['to']);
+        }
+
+        match ($filters['sort']) {
+            'oldest'     => $query->oldest('id'),
+            'name'       => $query->orderBy('name'),
+            'recipients' => $query->orderByDesc('total_recipients')->orderByDesc('id'),
+            'sent'       => $query->orderByDesc('sent_count')->orderByDesc('id'),
+            default      => $query->latest('id'),
+        };
 
         return view('admin.campaigns.index', [
             'campaigns'    => $query->paginate($perPage)->withQueryString(),
             'stats'        => $this->stats(),
             'statusCounts' => $this->statusCounts(),
+            'statuses'     => CampaignStatus::cases(),
+            'audiences'    => CampaignAudience::cases(),
+            'filters'      => $filters,
+            'sortOptions'  => self::SORT_OPTIONS,
+            'perPage'      => $perPage,
             'perPageList'  => self::PER_PAGE,
         ]);
     }

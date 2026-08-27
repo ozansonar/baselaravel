@@ -44,4 +44,5 @@
         ]);
     </script>
     <script src="{{ versioned_asset('assets/admin/js/campaign-attachments.js') }}"></script>
+    <script src="{{ versioned_asset('assets/admin/js/campaign-tags.js') }}"></script>
 @endpush

@@ -50,6 +50,7 @@
         ]);
     </script>
     <script src="{{ versioned_asset('assets/admin/js/campaign-attachments.js') }}"></script>
+    <script src="{{ versioned_asset('assets/admin/js/campaign-tags.js') }}"></script>
     <script>
         window.campaignAttachmentUrl = @js(route('admin.campaigns.attachments.destroy', [$campaign, 'ATTACHMENT_ID']));
     </script>

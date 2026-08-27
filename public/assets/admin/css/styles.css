@@ -35748,3 +35748,102 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   background: #fff;
   border-radius: 8px;
 }
+
+/* Ek listesinde sıra numarası.
+   Numarayı CSS sayacı veriyor: aradan bir dosya silindiğinde kalanlar
+   kendiliğinden yeniden numaralanıyor, JS'in listeyi baştan yazması
+   gerekmiyor. Sayaç iki listeyi de kapsayan sarmalayıcıda sıfırlanıyor,
+   böylece kayıtlı eklerden yeni eklenenlere kesintisiz akıyor. */
+.cmp-attach-list {
+  counter-reset: ek;
+}
+
+.cmp-attach-list .cmp-attachment {
+  counter-increment: ek;
+}
+
+.cmp-attach-list .cmp-attachment::before {
+  content: counter(ek);
+  flex: 0 0 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Yüklenirken numara da soluyor; satırın tamamı geçici olduğunu göstersin. */
+.cmp-attach-list .cmp-attachment--yukleniyor::before {
+  opacity: .5;
+}
+
+/* Kampanya listesi ilerleme çubuğu. Yüzde satır içi değişkenle geliyor —
+   değer veriden hesaplanıyor, sınıfla ifade edilemez. */
+.cmp-progress {
+  height: 6px;
+}
+
+.cmp-progress__bar {
+  width: var(--cmp-progress, 0%);
+}
+
+/* ==========================================================================
+   Kişiselleştirme değişkeni ekleme düğmeleri
+   ========================================================================== */
+
+.cmp-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cmp-tags__label {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-right: 2px;
+}
+
+.cmp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .2s ease, color .2s ease, background .2s ease;
+}
+
+.cmp-tag:hover {
+  border-color: var(--text-teal);
+  color: var(--text-primary);
+}
+
+.cmp-tag code {
+  color: var(--text-teal);
+  font-size: 11.5px;
+  background: none;
+  padding: 0;
+}
+
+.cmp-tag__label { color: var(--text-muted); font-size: 11px; }
+
+/* Eklendiğinde kısa bir onay: tıklamanın işe yaradığı, imleç başka yerdeyken
+   de görünsün. */
+.cmp-tag--eklendi {
+  border-color: var(--text-teal);
+  background: rgba(20, 184, 166, .14);
+}
+
+@media (max-width: 575.98px) {
+  .cmp-tag__label { display: none; }
+}
