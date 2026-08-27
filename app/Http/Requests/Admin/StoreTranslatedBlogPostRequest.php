@@ -54,7 +54,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                      = ['array'];
-            $rules["{$prefix}.title"]            = [$required, 'string', 'max:255'];
+            $rules["{$prefix}.title"]            = [$required, 'string', 'max:120'];
             $rules["{$prefix}.body"]             = [$required, 'string', 'max:200000'];
             $rules["{$prefix}.blog_category_id"] = [$required, 'integer', 'exists:blog_categories,id'];
             $rules["{$prefix}.slug"]             = [
@@ -64,9 +64,9 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
                     ->where(fn ($query) => $query->where('locale', $locale))
                     ->ignore($this->translationIdFor($locale, $post)),
             ];
-            $rules["{$prefix}.excerpt"]          = ['nullable', 'string', 'max:1000'];
+            $rules["{$prefix}.excerpt"]          = ['nullable', 'string', 'max:300'];
             $rules["{$prefix}.image"]            = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
-            $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
+            $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:60'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
             $rules["{$prefix}.status"]           = ['nullable', new Enum(ContentStatus::class)];
