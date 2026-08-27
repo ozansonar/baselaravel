@@ -35954,3 +35954,112 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 #gsm-message {
   white-space: pre-line;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   DİLLER (lng-)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Dil ekleme adımları: içerik ile arayüz çevirisinin ayrı işler olduğu
+   formdan önce görünsün. */
+.lng-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.lng-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+  border: 1px solid var(--border-color);
+}
+
+.lng-step__no {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal-primary) 35%, transparent);
+}
+
+.lng-step__body strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 3px;
+  color: var(--text-primary);
+}
+
+.lng-step__body small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Hazır dil kutucukları: otuza yakın seçenek tek sütunda uzayıp gitmesin. */
+.lng-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* uf-role-card görünümünü koruyor; düğme olduğu için tarayıcı varsayılanları
+   geri alınıyor. */
+.lng-preset {
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+.lng-preset__flag {
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  background: color-mix(in srgb, var(--teal-primary) 10%, transparent);
+}
+
+.lng-preset .uf-role-card-info strong {
+  font-size: 13px;
+}
+
+.lng-preset .uf-role-card-info small {
+  font-size: 11px;
+}
+
+.lng-preset-search {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.lng-preset-search > i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 13px;
+}
+
+.lng-preset-search .stg-input {
+  padding-left: 34px;
+}
+
+/* Süzgeç sonucu boş kalan liste. */
+.lng-empty__icon {
+  font-size: 2rem;
+}

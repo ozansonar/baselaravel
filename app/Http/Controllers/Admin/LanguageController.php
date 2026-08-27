@@ -148,8 +148,12 @@ final class LanguageController extends Controller
     }
 
     /**
-     * Common languages offered as one-click fills on the create form, so the
-     * code, name and flag do not have to be looked up by hand.
+     * Ekleme formunda tek tıkla dolan diller: kod, ad, yerel ad ve bayrak elle
+     * aranmasın diye.
+     *
+     * Liste konuşan nüfusa göre yaygın otuz dil; hepsi ISO 639-1 iki harfli kod
+     * taşıyor, çünkü form da onu bekliyor. Zaten eklenmiş diller ayıklanıyor:
+     * tıklanınca "bu kod zaten var" hatası veren bir kutucuğun anlamı yok.
      *
      * @return array<int, array{code: string, name: string, native: string, flag: string}>
      */
@@ -157,18 +161,45 @@ final class LanguageController extends Controller
     {
         $existing = Language::pluck('code')->all();
 
-        return array_values(array_filter([
-            ['code' => 'tr', 'name' => 'Türkçe',    'native' => 'Türkçe',    'flag' => '🇹🇷'],
-            ['code' => 'en', 'name' => 'İngilizce', 'native' => 'English',   'flag' => '🇬🇧'],
-            ['code' => 'de', 'name' => 'Almanca',   'native' => 'Deutsch',   'flag' => '🇩🇪'],
-            ['code' => 'fr', 'name' => 'Fransızca', 'native' => 'Français',  'flag' => '🇫🇷'],
-            ['code' => 'it', 'name' => 'İtalyanca', 'native' => 'Italiano',  'flag' => '🇮🇹'],
-            ['code' => 'es', 'name' => 'İspanyolca','native' => 'Español',   'flag' => '🇪🇸'],
-            ['code' => 'ru', 'name' => 'Rusça',     'native' => 'Русский',   'flag' => '🇷🇺'],
-            ['code' => 'ar', 'name' => 'Arapça',    'native' => 'العربية',    'flag' => '🇸🇦'],
-            ['code' => 'nl', 'name' => 'Felemenkçe','native' => 'Nederlands','flag' => '🇳🇱'],
-            ['code' => 'pt', 'name' => 'Portekizce','native' => 'Português', 'flag' => '🇵🇹'],
-        ], fn (array $row): bool => ! in_array($row['code'], $existing, true)));
+        $common = [
+            ['code' => 'en', 'name' => 'İngilizce',   'native' => 'English',           'flag' => '🇬🇧'],
+            ['code' => 'tr', 'name' => 'Türkçe',      'native' => 'Türkçe',            'flag' => '🇹🇷'],
+            ['code' => 'de', 'name' => 'Almanca',     'native' => 'Deutsch',           'flag' => '🇩🇪'],
+            ['code' => 'fr', 'name' => 'Fransızca',   'native' => 'Français',          'flag' => '🇫🇷'],
+            ['code' => 'es', 'name' => 'İspanyolca',  'native' => 'Español',           'flag' => '🇪🇸'],
+            ['code' => 'it', 'name' => 'İtalyanca',   'native' => 'Italiano',          'flag' => '🇮🇹'],
+            ['code' => 'ru', 'name' => 'Rusça',       'native' => 'Русский',           'flag' => '🇷🇺'],
+            ['code' => 'ar', 'name' => 'Arapça',      'native' => 'العربية',             'flag' => '🇸🇦'],
+            ['code' => 'zh', 'name' => 'Çince',       'native' => '中文',               'flag' => '🇨🇳'],
+            ['code' => 'ja', 'name' => 'Japonca',     'native' => '日本語',             'flag' => '🇯🇵'],
+            ['code' => 'pt', 'name' => 'Portekizce',  'native' => 'Português',         'flag' => '🇵🇹'],
+            ['code' => 'nl', 'name' => 'Felemenkçe',  'native' => 'Nederlands',        'flag' => '🇳🇱'],
+            ['code' => 'hi', 'name' => 'Hintçe',      'native' => 'हिन्दी',               'flag' => '🇮🇳'],
+            ['code' => 'ko', 'name' => 'Korece',      'native' => '한국어',             'flag' => '🇰🇷'],
+            ['code' => 'fa', 'name' => 'Farsça',      'native' => 'فارسی',              'flag' => '🇮🇷'],
+            ['code' => 'pl', 'name' => 'Lehçe',       'native' => 'Polski',            'flag' => '🇵🇱'],
+            ['code' => 'uk', 'name' => 'Ukraynaca',   'native' => 'Українська',        'flag' => '🇺🇦'],
+            ['code' => 'az', 'name' => 'Azerbaycanca','native' => 'Azərbaycanca',      'flag' => '🇦🇿'],
+            ['code' => 'sv', 'name' => 'İsveççe',     'native' => 'Svenska',           'flag' => '🇸🇪'],
+            ['code' => 'el', 'name' => 'Yunanca',     'native' => 'Ελληνικά',          'flag' => '🇬🇷'],
+            ['code' => 'ro', 'name' => 'Romence',     'native' => 'Română',            'flag' => '🇷🇴'],
+            ['code' => 'bg', 'name' => 'Bulgarca',    'native' => 'Български',         'flag' => '🇧🇬'],
+            ['code' => 'cs', 'name' => 'Çekçe',       'native' => 'Čeština',           'flag' => '🇨🇿'],
+            ['code' => 'hu', 'name' => 'Macarca',     'native' => 'Magyar',            'flag' => '🇭🇺'],
+            ['code' => 'sr', 'name' => 'Sırpça',      'native' => 'Српски',            'flag' => '🇷🇸'],
+            ['code' => 'da', 'name' => 'Danca',       'native' => 'Dansk',             'flag' => '🇩🇰'],
+            ['code' => 'fi', 'name' => 'Fince',       'native' => 'Suomi',             'flag' => '🇫🇮'],
+            ['code' => 'no', 'name' => 'Norveççe',    'native' => 'Norsk',             'flag' => '🇳🇴'],
+            ['code' => 'he', 'name' => 'İbranice',    'native' => 'עברית',              'flag' => '🇮🇱'],
+            ['code' => 'id', 'name' => 'Endonezce',   'native' => 'Bahasa Indonesia',  'flag' => '🇮🇩'],
+            ['code' => 'th', 'name' => 'Tayca',       'native' => 'ไทย',                'flag' => '🇹🇭'],
+            ['code' => 'vi', 'name' => 'Vietnamca',   'native' => 'Tiếng Việt',        'flag' => '🇻🇳'],
+        ];
+
+        return array_values(array_filter(
+            $common,
+            fn (array $row): bool => ! in_array($row['code'], $existing, true),
+        ));
     }
 
     public function store(StoreLanguageRequest $request): RedirectResponse
