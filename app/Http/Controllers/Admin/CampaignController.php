@@ -158,6 +158,13 @@ final class CampaignController extends Controller
     {
         $this->authorize('view', $campaign);
 
+        // Liste kayıtla birlikte kuruluyor; kurulamamışsa (kitle o an okunamamış
+        // ya da kampanya bu özellik gelmeden önce açılmış) burada bir kez daha
+        // deneniyor. Kullanıcının listeyi görmek için düğmeye basması gerekmez.
+        if ($campaign->isEditable() && $campaign->recipients()->doesntExist()) {
+            $this->campaigns->prepareRecipientsQuietly($campaign);
+        }
+
         $breakdown = $this->recipientBreakdown($campaign);
         $pending = $breakdown[CampaignRecipientStatus::Pending->value] ?? 0;
 

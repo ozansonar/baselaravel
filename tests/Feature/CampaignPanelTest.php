@@ -760,22 +760,15 @@ class CampaignPanelTest extends TestCase
 
     // ── Gönderim öncesi alıcı listesi ──
 
-    public function test_the_draft_screen_offers_to_prepare_the_list(): void
+    /**
+     * Kitle formda seçildi; listeyi görmek için ayrıca bir düğmeye basmak
+     * gerekmemeli. Detay ekranı açıldığında adresler ve satır işlemleri orada.
+     */
+    public function test_the_draft_screen_shows_the_recipient_list_without_being_asked(): void
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
         $campaign = Campaign::firstOrFail();
 
-        // Liste yokken: hazırlama düğmesi var, ayıklanabilir tablo yok.
-        // (Örnek listesi adresleri gösteriyor; ölçüt satır işlemleri.)
-        $this->actingAs($this->sender())
-            ->get(route('admin.campaigns.show', $campaign))
-            ->assertOk()
-            ->assertSee('Alıcı Listesini Hazırla')
-            ->assertDontSee('Gönderimden çıkar');
-
-        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
-
-        // Liste hazırken: tablo, süzgeç ve yenileme düğmesi ekranda.
         $this->actingAs($this->sender())
             ->get(route('admin.campaigns.show', $campaign))
             ->assertOk()
@@ -786,16 +779,30 @@ class CampaignPanelTest extends TestCase
             ->assertSee('Gönderimden çıkar');
     }
 
-    public function test_the_recipient_list_can_be_prepared_before_approval(): void
+    /**
+     * Bu özellik gelmeden açılmış taslakların listesi yok; ekran açılırken
+     * kuruluyor, kullanıcıdan bir şey beklenmiyor.
+     */
+    public function test_an_older_draft_gets_its_list_when_the_screen_opens(): void
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
         $campaign = Campaign::firstOrFail();
 
-        $this->actingAs($this->editor())
-            ->post(route('admin.campaigns.recipients.prepare', $campaign))
-            ->assertRedirect();
+        $campaign->recipients()->forceDelete();
+        $this->assertSame(0, $campaign->recipients()->count());
 
-        $campaign->refresh();
+        $this->actingAs($this->sender())
+            ->get(route('admin.campaigns.show', $campaign))
+            ->assertOk()
+            ->assertSee('ahmet@ornek.com');
+
+        $this->assertSame(3, $campaign->recipients()->count());
+    }
+
+    public function test_the_recipient_list_is_built_when_the_campaign_is_saved(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
         $this->assertSame(CampaignStatus::Draft, $campaign->status, 'Liste hazırlamak gönderimi başlatmamalı');
         $this->assertSame(3, $campaign->recipients()->count());
         $this->assertSame(3, $campaign->pendingCount());
@@ -806,8 +813,6 @@ class CampaignPanelTest extends TestCase
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
         $campaign = Campaign::firstOrFail();
-
-        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
 
         $disari = $campaign->recipients()->where('email', 'ayse@ornek.com')->firstOrFail();
 
@@ -837,8 +842,6 @@ class CampaignPanelTest extends TestCase
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
         $campaign = Campaign::firstOrFail();
 
-        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
-
         $disari = $campaign->recipients()->where('email', 'ayse@ornek.com')->firstOrFail();
         $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.exclude', [$campaign, $disari]));
 
@@ -851,12 +854,11 @@ class CampaignPanelTest extends TestCase
         $this->assertSame(3, $campaign->pendingCount());
     }
 
-    public function test_changing_the_audience_drops_the_prepared_list(): void
+    public function test_changing_the_audience_rebuilds_the_list(): void
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
         $campaign = Campaign::firstOrFail();
 
-        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
         $this->assertSame(3, $campaign->recipients()->count());
 
         Subscriber::create([
@@ -872,9 +874,9 @@ class CampaignPanelTest extends TestCase
         ]));
 
         $this->assertSame(
-            0,
-            $campaign->recipients()->count(),
-            'Kitle değişince eski liste kalırsa kampanya formda görünenden başka adreslere gider',
+            ['abone@ornek.com'],
+            $campaign->recipients()->pluck('email')->all(),
+            'Kitle değişince liste yeni seçimi yansıtmalı; eskisi kalırsa kampanya başka adreslere gider',
         );
     }
 
@@ -902,7 +904,8 @@ class CampaignPanelTest extends TestCase
         $campaign->refresh();
         $this->assertSame(CampaignStatus::Scheduled, $campaign->status);
         $this->assertNotNull($campaign->scheduled_at);
-        $this->assertSame(0, $campaign->recipients()->count(), 'Liste zamanı gelince dondurulmalı');
+        $this->assertSame(3, $campaign->recipients()->count(), 'Liste kayıtla birlikte kurulur');
+        $this->assertSame(0, $campaign->sent_count, 'Zamanlanmış kampanyadan mail çıkmamalı');
     }
 
     public function test_a_past_schedule_is_rejected(): void
@@ -982,7 +985,8 @@ class CampaignPanelTest extends TestCase
             ->assertRedirect();
 
         Mail::assertSent(CampaignMail::class, fn (CampaignMail $mail): bool => $mail->hasTo('ben@ornek.com') && $mail->isTest);
-        $this->assertSame(0, $campaign->refresh()->recipients()->count());
+        // Test maili listeye dokunmamalı: kimse "gönderildi" sayılmamalı.
+        $this->assertSame(3, $campaign->refresh()->pendingCount());
     }
 
     // ── Abone listesi ──

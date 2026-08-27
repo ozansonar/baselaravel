@@ -33,7 +33,7 @@ final class CampaignService
      */
     public function create(array $data): Campaign
     {
-        return DB::transaction(function () use ($data): Campaign {
+        $campaign = DB::transaction(function () use ($data): Campaign {
             $campaign = Campaign::create($this->fields($data) + [
                 'status'  => CampaignStatus::Draft,
                 'user_id' => auth()->id(),
@@ -46,6 +46,13 @@ final class CampaignService
 
             return $campaign;
         });
+
+        // Kitle formda seçildi; listenin kurulması için ayrıca bir düğmeye
+        // basılmasının kullanıcı açısından bir anlamı yok. Kayıtla birlikte
+        // kuruluyor ki detay ekranı açıldığında adresler orada olsun.
+        $this->prepareRecipientsQuietly($campaign);
+
+        return $campaign;
     }
 
     /**
@@ -57,7 +64,7 @@ final class CampaignService
             throw new RuntimeException('Gönderimi başlamış bir kampanyanın içeriği değiştirilemez.');
         }
 
-        return DB::transaction(function () use ($campaign, $data): Campaign {
+        DB::transaction(function () use ($campaign, $data): void {
             $onceki = [
                 'audience' => $campaign->audience,
                 'filter'   => $campaign->audience_filter,
@@ -79,9 +86,29 @@ final class CampaignService
             // gönderen çağrılar (testler, programatik kullanım) için ikisi de açık.
             $this->syncAttachments($campaign, $data['attachments'] ?? []);
             $this->attachPending($campaign, $data['attachment_tokens'] ?? []);
-
-            return $campaign->refresh();
         });
+
+        // Kitle değiştiyse eski liste yukarıda düştü; yenisi hemen kuruluyor,
+        // yoksa düzenlemeden dönen kullanıcı boş bir alıcı listesi bulurdu.
+        $this->prepareRecipientsQuietly($campaign);
+
+        return $campaign->refresh();
+    }
+
+    /**
+     * Listeyi kurar, kuramıyorsa sessizce geçer.
+     *
+     * Kitle boş ya da okunamıyor olabilir (silinmiş liste, boş süzgeç). Bu,
+     * onay ekranında zaten uyarı olarak görünüyor; kampanyanın kaydını
+     * engellemesi için bir sebep değil.
+     */
+    public function prepareRecipientsQuietly(Campaign $campaign): void
+    {
+        try {
+            $this->prepareRecipients($campaign);
+        } catch (Throwable) {
+            // Sessiz: alıcısız kampanya da taslak olarak kaydedilebilmeli.
+        }
     }
 
     /**
