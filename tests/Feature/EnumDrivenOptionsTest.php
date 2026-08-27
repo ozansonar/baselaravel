@@ -62,7 +62,8 @@ class EnumDrivenOptionsTest extends TestCase
             'ayarlar → mail şifreleme'    => ['/admin/settings', MailEncryption::class],
             'ayarlar → telegram seviyesi' => ['/admin/settings', TelegramNotifyLevel::class],
             'ayarlar → saat dilimi'       => ['/admin/settings', AppTimezone::class],
-            'yönlendirmeler → durum kodu' => ['/admin/redirects', RedirectStatus::class],
+            'yönlendirmeler → süzgeç kodu' => ['/admin/redirects', RedirectStatus::class],
+            'yönlendirme formu → durum kodu' => ['/admin/redirects/create', RedirectStatus::class],
             'aktivite → olay filtresi'    => ['/admin/aktivite-loglari', AuditEvent::class, 'event=%s'],
         ];
     }
@@ -86,9 +87,10 @@ class EnumDrivenOptionsTest extends TestCase
 
     public function test_redirect_options_carry_the_behaviour_flags_the_script_reads(): void
     {
-        $html = $this->actingAs($this->admin())->get('/admin/redirects')->getContent();
+        // Form artık kendi sayfasında; davranış nitelikleri de oraya taşındı.
+        $html = $this->actingAs($this->admin())->get('/admin/redirects/create')->getContent();
 
-        // redirects.js decides whether to hide the target field from these
+        // redirect-form.js decides whether to hide the target field from these
         // attributes instead of keeping its own list of status codes.
         foreach (RedirectStatus::cases() as $case) {
             $this->assertStringContainsString(

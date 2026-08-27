@@ -1,174 +1,133 @@
+'use strict';
+
+/**
+ * Yönlendirme listesi: silme onayı, etkinlik anahtarı, adres kopyalama ve
+ * gecikmeli arama.
+ *
+ * Ekleme ve düzenleme artık kendi sayfasında; bu dosyada yalnızca liste
+ * üzerindeki işler var.
+ */
 (function () {
-    'use strict';
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    var csrfToken = meta ? meta.getAttribute('content') : '';
 
-    var csrfToken = document.querySelector('meta[name="csrf-token"]');
-    csrfToken = csrfToken ? csrfToken.getAttribute('content') : '';
-
-    var modalEl = document.getElementById('redirectModal');
-    var modal = modalEl ? new bootstrap.Modal(modalEl) : null;
-    var form = document.getElementById('redirectForm');
-    var modalTitle = document.getElementById('redirectModalTitle');
-    var formMethod = document.getElementById('redirectFormMethod');
-    var oldUrlInput = document.getElementById('oldUrl');
-    var newUrlInput = document.getElementById('newUrl');
-    var statusCodeSelect = document.getElementById('statusCode');
-    var noteInput = document.getElementById('redirectNote');
-    var isActiveCheckbox = document.getElementById('redirectIsActive');
-    var newUrlWrapper = document.getElementById('newUrlWrapper');
-    var statusCodeDesc = document.getElementById('statusCodeDesc');
-    var storeUrl = form ? form.action : '';
-
-
-    // ── Status code change → toggle new_url visibility + description ──
-    if (statusCodeSelect) {
-        statusCodeSelect.addEventListener('change', function () {
-            updateStatusUI(this.value);
-        });
-    }
-
-    // Labels and behaviour come from the RedirectStatus enum, rendered onto
-    // each <option> as data attributes. Nothing about status codes is listed
-    // twice: adding a case to the enum is enough.
-    function updateStatusUI(code) {
-        if (!statusCodeSelect) {
-            return;
-        }
-
-        var option = statusCodeSelect.querySelector('option[value="' + code + '"]');
-        var isNoRedirect = option ? option.dataset.redirects === '0' : false;
-
-        if (newUrlWrapper) {
-            newUrlWrapper.classList.toggle('d-none', isNoRedirect);
-        }
-
-        if (newUrlInput && isNoRedirect) {
-            newUrlInput.value = '';
-            newUrlInput.removeAttribute('required');
-        } else if (newUrlInput) {
-            newUrlInput.setAttribute('required', 'required');
-        }
-
-        if (statusCodeDesc) {
-            statusCodeDesc.querySelector('span').textContent = option ? (option.dataset.description || '') : '';
-        }
-    }
-
-    // ── Add new redirect ──
-    var addBtn = document.getElementById('addRedirectBtn');
-    if (addBtn) {
-        addBtn.addEventListener('click', function () {
-            resetForm();
-            modalTitle.textContent = 'Yeni Yönlendirme';
-            form.action = storeUrl;
-            formMethod.value = 'POST';
-        });
-    }
-
-    // ── Edit redirect ──
-    document.querySelectorAll('.js-edit-redirect').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var data = JSON.parse(btn.dataset.redirect);
-            resetForm();
-            modalTitle.textContent = 'Yönlendirme Düzenle';
-            form.action = storeUrl.replace(/\/redirects.*$/, '/redirects/' + data.id);
-            formMethod.value = 'PUT';
-
-            oldUrlInput.value = data.old_url || '';
-            newUrlInput.value = data.new_url || '';
-            statusCodeSelect.value = String(data.status_code || 301);
-            noteInput.value = data.note || '';
-            isActiveCheckbox.checked = !!data.is_active;
-
-            updateStatusUI(String(data.status_code || 301));
-            modal.show();
-        });
-    });
-
-    function resetForm() {
-        form.reset();
-        formMethod.value = 'POST';
-        isActiveCheckbox.checked = true;
-        statusCodeSelect.value = '301';
-        updateStatusUI('301');
-    }
-
-    // ── Delete confirmation ──
+    // ── Silme onayı ──────────────────────────────────────────────
+    // AdminModal.confirm bir Promise döndürüyor; geri çağrı seçeneği yok.
     document.querySelectorAll('.js-delete-form').forEach(function (formEl) {
-        formEl.addEventListener('submit', function (e) {
-            var btn = formEl.querySelector('button[data-confirm]');
-            var msg = btn ? btn.dataset.confirm : 'Silmek istediğinize emin misiniz?';
-            e.preventDefault();
-            if (window.AdminModal && AdminModal.confirm) {
-                AdminModal.confirm({
-                    title: 'Onay',
-                    message: msg,
-                    confirmText: 'Sil',
-                    confirmClass: 'btn-danger',
-                    onConfirm: function () { formEl.submit(); }
-                });
-            } else {
-                formEl.submit();
+        formEl.addEventListener('submit', function (event) {
+            var button = formEl.querySelector('button[data-confirm]');
+            var message = button ? button.dataset.confirm : 'Silmek istediğinize emin misiniz?';
+
+            if (!window.AdminModal || typeof AdminModal.confirm !== 'function') {
+                return;
             }
+
+            event.preventDefault();
+
+            AdminModal.confirm({
+                title: 'Yönlendirmeyi sil',
+                message: message,
+                type: 'danger',
+                confirmText: 'Evet, Sil',
+                confirmIcon: 'bi bi-trash'
+            }).then(function (onaylandi) {
+                if (onaylandi) {
+                    formEl.submit();
+                }
+            });
         });
     });
 
-    // ── Toggle active/inactive ──
+    // ── Etkin / kapalı anahtarı ──────────────────────────────────
     document.querySelectorAll('.js-toggle-active').forEach(function (checkbox) {
         checkbox.addEventListener('change', function () {
-            var url = this.dataset.url;
-            fetch(url, {
+            var acik = checkbox.checked;
+
+            fetch(checkbox.dataset.url, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
-                }
+                },
+                credentials: 'same-origin'
             })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
-                if (res.success && window.AdminModal && AdminModal.status) {
-                    AdminModal.status.success('Durum güncellendi.');
-                }
-            })
-            .catch(function () {
-                if (window.AdminModal && AdminModal.status) {
-                    AdminModal.status.error('Durum güncellenemedi.');
-                }
-                checkbox.checked = !checkbox.checked;
-            });
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+
+                    return response.json();
+                })
+                .then(function (sonuc) {
+                    if (!sonuc.success) {
+                        throw new Error('reddedildi');
+                    }
+
+                    bildir(
+                        acik ? 'Yönlendirme etkinleştirildi.' : 'Yönlendirme kapatıldı.',
+                        'success'
+                    );
+                })
+                .catch(function () {
+                    // Sunucu kabul etmediyse anahtar da eski hâline dönmeli:
+                    // aksi hâlde ekran kaydedilmemiş bir durumu gösterir.
+                    checkbox.checked = !acik;
+                    bildir('Durum güncellenemedi, tekrar deneyin.', 'danger');
+                });
         });
     });
 
-    // ── Copy URL to clipboard ──
-    document.querySelectorAll('.js-copy-url').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var url = this.dataset.url;
-            navigator.clipboard.writeText(url).then(function () {
-                if (window.AdminModal && AdminModal.status) {
-                    AdminModal.status.success('URL kopyalandı.');
-                }
-            });
+    // ── Adres kopyalama ──────────────────────────────────────────
+    document.querySelectorAll('.js-copy-url').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var value = button.dataset.url || '';
+
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                bildir('Tarayıcı kopyalamayı desteklemiyor.', 'warning');
+
+                return;
+            }
+
+            navigator.clipboard.writeText(value)
+                .then(function () { bildir('Adres kopyalandı.', 'success'); })
+                .catch(function () { bildir('Adres kopyalanamadı.', 'danger'); });
         });
     });
 
-    // ── Debounced search auto-submit ──
+    // ── Yazarken arama ───────────────────────────────────────────
     var searchInput = document.getElementById('redirectSearch');
     var filterForm = document.getElementById('filterForm');
+
     if (searchInput && filterForm) {
-        var debounceTimer = null;
+        var timer = null;
+
         searchInput.addEventListener('input', function () {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(function () {
-                filterForm.submit();
-            }, 500);
+            clearTimeout(timer);
+            timer = setTimeout(function () { filterForm.submit(); }, 500);
         });
-        // Enter → anında submit
-        searchInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                clearTimeout(debounceTimer);
+
+        searchInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                clearTimeout(timer);
                 filterForm.submit();
             }
         });
+    }
+
+    /**
+     * AdminModal.status bir fonksiyon; success/error diye alt fonksiyonları yok.
+     * Yanlış çağrı sessiz değil gürültülü bir hataydı: anahtar değişiyor ama
+     * kullanıcı hiçbir şey görmüyordu.
+     */
+    function bildir(message, type) {
+        if (window.AdminModal && typeof AdminModal.status === 'function') {
+            AdminModal.status({
+                title: type === 'success' ? 'Tamam' : 'Hata',
+                message: message,
+                type: type
+            });
+        }
     }
 })();

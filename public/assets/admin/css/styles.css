@@ -36628,3 +36628,49 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 @media (prefers-reduced-motion: reduce) {
   .sys-meter__fill { transition: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   YÖNLENDİRMELER (rdr-)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Düzenleme sayfasında kaydın kendi geçmişi. */
+.rdr-meta {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rdr-meta__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.rdr-meta__row > span {
+  color: var(--text-muted);
+}
+
+.rdr-meta__row > strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.rdr-tips {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.rdr-tips strong {
+  color: var(--text-secondary);
+}

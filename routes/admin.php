@@ -134,7 +134,8 @@ Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('
 // Ekleme ve düzenleme listedeki modalda yapılıyor; ayrı create/edit sayfası yok.
 // Bunlar resource'tan çıkarılmazsa route kayıtlı görünür ama controller'da
 // karşılığı olmadığı için adres 404 yerine 500 döner.
-Route::resource('redirects', RedirectController::class)->except(['show', 'create', 'edit']);
+// Ekleme ve düzenleme kendi sayfasında; pencere yerine tam form.
+Route::resource('redirects', RedirectController::class)->except(['show']);
 Route::patch('redirects/{redirect}/restore', [RedirectController::class, 'restore'])->name('redirects.restore')->withTrashed();
 Route::patch('redirects/{redirect}/toggle-active', [RedirectController::class, 'toggleActive'])->name('redirects.toggle-active');
 

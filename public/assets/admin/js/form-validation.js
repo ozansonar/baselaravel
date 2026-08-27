@@ -85,6 +85,16 @@
             alertText: '/ ile başlamalı ve boşluk içermemeli'
         };
 
+        // validate[custom[redirectTarget]] — yönlendirme hedefi: ya / ile başlayan
+        // site içi bir yol ya da tam http(s) adresi. Çift bölü ("//evil.test")
+        // ve ters bölü, tarayıcıyı site dışına çıkarabildiği için dışarıda;
+        // sunucudaki SafeRedirectTarget aynı biçimi bekliyor ve ayrıca adresin
+        // izin verilen alan adlarından biri olduğunu doğruluyor.
+        allRules.redirectTarget = {
+            regex: /^(\/(?!\/)[^\s\\]*|https?:\/\/[^\s\\]+)$/,
+            alertText: '/ ile başlayan bir yol ya da http(s):// ile tam adres olmalı'
+        };
+
         // validate[custom[langCode]] — an ISO 639-1 code: two lowercase letters.
         allRules.langCode = {
             regex: /^[a-z]{2}$/,
@@ -380,6 +390,34 @@
      * of travelling to the server as null. Applied on blur so the user sees the
      * value that will actually be saved, and again on submit as a safety net.
      */
+    /**
+     * Doğrulama boyunca placeholder'ları alandan çeker.
+     *
+     * Eklentinin "required" kuralı, alanın değeri placeholder metnine eşitse
+     * alanı boş sayıyor — eski tarayıcılarda placeholder'ı taklit eden kodun
+     * kalıntısı. Sonuç, ipucunda yazan örneği birebir yazan kullanıcının
+     * "bu alan zorunludur" hatası alması: dil kodu alanında ipucu "de", eklemek
+     * istediği dil de "de". Nitelik yalnızca denetim sürerken kalkıyor, hemen
+     * ardından geri konuyor.
+     */
+    function hidePlaceholders(form) {
+        form.querySelectorAll('[placeholder]').forEach(function (field) {
+            field.dataset.fvPlaceholder = field.getAttribute('placeholder');
+            field.removeAttribute('placeholder');
+        });
+    }
+
+    function restorePlaceholders(form) {
+        if (!form) {
+            return;
+        }
+
+        form.querySelectorAll('[data-fv-placeholder]').forEach(function (field) {
+            field.setAttribute('placeholder', field.dataset.fvPlaceholder);
+            delete field.dataset.fvPlaceholder;
+        });
+    }
+
     function applyDefaults(form) {
         form.querySelectorAll('[data-fv-default]').forEach(function (field) {
             if (String(field.value || '').trim() === '') {
@@ -583,10 +621,13 @@
             syncEditors();
             applyDefaults(form);
             scopeRulesToActivePane(form);
+            hidePlaceholders(form);
         });
 
         $form.validationEngine('attach', $.extend({}, FormValidation.defaults, options || {}, {
             onValidationComplete: function ($validatedForm, valid) {
+                restorePlaceholders($validatedForm[0]);
+
                 if (!valid) {
                     revealFirstError($validatedForm[0], ($validatedForm.data('jqv') || {}).InvalidFields);
 
