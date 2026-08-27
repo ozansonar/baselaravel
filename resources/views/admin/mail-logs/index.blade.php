@@ -6,6 +6,12 @@
 
 @section('content')
 
+    @php
+        // Süzgeçlerden herhangi biri açıksa hem başlıktaki sıfırlama düğmesi
+        // hem de boş liste metni bunu bilmeli.
+        $hasFilter = collect($filters)->filter(fn ($value) => (string) $value !== '')->isNotEmpty();
+    @endphp
+
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
         <ol class="breadcrumb mb-0">
@@ -22,6 +28,11 @@
             <h1 class="page-title">Mail Logları</h1>
             <p class="page-subtitle">Sistemden gönderilen tüm e-postaların loglarını görüntüleyin</p>
         </div>
+        @if($hasFilter)
+            <a href="{{ route('admin.mail-logs.index') }}" class="btn-glass">
+                <i class="bi bi-arrow-counterclockwise"></i> Filtreleri Sıfırla
+            </a>
+        @endif
     </div>
 
 
@@ -94,7 +105,9 @@
 
     <!-- ==================== SECTION 2: STATUS TABS ==================== -->
     @php
-        $currentStatus = request('status', '');
+        // Sekme sayıları açık süzgeçlere göre: "Başarısız 3" yazıyorsa o
+        // süzgeçle gerçekten 3 kayıt gelmeli.
+        $currentStatus = $filters['status'];
         $totalCount = array_sum($statusCounts);
 
         $statusTabs = [
@@ -123,35 +136,115 @@
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card-body-custom">
             <form method="GET" action="{{ route('admin.mail-logs.index') }}" class="cl-toolbar" id="filterForm">
-                @if(request('status'))
-                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @if($currentStatus !== '')
+                    <input type="hidden" name="status" value="{{ $currentStatus }}">
                 @endif
+
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" id="mailLogSearch" placeholder="E-posta adresi, konu veya mailable sınıfı ile ara..." value="{{ request('search') }}">
+                    <input type="text" name="search" id="mailLogSearch"
+                           placeholder="Alıcı, konu, mailable sınıfı veya hata metni ile ara..."
+                           value="{{ $filters['search'] }}">
                 </div>
-                <div class="cl-filters">
-                    <select class="cl-filter-select" name="date_filter" id="filterDate" onchange="document.getElementById('filterForm').submit()">
-                        <option value="">Tüm Tarihler</option>
-                        <option value="today" {{ request('date_filter') === 'today' ? 'selected' : '' }}>Bugün</option>
-                        <option value="week" {{ request('date_filter') === 'week' ? 'selected' : '' }}>Bu Hafta</option>
-                        <option value="month" {{ request('date_filter') === 'month' ? 'selected' : '' }}>Bu Ay</option>
-                        <option value="quarter" {{ request('date_filter') === 'quarter' ? 'selected' : '' }}>Son 3 Ay</option>
-                    </select>
-                </div>
-                <div class="cl-toolbar-actions">
-                    <a href="{{ route('admin.mail-logs.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                    </a>
-                    <div class="cl-per-page">
-                        <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
-                            @foreach([10, 25, 50, 100] as $pp)
-                                <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
+
+                {{-- Alanların hepsi başlıklı: seçim kutuları ile tarih alanları
+                     aynı hizada başlasın, aynı hizada bitsin. --}}
+                <div class="cl-filters ml-filters">
+                    <div class="ml-field">
+                        <span>Mail türü</span>
+                        <select class="cl-filter-select" name="mailable" aria-label="Mail türü"
+                                data-select2-search="always"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm mail türleri</option>
+                            @foreach($mailableOptions as $class => $option)
+                                <option value="{{ $class }}" {{ $filters['mailable'] === (string) $class ? 'selected' : '' }}>
+                                    {{ $option['label'] }} ({{ $option['count'] }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
+
+                    <div class="ml-field">
+                        <span>Alıcı</span>
+                        <select class="cl-filter-select" name="recipient" aria-label="Alıcı"
+                                data-select2-search="always"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm alıcılar</option>
+                            {{-- Listede olmayan bir adres elle geldiyse (eski bağlantı,
+                                 çok sayıda alıcı) seçim kaybolmasın. --}}
+                            @if($filters['recipient'] !== '' && !array_key_exists($filters['recipient'], $recipientOptions))
+                                <option value="{{ $filters['recipient'] }}" selected>{{ $filters['recipient'] }}</option>
+                            @endif
+                            @foreach($recipientOptions as $address => $count)
+                                <option value="{{ $address }}" {{ $filters['recipient'] === (string) $address ? 'selected' : '' }}>
+                                    {{ $address }} ({{ $count }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="ml-field">
+                        <span>Tetikleyen</span>
+                        <select class="cl-filter-select" name="user_id" aria-label="Tetikleyen kullanıcı"
+                                data-select2-search="always"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm kullanıcılar</option>
+                            <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
+                            @foreach($userOptions as $user)
+                                <option value="{{ $user->id }}" {{ $filters['user_id'] === (string) $user->id ? 'selected' : '' }}>
+                                    {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->email }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="ml-field">
+                        <span>Hızlı tarih</span>
+                        <select class="cl-filter-select" name="date_filter" id="filterDate" aria-label="Hızlı tarih"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tüm Tarihler</option>
+                            <option value="today" {{ $filters['date_filter'] === 'today' ? 'selected' : '' }}>Bugün</option>
+                            <option value="week" {{ $filters['date_filter'] === 'week' ? 'selected' : '' }}>Bu Hafta</option>
+                            <option value="month" {{ $filters['date_filter'] === 'month' ? 'selected' : '' }}>Bu Ay</option>
+                            <option value="quarter" {{ $filters['date_filter'] === 'quarter' ? 'selected' : '' }}>Son 3 Ay</option>
+                        </select>
+                    </div>
+
+                    <div class="ml-field">
+                        <span>Başlangıç</span>
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}" aria-label="Başlangıç tarihi">
+                    </div>
+
+                    <div class="ml-field">
+                        <span>Bitiş</span>
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}" aria-label="Bitiş tarihi">
+                    </div>
+
+                    <div class="ml-field ml-field--actions ms-auto">
+                        <div class="cl-toolbar-actions">
+                            <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
+                            <a href="{{ route('admin.mail-logs.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                            <div class="cl-per-page">
+                                <label for="perPage">Göster:</label>
+                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()">
+                                    @foreach($perPageOptions as $pp)
+                                        <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                {{-- Elle tarih verildiğinde hazır aralık işlemez; kullanıcı iki
+                     tarih süzgecinin çakıştığını sanmasın. --}}
+                @if($filters['date_filter'] !== '' && ($filters['from'] !== '' || $filters['to'] !== ''))
+                    <p class="ml-filter-hint">
+                        <i class="bi bi-info-circle me-1"></i>Tarih aralığı verildiği için hazır aralık uygulanmadı.
+                    </p>
+                @endif
             </form>
         </div>
     </div>
@@ -235,7 +328,13 @@
                             <tr>
                                 <td colspan="4" class="text-center text-muted py-5">
                                     <i class="bi bi-envelope-x d-block fs-1 mb-2"></i>
-                                    Mail logu bulunamadı.
+                                    @if($hasFilter)
+                                        Bu filtreyle eşleşen mail logu yok.
+                                        <br>
+                                        <a href="{{ route('admin.mail-logs.index') }}" class="text-teal">Filtreleri temizle</a>
+                                    @else
+                                        Mail logu bulunamadı.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse

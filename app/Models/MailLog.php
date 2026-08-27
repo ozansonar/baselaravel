@@ -91,11 +91,27 @@ class MailLog extends Model
         return class_basename($this->mailable_class);
     }
 
-    public function getMailableLabelAttribute(): string
+    /**
+     * Mailable sınıfının okunur adı.
+     *
+     * Süzgeç listesi satırlara bakmadan kurulduğu için etiket eşlemesi
+     * kayıttan bağımsız da çağrılabilmeli; satır içi accessor'lar da
+     * aynı yerden okur, iki ayrı isim listesi oluşmaz.
+     */
+    public static function labelForClass(?string $mailableClass): string
     {
-        $basename = $this->short_mailable;
+        if (!$mailableClass) {
+            return 'Raw Mail';
+        }
+
+        $basename = class_basename($mailableClass);
 
         return self::MAILABLE_LABELS[$basename]['label'] ?? $basename;
+    }
+
+    public function getMailableLabelAttribute(): string
+    {
+        return self::labelForClass($this->mailable_class);
     }
 
     public function getMailableIconAttribute(): string

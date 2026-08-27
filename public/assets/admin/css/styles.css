@@ -15284,6 +15284,9 @@ label.stg-mode-card.active > strong {
   display: flex;
   align-items: center;
   gap: 16px;
+  /* Kartların bir kısmında alt satır (ör. "Bugün 4 mail") var, bir kısmında
+     yok; yükseklik sütuna uyarsa satırdaki tüm kartlar aynı boyda durur. */
+  height: 100%;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -33277,15 +33280,18 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
    ============================================ */
 
 /* Süzgeç satırındaki her alan başlıklı: seçim kutuları ile tarih alanları
-   böylece aynı hizada başlar ve aynı hizada biter. */
-.al-field {
+   böylece aynı hizada başlar ve aynı hizada biter. Aynı düzen mail logları
+   süzgecinde de kullanılıyor (.ml-field). */
+.al-field,
+.ml-field {
   display: flex;
   flex-direction: column;
   gap: 3px;
   min-width: 150px;
 }
 
-.al-field > span {
+.al-field > span,
+.ml-field > span {
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -33294,29 +33300,34 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   line-height: 1.4;
 }
 
-.al-field input[type="date"] {
+.al-field input[type="date"],
+.ml-field input[type="date"] {
   color-scheme: dark;
 }
 
-[data-theme="light"] .al-field input[type="date"] {
+[data-theme="light"] .al-field input[type="date"],
+[data-theme="light"] .ml-field input[type="date"] {
   color-scheme: light;
 }
 
 /* Tarih kutusu, yanındaki seçim kutusuyla aynı yükseklikte olsun. */
-.al-field input[type="date"] {
+.al-field input[type="date"],
+.ml-field input[type="date"] {
   height: 36px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
 /* Düğmeler alanların alt kenarına hizalanır. */
-.al-field--actions {
+.al-field--actions,
+.ml-field--actions {
   min-width: 0;
   justify-content: flex-end;
 }
 
 /* Select2 kutusu, yanındaki tarih alanıyla aynı yüksekliği tutsun. */
-.al-filters .select2-container--bootstrap-5 .select2-selection {
+.al-filters .select2-container--bootstrap-5 .select2-selection,
+.ml-filters .select2-container--bootstrap-5 .select2-selection {
   min-height: 36px;
 }
 
@@ -33916,5 +33927,13 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   display: block;
   margin-top: 5px;
   font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Elle tarih aralığı verildiğinde hazır aralığın devre dışı kaldığını
+   söyleyen not; süzgeç satırının altına düşer. */
+.ml-filter-hint {
+  margin: 0;
+  font-size: 12px;
   color: var(--text-muted);
 }

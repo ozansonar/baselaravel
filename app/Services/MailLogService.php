@@ -6,13 +6,25 @@ namespace App\Services;
 
 use App\Enums\MailLogStatus;
 use App\Models\MailLog;
+use App\Models\User;
 use Illuminate\Contracts\Mail\Mailable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 final class MailLogService
 {
+    /**
+     * Mailable sınıfı olmayan kayıtların süzgeçteki anahtarı.
+     *
+     * Boş değer "süzgeç kapalı" anlamına geldiği için null'ı adres olarak
+     * kullanamıyoruz; ham mailler bu adla seçiliyor.
+     */
+    public const RAW_MAILABLE = 'raw';
+
     /**
      * Log a mail attempt (mailable or raw).
      */
@@ -60,47 +72,101 @@ final class MailLogService
 
     /**
      * Paginate mail logs with filters.
+     *
+     * @param array<string, mixed> $filters
+     * @return LengthAwarePaginator<int, MailLog>
      */
     public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
     {
-        $query = MailLog::with('user');
-
-        if ($filters) {
-            if (!empty($filters['status'])) {
-                $status = MailLogStatus::tryFrom($filters['status']);
-                if ($status) {
-                    $query->byStatus($status);
-                }
-            }
-
-            if (!empty($filters['search'])) {
-                $query->search($filters['search']);
-            }
-
-            if (!empty($filters['date_filter'])) {
-                $query = match ($filters['date_filter']) {
-                    'today'   => $query->whereDate('created_at', today()),
-                    'week'    => $query->where('created_at', '>=', now()->startOfWeek()),
-                    'month'   => $query->where('created_at', '>=', now()->startOfMonth()),
-                    'quarter' => $query->where('created_at', '>=', now()->subMonths(3)),
-                    default   => $query,
-                };
-            }
-        }
-
-        return $query->recent()->paginate($perPage);
+        return $this->filtered($filters ?? [])
+            ->with('user:id,first_name,last_name,email')
+            ->recent()
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**
      * Get status counts for tabs.
+     *
+     * Sayılar açık süzgeçlere göre hesaplanır; durum sekmesinin kendisi hariç
+     * tutulur, aksi hâlde her sekme yalnızca kendi sayısını gösterirdi.
+     *
+     * @param array<string, mixed> $filters
+     * @return array<string, int>
      */
-    public function statusCounts(): array
+    public function statusCounts(?array $filters = null): array
     {
-        return MailLog::query()
+        $scoped = $filters ?? [];
+        unset($scoped['status']);
+
+        /** @var array<string, int> $counts */
+        $counts = $this->filtered($scoped)
             ->selectRaw('status, count(*) as count')
             ->groupBy('status')
             ->pluck('count', 'status')
             ->toArray();
+
+        return $counts;
+    }
+
+    /**
+     * Süzgeçteki mail türü listesi.
+     *
+     * Seçenekler var olan kayıtlardan kurulur: kullanılmamış bir mailable
+     * sınıfı listede yer alıp boş sonuç döndürmez.
+     *
+     * @return array<string, array{label: string, count: int}> sınıf adı => bilgi
+     */
+    public function mailableOptions(): array
+    {
+        return MailLog::query()
+            ->selectRaw('mailable_class, count(*) as total')
+            ->groupBy('mailable_class')
+            ->orderByDesc('total')
+            ->get()
+            ->mapWithKeys(static fn ($row): array => [
+                // Mailable sınıfı olmayan kayıtlar ham mail; süzgeçte kendi
+                // anahtarıyla seçilebilsin diye "raw" adını alıyor.
+                (string) ($row->mailable_class ?? self::RAW_MAILABLE) => [
+                    'label' => MailLog::labelForClass($row->mailable_class),
+                    'count' => (int) $row->total,
+                ],
+            ])
+            ->all();
+    }
+
+    /**
+     * Süzgeçteki alıcı listesi — en çok mail giden adresler önde.
+     *
+     * @return array<string, int> adres => adet
+     */
+    public function recipientOptions(int $limit = 100): array
+    {
+        /** @var array<string, int> $options */
+        $options = MailLog::query()
+            ->select('to')
+            ->selectRaw('count(*) as total')
+            ->groupBy('to')
+            ->orderByDesc('total')
+            ->limit($limit)
+            ->pluck('total', 'to')
+            ->toArray();
+
+        return $options;
+    }
+
+    /**
+     * Süzgeçteki kullanıcı listesi — yalnızca mail kaydı olan kullanıcılar.
+     *
+     * @return Collection<int, User>
+     */
+    public function userOptions(): Collection
+    {
+        return User::query()
+            ->select('id', 'first_name', 'last_name', 'email')
+            ->whereIn('id', MailLog::query()->whereNotNull('user_id')->distinct()->pluck('user_id'))
+            ->orderBy('first_name')
+            ->get();
     }
 
     /**
@@ -127,5 +193,96 @@ final class MailLogService
                 'today'   => (int) $counts->today,
             ];
         });
+    }
+
+    /**
+     * Arama terimini LIKE kalıbına çevirir.
+     *
+     * Kullanıcının yazdığı % ve _ joker değil, harf sayılmalı. Kaçış karakteri
+     * olarak ünlem seçildi: ters bölüyü MySQL kendiliğinden kaçış sayarken
+     * SQLite saymıyor, ünlem ikisinde de düz karakter.
+     */
+    private function likeTerm(string $value): string
+    {
+        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
+    }
+
+    /**
+     * Süzgeçlerin uygulandığı temel sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<MailLog>
+     */
+    private function filtered(array $filters): Builder
+    {
+        $query = MailLog::query();
+
+        if (($filters['status'] ?? '') !== '') {
+            $status = MailLogStatus::tryFrom((string) $filters['status']);
+
+            if ($status !== null) {
+                $query->byStatus($status);
+            }
+        }
+
+        if (($filters['mailable'] ?? '') !== '') {
+            if ((string) $filters['mailable'] === self::RAW_MAILABLE) {
+                $query->whereNull('mailable_class');
+            } else {
+                $query->where('mailable_class', $filters['mailable']);
+            }
+        }
+
+        if (($filters['recipient'] ?? '') !== '') {
+            $query->where('to', $filters['recipient']);
+        }
+
+        if (($filters['user_id'] ?? '') !== '') {
+            // "0" seçeneği kullanıcısı olmayan kayıtlar için: zamanlanmış
+            // görevlerin ve ziyaretçi formlarının maillerinde user_id boştur.
+            if ((string) $filters['user_id'] === '0') {
+                $query->whereNull('user_id');
+            } else {
+                $query->where('user_id', (int) $filters['user_id']);
+            }
+        }
+
+        $from = (string) ($filters['from'] ?? '');
+        $to   = (string) ($filters['to'] ?? '');
+
+        if ($from !== '') {
+            $query->where('created_at', '>=', Carbon::parse($from)->startOfDay());
+        }
+
+        if ($to !== '') {
+            $query->where('created_at', '<=', Carbon::parse($to)->endOfDay());
+        }
+
+        // Hazır aralık yalnızca elle tarih verilmediğinde geçerli: iki tarih
+        // süzgeci birbirini daraltırsa kullanıcı hangisinin işlediğini bilemez.
+        if ($from === '' && $to === '' && ($filters['date_filter'] ?? '') !== '') {
+            match ($filters['date_filter']) {
+                'today'   => $query->whereDate('created_at', today()),
+                'week'    => $query->where('created_at', '>=', now()->startOfWeek()),
+                'month'   => $query->where('created_at', '>=', now()->startOfMonth()),
+                'quarter' => $query->where('created_at', '>=', now()->subMonths(3)),
+                default   => $query,
+            };
+        }
+
+        if (($filters['search'] ?? '') !== '') {
+            $term = $this->likeTerm((string) $filters['search']);
+
+            $query->where(function (Builder $sub) use ($term): void {
+                $sub->whereRaw("`to` LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("cc LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("bcc LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("subject LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("mailable_class LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("error_message LIKE ? ESCAPE '!'", [$term]);
+            });
+        }
+
+        return $query;
     }
 }
