@@ -106,6 +106,16 @@
             options.width = $select.data('select2-width')
                 || ($select.is(INLINE_SELECTOR) ? 'auto' : '100%');
 
+            // Arama kutusu varsayılan olarak yalnızca uzun listelerde çıkıyor;
+            // bir alan her hâlükârda aranabilir olmalıysa bunu kendisi söyler.
+            var search = $select.data('select2-search');
+
+            if (search === 'always') {
+                options.minimumResultsForSearch = 0;
+            } else if (search === 'never') {
+                options.minimumResultsForSearch = Infinity;
+            }
+
             return options;
         },
 
