@@ -259,6 +259,61 @@ class LanguagePanelTest extends TestCase
     /**
      * A language already defined must not be offered as a quick fill.
      */
+    /**
+     * Hazır liste elle kod aramayı gereksiz kılmalı: kapsam dar kalırsa
+     * kullanıcı yine ISO kodu aramaya gider.
+     */
+    public function test_the_create_page_offers_a_wide_set_of_ready_languages(): void
+    {
+        $suggestions = $this->actingAs($this->manager())
+            ->get(route('admin.languages.create'))
+            ->assertOk()
+            ->viewData('suggestions');
+
+        // Seeder'ın beş dili düşüldükten sonra bile geriye yirmi beşten fazla kalmalı.
+        $this->assertGreaterThanOrEqual(25, count($suggestions));
+
+        $codes = array_column($suggestions, 'code');
+        $this->assertSame($codes, array_unique($codes), 'Aynı kod iki kez önerilmemeli');
+
+        // Hepsi ISO 639-1: form iki harfli koddan başkasını kabul etmiyor.
+        foreach ($suggestions as $row) {
+            $this->assertMatchesRegularExpression('/^[a-z]{2}$/', $row['code']);
+            $this->assertNotSame('', $row['name']);
+            $this->assertNotSame('', $row['native']);
+            $this->assertNotSame('', $row['flag']);
+        }
+    }
+
+    /**
+     * Hazır listeden gelen değerler formun kendi kurallarından geçmeli; aksi
+     * hâlde tek tıkla dolan form kaydedilemez.
+     */
+    public function test_a_ready_language_can_be_saved_as_is(): void
+    {
+        $suggestion = collect(
+            $this->actingAs($this->manager())->get(route('admin.languages.create'))->viewData('suggestions')
+        )->firstWhere('code', 'ja');
+
+        $this->assertNotNull($suggestion, 'Japonca hazır listede olmalı');
+
+        $this->actingAs($this->manager())
+            ->post(route('admin.languages.store'), [
+                'code'        => $suggestion['code'],
+                'name'        => $suggestion['name'],
+                'native_name' => $suggestion['native'],
+                'flag'        => $suggestion['flag'],
+                'sort_order'  => 0,
+                'is_active'   => '1',
+            ])
+            ->assertRedirect(route('admin.languages.index'))
+            ->assertSessionHasNoErrors();
+
+        $language = \App\Models\Language::where('code', 'ja')->firstOrFail();
+        $this->assertSame('日本語', $language->native_name);
+        $this->assertSame('🇯🇵', $language->flag);
+    }
+
     public function test_the_create_page_only_suggests_languages_not_yet_added(): void
     {
         $html = $this->actingAs($this->manager())->get(route('admin.languages.create'))->getContent();

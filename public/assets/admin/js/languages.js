@@ -30,12 +30,16 @@ function openLanguageDelete(id, name, contentCount) {
 }
 
 /**
- * One click fills code, name, native name and flag for a common language, so
- * they do not have to be looked up. Everything stays editable afterwards.
+ * Hazır dil kutucukları: tek tıkla kod, ad, yerel ad ve bayrak dolar; hepsi
+ * sonrasında değiştirilebilir. Otuza yakın seçenek olduğu için liste ayrıca
+ * yazarak süzülebiliyor — aranan dili gözle bulmak yerine yazmak daha hızlı.
  */
 function initPresets() {
-    var buttons = document.querySelectorAll('.js-language-preset');
-    if (!buttons.length) return;
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.js-language-preset'));
+
+    if (!buttons.length) {
+        return;
+    }
 
     buttons.forEach(function (button) {
         button.addEventListener('click', function () {
@@ -44,15 +48,88 @@ function initPresets() {
             set('native_name', button.dataset.native);
             set('flag', button.dataset.flag);
 
-            buttons.forEach(function (other) { other.classList.remove('is-active'); });
-            button.classList.add('is-active');
+            buttons.forEach(function (other) { other.classList.remove('active'); });
+            button.classList.add('active');
 
-            document.getElementById('code')?.focus();
+            // Doldurulan alanlar ekranın altında kalabiliyor; seçimin bir
+            // karşılığı olduğu görünsün diye forma gidiliyor.
+            var code = document.getElementById('code');
+
+            if (code) {
+                code.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                code.focus({ preventScroll: true });
+            }
         });
     });
 
+    initPresetSearch(buttons);
+
     function set(id, value) {
         var field = document.getElementById(id);
-        if (field) field.value = value;
+
+        if (field) {
+            field.value = value;
+        }
     }
+}
+
+/**
+ * Arama metnini karşılaştırılabilir hâle getirir.
+ *
+ * "İspanyolca" yazan da "ispanyolca" yazan da aynı sonucu bulmalı: Türkçe
+ * küçültme İ'yi i yapıyor, ardından aksanlar (español → espanol, İsveççe →
+ * isvecce) ayrıştırılıp atılıyor. Noktasız ı ayrıca i'ye çekiliyor — birleşik
+ * işaret taşımadığı için ayrıştırma onu görmüyor. Kiril ve Çin yazısı bu
+ * işlemlerden değişmeden çıkıyor, yani "рус" ya da "中" da aranabiliyor.
+ */
+function normalizeSearch(value) {
+    return String(value)
+        .toLocaleLowerCase('tr')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ı/g, 'i');
+}
+
+/**
+ * Kutucukları yazarak süzer. Arama hem Türkçe adı hem dilin kendi adını hem de
+ * kodu kapsıyor: kullanıcı "almanca" da yazabilir "deutsch" da, "de" de.
+ */
+function initPresetSearch(buttons) {
+    var input = document.getElementById('presetSearch');
+    var empty = document.getElementById('presetEmpty');
+
+    if (!input) {
+        return;
+    }
+
+    // Her tuş vuruşunda yeniden hesaplanmasın: kart metinleri değişmiyor.
+    buttons.forEach(function (button) {
+        button.dataset.searchKey = normalizeSearch(button.dataset.search || '');
+    });
+
+    input.addEventListener('input', function () {
+        var term = normalizeSearch(input.value.trim());
+        var found = 0;
+
+        buttons.forEach(function (button) {
+            var match = term === '' || (button.dataset.searchKey || '').indexOf(term) !== -1;
+
+            button.classList.toggle('d-none', !match);
+
+            if (match) {
+                found++;
+            }
+        });
+
+        if (empty) {
+            empty.classList.toggle('d-none', found > 0);
+        }
+    });
+
+    // Enter formu göndermesin: burası arama kutusu, kaydetme düğmesi değil.
+    input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
 }

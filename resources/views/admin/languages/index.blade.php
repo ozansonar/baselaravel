@@ -351,12 +351,6 @@
     @endcan
 @endsection
 
-@push('styles')
-<style>
-    .lng-empty__icon { font-size: 2rem; }
-</style>
-@endpush
-
 @push('scripts')
 <script>
     window.languageDeleteUrl = @js(route('admin.languages.destroy', ['language' => 'LANGUAGE_ID']));
