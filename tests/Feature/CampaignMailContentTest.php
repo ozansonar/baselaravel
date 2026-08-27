@@ -66,6 +66,32 @@ class CampaignMailContentTest extends TestCase
         $this->assertStringNotContainsString('/uploads/' . $path, $html, 'Görsel hâlâ bağlantı olarak duruyor');
     }
 
+    /**
+     * Editör bir dönem belgeye göreli yol yazdı ("../../uploads/..."), çünkü
+     * TinyMCE'nin varsayılanı buydu. O içerik hâlâ kayıtlı ve görselin maile
+     * girmesi gerekiyor; yalnızca "/uploads/" arayan bir kontrol onu sessizce
+     * düşürüyordu.
+     */
+    public function test_an_image_saved_with_a_document_relative_path_is_still_embedded(): void
+    {
+        $path = $this->image('goreli.webp');
+
+        $html = $this->mailFor('<p>Metin</p><img src="../../uploads/' . $path . '" alt="a">')->render();
+
+        $this->assertMatchesRegularExpression('/<img[^>]+src="cid:img-[0-9a-f]{16}"/', $html);
+        $this->assertStringNotContainsString('../../uploads/', $html, 'Göreli yol hâlâ duruyor');
+    }
+
+    /**
+     * Yol kırpma, dizin dışına çıkmanın kapısı olmamalı.
+     */
+    public function test_a_path_climbing_out_of_uploads_is_refused(): void
+    {
+        $html = $this->mailFor('<img src="../uploads/../../../etc/passwd">')->render();
+
+        $this->assertStringNotContainsString('cid:img-', $html);
+    }
+
     public function test_the_same_image_used_twice_is_embedded_once(): void
     {
         $path = $this->image();

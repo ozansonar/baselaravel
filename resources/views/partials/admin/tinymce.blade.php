@@ -119,6 +119,18 @@
         automatic_uploads: true,
         images_reuse_filename: true,
 
+        // Görsel adresleri kök göreli yazılıyor (/uploads/...).
+        //
+        // TinyMCE varsayılanı belgeye göreli yol üretiyordu: /admin/kampanyalar/yeni
+        // sayfasında eklenen bir görsel "../../uploads/..." olarak kaydediliyordu.
+        // Bu yol sayfa adresine bağlı olduğu için taşındığında kırılıyor ve daha
+        // kötüsü kampanya mailinde hiç çalışmıyordu: CampaignMail görselleri maile
+        // gömerken yalnızca "/uploads/" ile başlayan yolları tanıyor, göreli yol
+        // eşleşmediği için görsel sessizce dışarıda kalıyordu.
+        relative_urls: false,
+        remove_script_host: true,
+        document_base_url: '{{ rtrim(url('/'), '/') }}/',
+
         // Link options
         link_default_target: '_blank',
         link_assume_external_targets: true,

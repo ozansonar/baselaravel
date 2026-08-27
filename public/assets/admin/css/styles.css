@@ -35258,3 +35258,33 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     max-height: 55vh;
   }
 }
+
+/* ==========================================================================
+   TinyMCE tam ekran
+   ========================================================================== */
+
+/* Tam ekran editör, transform taşıyan bir atanın içinde kalınca bozuluyordu.
+   AOS animasyonları kartların üstünde transform bırakıyor (bitmiş animasyonda
+   bile birim matris duruyor) ve transform'lu bir ata, içindeki position:fixed
+   öğenin hizalandığı kutu hâline geliyor. Editör böylece viewport'a değil
+   karta göre konumlanıyor, ekranın dışına taşıyor ve yanındaki paneller
+   üstünde kalıyordu.
+
+   TinyMCE tam ekranda <body>'ye tox-fullscreen sınıfı ekliyor; transform
+   yalnızca o süre boyunca nötrleniyor, animasyonlar normal kullanımda
+   olduğu gibi çalışmaya devam ediyor.
+
+   [data-aos] iki kez yazılı: AOS'un en özgül kuralı
+   [data-aos^=fade][data-aos^=fade].aos-animate (iki nitelik + bir sınıf) ve
+   tek nitelikle yazılan bir seçici onu geçemiyordu. Tekrar, !important
+   koymadan bir basamak öne geçmek için. */
+body.tox-fullscreen [data-aos][data-aos] {
+  transform: none;
+}
+
+/* Yan panel ve üst çubuk 1000/999'da; editör tam ekranda hepsinin üstünde
+   kalmalı. TinyMCE'nin kendi değeri 1200, burada açıkça sabitleniyor ki
+   ileride eklenecek bir katman sessizce öne geçmesin. */
+body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
+  z-index: 1200;
+}

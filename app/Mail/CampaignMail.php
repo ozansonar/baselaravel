@@ -196,6 +196,14 @@ final class CampaignMail extends BaseMail
             $src = substr($src, strlen($appUrl));
         }
 
+        // Editör bir dönem belgeye göreli yol yazdı ("../../uploads/..."), çünkü
+        // TinyMCE'nin varsayılanı buydu. Kayıtlı içerikte hâlâ o yollar var ve
+        // yalnızca "/uploads/" arayan bir kontrol onları tanımayıp görseli
+        // sessizce maildan düşürüyordu. Baştaki "./" ve "../" adımları burada
+        // kırpılıyor; dizin dışına çıkma denemesi aşağıdaki realpath kontrolüne
+        // takılmaya devam ediyor.
+        $src = (string) preg_replace('#^(?:\.{1,2}/)+#', '/', $src);
+
         if (! str_starts_with($src, '/uploads/')) {
             return null;
         }
