@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\SubscriberStatus;
+use App\Support\PersonName;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,8 @@ class Subscriber extends Model
 
     protected $fillable = [
         'email',
-        'name',
+        'first_name',
+        'last_name',
         'locale',
         'status',
         'source',
@@ -46,6 +48,14 @@ class Subscriber extends Model
     public static function newToken(): string
     {
         return Str::lower(Str::random(64));
+    }
+
+    /**
+     * Gösterim için birleşik isim; ad ve soyad ayrı sütunlarda tutuluyor.
+     */
+    public function getFullNameAttribute(): ?string
+    {
+        return PersonName::full($this->first_name, $this->last_name);
     }
 
     /**

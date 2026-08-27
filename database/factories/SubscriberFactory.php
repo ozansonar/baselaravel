@@ -20,7 +20,8 @@ class SubscriberFactory extends Factory
     {
         return [
             'email'             => $this->faker->unique()->safeEmail(),
-            'name'              => $this->faker->name(),
+            'first_name'        => $this->faker->firstName(),
+            'last_name'         => $this->faker->lastName(),
             'locale'            => 'tr',
             'status'            => SubscriberStatus::Subscribed,
             'source'            => 'form',

@@ -76,7 +76,7 @@
             <form method="GET" action="{{ route('admin.subscribers.index') }}" id="filterForm" class="cl-toolbar">
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Ad veya e-posta ile ara...">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Ad, soyad veya e-posta ile ara...">
                 </div>
                 <div class="cl-filters">
                     <select class="cl-filter-select" name="status" onchange="document.getElementById('filterForm').submit()">
@@ -114,6 +114,7 @@
                         <tr>
                             <th>E-posta</th>
                             <th class="d-none d-md-table-cell">Ad</th>
+                            <th class="d-none d-md-table-cell">Soyad</th>
                             <th class="d-none d-lg-table-cell">Dil</th>
                             <th>Durum</th>
                             <th class="d-none d-xl-table-cell">Kayıt</th>
@@ -124,7 +125,8 @@
                         @forelse($subscribers as $subscriber)
                             <tr>
                                 <td class="fw-semibold">{{ $subscriber->email }}</td>
-                                <td class="d-none d-md-table-cell">{{ $subscriber->name ?: '—' }}</td>
+                                <td class="d-none d-md-table-cell">{{ $subscriber->first_name ?: '—' }}</td>
+                                <td class="d-none d-md-table-cell">{{ $subscriber->last_name ?: '—' }}</td>
                                 <td class="d-none d-lg-table-cell">{{ $subscriber->locale ? strtoupper($subscriber->locale) : '—' }}</td>
                                 <td>
                                     <span class="menu-manage-tag menu-manage-tag--{{ $subscriber->status->badgeClass() }}">
@@ -158,7 +160,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="7" class="text-center py-5">
                                     <i class="bi bi-envelope-heart d-block mb-2" style="font-size: 2rem;"></i>
                                     Henüz abone yok.
                                 </td>
@@ -195,9 +197,19 @@
                                 <label class="stg-label" for="sub_email">E-posta <span class="text-neon-red">*</span></label>
                                 <input type="email" class="stg-input" id="sub_email" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]">
                             </div>
-                            <div class="stg-field mb-3">
-                                <label class="stg-label" for="sub_name">Ad Soyad</label>
-                                <input type="text" class="stg-input" id="sub_name" name="name">
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <div class="stg-field">
+                                        <label class="stg-label" for="sub_first_name">Ad</label>
+                                        <input type="text" class="stg-input" id="sub_first_name" name="first_name">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="stg-field">
+                                        <label class="stg-label" for="sub_last_name">Soyad</label>
+                                        <input type="text" class="stg-input" id="sub_last_name" name="last_name">
+                                    </div>
+                                </div>
                             </div>
                             <div class="stg-field">
                                 <label class="stg-label" for="sub_locale">Dil</label>
@@ -235,8 +247,9 @@
                                        accept=".xlsx,.xls,.ods,.csv,.txt"
                                        data-validation-engine="validate[required]">
                                 <small class="stg-hint">
-                                    Başlık satırında <code>Ad</code> ve <code>E-posta</code> sütunları olsun.
-                                    Başlık yoksa adresler ilk sütundan okunur. En fazla 10 MB.
+                                    Başlık satırında <code>Ad</code>, <code>Soyad</code> ve <code>E-posta</code>
+                                    sütunları olsun. Ad ile soyadı tek sütunda veren eski dosyalar da okunur.
+                                    En fazla 10 MB.
                                 </small>
                                 @can('create', App\Models\Campaign::class)
                                     <a href="{{ route('admin.campaigns.template') }}" class="btn-glass btn-sm mt-2">

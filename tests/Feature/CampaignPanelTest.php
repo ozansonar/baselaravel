@@ -121,9 +121,9 @@ class CampaignPanelTest extends TestCase
         $recipients = Campaign::firstOrFail()->audience_filter['recipients'];
 
         $this->assertSame([
-            ['name' => 'Ahmet Yılmaz', 'email' => 'ahmet@ornek.com'],
-            ['name' => 'Ayşe Demir',   'email' => 'ayse@ornek.com'],
-            ['name' => null,           'email' => 'bilgi@ornek.com'],
+            ['first_name' => 'Ahmet', 'last_name' => 'Yılmaz', 'email' => 'ahmet@ornek.com'],
+            ['first_name' => 'Ayşe',  'last_name' => 'Demir',  'email' => 'ayse@ornek.com'],
+            ['first_name' => null,    'last_name' => null,     'email' => 'bilgi@ornek.com'],
         ], $recipients);
     }
 
@@ -142,7 +142,7 @@ class CampaignPanelTest extends TestCase
         ]));
 
         $this->assertSame(
-            [['name' => 'Ahmet Yılmaz', 'email' => 'ahmet@ornek.com']],
+            [['first_name' => 'Ahmet', 'last_name' => 'Yılmaz', 'email' => 'ahmet@ornek.com']],
             Campaign::firstOrFail()->audience_filter['recipients'],
         );
     }
@@ -197,7 +197,8 @@ class CampaignPanelTest extends TestCase
 
         $this->assertCount(3, $recipients);
         $this->assertSame('ahmet@ornek.com', $recipients[0]['email']);
-        $this->assertSame('Ahmet Yılmaz', $recipients[0]['name']);
+        $this->assertSame('Ahmet', $recipients[0]['first_name']);
+        $this->assertSame('Yılmaz', $recipients[0]['last_name']);
     }
 
     /**
@@ -218,7 +219,8 @@ class CampaignPanelTest extends TestCase
         $this->assertSame(2, $response->json('total'));
         $this->assertSame(1, $response->json('invalid'));
         $this->assertSame('ahmet@ornek.com', $response->json('sample.0.email'));
-        $this->assertSame('Ahmet Yılmaz', $response->json('sample.0.name'));
+        $this->assertSame('Ahmet', $response->json('sample.0.first_name'));
+        $this->assertSame('Yılmaz', $response->json('sample.0.last_name'));
 
         // Önizleme yalnızca okur; ortada kampanya kalmamalı.
         $this->assertSame(0, Campaign::count());
@@ -408,7 +410,12 @@ class CampaignPanelTest extends TestCase
             ->assertSessionHas('success');
 
         $this->assertSame(2, Subscriber::count());
-        $this->assertDatabaseHas('subscribers', ['email' => 'zeynep@ornek.com', 'name' => 'Zeynep Ak', 'locale' => 'tr']);
+        $this->assertDatabaseHas('subscribers', [
+            'email'      => 'zeynep@ornek.com',
+            'first_name' => 'Zeynep',
+            'last_name'  => 'Ak',
+            'locale'     => 'tr',
+        ]);
     }
 
     public function test_the_front_form_adds_a_subscriber(): void

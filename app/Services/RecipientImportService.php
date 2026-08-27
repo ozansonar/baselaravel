@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\PersonName;
 use Illuminate\Http\UploadedFile;
 use OpenSpout\Reader\CSV\Options as CsvReaderOptions;
 use OpenSpout\Reader\CSV\Reader as CsvReader;
@@ -22,8 +23,11 @@ use Throwable;
  * what makes a list of tens of thousands of addresses safe on shared hosting.
  *
  * Nobody keeps their columns in a fixed order, so the header row is matched by
- * name — "e-posta", "email", "ad", "isim" — and falls back to "the column that
+ * name — "e-posta", "email", "ad", "soyad" — and falls back to "the column that
  * actually holds addresses" when there is no usable header.
+ *
+ * Ad ve soyad ayrı sütunlarda bekleniyor. Tek sütunda "Ad Soyad" veren eski
+ * dosyalar da okunuyor; o durumda son kelime soyad sayılarak bölünüyor.
  */
 final class RecipientImportService
 {
@@ -38,15 +42,36 @@ final class RecipientImportService
     ];
 
     /**
+     * Ad sütunu — tek başına "ad", yani soyadı ayrı gelen dosyalarda.
+     *
      * @var array<int, string>
      */
-    private const NAME_HEADERS = [
-        'name', 'ad', 'isim', 'ad soyad', 'adsoyad', 'ad-soyad',
-        'isim soyisim', 'full name', 'fullname', 'adi soyadi', 'adı soyadı',
+    private const FIRST_NAME_HEADERS = [
+        'ad', 'adi', 'adı', 'isim', 'first name', 'firstname', 'first_name', 'name',
     ];
 
     /**
-     * @return array{rows: array<int, array{name: ?string, email: string}>, total: int, invalid: int}
+     * @var array<int, string>
+     */
+    private const LAST_NAME_HEADERS = [
+        'soyad', 'soyadi', 'soyadı', 'soyisim', 'last name', 'lastname',
+        'last_name', 'surname',
+    ];
+
+    /**
+     * Ad ve soyadın tek sütunda geldiği dosyalar. Panel artık ayrı sütunlu
+     * şablon veriyor ama elde eski dosyalar var; bunlar okunmaya devam ediyor
+     * ve son kelime soyad sayılarak bölünüyor.
+     *
+     * @var array<int, string>
+     */
+    private const FULL_NAME_HEADERS = [
+        'ad soyad', 'adsoyad', 'ad-soyad', 'ad_soyad', 'isim soyisim',
+        'full name', 'fullname', 'full_name', 'adi soyadi', 'adı soyadı',
+    ];
+
+    /**
+     * @return array{rows: array<int, array{first_name: ?string, last_name: ?string, email: string}>, total: int, invalid: int}
      */
     public function parse(UploadedFile $file): array
     {
@@ -132,7 +157,7 @@ final class RecipientImportService
 
     /**
      * @param array<int, array<int, string>> $table
-     * @return array{rows: array<int, array{name: ?string, email: string}>, total: int, invalid: int}
+     * @return array{rows: array<int, array{first_name: ?string, last_name: ?string, email: string}>, total: int, invalid: int}
      */
     private function extract(array $table): array
     {
@@ -140,9 +165,9 @@ final class RecipientImportService
             throw new RuntimeException('Dosya boş görünüyor.');
         }
 
-        [$emailIndex, $nameIndex, $startRow] = $this->resolveColumns($table);
+        $columns = $this->resolveColumns($table);
 
-        if ($emailIndex === null) {
+        if ($columns['email'] === null) {
             throw new RuntimeException(
                 'Dosyada e-posta sütunu bulunamadı. Başlık satırına "E-posta" yazabilir, '
                 . 'adresleri ilk sütuna koyabilir veya örnek şablonu indirebilirsiniz.'
@@ -153,8 +178,8 @@ final class RecipientImportService
         $seen = [];
         $invalid = 0;
 
-        foreach (array_slice($table, $startRow) as $row) {
-            $email = mb_strtolower(trim($row[$emailIndex] ?? ''));
+        foreach (array_slice($table, $columns['start']) as $row) {
+            $email = mb_strtolower(trim($row[$columns['email']] ?? ''));
 
             if ($email === '') {
                 continue;
@@ -171,9 +196,8 @@ final class RecipientImportService
             }
 
             $seen[$email] = true;
-            $name = $nameIndex !== null ? trim($row[$nameIndex] ?? '') : '';
 
-            $rows[] = ['name' => $name !== '' ? $name : null, 'email' => $email];
+            $rows[] = $this->namesFor($row, $columns) + ['email' => $email];
         }
 
         if ($rows === []) {
@@ -184,8 +208,43 @@ final class RecipientImportService
     }
 
     /**
+     * Bir satırdan ad ve soyadı çıkarır.
+     *
+     * Ayrı sütunlar varsa doğrudan okunur; yalnızca birleşik bir isim sütunu
+     * varsa son kelime soyad sayılarak bölünür.
+     *
+     * @param array<int, string> $row
+     * @param array{email: ?int, first: ?int, last: ?int, full: ?int, start: int} $columns
+     * @return array{first_name: ?string, last_name: ?string}
+     */
+    private function namesFor(array $row, array $columns): array
+    {
+        if ($columns['first'] !== null || $columns['last'] !== null) {
+            $first = $columns['first'] !== null ? trim($row[$columns['first']] ?? '') : '';
+            $last = $columns['last'] !== null ? trim($row[$columns['last']] ?? '') : '';
+
+            return [
+                'first_name' => $first !== '' ? $first : null,
+                'last_name'  => $last !== '' ? $last : null,
+            ];
+        }
+
+        if ($columns['full'] !== null) {
+            return PersonName::split($row[$columns['full']] ?? '');
+        }
+
+        return ['first_name' => null, 'last_name' => null];
+    }
+
+    /**
+     * Hangi sütunun ne olduğunu bulur.
+     *
+     * Başlıklar ada göre eşleşiyor; ayrı Ad/Soyad sütunları birleşik "Ad Soyad"
+     * sütununa tercih ediliyor. Kullanılabilir başlık yoksa adresi taşıyan sütun
+     * aranıyor ve ilk satır da veri sayılıyor.
+     *
      * @param array<int, array<int, string>> $table
-     * @return array{0: ?int, 1: ?int, 2: int} email index, name index, first data row
+     * @return array{email: ?int, first: ?int, last: ?int, full: ?int, start: int}
      */
     private function resolveColumns(array $table): array
     {
@@ -194,34 +253,54 @@ final class RecipientImportService
             $table[0] ?? [],
         );
 
-        $emailIndex = null;
-        $nameIndex = null;
+        $columns = ['email' => null, 'first' => null, 'last' => null, 'full' => null, 'start' => 0];
 
         foreach ($header as $index => $label) {
-            if ($emailIndex === null && in_array($label, self::EMAIL_HEADERS, true)) {
-                $emailIndex = $index;
+            if ($columns['email'] === null && in_array($label, self::EMAIL_HEADERS, true)) {
+                $columns['email'] = $index;
+
+                continue;
             }
 
-            if ($nameIndex === null && in_array($label, self::NAME_HEADERS, true)) {
-                $nameIndex = $index;
+            // "Ad Soyad" başlığı "ad" listesinde de geçmesin diye birleşik
+            // başlıklar önce sınanıyor.
+            if ($columns['full'] === null && in_array($label, self::FULL_NAME_HEADERS, true)) {
+                $columns['full'] = $index;
+
+                continue;
+            }
+
+            if ($columns['first'] === null && in_array($label, self::FIRST_NAME_HEADERS, true)) {
+                $columns['first'] = $index;
+
+                continue;
+            }
+
+            if ($columns['last'] === null && in_array($label, self::LAST_NAME_HEADERS, true)) {
+                $columns['last'] = $index;
             }
         }
 
-        if ($emailIndex !== null) {
-            return [$emailIndex, $nameIndex, 1];
+        if ($columns['email'] !== null) {
+            $columns['start'] = 1;
+
+            return $columns;
         }
 
-        // No usable header: find the column that actually holds addresses and
-        // treat every row as data, including the first.
+        // Kullanılabilir başlık yok: adresleri taşıyan sütunu bul ve ilk satırı
+        // da veri say.
         foreach ($table[0] ?? [] as $index => $cell) {
             if (filter_var(trim($cell), FILTER_VALIDATE_EMAIL)) {
-                $nameGuess = $index === 0 ? (count($table[0]) > 1 ? 1 : null) : 0;
+                $columns['email'] = $index;
+                // Başlıksız dosyada isim sütunu tahmin ediliyor; tek sütun
+                // olduğu varsayımıyla birleşik okunuyor.
+                $columns['full'] = $index === 0 ? (count($table[0]) > 1 ? 1 : null) : 0;
 
-                return [$index, $nameGuess, 0];
+                return $columns;
             }
         }
 
-        return [null, null, 0];
+        return $columns;
     }
 
     /**
@@ -234,12 +313,14 @@ final class RecipientImportService
 
         $header = (new Style())->withFontBold(true)->withFontSize(12);
 
-        $writer->addRow(Row::fromValuesWithStyle(['Ad Soyad', 'E-posta'], $header));
+        // Ad ve soyad ayrı sütunlarda: kayıtlarda da ayrı tutuluyorlar, şablon
+        // tek sütun önerirse herkes birleşik dosya hazırlıyor.
+        $writer->addRow(Row::fromValuesWithStyle(['Ad', 'Soyad', 'E-posta'], $header));
 
         foreach ([
-            ['Ahmet Yılmaz', 'ahmet@ornek.com'],
-            ['Ayşe Demir', 'ayse@ornek.com'],
-            ['Mehmet Kaya', 'mehmet@ornek.com'],
+            ['Ahmet', 'Yılmaz', 'ahmet@ornek.com'],
+            ['Ayşe', 'Demir', 'ayse@ornek.com'],
+            ['Mehmet', 'Kaya', 'mehmet@ornek.com'],
         ] as $row) {
             $writer->addRow(Row::fromValues($row));
         }

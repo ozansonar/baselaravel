@@ -26,8 +26,8 @@ enum CampaignAudience: string
         return match ($this) {
             self::Users       => 'Kayıtlı ve aktif kullanıcılar',
             self::Subscribers => 'Bültene abone olmuş kişiler',
-            self::Import      => 'Ad ve e-posta sütunu olan bir dosya',
-            self::Manual      => 'Ad soyad ve e-postayı satır satır yaz',
+            self::Import      => 'Ad, soyad ve e-posta sütunu olan bir dosya',
+            self::Manual      => 'Ad, soyad ve e-postayı satır satır yaz',
         };
     }
 
