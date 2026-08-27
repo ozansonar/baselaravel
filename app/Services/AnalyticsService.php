@@ -396,25 +396,115 @@ class AnalyticsService
 
     public function paginateVisits(array $filters, int $perPage = 50): LengthAwarePaginator
     {
-        $query = PageView::query()->orderByDesc('viewed_at');
+        return $this->visitQuery($filters)->paginate($perPage)->withQueryString();
+    }
 
-        if (isset($filters['from'])) {
+    /**
+     * Ziyaret kaydı listesinin sorgusu.
+     *
+     * Sayfalama ile sayım aynı süzgeçten geçmeli; iki yerde ayrı kurulunca
+     * ekrandaki "kaç kayıt" ile listedeki kayıtlar birbirini tutmaz.
+     *
+     * @param  array<string, mixed> $filters
+     * @return \Illuminate\Database\Eloquent\Builder<PageView>
+     */
+    public function visitQuery(array $filters)
+    {
+        // Üye adı sütunda görünüyor; ilişki önden yüklenmezse her satır için
+        // ayrı sorgu açılır.
+        $query = PageView::query()->with('user');
+
+        if (! empty($filters['from'])) {
             $query->where('viewed_at', '>=', Carbon::parse($filters['from'])->startOfDay());
         }
-        if (isset($filters['to'])) {
+
+        if (! empty($filters['to'])) {
             $query->where('viewed_at', '<=', Carbon::parse($filters['to'])->endOfDay());
         }
+
         if (array_key_exists('is_bot', $filters) && $filters['is_bot'] !== null && $filters['is_bot'] !== '') {
             $query->where('is_bot', (bool) $filters['is_bot']);
         }
-        if (!empty($filters['device_type'])) {
+
+        if (! empty($filters['device_type'])) {
             $query->where('device_type', $filters['device_type']);
         }
-        if (!empty($filters['url'])) {
-            $query->where('url_path', 'like', '%' . $filters['url'] . '%');
+
+        if (! empty($filters['browser'])) {
+            $query->where('browser', $filters['browser']);
         }
 
-        return $query->paginate($perPage)->withQueryString();
+        if (! empty($filters['os'])) {
+            $query->where('os', $filters['os']);
+        }
+
+        if (! empty($filters['referrer'])) {
+            // "direct" bir alan adı değil, kaynağı olmayan ziyaretin adı.
+            $filters['referrer'] === 'direct'
+                ? $query->whereNull('referrer_domain')
+                : $query->where('referrer_domain', $filters['referrer']);
+        }
+
+        match ($filters['visitor'] ?? '') {
+            'member' => $query->whereNotNull('user_id'),
+            'guest'  => $query->whereNull('user_id'),
+            default  => null,
+        };
+
+        if (! empty($filters['url'])) {
+            // Arama yalnızca yolu değil, IP ve oturumu da kapsıyor: "şu adres
+            // ne gezdi" sorusu bu ekranda sorulur.
+            //
+            // Joker karakterler düz metin sayılıyor, yoksa "%" yazan biri süzgeç
+            // yaptığını sanarak tüm listeye bakar. Kaçış karakteri ESCAPE ile
+            // açıkça bildiriliyor: MySQL ters bölüyü kendiliğinden kaçış sayar,
+            // SQLite saymaz — belirtilmezse kaçırılan "%" hiçbir şey bulmaz.
+            $term = '%' . addcslashes((string) $filters['url'], '%_\\') . '%';
+
+            $query->where(function ($inner) use ($term): void {
+                foreach (['url_path', 'ip_address', 'session_id'] as $index => $column) {
+                    $index === 0
+                        ? $inner->whereRaw($column . " LIKE ? ESCAPE '\\'", [$term])
+                        : $inner->orWhereRaw($column . " LIKE ? ESCAPE '\\'", [$term]);
+                }
+            });
+        }
+
+        return ($filters['sort'] ?? '') === 'oldest'
+            ? $query->orderBy('viewed_at')->orderBy('id')
+            : $query->orderByDesc('viewed_at')->orderByDesc('id');
+    }
+
+    /**
+     * Süzgeç kutularını dolduran değerler.
+     *
+     * Tarayıcı ve işletim sistemi listesi veriden geliyor; elle yazılan bir
+     * liste yeni bir tarayıcı çıktığında eksik kalırdı. Sayım pahalı olduğu
+     * için önbelleğe alınıyor.
+     *
+     * @return array{browsers: array<int, string>, systems: array<int, string>, referrers: array<int, string>}
+     */
+    public function visitFilterOptions(): array
+    {
+        return Cache::remember('analytics.visit_filter_options', 600, function (): array {
+            $column = function (string $column): array {
+                return PageView::query()
+                    ->select($column)
+                    ->whereNotNull($column)
+                    ->where($column, '!=', '')
+                    ->groupBy($column)
+                    ->orderByRaw('COUNT(*) DESC')
+                    ->limit(20)
+                    ->pluck($column)
+                    ->all();
+            };
+
+            return [
+                'browsers'  => $column('browser'),
+                'systems'   => $column('os'),
+                'referrers' => $column('referrer_domain'),
+            ];
+        });
     }
 
     private function groupBreakdown(string $column, Carbon $from, Carbon $to, bool $excludeBots = true, ?int $limit = null): array

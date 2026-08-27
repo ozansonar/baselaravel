@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PageView;
 use App\Services\AnalyticsService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -49,34 +50,67 @@ class AnalyticsController extends Controller
         ]);
     }
 
+    /**
+     * Ziyaret kaydında sayfa başına seçilebilecek değerler.
+     */
+    private const VISIT_PER_PAGE = [25, 50, 100, 200];
+
+    /**
+     * Listede seçilebilecek sıralamalar. İstekten gelen değer bu kümeyle
+     * sınırlı; serbest bırakılsaydı sütun adı doğrudan sorguya girerdi.
+     *
+     * @var array<string, string>
+     */
+    private const VISIT_SORT = [
+        'recent' => 'Önce en yeni',
+        'oldest' => 'Önce en eski',
+    ];
+
     public function visits(Request $request): View
     {
         $this->authorize('view-analytics');
 
-        $filters = $request->only(['from', 'to', 'is_bot', 'device_type', 'url']);
-        $visits = $this->analyticsService->paginateVisits($filters, 50);
+        $perPage = (int) $request->integer('per_page', 50);
+        $perPage = in_array($perPage, self::VISIT_PER_PAGE, true) ? $perPage : 50;
 
-        $totalAll = \App\Models\PageView::count();
-        $totalHumans = \App\Models\PageView::where('is_bot', false)->count();
-        $totalBots = \App\Models\PageView::where('is_bot', true)->count();
-        $todayCount = \App\Models\PageView::whereDate('viewed_at', today())->count();
+        $sort = $request->string('sort')->toString();
+        $sort = array_key_exists($sort, self::VISIT_SORT) ? $sort : '';
+
+        $filters = [
+            'url'         => (string) $request->string('url')->trim()->value(),
+            'is_bot'      => (string) $request->string('is_bot')->value(),
+            'device_type' => (string) $request->string('device_type')->value(),
+            'browser'     => (string) $request->string('browser')->value(),
+            'os'          => (string) $request->string('os')->value(),
+            'referrer'    => (string) $request->string('referrer')->value(),
+            'visitor'     => (string) $request->string('visitor')->value(),
+            'from'        => (string) $request->string('from')->value(),
+            'to'          => (string) $request->string('to')->value(),
+            'sort'        => $sort,
+        ];
+
+        $visits = $this->analyticsService->paginateVisits($filters, $perPage);
 
         return view('admin.analytics.visits', [
-            'visits'      => $visits,
-            'filters'     => $filters,
-            'totalAll'    => $totalAll,
-            'totalHumans' => $totalHumans,
-            'totalBots'   => $totalBots,
-            'todayCount'  => $todayCount,
+            'visits'  => $visits,
+            'filters' => $filters,
+            // "0" da bir seçim: array_filter kullanılsaydı "Sadece insan"
+            // süzgeci açıkken ekran süzgeç yokmuş gibi davranırdı.
+            'filtered' => collect($filters)
+                ->except('sort')
+                ->filter(fn (string $value): bool => $value !== '')
+                ->isNotEmpty(),
+            'sortOptions'   => self::VISIT_SORT,
+            'perPage'       => $perPage,
+            'perPageList'   => self::VISIT_PER_PAGE,
+            'filterOptions' => $this->analyticsService->visitFilterOptions(),
+            'totalAll'      => PageView::count(),
+            'totalHumans'   => PageView::where('is_bot', false)->count(),
+            'totalBots'     => PageView::where('is_bot', true)->count(),
+            'todayCount'    => PageView::whereDate('viewed_at', today())->count(),
         ]);
     }
 
-    /**
-     * Who is on the site right now.
-     *
-     * The page itself is a shell; the numbers come from liveData() on a timer,
-     * so watching it does not mean reloading the whole panel every few seconds.
-     */
     /**
      * Canlı ekranın kendini yenileme aralığı.
      *
@@ -85,6 +119,12 @@ class AnalyticsController extends Controller
      */
     private const LIVE_REFRESH_SECONDS = 10;
 
+    /**
+     * Who is on the site right now.
+     *
+     * The page itself is a shell; the numbers come from liveData() on a timer,
+     * so watching it does not mean reloading the whole panel every few seconds.
+     */
     public function live(Request $request): View
     {
         $this->authorize('view-analytics');

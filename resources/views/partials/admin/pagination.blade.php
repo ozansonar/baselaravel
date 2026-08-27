@@ -4,8 +4,11 @@
 --}}
 @if($paginator->hasPages())
     <div class="cl-pagination-wrapper" data-aos="fade-up">
+        {{-- Ek yerine ayraç: "kayıttan" doğruydu ama aynı kalıp "mesajtan",
+             "kategoritan", "kullanıcıtan" üretiyordu. Etiket ne olursa olsun
+             bozulmayan tek biçim, eki hiç kullanmamak. --}}
         <div class="cl-pagination-info">
-            <span>Toplam <strong>{{ number_format($paginator->total(), 0, ',', '.') }}</strong> {{ $itemLabel ?? 'kayıt' }}tan
+            <span>Toplam <strong>{{ number_format($paginator->total(), 0, ',', '.') }}</strong> {{ $itemLabel ?? 'kayıt' }} ·
                 <strong>{{ $paginator->firstItem() }}-{{ $paginator->lastItem() }}</strong> arası gösteriliyor</span>
         </div>
         <nav class="cl-pagination">

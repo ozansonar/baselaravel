@@ -5,6 +5,31 @@
 @section('page_description', 'Filtreleyebileceğiniz detaylı ziyaret log kaydı')
 
 @section('content')
+    @php
+        $cihazEtiketleri = ['desktop' => 'Masaüstü', 'mobile' => 'Mobil', 'tablet' => 'Tablet', 'bot' => 'Bot', 'other' => 'Diğer'];
+        $trafikEtiketleri = ['0' => 'Sadece insan', '1' => 'Sadece bot'];
+        $ziyaretciEtiketleri = ['member' => 'Üye girişli', 'guest' => 'Misafir'];
+
+        $activeFilters = collect([
+            'url'         => ['label' => 'Arama', 'value' => $filters['url']],
+            'is_bot'      => ['label' => 'Trafik', 'value' => $trafikEtiketleri[$filters['is_bot']] ?? ''],
+            'device_type' => ['label' => 'Cihaz', 'value' => $cihazEtiketleri[$filters['device_type']] ?? ''],
+            'browser'     => ['label' => 'Tarayıcı', 'value' => $filters['browser']],
+            'os'          => ['label' => 'Sistem', 'value' => $filters['os']],
+            'referrer'    => ['label' => 'Kaynak', 'value' => $filters['referrer'] === 'direct' ? 'Doğrudan' : $filters['referrer']],
+            'visitor'     => ['label' => 'Ziyaretçi', 'value' => $ziyaretciEtiketleri[$filters['visitor']] ?? ''],
+            'from'        => ['label' => 'Başlangıç', 'value' => $filters['from'] !== '' ? \Illuminate\Support\Carbon::parse($filters['from'])->format('d.m.Y') : ''],
+            'to'          => ['label' => 'Bitiş', 'value' => $filters['to'] !== '' ? \Illuminate\Support\Carbon::parse($filters['to'])->format('d.m.Y') : ''],
+        ])->filter(fn (array $chip): bool => $chip['value'] !== '');
+
+        // Hızlı aralıklar: en çok sorulan üç soru tek tıkla.
+        $bugun = now()->format('Y-m-d');
+        $hizliAraliklar = [
+            'Bugün'      => ['from' => $bugun, 'to' => $bugun],
+            'Son 7 gün'  => ['from' => now()->subDays(6)->format('Y-m-d'), 'to' => $bugun],
+            'Son 30 gün' => ['from' => now()->subDays(29)->format('Y-m-d'), 'to' => $bugun],
+        ];
+    @endphp
 
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
@@ -82,37 +107,172 @@
     </div>
 
 
+    <div class="alert alert-info mb-4" data-aos="fade-up" data-aos-delay="120">
+        <i class="bi bi-info-circle me-1"></i>
+        Her satır tek bir <strong>sayfa görüntülemesi</strong>; aynı ziyaretçi beş sayfa gezdiyse burada
+        beş kayıt olur. Aynı oturumun kayıtlarını görmek için oturum kodunu aramaya yazabilirsiniz.
+        <span class="d-block mt-1">
+            <strong>Yönetici, editör ve moderatör hesaplarıyla yapılan gezinmeler kaydedilmez</strong> —
+            kendi ziyaretleriniz istatistikleri şişirmesin diye. Siteyi ziyaretçi gözünden görmek için
+            oturumu kapatın ya da gizli sekme kullanın. IP adresleri
+            <a href="{{ route('admin.settings.index') }}" class="alert-link">saklama süresi</a> dolduğunda
+            maskelenir; maskelenmiş kayıtlar kalkanla işaretlidir.
+        </span>
+    </div>
+
     <!-- ==================== FILTERS & TOOLBAR ==================== -->
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card-body-custom">
+            {{-- Hızlı aralıklar süzgecin üstünde: "bugün ne oldu" sorusu tarih
+                 kutularıyla uğraşmadan cevaplansın. --}}
+            <div class="cl-chip-row mb-3">
+                @foreach($hizliAraliklar as $etiket => $aralik)
+                    @php $seciliMi = $filters['from'] === $aralik['from'] && $filters['to'] === $aralik['to']; @endphp
+                    <a href="{{ route('admin.analytics.visits', array_merge(request()->except(['from', 'to', 'page']), $aralik)) }}"
+                       class="cmp-chip {{ $seciliMi ? 'cmp-chip--aktif' : '' }}">{{ $etiket }}</a>
+                @endforeach
+                @if($filters['from'] !== '' || $filters['to'] !== '')
+                    <a href="{{ route('admin.analytics.visits', request()->except(['from', 'to', 'page'])) }}"
+                       class="cmp-chip">Tarih süzgecini kaldır</a>
+                @endif
+            </div>
+
             <form method="GET" action="{{ route('admin.analytics.visits') }}" class="cl-toolbar" id="visitsFilterForm">
-                <div class="cl-search">
+                <div class="cl-search {{ $filters['url'] !== '' ? 'cl-search--clearable' : '' }}">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="url" id="urlSearch" placeholder="Sayfa URL'si ile ara..." value="{{ $filters['url'] ?? '' }}" data-fv-ignore>
-                </div>
-                <div class="cl-filters">
-                    <select class="cl-filter-select" name="is_bot" id="filterBot" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
-                        <option value="">Tüm Trafik</option>
-                        <option value="0" {{ ($filters['is_bot'] ?? '') === '0' ? 'selected' : '' }}>Sadece İnsan</option>
-                        <option value="1" {{ ($filters['is_bot'] ?? '') === '1' ? 'selected' : '' }}>Sadece Bot</option>
-                    </select>
-                    <select class="cl-filter-select" name="device_type" id="filterDevice" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
-                        <option value="">Tüm Cihazlar</option>
-                        @foreach(['desktop' => 'Masaüstü', 'mobile' => 'Mobil', 'tablet' => 'Tablet', 'bot' => 'Bot', 'other' => 'Diğer'] as $val => $label)
-                            <option value="{{ $val }}" {{ ($filters['device_type'] ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <input type="date" name="from" class="cl-filter-select" value="{{ $filters['from'] ?? '' }}" placeholder="Başlangıç" title="Başlangıç tarihi" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
-                    <input type="date" name="to" class="cl-filter-select" value="{{ $filters['to'] ?? '' }}" placeholder="Bitiş" title="Bitiş tarihi" onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
-                </div>
-                <div class="cl-toolbar-actions">
-                    @if(!empty(array_filter($filters)))
-                        <a href="{{ route('admin.analytics.visits') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
-                            <i class="bi bi-arrow-counterclockwise"></i>
+                    <input type="text" name="url" id="urlSearch"
+                           placeholder="Sayfa yolu, IP veya oturum kodu ile ara..."
+                           value="{{ $filters['url'] }}" autocomplete="off"
+                           data-validation-engine="validate[maxSize[191]]">
+                    @if($filters['url'] !== '')
+                        <a href="{{ route('admin.analytics.visits', request()->except(['url', 'page'])) }}"
+                           class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
+                            <i class="bi bi-x-lg"></i>
                         </a>
                     @endif
                 </div>
+
+                <div class="cl-filters mt-filters">
+                    <div class="mt-field">
+                        <span>Trafik</span>
+                        <select class="cl-filter-select" name="is_bot" id="filterBot" aria-label="Trafik türü"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            <option value="">Tümü</option>
+                            <option value="0" {{ $filters['is_bot'] === '0' ? 'selected' : '' }}>Sadece insan</option>
+                            <option value="1" {{ $filters['is_bot'] === '1' ? 'selected' : '' }}>Sadece bot</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Cihaz</span>
+                        <select class="cl-filter-select" name="device_type" id="filterDevice" aria-label="Cihaz türü"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            <option value="">Tümü</option>
+                            @foreach($cihazEtiketleri as $val => $label)
+                                <option value="{{ $val }}" {{ $filters['device_type'] === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Ziyaretçi</span>
+                        <select class="cl-filter-select" name="visitor" aria-label="Ziyaretçi türü"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            <option value="">Tümü</option>
+                            @foreach($ziyaretciEtiketleri as $val => $label)
+                                <option value="{{ $val }}" {{ $filters['visitor'] === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Tarayıcı, sistem ve kaynak listeleri veriden geliyor: elle
+                         yazılan bir liste yeni bir tarayıcı çıktığında eksik kalırdı. --}}
+                    <div class="mt-field">
+                        <span>Tarayıcı</span>
+                        <select class="cl-filter-select" name="browser" aria-label="Tarayıcı"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            <option value="">Tümü</option>
+                            @foreach($filterOptions['browsers'] as $secenek)
+                                <option value="{{ $secenek }}" {{ $filters['browser'] === $secenek ? 'selected' : '' }}>{{ $secenek }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Sistem</span>
+                        <select class="cl-filter-select" name="os" aria-label="İşletim sistemi"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            <option value="">Tümü</option>
+                            @foreach($filterOptions['systems'] as $secenek)
+                                <option value="{{ $secenek }}" {{ $filters['os'] === $secenek ? 'selected' : '' }}>{{ $secenek }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Kaynak</span>
+                        <select class="cl-filter-select" name="referrer" aria-label="Geliş kaynağı"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            <option value="">Tümü</option>
+                            <option value="direct" {{ $filters['referrer'] === 'direct' ? 'selected' : '' }}>Doğrudan</option>
+                            @foreach($filterOptions['referrers'] as $secenek)
+                                <option value="{{ $secenek }}" {{ $filters['referrer'] === $secenek ? 'selected' : '' }}>{{ $secenek }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Başlangıç</span>
+                        <input type="date" name="from" class="cl-filter-select" value="{{ $filters['from'] }}"
+                               aria-label="Başlangıç tarihi"
+                               onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Bitiş</span>
+                        <input type="date" name="to" class="cl-filter-select" value="{{ $filters['to'] }}"
+                               aria-label="Bitiş tarihi"
+                               onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Sıralama</span>
+                        <select class="cl-filter-select" name="sort" aria-label="Sıralama"
+                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                            @foreach($sortOptions as $sortValue => $sortLabel)
+                                <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>
+                                    {{ $sortLabel }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field mt-field--actions ms-auto">
+                        <div class="cl-toolbar-actions">
+                            <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
+                            @if($filtered)
+                                <a href="{{ route('admin.analytics.visits') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </a>
+                            @endif
+                            <div class="cl-per-page">
+                                <label for="perPage">Göster:</label>
+                                <select name="per_page" id="perPage"
+                                        onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                    @foreach($perPageList as $pp)
+                                        <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
+
+            @include('partials.admin.filter-chips', [
+                'chips' => $activeFilters,
+                'route' => 'admin.analytics.visits',
+            ])
         </div>
     </div>
 
@@ -128,6 +288,7 @@
                             <th>Sayfa</th>
                             <th class="d-none d-lg-table-cell">IP</th>
                             <th>Cihaz</th>
+                            <th class="d-none d-lg-table-cell">Ziyaretçi</th>
                             <th class="d-none d-md-table-cell">Tarayıcı</th>
                             <th class="d-none d-xl-table-cell">İşletim Sistemi</th>
                             <th class="d-none d-lg-table-cell">Kaynak</th>
@@ -197,6 +358,17 @@
                                     </span>
                                 </td>
 
+                                {{-- Ziyaretçi: üyeyse kim olduğu, değilse misafir. --}}
+                                <td class="d-none d-lg-table-cell">
+                                    @if($visit->user)
+                                        <span class="fw-medium">{{ $visit->user->full_name ?: $visit->user->email }}</span>
+                                    @elseif($visit->is_bot)
+                                        <span class="text-clr-muted">—</span>
+                                    @else
+                                        <span class="text-clr-secondary">Misafir</span>
+                                    @endif
+                                </td>
+
                                 {{-- Tarayıcı --}}
                                 <td class="d-none d-md-table-cell">
                                     @if($visit->browser)
@@ -231,11 +403,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5">
+                                <td colspan="9" class="text-center py-5">
                                     <div class="d-flex flex-column align-items-center gap-2">
                                         <i class="bi bi-inbox anl-visit-empty-icon"></i>
-                                        <p class="text-clr-secondary mb-0">Kayıt bulunamadı</p>
-                                        @if(!empty(array_filter($filters)))
+                                        <p class="text-clr-secondary mb-0">
+                                            {{ $filtered ? 'Bu süzgeçle eşleşen ziyaret yok.' : 'Henüz ziyaret kaydı yok.' }}
+                                        </p>
+                                        @if($filtered)
                                             <a href="{{ route('admin.analytics.visits') }}" class="btn-glass btn-sm mt-2">
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Filtreleri Temizle
                                             </a>
@@ -250,6 +424,21 @@
         </div>
     </div>
 
-    @include('partials.admin.pagination', ['paginator' => $visits, 'itemLabel' => 'ziyaret'])
+    {{-- Ortak sayfalama yalnızca birden çok sayfa varken çiziliyor; süzgeç
+         sonucu tek sayfaya sığdığında da kaç kayıt olduğu görünmeli. --}}
+    @if($visits->hasPages())
+        @include('partials.admin.pagination', ['paginator' => $visits, 'itemLabel' => 'ziyaret'])
+    @elseif($visits->total() > 0)
+        <div class="cl-pagination-wrapper" data-aos="fade-up">
+            <div class="cl-pagination-info">
+                <span>
+                    <strong>{{ number_format($visits->total(), 0, ',', '.') }}</strong> ziyaret
+                    @if($filtered)
+                        <span class="text-clr-secondary">({{ number_format($totalAll, 0, ',', '.') }} kayıttan süzüldü)</span>
+                    @endif
+                </span>
+            </div>
+        </div>
+    @endif
 
 @endsection
