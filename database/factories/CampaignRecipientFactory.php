@@ -22,7 +22,8 @@ class CampaignRecipientFactory extends Factory
         return [
             'campaign_id'       => Campaign::factory(),
             'email'             => $this->faker->unique()->safeEmail(),
-            'name'              => $this->faker->name(),
+            'first_name'        => $this->faker->firstName(),
+            'last_name'         => $this->faker->lastName(),
             'locale'            => 'tr',
             'status'            => CampaignRecipientStatus::Pending,
             'unsubscribe_token' => Str::lower(Str::random(64)),

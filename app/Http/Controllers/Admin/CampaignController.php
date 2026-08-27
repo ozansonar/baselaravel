@@ -352,7 +352,9 @@ final class CampaignController extends Controller
             // "mail listesi" arasında seçim yapan kişi bunu bilmeden karar veremez.
             'audienceCounts' => [
                 CampaignAudience::Users->value       => User::query()->where('is_active', true)->count(),
-                CampaignAudience::Subscribers->value => Subscriber::query()->whereNull('unsubscribed_at')->count(),
+                // Kampanyanın gerçekten kime gideceğiyle aynı ölçüt: durumu
+                // "abone" olanlar. Çıkanlar ve dönenler listeye girmiyor.
+                CampaignAudience::Subscribers->value => Subscriber::query()->subscribed()->count(),
             ],
         ];
     }

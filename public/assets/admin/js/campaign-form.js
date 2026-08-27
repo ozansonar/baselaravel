@@ -172,7 +172,9 @@
 
         function renderResult(data) {
             var rows = (data.sample || []).map(function (row) {
-                return '<tr><td>' + escape(row.email) + '</td><td>' + escape(row.name || '—') + '</td></tr>';
+                return '<tr><td>' + escape(row.email) + '</td>'
+                    + '<td>' + escape(row.first_name || '—') + '</td>'
+                    + '<td>' + escape(row.last_name || '—') + '</td></tr>';
             }).join('');
 
             var hidden = data.total - (data.sample || []).length;
@@ -186,7 +188,8 @@
                 + '</div>';
 
             show(summary
-                + '<div class="cmp-import-preview__table"><table><thead><tr><th>E-posta</th><th>Ad</th></tr></thead>'
+                + '<div class="cmp-import-preview__table"><table><thead>'
+                + '<tr><th>E-posta</th><th>Ad</th><th>Soyad</th></tr></thead>'
                 + '<tbody>' + rows + '</tbody></table></div>'
                 + (hidden > 0 ? '<p class="cmp-import-preview__more">ve ' + hidden + ' alıcı daha</p>' : ''));
         }

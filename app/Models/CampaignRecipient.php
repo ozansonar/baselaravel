@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CampaignRecipientStatus;
+use App\Support\PersonName;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,8 @@ class CampaignRecipient extends Model
     protected $fillable = [
         'campaign_id',
         'email',
-        'name',
+        'first_name',
+        'last_name',
         'locale',
         'status',
         'unsubscribe_token',
@@ -34,6 +36,14 @@ class CampaignRecipient extends Model
             'attempts' => 'integer',
             'sent_at'  => 'datetime',
         ];
+    }
+
+    /**
+     * Gösterim için birleşik isim; ad ve soyad ayrı sütunlarda tutuluyor.
+     */
+    public function getFullNameAttribute(): ?string
+    {
+        return PersonName::full($this->first_name, $this->last_name);
     }
 
     /**

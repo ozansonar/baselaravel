@@ -103,7 +103,8 @@
                                     <ul class="list-unstyled mt-2 mb-0">
                                         @foreach($preview['sample'] as $row)
                                             <li class="text-clr-secondary small">
-                                                {{ $row['name'] ?? '—' }} &lt;{{ $row['email'] }}&gt;
+                                                {{ \App\Support\PersonName::full($row['first_name'] ?? null, $row['last_name'] ?? null) ?? '—' }}
+                                                &lt;{{ $row['email'] }}&gt;
                                             </li>
                                         @endforeach
                                         @if($preview['count'] > count($preview['sample']))

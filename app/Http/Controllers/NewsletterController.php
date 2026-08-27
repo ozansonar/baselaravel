@@ -18,13 +18,15 @@ final class NewsletterController extends Controller
     public function subscribe(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email' => ['required', 'email:rfc,dns', 'max:191'],
-            'name'  => ['nullable', 'string', 'max:191'],
+            'email'      => ['required', 'email:rfc,dns', 'max:191'],
+            'first_name' => ['nullable', 'string', 'max:191'],
+            'last_name'  => ['nullable', 'string', 'max:191'],
         ]);
 
         $this->subscribers->subscribe(
             $validated['email'],
-            $validated['name'] ?? null,
+            $validated['first_name'] ?? null,
+            $validated['last_name'] ?? null,
             app()->getLocale(),
             'form',
         );

@@ -48,7 +48,8 @@ class CampaignMailContentTest extends TestCase
         $recipient = new CampaignRecipient([
             'campaign_id'       => $campaign->id,
             'email'             => 'alici@ornek.com',
-            'name'              => 'Alıcı',
+            'first_name'        => 'Alıcı',
+            'last_name'         => 'Kişi',
             'unsubscribe_token' => str_repeat('b', 64),
         ]);
 
@@ -147,7 +148,10 @@ class CampaignMailContentTest extends TestCase
         $result = $importer->parse(new UploadedFile($path, 'sablon.xlsx', null, null, true));
 
         $this->assertSame(3, $result['total']);
-        $this->assertSame(['name' => 'Ahmet Yılmaz', 'email' => 'ahmet@ornek.com'], $result['rows'][0]);
+        $this->assertSame(
+            ['first_name' => 'Ahmet', 'last_name' => 'Yılmaz', 'email' => 'ahmet@ornek.com'],
+            $result['rows'][0],
+        );
 
         unlink($path);
     }
@@ -157,23 +161,46 @@ class CampaignMailContentTest extends TestCase
      */
     public function test_a_semicolon_csv_with_a_bom_is_read(): void
     {
-        $result = $this->parseCsv("\xEF\xBB\xBFAd Soyad;E-posta\nZeynep Ak;zeynep@ornek.com\n");
+        $result = $this->parseCsv("\xEF\xBB\xBFAd;Soyad;E-posta\nZeynep;Ak;zeynep@ornek.com\n");
 
-        $this->assertSame([['name' => 'Zeynep Ak', 'email' => 'zeynep@ornek.com']], $result['rows']);
+        $this->assertSame(
+            [['first_name' => 'Zeynep', 'last_name' => 'Ak', 'email' => 'zeynep@ornek.com']],
+            $result['rows'],
+        );
     }
 
     public function test_a_comma_csv_is_read(): void
     {
-        $result = $this->parseCsv("name,email\nJohn Doe,john@ornek.com\n");
+        $result = $this->parseCsv("first name,last name,email\nJohn,Doe,john@ornek.com\n");
 
-        $this->assertSame([['name' => 'John Doe', 'email' => 'john@ornek.com']], $result['rows']);
+        $this->assertSame(
+            [['first_name' => 'John', 'last_name' => 'Doe', 'email' => 'john@ornek.com']],
+            $result['rows'],
+        );
     }
 
     public function test_columns_in_the_other_order_are_still_matched(): void
     {
-        $result = $this->parseCsv("E-posta;Ad Soyad\nters@ornek.com;Ters Sıra\n");
+        $result = $this->parseCsv("E-posta;Soyad;Ad\nters@ornek.com;Sıra;Ters\n");
 
-        $this->assertSame([['name' => 'Ters Sıra', 'email' => 'ters@ornek.com']], $result['rows']);
+        $this->assertSame(
+            [['first_name' => 'Ters', 'last_name' => 'Sıra', 'email' => 'ters@ornek.com']],
+            $result['rows'],
+        );
+    }
+
+    /**
+     * Ad ile soyadı tek sütunda veren eski dosyalar hâlâ okunmalı; son kelime
+     * soyad sayılarak bölünüyor.
+     */
+    public function test_a_single_full_name_column_is_split(): void
+    {
+        $result = $this->parseCsv("Ad Soyad;E-posta\nAli Can Yılmaz;ali@ornek.com\nTekisim;tek@ornek.com\n");
+
+        $this->assertSame([
+            ['first_name' => 'Ali Can', 'last_name' => 'Yılmaz', 'email' => 'ali@ornek.com'],
+            ['first_name' => 'Tekisim', 'last_name' => null,     'email' => 'tek@ornek.com'],
+        ], $result['rows']);
     }
 
     public function test_a_file_with_no_header_falls_back_to_the_address_column(): void

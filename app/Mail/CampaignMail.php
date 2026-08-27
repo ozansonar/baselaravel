@@ -8,6 +8,7 @@ use App\Models\Campaign;
 use App\Models\CampaignRecipient;
 use App\Models\Setting;
 use App\Services\UploadService;
+use App\Support\PersonName;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -129,16 +130,22 @@ final class CampaignMail extends BaseMail
      */
     private function personalise(string $content): string
     {
-        $name = $this->recipient->name ?: '';
+        // Ad ve soyad ayrı tutuluyor: "Sayın {last_name}" ya da yalnızca adla
+        // seslenmek tek bir isim alanıyla yapılamıyordu. {name} ikisinin
+        // birleşimi olarak duruyor, eski kampanya metinleri bozulmasın.
+        $firstName = (string) ($this->recipient->first_name ?? '');
+        $lastName = (string) ($this->recipient->last_name ?? '');
 
         // Read straight from settings: envelope() runs before content(), so the
         // shared data this mail builds later is not available yet.
         $siteName = (string) Setting::getValue('site_name', config('app.name'));
 
         return strtr($content, [
-            '{name}'      => e($name),
-            '{email}'     => e($this->recipient->email),
-            '{site_name}' => e($siteName),
+            '{name}'       => e(PersonName::full($firstName, $lastName) ?? ''),
+            '{first_name}' => e($firstName),
+            '{last_name}'  => e($lastName),
+            '{email}'      => e($this->recipient->email),
+            '{site_name}'  => e($siteName),
         ]);
     }
 

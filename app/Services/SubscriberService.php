@@ -18,11 +18,16 @@ final class SubscriberService
      * Signing up again after unsubscribing has to work: the row is kept for its
      * history, so it is revived rather than duplicated.
      */
-    public function subscribe(string $email, ?string $name = null, ?string $locale = null, string $source = 'form'): Subscriber
-    {
+    public function subscribe(
+        string $email,
+        ?string $firstName = null,
+        ?string $lastName = null,
+        ?string $locale = null,
+        string $source = 'form',
+    ): Subscriber {
         $email = mb_strtolower(trim($email));
 
-        return DB::transaction(function () use ($email, $name, $locale, $source): Subscriber {
+        return DB::transaction(function () use ($email, $firstName, $lastName, $locale, $source): Subscriber {
             $existing = Subscriber::withTrashed()->where('email', $email)->first();
 
             if ($existing !== null) {
@@ -31,7 +36,10 @@ final class SubscriberService
                 }
 
                 $existing->update([
-                    'name'            => $name ?: $existing->name,
+                    // Boş gelen ad kayıtlıyı silmemeli: abone formu yalnızca
+                    // adres soruyor, isim başka bir yoldan girilmiş olabilir.
+                    'first_name'      => $firstName ?: $existing->first_name,
+                    'last_name'       => $lastName ?: $existing->last_name,
                     'locale'          => $locale ?: $existing->locale,
                     'status'          => SubscriberStatus::Subscribed,
                     'subscribed_at'   => now(),
@@ -43,7 +51,8 @@ final class SubscriberService
 
             return Subscriber::create([
                 'email'         => $email,
-                'name'          => $name,
+                'first_name'    => $firstName,
+                'last_name'     => $lastName,
                 'locale'        => $locale,
                 'status'        => SubscriberStatus::Subscribed,
                 'source'        => $source,
@@ -108,7 +117,8 @@ final class SubscriberService
 
         return Subscriber::create([
             'email'         => $email,
-            'name'          => $recipient->name,
+            'first_name'    => $recipient->first_name,
+            'last_name'     => $recipient->last_name,
             'locale'        => $recipient->locale,
             'status'        => SubscriberStatus::Unsubscribed,
             'source'        => 'campaign',
@@ -126,7 +136,7 @@ final class SubscriberService
     /**
      * Bulk add, used by the import screen.
      *
-     * @param array<int, array{email: string, name?: ?string}> $rows
+     * @param array<int, array{email: string, first_name?: ?string, last_name?: ?string}> $rows
      * @return array{added: int, updated: int, skipped: int}
      */
     public function importMany(array $rows, ?string $locale = null, string $source = 'import'): array
@@ -146,7 +156,7 @@ final class SubscriberService
 
             $existed = Subscriber::withTrashed()->where('email', $email)->exists();
 
-            $this->subscribe($email, $row['name'] ?? null, $locale, $source);
+            $this->subscribe($email, $row['first_name'] ?? null, $row['last_name'] ?? null, $locale, $source);
 
             $existed ? $updated++ : $added++;
         }
@@ -173,7 +183,9 @@ final class SubscriberService
         if (! empty($filters['search'])) {
             $term = '%' . $filters['search'] . '%';
             $query->where(function ($q) use ($term): void {
-                $q->where('email', 'like', $term)->orWhere('name', 'like', $term);
+                $q->where('email', 'like', $term)
+                    ->orWhere('first_name', 'like', $term)
+                    ->orWhere('last_name', 'like', $term);
             });
         }
 

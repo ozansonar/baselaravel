@@ -53,7 +53,8 @@ class CampaignDispatchTest extends TestCase
             CampaignRecipient::factory()->create([
                 'campaign_id' => $campaign->id,
                 'email'       => "kisi{$i}@ornek.com",
-                'name'        => "Kişi {$i}",
+                'first_name'  => 'Kişi',
+                'last_name'   => (string) $i,
             ]);
         }
 
@@ -238,7 +239,7 @@ class CampaignDispatchTest extends TestCase
 
     public function test_a_scheduled_campaign_waits_for_its_time(): void
     {
-        $campaign = Campaign::factory()->manual([['name' => 'A', 'email' => 'a@ornek.com']])->create([
+        $campaign = Campaign::factory()->manual([['first_name' => 'A', 'last_name' => null, 'email' => 'a@ornek.com']])->create([
             'status'       => CampaignStatus::Scheduled,
             'scheduled_at' => now()->addHour(),
         ]);
@@ -389,9 +390,9 @@ class CampaignDispatchTest extends TestCase
     public function test_a_duplicate_address_is_queued_once(): void
     {
         $campaign = Campaign::factory()->manual([
-            ['name' => 'A', 'email' => 'ayni@ornek.com'],
-            ['name' => 'B', 'email' => 'AYNI@ornek.com'],
-            ['name' => 'C', 'email' => 'baska@ornek.com'],
+            ['first_name' => 'A', 'last_name' => null, 'email' => 'ayni@ornek.com'],
+            ['first_name' => 'B', 'last_name' => null, 'email' => 'AYNI@ornek.com'],
+            ['first_name' => 'C', 'last_name' => null, 'email' => 'baska@ornek.com'],
         ])->create(['status' => CampaignStatus::Scheduled]);
 
         app(CampaignService::class)->start($campaign);
@@ -438,10 +439,14 @@ class CampaignDispatchTest extends TestCase
         ]);
     }
 
+    /**
+     * Ad ve soyad ayrı tutuluyor: metin yalnızca adla ya da yalnızca soyadla
+     * seslenebilmeli, {name} ise ikisinin birleşimi olarak durmalı.
+     */
     public function test_each_recipient_gets_their_own_name_in_the_mail(): void
     {
-        $campaign = $this->campaignWith(1, ['subject' => 'Merhaba {name}']);
-        $campaign->update(['body' => '<p>Selam {name}, adresin {email}.</p>']);
+        $campaign = $this->campaignWith(1, ['subject' => 'Merhaba {first_name}']);
+        $campaign->update(['body' => '<p>Selam {name}, sayın {last_name}, adresin {email}.</p>']);
 
         app(CampaignDispatcher::class)->sendBatch($campaign->refresh());
 
@@ -449,8 +454,9 @@ class CampaignDispatchTest extends TestCase
             $html = $mail->render();
 
             return str_contains($html, 'Selam Kişi 1')
+                && str_contains($html, 'sayın 1')
                 && str_contains($html, 'kisi1@ornek.com')
-                && $mail->envelope()->subject === 'Merhaba Kişi 1';
+                && $mail->envelope()->subject === 'Merhaba Kişi';
         });
     }
 

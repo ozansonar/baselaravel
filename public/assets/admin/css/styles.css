@@ -34554,12 +34554,15 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   padding: 6px 8px;
   color: var(--text-secondary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  /* Üç sütun dar bir yan panele sığmıyor; uzun adres kaydırma çubuğu açmak
+     yerine alt satıra taşıyor. */
+  overflow-wrap: anywhere;
 }
 
-/* Adres bölünmemeli; ad sığmazsa alt satıra geçsin — dar sütunda yatay
-   kaydırma çubuğu yalnızca gerçekten uzun adreslerde çıksın. */
+/* Adres sütunu en geniş olan; ad ve soyad kalanı paylaşıyor. */
+.cmp-import-preview__table th:first-child,
 .cmp-import-preview__table td:first-child {
-  white-space: nowrap;
+  width: 46%;
 }
 
 .cmp-import-preview__table tr:last-child td {

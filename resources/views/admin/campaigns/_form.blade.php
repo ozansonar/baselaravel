@@ -18,14 +18,13 @@
             : [];
 
         $manualRows = collect($stored)->map(function (array $recipient): array {
-            $name = trim((string) ($recipient['name'] ?? ''));
-            $lastSpace = mb_strrpos($name, ' ');
+            // Eski kampanyalarda tek parça "name" var; bölünerek okunuyor.
+            $legacy = App\Support\PersonName::split($recipient['name'] ?? null);
 
             return [
                 'email'      => $recipient['email'] ?? '',
-                // Kayıtta tek bir ad alanı var; son kelime soyad sayılıyor.
-                'first_name' => $lastSpace === false ? $name : mb_substr($name, 0, $lastSpace),
-                'last_name'  => $lastSpace === false ? '' : mb_substr($name, $lastSpace + 1),
+                'first_name' => $recipient['first_name'] ?? $legacy['first_name'] ?? '',
+                'last_name'  => $recipient['last_name'] ?? $legacy['last_name'] ?? '',
             ];
         })->all();
     }
@@ -60,7 +59,8 @@
                            id="subject" name="subject" data-validation-engine="validate[required,maxSize[191]]" value="{{ old('subject', $campaign?->subject) }}"
                            placeholder="Merhaba {name}, bu ayın haberleri">
                     <small class="stg-hint">
-                        Kişiselleştirme: <code>{name}</code> alıcının adı, <code>{email}</code> adresi,
+                        Kişiselleştirme: <code>{first_name}</code> ad, <code>{last_name}</code> soyad,
+                        <code>{name}</code> ikisi birlikte, <code>{email}</code> adres,
                         <code>{site_name}</code> site adı.
                     </small>
                     @error('subject') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -206,8 +206,8 @@
                                id="recipient_file" name="recipient_file" accept=".xlsx,.xls,.ods,.csv,.txt"
                                data-preview-url="{{ route('admin.campaigns.recipients.preview') }}">
                         <small class="stg-hint">
-                            Başlık satırında <code>Ad</code> ve <code>E-posta</code> sütunları olsun.
-                            Başlık yoksa adresler ilk sütundan okunur.
+                            Başlık satırında <code>Ad</code>, <code>Soyad</code> ve <code>E-posta</code>
+                            sütunları olsun. Ad ile soyadı tek sütunda veren eski dosyalar da okunur.
                         </small>
                         <a href="{{ route('admin.campaigns.template') }}" class="btn-glass btn-sm mt-2">
                             <i class="bi bi-download"></i> Örnek şablonu indir (.xlsx)
@@ -268,8 +268,9 @@
                     </button>
 
                     <small class="stg-hint d-block mt-2">
-                        E-posta zorunlu, ad ve soyad isteğe bağlı. Ad girerseniz mailde
-                        <code>{name}</code> yerine yazılır. Aynı adres iki kez girilirse bir kez gönderilir.
+                        E-posta zorunlu, ad ve soyad isteğe bağlı. Girdikleriniz mailde
+                        <code>{first_name}</code> ve <code>{last_name}</code> yerine yazılır.
+                        Aynı adres iki kez girilirse bir kez gönderilir.
                     </small>
 
                     @error('manual_rows') <div class="invalid-feedback d-block mt-2">{{ $message }}</div> @enderror

@@ -11,6 +11,7 @@ use App\Enums\SubscriberStatus;
 use App\Models\Campaign;
 use App\Models\CampaignRecipient;
 use App\Models\Subscriber;
+use App\Support\PersonName;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -197,7 +198,8 @@ final class CampaignService
             $payload[] = [
                 'campaign_id'       => $campaign->id,
                 'email'             => $row['email'],
-                'name'              => $row['name'] ?? null,
+                'first_name'        => $row['first_name'] ?? null,
+                'last_name'         => $row['last_name'] ?? null,
                 'locale'            => $row['locale'] ?? $campaign->locale,
                 'status'            => CampaignRecipientStatus::Pending->value,
                 // Every recipient gets one, not just people already on the
@@ -218,7 +220,7 @@ final class CampaignService
     }
 
     /**
-     * @return array<int, array{email: string, name: ?string, locale: ?string, unsubscribe_token?: ?string}>
+     * @return array<int, array{email: string, first_name: ?string, last_name: ?string, locale: ?string, unsubscribe_token?: ?string}>
      */
     public function resolveAudience(Campaign $campaign): array
     {
@@ -255,9 +257,10 @@ final class CampaignService
 
         return $query->get(['email', 'first_name', 'last_name'])
             ->map(fn (User $user): array => [
-                'email'  => $user->email,
-                'name'   => trim($user->first_name . ' ' . $user->last_name) ?: null,
-                'locale' => $campaign->locale,
+                'email'      => $user->email,
+                'first_name' => $user->first_name,
+                'last_name'  => $user->last_name,
+                'locale'     => $campaign->locale,
             ])
             ->all();
     }
@@ -275,10 +278,11 @@ final class CampaignService
             $query->where('locale', $campaign->locale);
         }
 
-        return $query->get(['email', 'name', 'locale', 'unsubscribe_token'])
+        return $query->get(['email', 'first_name', 'last_name', 'locale', 'unsubscribe_token'])
             ->map(fn (Subscriber $subscriber): array => [
                 'email'             => $subscriber->email,
-                'name'              => $subscriber->name,
+                'first_name'        => $subscriber->first_name,
+                'last_name'         => $subscriber->last_name,
                 'locale'            => $subscriber->locale ?? $campaign->locale,
                 'unsubscribe_token' => $subscriber->unsubscribe_token,
             ])
@@ -308,9 +312,14 @@ final class CampaignService
                 continue;
             }
 
-            $rows[] = [
+            // Ad ve soyad ayrı tutuluyor; daha önce kaydedilmiş kampanyalarda
+            // tek parça "name" var, o da bölünerek okunuyor.
+            $names = is_array($entry) && (isset($entry['first_name']) || isset($entry['last_name']))
+                ? ['first_name' => $entry['first_name'] ?? null, 'last_name' => $entry['last_name'] ?? null]
+                : PersonName::split(is_array($entry) ? ($entry['name'] ?? null) : null);
+
+            $rows[] = $names + [
                 'email'  => mb_strtolower(trim($email)),
-                'name'   => is_array($entry) ? ($entry['name'] ?? null) : null,
                 'locale' => $campaign->locale,
             ];
         }
@@ -367,8 +376,12 @@ final class CampaignService
                 'sample' => $campaign->recipients()
                     ->orderBy('id')
                     ->limit(10)
-                    ->get(['name', 'email'])
-                    ->map(fn ($row): array => ['name' => $row->name, 'email' => $row->email])
+                    ->get(['first_name', 'last_name', 'email'])
+                    ->map(fn ($row): array => [
+                        'first_name' => $row->first_name,
+                        'last_name'  => $row->last_name,
+                        'email'      => $row->email,
+                    ])
                     ->all(),
                 'error'  => null,
             ];
@@ -418,48 +431,6 @@ final class CampaignService
     }
 
     /**
-     * Parse the textarea where recipients are typed one per line as
-     * "Ad Soyad <mail@ornek.com>" or "Ad Soyad;mail@ornek.com" or just a mail.
-     *
-     * @return array<int, array{name: ?string, email: string}>
-     */
-    public function parseManualList(?string $raw): array
-    {
-        if ($raw === null || trim($raw) === '') {
-            return [];
-        }
-
-        $rows = [];
-
-        foreach (preg_split('/\r\n|\r|\n/', $raw) ?: [] as $line) {
-            $line = trim($line);
-
-            if ($line === '') {
-                continue;
-            }
-
-            $name = null;
-            $email = $line;
-
-            if (preg_match('/^(.*)<\s*([^>]+)\s*>$/u', $line, $matches) === 1) {
-                $name = trim($matches[1]) ?: null;
-                $email = trim($matches[2]);
-            } elseif (preg_match('/^(.*?)[;,\t]\s*(\S+@\S+)$/u', $line, $matches) === 1) {
-                $name = trim($matches[1]) ?: null;
-                $email = trim($matches[2]);
-            }
-
-            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                continue;
-            }
-
-            $rows[] = ['name' => $name, 'email' => mb_strtolower($email)];
-        }
-
-        return $rows;
-    }
-
-    /**
      * Elle girilen alıcı satırlarını kayıt biçimine çevirir.
      *
      * Form artık serbest metin yerine satır satır alan gönderiyor: her satırda
@@ -467,7 +438,7 @@ final class CampaignService
      * doldurmadan bıraktığında oluşur) ve aynı adres iki kez atlanır.
      *
      * @param  array<int, array<string, string|null>> $rows
-     * @return array<int, array{name: ?string, email: string}>
+     * @return array<int, array{first_name: ?string, last_name: ?string, email: string}>
      */
     public function parseManualRows(array $rows): array
     {
@@ -487,9 +458,14 @@ final class CampaignService
 
             $seen[$email] = true;
 
-            $name = trim(trim((string) ($row['first_name'] ?? '')) . ' ' . trim((string) ($row['last_name'] ?? '')));
+            $first = trim((string) ($row['first_name'] ?? ''));
+            $last = trim((string) ($row['last_name'] ?? ''));
 
-            $parsed[] = ['name' => $name !== '' ? $name : null, 'email' => $email];
+            $parsed[] = [
+                'first_name' => $first !== '' ? $first : null,
+                'last_name'  => $last !== '' ? $last : null,
+                'email'      => $email,
+            ];
         }
 
         return $parsed;
@@ -504,7 +480,8 @@ final class CampaignService
         $recipient = new CampaignRecipient([
             'campaign_id'       => $campaign->id,
             'email'             => $email,
-            'name'              => 'Test',
+            'first_name'        => 'Test',
+            'last_name'         => 'Gönderimi',
             'locale'            => $campaign->locale,
             'unsubscribe_token' => Str::lower(Str::random(64)),
         ]);

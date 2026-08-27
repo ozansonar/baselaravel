@@ -39,14 +39,16 @@ final class SubscriberController extends Controller
         $this->authorize('create', Subscriber::class);
 
         $validated = $request->validate([
-            'email'  => ['required', 'email', 'max:191'],
-            'name'   => ['nullable', 'string', 'max:191'],
-            'locale' => ['nullable', 'string', 'size:2'],
+            'email'      => ['required', 'email', 'max:191'],
+            'first_name' => ['nullable', 'string', 'max:191'],
+            'last_name'  => ['nullable', 'string', 'max:191'],
+            'locale'     => ['nullable', 'string', 'size:2'],
         ]);
 
         $this->subscribers->subscribe(
             $validated['email'],
-            $validated['name'] ?? null,
+            $validated['first_name'] ?? null,
+            $validated['last_name'] ?? null,
             $validated['locale'] ?? null,
             'panel',
         );
