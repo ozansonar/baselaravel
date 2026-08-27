@@ -142,7 +142,13 @@ final class BackupService
             $name = basename($f);
             $size = (int) @filesize($f);
             $mtime = @filemtime($f);
-            $when = $mtime ? Carbon::createFromTimestamp($mtime) : now();
+            // Zaman damgası uygulamanın saat diliminde okunuyor: belirtilmezse
+            // Carbon UTC varsayıyor ve gece yarısı ile saat farkı arasındaki
+            // birkaç saatte dosya bir önceki güne düşüyor — "kaç gün kaldı"
+            // sayısı da onunla birlikte bir gün kayıyordu.
+            $when = $mtime
+                ? Carbon::createFromTimestamp($mtime, config('app.timezone'))
+                : now();
             $expiresAt = $when->copy()->addDays($retention);
 
             $result[] = [
