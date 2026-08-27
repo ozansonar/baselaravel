@@ -252,6 +252,70 @@ class TranslationOverrideTest extends TestCase
     }
 
     /**
+     * Başka bir dili çevirirken kaynak metin ekranda durmalı; aksi hâlde aslını
+     * görmek için ikinci bir sekme gerekiyor.
+     */
+    public function test_another_language_shows_the_source_text(): void
+    {
+        $html = $this->actingAs($this->editor())
+            ->get(route('admin.translations.index', ['locale' => 'en']))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('trn-reference', $html);
+        // Varsayılan dildeki karşılık, İngilizce alanın yanında görünüyor.
+        $this->assertStringContainsString('Anasayfa', $html);
+    }
+
+    /**
+     * Varsayılan dilde kaynak metin alanın kendisiyle aynı olurdu; tekrar
+     * etmenin anlamı yok.
+     */
+    public function test_the_default_language_does_not_repeat_the_source_text(): void
+    {
+        $html = $this->actingAs($this->editor())
+            ->get(route('admin.translations.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString('trn-reference', $html);
+    }
+
+    /**
+     * Sayfa yüzlerce alan taşıyor: kaydetme yolu kaydırma boyunca yanında
+     * olmalı, ama yalnızca düzenleme yetkisi olana.
+     */
+    public function test_the_save_bar_is_only_rendered_for_editors(): void
+    {
+        $this->assertStringContainsString(
+            'translationSaveBar',
+            $this->actingAs($this->editor())->get(route('admin.translations.index'))->getContent(),
+        );
+
+        $this->assertStringNotContainsString(
+            'translationSaveBar',
+            $this->actingAs($this->userWith([PermissionKey::TranslationsView]))
+                ->get(route('admin.translations.index'))
+                ->getContent(),
+        );
+    }
+
+    /**
+     * Çevrilmemiş metinler süzülebilmeli: yeni bir dil eklendiğinde asıl iş
+     * onları bulup doldurmak.
+     */
+    public function test_untranslated_strings_are_marked_for_filtering(): void
+    {
+        $html = $this->actingAs($this->editor())
+            ->get(route('admin.translations.index', ['locale' => 'en']))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('onlyMissing', $html);
+        $this->assertStringContainsString('data-missing=', $html);
+    }
+
+    /**
      * The key list comes from the file, so a string added in code appears here
      * without anyone registering it.
      */

@@ -96,12 +96,19 @@
                     <input type="search" id="translationSearch" placeholder="Metin veya anahtar ara… (örn: giriş, nav.home)"
                            autocomplete="off" data-fv-ignore>
                 </div>
-                <div class="cl-toolbar-actions">
-                    <label class="d-flex align-items-center gap-2 mb-0">
+                <div class="cl-toolbar-actions trn-filters">
+                    <label class="trn-check mb-0">
                         <input type="checkbox" id="onlyChanged" data-fv-ignore>
-                        <span class="text-clr-secondary small">Yalnızca değiştirilenler</span>
+                        <span>Yalnızca değiştirilenler</span>
                     </label>
-                    <span class="text-clr-secondary small ms-3" id="searchCount"></span>
+                    {{-- Yeni bir dil eklendiğinde asıl iş çevrilmemişleri bulup
+                         doldurmak; sayısı yukarıda yazıyordu ama listeye
+                         süzülemiyordu. --}}
+                    <label class="trn-check mb-0">
+                        <input type="checkbox" id="onlyMissing" data-fv-ignore>
+                        <span>Yalnızca çevrilmemişler <strong class="text-neon-orange">{{ $stats['missing'] }}</strong></span>
+                    </label>
+                    <span class="text-clr-secondary small" id="searchCount"></span>
                 </div>
             </div>
         </div>
@@ -113,6 +120,24 @@
         @csrf
         @method('PUT')
         <input type="hidden" name="locale" value="{{ $locale }}">
+
+        {{-- Sayfa on sekiz bin piksel: ortadaki bir metni düzeltip kaydetmek için
+             başa dönmek gerekiyordu. Çubuk kaydırma boyunca üstte kalıyor ve kaç
+             alanın kaydedilmeyi beklediğini söylüyor. --}}
+        @if($canEdit)
+            <div class="trn-savebar" id="translationSaveBar">
+                <span class="trn-savebar__lang">
+                    @php $activeLanguage = $languages->firstWhere('code', $locale); @endphp
+                    {{ $activeLanguage?->flag }} {{ $activeLanguage?->native_name ?: $activeLanguage?->name ?? strtoupper($locale) }}
+                </span>
+                <span class="trn-savebar__status" id="saveBarStatus" data-idle="Kaydedilmemiş değişiklik yok">
+                    Kaydedilmemiş değişiklik yok
+                </span>
+                <button type="submit" class="btn-teal btn-sm trn-savebar__button" id="saveBarButton">
+                    <i class="bi bi-save"></i> Kaydet
+                </button>
+            </div>
+        @endif
 
         @foreach($sections as $sectionKey => $section)
             <div class="card-dark mb-4 translation-section" data-section="{{ $sectionKey }}" data-aos="fade-up">
@@ -126,7 +151,8 @@
                             <div class="col-lg-6 translation-row"
                                  data-key="{{ $row['key'] }}"
                                  data-search="{{ mb_strtolower($row['key'] . ' ' . $row['label'] . ' ' . $row['value'] . ' ' . $row['reference']) }}"
-                                 data-changed="{{ $row['overridden'] ? '1' : '0' }}">
+                                 data-changed="{{ $row['overridden'] ? '1' : '0' }}"
+                                 data-missing="{{ $row['missing'] ? '1' : '0' }}">
                                 <div class="stg-field">
                                     <label class="stg-label d-flex justify-content-between align-items-center" for="k{{ md5($row['key']) }}">
                                         <span>{{ $row['label'] }}</span>
@@ -154,6 +180,15 @@
                                                {{ $canEdit ? '' : 'disabled' }}>
                                     @endif
 
+                                    @unless($isDefaultLocale)
+                                        {{-- Kaynak metin: çeviri yapılırken aslını görmek için
+                                             başka bir sekme açmak gerekmesin. --}}
+                                        <small class="trn-reference" title="{{ $row['reference'] }}">
+                                            <span class="trn-reference__tag">{{ $defaultLabel }}</span>
+                                            {{ \Illuminate\Support\Str::limit($row['reference'], 120) }}
+                                        </small>
+                                    @endunless
+
                                     <small class="stg-hint d-flex justify-content-between gap-2">
                                         <code class="translation-key">{{ $row['key'] }}</code>
                                         @if($row['overridden'] && $canEdit)
@@ -173,7 +208,7 @@
 
         <div class="translation-empty card-dark mb-4 d-none" id="noResults">
             <div class="card-body-custom text-center py-5">
-                <i class="bi bi-search d-block mb-2" style="font-size:2rem"></i>
+                <i class="bi bi-search d-block mb-2 trn-empty__icon"></i>
                 <p class="mb-0 text-clr-secondary">Aramanla eşleşen metin yok.</p>
             </div>
         </div>
@@ -210,19 +245,6 @@
         </div>
     @endcan
 @endsection
-
-@push('styles')
-<style>
-    .translation-key { font-size: .7rem; opacity: .55; }
-    .translation-badge { font-size: .65rem; }
-    .btn-link-teal {
-        background: none; border: 0; padding: 0;
-        color: var(--neon-teal, #2ee6a8); font-size: .7rem; cursor: pointer;
-    }
-    .btn-link-teal:hover { text-decoration: underline; }
-    .translation-row.is-hidden, .translation-section.is-hidden { display: none; }
-</style>
-@endpush
 
 @push('scripts')
 <script src="{{ versioned_asset('assets/admin/js/translations.js') }}"></script>
