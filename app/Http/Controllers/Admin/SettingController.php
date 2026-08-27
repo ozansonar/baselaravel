@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\MailService;
 use App\Services\SettingService;
+use App\Services\SystemStatusService;
 use App\Services\UploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,7 @@ final class SettingController extends Controller
         private readonly SettingService $settingService,
         private readonly UploadService $uploadService,
         private readonly MailService $mailService,
+        private readonly SystemStatusService $systemStatus,
     ) {}
 
     public function index(): View
@@ -31,27 +33,19 @@ final class SettingController extends Controller
 
         $allSettings = Setting::all()->keyBy('key');
 
-        $dbConnected = true;
-        try {
-            DB::connection()->getPdo();
-        } catch (\Throwable) {
-            $dbConnected = false;
-        }
+        // Sistem durumunun hesabı ekranda değil serviste: ekran yalnızca
+        // sonucu çiziyor.
+        $system = $this->systemStatus->snapshot();
 
         return view('admin.settings.index', [
-            'settings'             => $allSettings,
-            'systemInfo'           => [
-                'php_version'     => PHP_VERSION,
-                'laravel_version' => app()->version(),
-                'db_connected'    => $dbConnected,
-                // Web request'in gerçek PHP ayarları (CLI'dan farklı olabilir)
-                'php_upload_max_filesize' => (string) ini_get('upload_max_filesize'),
-                'php_post_max_size'       => (string) ini_get('post_max_size'),
-                'php_memory_limit'        => (string) ini_get('memory_limit'),
-                'php_max_execution_time'  => (string) ini_get('max_execution_time'),
-                'php_max_input_time'      => (string) ini_get('max_input_time'),
-                'php_sapi'                => PHP_SAPI,
-            ],
+            'settings'   => $allSettings,
+            'systemInfo' => $system,
+            'verdict'    => $this->systemStatus->verdict(
+                $system['limits'],
+                $system['db']['connected'],
+                $system['debug'] && $system['environment'] === 'production',
+                $system['storage_writable'],
+            ),
         ]);
     }
 

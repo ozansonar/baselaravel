@@ -9,7 +9,7 @@
 @endphp
 
 @push('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css">
+<link rel="stylesheet" href="{{ versioned_asset('assets/vendor/glightbox/css/glightbox.min.css') }}">
 <style>
 .stg-google-preview{background:var(--admin-card-bg, #1a1d23);border:1px solid var(--admin-border, rgba(255,255,255,.08));border-radius:12px;padding:20px}
 .stg-google-preview-inner{background:var(--admin-sidebar-bg, #13151a);border:1px solid var(--admin-border, rgba(255,255,255,.06));border-radius:10px;padding:16px 20px}
@@ -1239,122 +1239,165 @@
 
         <div class="stg-panel" id="stg-system">
 
+            @php
+                $durumSinifi = ['ok' => 'sys-ok', 'warn' => 'sys-warn', 'danger' => 'sys-danger'];
+                $durumIkonu  = ['ok' => 'bi-check-circle-fill', 'warn' => 'bi-exclamation-triangle-fill', 'danger' => 'bi-x-octagon-fill'];
+                $disk = $systemInfo['disk'];
+                $canliDebug = $systemInfo['debug'] && $systemInfo['environment'] === 'production';
+            @endphp
+
+            {{-- Tek cümlelik özet: ekranı açan kişi önce "sorun var mı" sorusunun
+                 cevabını görsün, ayrıntıya sonra insin. --}}
+            <div class="sys-verdict {{ $durumSinifi[$verdict['state']] }}">
+                <i class="bi {{ $durumIkonu[$verdict['state']] }}"></i>
+                <div>
+                    <strong>{{ $verdict['title'] }}</strong>
+                    <span>{{ $verdict['detail'] }}</span>
+                </div>
+            </div>
+
             {{-- Sistem Durumu --}}
             <div class="stg-section">
                 <div class="stg-section-title">
-                    <h6>Sistem Durumu</h6>
+                    <h6><i class="bi bi-hdd-stack"></i> Sistem Durumu</h6>
+                    <p>Uygulamanın üzerinde çalıştığı ortam</p>
                 </div>
 
-                <div class="stg-system-status">
-                    <div class="stg-status-item">
-                        <div class="stg-status-left">
-                            <span class="stg-status-dot stg-dot-ok"></span>
-                            <span class="stg-status-label">Web Sunucusu</span>
-                        </div>
-                        <span class="stg-status-value">Çalışıyor</span>
+                <div class="sys-grid">
+                    <div class="sys-card">
+                        <span class="sys-card__label"><i class="bi bi-hdd-network"></i> Web sunucusu</span>
+                        <strong class="sys-card__value">{{ \Illuminate\Support\Str::limit($systemInfo['server_software'], 28) }}</strong>
+                        <span class="sys-card__meta">PHP arayüzü: {{ $systemInfo['php_sapi'] }}</span>
                     </div>
-                    <div class="stg-status-item">
-                        <div class="stg-status-left">
-                            <span class="stg-status-dot {{ $systemInfo['db_connected'] ? 'stg-dot-ok' : 'stg-dot-danger' }}"></span>
-                            <span class="stg-status-label">Veritabanı (MySQL)</span>
-                        </div>
-                        <span class="stg-status-value">{{ $systemInfo['db_connected'] ? 'Bağlı' : 'Bağlantı Yok' }}</span>
+
+                    <div class="sys-card {{ $systemInfo['db']['connected'] ? '' : 'sys-card--danger' }}">
+                        <span class="sys-card__label"><i class="bi bi-database"></i> Veritabanı</span>
+                        <strong class="sys-card__value">
+                            @if($systemInfo['db']['connected'])
+                                {{ strtoupper($systemInfo['db']['driver']) }} {{ \Illuminate\Support\Str::before($systemInfo['db']['version'] ?? '', '-') }}
+                            @else
+                                Bağlantı yok
+                            @endif
+                        </strong>
+                        {{-- SQLite'ta ad yerine tam dosya yolu geliyor; kartı taşırmasın. --}}
+                        <span class="sys-card__meta" title="{{ $systemInfo['db']['name'] }}">
+                            {{ $systemInfo['db']['connected']
+                                ? \Illuminate\Support\Str::limit(basename((string) $systemInfo['db']['name']), 32)
+                                : 'Ayarları kontrol edin' }}
+                        </span>
                     </div>
-                    <div class="stg-status-item">
-                        <div class="stg-status-left">
-                            <span class="stg-status-dot stg-dot-ok"></span>
-                            <span class="stg-status-label">PHP Sürümü</span>
-                        </div>
-                        <span class="stg-status-value">{{ $systemInfo['php_version'] }}</span>
+
+                    <div class="sys-card">
+                        <span class="sys-card__label"><i class="bi bi-filetype-php"></i> PHP</span>
+                        <strong class="sys-card__value">{{ $systemInfo['php_version'] }}</strong>
+                        <span class="sys-card__meta">Laravel {{ $systemInfo['laravel_version'] }}</span>
                     </div>
-                    <div class="stg-status-item">
-                        <div class="stg-status-left">
-                            <span class="stg-status-dot stg-dot-ok"></span>
-                            <span class="stg-status-label">Laravel Sürümü</span>
-                        </div>
-                        <span class="stg-status-value">{{ $systemInfo['laravel_version'] }}</span>
+
+                    <div class="sys-card {{ $canliDebug ? 'sys-card--danger' : '' }}">
+                        <span class="sys-card__label"><i class="bi bi-toggles"></i> Ortam</span>
+                        <strong class="sys-card__value">{{ $systemInfo['environment'] }}</strong>
+                        <span class="sys-card__meta">
+                            @if($canliDebug)
+                                Hata ayıklama açık — canlıda kapatın
+                            @else
+                                Hata ayıklama {{ $systemInfo['debug'] ? 'açık' : 'kapalı' }} · {{ $systemInfo['timezone'] }}
+                            @endif
+                        </span>
                     </div>
+
+                    <div class="sys-card">
+                        <span class="sys-card__label"><i class="bi bi-lightning-charge"></i> Önbellek / kuyruk</span>
+                        <strong class="sys-card__value">{{ $systemInfo['cache_driver'] }} · {{ $systemInfo['queue_driver'] }}</strong>
+                        <span class="sys-card__meta">
+                            storage klasörü {{ $systemInfo['storage_writable'] ? 'yazılabilir' : 'yazılamıyor' }}
+                        </span>
+                    </div>
+
+                    @if($disk['total'] > 0)
+                        <div class="sys-card">
+                            <span class="sys-card__label"><i class="bi bi-hdd"></i> Disk</span>
+                            <strong class="sys-card__value">{{ $disk['free_human'] }} boş</strong>
+                            <div class="sys-meter" role="img"
+                                 aria-label="Diskin yüzde {{ $disk['used_percent'] }} kadarı dolu">
+                                <span class="sys-meter__fill {{ $disk['used_percent'] >= 90 ? 'is-full' : '' }}"
+                                      style="--sys-meter: {{ $disk['used_percent'] }}%"></span>
+                            </div>
+                            <span class="sys-card__meta">
+                                {{ $disk['total_human'] }} alanın %{{ $disk['used_percent'] }} kadarı dolu
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Yükleme limitleri --}}
+            <div class="stg-section">
+                <div class="stg-section-title">
+                    <h6><i class="bi bi-cloud-upload"></i> Dosya Yükleme Limitleri</h6>
+                    <p>Bu değerler web isteklerinde geçerli olan PHP ayarları ({{ $systemInfo['php_sapi'] }})</p>
+                </div>
+
+                <div class="alert alert-info sys-note">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Bu tavanlar aşıldığında yükleme <strong>hata vermeden</strong> düşer: tarayıcı dosyayı gönderir,
+                    PHP gövdeyi kabul etmez ve form boş gelir. Panelden büyük görsel ya da video yükleyecekseniz
+                    iki sınırın da <strong>{{ $systemInfo['recommended_upload_human'] }}</strong>
+                    ve üzerinde olması gerekir. Komut satırındaki değerler (<code>php -i</code>) web ile aynı olmayabilir.
+                </div>
+
+                <div class="sys-limits">
+                    @foreach($systemInfo['limits'] as $limit)
+                        @php
+                            $oran = $limit['recommended'] > 0 && $limit['bytes'] > 0
+                                ? min(100, (int) round(($limit['bytes'] / $limit['recommended']) * 100))
+                                : 100;
+                        @endphp
+                        <div class="sys-limit {{ $durumSinifi[$limit['state']] }}">
+                            <div class="sys-limit__head">
+                                <span class="sys-limit__label">
+                                    <i class="bi {{ $durumIkonu[$limit['state']] }}"></i>
+                                    {{ $limit['label'] }}
+                                    <code>{{ $limit['key'] }}</code>
+                                </span>
+                                <span class="sys-limit__value">
+                                    {{ $limit['value'] }}
+                                    @if($limit['state'] !== 'ok' && $limit['key'] !== 'max_execution_time')
+                                        <small>/ önerilen {{ $limit['recommended_human'] }}</small>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="sys-meter">
+                                <span class="sys-meter__fill" style="--sys-meter: {{ $oran }}%"></span>
+                            </div>
+                            <p class="sys-limit__note">{{ $limit['note'] }}</p>
+                        </div>
+                    @endforeach
                 </div>
 
                 @php
-                    // PHP-FPM web ayarları (CLI'dan farklı olabilir)
-                    $parseSize = function (string $val): int {
-                        $val = trim($val);
-                        if ($val === '' || $val === '0') return 0;
-                        $unit = strtolower(substr($val, -1));
-                        $num = (int) $val;
-                        return match($unit) {
-                            'g' => $num * 1024 * 1024 * 1024,
-                            'm' => $num * 1024 * 1024,
-                            'k' => $num * 1024,
-                            default => $num,
-                        };
-                    };
-                    $upload  = $parseSize($systemInfo['php_upload_max_filesize'] ?? '0');
-                    $post    = $parseSize($systemInfo['php_post_max_size'] ?? '0');
-                    $memory  = $parseSize($systemInfo['php_memory_limit'] ?? '0');
-
-                    // Önerilen minimum: video upload için 128MB
-                    $uploadOk = $upload >= 100 * 1024 * 1024;
-                    $postOk   = $post >= 100 * 1024 * 1024;
-                    $memoryOk = $memory >= 256 * 1024 * 1024 || $memory === 0;
+                    $dusukler = array_filter($systemInfo['limits'], fn (array $row): bool => $row['state'] === 'danger');
                 @endphp
 
-                <div class="stg-section">
-                    <div class="stg-section-title">
-                        <h6><i class="bi bi-cloud-upload"></i> PHP Web Yükleme Limitleri ({{ $systemInfo['php_sapi'] ?? '?' }})</h6>
-                        <p>Web isteklerinde geçerli PHP ayarları. Reels videoları için 128M+ önerilir.</p>
+                @if($dusukler !== [])
+                    <div class="sys-fix">
+                        <div class="sys-fix__head">
+                            <strong><i class="bi bi-wrench-adjustable me-1"></i>Nasıl düzeltilir</strong>
+                            <button type="button" class="btn-glass btn-sm stg-copy-btn" data-copy-target="phpIniSnippet">
+                                <i class="bi bi-clipboard"></i> Ayarları kopyala
+                            </button>
+                        </div>
+                        <p class="sys-fix__text">
+                            Hosting panelinizde <strong>PHP ayarları</strong> (ya da sunucuda
+                            <code>php.ini</code> / PHP-FPM havuz dosyası) bölümüne aşağıdaki satırları yazın,
+                            ardından PHP servisini yeniden başlatın. Paylaşımlı hostinglerde bu alan genelde
+                            "PHP Selector" ya da "MultiPHP INI Editor" adıyla geçer.
+                        </p>
+<pre class="sys-fix__code" id="phpIniSnippet">upload_max_filesize = 128M
+post_max_size = 128M
+memory_limit = 256M
+max_execution_time = 120</pre>
                     </div>
-
-                    <div class="stg-system-status">
-                        <div class="stg-status-item">
-                            <div class="stg-status-left">
-                                <span class="stg-status-dot {{ $uploadOk ? 'stg-dot-ok' : 'stg-dot-danger' }}"></span>
-                                <span class="stg-status-label">upload_max_filesize</span>
-                            </div>
-                            <span class="stg-status-value">
-                                {{ $systemInfo['php_upload_max_filesize'] }}
-                                @if(! $uploadOk) <small class="text-danger ms-1">(düşük — 128M önerilir)</small> @endif
-                            </span>
-                        </div>
-                        <div class="stg-status-item">
-                            <div class="stg-status-left">
-                                <span class="stg-status-dot {{ $postOk ? 'stg-dot-ok' : 'stg-dot-danger' }}"></span>
-                                <span class="stg-status-label">post_max_size</span>
-                            </div>
-                            <span class="stg-status-value">
-                                {{ $systemInfo['php_post_max_size'] }}
-                                @if(! $postOk) <small class="text-danger ms-1">(düşük — 128M önerilir)</small> @endif
-                            </span>
-                        </div>
-                        <div class="stg-status-item">
-                            <div class="stg-status-left">
-                                <span class="stg-status-dot {{ $memoryOk ? 'stg-dot-ok' : 'stg-dot-warn' }}"></span>
-                                <span class="stg-status-label">memory_limit</span>
-                            </div>
-                            <span class="stg-status-value">{{ $systemInfo['php_memory_limit'] }}</span>
-                        </div>
-                        <div class="stg-status-item">
-                            <div class="stg-status-left">
-                                <span class="stg-status-dot stg-dot-ok"></span>
-                                <span class="stg-status-label">max_execution_time</span>
-                            </div>
-                            <span class="stg-status-value">
-                                {{ $systemInfo['php_max_execution_time'] }}{{ $systemInfo['php_max_execution_time'] !== '0' ? ' sn' : ' (sınırsız)' }}
-                            </span>
-                        </div>
-                    </div>
-
-                    @if(! $uploadOk || ! $postOk)
-                    <div class="alert alert-warning mt-3 mb-0 small">
-                        <i class="bi bi-info-circle me-1"></i>
-                        <strong>Düzeltme:</strong> Web FPM ayarları düşük. PHP-FPM config dosyasında
-                        <code>upload_max_filesize=128M</code>, <code>post_max_size=128M</code> ayarla
-                        ve <code>php-fpm</code> servisini yeniden başlat.
-                        CLI ayarları (<code>php -i</code>) web ile aynı olmayabilir.
-                    </div>
-                    @endif
-                </div>
+                @endif
             </div>
 
             {{-- Tehlikeli Bölge --}}
@@ -1695,7 +1738,9 @@
     }
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/js/glightbox.min.js"></script>
+{{-- Kütüphane projede duruyor; CDN'e erişilemediğinde görsel önizleme
+     sessizce çalışmıyordu. --}}
+<script src="{{ versioned_asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
 <script>
     var lightbox = GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
 
