@@ -35700,3 +35700,41 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   .cmp-next__name { display: none; }
   .cmp-recipients__num { width: 40px; }
 }
+
+/* Alıcı toplu işlem çubuğu: seçim varken beliriyor. */
+.cmp-bulk {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 20px 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--text-teal);
+  border-radius: 12px;
+  background: rgba(20, 184, 166, .08);
+}
+
+.cmp-bulk__count { color: var(--text-primary); font-size: 13px; }
+.cmp-bulk__count strong { color: var(--text-teal); }
+
+.cmp-bulk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cmp-bulk__clear {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.cmp-bulk__clear:hover { color: var(--text-primary); }
+
+@media (max-width: 575.98px) {
+  .cmp-bulk { margin-inline: 12px; }
+  .cmp-bulk__clear { margin-left: 0; }
+}

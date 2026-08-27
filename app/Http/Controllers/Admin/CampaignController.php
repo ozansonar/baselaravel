@@ -25,6 +25,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use RuntimeException;
 use Throwable;
@@ -536,6 +537,122 @@ final class CampaignController extends Controller
         $recipient->update(['status' => CampaignRecipientStatus::Pending]);
 
         return back()->with('success', $recipient->email . ' yeniden sıraya alındı.');
+    }
+
+    /**
+     * Seçilen alıcılara toplu işlem.
+     *
+     * Tek tek çıkarmak on binlerce alıcılı bir listede gerçekçi değil; süzgeçle
+     * daraltıp topluca işlemek gerekiyor.
+     */
+    public function bulkRecipients(Request $request, Campaign $campaign): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+
+        $validated = $request->validate([
+            'action'           => ['required', 'string', 'in:exclude,restore,retry'],
+            'recipient_ids'    => ['required', 'array', 'min:1'],
+            'recipient_ids.*'  => ['integer'],
+        ], [
+            'recipient_ids.required' => 'Önce en az bir alıcı seçin.',
+        ]);
+
+        $ids = $validated['recipient_ids'];
+
+        $count = match ($validated['action']) {
+            'exclude' => $this->campaigns->excludeRecipients($campaign, $ids),
+            'restore' => $this->campaigns->restoreRecipients($campaign, $ids),
+            'retry'   => $this->campaigns->retryFailed($campaign, $ids),
+        };
+
+        if ($count === 0) {
+            return back()->with('error', 'Seçilen alıcılarda bu işlem uygulanabilir bir satır yok.');
+        }
+
+        return back()->with('success', match ($validated['action']) {
+            'exclude' => "{$count} alıcı gönderim dışında bırakıldı.",
+            'restore' => "{$count} alıcı yeniden sıraya alındı.",
+            'retry'   => "{$count} başarısız alıcı yeniden denenecek.",
+        });
+    }
+
+    /**
+     * Kampanyanın tüm başarısızlarını yeniden denemeye alır.
+     */
+    public function retryFailed(Campaign $campaign): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+
+        $count = $this->campaigns->retryFailed($campaign);
+
+        return $count === 0
+            ? back()->with('error', 'Yeniden denenecek başarısız alıcı yok.')
+            : back()->with('success', "{$count} başarısız alıcı yeniden denenecek.");
+    }
+
+    /**
+     * Alıcı listesini CSV olarak indirir.
+     *
+     * Ekrandaki süzgeç aynen uygulanıyor: "başarısızları ver" diyen biri
+     * dosyada tüm listeyi bulmamalı. Satırlar akış hâlinde yazılıyor, tamamı
+     * belleğe alınmıyor — paylaşımlı hosting'de on binlerce satır belleği
+     * doldururdu.
+     */
+    public function exportRecipients(Request $request, Campaign $campaign): StreamedResponse
+    {
+        $this->authorize('view', $campaign);
+
+        $status = (string) $request->string('rstatus')->value();
+        $search = (string) $request->string('rsearch')->trim()->value();
+
+        $query = $campaign->recipients()
+            ->when(
+                CampaignRecipientStatus::tryFrom($status) !== null,
+                fn ($q) => $q->where('status', $status),
+            )
+            ->when($search !== '', function ($q) use ($search): void {
+                $term = '%' . addcslashes($search, '%_\\') . '%';
+
+                $q->where(function ($inner) use ($term): void {
+                    $inner->where('email', 'like', $term)
+                        ->orWhere('first_name', 'like', $term)
+                        ->orWhere('last_name', 'like', $term);
+                });
+            })
+            ->orderBy('id');
+
+        $filename = 'alicilar-' . $campaign->id . '-' . now()->format('Ymd-Hi') . '.csv';
+
+        return response()->streamDownload(function () use ($query): void {
+            $handle = fopen('php://output', 'wb');
+
+            // Excel'in Türkçe karakterleri doğru okuması için BOM; olmadan
+            // "Yılmaz" bozuk görünüyor.
+            fwrite($handle, "\xEF\xBB\xBF");
+            // Türkçe Excel varsayılan ayırıcı olarak noktalı virgül bekliyor.
+            fputcsv($handle, ['Sıra', 'E-posta', 'Ad', 'Soyad', 'Durum', 'Deneme', 'Gönderim', 'Hata'], ';');
+
+            $sira = 0;
+
+            $query->chunk(500, function ($rows) use ($handle, &$sira): void {
+                foreach ($rows as $row) {
+                    fputcsv($handle, [
+                        ++$sira,
+                        $row->email,
+                        $row->first_name,
+                        $row->last_name,
+                        $row->status->label(),
+                        $row->attempts,
+                        $row->sent_at?->format('d.m.Y H:i'),
+                        $row->error,
+                    ], ';');
+                }
+            });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     private function recipientBreakdown(Campaign $campaign): array

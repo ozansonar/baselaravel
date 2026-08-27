@@ -438,6 +438,99 @@ final class CampaignService
         }
     }
 
+    /**
+     * Seçilen alıcıları gönderim dışında bırakır.
+     *
+     * Gönderilmiş adresler atlanıyor: mail yola çıktıktan sonra çıkarmak
+     * mümkün değil, toplu işlemde sessizce dışarıda bırakılıyorlar ve kaç
+     * tanesinin işlendiği geri dönüyor.
+     *
+     * @param  array<int, int> $recipientIds Boşsa süzgeçten geçen tüm uygun satırlar
+     * @return int İşlenen satır sayısı
+     */
+    public function excludeRecipients(Campaign $campaign, array $recipientIds): int
+    {
+        return $campaign->recipients()
+            ->whereIn('id', $recipientIds)
+            ->whereIn('status', [CampaignRecipientStatus::Pending, CampaignRecipientStatus::Failed])
+            ->update(['status' => CampaignRecipientStatus::Skipped]);
+    }
+
+    /**
+     * Çıkarılmış alıcıları sıraya geri koyar.
+     *
+     * @param  array<int, int> $recipientIds
+     * @return int
+     */
+    public function restoreRecipients(Campaign $campaign, array $recipientIds): int
+    {
+        $count = $campaign->recipients()
+            ->whereIn('id', $recipientIds)
+            ->where('status', CampaignRecipientStatus::Skipped)
+            ->update(['status' => CampaignRecipientStatus::Pending]);
+
+        if ($count > 0) {
+            $this->reopenIfCompleted($campaign);
+        }
+
+        return $count;
+    }
+
+    /**
+     * Başarısız alıcıları yeniden denemeye alır.
+     *
+     * Yalnızca durumu değiştirmek yetmez: satır zaten deneme tavanına ulaştığı
+     * için başarısız sayılmış, sayaç sıfırlanmazsa bir sonraki turda anında
+     * yine başarısız olur. Kampanyanın failed_count'u da geri alınıyor, yoksa
+     * ekrandaki özet gerçeği söylemez.
+     *
+     * @param  array<int, int> $recipientIds Boşsa kampanyanın tüm başarısızları
+     * @return int
+     */
+    public function retryFailed(Campaign $campaign, array $recipientIds = []): int
+    {
+        return DB::transaction(function () use ($campaign, $recipientIds): int {
+            $query = $campaign->recipients()->where('status', CampaignRecipientStatus::Failed);
+
+            if ($recipientIds !== []) {
+                $query->whereIn('id', $recipientIds);
+            }
+
+            $count = $query->update([
+                'status'   => CampaignRecipientStatus::Pending,
+                'attempts' => 0,
+                'error'    => null,
+            ]);
+
+            if ($count === 0) {
+                return 0;
+            }
+
+            $campaign->decrement('failed_count', min($count, (int) $campaign->failed_count));
+            $this->reopenIfCompleted($campaign);
+
+            return $count;
+        });
+    }
+
+    /**
+     * Tamamlanmış kampanyayı yeniden gönderime açar.
+     *
+     * Sıraya yeni satır eklendiğinde durum "gönderildi" kalırsa zamanlanmış
+     * görev kampanyayı hiç eline almaz ve satırlar sonsuza dek bekler.
+     */
+    private function reopenIfCompleted(Campaign $campaign): void
+    {
+        if ($campaign->status !== CampaignStatus::Sent) {
+            return;
+        }
+
+        $campaign->update([
+            'status'       => CampaignStatus::Sending,
+            'completed_at' => null,
+        ]);
+    }
+
     public function deleteAttachment(Campaign $campaign, int $attachmentId): void
     {
         $attachment = $campaign->attachments()->findOrFail($attachmentId);

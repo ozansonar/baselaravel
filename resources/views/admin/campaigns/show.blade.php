@@ -301,7 +301,26 @@
                 <div class="card-dark mb-4" data-aos="fade-up">
                     <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <h6><i class="bi bi-people me-2 text-teal"></i>Alıcılar</h6>
-                        <span class="cmp-badge">{{ number_format($recipients->total()) }}</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="cmp-badge">{{ number_format($recipients->total()) }}</span>
+                            @if(($breakdown[App\Enums\CampaignRecipientStatus::Failed->value] ?? 0) > 0)
+                                @can('update', $campaign)
+                                    <form method="POST" action="{{ route('admin.campaigns.recipients.retry', $campaign) }}"
+                                          id="retryAllForm" class="d-inline">
+                                        @csrf
+                                        <button type="button" class="btn-glass btn-sm js-retry-all">
+                                            <i class="bi bi-arrow-clockwise"></i> Başarısızları yeniden dene
+                                        </button>
+                                    </form>
+                                @endcan
+                            @endif
+                            {{-- Süzgeç dosyaya da taşınıyor: "başarısızları ver" diyen
+                                 biri dosyada tüm listeyi bulmamalı. --}}
+                            <a href="{{ route('admin.campaigns.recipients.export', [$campaign, 'rstatus' => $recipientFilter['status'] ?: null, 'rsearch' => $recipientFilter['search'] ?: null]) }}"
+                               class="btn-glass btn-sm" title="Görünen listeyi CSV indir">
+                                <i class="bi bi-download"></i> CSV
+                            </a>
+                        </div>
                     </div>
 
                     <div class="card-body-custom">
@@ -346,11 +365,46 @@
                         </form>
                     </div>
 
+                    @can('update', $campaign)
+                        {{-- Toplu işlem formu tablonun dışında: satır içindeki tekil
+                             işlem formlarıyla iç içe geçemez, kutular form niteliğiyle
+                             bağlanıyor. --}}
+                        <form method="POST" action="{{ route('admin.campaigns.recipients.bulk', $campaign) }}"
+                              id="recipientBulkForm">
+                            @csrf
+                            <input type="hidden" name="action" id="recipientBulkAction" value="exclude">
+                        </form>
+
+                        <div class="cmp-bulk d-none" id="recipientBulkBar">
+                            <span class="cmp-bulk__count">
+                                <strong id="recipientBulkCount">0</strong> alıcı seçildi
+                            </span>
+                            <div class="cmp-bulk__actions">
+                                <button type="button" class="btn-glass btn-sm js-bulk" data-action="exclude">
+                                    <i class="bi bi-person-dash"></i> Gönderimden çıkar
+                                </button>
+                                <button type="button" class="btn-glass btn-sm js-bulk" data-action="restore">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Sıraya al
+                                </button>
+                                <button type="button" class="btn-glass btn-sm js-bulk" data-action="retry">
+                                    <i class="bi bi-arrow-clockwise"></i> Yeniden dene
+                                </button>
+                            </div>
+                            <button type="button" class="cmp-bulk__clear" id="recipientBulkClear">Seçimi bırak</button>
+                        </div>
+                    @endcan
+
                     <div class="card-body-custom p-0">
                         <div class="table-responsive">
                             <table class="cl-table">
                                 <thead>
                                     <tr>
+                                        @can('update', $campaign)
+                                            <th class="sub-check-col">
+                                                <input type="checkbox" id="recipientSelectAll"
+                                                       aria-label="Tümünü seç" data-fv-ignore>
+                                            </th>
+                                        @endcan
                                         <th class="cmp-recipients__num">#</th>
                                         <th>Alıcı</th>
                                         <th>Durum</th>
@@ -362,6 +416,14 @@
                                 <tbody>
                                     @forelse($recipients as $index => $alici)
                                         <tr>
+                                            @can('update', $campaign)
+                                                <td class="sub-check-col">
+                                                    <input type="checkbox" form="recipientBulkForm"
+                                                           name="recipient_ids[]" value="{{ $alici->id }}"
+                                                           class="js-recipient-row" data-fv-ignore
+                                                           aria-label="{{ $alici->email }} seç">
+                                                </td>
+                                            @endcan
                                             <td class="cmp-recipients__num">
                                                 {{ $recipients->firstItem() + $index }}
                                             </td>
@@ -426,7 +488,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center py-5">
+                                            <td colspan="{{ auth()->user()->can('update', $campaign) ? 7 : 6 }}" class="text-center py-5">
                                                 <i class="bi bi-people d-block mb-2 fs-2 text-muted"></i>
                                                 <span class="text-muted">
                                                     @if($recipientFilter['search'] !== '' || $recipientFilter['status'] !== '')
@@ -673,4 +735,5 @@
 
 @push('scripts')
     <script src="{{ versioned_asset('assets/admin/js/campaign-status.js') }}"></script>
+    <script src="{{ versioned_asset('assets/admin/js/campaign-recipients.js') }}"></script>
 @endpush

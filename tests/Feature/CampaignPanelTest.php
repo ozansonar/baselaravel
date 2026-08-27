@@ -492,6 +492,129 @@ class CampaignPanelTest extends TestCase
             ->assertSee('SMTP reddetti');
     }
 
+    // ── Toplu işlemler ──
+
+    public function test_selected_recipients_can_be_excluded_in_bulk(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $ids = $campaign->recipients()->limit(3)->pluck('id')->all();
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.bulk', $campaign), [
+                'action'        => 'exclude',
+                'recipient_ids' => $ids,
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(3, $campaign->recipients()
+            ->whereIn('id', $ids)
+            ->where('status', CampaignRecipientStatus::Skipped)
+            ->count());
+    }
+
+    /**
+     * Toplu çıkarmada gönderilmiş satır sessizce dışarıda kalmalı: seçim
+     * kabaca yapılıyor, mail gitmiş bir adres geri alınamaz.
+     */
+    public function test_bulk_exclude_leaves_already_sent_recipients_alone(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $sent = $campaign->recipients()->firstOrFail();
+        $sent->update(['status' => CampaignRecipientStatus::Sent, 'sent_at' => now()]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.bulk', $campaign), [
+                'action'        => 'exclude',
+                'recipient_ids' => $campaign->recipients()->pluck('id')->all(),
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(CampaignRecipientStatus::Sent, $sent->refresh()->status);
+    }
+
+    /**
+     * Yeniden denemede durumu değiştirmek yetmez: satır zaten deneme tavanına
+     * ulaştığı için başarısız, sayaç sıfırlanmazsa anında yine başarısız olur.
+     */
+    public function test_retrying_a_failure_resets_its_attempt_counter(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $campaign->update(['failed_count' => 1]);
+        $recipient = $campaign->recipients()->firstOrFail();
+        $recipient->update([
+            'status'   => CampaignRecipientStatus::Failed,
+            'attempts' => 5,
+            'error'    => 'SMTP reddetti',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.retry', $campaign))
+            ->assertRedirect();
+
+        $recipient->refresh();
+
+        $this->assertSame(CampaignRecipientStatus::Pending, $recipient->status);
+        $this->assertSame(0, $recipient->attempts);
+        $this->assertNull($recipient->error);
+        $this->assertSame(0, (int) $campaign->refresh()->failed_count);
+    }
+
+    /**
+     * Tamamlanmış kampanyaya satır geri konduğunda durum "gönderildi" kalırsa
+     * zamanlanmış görev kampanyayı hiç eline almaz, satır sonsuza dek bekler.
+     */
+    public function test_retrying_reopens_a_completed_campaign(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $campaign->recipients()->update(['status' => CampaignRecipientStatus::Failed, 'attempts' => 3]);
+        $campaign->update(['status' => CampaignStatus::Sent, 'completed_at' => now()]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.campaigns.recipients.retry', $campaign));
+
+        $campaign->refresh();
+
+        $this->assertSame(CampaignStatus::Sending, $campaign->status);
+        $this->assertNull($campaign->completed_at);
+    }
+
+    public function test_the_recipient_list_can_be_exported_as_csv(): void
+    {
+        $campaign = $this->sendingCampaign();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.campaigns.recipients.export', $campaign))
+            ->assertOk()
+            ->assertHeader('content-type', 'text/csv; charset=UTF-8');
+
+        $csv = $response->streamedContent();
+
+        // Excel'in Türkçe karakterleri doğru okuması BOM'a bağlı.
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        $this->assertStringContainsString('E-posta', $csv);
+        $this->assertSame(6, substr_count(trim($csv), "\n") + 1, 'Başlık + 5 alıcı bekleniyor');
+    }
+
+    /**
+     * Dışa aktarma ekrandaki süzgeci taşımalı: "başarısızları ver" diyen biri
+     * dosyada tüm listeyi bulmamalı.
+     */
+    public function test_the_export_honours_the_status_filter(): void
+    {
+        $campaign = $this->sendingCampaign();
+        $campaign->recipients()->firstOrFail()->update(['status' => CampaignRecipientStatus::Failed]);
+
+        $csv = $this->actingAs($this->admin())
+            ->get(route('admin.campaigns.recipients.export', [
+                $campaign,
+                'rstatus' => CampaignRecipientStatus::Failed->value,
+            ]))
+            ->assertOk()
+            ->streamedContent();
+
+        $this->assertSame(2, substr_count(trim($csv), "\n") + 1, 'Başlık + 1 başarısız bekleniyor');
+    }
+
     // ── Onay akışı ──
 
     public function test_the_review_screen_shows_the_real_recipient_count(): void
