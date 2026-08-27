@@ -11,10 +11,13 @@ use App\Http\Requests\Admin\StoreCampaignRequest;
 use App\Http\Requests\Admin\UpdateCampaignRequest;
 use App\Models\Campaign;
 use App\Models\Role;
+use App\Models\Subscriber;
+use App\Models\User;
 use App\Services\CampaignDispatcher;
 use App\Services\CampaignService;
 use App\Services\RecipientImportService;
 use App\Services\LanguageService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -26,6 +29,12 @@ use Throwable;
 final class CampaignController extends Controller
 {
     private const PER_PAGE = [15, 25, 50, 100];
+
+    /**
+     * Excel önizlemesinde gösterilen satır sayısı. Amaç dosyayı doğrulamak,
+     * listeyi ekrana dökmek değil.
+     */
+    private const PREVIEW_ROWS = 10;
 
     public function __construct(
         private readonly CampaignService $campaigns,
@@ -123,6 +132,37 @@ final class CampaignController extends Controller
         }
 
         return now()->addMinutes((int) ceil($pending / $limit * 60));
+    }
+
+    /**
+     * Yüklenen dosyayı kaydetmeden okuyup ne bulduğunu söyler.
+     *
+     * Sütunlar ada göre eşleşiyor ve başlık yoksa tahmin ediliyor; kullanıcı
+     * kampanyayı kaydetmeden önce dosyanın doğru okunduğunu görebilmeli,
+     * yoksa hata ancak gönderim anında ortaya çıkıyor.
+     */
+    public function previewRecipients(Request $request, RecipientImportService $importer): JsonResponse
+    {
+        $this->authorize('create', Campaign::class);
+
+        $request->validate([
+            'recipient_file' => ['required', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
+        ], [
+            'recipient_file.mimes' => 'Yalnızca Excel (.xlsx, .xls, .ods) veya CSV dosyası yükleyebilirsiniz.',
+            'recipient_file.max'   => 'Alıcı dosyası en fazla 10 MB olabilir.',
+        ]);
+
+        try {
+            $result = $importer->parse($request->file('recipient_file'));
+        } catch (RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'total'   => $result['total'],
+            'invalid' => $result['invalid'],
+            'sample'  => array_slice($result['rows'], 0, self::PREVIEW_ROWS),
+        ]);
     }
 
     /**
@@ -308,6 +348,12 @@ final class CampaignController extends Controller
             'languages' => app(LanguageService::class)->active(),
             'hourlyLimit' => $this->dispatcher->hourlyLimit(),
             'perRunQuota' => $this->dispatcher->perRunQuota(),
+            // Seçim kartlarında kaç kişi olduğu yazsın: "site üyeleri" ile
+            // "mail listesi" arasında seçim yapan kişi bunu bilmeden karar veremez.
+            'audienceCounts' => [
+                CampaignAudience::Users->value       => User::query()->where('is_active', true)->count(),
+                CampaignAudience::Subscribers->value => Subscriber::query()->whereNull('unsubscribed_at')->count(),
+            ],
         ];
     }
 

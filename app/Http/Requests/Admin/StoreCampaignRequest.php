@@ -41,7 +41,6 @@ class StoreCampaignRequest extends FormRequest
             'reply_to'   => ['nullable', 'email', 'max:191'],
             'locale'     => ['nullable', 'string', 'size:2'],
             'audience'   => ['required', Rule::enum(CampaignAudience::class)],
-            'throttled'  => ['nullable', 'boolean'],
 
             // Site members
             'active_only'   => ['nullable', 'boolean'],
@@ -55,8 +54,11 @@ class StoreCampaignRequest extends FormRequest
             // Excel / CSV
             'recipient_file' => ['nullable', 'file', 'mimes:xlsx,xls,ods,csv,txt', 'max:10240'],
 
-            // Typed by hand
-            'manual_recipients' => ['nullable', 'string', 'max:200000'],
+            // Typed by hand — satır satır alanlar
+            'manual_rows'                => ['nullable', 'array', 'max:5000'],
+            'manual_rows.*.email'        => ['nullable', 'string', 'max:191'],
+            'manual_rows.*.first_name'   => ['nullable', 'string', 'max:100'],
+            'manual_rows.*.last_name'    => ['nullable', 'string', 'max:100'],
 
             'attachments'   => ['nullable', 'array', 'max:10'],
             'attachments.*' => ['file', 'max:10240'],
@@ -69,6 +71,7 @@ class StoreCampaignRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'manual_rows.max'      => 'Elle en fazla 5000 alıcı girebilirsiniz, daha uzun listeler için Excel yükleyin.',
             'recipient_file.mimes' => 'Yalnızca Excel (.xlsx, .xls, .ods) veya CSV dosyası yükleyebilirsiniz.',
             'recipient_file.max'   => 'Alıcı dosyası en fazla 10 MB olabilir.',
             'attachments.max'      => 'Bir kampanyaya en fazla 10 ek ekleyebilirsiniz.',
@@ -124,12 +127,27 @@ class StoreCampaignRequest extends FormRequest
 
     private function validateManual(Validator $validator): void
     {
-        $rows = app(CampaignService::class)->parseManualList($this->input('manual_recipients'));
+        $submitted = $this->input('manual_rows', []);
+        $rows = app(CampaignService::class)->parseManualRows(is_array($submitted) ? $submitted : []);
 
         if ($rows === []) {
+            // Hangi satırın bozuk olduğunu söylemek, "geçerli alıcı yok"
+            // demekten daha işe yarar: kullanıcı yazdığı adrese bakabilsin.
+            $firstBad = null;
+
+            foreach (is_array($submitted) ? $submitted : [] as $index => $row) {
+                $email = trim((string) ($row['email'] ?? ''));
+
+                if ($email !== '' && ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $firstBad = ($index + 1) . '. satırdaki "' . $email . '" geçerli bir e-posta adresi değil.';
+
+                    break;
+                }
+            }
+
             $validator->errors()->add(
-                'manual_recipients',
-                'Geçerli bir alıcı bulunamadı. Her satıra "Ad Soyad <mail@ornek.com>" yazın.',
+                'manual_rows',
+                $firstBad ?? 'En az bir alıcı girin: e-posta alanı zorunlu, ad ve soyad isteğe bağlı.',
             );
 
             return;
@@ -179,7 +197,10 @@ class StoreCampaignRequest extends FormRequest
             'locale'          => $this->input('locale'),
             'audience'        => $audience,
             'audience_filter' => $filter,
-            'throttled'       => $this->boolean('throttled', true),
+            // Yayarak gönderim kullanıcı tercihi değil: listeyi tek seferde
+            // boşaltmak gönderen hesabı kısıtlatır ya da kara listeye düşürür.
+            // Hız ayarı panelin mail ayarlarında, kampanya başına değil.
+            'throttled'       => true,
             'attachments'     => $this->file('attachments', []),
         ];
     }

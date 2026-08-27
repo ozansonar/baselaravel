@@ -82,12 +82,16 @@ class CampaignPanelTest extends TestCase
     private function payload(array $overrides = []): array
     {
         return array_merge([
-            'name'              => 'Ağustos Bülteni',
-            'subject'           => 'Merhaba {name}',
-            'body'              => '<p>Selam {name}</p>',
-            'audience'          => CampaignAudience::Manual->value,
-            'manual_recipients' => "Ahmet Yılmaz <ahmet@ornek.com>\nAyşe Demir;ayse@ornek.com\nbilgi@ornek.com",
-            'throttled'         => '1',
+            'name'        => 'Ağustos Bülteni',
+            'subject'     => 'Merhaba {name}',
+            'body'        => '<p>Selam {name}</p>',
+            'audience'    => CampaignAudience::Manual->value,
+            // Elle giriş artık satır satır alan gönderiyor.
+            'manual_rows' => [
+                ['email' => 'ahmet@ornek.com', 'first_name' => 'Ahmet', 'last_name' => 'Yılmaz'],
+                ['email' => 'ayse@ornek.com',  'first_name' => 'Ayşe',  'last_name' => 'Demir'],
+                ['email' => 'bilgi@ornek.com', 'first_name' => '',      'last_name' => ''],
+            ],
         ], $overrides);
     }
 
@@ -106,7 +110,11 @@ class CampaignPanelTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    public function test_a_hand_typed_list_accepts_all_three_line_formats(): void
+    /**
+     * Ad ve soyad ayrı alan; kayıtta tek bir isim olarak birleşiyor, ikisi de
+     * boşsa isim yazılmıyor.
+     */
+    public function test_a_hand_typed_list_joins_first_and_last_name(): void
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
 
@@ -119,21 +127,55 @@ class CampaignPanelTest extends TestCase
         ], $recipients);
     }
 
+    /**
+     * Kullanıcı "ekle"ye basıp doldurmadan bırakabiliyor; boş satırlar ve aynı
+     * adres listeyi bozmamalı.
+     */
+    public function test_a_hand_typed_list_drops_empty_rows_and_duplicates(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload([
+            'manual_rows' => [
+                ['email' => 'ahmet@ornek.com', 'first_name' => 'Ahmet', 'last_name' => 'Yılmaz'],
+                ['email' => '', 'first_name' => '', 'last_name' => ''],
+                ['email' => 'AHMET@ornek.com', 'first_name' => 'Başka', 'last_name' => 'Kayıt'],
+            ],
+        ]));
+
+        $this->assertSame(
+            [['name' => 'Ahmet Yılmaz', 'email' => 'ahmet@ornek.com']],
+            Campaign::firstOrFail()->audience_filter['recipients'],
+        );
+    }
+
     public function test_a_hand_typed_list_with_no_valid_address_is_rejected(): void
     {
         $this->actingAs($this->editor())
-            ->post(route('admin.campaigns.store'), $this->payload(['manual_recipients' => "bu bir mail değil\nbu da değil"]))
-            ->assertSessionHasErrors('manual_recipients');
+            ->post(route('admin.campaigns.store'), $this->payload([
+                'manual_rows' => [['email' => 'bu bir mail değil', 'first_name' => '', 'last_name' => '']],
+            ]))
+            ->assertSessionHasErrors('manual_rows');
 
         $this->assertSame(0, Campaign::count());
+    }
+
+    /**
+     * Yayarak gönderim kullanıcı tercihi değil: form ne gönderirse göndersin
+     * kampanya yayarak gider.
+     */
+    public function test_sending_is_always_throttled(): void
+    {
+        $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.store'), $this->payload(['throttled' => '0']));
+
+        $this->assertTrue(Campaign::firstOrFail()->throttled);
     }
 
     public function test_an_import_without_a_file_is_rejected(): void
     {
         $this->actingAs($this->editor())
             ->post(route('admin.campaigns.store'), $this->payload([
-                'audience'          => CampaignAudience::Import->value,
-                'manual_recipients' => null,
+                'audience'    => CampaignAudience::Import->value,
+                'manual_rows' => null,
             ]))
             ->assertSessionHasErrors('recipient_file');
     }
@@ -146,7 +188,7 @@ class CampaignPanelTest extends TestCase
         $this->actingAs($this->editor())
             ->post(route('admin.campaigns.store'), $this->payload([
                 'audience'          => CampaignAudience::Import->value,
-                'manual_recipients' => null,
+                'manual_rows'       => null,
                 'recipient_file'    => new UploadedFile($path, 'liste.xlsx', null, null, true),
             ]))
             ->assertSessionHasNoErrors();
@@ -158,12 +200,49 @@ class CampaignPanelTest extends TestCase
         $this->assertSame('Ahmet Yılmaz', $recipients[0]['name']);
     }
 
+    /**
+     * Yükleme önizlemesi: dosya kaydedilmeden okunuyor, kaç alıcı bulunduğu ve
+     * kaç satırın atlandığı kampanya kaydedilmeden görülebilmeli.
+     */
+    public function test_the_upload_preview_reports_what_it_found(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'liste') . '.csv';
+        file_put_contents($path, "Ad Soyad;E-posta\nAhmet Yılmaz;ahmet@ornek.com\nBozuk;bu-adres-degil\nAyşe Demir;ayse@ornek.com\n");
+
+        $response = $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.recipients.preview'), [
+                'recipient_file' => new UploadedFile($path, 'liste.csv', null, null, true),
+            ])
+            ->assertOk();
+
+        $this->assertSame(2, $response->json('total'));
+        $this->assertSame(1, $response->json('invalid'));
+        $this->assertSame('ahmet@ornek.com', $response->json('sample.0.email'));
+        $this->assertSame('Ahmet Yılmaz', $response->json('sample.0.name'));
+
+        // Önizleme yalnızca okur; ortada kampanya kalmamalı.
+        $this->assertSame(0, Campaign::count());
+    }
+
+    public function test_the_upload_preview_explains_an_unreadable_file(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'liste') . '.csv';
+        file_put_contents($path, "Başlık\nburada adres yok\n");
+
+        $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.recipients.preview'), [
+                'recipient_file' => new UploadedFile($path, 'liste.csv', null, null, true),
+            ])
+            ->assertStatus(422)
+            ->assertJsonStructure(['message']);
+    }
+
     public function test_a_file_that_is_not_a_spreadsheet_is_rejected(): void
     {
         $this->actingAs($this->editor())
             ->post(route('admin.campaigns.store'), $this->payload([
                 'audience'          => CampaignAudience::Import->value,
-                'manual_recipients' => null,
+                'manual_rows'       => null,
                 'recipient_file'    => UploadedFile::fake()->create('zararli.exe', 8),
             ]))
             ->assertSessionHasErrors('recipient_file');

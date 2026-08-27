@@ -170,6 +170,7 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
     Route::get('/',                        [CampaignController::class, 'index'])->name('index');
     Route::get('yeni',                     [CampaignController::class, 'create'])->name('create');
     Route::get('sablon-indir',             [CampaignController::class, 'template'])->name('template');
+    Route::post('alici-onizleme',          [CampaignController::class, 'previewRecipients'])->name('recipients.preview');
     Route::post('/',                       [CampaignController::class, 'store'])->name('store');
     Route::get('{campaign}',               [CampaignController::class, 'show'])->name('show');
     Route::get('{campaign}/duzenle',       [CampaignController::class, 'edit'])->name('edit');

@@ -62,8 +62,17 @@ final class SettingController extends Controller
         $request->validate([
             'settings'   => ['nullable', 'array'],
             'settings.*' => ['nullable', 'string', 'max:10000'],
+            // Gönderim limitleri sayı olmak zorunda: metin girilirse tavan
+            // sıfıra düşer ve kampanyalar sessizce durur.
+            'settings.mail_hourly_limit' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'settings.mail_batch_max'    => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'settings.mail_max_attempts' => ['nullable', 'integer', 'min:1', 'max:10'],
             'files'      => ['nullable', 'array'],
             'files.*'    => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg,ico', 'max:1024'],
+        ], [
+            'settings.mail_hourly_limit.*' => 'Saatlik mail limiti 0 ile 100000 arasında bir sayı olmalı.',
+            'settings.mail_batch_max.*'    => 'Tur başına mail sayısı 0 ile 100000 arasında bir sayı olmalı.',
+            'settings.mail_max_attempts.*' => 'Yeniden deneme sayısı 1 ile 10 arasında olmalı.',
         ]);
 
         DB::transaction(function () use ($request): void {
@@ -77,6 +86,9 @@ final class SettingController extends Controller
                 'mail_theme_bg_color', 'mail_theme_card_bg_color',
                 'mail_theme_text_color', 'mail_theme_muted_color',
                 'mail_theme_footer_text', 'mail_theme_social_links',
+                // Toplu gönderim hızının tavanı; kampanya başına değil, gönderen
+                // hesabın kendi kotası olduğu için buradan yönetiliyor.
+                'mail_hourly_limit', 'mail_batch_max', 'mail_max_attempts',
             ];
 
             $recaptchaKeys = ['recaptcha_enabled', 'recaptcha_site_key', 'recaptcha_secret_key'];

@@ -34205,3 +34205,482 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   border-color: var(--teal-primary);
   color: var(--teal-primary);
 }
+
+/* ============================================
+   KAMPANYA FORMU (/admin/kampanyalar/yeni · /duzenle)
+   ============================================ */
+
+/* ---------- Hedef kitle seçim kartları ---------- */
+
+/* Seçim, ayar satırı (.stg-toggle-item) düzeniyle kuruluyordu; o düzen
+   "başlık solda, anahtar sağda" için yapıldığından radyo ile metin
+   birbirinden kopuyordu. Kart artık kendi ızgarasına oturuyor. */
+.cmp-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cmp-choice {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-input);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.cmp-choice:hover {
+  border-color: color-mix(in srgb, var(--teal-primary) 45%, transparent);
+}
+
+/* Asıl radyo düğmesi gizli, işareti kendimiz çiziyoruz: tarayıcılar arasında
+   boyutu ve hizası oynuyordu. */
+.cmp-choice input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cmp-choice__mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+.cmp-choice__mark::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--teal-primary);
+  transform: scale(0);
+  transition: transform 0.2s ease;
+}
+
+.cmp-choice__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.cmp-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cmp-choice__text strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cmp-choice__text small {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* Kaç kişi olduğu kartın üzerinde: "site üyeleri" ile "mail listesi" arasında
+   seçim yapan kişi bunu bilmeden karar veremiyor. */
+.cmp-choice__count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+
+.cmp-choice:has(input:checked) {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 8%, var(--bg-input));
+}
+
+.cmp-choice:has(input:checked) .cmp-choice__mark {
+  border-color: var(--teal-primary);
+}
+
+.cmp-choice:has(input:checked) .cmp-choice__mark::after {
+  transform: scale(1);
+}
+
+.cmp-choice:has(input:checked) .cmp-choice__icon {
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 14%, transparent);
+}
+
+.cmp-choice:has(input:checked) .cmp-choice__count {
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 14%, transparent);
+}
+
+.cmp-choice:focus-within {
+  outline: 2px solid color-mix(in srgb, var(--teal-primary) 45%, transparent);
+  outline-offset: 2px;
+}
+
+/* Seçilen kitleye ait ayarlar, seçim listesinden bir çizgiyle ayrılıyor. */
+.cmp-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* ---------- Rol onay kutuları ---------- */
+.cmp-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.cmp-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cmp-check:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+
+.cmp-check input {
+  accent-color: var(--teal-primary);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* ---------- Elle alıcı satırları ---------- */
+.cmp-rows-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cmp-rows-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal-primary);
+}
+
+.cmp-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Her alıcı kendi kutusunda: e-posta tam satır, ad ve soyad altında yan yana.
+   Sağ sütun dar olduğu için üçü bir satıra sığmıyor. */
+.cmp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cmp-row__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cmp-row__field:first-child {
+  grid-column: 1 / -1;
+}
+
+.cmp-row__label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.cmp-row .stg-input {
+  height: 38px;
+}
+
+.cmp-row__remove {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--neon-red);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--neon-red) 30%, transparent);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.cmp-row__remove:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--neon-red) 12%, transparent);
+}
+
+/* Tek satır kaldığında silmek formu alıcısız bırakırdı. */
+.cmp-row__remove:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cmp-add-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 8%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--teal-primary) 40%, transparent);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.cmp-add-row:hover {
+  background: color-mix(in srgb, var(--teal-primary) 16%, transparent);
+  border-style: solid;
+}
+
+/* ---------- Excel önizlemesi ---------- */
+.cmp-import-note,
+.cmp-import-preview__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.cmp-import-note {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--neon-green) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neon-green) 20%, transparent);
+}
+
+.cmp-import-note i,
+.cmp-import-preview__head i {
+  color: var(--neon-green);
+}
+
+.cmp-import-preview {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cmp-import-preview__head--error i {
+  color: var(--neon-red);
+}
+
+.cmp-import-preview__head--error strong {
+  color: var(--neon-red);
+  font-weight: 600;
+}
+
+/* Geçersiz satırlar sessizce atlanıyor; kaç tane olduğu söylenmezse kullanıcı
+   eksik listeyi fark etmiyor. */
+.cmp-import-preview__warn {
+  font-size: 11.5px;
+  color: var(--neon-orange);
+  width: 100%;
+}
+
+.cmp-import-preview__table {
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+.cmp-import-preview__table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.cmp-import-preview__table th {
+  text-align: left;
+  padding: 6px 8px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cmp-import-preview__table td {
+  padding: 6px 8px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Adres bölünmemeli; ad sığmazsa alt satıra geçsin — dar sütunda yatay
+   kaydırma çubuğu yalnızca gerçekten uzun adreslerde çıksın. */
+.cmp-import-preview__table td:first-child {
+  white-space: nowrap;
+}
+
+.cmp-import-preview__table tr:last-child td {
+  border-bottom: none;
+}
+
+.cmp-import-preview__more {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Gönderim hızı ---------- */
+
+/* Hız kampanya başına seçilmiyor; burada yalnızca yürürlükteki tavan yazıyor. */
+.cmp-rate {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--teal-primary) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal-primary) 18%, transparent);
+}
+
+.cmp-rate__icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 14%, transparent);
+}
+
+.cmp-rate__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cmp-rate__text strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cmp-rate__text small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.cmp-rate__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal-primary);
+}
+
+.cmp-rate__link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Ek dosya listesi ---------- */
+.cmp-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cmp-attachment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 13px;
+}
+
+.cmp-attachment > i {
+  color: var(--teal-primary);
+}
+
+.cmp-attachment__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.cmp-attachment__size {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Geniş ekranda sağ sütun daralmıyor; alıcı satırı üç alanı yan yana alabilir. */
+@media (min-width: 1600px) {
+  .cmp-row {
+    grid-template-columns: 1.4fr 1fr 1fr auto;
+    align-items: end;
+  }
+
+  .cmp-row__field:first-child {
+    grid-column: auto;
+  }
+
+  .cmp-row__remove {
+    grid-column: auto;
+    height: 38px;
+  }
+}

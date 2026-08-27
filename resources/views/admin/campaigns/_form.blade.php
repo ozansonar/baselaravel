@@ -1,8 +1,40 @@
-{{-- Shared by create and edit. Vars: $campaign (nullable), $audiences, $roles, $languages, $hourlyLimit, $perRunQuota --}}
+{{-- Shared by create and edit. Vars: $campaign (nullable), $audiences, $roles, $languages, $hourlyLimit, $perRunQuota, $audienceCounts --}}
 @php
+    use App\Enums\CampaignAudience;
+    use App\Services\CampaignDispatcher;
+
     $campaign = $campaign ?? null;
-    $currentAudience = old('audience', $campaign?->audience?->value ?? App\Enums\CampaignAudience::Subscribers->value);
+    $currentAudience = old('audience', $campaign?->audience?->value ?? CampaignAudience::Subscribers->value);
     $filter = $campaign?->audience_filter ?? [];
+
+    // Elle girilen alıcılar satır satır tutuluyor. Doğrulama hatasından sonra
+    // old() ile, düzenlemede kayıtlı listeyle, ilk açılışta tek boş satırla
+    // başlıyor — form her hâlükârda en az bir satır gösteriyor.
+    $manualRows = old('manual_rows');
+
+    if ($manualRows === null) {
+        $stored = ($campaign && $campaign->audience === CampaignAudience::Manual)
+            ? ($filter['recipients'] ?? [])
+            : [];
+
+        $manualRows = collect($stored)->map(function (array $recipient): array {
+            $name = trim((string) ($recipient['name'] ?? ''));
+            $lastSpace = mb_strrpos($name, ' ');
+
+            return [
+                'email'      => $recipient['email'] ?? '',
+                // Kayıtta tek bir ad alanı var; son kelime soyad sayılıyor.
+                'first_name' => $lastSpace === false ? $name : mb_substr($name, 0, $lastSpace),
+                'last_name'  => $lastSpace === false ? '' : mb_substr($name, $lastSpace + 1),
+            ];
+        })->all();
+    }
+
+    if ($manualRows === []) {
+        $manualRows = [['email' => '', 'first_name' => '', 'last_name' => '']];
+    }
+
+    $importedCount = count($filter['recipients'] ?? []);
 @endphp
 
 <div class="row g-4">
@@ -59,13 +91,12 @@
             </div>
             <div class="card-body-custom">
                 @if($campaign && $campaign->attachments->isNotEmpty())
-                    <div class="mb-3">
+                    <div class="cmp-attachments mb-3">
                         @foreach($campaign->attachments as $attachment)
-                            <div class="d-flex align-items-center justify-content-between border-bottom py-2">
-                                <div>
-                                    <i class="bi bi-file-earmark me-2"></i>{{ $attachment->original_name }}
-                                    <small class="text-clr-secondary ms-2">{{ $attachment->humanSize() }}</small>
-                                </div>
+                            <div class="cmp-attachment">
+                                <i class="bi bi-file-earmark-fill"></i>
+                                <span class="cmp-attachment__name">{{ $attachment->original_name }}</span>
+                                <span class="cmp-attachment__size">{{ $attachment->humanSize() }}</span>
                                 <button type="button" class="usr-action-btn danger"
                                         onclick="removeAttachment({{ $attachment->id }})" title="Kaldır">
                                     <i class="bi bi-x-lg"></i>
@@ -92,23 +123,31 @@
                 <h6><i class="bi bi-people-fill me-2 text-teal"></i>Kimlere Gidecek</h6>
             </div>
             <div class="card-body-custom">
-                @foreach($audiences as $audience)
-                    <label class="stg-toggle-item cursor-pointer d-flex align-items-start gap-2 mb-2">
-                        <input type="radio" name="audience" data-fv-ignore value="{{ $audience->value }}"
-                               class="js-audience-radio mt-1"
-                               {{ $currentAudience === $audience->value ? 'checked' : '' }}>
-                        <div class="stg-toggle-info">
-                            <span><i class="bi {{ $audience->icon() }} me-1"></i>{{ $audience->label() }}</span>
-                            <small>{{ $audience->description() }}</small>
-                        </div>
-                    </label>
-                @endforeach
-                @error('audience') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-
-                <hr class="my-3">
+                {{-- Seçim kartları: işaret solda, metin hemen yanında. Kartın
+                     tamamı tıklanabilir olduğu için küçük yuvarlağı bulmak
+                     gerekmiyor. --}}
+                <div class="cmp-choices">
+                    @foreach($audiences as $audience)
+                        <label class="cmp-choice">
+                            <input type="radio" name="audience" data-fv-ignore value="{{ $audience->value }}"
+                                   class="js-audience-radio"
+                                   {{ $currentAudience === $audience->value ? 'checked' : '' }}>
+                            <span class="cmp-choice__mark" aria-hidden="true"></span>
+                            <span class="cmp-choice__icon"><i class="bi {{ $audience->icon() }}"></i></span>
+                            <span class="cmp-choice__text">
+                                <strong>{{ $audience->label() }}</strong>
+                                <small>{{ $audience->description() }}</small>
+                            </span>
+                            @isset($audienceCounts[$audience->value])
+                                <span class="cmp-choice__count">{{ number_format($audienceCounts[$audience->value], 0, ',', '.') }}</span>
+                            @endisset
+                        </label>
+                    @endforeach
+                </div>
+                @error('audience') <div class="invalid-feedback d-block mt-2">{{ $message }}</div> @enderror
 
                 {{-- Site members --}}
-                <div class="js-audience-panel" data-audience="users">
+                <div class="js-audience-panel cmp-panel" data-audience="users">
                     <div class="stg-toggle-list">
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info"><span>Yalnızca aktif üyeler</span></div>
@@ -129,19 +168,21 @@
                     </div>
                     <div class="stg-field mt-3">
                         <label class="stg-label">Roller</label>
-                        @foreach($roles as $role)
-                            <label class="d-block">
-                                <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
-                                       {{ in_array($role->id, old('role_ids', $filter['role_ids'] ?? []), false) ? 'checked' : '' }}>
-                                {{ $role->name }}
-                            </label>
-                        @endforeach
+                        <div class="cmp-check-list">
+                            @foreach($roles as $role)
+                                <label class="cmp-check">
+                                    <input type="checkbox" name="role_ids[]" data-fv-ignore value="{{ $role->id }}"
+                                           {{ in_array($role->id, old('role_ids', $filter['role_ids'] ?? []), false) ? 'checked' : '' }}>
+                                    <span>{{ $role->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
                         <small class="stg-hint">Hiçbiri seçilmezse tüm roller dahil edilir.</small>
                     </div>
                 </div>
 
                 {{-- Mailing list --}}
-                <div class="js-audience-panel" data-audience="subscribers">
+                <div class="js-audience-panel cmp-panel" data-audience="subscribers">
                     <div class="stg-toggle-list">
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info">
@@ -158,11 +199,12 @@
                 </div>
 
                 {{-- Excel / CSV --}}
-                <div class="js-audience-panel" data-audience="import">
+                <div class="js-audience-panel cmp-panel" data-audience="import">
                     <div class="stg-field">
                         <label class="stg-label" for="recipient_file">Excel veya CSV dosyası</label>
                         <input type="file" class="stg-input @error('recipient_file') is-invalid @enderror"
-                               id="recipient_file" name="recipient_file" accept=".xlsx,.xls,.ods,.csv,.txt">
+                               id="recipient_file" name="recipient_file" accept=".xlsx,.xls,.ods,.csv,.txt"
+                               data-preview-url="{{ route('admin.campaigns.recipients.preview') }}">
                         <small class="stg-hint">
                             Başlık satırında <code>Ad</code> ve <code>E-posta</code> sütunları olsun.
                             Başlık yoksa adresler ilk sütundan okunur.
@@ -171,28 +213,66 @@
                             <i class="bi bi-download"></i> Örnek şablonu indir (.xlsx)
                         </a>
                         @error('recipient_file') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                        @if(!empty($filter['recipients']))
-                            <div class="alert alert-info mt-2 mb-0 py-2">
-                                <i class="bi bi-check-circle me-1"></i>
-                                {{ count($filter['recipients']) }} alıcı yüklü. Yeni dosya yüklerseniz bu liste değişir.
+
+                        @if($campaign?->audience === CampaignAudience::Import && $importedCount > 0)
+                            <div class="cmp-import-note mt-3">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>{{ number_format($importedCount, 0, ',', '.') }} alıcı yüklü. Yeni dosya seçerseniz bu liste değişir.</span>
                             </div>
                         @endif
+
+                        {{-- Dosya seçilir seçilmez okunup ne bulunduğu gösteriliyor;
+                             yanlış sütun ya da bozuk adres kampanya kaydedilmeden
+                             fark edilsin. --}}
+                        <div class="cmp-import-preview mt-3 d-none" id="importPreview" aria-live="polite"></div>
                     </div>
                 </div>
 
                 {{-- Typed by hand --}}
-                <div class="js-audience-panel" data-audience="manual">
-                    <div class="stg-field">
-                        <label class="stg-label" for="manual_recipients">Alıcılar</label>
-                        <textarea class="stg-textarea @error('manual_recipients') is-invalid @enderror"
-                                  id="manual_recipients" name="manual_recipients" rows="8"
-                                  placeholder="Ahmet Yılmaz &lt;ahmet@ornek.com&gt;&#10;Ayşe Demir;ayse@ornek.com&#10;bilgi@ornek.com">{{ old('manual_recipients', $campaign && $campaign->audience === App\Enums\CampaignAudience::Manual ? collect($filter['recipients'] ?? [])->map(fn ($r) => ($r['name'] ?? '') ? "{$r['name']} <{$r['email']}>" : $r['email'])->implode("\n") : '') }}</textarea>
-                        <small class="stg-hint">
-                            Her satıra bir kişi. <code>Ad Soyad &lt;mail@ornek.com&gt;</code>,
-                            <code>Ad Soyad;mail@ornek.com</code> veya yalnızca adres.
-                        </small>
-                        @error('manual_recipients') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                <div class="js-audience-panel cmp-panel" data-audience="manual">
+                    <div class="cmp-rows-head">
+                        <label class="stg-label mb-0">Alıcılar</label>
+                        <span class="cmp-rows-count" id="manualRowsCount"></span>
                     </div>
+
+                    <div class="cmp-rows" id="manualRows">
+                        @foreach($manualRows as $index => $row)
+                            <div class="cmp-row" data-row>
+                                <div class="cmp-row__field">
+                                    <label class="cmp-row__label">E-posta <span class="text-neon-red">*</span></label>
+                                    <input type="email" class="stg-input" data-fv-ignore
+                                           name="manual_rows[{{ $index }}][email]"
+                                           value="{{ $row['email'] ?? '' }}" placeholder="ahmet@ornek.com">
+                                </div>
+                                <div class="cmp-row__field">
+                                    <label class="cmp-row__label">Ad</label>
+                                    <input type="text" class="stg-input" data-fv-ignore
+                                           name="manual_rows[{{ $index }}][first_name]"
+                                           value="{{ $row['first_name'] ?? '' }}" placeholder="Ahmet">
+                                </div>
+                                <div class="cmp-row__field">
+                                    <label class="cmp-row__label">Soyad</label>
+                                    <input type="text" class="stg-input" data-fv-ignore
+                                           name="manual_rows[{{ $index }}][last_name]"
+                                           value="{{ $row['last_name'] ?? '' }}" placeholder="Yılmaz">
+                                </div>
+                                <button type="button" class="cmp-row__remove" data-remove-row title="Bu alıcıyı çıkar">
+                                    <i class="bi bi-trash3"></i><span>Sil</span>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <button type="button" class="cmp-add-row" id="manualAddRow">
+                        <i class="bi bi-plus-lg"></i> Alıcı ekle
+                    </button>
+
+                    <small class="stg-hint d-block mt-2">
+                        E-posta zorunlu, ad ve soyad isteğe bağlı. Ad girerseniz mailde
+                        <code>{name}</code> yerine yazılır. Aynı adres iki kez girilirse bir kez gönderilir.
+                    </small>
+
+                    @error('manual_rows') <div class="invalid-feedback d-block mt-2">{{ $message }}</div> @enderror
                 </div>
             </div>
         </div>
@@ -203,22 +283,23 @@
                 <h6><i class="bi bi-send me-2 text-teal"></i>Gönderim</h6>
             </div>
             <div class="card-body-custom">
-                <div class="stg-toggle-list mb-3">
-                    <div class="stg-toggle-item">
-                        <div class="stg-toggle-info">
-                            <span>Yayarak gönder</span>
-                            <small>Saatte {{ $hourlyLimit }} mail, her {{ App\Services\CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada {{ $perRunQuota }} adet</small>
-                        </div>
-                        <label class="stg-switch">
-                            <input type="checkbox" name="throttled" data-fv-ignore value="1"
-                                   {{ old('throttled', $campaign?->throttled ?? true) ? 'checked' : '' }}>
-                            <span class="stg-switch-slider"></span>
-                        </label>
+                {{-- Hız kampanya başına seçilmiyor: listeyi tek seferde boşaltmak
+                     gönderen hesabı kısıtlatıyor. Tavan panelin mail ayarlarında. --}}
+                <div class="cmp-rate">
+                    <div class="cmp-rate__icon"><i class="bi bi-speedometer2"></i></div>
+                    <div class="cmp-rate__text">
+                        <strong>Saatte {{ number_format($hourlyLimit, 0, ',', '.') }} mail</strong>
+                        <small>
+                            Her {{ CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada
+                            {{ number_format($perRunQuota, 0, ',', '.') }} adet gönderilir. Gönderim saate
+                            yayılır; mail sağlayıcıları bir anda boşalan listeyi kısıtlar ya da
+                            kara listeye alır.
+                        </small>
+                        <a href="{{ route('admin.settings.index') }}#stg-email" class="cmp-rate__link">
+                            <i class="bi bi-sliders"></i> Limiti ayarlardan değiştir
+                        </a>
                     </div>
                 </div>
-                <small class="stg-hint d-block mb-3">
-                    Kapatırsanız saatlik limit dolana kadar aralıksız gönderilir. Limit her hâlükârda aşılmaz.
-                </small>
 
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="locale">Dil</label>
@@ -230,6 +311,7 @@
                             </option>
                         @endforeach
                     </select>
+                    <small class="stg-hint">Mail listesinde "yalnızca kampanya diliyle eşleşenler" seçeneği bu dile bakar.</small>
                 </div>
 
                 <div class="stg-field mb-3">
@@ -252,9 +334,31 @@
                     <label class="stg-label" for="reply_to">Yanıt Adresi</label>
                     <input type="email" class="stg-input @error('reply_to') is-invalid @enderror"
                            id="reply_to" name="reply_to" data-validation-engine="validate[custom[email],maxSize[191]]" value="{{ old('reply_to', $campaign?->reply_to) }}">
+                    <small class="stg-hint">Alıcı "yanıtla" dediğinde mailin gideceği adres. Boşsa gönderen adresi kullanılır.</small>
                     @error('reply_to') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{{-- Yeni alıcı satırının kalıbı; JS bunu kopyalayıp sıra numarasını yazıyor. --}}
+<template id="manualRowTemplate">
+    <div class="cmp-row" data-row>
+        <div class="cmp-row__field">
+            <label class="cmp-row__label">E-posta <span class="text-neon-red">*</span></label>
+            <input type="email" class="stg-input" data-fv-ignore name="manual_rows[__INDEX__][email]" placeholder="ahmet@ornek.com">
+        </div>
+        <div class="cmp-row__field">
+            <label class="cmp-row__label">Ad</label>
+            <input type="text" class="stg-input" data-fv-ignore name="manual_rows[__INDEX__][first_name]" placeholder="Ahmet">
+        </div>
+        <div class="cmp-row__field">
+            <label class="cmp-row__label">Soyad</label>
+            <input type="text" class="stg-input" data-fv-ignore name="manual_rows[__INDEX__][last_name]" placeholder="Yılmaz">
+        </div>
+        <button type="button" class="cmp-row__remove" data-remove-row title="Bu alıcıyı çıkar">
+            <i class="bi bi-trash3"></i><span>Sil</span>
+        </button>
+    </div>
+</template>
