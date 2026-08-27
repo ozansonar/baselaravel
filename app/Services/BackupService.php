@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Setting;
 use App\Support\ShellExec;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -122,33 +123,149 @@ final class BackupService
     /**
      * Mevcut yedek listesini döner.
      *
-     * @return list<array{name: string, size: int, size_human: string, created_at: \Carbon\Carbon, age: string, path: string}>
+     * Filtreler listeyi daraltır; rotate() gibi iç kullanımlar filtresiz çağırır
+     * ve her zaman tam listeyi görür.
+     *
+     * @param array{q?: string|null, sort?: string|null} $filters
+     * @return list<array{name: string, size: int, size_human: string, created_at: \Carbon\Carbon, age: string, path: string, expires_at: \Carbon\Carbon, expires_in_days: int, contents: ?array<string, mixed>}>
      */
-    public function list(): array
+    public function list(array $filters = []): array
     {
         $this->ensureBackupDir();
         $dir = storage_path('app/' . self::BACKUP_DIR);
         $files = glob($dir . '/backup-*.zip') ?: [];
 
+        $retention = $this->retentionDays();
         $result = [];
+
         foreach ($files as $f) {
             $name = basename($f);
             $size = (int) @filesize($f);
             $mtime = @filemtime($f);
             $when = $mtime ? Carbon::createFromTimestamp($mtime) : now();
+            $expiresAt = $when->copy()->addDays($retention);
+
             $result[] = [
-                'name'       => $name,
-                'size'       => $size,
-                'size_human' => $this->humanBytes($size),
-                'created_at' => $when,
-                'age'        => $when->diffForHumans(),
-                'path'       => $f,
+                'name'            => $name,
+                'size'            => $size,
+                'size_human'      => $this->humanBytes($size),
+                'created_at'      => $when,
+                'age'             => $when->diffForHumans(),
+                'path'            => $f,
+                // Rotation silmeden önce kaç gün kaldığı; listede uyarı olarak
+                // gösteriliyor, böylece indirilmesi gereken yedek fark edilir.
+                'expires_at'      => $expiresAt,
+                'expires_in_days' => max(0, (int) now()->startOfDay()->diffInDays($expiresAt->copy()->startOfDay(), false)),
+                'contents'        => $this->contents($name, $size, $mtime ?: 0),
             ];
         }
 
-        usort($result, static fn ($a, $b) => $b['created_at']->timestamp <=> $a['created_at']->timestamp);
+        $query = isset($filters['q']) ? trim((string) $filters['q']) : '';
+
+        if ($query !== '') {
+            $result = array_values(array_filter(
+                $result,
+                static fn (array $b): bool => str_contains(mb_strtolower($b['name']), mb_strtolower($query)),
+            ));
+        }
+
+        usort($result, match ($filters['sort'] ?? null) {
+            'oldest'   => static fn (array $a, array $b): int => $a['created_at']->timestamp <=> $b['created_at']->timestamp,
+            'largest'  => static fn (array $a, array $b): int => $b['size'] <=> $a['size'],
+            'smallest' => static fn (array $a, array $b): int => $a['size'] <=> $b['size'],
+            default    => static fn (array $a, array $b): int => $b['created_at']->timestamp <=> $a['created_at']->timestamp,
+        });
 
         return $result;
+    }
+
+    /**
+     * Liste başlığındaki özet kutuları.
+     *
+     * @return array{count: int, total_size: int, total_size_human: string, latest: ?\Carbon\Carbon, latest_age: ?string, retention_days: int, next_run: \Carbon\Carbon}
+     */
+    public function stats(): array
+    {
+        $backups = $this->list();
+        $totalSize = array_sum(array_column($backups, 'size'));
+        $latest = $backups[0]['created_at'] ?? null;
+
+        return [
+            'count'            => count($backups),
+            'total_size'       => $totalSize,
+            'total_size_human' => $totalSize > 0 ? $this->humanBytes($totalSize) : '0 B',
+            'latest'           => $latest,
+            'latest_age'       => $latest?->diffForHumans(),
+            'retention_days'   => $this->retentionDays(),
+            'next_run'         => $this->nextScheduledRun(),
+        ];
+    }
+
+    /**
+     * ZIP içindeki backup-meta.json — hangi verinin ne kadar yer kapladığı.
+     *
+     * Dosya oluşturulduktan sonra değişmediği için sonuç önbelleğe alınır;
+     * liste her açılışta ondört ZIP açmak zorunda kalmaz.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function contents(string $filename, int $size, int $mtime): ?array
+    {
+        return Cache::remember(
+            "backup.contents.{$filename}.{$size}.{$mtime}",
+            86400,
+            function () use ($filename): ?array {
+                $path = storage_path('app/' . self::BACKUP_DIR . '/' . $filename);
+
+                if (! is_file($path)) {
+                    return null;
+                }
+
+                $zip = new ZipArchive();
+
+                if ($zip->open($path, ZipArchive::RDONLY) !== true) {
+                    return null;
+                }
+
+                $raw = $zip->getFromName('backup-meta.json');
+                $zip->close();
+
+                if (! is_string($raw)) {
+                    return null;
+                }
+
+                $meta = json_decode($raw, true);
+
+                if (! is_array($meta)) {
+                    return null;
+                }
+
+                return [
+                    'db_size'         => (int) ($meta['db_size'] ?? 0),
+                    'db_size_human'   => $this->humanBytes((int) ($meta['db_size'] ?? 0)),
+                    'files_size'      => (int) ($meta['files_size'] ?? 0),
+                    'files_size_human'=> $this->humanBytes((int) ($meta['files_size'] ?? 0)),
+                    'total_files'     => (int) ($meta['total_files'] ?? 0),
+                    'php_version'     => (string) ($meta['php_version'] ?? ''),
+                ];
+            },
+        );
+    }
+
+    public function retentionDays(): int
+    {
+        return max(1, (int) (Setting::getValue('backup_retention_days', '14') ?: 14));
+    }
+
+    /**
+     * Zamanlanmış yedeğin bir sonraki çalışma anı — routes/console.php'deki
+     * dailyAt('05:00') ile aynı saat.
+     */
+    private function nextScheduledRun(): Carbon
+    {
+        $next = now()->startOfDay()->setTime(5, 0);
+
+        return $next->isPast() ? $next->addDay() : $next;
     }
 
     /**
@@ -188,7 +305,7 @@ final class BackupService
      */
     public function rotate(): int
     {
-        $days = (int) (Setting::getValue('backup_retention_days', '14') ?: 14);
+        $days = $this->retentionDays();
         $cutoff = now()->subDays($days);
         $deleted = 0;
 

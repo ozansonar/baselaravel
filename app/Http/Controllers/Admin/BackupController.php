@@ -21,12 +21,19 @@ final class BackupController extends Controller
         private readonly BackupService $service,
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('view-backups');
 
+        $filters = [
+            'q'    => $request->string('q')->trim()->value(),
+            'sort' => $request->string('sort')->value(),
+        ];
+
         return view('admin.backups.index', [
-            'backups' => $this->service->list(),
+            'backups' => $this->service->list($filters),
+            'stats'   => $this->service->stats(),
+            'filters' => $filters,
         ]);
     }
 
