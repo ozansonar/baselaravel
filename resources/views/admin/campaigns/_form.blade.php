@@ -33,6 +33,17 @@
         $manualRows = [['email' => '', 'first_name' => '', 'last_name' => '']];
     }
 
+    // Kişiselleştirme değişkenleri tek yerde: hem konu hem gövde altındaki
+    // ekleme düğmeleri buradan üretiliyor, listeye yeni bir değişken eklemek
+    // iki yeri birden güncellemeyi gerektirmiyor.
+    $mergeTags = [
+        ['tag' => '{first_name}', 'label' => 'Ad'],
+        ['tag' => '{last_name}',  'label' => 'Soyad'],
+        ['tag' => '{name}',       'label' => 'Ad Soyad'],
+        ['tag' => '{email}',      'label' => 'E-posta'],
+        ['tag' => '{site_name}',  'label' => 'Site adı'],
+    ];
+
     $importedCount = count($filter['recipients'] ?? []);
     $selectedLists = array_map('intval', $filter['list_ids'] ?? []);
 @endphp
@@ -59,11 +70,19 @@
                     <input type="text" class="stg-input @error('subject') is-invalid @enderror"
                            id="subject" name="subject" data-validation-engine="validate[required,maxSize[191]]" value="{{ old('subject', $campaign?->subject) }}"
                            placeholder="Merhaba {name}, bu ayın haberleri">
-                    <small class="stg-hint">
-                        Kişiselleştirme: <code>{first_name}</code> ad, <code>{last_name}</code> soyad,
-                        <code>{name}</code> ikisi birlikte, <code>{email}</code> adres,
-                        <code>{site_name}</code> site adı.
-                    </small>
+                    {{-- Değişkenler elle yazılıyordu; tıklayınca imlecin olduğu yere
+                         ekleniyor. Kopyala-yapıştırdan farkı, alanı bırakmadan ve
+                         panoya dokunmadan çalışması. --}}
+                    <div class="cmp-tags" data-tag-target="#subject">
+                        <span class="cmp-tags__label">Ekle:</span>
+                        @foreach($mergeTags as $tag)
+                            <button type="button" class="cmp-tag" data-tag="{{ $tag['tag'] }}"
+                                    title="{{ $tag['label'] }} — imlecin olduğu yere ekler">
+                                <code>{{ $tag['tag'] }}</code>
+                                <span class="cmp-tag__label">{{ $tag['label'] }}</span>
+                            </button>
+                        @endforeach
+                    </div>
                     @error('subject') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                 </div>
 
@@ -75,6 +94,16 @@
                               rows="18">{{ old('body', $campaign?->body) }}</textarea>
                     {{-- The editor hides the textarea, so the message needs its own slot. --}}
                     <div id="body_error"></div>
+                    <div class="cmp-tags" data-tag-target="#body">
+                        <span class="cmp-tags__label">Ekle:</span>
+                        @foreach($mergeTags as $tag)
+                            <button type="button" class="cmp-tag" data-tag="{{ $tag['tag'] }}"
+                                    title="{{ $tag['label'] }} — imlecin olduğu yere ekler">
+                                <code>{{ $tag['tag'] }}</code>
+                                <span class="cmp-tag__label">{{ $tag['label'] }}</span>
+                            </button>
+                        @endforeach
+                    </div>
                     <small class="stg-hint">
                         Görsel eklemek için araç çubuğundaki resim düğmesini kullanın. Görseller mailin
                         içine gömülerek gönderilir, böylece alıcının mail programı görselleri engellese
