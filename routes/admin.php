@@ -90,6 +90,9 @@ Route::delete('bildirimler/{notification}',      [NotificationController::class,
 Route::get('yedekler',                  [BackupController::class, 'index'])->name('backups.index');
 Route::post('yedekler/olustur',         [BackupController::class, 'create'])->name('backups.create');
 Route::get('yedekler/indir/{filename}', [BackupController::class, 'download'])->where('filename', '[A-Za-z0-9\-_.]+')->name('backups.download');
+// Toplu silme, tekil silme kuralından önce tanımlı: "toplu-sil" de bir dosya
+// adı gibi görünüyor ve sonra tanımlanırsa {filename} kuralına takılır.
+Route::delete('yedekler/toplu-sil',     [BackupController::class, 'bulkDestroy'])->name('backups.bulk-destroy');
 Route::delete('yedekler/{filename}',    [BackupController::class, 'destroy'])->where('filename', '[A-Za-z0-9\-_.]+')->name('backups.destroy');
 
 // Contact Messages
