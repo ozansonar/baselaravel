@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function (): void {
-            Route::middleware(['web', 'admin'])
+            // Panelin dili ziyaretçinin ön yüz tercihine bağlı olmamalı;
+            // admin.locale, web grubundaki SetLocale'den sonra çalışıp
+            // Türkçe'ye sabitliyor.
+            Route::middleware(['web', 'admin.locale', 'admin'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
@@ -20,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'admin.locale' => \App\Http\Middleware\SetAdminLocale::class,
             'locale' => \App\Http\Middleware\SetLocale::class,
         ]);
 
