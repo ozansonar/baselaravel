@@ -908,6 +908,96 @@ class CampaignPanelTest extends TestCase
         $this->assertSame(0, $campaign->sent_count, 'Zamanlanmış kampanyadan mail çıkmamalı');
     }
 
+    /**
+     * Zamanlanmış kampanya henüz sıraya girmedi.
+     *
+     * Gönderim mesajı iki durumda da aynıydı: liste ancak gönderim başlarken
+     * sayıldığı için ekranda "0 alıcı sıraya alındı" yazıyordu.
+     */
+    public function test_scheduling_reports_the_plan_not_a_queue(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $an = now()->addDay()->setTime(9, 30);
+
+        $this->actingAs($this->sender())
+            ->post(route('admin.campaigns.send', $campaign), ['scheduled_at' => $an->format('Y-m-d\TH:i')])
+            ->assertSessionHas('success', fn (string $mesaj): bool => str_contains($mesaj, $an->format('d.m.Y H:i'))
+                && str_contains($mesaj, '3 alıcıya')
+                && ! str_contains($mesaj, '0 alıcı'));
+    }
+
+    /**
+     * Zamanlanmış kampanyada ekran plana göre konuşmalı: tarih düğmenin
+     * üstünde görünmeli ve kullanıcı planı değiştirebilmeli.
+     */
+    public function test_the_screen_shows_the_plan_and_offers_to_change_it(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $an = now()->addDay()->setTime(9, 30);
+
+        $this->actingAs($this->sender())
+            ->post(route('admin.campaigns.send', $campaign), ['scheduled_at' => $an->format('Y-m-d\TH:i')]);
+
+        $this->actingAs($this->sender())
+            ->get(route('admin.campaigns.show', $campaign))
+            ->assertOk()
+            ->assertSee('Gönderim Zamanlandı')
+            ->assertSee($an->format('d.m.Y H:i'))
+            ->assertSee('Zamanı değiştir')
+            ->assertSee('Planı İptal Et, Hemen Gönder')
+            ->assertDontSee('Onayla ve Gönderime Al');
+    }
+
+    /**
+     * Plan bağlayıcı değil: yeni bir saat verilince eskisinin yerini alır.
+     */
+    public function test_a_scheduled_campaign_can_be_rescheduled(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $ilk = now()->addDay()->setTime(9, 30);
+        $yeni = now()->addDays(3)->setTime(14, 0);
+
+        $this->actingAs($this->sender())
+            ->post(route('admin.campaigns.send', $campaign), ['scheduled_at' => $ilk->format('Y-m-d\TH:i')]);
+
+        $this->actingAs($this->sender())
+            ->post(route('admin.campaigns.send', $campaign), ['scheduled_at' => $yeni->format('Y-m-d\TH:i')])
+            ->assertRedirect();
+
+        $campaign->refresh();
+        $this->assertSame(CampaignStatus::Scheduled, $campaign->status);
+        $this->assertSame($yeni->format('Y-m-d H:i'), $campaign->scheduled_at?->format('Y-m-d H:i'));
+        $this->assertSame(0, $campaign->sent_count, 'Yeniden planlamak gönderim başlatmamalı');
+    }
+
+    /**
+     * Plandan vazgeçip hemen göndermek: aynı uçtan, tarih verilmeden.
+     */
+    public function test_a_scheduled_campaign_can_be_sent_right_away(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $this->actingAs($this->sender())->post(route('admin.campaigns.send', $campaign), [
+            'scheduled_at' => now()->addWeek()->format('Y-m-d\TH:i'),
+        ]);
+
+        $this->actingAs($this->sender())
+            ->post(route('admin.campaigns.send', $campaign))
+            ->assertRedirect();
+
+        $campaign->refresh();
+        $this->assertSame(CampaignStatus::Sending, $campaign->status);
+        $this->assertNull($campaign->scheduled_at, 'Plan iptal edilmeli');
+        $this->assertSame(3, $campaign->total_recipients);
+    }
+
     public function test_a_past_schedule_is_rejected(): void
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
