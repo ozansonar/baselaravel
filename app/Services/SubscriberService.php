@@ -8,6 +8,7 @@ use App\Enums\SubscriberStatus;
 use App\Models\CampaignRecipient;
 use App\Models\Subscriber;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 final class SubscriberService
@@ -56,8 +57,7 @@ final class SubscriberService
                 return $existing->refresh();
             }
 
-            $subscriber = Subscriber::create([
-                'email'         => $email,
+            $subscriber = $this->createOrLoad($email, [
                 'first_name'    => $firstName,
                 'last_name'     => $lastName,
                 'locale'        => $locale,
@@ -70,6 +70,25 @@ final class SubscriberService
 
             return $subscriber;
         });
+    }
+
+    /**
+     * Adres için kaydı açar; aynı anda başkası açtıysa onu döndürür.
+     *
+     * Bir adres tek bir abone kaydına karşılık gelmeli ve bunu artık
+     * veritabanı garanti ediyor. "Önce ara sonra yaz" iki eşzamanlı istekte
+     * ikisine de boş sonuç verebiliyor; ikinci yazma kısıta takıldığında hata
+     * vermek yerine ilkinin açtığı kayıt okunuyor.
+     *
+     * @param array<string, mixed> $attributes
+     */
+    private function createOrLoad(string $email, array $attributes): Subscriber
+    {
+        try {
+            return Subscriber::create($attributes + ['email' => $email]);
+        } catch (UniqueConstraintViolationException) {
+            return Subscriber::withTrashed()->where('email', $email)->firstOrFail();
+        }
     }
 
     /**
@@ -140,8 +159,7 @@ final class SubscriberService
             return $existing;
         }
 
-        return Subscriber::create([
-            'email'         => $email,
+        return $this->createOrLoad($email, [
             'first_name'    => $recipient->first_name,
             'last_name'     => $recipient->last_name,
             'locale'        => $recipient->locale,
