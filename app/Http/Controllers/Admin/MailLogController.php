@@ -22,24 +22,43 @@ final class MailLogController extends Controller
         private readonly QueueRunner $queueRunner,
     ) {}
 
+    /**
+     * Listede gösterilebilecek kayıt sayıları; istekten gelen değer bu kümeyle
+     * sınırlı, aksi hâlde tek istekle tüm tablo çekilebilirdi.
+     */
+    private const PER_PAGE_OPTIONS = [10, 25, 50, 100];
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', MailLog::class);
 
-        $perPage = in_array((int) $request->input('per_page', 25), [10, 25, 50, 100], true)
-            ? (int) $request->input('per_page', 25)
-            : 25;
+        $perPage = (int) $request->input('per_page', 25);
+        $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : 25;
 
-        $filters = $request->only(['status', 'search', 'date_filter']);
+        $filters = [
+            'status'      => $request->string('status')->value(),
+            'search'      => $request->string('search')->trim()->value(),
+            'mailable'    => $request->string('mailable')->value(),
+            'recipient'   => $request->string('recipient')->trim()->value(),
+            'user_id'     => $request->string('user_id')->value(),
+            'date_filter' => $request->string('date_filter')->value(),
+            'from'        => $request->string('from')->value(),
+            'to'          => $request->string('to')->value(),
+        ];
 
         return view('admin.mail-logs.index', [
-            'mailLogs'     => $this->mailLogService->paginate($perPage, $filters),
-            'statusCounts' => $this->mailLogService->statusCounts(),
-            'stats'        => $this->mailLogService->getAdminStats(),
-            'perPage'      => $perPage,
+            'mailLogs'          => $this->mailLogService->paginate($perPage, $filters),
+            'statusCounts'      => $this->mailLogService->statusCounts($filters),
+            'stats'             => $this->mailLogService->getAdminStats(),
+            'mailableOptions'   => $this->mailLogService->mailableOptions(),
+            'recipientOptions'  => $this->mailLogService->recipientOptions(),
+            'userOptions'       => $this->mailLogService->userOptions(),
+            'filters'           => $filters,
+            'perPage'           => $perPage,
+            'perPageOptions'    => self::PER_PAGE_OPTIONS,
             // Beklemedeki mailler kuyruktaki işlerle gider; kaç iş beklediği
             // "neden hâlâ gönderilmedi" sorusunun cevabı.
-            'queuedJobs'   => $this->queueRunner->pendingJobs(),
+            'queuedJobs'        => $this->queueRunner->pendingJobs(),
         ]);
     }
 
