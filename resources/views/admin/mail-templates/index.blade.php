@@ -212,6 +212,7 @@
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>
                             <span class="mt-result-count">{{ $templates->count() }} şablon</span>
+                            <x-export-menu export="mail-templates" :total="$templates->count()" />
                         </div>
                     </div>
                 </div>

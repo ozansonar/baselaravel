@@ -8,6 +8,8 @@ use App\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\File;
 
 /**
  * Owns the language list and the "exactly one default" rule.
@@ -169,6 +171,131 @@ final class LanguageService
         $this->clearCache();
 
         return ['deleted' => true, 'message' => 'Dil silindi.'];
+    }
+
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['search', 'status', 'files', 'content', 'sort'];
+    }
+
+    /**
+     * Arayüz çevirisi dosyası bulunan dil kodları.
+     *
+     * Sütun değil dosya sistemi gerçeği: lang/ altında klasörü olan diller.
+     *
+     * @return list<string>
+     */
+    public function translatedLocales(): array
+    {
+        if (! File::isDirectory(lang_path())) {
+            return [];
+        }
+
+        return collect(File::directories(lang_path()))
+            ->map(static fn (string $path): string => basename($path))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Dil başına içerik adedi.
+     *
+     * Bir dil, arkasında ne kadar içerik olduğu bilinmeden kapatılmasın ya da
+     * silinmesin diye dokuz tablodan toplanıyor.
+     *
+     * @return array<string, int>
+     */
+    public function contentCounts(): array
+    {
+        $tables = [
+            'pages', 'blog_posts', 'blog_categories', 'gallery_categories',
+            'gallery_items', 'faqs', 'sliders', 'popups', 'menus',
+        ];
+
+        $counts = [];
+
+        foreach ($tables as $table) {
+            foreach (
+                DB::table($table)
+                    ->selectRaw('locale, COUNT(*) as total')
+                    ->whereNull('deleted_at')
+                    ->groupBy('locale')
+                    ->get() as $row
+            ) {
+                $locale = (string) $row->locale;
+                $counts[$locale] = ($counts[$locale] ?? 0) + (int) $row->total;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış dil sorgusu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<Language>
+     */
+    public function query(array $filters = []): Builder
+    {
+        $query = Language::query();
+
+        if (($filters['search'] ?? '') !== '') {
+            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
+            // getirmemeli.
+            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+
+            $query->where(function (Builder $sub) use ($term): void {
+                $sub->where('name', 'like', $term)
+                    ->orWhere('native_name', 'like', $term)
+                    ->orWhere('code', 'like', $term);
+            });
+        }
+
+        match ($filters['status'] ?? '') {
+            'active'   => $query->where('is_active', true),
+            'inactive' => $query->where('is_active', false),
+            'default'  => $query->where('is_default', true),
+            default    => null,
+        };
+
+        // Arayüz çevirisi bir dosya sistemi gerçeği: süzgeç, diskte bulunan
+        // kodlar üzerinden çalışıyor.
+        $translated = $this->translatedLocales();
+
+        match ($filters['files'] ?? '') {
+            'yes'   => $query->whereIn('code', $translated ?: ['']),
+            'no'    => $query->whereNotIn('code', $translated ?: ['']),
+            default => null,
+        };
+
+        // İçerik sayısı da sütun değil: dokuz tablodan toplanıyor.
+        $withContent = array_keys(array_filter($this->contentCounts(), static fn (int $count): bool => $count > 0));
+
+        match ($filters['content'] ?? '') {
+            'yes'   => $query->whereIn('code', $withContent ?: ['']),
+            'no'    => $query->whereNotIn('code', $withContent ?: ['']),
+            default => null,
+        };
+
+        match ($filters['sort'] ?? '') {
+            'name'   => $query->orderBy('name'),
+            'code'   => $query->orderBy('code'),
+            'recent' => $query->latest('id'),
+            'oldest' => $query->oldest('id'),
+            // Varsayılan dil hep başta: listenin çıpası o.
+            default  => $query->orderByDesc('is_default')->orderBy('sort_order')->orderBy('name'),
+        };
+
+        return $query;
     }
 
     public function clearCache(): void

@@ -19,9 +19,73 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
+use Illuminate\Database\Eloquent\Builder;
 
 final class CampaignService
 {
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['search', 'status', 'audience', 'from', 'to', 'sort'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış kampanya sorgusu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<Campaign>
+     */
+    public function query(array $filters = []): Builder
+    {
+        $query = Campaign::query()->withCount('recipients')->with('author');
+
+        if (($case = CampaignStatus::tryFrom((string) ($filters['status'] ?? ''))) !== null) {
+            $query->where('status', $case);
+        }
+
+        if (($audience = CampaignAudience::tryFrom((string) ($filters['audience'] ?? ''))) !== null) {
+            $query->where('audience', $audience);
+        }
+
+        if (($filters['search'] ?? '') !== '') {
+            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
+            // getirmemeli.
+            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+
+            $query->where(function (Builder $sub) use ($term): void {
+                $sub->where('name', 'like', $term)->orWhere('subject', 'like', $term);
+            });
+        }
+
+        // Tarih aralığı oluşturulma gününe göre; bitiş günü de dâhil.
+        if (($filters['from'] ?? '') !== '') {
+            $query->whereDate('created_at', '>=', $filters['from']);
+        }
+
+        if (($filters['to'] ?? '') !== '') {
+            $query->whereDate('created_at', '<=', $filters['to']);
+        }
+
+        // Sıralama seçenekleri sabit: istekten gelen değer doğrudan sütun adı
+        // olarak sorguya giremiyor.
+        match ($filters['sort'] ?? '') {
+            'oldest'     => $query->oldest('id'),
+            'name'       => $query->orderBy('name'),
+            'recipients' => $query->orderByDesc('total_recipients')->orderByDesc('id'),
+            'sent'       => $query->orderByDesc('sent_count')->orderByDesc('id'),
+            default      => $query->latest('id'),
+        };
+
+        return $query;
+    }
+
     private const UPLOAD_FOLDER = 'campaigns';
 
     public function __construct(

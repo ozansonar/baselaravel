@@ -35,7 +35,27 @@ final class MailTemplateService
      * @param array<string, mixed> $filters
      * @return Collection<int, MailTemplate>
      */
-    public function filter(array $filters): Collection
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'search', 'variable', 'origin', 'sort'];
+    }
+
+    /**
+     * Sorguya çevrilebilen süzgeçler.
+     *
+     * Değişken ve köken süzgeçleri burada yok: biri JSON sütununun içine, öbürü
+     * varsayılan içerikle karşılaştırmaya bakıyor — ikisi de filter() içinde,
+     * koleksiyon üzerinde uygulanıyor.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<MailTemplate>
+     */
+    public function query(array $filters = []): Builder
     {
         $query = MailTemplate::query();
 
@@ -54,11 +74,16 @@ final class MailTemplateService
             });
         }
 
-        $templates = match ($filters['sort'] ?? '') {
-            'recent' => $query->orderByDesc('updated_at')->get(),
-            'key'    => $query->orderBy('key')->get(),
-            default  => $query->orderBy('name')->get(),
+        return match ($filters['sort'] ?? '') {
+            'recent' => $query->orderByDesc('updated_at'),
+            'key'    => $query->orderBy('key'),
+            default  => $query->orderBy('name'),
         };
+    }
+
+    public function filter(array $filters): Collection
+    {
+        $templates = $this->query($filters)->get();
 
         // Değişkenler JSON sütununda; altı satır için sorguyu veritabanına
         // özel JSON işlevlerine bağlamaktansa koleksiyonda süzmek yeterli.

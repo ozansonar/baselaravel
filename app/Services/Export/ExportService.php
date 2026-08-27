@@ -34,7 +34,7 @@ final class ExportService
     public function exceedsPdfLimit(ListExport $export, array $filters): bool
     {
         return $this->pdfLimit() > 0
-            && $export->query($filters)->count() > $this->pdfLimit();
+            && $export->count($filters) > $this->pdfLimit();
     }
 
     /**

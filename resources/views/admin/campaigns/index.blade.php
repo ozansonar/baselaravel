@@ -210,6 +210,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="campaigns" :total="$campaigns->total()" />
                         </div>
                     </div>
                 </div>

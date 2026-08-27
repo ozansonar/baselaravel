@@ -72,6 +72,10 @@ return [
         'mail-logs'          => App\Exports\MailLogExport::class,
         'redirects'          => App\Exports\RedirectExport::class,
         'notifications'      => App\Exports\NotificationExport::class,
+        'files'              => App\Exports\UploadedFileExport::class,
+        'campaigns'          => App\Exports\CampaignExport::class,
+        'languages'          => App\Exports\LanguageExport::class,
+        'mail-templates'     => App\Exports\MailTemplateExport::class,
     ],
 
 ];

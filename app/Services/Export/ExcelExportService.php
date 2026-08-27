@@ -69,19 +69,18 @@ final class ExcelExportService
         $columnStyles = $this->columnStyles($columns);
         $rowCount = 0;
 
-        $export->query($filters)
-            ->chunk((int) config('export.chunk_size', 500), function ($records) use ($writer, $columns, $columnStyles, &$rowCount): void {
-                foreach ($records as $record) {
-                    $values = [];
+        $export->eachChunk($filters, (int) config('export.chunk_size', 500), function ($records) use ($writer, $columns, $columnStyles, &$rowCount): void {
+            foreach ($records as $record) {
+                $values = [];
 
-                    foreach ($columns as $column) {
-                        $values[] = $this->cellValue($column, $record);
-                    }
-
-                    $writer->addRow(Row::fromValuesWithStyles($values, $columnStyles));
-                    ++$rowCount;
+                foreach ($columns as $column) {
+                    $values[] = $this->cellValue($column, $record);
                 }
-            });
+
+                $writer->addRow(Row::fromValuesWithStyles($values, $columnStyles));
+                ++$rowCount;
+            }
+        });
 
         // Süzgeç aralığı ancak satırlar yazıldıktan sonra bilinir. Sayı için
         // ayrıca sorgu atmıyoruz; yazarken tutulan sayaç zaten elimizde.

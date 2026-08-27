@@ -45,6 +45,33 @@ abstract class ListExport
     abstract public function authorize(): void;
 
     /**
+     * Süzgeçlere uyan kayıt sayısı.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function count(array $filters): int
+    {
+        return $this->query($filters)->count();
+    }
+
+    /**
+     * Kayıtları parçalar hâlinde gezer.
+     *
+     * Varsayılan yol sorgudur: hiçbir noktada sonuç kümesinin tamamı belleğe
+     * alınmaz. Sorguya sığmayan listeler (örneğin JSON sütununa göre süzülen
+     * mail şablonları) bu metodu kendi kaynaklarıyla değiştirir.
+     *
+     * @param array<string, mixed> $filters
+     * @param callable(\Illuminate\Support\Collection<int, \Illuminate\Database\Eloquent\Model>): void $handler
+     */
+    public function eachChunk(array $filters, int $size, callable $handler): void
+    {
+        $this->query($filters)->chunk($size, static function ($records) use ($handler): void {
+            $handler($records);
+        });
+    }
+
+    /**
      * İstekteki süzgeçleri tanıma göre ayıklar.
      *
      * Boş değerler atılır: "?search=" gibi taşıyıcı parametreler süzgeç sayılıp

@@ -37,7 +37,7 @@ final class FileManagerController extends Controller
             ? (int) $request->query('per_page')
             : 24;
 
-        $filters = $request->only(['q', 'category', 'date_from', 'date_to']);
+        $filters = $request->only($this->files->filterKeys());
 
         return view('admin.files.index', [
             'files'    => $this->files->paginate($perPage, $filters),

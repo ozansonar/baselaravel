@@ -191,6 +191,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="languages" :total="$languages->total()" />
                         </div>
                     </div>
                 </div>

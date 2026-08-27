@@ -79,46 +79,8 @@ final class CampaignController extends Controller
             'sort'     => $sort,
         ];
 
-        $query = Campaign::query()->withCount('recipients')->with('author');
-
-        if (($case = CampaignStatus::tryFrom($filters['status'])) !== null) {
-            $query->where('status', $case);
-        }
-
-        if (($audience = CampaignAudience::tryFrom($filters['audience'])) !== null) {
-            $query->where('audience', $audience);
-        }
-
-        if ($filters['search'] !== '') {
-            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
-            // getirmemeli.
-            $term = '%' . addcslashes($filters['search'], '%_\\') . '%';
-
-            $query->where(function ($q) use ($term): void {
-                $q->where('name', 'like', $term)->orWhere('subject', 'like', $term);
-            });
-        }
-
-        // Tarih aralığı oluşturulma gününe göre; bitiş günü de dâhil olsun diye
-        // gün sonuna kadar alınıyor.
-        if ($filters['from'] !== '') {
-            $query->whereDate('created_at', '>=', $filters['from']);
-        }
-
-        if ($filters['to'] !== '') {
-            $query->whereDate('created_at', '<=', $filters['to']);
-        }
-
-        match ($filters['sort']) {
-            'oldest'     => $query->oldest('id'),
-            'name'       => $query->orderBy('name'),
-            'recipients' => $query->orderByDesc('total_recipients')->orderByDesc('id'),
-            'sent'       => $query->orderByDesc('sent_count')->orderByDesc('id'),
-            default      => $query->latest('id'),
-        };
-
         return view('admin.campaigns.index', [
-            'campaigns'    => $query->paginate($perPage)->withQueryString(),
+            'campaigns'    => $this->campaigns->query($filters)->paginate($perPage)->withQueryString(),
             'stats'        => $this->stats(),
             'statusCounts' => $this->statusCounts(),
             'statuses'     => CampaignStatus::cases(),

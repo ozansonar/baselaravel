@@ -38,8 +38,7 @@ final class PdfExportService
         $columns = $export->columns();
         $title = $export->title();
         $project = (string) config('app.name');
-        $query = $export->query($filters);
-        $total = $query->count();
+        $total = $export->count($filters);
 
         $mpdf = $this->makeMpdf($columns);
         $mpdf->SetTitle($title);
@@ -63,7 +62,7 @@ final class PdfExportService
             'rowCount'    => $total,
         ])->render(), HTMLParserMode::HTML_BODY);
 
-        $rowCount = $this->writeRows($mpdf, $query, $columns);
+        $rowCount = $this->writeRows($mpdf, $export, $filters, $columns);
 
         $mpdf->WriteHTML(
             View::make('exports.pdf.document-foot', ['rowCount' => $total])->render(),
@@ -107,14 +106,14 @@ final class PdfExportService
      * anda bellekte duruyor. Tek yazım zaten mümkün değil — mPDF, PCRE geri
      * izleme sınırı yüzünden 1 MB'tan büyük HTML'i reddediyor.
      *
-     * @param \Illuminate\Contracts\Database\Eloquent\Builder<covariant \Illuminate\Database\Eloquent\Model> $query
+     * @param array<string, mixed> $filters
      * @param list<ExportColumn> $columns
      */
-    private function writeRows(Mpdf $mpdf, $query, array $columns): int
+    private function writeRows(Mpdf $mpdf, ListExport $export, array $filters, array $columns): int
     {
         $rowCount = 0;
 
-        $query->chunk((int) config('export.chunk_size', 500), function ($records) use ($mpdf, $columns, &$rowCount): void {
+        $export->eachChunk($filters, (int) config('export.chunk_size', 500), function ($records) use ($mpdf, $columns, &$rowCount): void {
             $rows = [];
 
             foreach ($records as $record) {

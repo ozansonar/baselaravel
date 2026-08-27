@@ -40,8 +40,8 @@ final class LanguageController extends Controller
     {
         $this->authorize('viewAny', Language::class);
 
-        $translated = $this->translatedLocales();
-        $contentStats = $this->contentCounts();
+        $translated = $this->languages->translatedLocales();
+        $contentStats = $this->languages->contentCounts();
 
         $perPage = (int) $request->integer('per_page', 10);
         $perPage = in_array($perPage, self::PER_PAGE, true) ? $perPage : 10;
@@ -57,59 +57,10 @@ final class LanguageController extends Controller
             'sort'    => $sort,
         ];
 
-        $query = Language::query();
-
-        if ($filters['search'] !== '') {
-            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
-            // getirmemeli.
-            $term = '%' . addcslashes($filters['search'], '%_\\') . '%';
-
-            $query->where(function ($q) use ($term): void {
-                $q->where('name', 'like', $term)
-                    ->orWhere('native_name', 'like', $term)
-                    ->orWhere('code', 'like', $term);
-            });
-        }
-
-        match ($filters['status']) {
-            'active'   => $query->where('is_active', true),
-            'inactive' => $query->where('is_active', false),
-            'default'  => $query->where('is_default', true),
-            default    => null,
-        };
-
-        // "Interface files" is a filesystem fact, not a column, so it filters on
-        // the codes found on disk rather than in SQL.
-        match ($filters['files']) {
-            'yes'   => $query->whereIn('code', $translated ?: ['']),
-            'no'    => $query->whereNotIn('code', $translated ?: ['']),
-            default => null,
-        };
-
-        // İçerik sayısı da sütun değil: dokuz tablodan toplanıyor, süzgeç o
-        // toplamın sıfırdan büyük olduğu kodlar üzerinden çalışıyor.
-        $withContent = array_keys(array_filter($contentStats, fn (int $count): bool => $count > 0));
-
-        match ($filters['content']) {
-            'yes'   => $query->whereIn('code', $withContent ?: ['']),
-            'no'    => $query->whereNotIn('code', $withContent ?: ['']),
-            default => null,
-        };
-
-        match ($filters['sort']) {
-            'name'   => $query->orderBy('name'),
-            'code'   => $query->orderBy('code'),
-            'recent' => $query->latest('id'),
-            'oldest' => $query->oldest('id'),
-            // Varsayılan dil hep başta: listenin çıpası o, sıra numarası ondan
-            // sonra geliyor.
-            default  => $query->orderByDesc('is_default')->orderBy('sort_order')->orderBy('name'),
-        };
-
         $all = Language::all();
 
         return view('admin.languages.index', [
-            'languages'    => $query->paginate($perPage)->withQueryString(),
+            'languages'    => $this->languages->query($filters)->paginate($perPage)->withQueryString(),
             'translated'   => $translated,
             'contentStats' => $contentStats,
             'filters'      => $filters,
@@ -143,7 +94,7 @@ final class LanguageController extends Controller
         return view('admin.languages.edit', [
             'language'     => $language,
             'hasFiles'     => $this->hasTranslationFiles($language->code),
-            'contentCount' => $this->contentCounts()[$language->code] ?? 0,
+            'contentCount' => $this->languages->contentCounts()[$language->code] ?? 0,
         ]);
     }
 
@@ -266,56 +217,9 @@ final class LanguageController extends Controller
             ->with($result['deleted'] ? 'success' : 'error', $result['message']);
     }
 
-    /**
-     * Which languages have interface translation files on disk.
-     *
-     * @return array<int, string>
-     */
-    private function translatedLocales(): array
-    {
-        if (! File::isDirectory(lang_path())) {
-            return [];
-        }
-
-        return collect(File::directories(lang_path()))
-            ->map(fn (string $path): string => basename($path))
-            ->values()
-            ->all();
-    }
-
+    /** Bu dilin arayüz çeviri dosyası diskte var mı? */
     private function hasTranslationFiles(string $code): bool
     {
         return File::exists(lang_path($code . '/site.php'));
-    }
-
-    /**
-     * How much content exists in each language, so a language is not switched
-     * off or deleted without knowing what goes with it.
-     *
-     * @return array<string, int>
-     */
-    private function contentCounts(): array
-    {
-        $tables = [
-            'pages', 'blog_posts', 'blog_categories', 'gallery_categories',
-            'gallery_items', 'faqs', 'sliders', 'popups', 'menus',
-        ];
-
-        $counts = [];
-
-        foreach ($tables as $table) {
-            foreach (
-                \Illuminate\Support\Facades\DB::table($table)
-                    ->selectRaw('locale, COUNT(*) as total')
-                    ->whereNull('deleted_at')
-                    ->groupBy('locale')
-                    ->get() as $row
-            ) {
-                $locale = (string) $row->locale;
-                $counts[$locale] = ($counts[$locale] ?? 0) + (int) $row->total;
-            }
-        }
-
-        return $counts;
     }
 }
