@@ -140,6 +140,111 @@ class LanguagePanelTest extends TestCase
             ->assertSee('data-count="5"', false);
     }
 
+    /**
+     * İçerik sayısı da sütun değil; dokuz tablodan toplanıyor. Süzgeç o
+     * toplamın sıfırdan büyük olduğu diller üzerinden çalışmalı.
+     */
+    public function test_the_list_can_be_filtered_by_content(): void
+    {
+        \App\Models\Page::factory()->create(['locale' => 'de']);
+
+        $withContent = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['content' => 'yes']))
+            ->getContent();
+
+        $withoutContent = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['content' => 'no']))
+            ->getContent();
+
+        $this->assertStringContainsString('Deutsch', $withContent);
+        $this->assertStringNotContainsString('Italiano', $withContent);
+        $this->assertStringContainsString('Italiano', $withoutContent);
+    }
+
+    public function test_the_list_is_paginated(): void
+    {
+        // Seeder beş dil kuruyor; sayfa başına iki kayıtla üç sayfa eder.
+        $response = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['per_page' => 10]))
+            ->assertOk();
+
+        $languages = $response->viewData('languages');
+
+        $this->assertInstanceOf(\Illuminate\Contracts\Pagination\LengthAwarePaginator::class, $languages);
+        $this->assertSame(10, $languages->perPage());
+        $this->assertSame(5, $languages->total());
+    }
+
+    /**
+     * Sayfa başına değer istekten geliyor; izin verilenler dışında bir sayı
+     * gönderilirse varsayılana düşmeli.
+     */
+    public function test_an_unknown_page_size_falls_back_to_the_default(): void
+    {
+        $response = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['per_page' => 999]))
+            ->assertOk();
+
+        $this->assertSame(10, $response->viewData('languages')->perPage());
+    }
+
+    public function test_the_list_can_be_sorted(): void
+    {
+        $codes = fn (string $sort): array => $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['sort' => $sort]))
+            ->viewData('languages')
+            ->pluck('code')
+            ->all();
+
+        // Ada göre: Almanca, Fransızca, İngilizce, İtalyanca, Türkçe.
+        $this->assertSame('de', $codes('name')[0]);
+        $this->assertSame(['de', 'en', 'fr', 'it', 'tr'], $codes('code'));
+
+        // Varsayılan sıralamada varsayılan dil hep başta.
+        $this->assertSame('tr', $codes('order')[0]);
+    }
+
+    /**
+     * Uydurulmuş bir sıralama sütun adı olarak sorguya girmemeli.
+     */
+    public function test_an_unknown_sort_is_ignored(): void
+    {
+        $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['sort' => 'code); drop table languages;--']))
+            ->assertOk();
+
+        $this->assertSame(5, \App\Models\Language::count());
+    }
+
+    /**
+     * Sayfa değiştirirken açık süzgeç korunmalı, yoksa kullanıcı ikinci sayfada
+     * kendini süzülmemiş listede bulur.
+     */
+    public function test_the_pagination_links_carry_the_open_filters(): void
+    {
+        // Seeder'ın beş dili tek sayfaya sığıyor; ikinci sayfa için liste
+        // kalabalıklaştırılıyor.
+        foreach (range(1, 12) as $i) {
+            \App\Models\Language::create([
+                'code'        => 'x' . $i,
+                'name'        => 'Test Dili ' . $i,
+                'native_name' => 'Test ' . $i,
+                'is_active'   => false,
+                'is_default'  => false,
+                'sort_order'  => 100 + $i,
+            ]);
+        }
+
+        $languages = $this->actingAs($this->manager())
+            ->get(route('admin.languages.index', ['per_page' => 10, 'status' => 'inactive']))
+            ->assertOk()
+            ->viewData('languages');
+
+        $this->assertTrue($languages->hasPages(), 'İki sayfa oluşmalı');
+        $this->assertStringContainsString('status=inactive', $languages->nextPageUrl() ?? '');
+        $this->assertStringContainsString('per_page=10', $languages->nextPageUrl() ?? '');
+    }
+
     // ── Sayfalar ──
 
     public function test_the_create_page_opens(): void
