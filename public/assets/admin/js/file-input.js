@@ -85,8 +85,41 @@
         });
     }
 
+    /**
+     * Sarmalayıcının uzak durması gereken alanlar.
+     *
+     * Üçüncü parti bileşenler kendi dosya girdilerini kendileri yönetiyor:
+     * TinyMCE'nin görsel yükleme diyalogu (.tox) ve Dropzone (.dropzone)
+     * girdiyi kendi kutusuna yerleştiriyor, seçilen dosyayı kendi arayüzünde
+     * gösteriyor. Bunların üstüne bir de bizim kutumuz örülünce diyalogun
+     * yerleşimi bozuluyor ve seçilen dosyalar bileşenin dışına, sayfanın
+     * altına taşıyordu.
+     *
+     * data-fu-skip ile tek bir alan da elle dışarıda bırakılabilir.
+     */
+    var YABANCI_KAPSAYICILAR = '.tox, .dropzone, [data-fu-skip]';
+
+    function bizeAitMi(input) {
+        // Dropzone gizli girdisini kendi kutusuna değil doğrudan <body>'ye
+        // ekliyor, bu yüzden kapsayıcı listesine takılmıyor. Bizim hiçbir
+        // alanımız body'nin doğrudan çocuğu değil: sayfanın kendi işaretlemesi
+        // içinde durur. Oraya iliştirilmiş bir girdi bir bileşenin yardımcısıdır.
+        if (input.parentElement === document.body) {
+            return false;
+        }
+
+        return !input.closest(YABANCI_KAPSAYICILAR);
+    }
+
     function kur(input) {
         if (input.dataset.fuReady === '1' || input.hasAttribute('hidden')) {
+            return;
+        }
+
+        if (!bizeAitMi(input)) {
+            // Bir daha bakılmasın: bileşen girdiyi taşırsa tekrar denenmesin.
+            input.dataset.fuReady = 'yabanci';
+
             return;
         }
 
