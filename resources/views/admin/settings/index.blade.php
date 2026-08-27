@@ -684,6 +684,42 @@
 
                 </div>
 
+                {{-- Gönderim Limitleri --}}
+                <div class="stg-section">
+                    <div class="stg-section-title">
+                        <h6>Gönderim Limitleri</h6>
+                        <p>Toplu gönderim hızının tavanı — mail sağlayıcısı bir hesabı bir anda boşalan listeden dolayı kısıtlar</p>
+                    </div>
+
+                    <div class="stg-row">
+                        <div class="stg-field stg-half">
+                            <label class="stg-label">Saatlik Mail Limiti</label>
+                            <input type="number" class="stg-input" name="settings[mail_hourly_limit]" min="0" step="1"
+                                   value="{{ $s('mail_hourly_limit', '100') }}" placeholder="100">
+                            <small class="stg-hint">
+                                Son 60 dakikada gönderilen mail sayılarak uygulanır, hiçbir koşulda aşılmaz.
+                                Sağlayıcınızın verdiği saatlik kotayı yazın. 0 yazarsanız gönderim durur.
+                            </small>
+                        </div>
+                        <div class="stg-field stg-half">
+                            <label class="stg-label">Tur Başına Mail</label>
+                            <input type="number" class="stg-input" name="settings[mail_batch_max]" min="0" step="1"
+                                   value="{{ $s('mail_batch_max', '0') }}" placeholder="0">
+                            <small class="stg-hint">
+                                Zamanlanmış görev {{ \App\Services\CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada bir çalışır.
+                                <strong>0</strong> bırakırsanız saatlik limit turlara kendiliğinden bölünür — önerilen budur.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="stg-field stg-half">
+                        <label class="stg-label">Yeniden Deneme Sayısı</label>
+                        <input type="number" class="stg-input" name="settings[mail_max_attempts]" min="1" max="10" step="1"
+                               value="{{ $s('mail_max_attempts', '3') }}" placeholder="3">
+                        <small class="stg-hint">Gönderilemeyen bir mail kaç kez daha denensin. Bu sayıya ulaşan alıcı başarısız sayılır.</small>
+                    </div>
+                </div>
+
                 {{-- Test E-postası Gönder --}}
                 <div class="stg-section">
                     <div class="stg-section-title">

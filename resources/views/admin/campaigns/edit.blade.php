@@ -40,7 +40,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ versioned_asset('assets/admin/js/campaigns.js') }}"></script>
+    <script src="{{ versioned_asset('assets/admin/js/campaign-form.js') }}"></script>
     <script>
         window.campaignAttachmentUrl = @js(route('admin.campaigns.attachments.destroy', [$campaign, 'ATTACHMENT_ID']));
     </script>

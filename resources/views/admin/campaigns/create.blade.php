@@ -34,5 +34,5 @@
 
 
 @push('scripts')
-    <script src="{{ versioned_asset('assets/admin/js/campaigns.js') }}"></script>
+    <script src="{{ versioned_asset('assets/admin/js/campaign-form.js') }}"></script>
 @endpush

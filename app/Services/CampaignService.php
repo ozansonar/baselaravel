@@ -460,6 +460,42 @@ final class CampaignService
     }
 
     /**
+     * Elle girilen alıcı satırlarını kayıt biçimine çevirir.
+     *
+     * Form artık serbest metin yerine satır satır alan gönderiyor: her satırda
+     * e-posta, ad ve soyad ayrı. Boş satırlar (kullanıcı "ekle"ye basıp
+     * doldurmadan bıraktığında oluşur) ve aynı adres iki kez atlanır.
+     *
+     * @param  array<int, array<string, string|null>> $rows
+     * @return array<int, array{name: ?string, email: string}>
+     */
+    public function parseManualRows(array $rows): array
+    {
+        $parsed = [];
+        $seen = [];
+
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $email = mb_strtolower(trim((string) ($row['email'] ?? '')));
+
+            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL) || isset($seen[$email])) {
+                continue;
+            }
+
+            $seen[$email] = true;
+
+            $name = trim(trim((string) ($row['first_name'] ?? '')) . ' ' . trim((string) ($row['last_name'] ?? '')));
+
+            $parsed[] = ['name' => $name !== '' ? $name : null, 'email' => $email];
+        }
+
+        return $parsed;
+    }
+
+    /**
      * A one-off preview send, so the wording can be checked in a real inbox
      * before the list gets it.
      */
