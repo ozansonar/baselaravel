@@ -269,6 +269,91 @@ class CampaignPanelTest extends TestCase
         $this->assertCount(1, $mail->attachments());
     }
 
+    /**
+     * Ekler forma binmiyor: her dosya kendi isteğiyle önden yükleniyor, kampanya
+     * kaydedilince belirtecinden bağlanıyor. Hepsi tek POST'ta gitseydi birkaç
+     * dosya post_max_size'ı aşar, PHP gövdeyi atar ve form 419 ile kaybolurdu.
+     */
+    public function test_an_attachment_uploaded_up_front_is_linked_when_the_campaign_is_saved(): void
+    {
+        $editor = $this->editor();
+
+        $token = $this->actingAs($editor)
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Katalog.pdf', 20, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->json('token');
+
+        $this->assertNotEmpty($token);
+
+        $this->actingAs($editor)->post(route('admin.campaigns.store'), $this->payload([
+            'attachment_tokens' => [$token],
+        ]));
+
+        $attachment = Campaign::firstOrFail()->attachments()->firstOrFail();
+
+        $this->assertSame('Katalog.pdf', $attachment->original_name);
+        $this->assertFileExists(UploadService::basePath($attachment->path));
+    }
+
+    /**
+     * Belirteç yalnızca oturumda gerçek yola çevriliyor. Uydurulmuş bir belirteç
+     * sessizce atlanmalı — istemciye yol verilseydi, kaydederken başka bir yol
+     * göndererek sunucudaki herhangi bir dosya kampanyaya iliştirilebilirdi.
+     */
+    public function test_a_made_up_attachment_token_attaches_nothing(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload([
+            'attachment_tokens' => ['3f2504e0-4f89-41d3-9a0c-0305e82c3301'],
+        ]));
+
+        $this->assertSame(0, Campaign::firstOrFail()->attachments()->count());
+    }
+
+    /**
+     * Kaydetmeden vazgeçilen ek diskten de silinmeli, yoksa public/uploads
+     * altında sahipsiz dosya birikir.
+     */
+    public function test_discarding_a_pending_attachment_removes_the_file(): void
+    {
+        $editor = $this->editor();
+
+        $token = $this->actingAs($editor)
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Vazgectim.pdf', 12, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->json('token');
+
+        $this->actingAs($editor)
+            ->deleteJson(route('admin.campaigns.attachments.discard', $token))
+            ->assertOk()
+            ->assertJson(['removed' => true]);
+
+        $this->actingAs($editor)->post(route('admin.campaigns.store'), $this->payload([
+            'attachment_tokens' => [$token],
+        ]));
+
+        $this->assertSame(0, Campaign::firstOrFail()->attachments()->count());
+    }
+
+    /**
+     * İstemci sınırı atlatılsa bile sunucu son söz: tavan, uygulamanın kendi
+     * sınırı ile php.ini'nin izin verdiğinden hangisi düşükse odur.
+     */
+    public function test_an_oversized_attachment_is_refused_by_the_server(): void
+    {
+        $limits = app(\App\Services\CampaignService::class)->attachmentLimits();
+        $tooBigKb = (int) floor($limits['per_file'] / 1024) + 64;
+
+        $this->actingAs($this->editor())
+            ->postJson(route('admin.campaigns.attachments.upload'), [
+                'file' => UploadedFile::fake()->create('Devasa.pdf', $tooBigKb, 'application/pdf'),
+            ])
+            ->assertStatus(422);
+    }
+
     // ── Onay akışı ──
 
     public function test_the_review_screen_shows_the_real_recipient_count(): void

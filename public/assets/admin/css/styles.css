@@ -34671,6 +34671,34 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   white-space: nowrap;
 }
 
+/* Yükleme süren satır: yavaş bağlantıda kullanıcı ekranın donduğunu sanmasın. */
+.cmp-attachment--yukleniyor {
+  border-style: dashed;
+  opacity: 0.75;
+}
+
+.cmp-attachment--yukleniyor > i {
+  animation: cmp-attachment-pulse 1.2s ease-in-out infinite;
+}
+
+.cmp-attachment__progress {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--teal-primary);
+  white-space: nowrap;
+}
+
+@keyframes cmp-attachment-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-attachment--yukleniyor > i {
+    animation: none;
+  }
+}
+
 /* Geniş ekranda sağ sütun daralmıyor; alıcı satırı üç alanı yan yana alabilir. */
 @media (min-width: 1600px) {
   .cmp-row {

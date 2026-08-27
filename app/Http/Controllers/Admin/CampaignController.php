@@ -316,6 +316,57 @@ final class CampaignController extends Controller
         return back()->with('success', 'Ek kaldırıldı.');
     }
 
+    /**
+     * Tek bir eki, kampanya kaydedilmeden önce kendi isteğiyle alır.
+     *
+     * On dosya kampanya formuyla birlikte gitseydi gövde post_max_size'ı aşar,
+     * PHP her şeyi atar ve CSRF alanı da gittiği için istek 419 dönerdi —
+     * kullanıcı yazdığı kampanyayı kaybederdi. Dosya başına tek istek o tavana
+     * hiç yaklaşmıyor.
+     */
+    public function uploadAttachment(Request $request): JsonResponse
+    {
+        $this->authorize('create', Campaign::class);
+
+        $limits = $this->campaigns->attachmentLimits();
+        $maxKb = (int) floor($limits['per_file'] / 1024);
+
+        $validator = validator($request->all(), [
+            'file' => ['required', 'file', 'max:' . $maxKb],
+        ], [
+            'file.required' => 'Dosya alınamadı.',
+            'file.max'      => 'Dosya en fazla ' . $this->humanBytes($limits['per_file']) . ' olabilir.',
+            'file.uploaded' => 'Dosya yüklenemedi; sunucu sınırını aşıyor olabilir.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first('file')], 422);
+        }
+
+        return response()->json(
+            $this->campaigns->storePendingAttachment($request->file('file')),
+        );
+    }
+
+    /**
+     * Kaydetmeden vazgeçilen eki diskten de siler.
+     */
+    public function destroyPendingAttachment(string $token): JsonResponse
+    {
+        $this->authorize('create', Campaign::class);
+
+        return response()->json([
+            'removed' => $this->campaigns->discardPendingAttachment($token),
+        ]);
+    }
+
+    private function humanBytes(int $bytes): string
+    {
+        return $bytes >= 1_048_576
+            ? round($bytes / 1_048_576, 1) . ' MB'
+            : round($bytes / 1024) . ' KB';
+    }
+
     public function destroy(Campaign $campaign): RedirectResponse
     {
         $this->authorize('delete', $campaign);
@@ -359,6 +410,11 @@ final class CampaignController extends Controller
             ],
             // Hedef listeler; her birinin yanında mail alabilecek üye sayısı.
             'subscriberLists' => app(SubscriberListService::class)->all(),
+            // Ekranda yazan sınır sunucunun gerçek sınırı olmalı: php.ini 2 MB
+            // derken arayüzün 10 MB vaat etmesi kullanıcıyı en baştan
+            // kaybedeceği bir yüklemeye sokuyordu.
+            'attachmentLimits'     => $limits = $this->campaigns->attachmentLimits(),
+            'attachmentLimitLabel' => $this->humanBytes($limits['per_file']),
         ];
     }
 
