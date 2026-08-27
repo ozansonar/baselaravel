@@ -273,7 +273,7 @@
                             <div class="cmp-row" data-row>
                                 <div class="cmp-row__field">
                                     <label class="cmp-row__label">E-posta <span class="text-neon-red">*</span></label>
-                                    <input type="email" class="stg-input"
+                                    <input type="text" class="stg-input"
                                            data-validation-engine="validate[custom[email],maxSize[191]]"
                                            name="manual_rows[{{ $index }}][email]"
                                            value="{{ $row['email'] ?? '' }}" placeholder="ahmet@ornek.com">
@@ -362,7 +362,7 @@
 
                 <div class="stg-field mb-3">
                     <label class="stg-label" for="from_email">Gönderen Adresi</label>
-                    <input type="email" class="stg-input @error('from_email') is-invalid @enderror"
+                    <input type="text" class="stg-input @error('from_email') is-invalid @enderror"
                            id="from_email" name="from_email" data-validation-engine="validate[custom[email],maxSize[191]]" value="{{ old('from_email', $campaign?->from_email) }}"
                            placeholder="{{ config('mail.from.address') }}">
                     <small class="stg-hint">SPF/DKIM kayıtları olmayan bir adres spam'e düşer.</small>
@@ -371,7 +371,7 @@
 
                 <div class="stg-field">
                     <label class="stg-label" for="reply_to">Yanıt Adresi</label>
-                    <input type="email" class="stg-input @error('reply_to') is-invalid @enderror"
+                    <input type="text" class="stg-input @error('reply_to') is-invalid @enderror"
                            id="reply_to" name="reply_to" data-validation-engine="validate[custom[email],maxSize[191]]" value="{{ old('reply_to', $campaign?->reply_to) }}">
                     <small class="stg-hint">Alıcı "yanıtla" dediğinde mailin gideceği adres. Boşsa gönderen adresi kullanılır.</small>
                     @error('reply_to') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -386,7 +386,7 @@
     <div class="cmp-row" data-row>
         <div class="cmp-row__field">
             <label class="cmp-row__label">E-posta <span class="text-neon-red">*</span></label>
-            <input type="email" class="stg-input" name="manual_rows[__INDEX__][email]"
+            <input type="text" class="stg-input" name="manual_rows[__INDEX__][email]"
                    data-validation-engine="validate[custom[email],maxSize[191]]" placeholder="ahmet@ornek.com">
         </div>
         <div class="cmp-row__field">

@@ -293,7 +293,7 @@
                         <form method="POST" action="{{ route('admin.campaigns.test', $campaign) }}" data-validate novalidate>
                             @csrf
                             <div class="stg-field mb-2">
-                                <input type="email" class="stg-input" name="test_email"
+                                <input type="text" class="stg-input" name="test_email"
                                        data-validation-engine="validate[required,custom[email]]"
                                        value="{{ auth()->user()->email }}" placeholder="test@ornek.com">
                             </div>

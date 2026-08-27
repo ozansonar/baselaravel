@@ -118,6 +118,10 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 - URL oluşturma: `upload_url($path, $size)` helper veya `UploadService::url($path, $size)`
 - Responsive img: `<x-responsive-image :path="$path" :alt="$alt" size="md" />` Blade component'i
 - View'lerde görsel URL: `{{ upload_url($path) }}` veya `/uploads/{$path}` → `asset('storage/...')` YASAK
+- `<input type="file">` alanları kendiliğinden biçimlenir → `public/assets/admin/js/file-input.js`
+  Elle düğme/kutu yazma → YASAK. Girdi olduğu gibi bırakılır; sarmalayıcı kutuyu
+  örer, seçilen dosyayı adı ve boyutuyla gösterir, sürükle-bırak ve temizleme
+  ekler. Kendi düğmesi olan gizli girdiler (`hidden`) atlanır.
 
 ## Dosya Ayrımı (Front vs Admin)
 

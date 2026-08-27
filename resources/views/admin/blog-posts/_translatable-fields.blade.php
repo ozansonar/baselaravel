@@ -93,8 +93,7 @@
                     placeholder="İçeriğin ana başlığını yazın..."
                     maxlength="120"
                     data-validation-engine="{{ $rules(['maxSize[120]']) }}"
-                    oninput="updateCharCounter(this, 120); generateSlug(this.value); updateSeoPreview()"
-                  >
+                    oninput="updateCharCounter(this, 120); generateSlug(this.value); updateSeoPreview()">
                   @error("translations.{$language->code}.title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -117,8 +116,7 @@
                       value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                       placeholder="otomatik-oluşturulur"
                       data-validation-engine="validate[custom[slug],maxSize[255]]"
-                      data-prompt-target="slug_error_{{ $language->code }}"
-                    >
+                      data-prompt-target="slug_error_{{ $language->code }}">
                   </div>
                   <div id="slug_error_{{ $language->code }}"></div>
                   @error("translations.{$language->code}.slug")
@@ -200,7 +198,7 @@
                     id="body_{{ $language->code }}"
                     name="translations[{{ $language->code }}][body]"
                     rows="12"
-                    data-validation-engine="{{ $rules() }}"
+                    data-validation-engine="{{ $rules(['maxSize[200000]']) }}"
                     data-prompt-target="body_error_{{ $language->code }}"
                   >{{ old("translations.{$language->code}.body", $translation?->body) }}</textarea>
                   {{-- TinyMCE hides the textarea, so the message needs its own slot. --}}
@@ -242,8 +240,7 @@
                     accept="image/png,image/jpeg,image/webp"
                     data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
                     data-max-size="4"
-                    data-accept="image/jpeg,image/png,image/webp"
-                  >
+                    data-accept="image/jpeg,image/png,image/webp">
                   @error("translations.{$language->code}.image")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -291,8 +288,7 @@
                     maxlength="60"
                     placeholder="SEO için özel başlık (boş bırakılırsa içerik başlığı kullanılır)"
                     data-validation-engine="validate[maxSize[60]]"
-                    oninput="updateCharCounter(this, 60); updateSeoPreview()"
-                  >
+                    oninput="updateCharCounter(this, 60); updateSeoPreview()">
                   @error("translations.{$language->code}.meta_title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror

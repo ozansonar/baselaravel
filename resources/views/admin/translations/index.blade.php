@@ -109,7 +109,7 @@
 
     @php $canEdit = auth()->user()->can('update', App\Models\Translation::class); @endphp
 
-    <form method="POST" action="{{ route('admin.translations.update') }}" id="translationForm">
+    <form method="POST" action="{{ route('admin.translations.update') }}" id="translationForm" data-validate novalidate>
         @csrf
         @method('PUT')
         <input type="hidden" name="locale" value="{{ $locale }}">

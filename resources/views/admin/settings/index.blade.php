@@ -130,7 +130,7 @@
 
         {{-- ══════════════ 1. GENEL AYARLAR ══════════════ --}}
         <div class="stg-panel active" id="stg-general">
-            <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -257,7 +257,7 @@
 
         {{-- ══════════════ 2. İLETİŞİM & ADRES ══════════════ --}}
         <div class="stg-panel" id="stg-contact">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -290,13 +290,13 @@
 
                     <div class="stg-field">
                         <label class="stg-label">E-posta Adresi</label>
-                        <input type="email" class="stg-input" name="settings[contact_email]"
+                        <input type="text" class="stg-input" name="settings[contact_email]"
                                value="{{ $s('contact_email') }}" placeholder="iletisim@domain.com" data-validation-engine="validate[custom[email],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">Yönetici Bildirim E-postası</label>
-                        <input type="email" class="stg-input" name="settings[admin_notification_email]"
+                        <input type="text" class="stg-input" name="settings[admin_notification_email]"
                                value="{{ $s('admin_notification_email') }}" placeholder="bildirim@domain.com" data-validation-engine="validate[custom[email],maxSize[10000]]">
                         <small class="stg-help-text">Sistem bildirimleri ve hata uyarıları bu adrese gönderilir. Boşsa "İletişim E-posta Adresi" kullanılır.</small>
                     </div>
@@ -349,7 +349,7 @@
 
         {{-- ══════════════ 3. SOSYAL MEDYA ══════════════ --}}
         <div class="stg-panel" id="stg-social">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -369,25 +369,25 @@
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-facebook me-2 text-primary"></i>Facebook</label>
-                        <input type="url" class="stg-input" name="settings[social_facebook]"
+                        <input type="text" class="stg-input" name="settings[social_facebook]"
                                value="{{ $s('social_facebook') }}" placeholder="https://facebook.com/sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-instagram me-2 text-instagram"></i>Instagram</label>
-                        <input type="url" class="stg-input" name="settings[social_instagram]"
+                        <input type="text" class="stg-input" name="settings[social_instagram]"
                                value="{{ $s('social_instagram') }}" placeholder="https://instagram.com/sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-twitter-x me-2"></i>X (Twitter)</label>
-                        <input type="url" class="stg-input" name="settings[social_twitter]"
+                        <input type="text" class="stg-input" name="settings[social_twitter]"
                                value="{{ $s('social_twitter') }}" placeholder="https://x.com/sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-youtube me-2 text-danger"></i>YouTube</label>
-                        <input type="url" class="stg-input" name="settings[social_youtube]"
+                        <input type="text" class="stg-input" name="settings[social_youtube]"
                                value="{{ $s('social_youtube') }}" placeholder="https://youtube.com/@kanaliniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
 
@@ -400,7 +400,7 @@
 
                     <div class="stg-field">
                         <label class="stg-label"><i class="bi bi-tiktok me-2"></i>TikTok</label>
-                        <input type="url" class="stg-input" name="settings[social_tiktok]"
+                        <input type="text" class="stg-input" name="settings[social_tiktok]"
                                value="{{ $s('social_tiktok') }}" placeholder="https://tiktok.com/@sayfaniz" data-validation-engine="validate[custom[url],maxSize[10000]]">
                     </div>
                 </div>
@@ -409,7 +409,7 @@
 
         {{-- ══════════════ 4. SEO & META ══════════════ --}}
         <div class="stg-panel" id="stg-seo">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -515,7 +515,7 @@
 
         {{-- ══════════════ 6. GÖRÜNÜM ══════════════ --}}
         <div class="stg-panel" id="stg-appearance">
-            <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -617,7 +617,7 @@
 
         {{-- ══════════════ 7. E-POSTA (SMTP) ══════════════ --}}
         <div class="stg-panel" id="stg-email">
-            <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -642,8 +642,8 @@
                         </div>
                         <div class="stg-field flex-1">
                             <label class="stg-label">Port</label>
-                            <input type="number" class="stg-input" name="settings[mail_port]"
-                                   value="{{ $s('mail_port', '587') }}" placeholder="587" data-validation-engine="validate[custom[integer],min[1],max[65535]]">
+                            <input type="text" class="stg-input" name="settings[mail_port]"
+                                   value="{{ $s('mail_port', '587') }}" placeholder="587" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[1],max[65535]]">
                         </div>
                     </div>
 
@@ -678,7 +678,7 @@
 
                     <div class="stg-field">
                         <label class="stg-label">Gönderen E-posta</label>
-                        <input type="email" class="stg-input" name="settings[mail_from_address]"
+                        <input type="text" class="stg-input" name="settings[mail_from_address]"
                                value="{{ $s('mail_from_address') }}" placeholder="noreply@domain.com" data-validation-engine="validate[custom[email],maxSize[10000]]">
                     </div>
 
@@ -694,8 +694,8 @@
                     <div class="stg-row">
                         <div class="stg-field stg-half">
                             <label class="stg-label">Saatlik Mail Limiti</label>
-                            <input type="number" class="stg-input" name="settings[mail_hourly_limit]" min="0" step="1"
-                                   value="{{ $s('mail_hourly_limit', '100') }}" placeholder="100" data-validation-engine="validate[custom[integer],min[0],max[100000]]">
+                            <input type="text" class="stg-input" name="settings[mail_hourly_limit]"
+                                   value="{{ $s('mail_hourly_limit', '100') }}" placeholder="100" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[100000]]">
                             <small class="stg-hint">
                                 Son 60 dakikada gönderilen mail sayılarak uygulanır, hiçbir koşulda aşılmaz.
                                 Sağlayıcınızın verdiği saatlik kotayı yazın. 0 yazarsanız gönderim durur.
@@ -703,8 +703,8 @@
                         </div>
                         <div class="stg-field stg-half">
                             <label class="stg-label">Tur Başına Mail</label>
-                            <input type="number" class="stg-input" name="settings[mail_batch_max]" min="0" step="1"
-                                   value="{{ $s('mail_batch_max', '0') }}" placeholder="0" data-validation-engine="validate[custom[integer],min[0],max[100000]]">
+                            <input type="text" class="stg-input" name="settings[mail_batch_max]"
+                                   value="{{ $s('mail_batch_max', '0') }}" placeholder="0" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[100000]]">
                             <small class="stg-hint">
                                 Zamanlanmış görev {{ \App\Services\CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada bir çalışır.
                                 <strong>0</strong> bırakırsanız saatlik limit turlara kendiliğinden bölünür — önerilen budur.
@@ -714,8 +714,8 @@
 
                     <div class="stg-field stg-half">
                         <label class="stg-label">Yeniden Deneme Sayısı</label>
-                        <input type="number" class="stg-input" name="settings[mail_max_attempts]" min="1" max="10" step="1"
-                               value="{{ $s('mail_max_attempts', '3') }}" placeholder="3" data-validation-engine="validate[custom[integer],min[1],max[10]]">
+                        <input type="text" class="stg-input" name="settings[mail_max_attempts]"
+                               value="{{ $s('mail_max_attempts', '3') }}" placeholder="3" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[1],max[10]]">
                         <small class="stg-hint">Gönderilemeyen bir mail kaç kez daha denensin. Bu sayıya ulaşan alıcı başarısız sayılır.</small>
                     </div>
                 </div>
@@ -729,7 +729,7 @@
 
                     <div class="stg-field">
                         <label class="stg-label">Alıcı E-posta</label>
-                        <input type="email" class="stg-input" placeholder="test@example.com" id="testEmailInput" data-fv-ignore>
+                        <input type="text" class="stg-input" placeholder="test@example.com" id="testEmailInput" data-fv-ignore>
                     </div>
 
                     <div class="stg-field">
@@ -822,7 +822,7 @@
 
         {{-- ══════════════ 8. MAİL TEMASI ══════════════ --}}
         <div class="stg-panel" id="stg-mail-theme">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -849,7 +849,7 @@
                                        name="settings[mail_theme_primary_color]"
                                        value="{{ $s('mail_theme_primary_color', '#4f46e5') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtPrimaryColorHex"
-                                       value="{{ $s('mail_theme_primary_color', '#4f46e5') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_primary_color', '#4f46e5') }}" maxlength="7" data-fv-ignore readonly>
                             </div>
                         </div>
                         <div class="stg-field stg-half">
@@ -859,7 +859,7 @@
                                        name="settings[mail_theme_primary_dark_color]"
                                        value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtPrimaryDarkColorHex"
-                                       value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_primary_dark_color', '#4338ca') }}" maxlength="7" data-fv-ignore readonly>
                             </div>
                         </div>
                     </div>
@@ -872,7 +872,7 @@
                                        name="settings[mail_theme_bg_color]"
                                        value="{{ $s('mail_theme_bg_color', '#f8fafc') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtBgColorHex"
-                                       value="{{ $s('mail_theme_bg_color', '#f8fafc') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_bg_color', '#f8fafc') }}" maxlength="7" data-fv-ignore readonly>
                             </div>
                         </div>
                         <div class="stg-field stg-half">
@@ -882,7 +882,7 @@
                                        name="settings[mail_theme_card_bg_color]"
                                        value="{{ $s('mail_theme_card_bg_color', '#ffffff') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtCardBgColorHex"
-                                       value="{{ $s('mail_theme_card_bg_color', '#ffffff') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_card_bg_color', '#ffffff') }}" maxlength="7" data-fv-ignore readonly>
                             </div>
                         </div>
                     </div>
@@ -895,7 +895,7 @@
                                        name="settings[mail_theme_text_color]"
                                        value="{{ $s('mail_theme_text_color', '#334155') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtTextColorHex"
-                                       value="{{ $s('mail_theme_text_color', '#334155') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_text_color', '#334155') }}" maxlength="7" data-fv-ignore readonly>
                             </div>
                         </div>
                         <div class="stg-field stg-half">
@@ -905,7 +905,7 @@
                                        name="settings[mail_theme_muted_color]"
                                        value="{{ $s('mail_theme_muted_color', '#64748b') }}" data-fv-ignore>
                                 <input type="text" class="stg-input stg-color-hex" id="mtMutedColorHex"
-                                       value="{{ $s('mail_theme_muted_color', '#64748b') }}" maxlength="7" readonly>
+                                       value="{{ $s('mail_theme_muted_color', '#64748b') }}" maxlength="7" data-fv-ignore readonly>
                             </div>
                         </div>
                     </div>
@@ -994,7 +994,7 @@
 
         {{-- ══════════════ 9. reCAPTCHA ══════════════ --}}
         <div class="stg-panel" id="stg-recaptcha">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -1057,7 +1057,7 @@
 
         {{-- ══════════════ TELEGRAM BİLDİRİMLERİ ══════════════ --}}
         <div class="stg-panel" id="stg-telegram">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 
@@ -1179,7 +1179,7 @@
 
         {{-- ══════════════ 12. BÖLGESEL AYARLAR ══════════════ --}}
         <div class="stg-panel" id="stg-regional">
-            <form method="POST" action="{{ route('admin.settings.update') }}">
+            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
                 @csrf
                 @method('PUT')
 

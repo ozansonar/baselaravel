@@ -193,10 +193,10 @@
                             {{-- Sıralama --}}
                             <div class="col-md-3">
                                 <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
-                                <input type="number"
+                                <input type="text"
                                        class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
-                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
-                                       value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-default="0"
+                                       value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}">
                                 @error("translations.{$language->code}.sort_order")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

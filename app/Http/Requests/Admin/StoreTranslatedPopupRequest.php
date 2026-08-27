@@ -40,7 +40,7 @@ final class StoreTranslatedPopupRequest extends FormRequest
             $rules[$prefix]                  = ['array'];
             $rules["{$prefix}.title"]        = [$required, 'string', 'max:255'];
             $rules["{$prefix}.description"]  = ['nullable', 'string', 'max:2000'];
-            $rules["{$prefix}.image"]        = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+            $rules["{$prefix}.image"]        = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'];
             $rules["{$prefix}.button_text"]  = ['nullable', 'string', 'max:100'];
             $rules["{$prefix}.button_url"]   = ['nullable', 'string', 'max:500'];
             $rules["{$prefix}.size"]         = ['nullable', Rule::enum(PopupSize::class)];

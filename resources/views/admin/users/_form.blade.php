@@ -60,7 +60,7 @@
                                 <i class="bi bi-trash me-1"></i> Kaldır
                             </button>
                         </div>
-                        <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden onchange="previewAvatar(this)" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
+                        <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden onchange="previewAvatar(this)" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/jpeg,image/png,image/webp">
                         @if($isEdit && $u->avatar)
                             <input type="hidden" name="remove_avatar" data-fv-ignore id="removeAvatarFlag" value="0">
                         @endif
@@ -106,7 +106,7 @@
                         <label class="stg-label">E-posta Adresi <span class="text-neon-red">*</span></label>
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-envelope"></i></span>
-                            <input type="email" class="stg-input @error('email') is-invalid @enderror" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]" id="email"
+                            <input type="text" class="stg-input @error('email') is-invalid @enderror" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]" id="email"
                                    placeholder="ornek@mail.com" value="{{ old('email', $u?->email) }}">
                         </div>
                         @error('email')
@@ -117,7 +117,7 @@
                         <label class="stg-label">Telefon</label>
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-telephone"></i></span>
-                            <input type="tel" class="stg-input @error('phone') is-invalid @enderror" name="phone" data-validation-engine="validate[custom[phone],maxSize[20]]" id="phone"
+                            <input type="text" class="stg-input @error('phone') is-invalid @enderror" name="phone" data-validation-engine="validate[custom[phone],maxSize[20]]" id="phone"
                                    placeholder="+90 5XX XXX XX XX" value="{{ old('phone', $u?->phone) }}">
                         </div>
                         @error('phone')

@@ -122,10 +122,10 @@
                             {{-- Sıralama --}}
                             <div class="col-md-6">
                                 <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
-                                <input type="number"
+                                <input type="text"
                                        class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
-                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
-                                       value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}" min="0">
+                                       id="sort_order_{{ $language->code }}" name="translations[{{ $language->code }}][sort_order]" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-default="0"
+                                       value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}">
                                 @error("translations.{$language->code}.sort_order")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -167,7 +167,7 @@
                                 </label>
                                 <input type="file"
                                        class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
+                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="4" data-accept="image/jpeg,image/png,image/webp">
                                 @error("translations.{$language->code}.image")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -193,7 +193,7 @@
                             {{-- Video URL --}}
                             <div class="col-md-8">
                                 <label class="form-label" for="video_url_{{ $language->code }}">Video URL</label>
-                                <input type="url"
+                                <input type="text"
                                        class="form-control @error("translations.{$language->code}.video_url") is-invalid @enderror"
                                        id="video_url_{{ $language->code }}" name="translations[{{ $language->code }}][video_url]"
                                        data-validation-engine="validate[custom[url],maxSize[500]]"
@@ -211,7 +211,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.duration") is-invalid @enderror"
                                        id="duration_{{ $language->code }}" name="translations[{{ $language->code }}][duration]"
-                                       data-validation-engine="validate[custom[integer],min[0],max[65535]]"
+                                       data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[65535]]"
                                        value="{{ old("translations.{$language->code}.duration", $translation?->duration) }}"
                                        placeholder="03:45">
                                 @error("translations.{$language->code}.duration")

@@ -35,8 +35,7 @@
                                        data-validation-engine="validate[required,maxSize[255]]"
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
-                                oninput="generateSlug(this.value); updateCharCounter(this, 120); updateSeoPreview()"
-                            >
+                                oninput="generateSlug(this.value); updateCharCounter(this, 120); updateSeoPreview()">
                             @error("translations.{$language->code}.title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -59,8 +58,7 @@
                                        data-validation-engine="validate[custom[slug],maxSize[255]]"
                                     value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                                     placeholder="otomatik-olusturulur"
-                                    oninput="updateSeoPreview()"
-                                >
+                                    oninput="updateSeoPreview()">
                             </div>
                             @error("translations.{$language->code}.slug")
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -117,7 +115,7 @@
                                 class="@error("translations.{$language->code}.content") is-invalid @enderror"
                                 id="content_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][content]"
-                                       data-validation-engine="validate[required]"
+                                       data-validation-engine="validate[required,maxSize[100000]]"
                                 data-prompt-target="content_error_{{ $language->code }}"
                                 rows="12"
                             >{{ old("translations.{$language->code}.content", $translation?->content) }}</textarea>
@@ -205,8 +203,7 @@
                                        data-validation-engine="validate[maxSize[70]]"
                                 value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
                                 placeholder="SEO için özel başlık (boş bırakılırsa sayfa başlığı kullanılır)"
-                                oninput="updateSeoPreview(); updateCharCounter(this, 60)"
-                            >
+                                oninput="updateSeoPreview(); updateCharCounter(this, 60)">
                             @error("translations.{$language->code}.meta_title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -281,8 +278,7 @@
                                 class="form-control @error("translations.{$language->code}.published_at") is-invalid @enderror"
                                 id="published_at_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][published_at]" data-fv-ignore
-                                value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}"
-                            >
+                                value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}">
                             @error("translations.{$language->code}.published_at")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -311,15 +307,12 @@
                         <div class="col-12 col-md-6">
                             <label class="form-label" for="sort_order_{{ $language->code }}">Sıralama</label>
                             <input
-                                type="number"
+                                type="text"
                                 class="form-control @error("translations.{$language->code}.sort_order") is-invalid @enderror"
                                 id="sort_order_{{ $language->code }}"
-                                name="translations[{{ $language->code }}][sort_order]" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-ignore data-fv-default="0"
+                                name="translations[{{ $language->code }}][sort_order]" data-fv-mask="digits" data-validation-engine="validate[custom[integer],min[0],max[65535]]" data-fv-default="0"
                                 value="{{ old("translations.{$language->code}.sort_order", $translation?->sort_order ?? 0) }}"
-                                placeholder="0"
-                                min="0"
-                                max="999"
-                            >
+                                placeholder="0">
                             @error("translations.{$language->code}.sort_order")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
