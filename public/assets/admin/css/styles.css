@@ -34687,3 +34687,146 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     height: 38px;
   }
 }
+
+/* ============================================
+   ABONE LİSTELERİ (/admin/aboneler)
+   ============================================ */
+
+/* Seçim sütunu içeriğe göre daralsın, e-posta sütununu daraltmasın. */
+.sub-check-col {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.sub-check-col input {
+  accent-color: var(--teal-primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Toplu işlem çubuğu yalnızca seçim varken görünür. */
+.sub-bulk {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--teal-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal-primary) 22%, transparent);
+}
+
+.sub-bulk__count {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sub-bulk__count strong {
+  color: var(--teal-primary);
+}
+
+.sub-bulk__clear {
+  margin-left: auto;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sub-bulk__clear:hover {
+  color: var(--teal-primary);
+}
+
+/* Satırdaki liste rozetleri: kişinin hangi listelerde olduğu bir bakışta. */
+.sub-list-tag {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--teal-light);
+  background: rgba(20, 184, 166, 0.1);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  white-space: nowrap;
+}
+
+/* ---------- Liste yönetimi penceresi ---------- */
+.sub-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sub-list-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Ad ve açıklama satırın esneyen kısmı; sayaç ve düğmeler sabit kalır. */
+.sub-list-row__fields {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sub-list-row__fields .stg-input {
+  flex: 1;
+  min-width: 140px;
+  height: 38px;
+}
+
+.sub-list-row__default {
+  white-space: nowrap;
+}
+
+.sub-list-row__count {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.sub-lists-delete {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--neon-red) 22%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--neon-red) 6%, transparent);
+}
+
+/* Kampanya formundaki liste onay kutuları sayıyı sağa yaslıyor. */
+.cmp-check__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cmp-check__count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Varsayılan liste işareti. */
+.cmp-check__tag {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--neon-orange);
+  background: color-mix(in srgb, var(--neon-orange) 14%, transparent);
+}

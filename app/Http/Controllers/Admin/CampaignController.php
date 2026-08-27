@@ -15,6 +15,7 @@ use App\Models\Subscriber;
 use App\Models\User;
 use App\Services\CampaignDispatcher;
 use App\Services\CampaignService;
+use App\Services\SubscriberListService;
 use App\Services\RecipientImportService;
 use App\Services\LanguageService;
 use Illuminate\Http\JsonResponse;
@@ -356,6 +357,8 @@ final class CampaignController extends Controller
                 // "abone" olanlar. Çıkanlar ve dönenler listeye girmiyor.
                 CampaignAudience::Subscribers->value => Subscriber::query()->subscribed()->count(),
             ],
+            // Hedef listeler; her birinin yanında mail alabilecek üye sayısı.
+            'subscriberLists' => app(SubscriberListService::class)->all(),
         ];
     }
 

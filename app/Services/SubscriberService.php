@@ -17,6 +17,8 @@ final class SubscriberService
      *
      * Signing up again after unsubscribing has to work: the row is kept for its
      * history, so it is revived rather than duplicated.
+     *
+     * @param array<int, int> $listIds Üyelik eklenecek listeler
      */
     public function subscribe(
         string $email,
@@ -24,10 +26,11 @@ final class SubscriberService
         ?string $lastName = null,
         ?string $locale = null,
         string $source = 'form',
+        array $listIds = [],
     ): Subscriber {
         $email = mb_strtolower(trim($email));
 
-        return DB::transaction(function () use ($email, $firstName, $lastName, $locale, $source): Subscriber {
+        return DB::transaction(function () use ($email, $firstName, $lastName, $locale, $source, $listIds): Subscriber {
             $existing = Subscriber::withTrashed()->where('email', $email)->first();
 
             if ($existing !== null) {
@@ -46,10 +49,14 @@ final class SubscriberService
                     'unsubscribed_at' => null,
                 ]);
 
+                // Üyelik ekleniyor, mevcutlar sökülmüyor: bültene yeniden
+                // kaydolan bir tedarikçi tedarikçi listesinden düşmemeli.
+                $this->attachLists($existing, $listIds);
+
                 return $existing->refresh();
             }
 
-            return Subscriber::create([
+            $subscriber = Subscriber::create([
                 'email'         => $email,
                 'first_name'    => $firstName,
                 'last_name'     => $lastName,
@@ -58,7 +65,25 @@ final class SubscriberService
                 'source'        => $source,
                 'subscribed_at' => now(),
             ]);
+
+            $this->attachLists($subscriber, $listIds);
+
+            return $subscriber;
         });
+    }
+
+    /**
+     * @param array<int, int> $listIds
+     */
+    private function attachLists(Subscriber $subscriber, array $listIds): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $listIds))));
+
+        if ($ids === []) {
+            return;
+        }
+
+        $subscriber->lists()->syncWithoutDetaching($ids);
     }
 
     /**
@@ -137,9 +162,10 @@ final class SubscriberService
      * Bulk add, used by the import screen.
      *
      * @param array<int, array{email: string, first_name?: ?string, last_name?: ?string}> $rows
+     * @param array<int, int> $listIds Yüklenen herkesin ekleneceği listeler
      * @return array{added: int, updated: int, skipped: int}
      */
-    public function importMany(array $rows, ?string $locale = null, string $source = 'import'): array
+    public function importMany(array $rows, ?string $locale = null, string $source = 'import', array $listIds = []): array
     {
         $added = 0;
         $updated = 0;
@@ -156,7 +182,7 @@ final class SubscriberService
 
             $existed = Subscriber::withTrashed()->where('email', $email)->exists();
 
-            $this->subscribe($email, $row['first_name'] ?? null, $row['last_name'] ?? null, $locale, $source);
+            $this->subscribe($email, $row['first_name'] ?? null, $row['last_name'] ?? null, $locale, $source, $listIds);
 
             $existed ? $updated++ : $added++;
         }
@@ -170,7 +196,7 @@ final class SubscriberService
      */
     public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
     {
-        $query = Subscriber::query()->latest('id');
+        $query = Subscriber::query()->with('lists:id,name')->latest('id');
 
         if (! empty($filters['status']) && ($status = SubscriberStatus::tryFrom($filters['status'])) !== null) {
             $query->where('status', $status);
@@ -178,6 +204,11 @@ final class SubscriberService
 
         if (! empty($filters['locale'])) {
             $query->where('locale', $filters['locale']);
+        }
+
+        // Liste süzgeci: "tedarikçilerim kimler" sorusunun cevabı.
+        if (! empty($filters['list_id'])) {
+            $query->whereHas('lists', fn ($q) => $q->whereKey((int) $filters['list_id']));
         }
 
         if (! empty($filters['search'])) {
