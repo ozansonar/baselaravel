@@ -38,7 +38,10 @@ final class CampaignService
                 'user_id' => auth()->id(),
             ]);
 
+            // Ekler artık forma değil kendi isteğine biniyor; doğrudan dosya
+            // gönderen çağrılar (testler, programatik kullanım) için ikisi de açık.
             $this->syncAttachments($campaign, $data['attachments'] ?? []);
+            $this->attachPending($campaign, $data['attachment_tokens'] ?? []);
 
             return $campaign;
         });
@@ -56,7 +59,10 @@ final class CampaignService
         return DB::transaction(function () use ($campaign, $data): Campaign {
             $campaign->update($this->fields($data));
 
+            // Ekler artık forma değil kendi isteğine biniyor; doğrudan dosya
+            // gönderen çağrılar (testler, programatik kullanım) için ikisi de açık.
             $this->syncAttachments($campaign, $data['attachments'] ?? []);
+            $this->attachPending($campaign, $data['attachment_tokens'] ?? []);
 
             return $campaign->refresh();
         });
@@ -438,6 +444,128 @@ final class CampaignService
 
         $this->uploadService->deleteFile($attachment->path);
         $attachment->delete();
+    }
+
+    /**
+     * Uygulamanın kendi ek sınırları; sunucununkiyle birlikte
+     * UploadService::limits() içinde tartılır.
+     */
+    public const MAX_ATTACHMENTS = 10;
+
+    public const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+
+    /**
+     * Kampanyaya değil oturuma bağlı, henüz kaydedilmemiş ekler.
+     */
+    private const PENDING_KEY = 'campaign.pending_attachments';
+
+    /**
+     * @return array{per_file: int, post_max: int, max_files: int}
+     */
+    public function attachmentLimits(): array
+    {
+        return $this->uploadService->limits(self::MAX_ATTACHMENT_BYTES, self::MAX_ATTACHMENTS);
+    }
+
+    /**
+     * Tek bir eki peşin yükler ve kampanya kaydedilene kadar oturumda tutar.
+     *
+     * Ekler kampanya formuyla tek POST'ta gitseydi birkaç dosya post_max_size'ı
+     * aşar, PHP gövdeyi komple atar ve CSRF alanı da onunla gittiği için istek
+     * 419 dönerdi: kullanıcı yazdığı kampanyayı, alıcı listesini, her şeyi
+     * kaybederdi. Her dosya kendi küçük isteğiyle gelince o tavana hiç
+     * yaklaşılmıyor ve bir dosyanın başarısızlığı taslağı etkilemiyor.
+     *
+     * Dönen belirteç dosya yolunu taşımaz. Yol istemciye verilseydi, kaydederken
+     * başka bir yol gönderip sunucudaki herhangi bir dosyayı kampanyaya
+     * iliştirmek mümkün olurdu; belirteç ile gerçek yol yalnızca oturumda eşleşir.
+     *
+     * @return array{token: string, name: string, size: int}
+     */
+    public function storePendingAttachment(UploadedFile $file): array
+    {
+        $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) ?: 'ek';
+        $original = $file->getClientOriginalName();
+        $mime = $file->getClientMimeType();
+        $size = $file->getSize() ?: 0;
+
+        $path = $this->uploadService->uploadFile($file, self::UPLOAD_FOLDER, $name);
+        $token = (string) Str::uuid();
+
+        $pending = $this->pending();
+        $pending[$token] = [
+            'path'          => $path,
+            'original_name' => $original,
+            'mime_type'     => $mime,
+            'size'          => $size,
+        ];
+        session()->put(self::PENDING_KEY, $pending);
+
+        return ['token' => $token, 'name' => $original, 'size' => $size];
+    }
+
+    /**
+     * Kullanıcı kaydetmeden vazgeçtiğinde dosyayı diskten de siler; aksi hâlde
+     * public/uploads altında sahipsiz dosya birikir.
+     */
+    public function discardPendingAttachment(string $token): bool
+    {
+        $pending = $this->pending();
+
+        if (! isset($pending[$token])) {
+            return false;
+        }
+
+        $this->uploadService->deleteFile($pending[$token]['path']);
+        unset($pending[$token]);
+        session()->put(self::PENDING_KEY, $pending);
+
+        return true;
+    }
+
+    /**
+     * Peşin yüklenmiş ekleri kampanyaya bağlar.
+     *
+     * Dosya zaten diskte, burada yalnızca kaydı oluşuyor. Oturumda tanınmayan
+     * bir belirteç sessizce atlanıyor: kullanıcı iki sekmede çalışmış ya da
+     * oturum yenilenmiş olabilir, bu kaydı durduracak bir hata değil.
+     *
+     * @param array<int, string> $tokens
+     */
+    public function attachPending(Campaign $campaign, array $tokens): void
+    {
+        $pending = $this->pending();
+
+        foreach ($tokens as $token) {
+            if (! is_string($token) || ! isset($pending[$token])) {
+                continue;
+            }
+
+            $campaign->attachments()->create($pending[$token]);
+            unset($pending[$token]);
+        }
+
+        session()->put(self::PENDING_KEY, $pending);
+    }
+
+    /**
+     * Bağlanmadan kalan ekleri diskten temizler; form terk edildiğinde çağrılır.
+     */
+    public function discardAllPending(): void
+    {
+        foreach ($this->pending() as $token => $_) {
+            $this->discardPendingAttachment((string) $token);
+        }
+    }
+
+    /**
+     * @return array<string, array{path: string, original_name: string, mime_type: string, size: int}>
+     */
+    private function pending(): array
+    {
+        $pending = session()->get(self::PENDING_KEY, []);
+
+        return is_array($pending) ? $pending : [];
     }
 
     /**

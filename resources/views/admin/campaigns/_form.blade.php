@@ -107,10 +107,19 @@
                     </div>
                 @endif
 
+                {{-- Seçilen dosyalar buraya yüklenir; kampanya kaydedilince bağlanır. --}}
+                <div class="cmp-attachments mb-3" id="pendingAttachments"></div>
+
                 <div class="stg-field">
+                    {{-- name yok: dosyalar forma binmiyor, tek tek kendi isteğiyle
+                         gidiyor. Hepsi tek POST'ta gitseydi gövde post_max_size'ı
+                         aşar, PHP her şeyi atar ve form 419 ile kaybolurdu. --}}
                     <input type="file" class="stg-input @error('attachments.*') is-invalid @enderror"
-                           name="attachments[]" multiple data-fv-ignore>
-                    <small class="stg-hint">En fazla 10 dosya, her biri en fazla 10 MB.</small>
+                           id="attachmentInput" multiple data-fv-ignore>
+                    <small class="stg-hint">
+                        En fazla {{ $attachmentLimits['max_files'] }} dosya,
+                        her biri en fazla {{ $attachmentLimitLabel }}.
+                    </small>
                     @error('attachments.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                 </div>
             </div>

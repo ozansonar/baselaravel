@@ -6,7 +6,7 @@
     <h1 class="auth-card__title">{{ __('site.password.forgot_title') }}</h1>
     <p class="auth-card__sub">{{ __('site.password.forgot_subtitle') }}</p>
 
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email') }}" data-validate novalidate>
         @csrf
 
         {{-- Email --}}
@@ -14,10 +14,11 @@
             <label for="email" class="form-label">{{ __('site.login.email') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                <input type="email"
+                <input type="text"
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email') }}"
-                       placeholder="ornek@mail.com" required autofocus autocomplete="email">
+                       data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                       placeholder="ornek@mail.com" autofocus autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

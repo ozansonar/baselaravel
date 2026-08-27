@@ -122,7 +122,10 @@ Route::resource('users', UserController::class)->except('show');
 Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed();
 
 // Redirects
-Route::resource('redirects', RedirectController::class)->except('show');
+// Ekleme ve düzenleme listedeki modalda yapılıyor; ayrı create/edit sayfası yok.
+// Bunlar resource'tan çıkarılmazsa route kayıtlı görünür ama controller'da
+// karşılığı olmadığı için adres 404 yerine 500 döner.
+Route::resource('redirects', RedirectController::class)->except(['show', 'create', 'edit']);
 Route::patch('redirects/{redirect}/restore', [RedirectController::class, 'restore'])->name('redirects.restore')->withTrashed();
 Route::patch('redirects/{redirect}/toggle-active', [RedirectController::class, 'toggleActive'])->name('redirects.toggle-active');
 
@@ -172,6 +175,10 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
     Route::get('yeni',                     [CampaignController::class, 'create'])->name('create');
     Route::get('sablon-indir',             [CampaignController::class, 'template'])->name('template');
     Route::post('alici-onizleme',          [CampaignController::class, 'previewRecipients'])->name('recipients.preview');
+    // Ekler kampanya formuna binmiyor: her dosya kendi isteğiyle önden yüklenir,
+    // yoksa on dosya post_max_size'ı aşar ve form 419 ile komple kaybolur.
+    Route::post('ek-yukle',                [CampaignController::class, 'uploadAttachment'])->name('attachments.upload');
+    Route::delete('ek-yukle/{token}',      [CampaignController::class, 'destroyPendingAttachment'])->name('attachments.discard');
     Route::post('/',                       [CampaignController::class, 'store'])->name('store');
     Route::get('{campaign}',               [CampaignController::class, 'show'])->name('show');
     Route::get('{campaign}/duzenle',       [CampaignController::class, 'edit'])->name('edit');

@@ -741,4 +741,57 @@ final class UploadService
 
         return $size !== false ? $size[0] : 1920;
     }
+
+    /**
+     * Sunucunun gerçekte kabul ettiği yükleme sınırları.
+     *
+     * Arayüzdeki "en fazla N MB" metni buradan üretilir. php.ini 2 MB derken
+     * ekranın 10 MB vaat etmesi kullanıcıyı baştan kaybedeceği bir yüklemeye
+     * sokar: post_max_size aşıldığında PHP gövdeyi komple atar, CSRF alanı da
+     * onunla gittiği için istek 419 döner ve doldurulmuş form kaybolur —
+     * FormRequest'teki nazik hata mesajı çalışma fırsatı bile bulamaz.
+     *
+     * Uygulamanın kendi tavanı ile sunucunun tavanından hangisi düşükse o
+     * geçerlidir; sunucuyu yukarı zorlamak paylaşımlı hosting'de mümkün değil.
+     *
+     * @param  int $appMaxPerFile Uygulamanın dosya başına tavanı (bayt)
+     * @param  int $appMaxFiles   Uygulamanın dosya sayısı tavanı
+     * @return array{per_file: int, post_max: int, max_files: int}
+     */
+    public function limits(int $appMaxPerFile, int $appMaxFiles): array
+    {
+        $uploadMax = self::iniBytes('upload_max_filesize');
+        $postMax = self::iniBytes('post_max_size');
+        $iniFiles = (int) ini_get('max_file_uploads');
+
+        return [
+            'per_file'  => min(...array_filter([$appMaxPerFile, $uploadMax, $postMax])),
+            'post_max'  => $postMax > 0 ? $postMax : $appMaxPerFile,
+            'max_files' => min(...array_filter([$appMaxFiles, $iniFiles > 0 ? $iniFiles : $appMaxFiles])),
+        ];
+    }
+
+    /**
+     * "8M", "512K", "1G" gibi ini kısaltmalarını bayta çevirir.
+     *
+     * Sınırsızı (0 ya da boş) PHP_INT_MAX sayar; min() ile karşılaştırıldığında
+     * sınırsız bir değerin diğerlerini bastırmaması için.
+     */
+    private static function iniBytes(string $key): int
+    {
+        $raw = trim((string) ini_get($key));
+
+        if ($raw === '' || $raw === '0' || $raw === '-1') {
+            return PHP_INT_MAX;
+        }
+
+        $value = (int) $raw;
+
+        return match (strtolower(substr($raw, -1))) {
+            'g'     => $value * 1024 * 1024 * 1024,
+            'm'     => $value * 1024 * 1024,
+            'k'     => $value * 1024,
+            default => $value,
+        };
+    }
 }

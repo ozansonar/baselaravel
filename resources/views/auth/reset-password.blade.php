@@ -6,7 +6,7 @@
     <h1 class="auth-card__title">{{ __('site.password.reset_title') }}</h1>
     <p class="auth-card__sub">{{ __('site.password.reset_subtitle') }}</p>
 
-    <form method="POST" action="{{ route('password.update') }}">
+    <form method="POST" action="{{ route('password.update') }}" data-validate novalidate>
         @csrf
 
         <input type="hidden" name="token" value="{{ $token }}">
@@ -16,10 +16,12 @@
             <label for="email" class="form-label">{{ __('site.login.email') }}</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                <input type="email"
+                {{-- Adres sıfırlama bağlantısından geliyor, kullanıcı değiştiremiyor:
+                     kuralsız bırakılması bilinçli. --}}
+                <input type="text"
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email', $email) }}"
-                       required readonly autocomplete="email">
+                       data-fv-ignore readonly autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -34,7 +36,8 @@
                 <input type="password"
                        class="form-control @error('password') is-invalid @enderror"
                        id="password" name="password"
-                       placeholder="••••••••" required autofocus autocomplete="new-password">
+                       data-validation-engine="validate[required,minSize[8]]"
+                       placeholder="••••••••" autofocus autocomplete="new-password">
                 @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -50,7 +53,8 @@
                 <input type="password"
                        class="form-control"
                        id="password_confirmation" name="password_confirmation"
-                       placeholder="••••••••" required autocomplete="new-password">
+                       data-validation-engine="validate[required,equals[password]]"
+                       placeholder="••••••••" autocomplete="new-password">
             </div>
         </div>
 

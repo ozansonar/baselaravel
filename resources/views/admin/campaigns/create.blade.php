@@ -35,4 +35,13 @@
 
 @push('scripts')
     <script src="{{ versioned_asset('assets/admin/js/campaign-form.js') }}"></script>
+    <script>
+        window.campaignAttachments = @js([
+            'uploadUrl'  => route('admin.campaigns.attachments.upload'),
+            'discardUrl' => route('admin.campaigns.attachments.discard', 'TOKEN'),
+            'maxBytes'   => $attachmentLimits['per_file'],
+            'maxFiles'   => $attachmentLimits['max_files'],
+        ]);
+    </script>
+    <script src="{{ versioned_asset('assets/admin/js/campaign-attachments.js') }}"></script>
 @endpush

@@ -64,6 +64,11 @@ class StoreCampaignRequest extends FormRequest
 
             'attachments'   => ['nullable', 'array', 'max:10'],
             'attachments.*' => ['file', 'max:10240'],
+
+            // Ekler forma binmiyor; her dosya kendi isteğiyle önceden yüklenip
+            // oturumda bekliyor, burada yalnızca belirteçleri geliyor.
+            'attachment_tokens'   => ['nullable', 'array', 'max:10'],
+            'attachment_tokens.*' => ['string', 'uuid'],
         ];
     }
 
@@ -77,6 +82,7 @@ class StoreCampaignRequest extends FormRequest
             'recipient_file.mimes' => 'Yalnızca Excel (.xlsx, .xls, .ods) veya CSV dosyası yükleyebilirsiniz.',
             'recipient_file.max'   => 'Alıcı dosyası en fazla 10 MB olabilir.',
             'attachments.max'      => 'Bir kampanyaya en fazla 10 ek ekleyebilirsiniz.',
+            'attachment_tokens.max' => 'Bir kampanyaya en fazla 10 ek ekleyebilirsiniz.',
             'attachments.*.max'    => 'Her ek en fazla 10 MB olabilir.',
         ];
     }
@@ -205,7 +211,8 @@ class StoreCampaignRequest extends FormRequest
             // boşaltmak gönderen hesabı kısıtlatır ya da kara listeye düşürür.
             // Hız ayarı panelin mail ayarlarında, kampanya başına değil.
             'throttled'       => true,
-            'attachments'     => $this->file('attachments', []),
+            'attachments'       => $this->file('attachments', []),
+            'attachment_tokens' => $this->input('attachment_tokens', []),
         ];
     }
 }
