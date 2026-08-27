@@ -645,6 +645,138 @@ class CampaignPanelTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    // ── Gönderim öncesi alıcı listesi ──
+
+    public function test_the_draft_screen_offers_to_prepare_the_list(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        // Liste yokken: hazırlama düğmesi var, ayıklanabilir tablo yok.
+        // (Örnek listesi adresleri gösteriyor; ölçüt satır işlemleri.)
+        $this->actingAs($this->sender())
+            ->get(route('admin.campaigns.show', $campaign))
+            ->assertOk()
+            ->assertSee('Alıcı Listesini Hazırla')
+            ->assertDontSee('Gönderimden çıkar');
+
+        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
+
+        // Liste hazırken: tablo, süzgeç ve yenileme düğmesi ekranda.
+        $this->actingAs($this->sender())
+            ->get(route('admin.campaigns.show', $campaign))
+            ->assertOk()
+            ->assertDontSee('Alıcı Listesini Hazırla')
+            ->assertSee('Listeyi yenile')
+            ->assertSee('ahmet@ornek.com')
+            ->assertSee('ayse@ornek.com')
+            ->assertSee('Gönderimden çıkar');
+    }
+
+    public function test_the_recipient_list_can_be_prepared_before_approval(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.recipients.prepare', $campaign))
+            ->assertRedirect();
+
+        $campaign->refresh();
+        $this->assertSame(CampaignStatus::Draft, $campaign->status, 'Liste hazırlamak gönderimi başlatmamalı');
+        $this->assertSame(3, $campaign->recipients()->count());
+        $this->assertSame(3, $campaign->pendingCount());
+        Mail::assertNothingSent();
+    }
+
+    public function test_an_address_excluded_before_approval_is_not_sent(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
+
+        $disari = $campaign->recipients()->where('email', 'ayse@ornek.com')->firstOrFail();
+
+        $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.recipients.exclude', [$campaign, $disari]))
+            ->assertRedirect();
+
+        // Onay ekranı ayıklamadan sonraki gerçek sayıyı söylemeli.
+        $this->actingAs($this->sender())
+            ->get(route('admin.campaigns.show', $campaign))
+            ->assertOk()
+            ->assertSee('2 kişiye');
+
+        $this->actingAs($this->sender())->post(route('admin.campaigns.send', $campaign));
+
+        $campaign->refresh();
+        $this->assertSame(2, $campaign->total_recipients, 'Çıkarılan adres toplama girmemeli');
+        $this->assertSame(
+            CampaignRecipientStatus::Skipped,
+            $disari->refresh()->status,
+            'Onay, ayıklanmış adresi sıraya geri almamalı',
+        );
+    }
+
+    public function test_refreshing_the_prepared_list_rebuilds_it_from_the_source(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
+
+        $disari = $campaign->recipients()->where('email', 'ayse@ornek.com')->firstOrFail();
+        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.exclude', [$campaign, $disari]));
+
+        $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.recipients.prepare', $campaign), ['refresh' => 1])
+            ->assertRedirect();
+
+        // Liste baştan kuruluyor: ne eski satırlar birikiyor ne de ayıklama kalıyor.
+        $this->assertSame(3, $campaign->recipients()->count());
+        $this->assertSame(3, $campaign->pendingCount());
+    }
+
+    public function test_changing_the_audience_drops_the_prepared_list(): void
+    {
+        $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());
+        $campaign = Campaign::firstOrFail();
+
+        $this->actingAs($this->editor())->post(route('admin.campaigns.recipients.prepare', $campaign));
+        $this->assertSame(3, $campaign->recipients()->count());
+
+        Subscriber::create([
+            'email'             => 'abone@ornek.com',
+            'status'            => SubscriberStatus::Subscribed,
+            'unsubscribe_token' => \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(64)),
+            'subscribed_at'     => now(),
+        ]);
+
+        $this->actingAs($this->editor())->put(route('admin.campaigns.update', $campaign), $this->payload([
+            'audience'    => CampaignAudience::Subscribers->value,
+            'manual_rows' => [],
+        ]));
+
+        $this->assertSame(
+            0,
+            $campaign->recipients()->count(),
+            'Kitle değişince eski liste kalırsa kampanya formda görünenden başka adreslere gider',
+        );
+    }
+
+    public function test_a_started_campaign_cannot_have_its_list_rebuilt(): void
+    {
+        $campaign = $this->sendingCampaign();
+
+        $this->actingAs($this->editor())
+            ->post(route('admin.campaigns.recipients.prepare', $campaign), ['refresh' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertSame(5, $campaign->recipients()->count());
+    }
+
     public function test_scheduling_keeps_the_campaign_waiting(): void
     {
         $this->actingAs($this->editor())->post(route('admin.campaigns.store'), $this->payload());

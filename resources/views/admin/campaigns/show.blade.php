@@ -11,6 +11,10 @@
     $isSending  = $campaign->status === CampaignStatus::Sending;
     $isPaused   = $campaign->status === CampaignStatus::Paused;
     $isFinished = in_array($campaign->status, [CampaignStatus::Sent, CampaignStatus::Cancelled], true);
+
+    // Gönderim dışında bırakılan adres sayısı: onay kutusu ile alıcı kartı
+    // aynı sayıyı gösteriyor, iki yerde ayrı ayrı hesaplanmasın.
+    $cikarilan = $breakdown[App\Enums\CampaignRecipientStatus::Skipped->value] ?? 0;
 @endphp
 
 @section('content')
@@ -98,26 +102,54 @@
                                     @endif
                                 </p>
 
-                                <details class="campaign-sample">
-                                    <summary class="text-teal">Alıcılardan örnek göster</summary>
-                                    <ul class="list-unstyled mt-2 mb-0">
-                                        @foreach($preview['sample'] as $row)
-                                            <li class="text-clr-secondary small">
-                                                {{ \App\Support\PersonName::full($row['first_name'] ?? null, $row['last_name'] ?? null) ?? '—' }}
-                                                &lt;{{ $row['email'] }}&gt;
-                                            </li>
-                                        @endforeach
-                                        @if($preview['count'] > count($preview['sample']))
-                                            <li class="text-clr-secondary small">
-                                                … ve {{ number_format($preview['count'] - count($preview['sample'])) }} kişi daha
-                                            </li>
+                                @if($recipientsReady)
+                                    {{-- Liste kurulmuş: örnek göstermenin anlamı yok, tam listenin
+                                         kendisi aşağıda süzgeçlenip düzenlenebiliyor. --}}
+                                    <p class="stg-hint mb-0">
+                                        <i class="bi bi-check2-circle me-1 text-teal"></i>
+                                        Alıcı listesi hazır.
+                                        @if($cikarilan > 0)
+                                            <strong>{{ number_format($cikarilan) }} adres</strong> gönderim dışında bırakıldı;
+                                            kalan {{ number_format($preview['count']) }} adrese gönderilecek.
                                         @endif
-                                    </ul>
-                                </details>
+                                        <a href="#alicilar" class="alert-link">Listeyi aşağıdan düzenleyin</a>.
+                                    </p>
+                                @else
+                                    <details class="campaign-sample">
+                                        <summary class="text-teal">Alıcılardan örnek göster</summary>
+                                        <ul class="list-unstyled mt-2 mb-0">
+                                            @foreach($preview['sample'] as $row)
+                                                <li class="text-clr-secondary small">
+                                                    {{ \App\Support\PersonName::full($row['first_name'] ?? null, $row['last_name'] ?? null) ?? '—' }}
+                                                    &lt;{{ $row['email'] }}&gt;
+                                                </li>
+                                            @endforeach
+                                            @if($preview['count'] > count($preview['sample']))
+                                                <li class="text-clr-secondary small">
+                                                    … ve {{ number_format($preview['count'] - count($preview['sample'])) }} kişi daha
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </details>
+                                @endif
                             </div>
                             <div class="col-lg-5">
                                 <div class="d-grid gap-2">
-                                    <button type="button" class="btn-teal btn-lg" data-bs-toggle="modal" data-bs-target="#approveModal">
+                                    @can('update', $campaign)
+                                        @unless($recipientsReady)
+                                            {{-- Onaydan önceki adım: liste dondurulmadan kimin
+                                                 listede olduğu görülemiyor, ayıklama da yapılamıyordu. --}}
+                                            <form method="POST" action="{{ route('admin.campaigns.recipients.prepare', $campaign) }}"
+                                                  class="d-grid">
+                                                @csrf
+                                                <button type="submit" class="btn-teal btn-lg">
+                                                    <i class="bi bi-list-check"></i> Alıcı Listesini Hazırla
+                                                </button>
+                                            </form>
+                                        @endunless
+                                    @endcan
+                                    <button type="button" class="{{ $recipientsReady ? 'btn-teal btn-lg' : 'btn-glass' }}"
+                                            data-bs-toggle="modal" data-bs-target="#approveModal">
                                         <i class="bi bi-send-fill"></i> Onayla ve Gönderime Al
                                     </button>
                                     <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#scheduleModal">
@@ -125,7 +157,11 @@
                                     </button>
                                 </div>
                                 <p class="text-clr-secondary small mt-2 mb-0 text-center">
-                                    Göndermeden önce kendinize test maili atmanız önerilir.
+                                    @unless($recipientsReady)
+                                        Listeyi hazırlarsanız gönderim başlamadan tek tek ayıklayabilirsiniz.
+                                    @else
+                                        Göndermeden önce kendinize test maili atmanız önerilir.
+                                    @endunless
                                 </p>
                             </div>
                         </div>
@@ -181,7 +217,9 @@
     </div>
 
     {{-- ═══════════ 3. İLERLEME + CRON ═══════════ --}}
-    @if($campaign->total_recipients > 0)
+    {{-- Taslakta gösterilmiyor: liste onaydan önce hazırlanabildiği için
+         alıcı sayısı dolu olsa da henüz süren bir gönderim yok. --}}
+    @if(! $isDraft && $campaign->total_recipients > 0)
         <div class="card-dark mb-4" data-aos="fade-up">
             <div class="card-body-custom">
                 <div class="d-flex justify-content-between mb-2">
@@ -302,12 +340,28 @@
             @endif
 
             {{-- ═══════════ ALICI LİSTESİ ═══════════ --}}
-            @if($campaign->total_recipients > 0 || $recipients->total() > 0)
-                <div class="card-dark mb-4" data-aos="fade-up">
+            @if($recipientsReady || $campaign->total_recipients > 0)
+                <div class="card-dark mb-4" id="alicilar" data-aos="fade-up">
                     <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <h6><i class="bi bi-people me-2 text-teal"></i>Alıcılar</h6>
                         <div class="d-flex align-items-center gap-2">
                             <span class="cmp-badge">{{ number_format($recipients->total()) }}</span>
+                            @if($isDraft)
+                                @can('update', $campaign)
+                                    {{-- Liste onaydan önce donduğu için kaynak listeye sonradan
+                                         eklenenler kendiliğinden girmiyor; yenileme onu sağlıyor.
+                                         Çıkarılan adresler de geri geldiği için onay isteniyor. --}}
+                                    <form method="POST" action="{{ route('admin.campaigns.recipients.prepare', $campaign) }}"
+                                          id="recipientRefreshForm" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="refresh" value="1">
+                                        <button type="button" class="btn-glass btn-sm js-refresh-list"
+                                                data-excluded="{{ $cikarilan }}">
+                                            <i class="bi bi-arrow-repeat"></i> Listeyi yenile
+                                        </button>
+                                    </form>
+                                @endcan
+                            @endif
                             @if(($breakdown[App\Enums\CampaignRecipientStatus::Failed->value] ?? 0) > 0)
                                 @can('update', $campaign)
                                     <form method="POST" action="{{ route('admin.campaigns.recipients.retry', $campaign) }}"
@@ -499,7 +553,7 @@
                                                     @if($recipientFilter['search'] !== '' || $recipientFilter['status'] !== '')
                                                         Bu süzgeçle eşleşen alıcı yok.
                                                     @else
-                                                        Alıcı listesi gönderim onaylanınca oluşur.
+                                                        Bu listede alıcı yok.
                                                     @endif
                                                 </span>
                                             </td>

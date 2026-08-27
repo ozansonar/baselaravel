@@ -175,6 +175,9 @@ final class CampaignController extends Controller
             // Alıcı listesi ekranda: kime gittiği, kime gitmediği ve nedeni
             // görünmeden kampanyanın yönetilebilir bir tarafı yok.
             'recipients'      => $this->recipientList($campaign, $request),
+            // Liste kurulmuş mu: onay kutusu "hazırla" ile "yenile" arasında
+            // buna göre karar veriyor.
+            'recipientsReady' => $campaign->recipients()->exists(),
             'recipientFilter' => [
                 'status' => (string) $request->string('rstatus')->value(),
                 'search' => (string) $request->string('rsearch')->trim()->value(),
@@ -559,6 +562,30 @@ final class CampaignController extends Controller
             ->orderBy('id')
             ->paginate(25, ['*'], 'ralici')
             ->withQueryString();
+    }
+
+    /**
+     * Alıcı listesini gönderimden önce kurar.
+     *
+     * Taslakta liste yokken görülebilen tek şey on kişilik bir örnekti; kimin
+     * listede olduğunu görüp ayıklamak ancak gönderimi başlattıktan sonra
+     * mümkündü. Liste artık onaydan önce dondurulabiliyor, ayıklama gönderime
+     * olduğu gibi taşınıyor.
+     */
+    public function prepareRecipients(Request $request, Campaign $campaign): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+
+        try {
+            $count = $this->campaigns->prepareRecipients($campaign, $request->boolean('refresh'));
+        } catch (Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', sprintf(
+            '%d alıcı listeye alındı. Göndermek istemediklerinizi çıkarıp sonra onaylayın.',
+            $count,
+        ));
     }
 
     /**
