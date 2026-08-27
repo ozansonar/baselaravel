@@ -172,4 +172,61 @@ class MailLogFilterTest extends TestCase
             ->assertOk()
             ->assertSee('Geçen hafta', false);
     }
+
+    /**
+     * Açık süzgeçler rozet olarak listelenir ve her rozetin çarpısı yalnızca
+     * kendi süzgecini düşürür — diğerleri yerinde kalır.
+     */
+    public function test_active_filter_chips_remove_only_their_own_filter(): void
+    {
+        MailLog::factory()->create(['to' => 'ayse@example.com']);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.mail-logs.index', [
+                'recipient' => 'ayse@example.com',
+                'status'    => MailLogStatus::Sent->value,
+            ]))
+            ->assertOk()
+            ->assertSee('Açık süzgeçler')
+            ->assertSee('Alıcı süzgecini kaldır')
+            ->assertSee('Durum süzgecini kaldır')
+            ->assertSee('Tümünü temizle');
+
+        // Alıcı rozetinin bağlantısı durumu korumalı, alıcıyı düşürmeli.
+        $response->assertSee(
+            e(route('admin.mail-logs.index', ['status' => MailLogStatus::Sent->value])),
+            false,
+        );
+    }
+
+    /**
+     * Tek süzgeç açıkken toplu temizlik rozeti gereksiz; alanın kendi
+     * temizleme düğmesi zaten aynı işi yapıyor.
+     */
+    public function test_reset_chip_is_hidden_for_a_single_filter(): void
+    {
+        MailLog::factory()->create(['to' => 'ayse@example.com']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.mail-logs.index', ['recipient' => 'ayse@example.com']))
+            ->assertOk()
+            ->assertSee('Alıcı süzgecini kaldır')
+            ->assertDontSee('Tümünü temizle');
+    }
+
+    /**
+     * Süzgeç kapalıyken ne rozet satırı ne de alan içi temizleme düğmeleri
+     * çıkar; boş kutuların yanında ölü düğme durmaz.
+     */
+    public function test_no_chips_without_filters(): void
+    {
+        MailLog::factory()->create();
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.mail-logs.index'))
+            ->assertOk()
+            ->assertDontSee('Açık süzgeçler')
+            ->assertDontSee('Aramayı temizle')
+            ->assertDontSee('Başlangıç tarihini temizle');
+    }
 }
