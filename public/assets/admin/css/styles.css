@@ -26176,18 +26176,34 @@ body, .sidebar, .top-navbar, .card, .stat-card, .main-content {
   margin-bottom: 16px;
 }
 
+/* Şablon ikonu anahtara göre renkleniyor: altı kart yan yana dururken
+   hangisine bakıldığı başlık okunmadan da anlaşılsın. */
 .mt-tpl-icon {
+  --mt-accent: var(--teal-primary);
   width: 48px;
   height: 48px;
   min-width: 48px;
   border-radius: 14px;
-  background: rgba(20, 184, 166, 0.1);
-  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--mt-accent) 12%, transparent);
+  color: var(--mt-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  border: 1px solid rgba(20, 184, 166, 0.15);
+  border: 1px solid color-mix(in srgb, var(--mt-accent) 18%, transparent);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.mt-tpl-icon--teal   { --mt-accent: var(--teal-primary); }
+.mt-tpl-icon--green  { --mt-accent: var(--neon-green); }
+.mt-tpl-icon--blue   { --mt-accent: var(--neon-blue); }
+.mt-tpl-icon--orange { --mt-accent: var(--neon-orange); }
+.mt-tpl-icon--purple { --mt-accent: var(--neon-purple); }
+.mt-tpl-icon--muted  { --mt-accent: var(--text-muted); }
+
+.mt-tpl-card:hover .mt-tpl-icon {
+  background: color-mix(in srgb, var(--mt-accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--mt-accent) 35%, transparent);
 }
 
 .mt-tpl-title {
@@ -26209,12 +26225,19 @@ body, .sidebar, .top-navbar, .card, .stat-card, .main-content {
 }
 
 .mt-tpl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 12px;
   border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.mt-tpl-badge i {
+  font-size: 9px;
 }
 
 .mt-tpl-badge--active {
@@ -26260,7 +26283,7 @@ body, .sidebar, .top-navbar, .card, .stat-card, .main-content {
 }
 
 .mt-tpl-vars {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   flex: 1;
 }
 
@@ -26291,28 +26314,122 @@ body, .sidebar, .top-navbar, .card, .stat-card, .main-content {
   border: 1px solid rgba(20, 184, 166, 0.12);
 }
 
-.mt-tpl-edit-btn {
+/* Değişkeni olmayan şablon da bir şey söylemeli; boş kutu hata gibi duruyor. */
+.mt-tpl-vars-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Gösterilmeyen değişkenlerin sayısı: uzun liste kartı diğerlerinden bir baş
+   yukarı çekiyordu. */
+.mt-tpl-var-tag--more {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* İçeriğin varsayılandan farklı olup olmadığı ve son değişiklik zamanı. */
+.mt-tpl-meta {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  background: rgba(20, 184, 166, 0.08);
-  color: var(--teal-primary);
-  border: 1px solid rgba(20, 184, 166, 0.15);
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding-top: 14px;
+  margin-bottom: 14px;
+  border-top: 1px solid var(--border-color);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.mt-tpl-origin,
+.mt-tpl-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mt-tpl-origin--custom {
+  color: var(--neon-purple);
+}
+
+.mt-tpl-updated {
+  margin-left: auto;
+}
+
+.mt-tpl-actions {
+  display: flex;
+  gap: 10px;
   margin-top: auto;
 }
 
-.mt-tpl-edit-btn:hover {
+.mt-tpl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mt-tpl-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mt-tpl-btn--primary {
+  background: rgba(20, 184, 166, 0.08);
+  color: var(--teal-primary);
+  border: 1px solid rgba(20, 184, 166, 0.15);
+}
+
+.mt-tpl-btn--primary:hover {
   background: var(--teal-primary);
   color: #fff;
   border-color: var(--teal-primary);
   box-shadow: 0 0 16px rgba(20, 184, 166, 0.3);
+}
+
+.mt-tpl-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.mt-tpl-btn--ghost:hover {
+  color: var(--teal-primary);
+  border-color: var(--teal-primary);
+}
+
+/* Süzgeç çubuğundaki sonuç sayacı. */
+.mt-result-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Select2 kurulduktan sonra asıl <select> ekran okuyucular için DOM'da kalıyor
+   ve 1px'e kısılıyor; çubuğun min-width'i ona da uygulanınca görünmeyen bir
+   kutu sayfayı yana taşırıyordu. */
+.cl-filter-select.select2-hidden-accessible {
+  min-width: 0;
+}
+
+/* Dar ekranda 150px'lik seçim kutuları yan yana sıkışıp satır sonunda taşıyor;
+   alanlar tam genişliğe geçince hem okunur hem de yatay kaydırma kalmıyor. */
+@media (max-width: 575.98px) {
+  .mt-field {
+    min-width: 100%;
+  }
+
+  .mt-field--actions {
+    min-width: 100%;
+  }
 }
 
 /* Template Edit Page */
@@ -33283,7 +33400,8 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
    böylece aynı hizada başlar ve aynı hizada biter. Aynı düzen mail logları
    süzgecinde de kullanılıyor (.ml-field). */
 .al-field,
-.ml-field {
+.ml-field,
+.mt-field {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -33293,7 +33411,8 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
 /* Select2 kutuyu kendi span'ine sarıyor ve bu kural ona da biniyordu:
    başlık büyük harf olsun, kutudaki veri yazıldığı gibi kalsın. */
 .al-field > span:not(.select2-container),
-.ml-field > span:not(.select2-container) {
+.ml-field > span:not(.select2-container),
+.mt-field > span:not(.select2-container) {
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -33322,14 +33441,16 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
 
 /* Düğmeler alanların alt kenarına hizalanır. */
 .al-field--actions,
-.ml-field--actions {
+.ml-field--actions,
+.mt-field--actions {
   min-width: 0;
   justify-content: flex-end;
 }
 
 /* Select2 kutusu, yanındaki tarih alanıyla aynı yüksekliği tutsun. */
 .al-filters .select2-container--bootstrap-5 .select2-selection,
-.ml-filters .select2-container--bootstrap-5 .select2-selection {
+.ml-filters .select2-container--bootstrap-5 .select2-selection,
+.mt-filters .select2-container--bootstrap-5 .select2-selection {
   min-height: 36px;
 }
 
@@ -34005,8 +34126,9 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
 }
 
 /* Açık süzgeçlerin rozet listesi: ne süzüldüğü bir bakışta okunur, istenmeyen
-   tek tıkla kaldırılır. */
-.ml-active-filters {
+   tek tıkla kaldırılır. Sayfadan bağımsız — partials/admin/filter-chips
+   kullanan her liste aynı görünümü alır. */
+.flt-active {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -34016,14 +34138,14 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   border-top: 1px solid var(--border-color);
 }
 
-.ml-active-filters__title {
+.flt-active__title {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   color: var(--text-muted);
 }
 
-.ml-filter-chip {
+.flt-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -34037,20 +34159,20 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   border: 1px solid rgba(20, 184, 166, 0.2);
 }
 
-.ml-filter-chip__label {
+.flt-chip__label {
   color: var(--text-muted);
   font-weight: 400;
 }
 
 /* Uzun bir alıcı adresi rozeti satır boyunca uzatmasın. */
-.ml-filter-chip__value {
+.flt-chip__value {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 220px;
 }
 
-.ml-filter-chip__remove {
+.flt-chip__remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -34066,20 +34188,20 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
   transition: opacity 0.2s ease, background 0.2s ease;
 }
 
-.ml-filter-chip__remove:hover {
+.flt-chip__remove:hover {
   opacity: 1;
   background: rgba(20, 184, 166, 0.18);
 }
 
 /* Toplu temizlik rozeti: süzgeç değil işlem olduğu için nötr renkte. */
-.ml-filter-chip--reset {
+.flt-chip--reset {
   background: transparent;
   border-color: var(--border-color);
   color: var(--text-secondary);
   transition: border-color 0.2s ease, color 0.2s ease;
 }
 
-.ml-filter-chip--reset:hover {
+.flt-chip--reset:hover {
   border-color: var(--teal-primary);
   color: var(--teal-primary);
 }

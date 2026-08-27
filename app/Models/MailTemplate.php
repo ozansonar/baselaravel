@@ -31,6 +31,44 @@ final class MailTemplate extends Model
     }
 
     /**
+     * Şablon anahtarı → ikon ve renk.
+     *
+     * Kart listesinde altı şablon yan yana duruyor; hepsi aynı zarf ikonunu
+     * taşıdığında hangisine bakıldığı ancak başlık okunarak anlaşılıyordu.
+     */
+    private const KEY_VISUALS = [
+        'welcome'         => ['icon' => 'bi-person-plus-fill',    'color' => 'green'],
+        'verify_email'    => ['icon' => 'bi-shield-check',        'color' => 'blue'],
+        'reset_password'  => ['icon' => 'bi-key-fill',            'color' => 'orange'],
+        'contact_message' => ['icon' => 'bi-chat-dots-fill',      'color' => 'purple'],
+        'contact_reply'   => ['icon' => 'bi-reply-fill',          'color' => 'teal'],
+        'test'            => ['icon' => 'bi-wrench-adjustable',   'color' => 'muted'],
+    ];
+
+    public function getIconAttribute(): string
+    {
+        return self::KEY_VISUALS[$this->key]['icon'] ?? 'bi-envelope-open-fill';
+    }
+
+    public function getColorAttribute(): string
+    {
+        return self::KEY_VISUALS[$this->key]['color'] ?? 'teal';
+    }
+
+    /**
+     * Şablonun kullandığı değişken anahtarları.
+     *
+     * @return array<int, string>
+     */
+    public function variableKeys(): array
+    {
+        return array_values(array_filter(array_map(
+            static fn (array $variable): string => (string) ($variable['key'] ?? ''),
+            $this->variables ?? [],
+        )));
+    }
+
+    /**
      * Find an active template by key and replace variables.
      *
      * @param  array<string, string|null> $data Variable key => value pairs
