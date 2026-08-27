@@ -35780,3 +35780,13 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 .cmp-attach-list .cmp-attachment--yukleniyor::before {
   opacity: .5;
 }
+
+/* Kampanya listesi ilerleme çubuğu. Yüzde satır içi değişkenle geliyor —
+   değer veriden hesaplanıyor, sınıfla ifade edilemez. */
+.cmp-progress {
+  height: 6px;
+}
+
+.cmp-progress__bar {
+  width: var(--cmp-progress, 0%);
+}

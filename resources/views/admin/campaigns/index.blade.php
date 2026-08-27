@@ -5,6 +5,33 @@
 @section('page_description', 'Toplu mail gönderimlerini oluşturun, zamanlayın ve takip edin')
 
 @section('content')
+    @php
+        use App\Enums\CampaignAudience;
+        use App\Enums\CampaignStatus;
+
+        // Durum sekmesi kendi göstergesi; rozetlerde tekrar edilmiyor.
+        $chipFilters = collect($filters)->except(['status', 'sort']);
+        $hasFilter = $chipFilters->filter(fn ($value) => (string) $value !== '')->isNotEmpty();
+
+        $activeFilters = collect([
+            'search' => ['label' => 'Arama', 'value' => $filters['search']],
+            'audience' => [
+                'label' => 'Kitle',
+                'value' => $filters['audience'] !== ''
+                    ? (CampaignAudience::tryFrom($filters['audience'])?->label() ?? '')
+                    : '',
+            ],
+            'from' => [
+                'label' => 'Başlangıç',
+                'value' => $filters['from'] !== '' ? \Illuminate\Support\Carbon::parse($filters['from'])->format('d.m.Y') : '',
+            ],
+            'to' => [
+                'label' => 'Bitiş',
+                'value' => $filters['to'] !== '' ? \Illuminate\Support\Carbon::parse($filters['to'])->format('d.m.Y') : '',
+            ],
+        ])->filter(fn (array $chip): bool => $chip['value'] !== '');
+    @endphp
+
     {{-- Breadcrumb --}}
     <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
         <ol class="breadcrumb mb-0">
@@ -97,30 +124,101 @@
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card-body-custom">
             <form method="GET" action="{{ route('admin.campaigns.index') }}" id="filterForm" class="cl-toolbar">
-                @if(request('status'))
-                    <input type="hidden" name="status" value="{{ request('status') }}">
+                {{-- Durum sekmesi seçiliyken süzgeç değiştirmek sekmeden düşürmemeli. --}}
+                @if($filters['status'] !== '')
+                    <input type="hidden" name="status" value="{{ $filters['status'] }}">
                 @endif
 
-                <div class="cl-search">
+                <div class="cl-search {{ $filters['search'] !== '' ? 'cl-search--clearable' : '' }}">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" value="{{ request('search') }}"
+                    <input type="text" name="search" value="{{ $filters['search'] }}"
                            placeholder="Kampanya adı veya konu ile ara..." data-fv-ignore>
+                    @if($filters['search'] !== '')
+                        <a href="{{ route('admin.campaigns.index', request()->except(['search', 'page'])) }}"
+                           class="cl-search-clear" title="Aramayı temizle" aria-label="Aramayı temizle">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    @endif
                 </div>
 
-                <div class="cl-toolbar-actions">
-                    <a href="{{ route('admin.campaigns.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                    </a>
-                    <div class="cl-per-page">
-                        <label>Göster:</label>
-                        <select name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
-                            @foreach($perPageList as $pp)
-                                <option value="{{ $pp }}" {{ (int) request('per_page', 15) === $pp ? 'selected' : '' }}>{{ $pp }}</option>
+                <div class="cl-filters mt-filters">
+                    <div class="mt-field">
+                        <span>Kitle</span>
+                        <select class="cl-filter-select" name="audience" aria-label="Alıcı kitlesi"
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                            <option value="">Tüm kitleler</option>
+                            @foreach($audiences as $case)
+                                <option value="{{ $case->value }}" {{ $filters['audience'] === $case->value ? 'selected' : '' }}>
+                                    {{ $case->label() }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
+
+                    <div class="mt-field">
+                        <span>
+                            Başlangıç
+                            @if($filters['from'] !== '')
+                                <a href="{{ route('admin.campaigns.index', request()->except(['from', 'page'])) }}"
+                                   class="ml-field-clear" title="Başlangıç tarihini temizle" aria-label="Başlangıç tarihini temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </span>
+                        <input type="date" class="cl-filter-select" name="from" value="{{ $filters['from'] }}"
+                               aria-label="Oluşturulma başlangıç tarihi" data-fv-ignore>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>
+                            Bitiş
+                            @if($filters['to'] !== '')
+                                <a href="{{ route('admin.campaigns.index', request()->except(['to', 'page'])) }}"
+                                   class="ml-field-clear" title="Bitiş tarihini temizle" aria-label="Bitiş tarihini temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            @endif
+                        </span>
+                        <input type="date" class="cl-filter-select" name="to" value="{{ $filters['to'] }}"
+                               aria-label="Oluşturulma bitiş tarihi" data-fv-ignore>
+                    </div>
+
+                    <div class="mt-field">
+                        <span>Sıralama</span>
+                        <select class="cl-filter-select" name="sort" aria-label="Sıralama"
+                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                            @foreach($sortOptions as $sortValue => $sortLabel)
+                                <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>
+                                    {{ $sortLabel }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mt-field mt-field--actions ms-auto">
+                        <div class="cl-toolbar-actions">
+                            <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
+                            <a href="{{ route('admin.campaigns.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                            <div class="cl-per-page">
+                                <label for="perPage">Göster:</label>
+                                <select name="per_page" id="perPage"
+                                        onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                    @foreach($perPageList as $pp)
+                                        <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
+
+            @include('partials.admin.filter-chips', [
+                'chips' => $activeFilters,
+                'route' => 'admin.campaigns.index',
+            ])
         </div>
     </div>
 
@@ -158,9 +256,9 @@
                                 </td>
                                 <td>
                                     @if($campaign->total_recipients > 0)
-                                        <div class="progress" style="height: 6px;">
-                                            <div class="progress-bar bg-teal" role="progressbar"
-                                                 style="width: {{ $campaign->progress() }}%"
+                                        <div class="progress cmp-progress">
+                                            <div class="progress-bar bg-teal cmp-progress__bar" role="progressbar"
+                                                 style="--cmp-progress: {{ $campaign->progress() }}%"
                                                  aria-valuenow="{{ $campaign->progress() }}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                         <small class="text-clr-secondary">
@@ -173,14 +271,22 @@
                                         <small class="text-clr-secondary">—</small>
                                     @endif
                                 </td>
-                                <td class="d-none d-xl-table-cell">
-                                    <small class="text-clr-secondary">
+                                <td class="d-none d-xl-table-cell" data-label="Tarih">
+                                    {{-- Hangi tarih olduğu yazmıyordu: zamanlanmış bir
+                                         kampanyanın gönderim saati ile oluşturulma günü
+                                         aynı sütunda ayırt edilemiyordu. --}}
+                                    <div class="sub-date">
                                         @if($campaign->scheduled_at)
-                                            <i class="bi bi-clock me-1"></i>{{ $campaign->scheduled_at->format('d.m.Y H:i') }}
+                                            <span><i class="bi bi-clock me-1"></i>{{ $campaign->scheduled_at->format('d.m.Y H:i') }}</span>
+                                            <small>Gönderim için planlandı</small>
+                                        @elseif($campaign->completed_at)
+                                            <span>{{ $campaign->completed_at->format('d.m.Y H:i') }}</span>
+                                            <small>Tamamlandı</small>
                                         @else
-                                            {{ $campaign->created_at?->format('d.m.Y H:i') }}
+                                            <span>{{ $campaign->created_at?->format('d.m.Y H:i') }}</span>
+                                            <small>Oluşturuldu</small>
                                         @endif
-                                    </small>
+                                    </div>
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ route('admin.campaigns.show', $campaign) }}" class="usr-action-btn" title="Detay">
@@ -204,8 +310,21 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5">
-                                    <i class="bi bi-megaphone d-block mb-2" style="font-size: 2rem;"></i>
-                                    Henüz kampanya oluşturulmamış.
+                                    <i class="bi bi-megaphone d-block mb-2 fs-2 text-muted"></i>
+                                    @if($hasFilter || $filters['status'] !== '')
+                                        {{-- "Kayıt yok" ile "süzgeçle eşleşen yok" farklı
+                                             şeyler; ikisini aynı cümleyle söylemek
+                                             kullanıcıyı listeyi boş sanmaya itiyordu. --}}
+                                        <span class="text-muted">Bu süzgeçle eşleşen kampanya yok.</span>
+                                        <br>
+                                        <a href="{{ route('admin.campaigns.index') }}" class="text-teal">Filtreleri temizle</a>
+                                    @else
+                                        <span class="text-muted">Henüz kampanya oluşturulmamış.</span>
+                                        @can('create', App\Models\Campaign::class)
+                                            <br>
+                                            <a href="{{ route('admin.campaigns.create') }}" class="text-teal">İlk kampanyayı oluştur</a>
+                                        @endcan
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
