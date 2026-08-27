@@ -77,6 +77,9 @@
 
         content_style: [
             'body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.7; color: #e0e0e0; padding: 16px; }',
+            // Editörde taşan bir görsel mailde de taşıyor; sınır yazarken görünsün.
+            'img { max-width: 100%; height: auto; }',
+            'table { max-width: 100%; }',
             '.em-greeting { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 4px; }',
             '.em-heading { font-size: 24px; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; }',
             '.em-heading-sm { font-size: 18px; font-weight: 600; color: #e2e8f0; }',

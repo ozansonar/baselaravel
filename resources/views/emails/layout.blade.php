@@ -19,7 +19,10 @@
         /* === RESET === */
         body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0; mso-table-rspace: 0; }
-        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        /* max-width: gövde 600 piksel; editörden gelen büyük görsel taşmasın.
+           Satır içi stil asıl güvence (Outlook <style> bloğunu kırpıyor),
+           bu kural onu destekleyen istemciler için ikinci savunma. */
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; max-width: 100%; line-height: 100%; outline: none; text-decoration: none; }
 
         /* === BASE === */
         .em-body {

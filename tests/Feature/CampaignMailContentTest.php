@@ -92,6 +92,49 @@ class CampaignMailContentTest extends TestCase
         $this->assertStringNotContainsString('cid:img-', $html);
     }
 
+    /**
+     * Editör görseli özgün ölçüsüyle ekliyor: 2000 piksellik bir fotoğraf
+     * width="2000" olarak kaydediliyor ve 600 piksellik mail sütununu taşırıyor.
+     */
+    public function test_an_oversized_image_is_capped_to_the_mail_width(): void
+    {
+        $path = $this->image('genis.webp');
+
+        $html = $this->mailFor('<img src="/uploads/' . $path . '" width="2000" height="1333">')->render();
+
+        $this->assertStringContainsString('width="600"', $html);
+        $this->assertStringNotContainsString('width="2000"', $html);
+        // Yükseklik atılmalı: eski değer yeni genişlikle eşleşmez, görsel ezilir.
+        $this->assertStringNotContainsString('height="1333"', $html);
+    }
+
+    /**
+     * Sadece <style> bloğuna kural yazmak yetmiyor; Outlook belge başındaki
+     * stilleri kırpıyor, korumanın etiketin üstünde olması gerekiyor.
+     */
+    public function test_every_image_carries_an_inline_width_guard(): void
+    {
+        $path = $this->image('satirici.webp');
+
+        $html = $this->mailFor('<img src="/uploads/' . $path . '">')->render();
+
+        $this->assertMatchesRegularExpression('#<img[^>]+style="[^"]*max-width:100%#i', $html);
+    }
+
+    /**
+     * Kullanıcı görseli bilerek küçültmüşse o ölçü korunmalı; tavan yalnızca
+     * taşanlar için.
+     */
+    public function test_a_deliberately_small_image_keeps_its_size(): void
+    {
+        $path = $this->image('kucuk.webp');
+
+        $html = $this->mailFor('<img src="/uploads/' . $path . '" width="300" height="200">')->render();
+
+        $this->assertStringContainsString('width="300"', $html);
+        $this->assertStringContainsString('height="200"', $html);
+    }
+
     public function test_the_same_image_used_twice_is_embedded_once(): void
     {
         $path = $this->image();

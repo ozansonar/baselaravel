@@ -35738,3 +35738,13 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   .cmp-bulk { margin-inline: 12px; }
   .cmp-bulk__clear { margin-left: 0; }
 }
+
+/* Mail önizleme penceresi: içerik kendi belgesinde 600 piksellik sütuna
+   alınıyor, buradaki kutu yalnızca çerçeveyi veriyor. */
+.cmp-preview {
+  width: 100%;
+  min-height: 420px;
+  border: 0;
+  background: #fff;
+  border-radius: 8px;
+}

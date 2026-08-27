@@ -20,6 +20,7 @@ use App\Services\CampaignService;
 use App\Services\SubscriberListService;
 use App\Services\RecipientImportService;
 use App\Services\LanguageService;
+use App\Support\EmailHtml;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -108,6 +109,9 @@ final class CampaignController extends Controller
             'campaign'  => $campaign->load('attachments', 'author'),
             'breakdown' => $breakdown,
             'preview'   => $this->campaigns->previewAudience($campaign),
+            // Önizleme mailin gördüğü gövdeyi göstermeli; ham gövde 600 pikselik
+            // sütunu bilmediği için görseller taşıyor ve tasarım bozuk sanılıyordu.
+            'bodyPreview' => EmailHtml::previewDocument($campaign->body),
             'failures'  => $campaign->recipients()
                 ->where('status', \App\Enums\CampaignRecipientStatus::Failed)
                 ->limit(20)

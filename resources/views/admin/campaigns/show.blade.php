@@ -250,10 +250,15 @@
                     </span>
                 </div>
                 <div class="card-body-custom">
-                    {{-- Sandboxed: admin-authored HTML, rendered only to be looked at. --}}
-                    <iframe srcdoc="{{ $campaign->body }}" sandbox
-                            style="width:100%; min-height:420px; border:0; background:#fff; border-radius:8px;"
-                            title="Mail önizleme"></iframe>
+                    {{-- Sandboxed: admin-authored HTML, rendered only to be looked at.
+
+                         Gövde ham hâliyle değil, mailin gördüğü hâliyle gösteriliyor:
+                         görseller kapsayıcı genişliğine sığdırılıyor ve içerik mailin
+                         600 pikselik sütununa alınıyor. Önizleme ile gelen mailin
+                         farklı görünmesi, tasarımın bozuk olduğunu ancak gönderimden
+                         sonra fark ettiriyordu. --}}
+                    <iframe srcdoc="{{ $bodyPreview }}" sandbox
+                            class="cmp-preview" title="Mail önizleme"></iframe>
                 </div>
             </div>
 

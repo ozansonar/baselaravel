@@ -82,7 +82,7 @@
         quickbars_insert_toolbar: 'quickimage quicktable hr',
 
         // Content style
-        content_style: 'body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.7; color: #e0e0e0; }',
+        content_style: 'body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.7; color: #e0e0e0; } img { max-width: 100%; height: auto; } table { max-width: 100%; }',
 
         // Image upload
         images_upload_handler: function (blobInfo) {
