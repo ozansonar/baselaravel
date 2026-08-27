@@ -103,16 +103,15 @@
                                 </p>
 
                                 @if($recipientsReady)
-                                    {{-- Liste kurulmuş: örnek göstermenin anlamı yok, tam listenin
-                                         kendisi aşağıda süzgeçlenip düzenlenebiliyor. --}}
+                                    {{-- Liste kayıtla birlikte kuruluyor: örnek göstermenin anlamı
+                                         yok, tam listenin kendisi aşağıda süzgeçlenip düzenlenebiliyor. --}}
                                     <p class="stg-hint mb-0">
-                                        <i class="bi bi-check2-circle me-1 text-teal"></i>
-                                        Alıcı listesi hazır.
+                                        <i class="bi bi-people me-1 text-teal"></i>
                                         @if($cikarilan > 0)
-                                            <strong>{{ number_format($cikarilan) }} adres</strong> gönderim dışında bırakıldı;
-                                            kalan {{ number_format($preview['count']) }} adrese gönderilecek.
+                                            <strong>{{ number_format($cikarilan) }} adres</strong> gönderim dışında bırakıldı.
                                         @endif
-                                        <a href="#alicilar" class="alert-link">Listeyi aşağıdan düzenleyin</a>.
+                                        <a href="#alicilar" class="alert-link">Alıcı listesini aşağıdan düzenleyebilirsiniz</a>:
+                                        arayın, süzün, göndermek istemediğinizi çıkarın.
                                     </p>
                                 @else
                                     <details class="campaign-sample">
@@ -135,21 +134,7 @@
                             </div>
                             <div class="col-lg-5">
                                 <div class="d-grid gap-2">
-                                    @can('update', $campaign)
-                                        @unless($recipientsReady)
-                                            {{-- Onaydan önceki adım: liste dondurulmadan kimin
-                                                 listede olduğu görülemiyor, ayıklama da yapılamıyordu. --}}
-                                            <form method="POST" action="{{ route('admin.campaigns.recipients.prepare', $campaign) }}"
-                                                  class="d-grid">
-                                                @csrf
-                                                <button type="submit" class="btn-teal btn-lg">
-                                                    <i class="bi bi-list-check"></i> Alıcı Listesini Hazırla
-                                                </button>
-                                            </form>
-                                        @endunless
-                                    @endcan
-                                    <button type="button" class="{{ $recipientsReady ? 'btn-teal btn-lg' : 'btn-glass' }}"
-                                            data-bs-toggle="modal" data-bs-target="#approveModal">
+                                    <button type="button" class="btn-teal btn-lg" data-bs-toggle="modal" data-bs-target="#approveModal">
                                         <i class="bi bi-send-fill"></i> Onayla ve Gönderime Al
                                     </button>
                                     <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#scheduleModal">
@@ -157,11 +142,7 @@
                                     </button>
                                 </div>
                                 <p class="text-clr-secondary small mt-2 mb-0 text-center">
-                                    @unless($recipientsReady)
-                                        Listeyi hazırlarsanız gönderim başlamadan tek tek ayıklayabilirsiniz.
-                                    @else
-                                        Göndermeden önce kendinize test maili atmanız önerilir.
-                                    @endunless
+                                    Göndermeden önce kendinize test maili atmanız önerilir.
                                 </p>
                             </div>
                         </div>
@@ -744,8 +725,9 @@
                                     <label class="stg-label" for="scheduled_at">Gönderim zamanı</label>
                                     <input type="datetime-local" class="stg-input" id="scheduled_at" name="scheduled_at" data-validation-engine="validate[required]">
                                     <small class="stg-hint">
-                                        Belirtilen saatten sonraki ilk cron turunda başlar. Alıcı listesi o an
-                                        dondurulur, yani o tarihe kadar listeye eklenenler de dahil olur.
+                                        Belirtilen saatten sonraki ilk cron turunda başlar. Gönderim aşağıdaki
+                                        listeye yapılır; o tarihe kadar eklenen yeni adresleri de katmak için
+                                        listeyi yenileyin.
                                     </small>
                                 </div>
                             </div>
