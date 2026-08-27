@@ -358,4 +358,127 @@ class SubscriberListTest extends TestCase
 
         $this->assertNotSame($first->slug, $second->slug);
     }
+
+    // ── Süzgeçler ──
+
+    /**
+     * Kaynak, kişinin listeye nasıl girdiğini söyler: siteden mi geldi, ben mi
+     * ekledim, Excel'den mi yüklendi.
+     */
+    public function test_the_source_filter_narrows_the_table(): void
+    {
+        $service = app(SubscriberService::class);
+        $service->subscribe('formdan@ornek.com', 'Form', 'Kişi', 'tr', 'form');
+        $service->subscribe('panelden@ornek.com', 'Panel', 'Kişi', 'tr', 'panel');
+
+        $emails = $this->listedEmails(['source' => 'form']);
+
+        $this->assertSame(['formdan@ornek.com'], $emails);
+    }
+
+    /**
+     * Hiçbir listede olmayanlar liste hedefli kampanyalarda gözden kaçıyor;
+     * sayfanın bunları gösterebilmesi gerekiyor.
+     */
+    public function test_the_unlisted_filter_finds_subscribers_outside_every_list(): void
+    {
+        $suppliers = $this->lists()->create(['name' => 'Tedarikçiler']);
+        $service = app(SubscriberService::class);
+
+        $service->subscribe('listede@ornek.com', 'Listede', 'Kişi', 'tr', 'panel', [$suppliers->id]);
+        $service->subscribe('listesiz@ornek.com', 'Listesiz', 'Kişi', 'tr', 'panel');
+
+        $this->assertSame(['listesiz@ornek.com'], $this->listedEmails(['unlisted' => 1]));
+        $this->assertSame(1, app(SubscriberService::class)->stats()['unlisted']);
+    }
+
+    public function test_the_date_range_narrows_the_table(): void
+    {
+        $service = app(SubscriberService::class);
+
+        $old = $service->subscribe('eski@ornek.com', 'Eski', 'Kayıt');
+        $old->forceFill(['created_at' => now()->subDays(10)])->save();
+
+        $service->subscribe('yeni@ornek.com', 'Yeni', 'Kayıt');
+
+        $emails = $this->listedEmails([
+            'from' => now()->subDays(3)->toDateString(),
+            'to'   => now()->toDateString(),
+        ]);
+
+        $this->assertSame(['yeni@ornek.com'], $emails);
+    }
+
+    public function test_the_search_looks_at_the_address_and_both_names(): void
+    {
+        $service = app(SubscriberService::class);
+        $service->subscribe('ahmet@ornek.com', 'Ahmet', 'Yılmaz');
+        $service->subscribe('baskasi@ornek.com', 'Başka', 'Kişi');
+
+        $this->assertSame(['ahmet@ornek.com'], $this->listedEmails(['search' => 'Yılmaz']));
+        $this->assertSame(['ahmet@ornek.com'], $this->listedEmails(['search' => 'ahmet@']));
+    }
+
+    /**
+     * Arama joker karakter almamalı: "%" yazan biri tüm tabloyu değil, içinde
+     * yüzde işareti geçen kayıtları görür.
+     */
+    public function test_the_search_treats_wildcards_as_plain_text(): void
+    {
+        app(SubscriberService::class)->subscribe('ahmet@ornek.com', 'Ahmet', 'Yılmaz');
+
+        $this->assertSame([], $this->listedEmails(['search' => '%']));
+    }
+
+    public function test_sorting_by_address_orders_the_table(): void
+    {
+        $service = app(SubscriberService::class);
+        $service->subscribe('zeynep@ornek.com', 'Zeynep', 'Ak');
+        $service->subscribe('ahmet@ornek.com', 'Ahmet', 'Yılmaz');
+
+        $this->assertSame(['ahmet@ornek.com', 'zeynep@ornek.com'], $this->listedEmails(['sort' => 'email']));
+    }
+
+    /**
+     * Tanınmayan sıralama değeri sorguyu bozmamalı.
+     */
+    public function test_an_unknown_sort_falls_back_to_the_default(): void
+    {
+        $response = $this->actingAs($this->manager())
+            ->get(route('admin.subscribers.index', ['sort' => 'drop table']))
+            ->assertOk();
+
+        $this->assertSame('', $response->viewData('filters')['sort']);
+    }
+
+    /**
+     * Liste sekmesi seçiliyken süzgeç değiştirmek sekmeden düşürmemeli.
+     */
+    public function test_a_filter_composes_with_the_selected_list(): void
+    {
+        $suppliers = $this->lists()->create(['name' => 'Tedarikçiler']);
+        $service = app(SubscriberService::class);
+
+        $service->subscribe('elle@tedarik.com', 'Elle', 'Eklenen', 'tr', 'panel', [$suppliers->id]);
+        $service->subscribe('excelden@tedarik.com', 'Excel', 'Yüklenen', 'tr', 'import', [$suppliers->id]);
+        $service->subscribe('excelden@baska.com', 'Excel', 'Yüklenen', 'tr', 'import');
+
+        $emails = $this->listedEmails(['list_id' => $suppliers->id, 'source' => 'import']);
+
+        $this->assertSame(['excelden@tedarik.com'], $emails);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     * @return array<int, string>
+     */
+    private function listedEmails(array $query): array
+    {
+        return $this->actingAs($this->manager())
+            ->get(route('admin.subscribers.index', $query))
+            ->assertOk()
+            ->viewData('subscribers')
+            ->pluck('email')
+            ->all();
+    }
 }

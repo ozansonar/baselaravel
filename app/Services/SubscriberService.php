@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\SubscriberSource;
 use App\Enums\SubscriberStatus;
 use App\Models\CampaignRecipient;
 use App\Models\Subscriber;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
@@ -209,36 +212,73 @@ final class SubscriberService
     }
 
     /**
+     * Süzülmüş abone listesi.
+     *
      * @param array<string, mixed>|null $filters
      * @return LengthAwarePaginator<int, Subscriber>
      */
     public function paginate(int $perPage = 25, ?array $filters = null): LengthAwarePaginator
     {
-        $query = Subscriber::query()->with('lists:id,name')->latest('id');
+        $filters ??= [];
 
-        if (! empty($filters['status']) && ($status = SubscriberStatus::tryFrom($filters['status'])) !== null) {
+        $query = Subscriber::query()->with('lists:id,name');
+
+        if (($filters['status'] ?? '') !== '' && ($status = SubscriberStatus::tryFrom((string) $filters['status'])) !== null) {
             $query->where('status', $status);
         }
 
-        if (! empty($filters['locale'])) {
+        if (($filters['source'] ?? '') !== '' && SubscriberSource::tryFrom((string) $filters['source']) !== null) {
+            $query->where('source', $filters['source']);
+        }
+
+        if (($filters['locale'] ?? '') !== '') {
             $query->where('locale', $filters['locale']);
         }
 
         // Liste süzgeci: "tedarikçilerim kimler" sorusunun cevabı.
-        if (! empty($filters['list_id'])) {
-            $query->whereHas('lists', fn ($q) => $q->whereKey((int) $filters['list_id']));
+        if (($filters['list_id'] ?? '') !== '') {
+            $query->whereHas('lists', fn (Builder $sub) => $sub->whereKey((int) $filters['list_id']));
         }
 
-        if (! empty($filters['search'])) {
-            $term = '%' . $filters['search'] . '%';
-            $query->where(function ($q) use ($term): void {
-                $q->where('email', 'like', $term)
-                    ->orWhere('first_name', 'like', $term)
-                    ->orWhere('last_name', 'like', $term);
+        // Hiçbir listede olmayanlar: liste hedefli kampanyalarda bu adreslere
+        // mail gitmiyor, gözden kaçmasınlar.
+        if (! empty($filters['unlisted'])) {
+            $query->whereDoesntHave('lists');
+        }
+
+        if (($filters['from'] ?? '') !== '') {
+            $query->where('created_at', '>=', Carbon::parse((string) $filters['from'])->startOfDay());
+        }
+
+        if (($filters['to'] ?? '') !== '') {
+            $query->where('created_at', '<=', Carbon::parse((string) $filters['to'])->endOfDay());
+        }
+
+        if (($filters['search'] ?? '') !== '') {
+            $term = $this->likeTerm((string) $filters['search']);
+
+            $query->where(function (Builder $sub) use ($term): void {
+                $sub->whereRaw("email LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("first_name LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereRaw("last_name LIKE ? ESCAPE '!'", [$term]);
             });
         }
 
+        $query = match ($filters['sort'] ?? '') {
+            'oldest' => $query->oldest('id'),
+            'email'  => $query->orderBy('email'),
+            default  => $query->latest('id'),
+        };
+
         return $query->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Arama terimini LIKE kalıbına çevirir; % ve _ joker değil harf sayılır.
+     */
+    private function likeTerm(string $value): string
+    {
+        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
     }
 
     /**
@@ -251,6 +291,9 @@ final class SubscriberService
             'subscribed'   => Subscriber::where('status', SubscriberStatus::Subscribed)->count(),
             'unsubscribed' => Subscriber::where('status', SubscriberStatus::Unsubscribed)->count(),
             'bounced'      => Subscriber::where('status', SubscriberStatus::Bounced)->count(),
+            // Hiçbir listede olmayan aktif aboneler: liste hedefli kampanyalarda
+            // bunlara mail gitmiyor, sayfanın uyarması gereken tek durum bu.
+            'unlisted'     => Subscriber::query()->subscribed()->whereDoesntHave('lists')->count(),
         ];
     }
 }
