@@ -173,6 +173,61 @@ class LiveVisitorsTest extends TestCase
             ->assertSee('Canlı Ziyaretçiler');
     }
 
+    /**
+     * Ekranın kendisi de bir şey anlatmalı: veri neden gecikiyor, kim sayılmıyor.
+     */
+    public function test_the_live_screen_explains_how_the_numbers_are_collected(): void
+    {
+        $html = $this->actingAs($this->analyst())
+            ->get(route('admin.analytics.live'))
+            ->assertOk()
+            ->getContent();
+
+        // Yenileme aralığı hem metinde hem betiğin ayarında aynı olmalı.
+        $this->assertStringContainsString('10 saniyede bir', $html);
+        $this->assertStringContainsString('intervalMs: 10000', $html);
+
+        // Panel hesaplarının sayılmaması bir kusur değil, kural — ekranda yazıyor.
+        $this->assertStringContainsString('gezinmeler sayılmaz', $html);
+
+        // Bağlantı koptuğunda uyaracak yer hazır.
+        $this->assertStringContainsString('connectionAlert', $html);
+    }
+
+    /**
+     * Panel hesaplarıyla gezinmek istatistiği bozmamalı: sayılar sitenin
+     * ziyaretçisini anlatmalı, sitede çalışanı değil.
+     */
+    public function test_a_staff_visit_is_not_recorded(): void
+    {
+        $staffRole = Role::firstOrCreate(['slug' => 'admin'], ['name' => 'Yönetici']);
+        $staff = User::factory()->create();
+        $staff->roles()->syncWithoutDetaching([$staffRole->id]);
+
+        $this->actingAs($staff)
+            ->postJson(route('analytics.track'), [
+                'url'  => 'http://localhost/tr/blog',
+                'path' => '/tr/blog',
+            ])
+            ->assertStatus(202)
+            ->assertJsonPath('skipped', 'staff');
+
+        $this->assertSame(0, PageView::count(), 'Yönetici gezinmesi kayda girmemeli');
+    }
+
+    /**
+     * Sıradan ziyaretçi kaydediliyor — dışlama yalnızca panel rollerine.
+     */
+    public function test_an_ordinary_visit_is_recorded(): void
+    {
+        $this->postJson(route('analytics.track'), [
+            'url'  => 'http://localhost/tr/blog',
+            'path' => '/tr/blog',
+        ])->assertStatus(202);
+
+        $this->assertSame(1, PageView::count());
+    }
+
     public function test_the_polling_endpoint_returns_the_current_picture(): void
     {
         $this->hit('sess-a', '/blog');

@@ -29,8 +29,16 @@
         windowSelect: document.getElementById('windowSelect'),
         includeBots: document.getElementById('includeBots'),
         pauseBtn: document.getElementById('pauseBtn'),
-        pauseLabel: document.getElementById('pauseLabel')
+        pauseLabel: document.getElementById('pauseLabel'),
+        freshness: document.getElementById('freshness'),
+        connectionAlert: document.getElementById('connectionAlert'),
+        staleSince: document.getElementById('staleSince')
     };
+
+    /** Son başarılı yanıtın zamanı; "kaç saniye önce" bundan hesaplanıyor. */
+    var lastSuccessAt = null;
+    var freshnessTimer = null;
+    var offline = false;
 
     if (!el.rows) {
         return;
@@ -40,6 +48,10 @@
         bindControls();
         refresh();
         schedule();
+
+        // Yaş göstergesi yoklamadan bağımsız işliyor: ekran donduğunda bunu
+        // söyleyecek olan da o.
+        freshnessTimer = setInterval(updateFreshness, 1000);
     });
 
     function bindControls() {
@@ -47,6 +59,7 @@
             el.windowSelect.addEventListener('change', function () {
                 config.window = parseInt(this.value, 10);
                 if (el.windowLabel) el.windowLabel.textContent = config.window;
+                rememberSettings();
                 refresh();
             });
         }
@@ -56,6 +69,7 @@
                 config.includeBots = this.checked;
                 lastFeedId = null;
                 seenFeedIds = {};
+                rememberSettings();
                 refresh();
             });
         }
@@ -77,6 +91,7 @@
 
         el.pauseLabel = document.getElementById('pauseLabel');
         schedule();
+        updateFreshness();
 
         if (!paused) refresh();
     }
@@ -105,10 +120,98 @@
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 return response.json();
             })
-            .then(render)
+            .then(function (data) {
+                lastSuccessAt = Date.now();
+                setOffline(false);
+                render(data);
+                updateFreshness();
+            })
             .catch(function () {
-                if (el.dot) el.dot.classList.add('live-dot--paused');
+                // Ekrandaki sayılar duruyor ama artık doğru değil; sessizce
+                // eskimeleri, kullanıcının yanlış karar vermesi demek.
+                setOffline(true);
             });
+    }
+
+    /**
+     * Seçilen aralık ve bot tercihi adres satırında kalsın: sayfa yenilendiğinde
+     * ya da bağlantı paylaşıldığında aynı görünüm açılmalı.
+     */
+    function rememberSettings() {
+        if (!window.history || !window.history.replaceState) {
+            return;
+        }
+
+        var url = new URL(window.location.href);
+        url.searchParams.set('window', config.window);
+
+        if (config.includeBots) {
+            url.searchParams.set('include_bots', '1');
+        } else {
+            url.searchParams.delete('include_bots');
+        }
+
+        window.history.replaceState({}, '', url.toString());
+    }
+
+    function setOffline(value) {
+        offline = value;
+
+        if (el.connectionAlert) {
+            el.connectionAlert.classList.toggle('d-none', !value);
+        }
+
+        if (el.dot && !paused) {
+            el.dot.classList.toggle('live-dot--paused', value);
+        }
+
+        if (value && el.staleSince && lastSuccessAt) {
+            el.staleSince.textContent = 'saat ' + new Date(lastSuccessAt).toLocaleTimeString('tr-TR') + ' durumunu';
+        }
+
+        updateFreshness();
+    }
+
+    /**
+     * Verinin yaşı saniye saniye yazılıyor. Sunucu saati yalnızca yanıtın
+     * anını söylüyordu; ekranın kaç dakikadır donduğunu göstermiyordu.
+     */
+    function updateFreshness() {
+        if (!el.freshness) {
+            return;
+        }
+
+        if (lastSuccessAt === null) {
+            el.freshness.textContent = offline ? 'bağlanılamadı' : 'bağlanıyor…';
+            el.freshness.classList.toggle('anl-freshness--stale', offline);
+
+            return;
+        }
+
+        var seconds = Math.max(0, Math.round((Date.now() - lastSuccessAt) / 1000));
+        var interval = Math.round((config.intervalMs || 10000) / 1000);
+
+        // Bağlantı kopmuşken "az önce güncellendi" yazmak yanlış: veri
+        // duruyor ama artık siteyi anlatmıyor.
+        if (offline) {
+            el.freshness.textContent = 'bağlantı yok · son veri ' + agoText(seconds);
+        } else if (paused) {
+            el.freshness.textContent = 'duraklatıldı · son veri ' + agoText(seconds);
+        } else {
+            el.freshness.textContent = agoText(seconds) + ' güncellendi';
+        }
+
+        // Bir tur kaçtıysa veri artık taze sayılmaz.
+        el.freshness.classList.toggle('anl-freshness--stale', offline || seconds > interval * 2);
+    }
+
+    function agoText(seconds) {
+        if (seconds < 5) return 'az önce';
+        if (seconds < 60) return seconds + ' sn önce';
+
+        var minutes = Math.floor(seconds / 60);
+
+        return minutes < 60 ? minutes + ' dk önce' : Math.floor(minutes / 60) + ' sa önce';
     }
 
     function render(data) {
@@ -128,13 +231,27 @@
     }
 
     function setText(node, value) {
-        if (node) node.textContent = value;
+        if (!node) {
+            return;
+        }
+
+        var previous = node.textContent;
+        node.textContent = value;
+
+        // Sayı değiştiyse kısa bir vurgu: ekranda duran biri artışı kaçırmasın.
+        if (previous !== String(value) && node.classList.contains('anl-count')) {
+            node.classList.remove('anl-count--bump');
+            // Sınıf yeniden eklenince animasyon baştan başlasın.
+            void node.offsetWidth;
+            node.classList.add('anl-count--bump');
+            setTimeout(function () { node.classList.remove('anl-count--bump'); }, 400);
+        }
     }
 
     function renderVisitors(visitors) {
         if (!visitors.length) {
             el.rows.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-clr-secondary">'
-                + '<i class="bi bi-moon-stars d-block mb-2" style="font-size:1.75rem"></i>'
+                + '<i class="bi bi-moon-stars d-block mb-2 anl-empty__icon"></i>'
                 + 'Bu aralıkta sitede kimse yok.</td></tr>';
             return;
         }
@@ -194,7 +311,7 @@
                     + '<small>' + escapeHtml(p.label) + '</small>'
                     + '<small class="text-teal fw-semibold">' + p.count + '</small>'
                 + '</div>'
-                + '<div class="progress" style="height:5px"><div class="progress-bar bg-teal" style="width:' + pct + '%"></div></div>'
+                + '<div class="progress anl-bar"><div class="progress-bar bg-teal anl-bar__fill" style="--anl-bar:' + pct + '%"></div></div>'
                 + '</div>';
         }).join('');
     }

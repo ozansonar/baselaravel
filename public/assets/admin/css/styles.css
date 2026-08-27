@@ -36187,3 +36187,102 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 @media (max-width: 575.98px) {
   .trn-savebar__button { margin-left: 0; width: 100%; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CANLI ZİYARETÇİLER (anl-)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Yoklamanın sürdüğünü gösteren nokta; duraklatılınca ya da bağlantı
+   koptuğunda donuyor. Sayfa içi <style> bloğundan taşındı. */
+.live-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--neon-green, #2ee6a8);
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+.live-dot--paused {
+  animation: none;
+  opacity: .35;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(46, 230, 168, .5); }
+  50%      { opacity: .55; box-shadow: 0 0 0 6px rgba(46, 230, 168, 0); }
+}
+
+/* Verinin ne kadar taze olduğu: sayılar sessizce bayatlamasın. */
+.anl-freshness {
+  font-variant-numeric: tabular-nums;
+}
+
+.anl-freshness--stale {
+  color: var(--neon-orange, #f59e0b);
+}
+
+/* Sayaç değişince kısa bir vurgu: ekrana bakan biri artışı kaçırmasın. */
+.anl-count {
+  transition: color .3s ease, transform .3s ease;
+}
+
+.anl-count--bump {
+  color: var(--teal-primary);
+  transform: scale(1.08);
+}
+
+.anl-empty__icon {
+  font-size: 1.75rem;
+}
+
+/* Şu an bakılan sayfalar çubuğu. Genişlik değişken üzerinden veriliyor:
+   oran veriden geliyor, biçim burada kalıyor. */
+.anl-bar {
+  height: 5px;
+}
+
+.anl-bar__fill {
+  width: var(--anl-bar, 0%);
+  transition: width .4s ease;
+}
+
+.analytics-feed {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.analytics-feed__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  font-size: .85rem;
+}
+
+.analytics-feed__row:last-child {
+  border-bottom: 0;
+}
+
+.analytics-feed__row--new {
+  animation: feed-in .6s ease-out;
+}
+
+@keyframes feed-in {
+  from { background: rgba(46, 230, 168, .12); }
+  to   { background: transparent; }
+}
+
+.visitor-session {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+  .analytics-feed__row--new { animation: none; }
+  .anl-count { transition: none; }
+}
