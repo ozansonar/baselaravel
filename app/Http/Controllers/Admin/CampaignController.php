@@ -326,6 +326,17 @@ final class CampaignController extends Controller
 
         $campaign->refresh();
 
+        // Zamanlanmış kampanya henüz sıraya girmedi: liste o saatteki cron
+        // turunda alınacak. Aynı mesaj kullanılınca ekranda "0 alıcı sıraya
+        // alındı" yazıyordu — sayı, gönderim başlamadan doldurulmuyor.
+        if ($campaign->status === CampaignStatus::Scheduled) {
+            return back()->with('success', sprintf(
+                'Kampanya %s için zamanlandı. O saatten sonraki ilk cron turunda %d alıcıya gönderim başlayacak.',
+                $campaign->scheduled_at?->format('d.m.Y H:i') ?? '',
+                $campaign->pendingCount(),
+            ));
+        }
+
         return back()->with('success', sprintf(
             '%d alıcı sıraya alındı. Saatlik limit %d, her %d dakikada bir %d mail gönderilecek.',
             $campaign->total_recipients,

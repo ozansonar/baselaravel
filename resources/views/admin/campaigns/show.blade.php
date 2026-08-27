@@ -8,6 +8,7 @@
     use App\Services\CampaignDispatcher;
 
     $isDraft    = $campaign->isEditable();
+    $isScheduled = $campaign->status === CampaignStatus::Scheduled;
     $isSending  = $campaign->status === CampaignStatus::Sending;
     $isPaused   = $campaign->status === CampaignStatus::Paused;
     $isFinished = in_array($campaign->status, [CampaignStatus::Sent, CampaignStatus::Cancelled], true);
@@ -71,7 +72,11 @@
         @can('send', $campaign)
             <div class="card-dark mb-4 campaign-approve" data-aos="fade-up">
                 <div class="card-header-custom">
-                    <h6><i class="bi bi-shield-check me-2 text-teal"></i>Gönderim Onayı</h6>
+                    @if($isScheduled)
+                        <h6><i class="bi bi-calendar-check me-2 text-teal"></i>Gönderim Zamanlandı</h6>
+                    @else
+                        <h6><i class="bi bi-shield-check me-2 text-teal"></i>Gönderim Onayı</h6>
+                    @endif
                 </div>
                 <div class="card-body-custom">
                     @if($preview['error'])
@@ -85,22 +90,46 @@
                     @else
                         <div class="row g-4 align-items-center">
                             <div class="col-lg-7">
-                                <p class="mb-2">
-                                    Bu kampanya <strong class="text-teal fs-5">{{ number_format($preview['count']) }} kişiye</strong>
-                                    gönderilecek.
-                                </p>
-                                <p class="text-clr-secondary small mb-3">
-                                    Onayladığınızda gönderim hemen başlamaz: kampanya sıraya alınır ve cron her
-                                    {{ CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada bir çalışarak
-                                    saatlik limiti aşmadan gönderir.
-                                    @if($campaign->throttled)
-                                        Turda en fazla <strong>{{ $perRunQuota }}</strong>, saatte en fazla
-                                        <strong>{{ $hourlyLimit }}</strong> mail.
-                                    @else
-                                        Bu kampanyada yayma kapalı: saatlik limit ({{ $hourlyLimit }}) dolana kadar
-                                        aralıksız gönderilir.
-                                    @endif
-                                </p>
+                                @if($isScheduled)
+                                    <p class="mb-2">
+                                        Bu kampanya <strong class="text-teal fs-5">{{ number_format($preview['count']) }} kişiye</strong>
+                                        <strong class="text-teal">{{ $campaign->scheduled_at?->format('d.m.Y H:i') }}</strong>
+                                        itibarıyla gönderilecek.
+                                    </p>
+                                    <p class="text-clr-secondary small mb-3">
+                                        @if($campaign->scheduled_at?->isFuture())
+                                            Planlanan saate <strong>{{ $campaign->scheduled_at->diffForHumans(['syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) }}</strong> var.
+                                            O saatten sonraki ilk cron turunda gönderim başlar;
+                                        @else
+                                            Planlanan saat geçti, gönderim ilk cron turunda başlayacak;
+                                        @endif
+                                        cron her {{ CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada bir çalışır ve
+                                        @if($campaign->throttled)
+                                            turda en fazla <strong>{{ $perRunQuota }}</strong>, saatte en fazla
+                                            <strong>{{ $hourlyLimit }}</strong> mail gönderir.
+                                        @else
+                                            saatlik limit ({{ $hourlyLimit }}) dolana kadar aralıksız gönderir.
+                                        @endif
+                                        Gönderim başlayana kadar listeyi düzenleyebilirsiniz.
+                                    </p>
+                                @else
+                                    <p class="mb-2">
+                                        Bu kampanya <strong class="text-teal fs-5">{{ number_format($preview['count']) }} kişiye</strong>
+                                        gönderilecek.
+                                    </p>
+                                    <p class="text-clr-secondary small mb-3">
+                                        Onayladığınızda gönderim hemen başlamaz: kampanya sıraya alınır ve cron her
+                                        {{ CampaignDispatcher::RUN_INTERVAL_MINUTES }} dakikada bir çalışarak
+                                        saatlik limiti aşmadan gönderir.
+                                        @if($campaign->throttled)
+                                            Turda en fazla <strong>{{ $perRunQuota }}</strong>, saatte en fazla
+                                            <strong>{{ $hourlyLimit }}</strong> mail.
+                                        @else
+                                            Bu kampanyada yayma kapalı: saatlik limit ({{ $hourlyLimit }}) dolana kadar
+                                            aralıksız gönderilir.
+                                        @endif
+                                    </p>
+                                @endif
 
                                 @if($recipientsReady)
                                     {{-- Liste kayıtla birlikte kuruluyor: örnek göstermenin anlamı
@@ -134,12 +163,27 @@
                             </div>
                             <div class="col-lg-5">
                                 <div class="d-grid gap-2">
-                                    <button type="button" class="btn-teal btn-lg" data-bs-toggle="modal" data-bs-target="#approveModal">
-                                        <i class="bi bi-send-fill"></i> Onayla ve Gönderime Al
-                                    </button>
-                                    <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#scheduleModal">
-                                        <i class="bi bi-clock"></i> İleri Bir Tarihe Zamanla
-                                    </button>
+                                    @if($isScheduled)
+                                        {{-- Zamanlanmış kampanyada asıl eylem tarihi değiştirmek; hemen
+                                             göndermek isteyen de plandan vazgeçebilmeli. --}}
+                                        <button type="button" class="btn-teal btn-lg cmp-plan" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                                            <i class="bi bi-calendar-event"></i>
+                                            <span class="cmp-plan__text">
+                                                <span class="cmp-plan__date">{{ $campaign->scheduled_at?->format('d.m.Y H:i') }}</span>
+                                                <span class="cmp-plan__hint">Zamanı değiştir</span>
+                                            </span>
+                                        </button>
+                                        <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#approveModal">
+                                            <i class="bi bi-send-fill"></i> Planı İptal Et, Hemen Gönder
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn-teal btn-lg" data-bs-toggle="modal" data-bs-target="#approveModal">
+                                            <i class="bi bi-send-fill"></i> Onayla ve Gönderime Al
+                                        </button>
+                                        <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                                            <i class="bi bi-clock"></i> İleri Bir Tarihe Zamanla
+                                        </button>
+                                    @endif
                                 </div>
                                 <p class="text-clr-secondary small mt-2 mb-0 text-center">
                                     Göndermeden önce kendinize test maili atmanız önerilir.
@@ -690,12 +734,23 @@
                         <form method="POST" action="{{ route('admin.campaigns.send', $campaign) }}">
                             @csrf
                             <div class="modal-header">
-                                <h6 class="modal-title"><i class="bi bi-send-fill me-2 text-teal"></i>Gönderimi Onayla</h6>
+                                <h6 class="modal-title">
+                                    <i class="bi bi-send-fill me-2 text-teal"></i>
+                                    {{ $isScheduled ? 'Planı İptal Et, Hemen Gönder' : 'Gönderimi Onayla' }}
+                                </h6>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                             </div>
                             <div class="modal-body">
-                                <p><strong>{{ number_format($preview['count']) }} kişiye</strong>
-                                   "<em>{{ $campaign->subject }}</em>" konulu mail gönderilecek.</p>
+                                @if($isScheduled)
+                                    <p>
+                                        <strong>{{ $campaign->scheduled_at?->format('d.m.Y H:i') }}</strong> planı iptal edilecek ve
+                                        <strong>{{ number_format($preview['count']) }} kişiye</strong>
+                                        "<em>{{ $campaign->subject }}</em>" konulu mail hemen sıraya alınacak.
+                                    </p>
+                                @else
+                                    <p><strong>{{ number_format($preview['count']) }} kişiye</strong>
+                                       "<em>{{ $campaign->subject }}</em>" konulu mail gönderilecek.</p>
+                                @endif
                                 <p class="text-clr-secondary small mb-0">
                                     Gönderim {{ $nextRunAt->format('H:i') }} itibarıyla başlar ve saatlik limite göre
                                     yayılır. Başladıktan sonra içerik değiştirilemez; yalnızca duraklatabilir veya
@@ -704,7 +759,10 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                                <button type="submit" class="btn-teal"><i class="bi bi-check-lg"></i> Onaylıyorum, Gönder</button>
+                                <button type="submit" class="btn-teal">
+                                    <i class="bi bi-check-lg"></i>
+                                    {{ $isScheduled ? 'Evet, Hemen Gönder' : 'Onaylıyorum, Gönder' }}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -717,13 +775,26 @@
                         <form method="POST" action="{{ route('admin.campaigns.send', $campaign) }}" data-validate novalidate>
                             @csrf
                             <div class="modal-header">
-                                <h6 class="modal-title"><i class="bi bi-clock me-2 text-teal"></i>Gönderimi Zamanla</h6>
+                                <h6 class="modal-title">
+                                    <i class="bi bi-clock me-2 text-teal"></i>
+                                    {{ $isScheduled ? 'Gönderim Zamanını Değiştir' : 'Gönderimi Zamanla' }}
+                                </h6>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                             </div>
                             <div class="modal-body">
+                                @if($isScheduled)
+                                    <p class="text-clr-secondary small">
+                                        Şu anki plan: <strong class="text-teal">{{ $campaign->scheduled_at?->format('d.m.Y H:i') }}</strong>.
+                                        Yeni bir saat seçtiğinizde bu planın yerini alır.
+                                    </p>
+                                @endif
                                 <div class="stg-field">
                                     <label class="stg-label" for="scheduled_at">Gönderim zamanı</label>
-                                    <input type="datetime-local" class="stg-input" id="scheduled_at" name="scheduled_at" data-validation-engine="validate[required]">
+                                    {{-- Mevcut plan alana dolu geliyor: kullanıcı saati değiştirirken
+                                         tarihi baştan yazmak zorunda kalmasın. --}}
+                                    <input type="datetime-local" class="stg-input" id="scheduled_at" name="scheduled_at"
+                                           value="{{ $campaign->scheduled_at?->format('Y-m-d\TH:i') }}"
+                                           data-validation-engine="validate[required]">
                                     <small class="stg-hint">
                                         Belirtilen saatten sonraki ilk cron turunda başlar. Gönderim aşağıdaki
                                         listeye yapılır; o tarihe kadar eklenen yeni adresleri de katmak için
@@ -733,7 +804,9 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                                <button type="submit" class="btn-teal">Zamanla</button>
+                                <button type="submit" class="btn-teal">
+                                    {{ $isScheduled ? 'Zamanı Güncelle' : 'Zamanla' }}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -770,6 +843,12 @@
 @push('styles')
 <style>
     .campaign-approve { border: 1px solid rgba(46, 230, 168, .35); }
+
+    /* Planlı gönderim düğmesi: tarih birinci satır, eylem ikinci satır —
+       ikisi tek satıra sığmıyor ve sarınca dağınık duruyordu. */
+    .cmp-plan__text { display: inline-flex; flex-direction: column; line-height: 1.25; }
+    .cmp-plan__date { font-weight: 600; }
+    .cmp-plan__hint { font-size: .75rem; opacity: .85; font-weight: 400; }
     .campaign-sample summary { cursor: pointer; }
 
     /* Katlanır kart: başlık satırının kendisi açma düğmesi.
