@@ -40,4 +40,18 @@ enum CampaignAudience: string
             self::Manual      => 'bi-pencil-square',
         };
     }
+
+    /**
+     * Listede kitleyi renkle ayırmak için; abone kaynaklarındakiyle aynı
+     * palet kullanılıyor ki iki ekran arasında renkler aynı şeyi anlatsın.
+     */
+    public function color(): string
+    {
+        return match ($this) {
+            self::Users       => 'blue',
+            self::Subscribers => 'teal',
+            self::Import      => 'green',
+            self::Manual      => 'muted',
+        };
+    }
 }

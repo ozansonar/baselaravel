@@ -240,35 +240,54 @@
                     <tbody>
                         @forelse($campaigns as $campaign)
                             <tr>
-                                <td>
-                                    <a href="{{ route('admin.campaigns.show', $campaign) }}" class="fw-semibold text-teal d-block">
-                                        {{ $campaign->name }}
-                                    </a>
-                                    <small class="text-clr-secondary">{{ \Illuminate\Support\Str::limit($campaign->subject, 60) }}</small>
+                                <td data-label="Kampanya">
+                                    {{-- Ad ve konu tek hücrede, önünde kitleyi anlatan
+                                         bir rozetle: satır listede gözle taranırken
+                                         kampanyanın ne olduğu tek bakışta anlaşılsın. --}}
+                                    <div class="cmp-row">
+                                        <span class="cmp-row__icon cmp-row__icon--{{ $campaign->audience->color() }}">
+                                            <i class="bi {{ $campaign->audience->icon() }}"></i>
+                                        </span>
+                                        <span class="cmp-row__text">
+                                            <a href="{{ route('admin.campaigns.show', $campaign) }}" class="cmp-row__name">
+                                                {{ $campaign->name }}
+                                            </a>
+                                            <span class="cmp-row__subject">{{ \Illuminate\Support\Str::limit($campaign->subject, 60) }}</span>
+                                        </span>
+                                    </div>
                                 </td>
-                                <td class="d-none d-lg-table-cell">
-                                    <i class="bi {{ $campaign->audience->icon() }} me-1"></i>{{ $campaign->audience->label() }}
+                                <td class="d-none d-lg-table-cell" data-label="Alıcı Kitlesi">
+                                    <span class="sub-source sub-source--{{ $campaign->audience->color() }}">
+                                        <i class="bi {{ $campaign->audience->icon() }}"></i>{{ $campaign->audience->label() }}
+                                    </span>
                                 </td>
-                                <td class="d-none d-md-table-cell">
+                                <td class="d-none d-md-table-cell" data-label="Durum">
                                     <span class="menu-manage-tag menu-manage-tag--{{ $campaign->status->badgeClass() }}">
                                         {{ $campaign->status->label() }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="İlerleme">
                                     @if($campaign->total_recipients > 0)
-                                        <div class="progress cmp-progress">
-                                            <div class="progress-bar bg-teal cmp-progress__bar" role="progressbar"
-                                                 style="--cmp-progress: {{ $campaign->progress() }}%"
-                                                 aria-valuenow="{{ $campaign->progress() }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <small class="text-clr-secondary">
-                                            {{ number_format($campaign->sent_count) }} / {{ number_format($campaign->total_recipients) }}
+                                        <div class="cmp-bar">
+                                            <div class="cmp-bar__head">
+                                                <span class="cmp-bar__count">
+                                                    {{ number_format($campaign->sent_count) }} / {{ number_format($campaign->total_recipients) }}
+                                                </span>
+                                                <span class="cmp-bar__pct">%{{ $campaign->progress() }}</span>
+                                            </div>
+                                            <div class="progress cmp-progress">
+                                                <div class="progress-bar bg-teal cmp-progress__bar" role="progressbar"
+                                                     style="--cmp-progress: {{ $campaign->progress() }}%"
+                                                     aria-valuenow="{{ $campaign->progress() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
                                             @if($campaign->failed_count > 0)
-                                                <span class="text-neon-red">({{ $campaign->failed_count }} hata)</span>
+                                                <span class="cmp-bar__fail">
+                                                    <i class="bi bi-exclamation-triangle"></i>{{ number_format($campaign->failed_count) }} başarısız
+                                                </span>
                                             @endif
-                                        </small>
+                                        </div>
                                     @else
-                                        <small class="text-clr-secondary">—</small>
+                                        <span class="text-clr-secondary">—</span>
                                     @endif
                                 </td>
                                 <td class="d-none d-xl-table-cell" data-label="Tarih">
@@ -288,7 +307,9 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end" data-label="İşlemler">
+                                    {{-- Sarmalayıcı yoktu, düğmeler alt alta düşüyordu. --}}
+                                    <div class="usr-actions justify-content-end">
                                     <a href="{{ route('admin.campaigns.show', $campaign) }}" class="usr-action-btn" title="Detay">
                                         <i class="bi bi-eye"></i>
                                     </a>
@@ -305,6 +326,7 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @empty
