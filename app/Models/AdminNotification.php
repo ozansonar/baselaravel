@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * Admin paneli içi bildirim — header bell icon + bildirim merkezi sayfası.
@@ -84,5 +85,56 @@ final class AdminNotification extends Model
     public function isUnread(): bool
     {
         return $this->read_at === null;
+    }
+
+    /**
+     * Listedeki gün başlığı: "Bugün", "Dün" ya da tarihin kendisi.
+     *
+     * Bildirimler zaman sırasına göre okunuyor; gün başlıkları olmadan uzun
+     * liste tek yığın hâline geliyor.
+     */
+    public function dayGroupLabel(): string
+    {
+        $created = $this->created_at;
+
+        if ($created === null) {
+            return 'Tarihsiz';
+        }
+
+        return match (true) {
+            $created->isToday()     => 'Bugün',
+            $created->isYesterday() => 'Dün',
+            $created->isCurrentYear() => $created->translatedFormat('d F'),
+            default                 => $created->translatedFormat('d F Y'),
+        };
+    }
+
+    /**
+     * Bildirimi üreten olayın okunabilir adı — kart üzerindeki tür etiketi.
+     */
+    public function typeLabel(): string
+    {
+        return match ($this->type) {
+            'backup_completed', 'backup_failed' => 'Yedekleme',
+            'health_critical'                   => 'Sistem Sağlığı',
+            'post_failed'                       => 'İçerik',
+            'recycle_warning'                   => 'Geri Dönüşüm',
+            'critical'                          => 'Sistem',
+            default                             => Str::headline((string) $this->type),
+        };
+    }
+
+    /**
+     * Tür etiketinin tema sınıfı; tema renkleri olay ailesine göre veriyor.
+     */
+    public function typeTagVariant(): string
+    {
+        return match ($this->type) {
+            'backup_completed', 'backup_failed' => 'system',
+            'health_critical', 'critical'       => 'security',
+            'post_failed'                       => 'content',
+            'recycle_warning'                   => 'update',
+            default                             => 'system',
+        };
     }
 }

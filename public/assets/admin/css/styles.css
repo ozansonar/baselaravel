@@ -33164,3 +33164,110 @@ select.is-invalid + .select2-container--bootstrap-5 .select2-selection {
     text-overflow: clip;
   }
 }
+
+
+/* ============================================
+   BİLDİRİMLER (/admin/bildirimler)
+   ============================================
+   Tema notifications.html'in kendi nt- sınıfları zaten yüklü; burada yalnızca
+   Blade uyarlamasının ihtiyaç duyduğu birkaç parça var. */
+
+/* Sayfanın ne olduğunu anlatan bilgi şeridi. */
+.nt-info-note {
+  display: flex;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--teal-primary) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal-primary) 22%, transparent);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.nt-info-note > i {
+  color: var(--teal-primary);
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.nt-info-note strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* Liste boşken. */
+.nt-empty {
+  text-align: center;
+  padding: 56px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.nt-empty > i {
+  font-size: 40px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.nt-empty h6 {
+  margin: 14px 0 4px;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.nt-empty p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* "Nasıl kullanılır?" kartındaki satırlar. */
+.nt-hint-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.nt-hint-row:last-child {
+  border-bottom: 0;
+}
+
+.nt-hint-row > i {
+  color: var(--teal-primary);
+  font-size: 14px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Özet çubuğu genişlikleri — satır içi style kullanılmadığı için sınıf olarak
+   veriliyor; değerler beşin katına yuvarlanıyor. */
+.nt-summary-fill--0 { width: 0%; }
+.nt-summary-fill--5 { width: 5%; }
+.nt-summary-fill--10 { width: 10%; }
+.nt-summary-fill--15 { width: 15%; }
+.nt-summary-fill--20 { width: 20%; }
+.nt-summary-fill--25 { width: 25%; }
+.nt-summary-fill--30 { width: 30%; }
+.nt-summary-fill--35 { width: 35%; }
+.nt-summary-fill--40 { width: 40%; }
+.nt-summary-fill--45 { width: 45%; }
+.nt-summary-fill--50 { width: 50%; }
+.nt-summary-fill--55 { width: 55%; }
+.nt-summary-fill--60 { width: 60%; }
+.nt-summary-fill--65 { width: 65%; }
+.nt-summary-fill--70 { width: 70%; }
+.nt-summary-fill--75 { width: 75%; }
+.nt-summary-fill--80 { width: 80%; }
+.nt-summary-fill--85 { width: 85%; }
+.nt-summary-fill--90 { width: 90%; }
+.nt-summary-fill--95 { width: 95%; }
+.nt-summary-fill--100 { width: 100%; }

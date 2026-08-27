@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkNotificationRequest;
 use App\Models\AdminNotification;
 use App\Services\NotificationCenter;
 use Illuminate\Http\JsonResponse;
@@ -23,13 +24,28 @@ final class NotificationController extends Controller
 
         $userId = $request->user()?->id;
 
+        $filters = [
+            'level'       => $request->string('level')->value(),
+            'unread_only' => $request->boolean('unread_only'),
+            'q'           => $request->string('q')->trim()->value(),
+        ];
+
         $query = AdminNotification::query()->forUser($userId);
 
-        if ($request->filled('level')) {
-            $query->where('level', $request->string('level')->toString());
+        if ($filters['level'] !== '') {
+            $query->where('level', $filters['level']);
         }
-        if ($request->boolean('unread_only')) {
+
+        if ($filters['unread_only']) {
             $query->whereNull('read_at');
+        }
+
+        if ($filters['q'] !== '') {
+            $search = '%' . $filters['q'] . '%';
+
+            $query->where(function ($sub) use ($search): void {
+                $sub->where('title', 'like', $search)->orWhere('message', 'like', $search);
+            });
         }
 
         $notifications = $query->orderByDesc('created_at')->paginate(30)->withQueryString();
@@ -37,6 +53,10 @@ final class NotificationController extends Controller
         return view('admin.notifications.index', [
             'notifications' => $notifications,
             'unreadCount'   => NotificationCenter::unreadCount($userId),
+            'stats'         => NotificationCenter::stats($userId),
+            'levelCounts'   => NotificationCenter::levelCounts($userId),
+            'typeSummary'   => NotificationCenter::typeSummary($userId),
+            'filters'       => $filters,
         ]);
     }
 
@@ -80,12 +100,77 @@ final class NotificationController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Okundu işaretini geri al — listede yanlışlıkla okunan bildirim kaybolmasın.
+     */
+    public function markUnread(Request $request, AdminNotification $notification): JsonResponse
+    {
+        $this->authorize('update', $notification);
+
+        NotificationCenter::markUnread($notification->id, $request->user()?->id);
+
+        return response()->json(['success' => true]);
+    }
+
     public function markAllRead(Request $request): JsonResponse
     {
         $this->authorize('viewAny', AdminNotification::class);
 
         $count = NotificationCenter::markAllRead($request->user()?->id);
         return response()->json(['success' => true, 'count' => $count]);
+    }
+
+    /**
+     * Seçilenleri okundu işaretle.
+     */
+    public function bulkMarkRead(BulkNotificationRequest $request): RedirectResponse
+    {
+        $this->authorize('viewAny', AdminNotification::class);
+
+        $count = NotificationCenter::markManyRead($request->ids(), $request->user()?->id);
+
+        return $this->backToList($request)->with(
+            $count > 0 ? 'success' : 'info',
+            $count > 0 ? "{$count} bildirim okundu olarak işaretlendi." : 'İşaretlenecek okunmamış bildirim yoktu.',
+        );
+    }
+
+    /**
+     * Seçilenleri sil.
+     */
+    public function bulkDestroy(BulkNotificationRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new AdminNotification());
+
+        $count = NotificationCenter::deleteMany($request->ids(), $request->user()?->id);
+
+        return $this->backToList($request)->with(
+            $count > 0 ? 'success' : 'error',
+            $count > 0 ? "{$count} bildirim silindi." : 'Hiçbir bildirim silinemedi.',
+        );
+    }
+
+    /**
+     * Listeyi tamamen boşalt.
+     */
+    public function destroyAll(Request $request): RedirectResponse
+    {
+        $this->authorize('delete', new AdminNotification());
+
+        $count = NotificationCenter::deleteAll($request->user()?->id);
+
+        return redirect()->route('admin.notifications.index')->with(
+            $count > 0 ? 'success' : 'info',
+            $count > 0 ? "{$count} bildirim silindi." : 'Silinecek bildirim yoktu.',
+        );
+    }
+
+    /**
+     * Kullanıcı hangi filtreye bakıyorsa oraya döndürür.
+     */
+    private function backToList(Request $request): RedirectResponse
+    {
+        return redirect()->route('admin.notifications.index', $request->only(['level', 'unread_only', 'q', 'page']));
     }
 
     public function destroy(Request $request, AdminNotification $notification): RedirectResponse
