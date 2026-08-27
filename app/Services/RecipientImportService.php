@@ -34,6 +34,14 @@ final class RecipientImportService
     private const MAX_ROWS = 50_000;
 
     /**
+     * Önizleme ekranında elle düzeltilebilecek satır sayısının tavanı.
+     *
+     * Tarayıcıda binlerce satırı tek tek düzenletmek gerçekçi değil; bu sayıyı
+     * aşan dosyalar önizlemede kesiliyor ve kullanıcıya söyleniyor.
+     */
+    private const PREVIEW_MAX_ROWS = 1_000;
+
+    /**
      * @var array<int, string>
      */
     private const EMAIL_HEADERS = [
@@ -75,6 +83,19 @@ final class RecipientImportService
      */
     public function parse(UploadedFile $file): array
     {
+        return $this->extract($this->readFile($file));
+    }
+
+    /**
+     * Yüklenen dosyayı satır dizisine çevirir.
+     *
+     * parse() ve preview() aynı okumayı paylaşıyor; biçim desteği tek yerde
+     * kalsın diye ayrıldı.
+     *
+     * @return array<int, array<int, string>>
+     */
+    private function readFile(UploadedFile $file): array
+    {
         $extension = mb_strtolower($file->getClientOriginalExtension());
         $path = $file->getRealPath();
 
@@ -82,15 +103,13 @@ final class RecipientImportService
             throw new RuntimeException('Yüklenen dosya okunamadı.');
         }
 
-        $table = match ($extension) {
+        return match ($extension) {
             'csv', 'txt'  => $this->read(new CsvReader($this->csvOptions($path)), $path),
             'xlsx'        => $this->read(new XlsxReader(), $path),
             default       => throw new RuntimeException(
                 "Desteklenmeyen dosya biçimi: .{$extension}. Excel (.xlsx) veya CSV yükleyin."
             ),
         };
-
-        return $this->extract($table);
     }
 
     /**
@@ -153,6 +172,93 @@ final class RecipientImportService
         }
 
         return $rows;
+    }
+
+    /**
+     * Önizleme için dosyayı satır satır, kararıyla birlikte okur.
+     *
+     * parse() geçersiz satırı sessizce atıyor; içe aktarma ekranında ise
+     * kullanıcının onu görüp düzeltmesi gerekiyor — "12 kayıt atlandı"
+     * cümlesi hangi kaydın neden atlandığını söylemiyor, dosyayı Excel'de
+     * açıp aramaktan başka yol bırakmıyordu.
+     *
+     * parse() bilerek değiştirilmedi: kampanya tarafı onu kullanıyor ve
+     * oradaki davranışın değişmesi için bir sebep yok.
+     *
+     * @return array{rows: array<int, array{first_name: ?string, last_name: ?string, email: string, valid: bool, reason: ?string}>, total: int, valid: int, invalid: int, truncated: bool}
+     */
+    public function preview(UploadedFile $file): array
+    {
+        $table = $this->readFile($file);
+
+        if ($table === []) {
+            throw new RuntimeException('Dosya boş görünüyor.');
+        }
+
+        $columns = $this->resolveColumns($table);
+
+        if ($columns['email'] === null) {
+            throw new RuntimeException(
+                'Dosyada e-posta sütunu bulunamadı. Başlık satırına "E-posta" yazabilir, '
+                . 'adresleri ilk sütuna koyabilir veya örnek şablonu indirebilirsiniz.'
+            );
+        }
+
+        $rows = [];
+        $seen = [];
+        $valid = 0;
+        $invalid = 0;
+        $truncated = false;
+
+        foreach (array_slice($table, $columns['start']) as $row) {
+            $raw = trim($row[$columns['email']] ?? '');
+            $names = $this->namesFor($row, $columns);
+
+            // Tamamen boş satır dosyanın sonundaki artık; kullanıcıya
+            // düzeltmesi gereken bir şeymiş gibi gösterilmiyor.
+            if ($raw === '' && $names['first_name'] === null && $names['last_name'] === null) {
+                continue;
+            }
+
+            if (count($rows) >= self::PREVIEW_MAX_ROWS) {
+                $truncated = true;
+
+                break;
+            }
+
+            $email = mb_strtolower($raw);
+            $reason = match (true) {
+                $email === ''                                       => 'E-posta boş',
+                ! filter_var($email, FILTER_VALIDATE_EMAIL)         => 'Geçersiz e-posta biçimi',
+                isset($seen[$email])                                => 'Dosyada tekrar ediyor',
+                default                                             => null,
+            };
+
+            if ($reason === null) {
+                $seen[$email] = true;
+                $valid++;
+            } else {
+                $invalid++;
+            }
+
+            $rows[] = $names + [
+                'email'  => $email,
+                'valid'  => $reason === null,
+                'reason' => $reason,
+            ];
+        }
+
+        if ($rows === []) {
+            throw new RuntimeException('Dosyada okunabilir satır bulunamadı.');
+        }
+
+        return [
+            'rows'      => $rows,
+            'total'     => count($rows),
+            'valid'     => $valid,
+            'invalid'   => $invalid,
+            'truncated' => $truncated,
+        ];
     }
 
     /**

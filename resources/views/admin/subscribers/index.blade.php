@@ -402,11 +402,34 @@
                                 <td data-label="İşlemler">
                                     <div class="usr-actions">
                                         @can('update', $subscriber)
+                                            {{-- Düzenleme aynı modalda açılıyor; satırın verisi
+                                                 nitelikte taşınıyor, ayrı bir istek gerekmiyor. --}}
+                                            <button type="button" class="usr-action-btn js-edit-subscriber"
+                                                    title="Düzenle"
+                                                    data-id="{{ $subscriber->id }}"
+                                                    data-url="{{ route('admin.subscribers.update', $subscriber) }}"
+                                                    data-email="{{ $subscriber->email }}"
+                                                    data-first-name="{{ $subscriber->first_name }}"
+                                                    data-last-name="{{ $subscriber->last_name }}"
+                                                    data-locale="{{ $subscriber->locale }}"
+                                                    data-status="{{ $subscriber->status->value }}"
+                                                    data-lists="{{ $subscriber->lists->pluck('id')->implode(',') }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
                                             @if($subscriber->status === SubscriberStatus::Subscribed)
                                                 <form method="POST" action="{{ route('admin.subscribers.unsubscribe', $subscriber) }}" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="usr-action-btn" title="Abonelikten çıkar">
                                                         <i class="bi bi-person-dash"></i>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                {{-- Listeye eklemek durumu değiştirmiyor; yanlışlıkla
+                                                     çıkarılan birini geri almanın görünür yolu bu. --}}
+                                                <form method="POST" action="{{ route('admin.subscribers.resubscribe', $subscriber) }}" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="usr-action-btn success" title="Yeniden abone yap">
+                                                        <i class="bi bi-person-check"></i>
                                                     </button>
                                                 </form>
                                             @endif
@@ -455,10 +478,15 @@
         <div class="modal fade modal-custom" id="addModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-theme">
                 <div class="modal-content modal-content-theme">
-                    <form method="POST" action="{{ route('admin.subscribers.store') }}" data-validate novalidate>
+                    {{-- Aynı modal hem ekliyor hem düzenliyor: iki ayrı form aynı
+                         alanları iki kez tanımlar, biri güncellenince diğeri unutulurdu. --}}
+                    <form method="POST" action="{{ route('admin.subscribers.store') }}"
+                          id="subscriberForm" data-store-url="{{ route('admin.subscribers.store') }}"
+                          data-validate novalidate>
                         @csrf
+                        <input type="hidden" name="_method" id="subscriberFormMethod" value="POST">
                         <div class="modal-header">
-                            <h6 class="modal-title"><i class="bi bi-plus-lg me-2 text-teal"></i>Abone Ekle</h6>
+                            <h6 class="modal-title" id="subscriberModalTitle"><i class="bi bi-plus-lg me-2 text-teal"></i>Abone Ekle</h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                         </div>
                         <div class="modal-body">
@@ -493,6 +521,19 @@
                                     @endforeach
                                 </select>
                             </div>
+                            {{-- Yalnızca düzenlemede görünür: yeni kayıt her zaman abone
+                                 olarak açılıyor, ekleme sırasında sorulacak bir şey değil. --}}
+                            <div class="stg-field mb-3 d-none" id="subscriberStatusField">
+                                <label class="stg-label" for="sub_status">Durum</label>
+                                <select class="stg-select" id="sub_status" name="status" data-fv-ignore>
+                                    @foreach(SubscriberStatus::cases() as $case)
+                                        <option value="{{ $case->value }}">{{ $case->label() }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="stg-hint">
+                                    Yanlışlıkla çıkmış görünen bir adresi buradan geri alabilirsiniz.
+                                </small>
+                            </div>
                             <div class="stg-field">
                                 <label class="stg-label">Listeler</label>
                                 @forelse($lists as $list)
@@ -504,11 +545,14 @@
                                 @empty
                                     <small class="stg-hint">Henüz liste yok, önce "Listeler"den bir tane oluşturun.</small>
                                 @endforelse
+                                <small class="stg-hint d-none" id="subscriberListsHint">
+                                    İşareti kaldırılan listeden abone çıkarılır.
+                                </small>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                            <button type="submit" class="btn-teal">Ekle</button>
+                            <button type="submit" class="btn-teal" id="subscriberSubmit">Ekle</button>
                         </div>
                     </form>
                 </div>
@@ -517,17 +561,23 @@
 
         {{-- Import modal --}}
         <div class="modal fade modal-custom" id="importModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-theme">
+            {{-- Önizleme tablosu açıldığında genişliyor; dosya seçme adımında
+                 dar kalıyor ki boş bir dev kutu görünmesin. --}}
+            <div class="modal-dialog modal-dialog-centered modal-theme" id="importDialog">
                 <div class="modal-content modal-content-theme">
-                    <form method="POST" action="{{ route('admin.subscribers.import') }}" enctype="multipart/form-data" data-validate novalidate>
+                    <form method="POST" action="{{ route('admin.subscribers.import') }}" id="importForm"
+                          data-preview-url="{{ route('admin.subscribers.import.preview') }}"
+                          enctype="multipart/form-data" data-validate novalidate>
                         @csrf
                         <div class="modal-header">
                             <h6 class="modal-title"><i class="bi bi-file-earmark-spreadsheet me-2 text-teal"></i>Excel / CSV Yükle</h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="stg-field mb-3">
+                            <div class="stg-field mb-3" id="importFileField">
                                 <label class="stg-label" for="import_file">Dosya <span class="text-neon-red">*</span></label>
+                                {{-- Kural JS tarafından yönetiliyor: önizlemeye geçilince
+                                     dosya değil satırlar gönderiliyor, alan zorunlu kalmamalı. --}}
                                 <input type="file" class="stg-input" id="import_file" name="file"
                                        accept=".xlsx,.xls,.ods,.csv,.txt"
                                        data-validation-engine="validate[required]">
@@ -565,10 +615,44 @@
                                 @endforelse
                                 <small class="stg-hint">Dosyadaki herkes seçilen listelere eklenir.</small>
                             </div>
+
+                            {{-- Önizleme: dosya okunduktan sonra dolar. Satırlar burada
+                                 düzeltilebiliyor ve kaydedilen bu hâli oluyor. --}}
+                            <div class="sub-preview d-none" id="importPreview">
+                                <div class="sub-preview__head">
+                                    <span class="sub-preview__summary" id="importSummary"></span>
+                                    <button type="button" class="btn-glass btn-sm" id="importReset">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Başka dosya seç
+                                    </button>
+                                </div>
+                                <p class="stg-hint" id="importTruncated" hidden>
+                                    Dosya çok büyük olduğu için ilk 1000 satır gösteriliyor.
+                                    Tamamını aktarmak isterseniz dosyayı bölerek yükleyin.
+                                </p>
+                                <div class="sub-preview__scroll">
+                                    <table class="cl-table sub-preview__table">
+                                        <thead>
+                                            <tr>
+                                                <th class="sub-preview__num">#</th>
+                                                <th>E-posta</th>
+                                                <th>Ad</th>
+                                                <th>Soyad</th>
+                                                <th class="cl-th-actions">Çıkar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="importRows"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                            <button type="submit" class="btn-teal">Yükle</button>
+                            <button type="button" class="btn-teal" id="importPreviewBtn">
+                                <i class="bi bi-eye"></i> Önizle
+                            </button>
+                            <button type="submit" class="btn-teal d-none" id="importSaveBtn">
+                                <i class="bi bi-check-lg"></i> Kaydet
+                            </button>
                         </div>
                     </form>
                 </div>

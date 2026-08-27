@@ -180,6 +180,75 @@ final class SubscriberService
     }
 
     /**
+     * Çıkmış bir aboneyi yeniden aboneliğe alır.
+     *
+     * Bir listeye eklemek durumu değiştirmiyor — ve değiştirmemeli: çıkış
+     * kaydı, sonraki bir içe aktarmanın kişiyi sessizce geri getirmesini
+     * engellemek için duruyor. Ama geri almanın da bilinçli bir yolu olmalı;
+     * yanlışlıkla "çıkar"a basan yönetici tek çare olarak kaydı silmemeli.
+     */
+    public function resubscribe(Subscriber $subscriber): Subscriber
+    {
+        $subscriber->update([
+            'status'          => SubscriberStatus::Subscribed,
+            'subscribed_at'   => $subscriber->subscribed_at ?? now(),
+            'unsubscribed_at' => null,
+        ]);
+
+        return $subscriber->refresh();
+    }
+
+    /**
+     * Kayıtlı bir abonenin bilgilerini düzeltir.
+     *
+     * subscribe() bu iş için uygun değil: orada boş gelen ad kayıtlıyı
+     * korumak üzere yok sayılıyor ve listeler yalnızca ekleniyor. Düzeltme
+     * ekranında ise kullanıcı bir alanı bilerek boşaltabilmeli ve bir listeden
+     * bilerek çıkarabilmeli — bu yüzden alanlar olduğu gibi yazılıyor,
+     * listeler sync ile eşitleniyor.
+     *
+     * Durum da elle değiştirilebiliyor: yanlışlıkla "çıkmış" görünen ya da
+     * geçici bir sunucu hatası yüzünden "geri döndü" damgası yiyen bir adresi
+     * geri almanın başka yolu yoktu.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function update(Subscriber $subscriber, array $data): Subscriber
+    {
+        return DB::transaction(function () use ($subscriber, $data): Subscriber {
+            $status = $data['status'] instanceof SubscriberStatus
+                ? $data['status']
+                : SubscriberStatus::from((string) $data['status']);
+
+            $attributes = [
+                'email'      => mb_strtolower(trim((string) $data['email'])),
+                'first_name' => $data['first_name'] ?? null,
+                'last_name'  => $data['last_name'] ?? null,
+                'locale'     => $data['locale'] ?? null,
+                'status'     => $status,
+            ];
+
+            // Zaman damgaları duruma göre taşınıyor; yoksa "abone" görünen bir
+            // kayıt çıkış tarihiyle, çıkmış bir kayıt boş tarihle kalırdı.
+            if ($status === SubscriberStatus::Subscribed) {
+                $attributes['subscribed_at'] = $subscriber->subscribed_at ?? now();
+                $attributes['unsubscribed_at'] = null;
+            } elseif ($status === SubscriberStatus::Unsubscribed) {
+                $attributes['unsubscribed_at'] = $subscriber->unsubscribed_at ?? now();
+            }
+
+            $subscriber->update($attributes);
+
+            if (array_key_exists('list_ids', $data)) {
+                $ids = array_values(array_unique(array_filter(array_map('intval', (array) $data['list_ids']))));
+                $subscriber->lists()->sync($ids);
+            }
+
+            return $subscriber->refresh();
+        });
+    }
+
+    /**
      * Bulk add, used by the import screen.
      *
      * @param array<int, array{email: string, first_name?: ?string, last_name?: ?string}> $rows

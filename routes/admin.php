@@ -197,9 +197,14 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
 Route::prefix('aboneler')->name('subscribers.')->group(function () {
     Route::get('/',                       [SubscriberController::class, 'index'])->name('index');
     Route::post('/',                      [SubscriberController::class, 'store'])->name('store');
+    // Dosya önce burada okunup ekrana dökülüyor, kaydetme ayrı adım: kullanıcı
+    // hatalı satırı görüp düzeltmeden içeri almak zorunda kalmasın.
+    Route::post('ice-aktar-onizleme',     [SubscriberController::class, 'importPreview'])->name('import.preview');
     Route::post('ice-aktar',              [SubscriberController::class, 'import'])->name('import');
     Route::post('toplu-liste',            [SubscriberController::class, 'bulkList'])->name('bulk-list');
+    Route::put('{subscriber}',            [SubscriberController::class, 'update'])->name('update');
     Route::post('{subscriber}/cikar',     [SubscriberController::class, 'unsubscribe'])->name('unsubscribe');
+    Route::post('{subscriber}/geri-al',   [SubscriberController::class, 'resubscribe'])->name('resubscribe');
     Route::delete('{subscriber}',         [SubscriberController::class, 'destroy'])->name('destroy');
     Route::patch('{subscriber}/geri-yukle', [SubscriberController::class, 'restore'])->name('restore')->withTrashed();
 });
