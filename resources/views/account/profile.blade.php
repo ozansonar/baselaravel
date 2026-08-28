@@ -40,7 +40,7 @@
                                            class="form-control @error('avatar') is-invalid @enderror"
                                            id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp"
                                            data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
-                                           data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
+                                           data-max-size="1" data-accept="image/jpeg,image/png,image/webp">
                                     @error('avatar')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

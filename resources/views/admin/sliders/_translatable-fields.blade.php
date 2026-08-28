@@ -131,16 +131,17 @@
                     <div class="card-body-custom">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label" for="image_{{ $language->code }}">
-                                    Slider Görseli @if($imageRequired)<span class="text-danger">*</span>@endif
-                                </label>
-                                <input type="file"
-                                       class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" @if($imageRequired) @endif data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="4" data-accept="image/jpeg,image/png,image/webp">
-                                @error("translations.{$language->code}.image")
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">PNG, JPG, WebP | Önerilen boyut: 1920x600 piksel</div>
+                                {{-- Görsel zorunlu: kaldırma düğmesi verilmiyor,
+                                     görselsiz slider ön yüzde boş bir kutu olurdu. --}}
+                                <x-image-field
+                                    :name="'translations[' . $language->code . '][image]'"
+                                    :id="'image_' . $language->code"
+                                    label="Slider Görseli"
+                                    :required="$imageRequired"
+                                    :current="$translation?->image"
+                                    :title="$translation?->title ?: 'Slider görseli'"
+                                    :gallery="'slider-' . $language->code"
+                                    hint="Önerilen: 1920x600 px" />
                             </div>
                         </div>
                     </div>

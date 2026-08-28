@@ -31,7 +31,7 @@ final class StorePopupRequest extends FormRequest
         return [
             'title'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'image'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
             'button_text' => ['nullable', 'string', 'max:100'],
             'button_url'  => ['nullable', 'string', 'max:500'],
             'size'        => ['nullable', new Enum(PopupSize::class)],

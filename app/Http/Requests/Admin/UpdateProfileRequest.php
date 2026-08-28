@@ -28,7 +28,7 @@ final class UpdateProfileRequest extends FormRequest
             'phone'      => ['nullable', 'string', 'max:20'],
             'bio'        => ['nullable', 'string', 'max:1000'],
             'location'   => ['nullable', 'string', 'max:255'],
-            'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
             // Changing a password requires proving the current one, so a hijacked
             // session cannot lock the real owner out. Without nullable the rule
             // also ran on an empty field, so saving the profile without touching

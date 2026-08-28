@@ -104,14 +104,14 @@
                     <div class="card-body-custom">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label" for="image_{{ $language->code }}">Popup Görseli</label>
-                                <input type="file"
-                                       class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
-                                @error("translations.{$language->code}.image")
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">PNG, JPG, WebP | Maks: 2 MB</div>
+                                <x-image-field
+                                    :name="'translations[' . $language->code . '][image]'"
+                                    :id="'image_' . $language->code"
+                                    label="Popup Görseli"
+                                    :current="$translation?->image"
+                                    :title="$translation?->title ?: 'Popup görseli'"
+                                    :gallery="'popup-' . $language->code"
+                                    :remove-name="'translations[' . $language->code . '][remove_image]'" />
                             </div>
                         </div>
                     </div>
