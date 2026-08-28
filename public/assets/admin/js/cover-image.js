@@ -24,6 +24,7 @@
             onizleme: kutu.querySelector('[data-cover-box]'),
             gorsel:   kutu.querySelector('[data-cover-img]'),
             baglanti: kutu.querySelector('[data-cover-link]'),
+            ad:       kutu.querySelector('[data-cover-name]'),
             bayrak:   kutu.querySelector('[data-cover-flag]'),
             dosya:    kutu.querySelector('input[type="file"]')
         };
@@ -122,6 +123,10 @@
         p.gorsel.src = adres;
         p.baglanti.href = adres;
         p.onizleme.classList.remove('d-none');
+
+        if (p.ad) {
+            p.ad.textContent = dosya.name;
+        }
 
         // Yeni dosya seçmek kaldırma isteğini geçersiz kılıyor.
         p.bayrak.value = '0';

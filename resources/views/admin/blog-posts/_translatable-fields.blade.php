@@ -235,22 +235,29 @@
                     Kapak Görseli
                   </label>
 
-                  {{-- Yüklü görselin önizlemesi. Kapak varken hiçbir şey
-                       görünmüyordu: kullanıcı ne olduğunu göremiyor, kaldıramıyordu.
-                       Tıklayınca galeri (GLightbox) açılıyor. --}}
+                  {{-- Yüklü görselin önizlemesi: küçük resim + ad + eylemler
+                       tek satırda. Önce tam boy basılıyordu; kart yüksekliğinin
+                       yarısını kaplıyor ve etiketle aynı satıra düşüyordu
+                       (ikisi de inline-block idi). --}}
                   <div class="ca-cover {{ $translation?->image ? '' : 'd-none' }}" data-cover-box>
                     <a href="{{ $translation?->image ? upload_url($translation->image) : '' }}"
-                       class="glightbox ca-cover__link"
+                       class="glightbox ca-cover__thumb"
                        data-gallery="kapak-{{ $language->code }}"
                        data-title="{{ $translation?->title ?? 'Kapak görseli' }}"
                        data-cover-link>
-                      <img src="{{ $translation?->image ? upload_url($translation->image, 'md') : '' }}"
+                      <img src="{{ $translation?->image ? upload_url($translation->image, 'thumb') : '' }}"
                            alt="{{ $translation?->title ?? 'Kapak görseli' }}"
-                           class="ca-cover__img" loading="lazy" data-cover-img>
+                           loading="lazy" data-cover-img>
                       <span class="ca-cover__zoom"><i class="bi bi-arrows-fullscreen"></i></span>
                     </a>
+
+                    <div class="ca-cover__info">
+                      <span class="ca-cover__name" data-cover-name>{{ $translation?->image ? basename($translation->image) : '' }}</span>
+                      <span class="ca-cover__hint">Büyütmek için görsele tıkla</span>
+                    </div>
+
                     <button type="button" class="ca-cover__remove" data-cover-remove>
-                      <i class="bi bi-trash3"></i> Kaldır
+                      <i class="bi bi-trash3"></i><span>Kaldır</span>
                     </button>
                   </div>
 
