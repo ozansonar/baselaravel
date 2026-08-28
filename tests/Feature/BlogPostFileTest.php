@@ -128,6 +128,25 @@ class BlogPostFileTest extends TestCase
         $this->assertSame(0, BlogPostFile::count());
     }
 
+    public function test_a_second_extension_cannot_survive_onto_disk(): void
+    {
+        $post = $this->turkishPost();
+
+        // Apache, mod_mime açıkken "rapor.php.xlsx" adlı bir dosyayı PHP olarak
+        // çalıştırabiliyor. Diskteki ad kullanıcınınkinden türetiliyor ama
+        // noktalarından arındırılıyor: geriye tek uzantı kalıyor.
+        $this->postJson(route('admin.blog-posts.files.upload'), [
+            'file'         => $this->upload('rapor.php.xlsx'),
+            'blog_post_id' => $post->id,
+        ])->assertOk();
+
+        $stored = basename(BlogPostFile::sole()->path);
+
+        $this->assertSame(1, substr_count($stored, '.'), "Diskteki ad birden fazla uzantı taşıyor: {$stored}");
+        $this->assertStringEndsWith('.xlsx', $stored);
+        $this->assertStringNotContainsString('.php', $stored);
+    }
+
     // ── Kaydetme ──
 
     public function test_a_pending_file_is_attached_to_the_row_its_language_creates(): void
