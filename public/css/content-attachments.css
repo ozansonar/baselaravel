@@ -1,7 +1,7 @@
 /* ==========================================================================
    İçerik Ekleri — att / attachments
-   Yazıya iliştirilen dosyalar; tür ailesine göre gruplanmış görünüm.
-   Yalnızca yazı detay sayfasında yükleniyor (blog/show).
+   İçeriğe iliştirilen dosyalar; tür ailesine göre gruplanmış görünüm.
+   Yalnızca ek taşıyan detay sayfalarında yükleniyor (blog/show, pages/show).
    ========================================================================== */
 
 .attachments {

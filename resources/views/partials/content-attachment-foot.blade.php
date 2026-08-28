@@ -3,7 +3,7 @@
     Video ile ses aynı künyeyi kullanıyor; iki yere ayrı yazılsaydı biri
     değişince öteki geride kalırdı.
 
-    @var \App\Models\BlogPostFile $file
+    @var \App\Models\ContentFile $file
 --}}
 <div class="att-media__foot">
     <span class="att-media__name" title="{{ $file->original_name }}">{{ $file->original_name }}</span>

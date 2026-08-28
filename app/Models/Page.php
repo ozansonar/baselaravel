@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\ContentStatus;
+use App\Traits\HasContentFiles;
 use App\Traits\HasSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Page extends Model
 {
-    use HasTranslations, HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasContentFiles, HasFactory, HasSlug, SoftDeletes;
 
     protected $fillable = [
         'locale',

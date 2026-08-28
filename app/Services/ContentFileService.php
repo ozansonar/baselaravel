@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\FileKind;
-use App\Models\BlogPost;
-use App\Models\BlogPostFile;
+use App\Models\ContentFile;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +14,10 @@ use Illuminate\Support\Str;
 
 /**
  * İçerik eklerinin yüklenmesi, bağlanması ve gruplanması.
+ *
+ * Blog yazısı da sayfa da aynı servisi kullanıyor; bağ polimorfik. İki ayrı
+ * servis olsaydı ikisi zamanla birbirinden ayrışır, biri düzelen bir hatayı
+ * öteki taşımaya devam ederdi.
  *
  * Ek sayısına tavan konmuyor: bir habere kırk görsel, beş tablo ve üç PDF
  * iliştirmek isteyen kullanıcı sayaç yüzünden yarıda kalmasın. Sınır dosya
@@ -30,7 +34,7 @@ use Illuminate\Support\Str;
  * dilde (yeni içerik ya da hiç çevrilmemiş sekme) bağlanacak bir şey yok;
  * dosya belirteciyle bekliyor ve satır doğduğunda iliştiriliyor.
  */
-final class BlogPostFileService
+final class ContentFileService
 {
     /** public/uploads altındaki klasör. */
     private const string UPLOAD_FOLDER = 'blog-files';
@@ -68,10 +72,11 @@ final class BlogPostFileService
     /**
      * Tek dosyayı yükler.
      *
-     * $post verildiyse ek doğrudan o dile bağlanır; verilmediyse belirteçle
-     * bekler. Dönen kayıt her iki durumda da aynı biçimde çiziliyor.
+     * $attachable verildiyse ek doğrudan o içeriğe (ve o dile) bağlanır;
+     * verilmediyse belirteçle bekler. Dönen kayıt iki durumda da aynı biçimde
+     * çiziliyor.
      */
-    public function store(UploadedFile $file, ?BlogPost $post, ?int $userId): BlogPostFile
+    public function store(UploadedFile $file, ?Model $attachable, ?int $userId): ContentFile
     {
         $originalName = $file->getClientOriginalName();
         $extension = strtolower((string) $file->getClientOriginalExtension());
@@ -85,16 +90,17 @@ final class BlogPostFileService
 
         $path = $this->uploadService->uploadFile($file, self::UPLOAD_FOLDER, $slugSource);
 
-        return BlogPostFile::create([
-            'blog_post_id'  => $post?->id,
-            'token'         => $post === null ? (string) Str::uuid() : null,
-            'user_id'       => $userId,
-            'path'          => $path,
-            'original_name' => $originalName,
-            'extension'     => $extension !== '' ? $extension : (string) pathinfo($path, PATHINFO_EXTENSION),
-            'mime_type'     => $mime,
-            'size'          => $size,
-            'sort_order'    => $post !== null ? $this->nextSortOrder($post) : 0,
+        return ContentFile::create([
+            'attachable_type' => $attachable?->getMorphClass(),
+            'attachable_id'   => $attachable?->getKey(),
+            'token'           => $attachable === null ? (string) Str::uuid() : null,
+            'user_id'         => $userId,
+            'path'            => $path,
+            'original_name'   => $originalName,
+            'extension'       => $extension !== '' ? $extension : (string) pathinfo($path, PATHINFO_EXTENSION),
+            'mime_type'       => $mime,
+            'size'            => $size,
+            'sort_order'      => $attachable !== null ? $this->nextSortOrder($attachable) : 0,
         ]);
     }
 
@@ -103,7 +109,7 @@ final class BlogPostFileService
      */
     public function discardPending(string $token, ?int $userId): bool
     {
-        $pending = BlogPostFile::query()
+        $pending = ContentFile::query()
             ->pending($userId)
             ->where('token', $token)
             ->first();
@@ -123,13 +129,13 @@ final class BlogPostFileService
      * Yumuşak silme değil: kayıt yalnızca dosyanın adresi, dosya gittiyse
      * satırın saklanacak bir tarafı kalmıyor.
      */
-    public function delete(BlogPostFile $file): void
+    public function delete(ContentFile $file): void
     {
         $this->purge($file);
     }
 
     /**
-     * Peşin yüklenmiş ekleri o dilin satırına bağlar.
+     * Peşin yüklenmiş ekleri hedef içeriğin (o dilin) satırına bağlar.
      *
      * Dosya zaten diskte, satır da: burada yalnızca içerik sahipleniyor. Sıra
      * kullanıcının yükleme sırası — forma hangi sırayla eklendiyse yazıda da
@@ -139,7 +145,7 @@ final class BlogPostFileService
      *
      * @param array<int, mixed> $tokens
      */
-    public function attachPending(BlogPost $post, array $tokens, ?int $userId): void
+    public function attachPending(Model $attachable, array $tokens, ?int $userId): void
     {
         $tokens = $this->cleanTokens($tokens);
 
@@ -147,14 +153,14 @@ final class BlogPostFileService
             return;
         }
 
-        DB::transaction(function () use ($post, $tokens, $userId): void {
-            $pending = BlogPostFile::query()
+        DB::transaction(function () use ($attachable, $tokens, $userId): void {
+            $pending = ContentFile::query()
                 ->pending($userId)
                 ->whereIn('token', $tokens)
                 ->get()
                 ->keyBy('token');
 
-            $sort = $this->nextSortOrder($post);
+            $sort = $this->nextSortOrder($attachable);
 
             foreach ($tokens as $token) {
                 $file = $pending->get($token);
@@ -164,9 +170,10 @@ final class BlogPostFileService
                 }
 
                 $file->update([
-                    'blog_post_id' => $post->id,
-                    'token'        => null,
-                    'sort_order'   => $sort++,
+                    'attachable_type' => $attachable->getMorphClass(),
+                    'attachable_id'   => $attachable->getKey(),
+                    'token'           => null,
+                    'sort_order'      => $sort++,
                 ]);
             }
         });
@@ -191,13 +198,13 @@ final class BlogPostFileService
     /**
      * Ekleri tür ailesine göre gruplar; ön yüz ve yönetim aynı sırayı görür.
      *
-     * @param  iterable<int, BlogPostFile> $files
-     * @return Collection<string, Collection<int, BlogPostFile>>
+     * @param  iterable<int, ContentFile> $files
+     * @return Collection<string, Collection<int, ContentFile>>
      */
     public function groupByKind(iterable $files): Collection
     {
         $grouped = Collection::make($files)->groupBy(
-            static fn (BlogPostFile $file): string => $file->kind()->value,
+            static fn (ContentFile $file): string => $file->kind()->value,
         );
 
         // Sıra ailelerin kendi sırası; gruplama sırası yükleme sırasına
@@ -214,8 +221,8 @@ final class BlogPostFileService
      */
     public function purgeStalePending(int $hours): int
     {
-        $stale = BlogPostFile::query()
-            ->whereNull('blog_post_id')
+        $stale = ContentFile::query()
+            ->whereNull('attachable_id')
             ->where('created_at', '<', now()->subHours(max(1, $hours)))
             ->get();
 
@@ -234,12 +241,12 @@ final class BlogPostFileService
      *
      * @return array<string, mixed>
      */
-    public function payload(BlogPostFile $file): array
+    public function payload(ContentFile $file): array
     {
         $kind = $file->kind();
 
         return [
-            'id'         => $file->blog_post_id !== null ? $file->id : null,
+            'id'         => $file->attachable_id !== null ? $file->id : null,
             'token'      => $file->token,
             'name'       => $file->original_name,
             'size'       => $file->humanSize(),
@@ -253,14 +260,15 @@ final class BlogPostFileService
         ];
     }
 
-    private function nextSortOrder(BlogPost $post): int
+    private function nextSortOrder(Model $attachable): int
     {
-        return (int) BlogPostFile::query()
-            ->where('blog_post_id', $post->id)
+        return (int) ContentFile::query()
+            ->where('attachable_type', $attachable->getMorphClass())
+            ->where('attachable_id', $attachable->getKey())
             ->max('sort_order') + 1;
     }
 
-    private function purge(BlogPostFile $file): void
+    private function purge(ContentFile $file): void
     {
         $this->uploadService->deleteFile($file->path);
         $file->forceDelete();

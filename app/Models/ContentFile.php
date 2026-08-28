@@ -9,21 +9,25 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Bir içeriğe iliştirilen tek dosya.
  *
  * Kayıt dosyanın adresini taşır; dosyanın kendisi public/uploads altındadır.
- * Ek, dil grubuna değil o dilin blog_posts satırına bağlıdır — çeviriler ayrı
- * satır olduğu için ekler de kendiliğinden dil bazlı olur.
+ * Bağ polimorfik: ek blog yazısının da sayfanın da olabilir. Her ikisinde de
+ * çeviriler ayrı satır olduğu için ek dil grubuna değil o dilin satırına
+ * bağlanıyor — Türkçe sürümün kırk eki varken İngilizcesinin hiç eki olmaması
+ * bu yüzden mümkün.
  */
-class BlogPostFile extends Model
+class ContentFile extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'blog_post_id',
+        'attachable_type',
+        'attachable_id',
         'token',
         'user_id',
         'path',
@@ -37,21 +41,21 @@ class BlogPostFile extends Model
     protected function casts(): array
     {
         return [
-            'blog_post_id' => 'integer',
-            'user_id'      => 'integer',
-            'size'         => 'integer',
-            'sort_order'   => 'integer',
+            'attachable_id' => 'integer',
+            'user_id'       => 'integer',
+            'size'          => 'integer',
+            'sort_order'    => 'integer',
         ];
     }
 
     // ── Relationships ──
 
     /**
-     * @return BelongsTo<BlogPost, $this>
+     * @return MorphTo<Model, $this>
      */
-    public function post(): BelongsTo
+    public function attachable(): MorphTo
     {
-        return $this->belongsTo(BlogPost::class, 'blog_post_id');
+        return $this->morphTo();
     }
 
     /**
@@ -75,7 +79,7 @@ class BlogPostFile extends Model
      */
     public function scopePending(Builder $query, ?int $userId): Builder
     {
-        $query->whereNull('blog_post_id');
+        $query->whereNull('attachable_id');
 
         return $userId === null
             ? $query->whereNull('user_id')
@@ -112,7 +116,7 @@ class BlogPostFile extends Model
     /** İndirme adresi: dosya kullanıcıya yüklediği adla iner. */
     public function downloadUrl(): string
     {
-        return route('blog.files.download', $this);
+        return route('content.files.download', $this);
     }
 
     public function humanSize(): string

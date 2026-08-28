@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ProvidesContentFileForm;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTranslatedPageRequest;
 use App\Models\Page;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 final class PageController extends Controller
 {
+    use ProvidesContentFileForm;
+
     public function __construct(
         private readonly PageService $pageService,
     ) {}
@@ -42,7 +45,7 @@ final class PageController extends Controller
 
         return view('admin.pages.create', [
             'formLanguages' => $this->pageService->formLanguages(),
-        ]);
+        ] + $this->contentFileFormData());
     }
 
     public function store(StoreTranslatedPageRequest $request): RedirectResponse
@@ -63,7 +66,7 @@ final class PageController extends Controller
         return view('admin.pages.edit', [
             'page'          => $page,
             'formLanguages' => $this->pageService->formLanguages(),
-        ]);
+        ] + $this->contentFileFormData());
     }
 
     public function update(StoreTranslatedPageRequest $request, Page $page): RedirectResponse

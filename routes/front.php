@@ -6,6 +6,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ContentFileDownloadController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FaqController;
@@ -34,10 +35,12 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/iletisim', [ContactController::class, 'create'])->name('contact');
 Route::post('/iletisim', [ContactController::class, 'store'])->middleware('throttle:contact')->name('contact.store');
 
+// İçerik ekleri — blog yazısının da sayfanın da ekleri buradan iniyor.
+// /{slug} sayfa adresini yakalayan kalıp tek parçalı; bu iki parçalı olduğu
+// için çakışmıyor.
+Route::get('/dosya/{file}', ContentFileDownloadController::class)->name('content.files.download');
+
 // Blog
-// Ek indirme /blog altında değil: /blog/{categorySlug} iki parçalı her adresi
-// yakalıyor, dosya adresi oraya düşerse kategori sayfası 404 veriyordu.
-Route::get('/blog-dosya/{file}', [BlogController::class, 'downloadFile'])->name('blog.files.download');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{categorySlug}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/{categorySlug}/{slug}', [BlogController::class, 'show'])->name('blog.show');

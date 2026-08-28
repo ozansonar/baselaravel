@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CommentStatus;
 use App\Enums\ContentStatus;
+use App\Traits\HasContentFiles;
 use App\Traits\HasSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BlogPost extends Model
 {
-    use HasTranslations, HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasContentFiles, HasFactory, HasSlug, SoftDeletes;
 
     protected static function slugSource(): string
     {
@@ -66,19 +67,6 @@ class BlogPost extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * Bu dilin ekleri.
-     *
-     * Çeviriler ayrı satır olduğu için ek de o dile ait: Türkçe yazının kırk
-     * eki varken İngilizcesinin hiç eki olmayabilir.
-     *
-     * @return HasMany<BlogPostFile, $this>
-     */
-    public function files(): HasMany
-    {
-        return $this->hasMany(BlogPostFile::class)->sorted();
     }
 
     /**

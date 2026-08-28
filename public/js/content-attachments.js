@@ -1,5 +1,5 @@
 /**
- * Ek görsellerinin büyütme penceresi.
+ * Ek görsellerinin büyütme penceresi (blog yazısı ve sayfa).
  *
  * Ön yüzde hazır bir lightbox kütüphanesi yok (GLightbox yalnızca yönetim
  * tarafında yüklü) ve tek bir görseli büyütmek için front'a kütüphane eklemek

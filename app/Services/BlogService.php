@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class BlogService
 {
+    use \App\Services\Concerns\AttachesContentFiles;
     use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
     public function __construct(
         private readonly UploadService $uploadService,
-        private readonly BlogPostFileService $blogPostFiles,
     ) {}
 
     // ── Frontend ──
@@ -292,7 +292,7 @@ final class BlogService
                 $this->prepareImageField($this->normalizePublishDate($fields) + $shared, $existing, 'blog', 'title', 'image', $default),
         );
 
-        $this->syncPendingFiles($groupId, $fileTokens);
+        $this->syncPendingFiles(BlogPost::class, $groupId, $fileTokens);
         $this->clearCache();
 
         return $groupId;
@@ -314,74 +314,10 @@ final class BlogService
             $post->lang_group_id,
         );
 
-        $this->syncPendingFiles($groupId, $fileTokens);
+        $this->syncPendingFiles(BlogPost::class, $groupId, $fileTokens);
         $this->clearCache();
 
         return $groupId;
-    }
-
-    /**
-     * Dil bloklarındaki bekleyen ek belirteçlerini ayırır.
-     *
-     * Belirteç blogun sütunu değil; blokta bırakılsaydı satırı yazmaya
-     * çalışırken bilinmeyen alan hatası verirdi. Ayrıca yalnızca dosya taşıyan
-     * bir blok, çeviri yazılmış sayılmamalı: alan çıkınca blok yeniden boş
-     * görünüyor ve o dilde boş bir satır doğmuyor.
-     *
-     * @param  array<string, array<string, mixed>> $translations locale => fields
-     * @return array<string, array<int, mixed>>                  locale => tokens
-     */
-    private function extractFileTokens(array &$translations): array
-    {
-        $tokens = [];
-
-        foreach ($translations as $locale => $fields) {
-            if (! is_array($fields)) {
-                continue;
-            }
-
-            $blockTokens = $fields['file_tokens'] ?? null;
-            $tokens[$locale] = is_array($blockTokens) ? array_values($blockTokens) : [];
-
-            unset($translations[$locale]['file_tokens']);
-        }
-
-        return $tokens;
-    }
-
-    /**
-     * Peşin yüklenmiş ekleri doğdukları dilin satırına bağlar.
-     *
-     * Çevirisi zaten olan bir dilde ek yüklenirken bu yol hiç kullanılmıyor;
-     * dosya o an doğrudan satıra bağlanıyor. Buraya yalnızca satırı olmayan
-     * dilin ekleri düşüyor. Blok boş bırakıldıysa satır doğmuyor: bağlanacak
-     * yer olmadığı için dosya diskten de siliniyor, yoksa public/uploads
-     * altında sahipsiz birikirdi.
-     *
-     * @param array<string, array<int, mixed>> $tokensByLocale
-     */
-    private function syncPendingFiles(string $groupId, array $tokensByLocale): void
-    {
-        $userId = auth()->id();
-
-        foreach ($tokensByLocale as $locale => $tokens) {
-            if ($tokens === []) {
-                continue;
-            }
-
-            $row = BlogPost::query()
-                ->where('lang_group_id', $groupId)
-                ->where('locale', $locale)
-                ->first();
-
-            if ($row === null) {
-                $this->blogPostFiles->discardTokens($tokens, $userId);
-
-                continue;
-            }
-
-            $this->blogPostFiles->attachPending($row, $tokens, $userId);
-        }
     }
 
     public function delete(BlogPost $post): void

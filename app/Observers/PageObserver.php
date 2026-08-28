@@ -24,13 +24,30 @@ final class PageObserver
         }
     }
 
+    /**
+     * Ekler yabancı anahtarla değil burada zincirleniyor: yumuşak silinen sayfa
+     * eklerini de gizlemeli, geri alındığında birlikte dönmeli.
+     */
     public function deleting(Page $page): void
     {
-        if (!$page->isForceDeleting()) {
-            $this->redirectService->createAutoRedirect(
-                '/' . $page->slug,
-                '/',
-            );
+        if ($page->isForceDeleting()) {
+            // Ekler diskten de gidiyor: satır kalkıp dosya kalsaydı
+            // public/uploads altında sahipsiz birikirdi.
+            $page->purgeFiles();
+
+            return;
         }
+
+        $this->redirectService->createAutoRedirect(
+            '/' . $page->slug,
+            '/',
+        );
+
+        $page->softDeleteFiles();
+    }
+
+    public function restoring(Page $page): void
+    {
+        $page->restoreFiles();
     }
 }

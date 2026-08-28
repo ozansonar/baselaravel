@@ -32,8 +32,21 @@
     return activePane().querySelector('.stg-nav-inner, .stg-nav');
   }
 
+  /**
+   * Bölümü bulur.
+   *
+   * Çok dilli formlarda bölüm kimlikleri dil kodunu taşıyor
+   * (section-basic_tr) ama sayfa formundaki gezinme tek ve dilsiz: dilsiz
+   * kimlik hiçbir öğeyle eşleşmediği için tıklama sessizce hiçbir şey
+   * yapmıyordu. Doğrudan eşleşme yoksa ekrandaki sekmenin karşılığı aranıyor.
+   */
+  function resolveTarget(id) {
+    return document.getElementById(id)
+      || activePane().querySelector('[id="' + id + '"], [id^="' + id + '_"]');
+  }
+
   window.scrollToSection = function (id, el) {
-    var target = document.getElementById(id);
+    var target = resolveTarget(id);
 
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -53,7 +66,7 @@
 
     for (var i = items.length - 1; i >= 0; i--) {
       var href = items[i].getAttribute('href') || '';
-      var section = href.charAt(0) === '#' ? document.getElementById(href.slice(1)) : null;
+      var section = href.charAt(0) === '#' ? resolveTarget(href.slice(1)) : null;
 
       if (section && section.getBoundingClientRect().top <= 140) {
         items.forEach(function (item) { item.classList.remove('active'); });

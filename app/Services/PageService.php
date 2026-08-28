@@ -16,6 +16,7 @@ final class PageService
 {
     use \App\Services\Concerns\LocalizedCache;
 
+    use \App\Services\Concerns\AttachesContentFiles;
     use \App\Services\Concerns\ListsTranslationGroups;
     use \App\Services\Concerns\SyncsTranslations;
 
@@ -128,12 +129,16 @@ final class PageService
      */
     public function createTranslated(array $translations): string
     {
+        // Ekler sütun değil ayrı satır; belirteçler modele ulaşmadan çıkarılıyor.
+        $fileTokens = $this->extractFileTokens($translations);
+
         $groupId = $this->saveTranslations(
             Page::class,
             $translations,
             fn (array $fields, string $locale, ?Page $existing, ?Page $default): array => $this->prepareFields($fields, $locale, $existing, $default),
         );
 
+        $this->syncPendingFiles(Page::class, $groupId, $fileTokens);
         $this->clearCache();
 
         return $groupId;
@@ -144,6 +149,8 @@ final class PageService
      */
     public function updateTranslated(Page $page, array $translations): string
     {
+        $fileTokens = $this->extractFileTokens($translations);
+
         $groupId = $this->saveTranslations(
             Page::class,
             $translations,
@@ -151,6 +158,7 @@ final class PageService
             $page->lang_group_id,
         );
 
+        $this->syncPendingFiles(Page::class, $groupId, $fileTokens);
         $this->clearCache();
 
         return $groupId;

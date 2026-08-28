@@ -1,7 +1,8 @@
 {{--
-    Yazının ekleri, tür ailesine göre gruplanmış.
+    İçeriğin ekleri, tür ailesine göre gruplanmış. Blog yazısı ve sayfa aynı
+    bölümü kullanıyor.
 
-    Ekler yazının diline ait: Türkçe sürümün kırk eki varken İngilizcesinin hiç
+    Ekler içeriğin diline ait: Türkçe sürümün kırk eki varken İngilizcesinin hiç
     eki olmayabilir — çeviri ayrı bir satır, ek de o satıra bağlı.
 
     Gruplar tek düz liste olarak basılmıyor. Otuz dosyayı alt alta dizmek
@@ -9,7 +10,7 @@
     indirilebilir kart olarak duruyor — kullanıcı aradığı türü başlığından
     buluyor.
 
-    @var \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<int, \App\Models\BlogPostFile>> $attachmentGroups
+    @var \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<int, \App\Models\ContentFile>> $attachmentGroups
 --}}
 @php
     $totalCount = $attachmentGroups->sum(fn ($group) => $group->count());
@@ -120,7 +121,7 @@
                                 <video class="att-media__player" controls preload="metadata" playsinline src="{{ $file->url() }}">
                                     {{ __('site.attachments.unsupported') }}
                                 </video>
-                                @include('partials.blog-attachment-foot', ['file' => $file])
+                                @include('partials.content-attachment-foot', ['file' => $file])
                             </div>
                         @endforeach
                     </div>
@@ -133,7 +134,7 @@
                                 <audio class="att-media__player" controls preload="none" src="{{ $file->url() }}">
                                     {{ __('site.attachments.unsupported') }}
                                 </audio>
-                                @include('partials.blog-attachment-foot', ['file' => $file])
+                                @include('partials.content-attachment-foot', ['file' => $file])
                             </div>
                         @endforeach
                     </div>

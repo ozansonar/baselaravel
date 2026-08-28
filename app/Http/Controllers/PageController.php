@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\ContentFileService;
 use App\Services\LocalizedUrlService;
 use App\Services\PageService;
 use Illuminate\View\View;
@@ -13,11 +14,13 @@ final class PageController extends Controller
     public function __construct(
         private readonly PageService $pageService,
         private readonly LocalizedUrlService $localizedUrls,
+        private readonly ContentFileService $contentFiles,
     ) {}
 
     public function show(string $slug): View
     {
         $page = $this->pageService->findBySlug($slug);
+        $page->load('files');
 
         $viewName = view()->exists('pages.' . str_replace('-', '_', $slug))
             ? 'pages.' . str_replace('-', '_', $slug)
@@ -29,6 +32,9 @@ final class PageController extends Controller
             // /en/ altında da Türkçesiyle basılıyor, kanonik kendini
             // gösterseydi aynı metin iki adreste kanonik olurdu.
             'canonicalUrl' => $this->localizedUrls->canonical('pages.show', ['slug' => $page->slug], $page->locale),
+            // Ekler türlerine göre gruplanmış geliyor: otuz dosyayı tek sırada
+            // dizmek okunmuyor, "5 Görsel · 3 PDF · 2 Tablo" okunuyor.
+            'attachmentGroups' => $this->contentFiles->groupByKind($page->files),
         ]);
     }
 }

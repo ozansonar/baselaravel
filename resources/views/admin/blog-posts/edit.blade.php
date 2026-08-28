@@ -97,7 +97,7 @@
 <script src="{{ versioned_asset('assets/admin/js/slug.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-form.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>
-<script src="{{ versioned_asset('assets/admin/js/blog-post-files.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/content-files.js') }}"></script>
 <script>
 'use strict';
 

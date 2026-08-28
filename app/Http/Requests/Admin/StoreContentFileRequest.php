@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
-use App\Services\BlogPostFileService;
+use App\Enums\AttachableContent;
+use App\Services\ContentFileService;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -20,7 +22,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * container olduğu için tarayıcı MIME tahmini application/zip ya da
  * octet-stream dönebiliyor ve `mimes:` xlsx/docx/pptx'te zaman zaman düşüyor.
  */
-final class StoreBlogPostFileRequest extends FormRequest
+final class StoreContentFileRequest extends FormRequest
 {
     /** @var list<string> İzin verilen uzantılar (beyaz liste) */
     private const array ALLOWED_EXTENSIONS = [
@@ -113,7 +115,7 @@ final class StoreBlogPostFileRequest extends FormRequest
     {
         // Tavan sunucununki ile uygulamanınkinin küçüğü; kullanıcıya da bu
         // sayı gösteriliyor, istemci kuralı sunucudan gevşek kalmasın.
-        $maxKb = (int) floor(app(BlogPostFileService::class)->maxFileBytes() / 1024);
+        $maxKb = (int) floor(app(ContentFileService::class)->maxFileBytes() / 1024);
 
         return [
             'file' => [
@@ -123,8 +125,14 @@ final class StoreBlogPostFileRequest extends FormRequest
                 'mimetypes:' . implode(',', self::ALLOWED_MIME_TYPES),
                 'max:' . $maxKb,
             ],
-            // Çevirisi kayıtlı bir dile yükleniyorsa ek doğrudan o satıra bağlanır.
-            'blog_post_id' => ['nullable', 'integer', 'exists:blog_posts,id'],
+            // Çevirisi kayıtlı bir içeriğe yükleniyorsa ek doğrudan o satıra
+            // bağlanır. Tür kısa anahtarla geliyor: sınıf adı doğrudan istekten
+            // okunsaydı istemci başka bir modeli yazıp ekin sahibini uydurabilirdi.
+            // Tür her istekte var: kayıt henüz yokken bile sunucu hangi içeriğin
+            // yaratma yetkisine bakacağını bilmeli. Kimlik ise yalnızca satır
+            // varken geliyor — o yüzden tersi zorunluluk yok.
+            'attachable_type' => ['nullable', 'string', Rule::enum(AttachableContent::class), 'required_with:attachable_id'],
+            'attachable_id'   => ['nullable', 'integer', 'min:1'],
         ];
     }
 

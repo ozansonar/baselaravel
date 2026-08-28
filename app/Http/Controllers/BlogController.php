@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\BlogPost;
-use App\Models\BlogPostFile;
 use App\Services\BlogCategoryService;
 use App\Services\BlogCommentService;
-use App\Services\BlogPostFileService;
 use App\Services\BlogService;
+use App\Services\ContentFileService;
 use App\Services\LocalizedUrlService;
-use App\Services\UploadService;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\View\View;
 
 final class BlogController extends Controller
@@ -21,7 +17,7 @@ final class BlogController extends Controller
         private readonly BlogService $blogService,
         private readonly BlogCategoryService $blogCategoryService,
         private readonly BlogCommentService $blogCommentService,
-        private readonly BlogPostFileService $blogPostFiles,
+        private readonly ContentFileService $contentFiles,
         private readonly LocalizedUrlService $localizedUrls,
     ) {}
 
@@ -81,32 +77,7 @@ final class BlogController extends Controller
             'commentCount'    => $comments->count(),
             // Ekler türlerine göre gruplanmış geliyor: on beş dosyayı tek sırada
             // dizmek okunmuyor, "5 Görsel · 3 PDF · 2 Tablo" okunuyor.
-            'attachmentGroups' => $this->blogPostFiles->groupByKind($post->files),
+            'attachmentGroups' => $this->contentFiles->groupByKind($post->files),
         ]);
-    }
-
-    /**
-     * Eki kullanıcının yüklediği adla indirir.
-     *
-     * Dosya public/uploads altında olduğu için doğrudan adresinden de açılabilir;
-     * bu uç iki şey ekliyor: dosya "rapor-2026-a1b2c3d4e5.xlsx" değil kullanıcının
-     * verdiği adla iniyor ve yayımlanmamış bir yazının eki adresi bilinse bile
-     * servis edilmiyor.
-     */
-    public function downloadFile(BlogPostFile $file): BinaryFileResponse
-    {
-        $post = $file->post;
-
-        if ($post === null || ! BlogPost::published()->whereKey($post->id)->exists()) {
-            abort(404);
-        }
-
-        $path = UploadService::basePath($file->path);
-
-        if (! is_file($path)) {
-            abort(404);
-        }
-
-        return response()->download($path, $file->original_name);
     }
 }

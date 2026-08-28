@@ -1,9 +1,9 @@
 {{--
-    One language's file attachments.
+    One language's file attachments — blog yazısı ve sayfa aynı bölümü kullanır.
 
-    Rendered once per language tab, so the Turkish version can carry forty
-    files while the English one carries none — an attachment belongs to the
-    blog_posts row of that language, not to the translation group.
+    Rendered once per language tab, so the Turkish version can carry forty files
+    while the English one carries none — an attachment belongs to that language's
+    row, not to the translation group.
 
     Dosyalar formla birlikte gitmiyor; her biri kendi isteğiyle yükleniyor.
     Hepsi tek POST'ta gitseydi gövde post_max_size'ı aşar, PHP gövdeyi komple
@@ -11,9 +11,10 @@
     yazdığı içeriği kaybederdi.
 
     @var \App\Models\Language $language
-    @var \App\Models\BlogPost|null $translation
+    @var \Illuminate\Database\Eloquent\Model|null $translation Bu dilin kayıtlı satırı
+    @var \App\Enums\AttachableContent $attachableType
     @var array{per_file: int, post_max: int, max_files: int} $fileLimits
-    @var array<string, \Illuminate\Support\Collection<int, \App\Models\BlogPostFile>> $pendingFiles
+    @var array<string, \Illuminate\Support\Collection<int, \App\Models\ContentFile>> $pendingFiles
 --}}
 @php
     /** Bayt tavanını kullanıcının okuduğu birime çevirir. */
@@ -52,13 +53,14 @@
     <div class="bpf"
          data-bpf
          data-locale="{{ $language->code }}"
-         data-post-id="{{ $translation?->id }}"
-         data-upload-url="{{ route('admin.blog-posts.files.upload') }}"
-         data-discard-url="{{ route('admin.blog-posts.files.discard', ['token' => 'TOKEN']) }}"
-         data-destroy-url="{{ route('admin.blog-posts.files.destroy', ['file' => 'FILE_ID']) }}"
+         data-attachable-type="{{ $attachableType->value }}"
+         data-attachable-id="{{ $translation?->getKey() }}"
+         data-upload-url="{{ route('admin.content-files.upload') }}"
+         data-discard-url="{{ route('admin.content-files.discard', ['token' => 'TOKEN']) }}"
+         data-destroy-url="{{ route('admin.content-files.destroy', ['file' => 'FILE_ID']) }}"
          data-max-bytes="{{ $fileLimits['per_file'] }}"
          data-max-label="{{ $humanLimit($fileLimits['per_file']) }}"
-         data-accept="{{ \App\Http\Requests\Admin\StoreBlogPostFileRequest::acceptAttribute() }}">
+         data-accept="{{ \App\Http\Requests\Admin\StoreContentFileRequest::acceptAttribute() }}">
 
       <div class="bpf-dz" data-bpf-dropzone>
         <div class="dz-message bpf-dz__message">
@@ -86,10 +88,10 @@
            kesintisiz akıyor ve sıra ön yüzde göründükleri sırayla aynı. --}}
       <div class="bpf-list" data-bpf-list>
         @foreach($files as $file)
-          @include('admin.blog-posts._file-row', ['file' => $file, 'locale' => $language->code])
+          @include('admin.partials.content-file-row', ['file' => $file, 'locale' => $language->code])
         @endforeach
         @foreach($pending as $file)
-          @include('admin.blog-posts._file-row', ['file' => $file, 'locale' => $language->code])
+          @include('admin.partials.content-file-row', ['file' => $file, 'locale' => $language->code])
         @endforeach
       </div>
 
