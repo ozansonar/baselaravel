@@ -28,6 +28,7 @@
             <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
             <option value="section-content_{{ $language->code }}">İçerik Editörü</option>
             <option value="section-media_{{ $language->code }}">Medya Yönetimi</option>
+            <option value="section-files_{{ $language->code }}">Dosya Ekleri</option>
             <option value="section-seo_{{ $language->code }}">SEO Ayarları</option>
             <option value="section-publish_{{ $language->code }}">Yayın Ayarları</option>
           </select>
@@ -50,6 +51,10 @@
               <a href="#section-media_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media_{{ $language->code }}', this)">
                 <i class="bi bi-images"></i>
                 <div><span>Medya Yönetimi</span><small>Kapak görseli</small></div>
+              </a>
+              <a href="#section-files_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-files_{{ $language->code }}', this)">
+                <i class="bi bi-paperclip"></i>
+                <div><span>Dosya Ekleri</span><small>Belge, tablo, video</small></div>
               </a>
               <a href="#section-seo_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-seo_{{ $language->code }}', this)">
                 <i class="bi bi-search"></i>
@@ -286,7 +291,11 @@
           </div>
 
 
-          <!-- ==================== SECTION 4: SEO AYARLARI ==================== -->
+          <!-- ==================== SECTION 4: DOSYA EKLERİ ==================== -->
+          @include('admin.blog-posts._files', ['language' => $language, 'translation' => $translation, 'fileLimits' => $fileLimits, 'pendingFiles' => $pendingFiles])
+
+
+          <!-- ==================== SECTION 5: SEO AYARLARI ==================== -->
           <div class="card-dark mb-4" id="section-seo_{{ $language->code }}">
             <div class="card-header-custom">
               <div class="form-section-header mb-0">
@@ -359,7 +368,7 @@
           </div>
 
 
-          <!-- ==================== SECTION 5: YAYIN AYARLARI ==================== -->
+          <!-- ==================== SECTION 6: YAYIN AYARLARI ==================== -->
           <div class="card-dark mb-4" id="section-publish_{{ $language->code }}">
             <div class="card-header-custom">
               <div class="form-section-header mb-0">

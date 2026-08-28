@@ -298,4 +298,33 @@ return [
         'subscribed'         => 'Abone olduğunuz için teşekkürler!',
         'already_subscribed' => 'Bu adres zaten kayıtlı.',
     ],
+    /*
+     * İçerik ekleri — yazıya iliştirilen dosyalar.
+     * Uzantı aileleri App\Enums\FileKind ile birebir aynı; oradaki bir vaka
+     * burada karşılıksız kalırsa başlık yerine anahtar basılır.
+     */
+    'attachments' => [
+        'title'       => 'Ekler',
+        'lead'        => 'Bu içerikle birlikte sunulan dosyalar. İndirmek için dosyaya tıklayın.',
+        'count'       => ':count dosya',
+        'total_size'  => 'Toplam :size',
+        'download'    => 'İndir',
+        'open'        => 'Aç',
+        'preview'     => 'Büyüt',
+        'kinds'       => [
+            'image'        => 'Görseller',
+            'video'        => 'Videolar',
+            'audio'        => 'Ses Dosyaları',
+            'pdf'          => 'PDF Belgeleri',
+            'document'     => 'Belgeler',
+            'spreadsheet'  => 'Tablolar',
+            'presentation' => 'Sunumlar',
+            'archive'      => 'Arşivler',
+            'other'        => 'Diğer Dosyalar',
+        ],
+        'unsupported' => 'Tarayıcınız bu ortamı oynatamıyor.',
+        'close'       => 'Kapat',
+        'prev'        => 'Önceki',
+        'next'        => 'Sonraki',
+    ],
 ];

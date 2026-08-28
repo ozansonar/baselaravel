@@ -69,6 +69,19 @@ class BlogPost extends Model
     }
 
     /**
+     * Bu dilin ekleri.
+     *
+     * Çeviriler ayrı satır olduğu için ek de o dile ait: Türkçe yazının kırk
+     * eki varken İngilizcesinin hiç eki olmayabilir.
+     *
+     * @return HasMany<BlogPostFile, $this>
+     */
+    public function files(): HasMany
+    {
+        return $this->hasMany(BlogPostFile::class)->sorted();
+    }
+
+    /**
      * @return HasMany<BlogComment, $this>
      */
     public function comments(): HasMany

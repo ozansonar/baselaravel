@@ -31843,3 +31843,307 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   .ca-cover__remove span { display: none; }
   .ca-cover__hint { display: none; }
 }
+
+/* ============================================================
+   İçerik Ekleri (/admin/blog-posts) — bpf
+   Dil sekmesi başına bir bırakma alanı + tek ek listesi
+   Not: dosya yöneticisinin .fmgr-* bloğu bilerek paylaşılmadı;
+   orası kendi ekranının kuyruk paneline göre kurulu, buradaki
+   liste kayıtlı ek ile yeni yüklenen eki aynı satırda gösteriyor.
+   ============================================================ */
+
+.bpf-file--teal        { --bpf-accent: var(--teal-primary); }
+.bpf-file--purple      { --bpf-accent: var(--neon-purple); }
+.bpf-file--pink        { --bpf-accent: var(--neon-pink); }
+.bpf-file--red         { --bpf-accent: var(--neon-red); }
+.bpf-file--blue        { --bpf-accent: var(--neon-blue); }
+.bpf-file--green       { --bpf-accent: var(--neon-green); }
+.bpf-file--orange      { --bpf-accent: var(--neon-orange); }
+.bpf-file--yellow      { --bpf-accent: #eab308; }
+.bpf-file--gray        { --bpf-accent: var(--text-muted); }
+
+/* ---- Bırakma alanı ---- */
+.bpf-dz {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: 22px 18px;
+  border: 2px dashed color-mix(in srgb, var(--teal-primary) 30%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--teal-primary) 3%, var(--bg-input));
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base);
+}
+
+.bpf-dz:hover {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 7%, var(--bg-input));
+}
+
+.bpf-dz:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+}
+
+.bpf-dz.dz-drag-hover {
+  border-style: solid;
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 12%, var(--bg-input));
+  box-shadow: var(--shadow-glow-teal);
+}
+
+.bpf-dz__message {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  text-align: left;
+  margin: 0;
+}
+
+.bpf-dz__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  font-size: 25px;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal-primary) 22%, transparent);
+  transition: transform var(--transition-base);
+}
+
+.bpf-dz:hover .bpf-dz__icon,
+.bpf-dz.dz-drag-hover .bpf-dz__icon {
+  transform: translateY(-3px);
+}
+
+.bpf-dz__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.bpf-dz__title u {
+  color: var(--teal-primary);
+  text-decoration: none;
+  border-bottom: 1px dashed currentColor;
+}
+
+.bpf-dz__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.bpf-dz__hint strong {
+  color: var(--text-secondary);
+}
+
+.bpf-dz__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bpf-dz__chips li {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.bpf-dz__chips li i {
+  margin-right: 4px;
+  color: var(--teal-primary);
+}
+
+/* ---- Ek listesi ---- */
+.bpf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.bpf-list:empty {
+  margin-top: 0;
+}
+
+.bpf-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--bpf-accent, var(--text-muted));
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.bpf-file:hover {
+  background: var(--bg-card-hover);
+  border-color: color-mix(in srgb, var(--bpf-accent, var(--teal-primary)) 30%, var(--border-color));
+}
+
+.bpf-file--uploading {
+  --bpf-accent: var(--teal-primary);
+  opacity: .85;
+}
+
+.bpf-file__icon {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-size: 20px;
+  color: var(--bpf-accent, var(--text-muted));
+  background: color-mix(in srgb, var(--bpf-accent, var(--text-muted)) 12%, transparent);
+}
+
+.bpf-file__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bpf-file__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bpf-file__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.bpf-file__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bpf-file__badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--bpf-accent, var(--text-muted));
+  background: color-mix(in srgb, var(--bpf-accent, var(--text-muted)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bpf-accent, var(--text-muted)) 28%, transparent);
+}
+
+.bpf-file__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.bpf-file__ext {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.bpf-file__track {
+  height: 4px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: var(--bg-input);
+  overflow: hidden;
+}
+
+.bpf-file__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal-primary);
+  transition: width var(--transition-fast);
+}
+
+.bpf-file__msg {
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: var(--neon-red);
+}
+
+.bpf-file__msg:empty {
+  display: none;
+}
+
+.bpf-file__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- Boş durum ve bilgi notu ---- */
+.bpf-empty,
+.bpf-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+}
+
+.bpf-empty {
+  justify-content: center;
+  color: var(--text-muted);
+  background: var(--bg-input);
+  border: 1px dashed var(--border-color);
+}
+
+.bpf-note {
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--neon-blue) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neon-blue) 22%, transparent);
+}
+
+.bpf-note i {
+  color: var(--neon-blue);
+}
+
+@media (max-width: 575.98px) {
+  .bpf-dz__message { flex-direction: column; text-align: center; }
+  .bpf-dz__chips { justify-content: center; }
+  .bpf-file { flex-wrap: wrap; }
+  /* Ad ve boyut alt satıra iniyor; simge ile eylemler üst satırın iki ucunda
+     duruyor, yoksa düğmeler simgenin dibine yapışıyordu. */
+  .bpf-file__body { flex-basis: 100%; order: 3; }
+  .bpf-file__actions { margin-left: auto; }
+}

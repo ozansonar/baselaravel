@@ -6,12 +6,15 @@ namespace App\Observers;
 
 use App\Models\BlogComment;
 use App\Models\BlogPost;
+use App\Models\BlogPostFile;
+use App\Services\BlogPostFileService;
 use App\Services\RedirectService;
 
 final class BlogPostObserver
 {
     public function __construct(
         private readonly RedirectService $redirectService,
+        private readonly BlogPostFileService $files,
     ) {}
 
     public function updating(BlogPost $blogPost): void
@@ -34,6 +37,10 @@ final class BlogPostObserver
     {
         if ($blogPost->isForceDeleting()) {
             $blogPost->comments()->withTrashed()->each(fn (BlogComment $comment) => $comment->forceDelete());
+            // Ekler diskten de gidiyor: satır kalkıp dosya kalsaydı
+            // public/uploads altında sahipsiz birikirdi. Yabancı anahtar da
+            // silmeyi engellerdi, önce ekler temizlenmeli.
+            $blogPost->files()->withTrashed()->each(fn (BlogPostFile $file) => $this->files->delete($file));
 
             return;
         }
@@ -45,10 +52,12 @@ final class BlogPostObserver
         );
 
         $blogPost->comments()->each(fn (BlogComment $comment) => $comment->delete());
+        $blogPost->files()->each(fn (BlogPostFile $file) => $file->delete());
     }
 
     public function restoring(BlogPost $blogPost): void
     {
         $blogPost->comments()->onlyTrashed()->each(fn (BlogComment $comment) => $comment->restore());
+        $blogPost->files()->onlyTrashed()->each(fn (BlogPostFile $file) => $file->restore());
     }
 }

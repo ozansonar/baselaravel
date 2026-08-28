@@ -97,6 +97,13 @@ Schedule::call($run('campaigns:purge-attachments'))
     ->dailyAt('04:15')
     ->withoutOverlapping();
 
+// İçerik ekleri: aynı gerekçe. Çevirisi olmayan bir dil sekmesinde dosya
+// içerikten önce yükleniyor; form terk edilirse ek sahipsiz kalıyor.
+Schedule::call($run('blog-posts:purge-files'))
+    ->name('blog-posts-purge-files')
+    ->dailyAt('04:25')
+    ->withoutOverlapping();
+
 // Automatic backup — nightly (DB + uploads → ZIP).
 // Given its own slot at 05:00: tasks due in the same minute run one after
 // another inside a single PHP process, and the backup is by far the slowest

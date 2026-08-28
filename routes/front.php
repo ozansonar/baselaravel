@@ -35,6 +35,9 @@ Route::get('/iletisim', [ContactController::class, 'create'])->name('contact');
 Route::post('/iletisim', [ContactController::class, 'store'])->middleware('throttle:contact')->name('contact.store');
 
 // Blog
+// Ek indirme /blog altında değil: /blog/{categorySlug} iki parçalı her adresi
+// yakalıyor, dosya adresi oraya düşerse kategori sayfası 404 veriyordu.
+Route::get('/blog-dosya/{file}', [BlogController::class, 'downloadFile'])->name('blog.files.download');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{categorySlug}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/{categorySlug}/{slug}', [BlogController::class, 'show'])->name('blog.show');
