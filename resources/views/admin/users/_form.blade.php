@@ -205,9 +205,6 @@
                             <input type="password" class="stg-input @error('password') is-invalid @enderror" name="password" id="password"
                                    placeholder="Güçlü bir şifre girin"
                                    data-validation-engine="validate[{{ $isEdit ? '' : 'required,' }}minSize[8]]">
-                            <button type="button" class="stg-input-prefix btn-unstyled" onclick="togglePassword('password', this)">
-                                <i class="bi bi-eye"></i>
-                            </button>
                         </div>
                         <div class="uf-password-strength mt-2 d-none" id="passwordStrength">
                             <div class="uf-strength-bars">
@@ -229,9 +226,6 @@
                             <input type="password" class="stg-input" name="password_confirmation" id="passwordConfirm"
                                    placeholder="Şifreyi tekrar girin"
                                    data-validation-engine="validate[{{ $isEdit ? '' : 'required,' }}equals[password]]">
-                            <button type="button" class="stg-input-prefix btn-unstyled" onclick="togglePassword('passwordConfirm', this)">
-                                <i class="bi bi-eye"></i>
-                            </button>
                         </div>
                     </div>
                     @if($isEdit)

@@ -62,6 +62,8 @@ return [
         'explore'    => 'İçerikleri Keşfet',
         'share'      => 'Paylaş',
         'copy_link'  => 'Bağlantıyı kopyala',
+        'show_password' => 'Şifreyi göster',
+        'hide_password' => 'Şifreyi gizle',
     ],
 
     'blog' => [

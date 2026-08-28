@@ -36747,3 +36747,84 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
+
+/* ── Şifre Göster/Gizle ──────────────────────────────────────────────────── */
+/* Düğme alanın sağında durur. Konumlandırma yerine düzenin kendisi hizalıyor:
+   doğrulama balonu alanın kabına eklendiğinde kap yükseliyor, mutlak
+   konumlandırılmış bir düğme o zaman alanın ortasından kayıyordu. */
+
+/* Grup içindeki düğme akışta kalıyor ama girdinin üstüne kaydırılıyor: hizayı
+   grubun kendi dikey ortalaması veriyor, görünüm ise "alanın içinde sağda"
+   oluyor. Mutlak konumlandırma kullanılmıyor — doğrulama balonu gruba
+   eklendiğinde kap yükseliyor ve düğme alanın ortasından kayıyordu. */
+.pw-host > .pw-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 38px;
+  margin-left: -38px;
+  /* Girdi konumlandırılmışsa düğme arkasında kalırdı; düğme öne alınıyor. */
+  position: relative;
+  z-index: 5;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.pw-host > .pw-input {
+  padding-right: 42px;
+  /* Düğme son eleman olduğu için girdinin sağ köşeleri düzleşiyordu. */
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+/* Grubu olmayan alanda girdi ile düğme aynı gözü paylaşıyor: düğme girdinin
+   üstünde sağda kalıyor, balon ise alttaki satıra düşüyor. */
+.pw-host--bare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pw-host--bare > .pw-input,
+.pw-host--bare > .pw-toggle {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.pw-host--bare > .pw-toggle {
+  width: 34px;
+  height: 34px;
+  align-self: center;
+  justify-self: end;
+  margin-right: 5px;
+  border-radius: var(--radius-sm);
+}
+
+.pw-host--bare > .pw-input {
+  padding-right: 42px;
+}
+
+.pw-toggle:hover {
+  color: var(--teal-primary);
+}
+
+.pw-host--bare > .pw-toggle:hover {
+  background: color-mix(in srgb, var(--teal-primary) 12%, transparent);
+}
+
+.pw-toggle:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 1px;
+}
+
+/* Girdi sarmalanınca hata iletisi artık girdinin kardeşi değil; sunucudan
+   gelen ileti bu yüzden gizli kalırdı. */
+.pw-host--bare:has(.is-invalid) ~ .invalid-feedback {
+  display: block;
+}
