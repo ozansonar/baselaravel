@@ -2520,7 +2520,7 @@ a.btn-glass {
   margin: 0 auto 20px;
   font-size: 36px;
   background: rgba(20, 184, 166, 0.12);
-  color: var(--neon-teal);
+  color: var(--neon-teal, #2ee6a8);
   animation: aiLoadingPulse 2s ease-in-out infinite;
 }
 
@@ -2549,7 +2549,7 @@ a.btn-glass {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--neon-teal);
+  background: var(--neon-teal, #2ee6a8);
   animation: aiLoadingDot 1.3s ease-in-out infinite;
 }
 
@@ -35888,9 +35888,9 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   font-size: 13px;
 }
 
-.cmp-file__link:hover { color: var(--text-teal); }
+.cmp-file__link:hover { color: var(--teal-primary); }
 .cmp-file__link:hover .cmp-file__icon { transform: translateY(1px); }
-.cmp-file__icon { color: var(--text-teal); transition: transform .2s ease; }
+.cmp-file__icon { color: var(--teal-primary); transition: transform .2s ease; }
 
 .cmp-file__name {
   overflow: hidden;
@@ -35979,10 +35979,10 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   transition: border-color .2s ease, color .2s ease;
 }
 
-.cmp-chip:hover { border-color: var(--text-teal); color: var(--text-primary); }
+.cmp-chip:hover { border-color: var(--teal-primary); color: var(--text-primary); }
 
 .cmp-chip--aktif {
-  border-color: var(--text-teal);
+  border-color: var(--teal-primary);
   color: var(--text-primary);
   font-weight: 600;
 }
@@ -36044,13 +36044,13 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   gap: 12px;
   margin: 0 20px 12px;
   padding: 10px 14px;
-  border: 1px solid var(--text-teal);
+  border: 1px solid var(--teal-primary);
   border-radius: 12px;
   background: rgba(20, 184, 166, .08);
 }
 
 .cmp-bulk__count { color: var(--text-primary); font-size: 13px; }
-.cmp-bulk__count strong { color: var(--text-teal); }
+.cmp-bulk__count strong { color: var(--teal-primary); }
 
 .cmp-bulk__actions {
   display: flex;
@@ -36150,12 +36150,12 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 }
 
 .cmp-tag:hover {
-  border-color: var(--text-teal);
+  border-color: var(--teal-primary);
   color: var(--text-primary);
 }
 
 .cmp-tag code {
-  color: var(--text-teal);
+  color: var(--teal-primary);
   font-size: 11.5px;
   background: none;
   padding: 0;
@@ -36166,7 +36166,7 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 /* Eklendiğinde kısa bir onay: tıklamanın işe yaradığı, imleç başka yerdeyken
    de görünsün. */
 .cmp-tag--eklendi {
-  border-color: var(--text-teal);
+  border-color: var(--teal-primary);
   background: rgba(20, 184, 166, .14);
 }
 
