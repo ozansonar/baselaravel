@@ -79,6 +79,13 @@
                         'image'       => $post->image ? url(upload_url($post->image, 'lg')) : '',
                     ])
 
+                    {{-- Yorumlar paylaşım düğmelerinin hemen altında: yazıyı
+                         bitiren kişi yorum kutusunu görmek için ilgili
+                         içeriklerin arasından geçmek zorunda kalmıyor. --}}
+                    <hr class="divider my-4">
+
+                    @include('partials.blog-comments', ['post' => $post, 'comments' => $comments, 'commentCount' => $commentCount])
+
                 </div>
             </div>
         </div>
@@ -103,17 +110,6 @@
             </div>
         </section>
     @endif
-
-    {{-- ══════════ COMMENTS ══════════ --}}
-    <section class="section--tight">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    @include('partials.blog-comments', ['post' => $post, 'comments' => $comments, 'commentCount' => $commentCount])
-                </div>
-            </div>
-        </div>
-    </section>
 
 @endsection
 

@@ -67,6 +67,7 @@ return [
     ],
 
     'blog' => [
+        'comment_recaptcha' => 'Lütfen robot olmadığınızı doğrulayın.',
         'featured'  => 'Öne çıkan',
         'read_time' => ':count dk okuma',
         'lead' => 'Güncel yazılar, rehberler ve haberler. İlginizi çekecek içerikleri keşfedin.',
