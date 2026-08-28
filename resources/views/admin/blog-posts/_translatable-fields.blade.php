@@ -372,7 +372,7 @@
                     id="published_at_{{ $language->code }}"
                     name="translations[{{ $language->code }}][published_at]"
                     value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}"
-                   data-validation-engine="validate[custom[date]]">
+                   data-validation-engine="validate[custom[dateTime]]">
                   @error("translations.{$language->code}.published_at")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
