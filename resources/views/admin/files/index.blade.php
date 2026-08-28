@@ -33,7 +33,7 @@
                 <div class="usr-stat-icon usr-stat-icon-blue"><i class="bi bi-folder-fill"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Toplam Dosya</span>
-                    <h3 class="usr-stat-value" data-count="{{ $stats['total_files'] }}">0</h3>
+                    <h3 class="usr-stat-value" data-fmgr-stat="total" data-count="{{ $stats['total_files'] }}">0</h3>
                 </div>
             </div>
         </div>
@@ -42,7 +42,7 @@
                 <div class="usr-stat-icon usr-stat-icon-purple"><i class="bi bi-hdd"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Toplam Boyut</span>
-                    <h3 class="usr-stat-value">{{ \Illuminate\Support\Number::fileSize($stats['total_size'], precision: 1) }}</h3>
+                    <h3 class="usr-stat-value" data-fmgr-stat="size" data-fmgr-bytes="{{ $stats['total_size'] }}">{{ \Illuminate\Support\Number::fileSize($stats['total_size'], precision: 1) }}</h3>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
                 <div class="usr-stat-icon usr-stat-icon-green"><i class="bi bi-calendar-month"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Bu Ay Eklenen</span>
-                    <h3 class="usr-stat-value" data-count="{{ $stats['this_month'] }}">0</h3>
+                    <h3 class="usr-stat-value" data-fmgr-stat="month" data-count="{{ $stats['this_month'] }}">0</h3>
                 </div>
             </div>
         </div>
@@ -60,7 +60,7 @@
                 <div class="usr-stat-icon usr-stat-icon-red"><i class="bi bi-images"></i></div>
                 <div class="usr-stat-info">
                     <span class="usr-stat-label">Görsel Sayısı</span>
-                    <h3 class="usr-stat-value" data-count="{{ $stats['by_category']['image'] ?? 0 }}">0</h3>
+                    <h3 class="usr-stat-value" data-fmgr-stat="image" data-count="{{ $stats['by_category']['image'] ?? 0 }}">0</h3>
                 </div>
             </div>
         </div>
@@ -122,6 +122,11 @@
                         <span class="fmgr-queue__fill" id="fmgrQueueFill"></span>
                     </div>
 
+                    {{-- Yükleme sonucu buraya yazılır. Modal kullanılmıyor:
+                         engelleyici kutu kapatılana kadar kullanıcı listeyi
+                         göremiyordu, oysa sonucun görüleceği yer tam da liste. --}}
+                    <span class="fmgr-queue__summary" id="fmgrQueueSummary" role="status" aria-live="polite"></span>
+
                     <button type="button" class="btn-glass btn-sm d-none" id="fmgrReloadBtn">
                         <i class="bi bi-arrow-clockwise me-1"></i>Listeyi Yenile
                     </button>
@@ -180,9 +185,12 @@
         </div>
     </div>
 
-    {{-- ==================== FILE COLLECTION ==================== --}}
+    {{-- ==================== FILE COLLECTION ====================
+         Gövdenin tamamı yükleme bitince sunucudan yeniden çekilip yerine
+         konuyor (file-manager.js → refreshList). Kart işaretlemesi tek yerde
+         kalsın diye liste JS tarafında elle kurulmuyor. --}}
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
-        <div class="card-body-custom">
+        <div class="card-body-custom" id="fmgrListBody">
             @if($files->isEmpty())
                 <div class="fmgr-empty">
                     <i class="bi bi-folder2-open"></i>
