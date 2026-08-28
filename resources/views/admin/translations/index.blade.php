@@ -18,6 +18,7 @@
             <p class="page-subtitle">Butonlar, etiketler, başlıklar — sitedeki sabit metinler</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            <x-export-menu export="translations" />
             @can('viewAny', App\Models\Language::class)
                 <a href="{{ route('admin.languages.index') }}" class="btn-glass">
                     <i class="bi bi-translate"></i> Diller

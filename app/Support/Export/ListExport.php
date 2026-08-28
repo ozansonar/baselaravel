@@ -6,6 +6,7 @@ namespace App\Support\Export;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use LogicException;
 
 /**
  * Bir listeleme ekranının dışa aktarma tanımı.
@@ -29,10 +30,17 @@ abstract class ListExport
     /**
      * Süzgeçler uygulanmış, sayfalanmamış sorgu.
      *
+     * Satırların varsayılan kaynağı budur. Arkasında tablo olmayan listeler
+     * (örneğin diskten okunan yedekler) bunun yerine count() ve eachChunk()
+     * metodlarını değiştirir.
+     *
      * @param array<string, mixed> $filters
      * @return Builder<covariant \Illuminate\Database\Eloquent\Model>
      */
-    abstract public function query(array $filters): Builder;
+    public function query(array $filters): Builder
+    {
+        throw new LogicException(static::class . ' sorgu üzerinden gezilmiyor; count() ve eachChunk() değiştirilmeli.');
+    }
 
     /**
      * Liste ekranının tanıdığı süzgeç anahtarları.

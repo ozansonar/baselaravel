@@ -345,6 +345,9 @@
                                class="btn-glass btn-sm" title="Görünen listeyi CSV indir">
                                 <i class="bi bi-download"></i> CSV
                             </a>
+                            <x-export-menu export="campaign-recipients"
+                                           :params="['campaign' => $campaign->id]"
+                                           :total="$recipients->total()" />
                         </div>
                     </div>
 

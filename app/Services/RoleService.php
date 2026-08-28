@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class RoleService
 {
@@ -36,13 +37,22 @@ final class RoleService
     /**
      * @return Collection<int, Role>
      */
-    public function allWithCounts(): Collection
+    /**
+     * Rol listesinin sorgusu — ekran ve dışa aktarma aynı sırayı görsün.
+     *
+     * @return Builder<Role>
+     */
+    public function listQuery(): Builder
     {
         return Role::query()
             ->with(['permissions:id,key'])
             ->withCount(['users', 'permissions'])
-            ->orderBy('id')
-            ->get();
+            ->orderBy('id');
+    }
+
+    public function allWithCounts(): Collection
+    {
+        return $this->listQuery()->get();
     }
 
     /**

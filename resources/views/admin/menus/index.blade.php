@@ -50,6 +50,9 @@
             <h1 class="page-title">Menü Yönetimi</h1>
             <p class="page-subtitle">Site genelindeki menüleri ve menü öğelerini yönetin</p>
         </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <x-export-menu export="menus" :total="$menus->count()" />
+        </div>
     </div>
 
     {{-- ==================== SECTION 1: STATS ==================== --}}

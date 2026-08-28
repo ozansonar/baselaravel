@@ -24,6 +24,51 @@ use Illuminate\Database\Eloquent\Builder;
 final class CampaignService
 {
     /**
+     * Alıcı listesinin tanıdığı süzgeç anahtarları.
+     *
+     * @return list<string>
+     */
+    public function recipientFilterKeys(): array
+    {
+        return ['rstatus', 'rsearch'];
+    }
+
+    /**
+     * Bir kampanyanın süzülmüş alıcı sorgusu.
+     *
+     * Ekran, CSV indirmesi ve dışa aktarma aynı sorguyu kullanır: "başarısızları
+     * ver" diyen biri üç ayrı yerde üç ayrı liste görmemeli.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<CampaignRecipient>
+     */
+    public function recipientQuery(Campaign $campaign, array $filters = []): Builder
+    {
+        $status = (string) ($filters['rstatus'] ?? '');
+        $search = trim((string) ($filters['rsearch'] ?? ''));
+
+        // İlişki yerine doğrudan sorgu: ilişki nesnesi sorgu arayüzünü
+        // karşılamıyor, dışa aktarma ise sorgu üzerinden geziyor.
+        return CampaignRecipient::query()
+            ->where('campaign_id', $campaign->getKey())
+            ->when(
+                CampaignRecipientStatus::tryFrom($status) !== null,
+                static fn (Builder $query) => $query->where('status', $status),
+            )
+            ->when($search !== '', static function (Builder $query) use ($search): void {
+                // Joker karakterler düz metin sayılıyor, yoksa "%" tüm listeyi getirir.
+                $term = '%' . addcslashes($search, '%_\\') . '%';
+
+                $query->where(static function (Builder $inner) use ($term): void {
+                    $inner->where('email', 'like', $term)
+                        ->orWhere('first_name', 'like', $term)
+                        ->orWhere('last_name', 'like', $term);
+                });
+            })
+            ->orderBy('id');
+    }
+
+    /**
      * Liste ekranının tanıdığı süzgeç anahtarları.
      *
      * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı

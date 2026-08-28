@@ -76,6 +76,14 @@ return [
         'campaigns'          => App\Exports\CampaignExport::class,
         'languages'          => App\Exports\LanguageExport::class,
         'mail-templates'     => App\Exports\MailTemplateExport::class,
+        'menus'              => App\Exports\MenuExport::class,
+        'roles'              => App\Exports\RoleExport::class,
+        'backups'            => App\Exports\BackupExport::class,
+        'visits'             => App\Exports\PageViewExport::class,
+        'menu-items'         => App\Exports\MenuItemExport::class,
+        'translations'       => App\Exports\TranslationExport::class,
+        'system-health'      => App\Exports\HealthCheckExport::class,
+        'campaign-recipients' => App\Exports\CampaignRecipientExport::class,
     ],
 
 ];

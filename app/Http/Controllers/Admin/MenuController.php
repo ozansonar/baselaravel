@@ -23,10 +23,7 @@ final class MenuController extends Controller
     {
         $this->authorize('viewAny', Menu::class);
 
-        $menus = Menu::withCount('items')
-            ->orderBy('location')
-            ->orderBy('locale')
-            ->get();
+        $menus = $this->menuService->listQuery()->get();
 
         $stats = [
             'total'      => $menus->count(),

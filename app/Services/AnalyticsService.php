@@ -397,6 +397,19 @@ class AnalyticsService
             ->all();
     }
 
+    /**
+     * Ziyaret listesinin tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function visitFilterKeys(): array
+    {
+        return ['url', 'is_bot', 'device_type', 'browser', 'os', 'referrer', 'visitor', 'from', 'to', 'sort'];
+    }
+
     public function paginateVisits(array $filters, int $perPage = 50): LengthAwarePaginator
     {
         return $this->visitQuery($filters)->paginate($perPage)->withQueryString();

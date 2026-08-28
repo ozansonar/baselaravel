@@ -51,7 +51,7 @@ final class TranslationController extends Controller
             'defaultCode'    => $defaultCode,
             'defaultLabel'   => strtoupper($defaultCode),
             'isDefaultLocale' => $locale === $defaultCode,
-            'sections'       => $this->groupIntoSections($keys, $current, $defaults, $overrides),
+            'sections'       => $this->translations->groupIntoSections($keys, $current, $defaults, $overrides),
             'overrideCounts' => $this->translations->overrideCounts(self::GROUP),
             'stats'          => [
                 'total'     => count($keys),
@@ -138,89 +138,6 @@ final class TranslationController extends Controller
      * @param array<string, string> $overrides
      * @return array<string, array{label: string, icon: string, rows: array<int, array<string, mixed>>}>
      */
-    private function groupIntoSections(array $keys, array $current, array $defaults, array $overrides): array
-    {
-        $sections = [];
-
-        foreach ($keys as $key => $defaultLanguageValue) {
-            $section = str_contains($key, '.') ? strtok($key, '.') : 'misc';
-
-            $sections[$section]['label'] = $this->sectionLabel($section);
-            $sections[$section]['icon'] = $this->sectionIcon($section);
-            $sections[$section]['rows'][] = [
-                'key'         => $key,
-                'label'       => $this->keyLabel($key),
-                'value'       => $current[$key] ?? '',
-                'default'     => $defaults[$key] ?? '',
-                'reference'   => $defaultLanguageValue,
-                'overridden'  => array_key_exists($key, $overrides),
-                'missing'     => ! array_key_exists($key, $defaults) && ! array_key_exists($key, $overrides),
-                'multiline'   => mb_strlen((string) ($current[$key] ?? '')) > 90,
-            ];
-        }
-
-        return $sections;
-    }
-
-    /**
-     * Human name for a section, falling back to the raw key so a section added
-     * in code still renders.
-     */
-    private function sectionLabel(string $section): string
-    {
-        return [
-            'nav'        => 'Menü ve Navigasyon',
-            'auth'       => 'Giriş / Üyelik Bağlantıları',
-            'actions'    => 'Butonlar ve Aksiyonlar',
-            'blog'       => 'Blog / İçerikler',
-            'gallery'    => 'Galeri',
-            'faq'        => 'Sıkça Sorulan Sorular',
-            'contact'    => 'İletişim',
-            'account'    => 'Hesabım',
-            'login'      => 'Giriş Sayfası',
-            'register'   => 'Kayıt Sayfası',
-            'password'   => 'Şifre Sıfırlama',
-            'verify'     => 'E-posta Doğrulama',
-            'errors'     => 'Hata Sayfaları',
-            'newsletter' => 'Bülten',
-            'home'       => 'Anasayfa',
-            'misc'       => 'Diğer',
-        ][$section] ?? ucfirst($section);
-    }
-
-    private function sectionIcon(string $section): string
-    {
-        return [
-            'nav'        => 'bi-list',
-            'auth'       => 'bi-person-badge',
-            'actions'    => 'bi-hand-index-thumb',
-            'blog'       => 'bi-newspaper',
-            'gallery'    => 'bi-images',
-            'faq'        => 'bi-question-circle',
-            'contact'    => 'bi-envelope',
-            'account'    => 'bi-person-circle',
-            'login'      => 'bi-box-arrow-in-right',
-            'register'   => 'bi-person-plus',
-            'password'   => 'bi-key',
-            'verify'     => 'bi-shield-check',
-            'errors'     => 'bi-exclamation-triangle',
-            'newsletter' => 'bi-envelope-heart',
-            'home'       => 'bi-house',
-            'misc'       => 'bi-three-dots',
-        ][$section] ?? 'bi-dot';
-    }
-
-    /**
-     * Turn "comment_email_note" into "Comment email note" so the field has a
-     * readable label without a hand-maintained list of every key.
-     */
-    private function keyLabel(string $key): string
-    {
-        $last = str_contains($key, '.') ? substr($key, strrpos($key, '.') + 1) : $key;
-
-        return ucfirst(str_replace('_', ' ', $last));
-    }
-
     /**
      * Keys the default language defines but this language has neither a file
      * entry nor an override for — the ones that silently fall back.

@@ -47,6 +47,7 @@
             <p class="page-subtitle">{{ $summary['total'] }} kontrol çalıştırıldı — {{ $checkNames }}</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            <x-export-menu export="system-health" :total="$summary['total']" />
             <a href="{{ route('admin.system-health.json') }}" class="btn-glass" target="_blank" rel="noopener"
                title="İzleme araçları için ham çıktı">
                 <i class="bi bi-braces"></i> JSON çıktısı

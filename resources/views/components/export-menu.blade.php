@@ -4,12 +4,15 @@
     // Süzgeçlere uyan toplam kayıt: PDF tavanı aşıldığında kullanıcıyı dosya
     // üretilmeden uyarmak için. Bilinmiyorsa sunucu tarafı yine yakalar.
     'total' => null,
+    // Adres satırında değil de yolda taşınan seçimler (açık menü gibi) buradan
+    // eklenir; yoksa dosya ekrandakinden geniş iner.
+    'params' => [],
 ])
 
 @php
     // Ekrandaki süzgeçler dosyaya aynen yansısın; sayfa numarası anlamsız,
     // dosyaya tek sayfa değil listenin tamamı iner.
-    $exportQuery = request()->except('page');
+    $exportQuery = array_merge(request()->except('page'), $params);
     $pdfLimit = (int) config('export.pdf_row_limit');
 @endphp
 
