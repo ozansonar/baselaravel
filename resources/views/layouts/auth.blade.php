@@ -86,6 +86,10 @@
     <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
     <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
     <script src="{{ versioned_asset('js/app.js') }}"></script>
+    {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı sayfanın dilinden geliyor. --}}
+    <script src="{{ versioned_asset('js/password-toggle.js') }}"
+            data-show-label="{{ __('site.actions.show_password') }}"
+            data-hide-label="{{ __('site.actions.hide_password') }}"></script>
 
     @if(app(\App\Services\RecaptchaService::class)->isEnabled())
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>

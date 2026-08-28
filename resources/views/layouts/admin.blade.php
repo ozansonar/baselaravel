@@ -86,6 +86,7 @@
 <script src="{{ versioned_asset('assets/admin/js/section-nav.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/form-validation.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/file-input.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/password-toggle.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/select2-init.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/export-menu.js') }}"></script>
 @if(Route::has('admin.notifications.recent'))

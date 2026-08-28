@@ -36747,3 +36747,700 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
+
+/* ── Şifre Göster/Gizle ──────────────────────────────────────────────────── */
+/* Düğme alanın sağında durur. Konumlandırma yerine düzenin kendisi hizalıyor:
+   doğrulama balonu alanın kabına eklendiğinde kap yükseliyor, mutlak
+   konumlandırılmış bir düğme o zaman alanın ortasından kayıyordu. */
+
+/* Grup içindeki düğme akışta kalıyor ama girdinin üstüne kaydırılıyor: hizayı
+   grubun kendi dikey ortalaması veriyor, görünüm ise "alanın içinde sağda"
+   oluyor. Mutlak konumlandırma kullanılmıyor — doğrulama balonu gruba
+   eklendiğinde kap yükseliyor ve düğme alanın ortasından kayıyordu. */
+.pw-host > .pw-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 38px;
+  margin-left: -38px;
+  /* Girdi konumlandırılmışsa düğme arkasında kalırdı; düğme öne alınıyor. */
+  position: relative;
+  z-index: 5;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.pw-host > .pw-input {
+  padding-right: 42px;
+  /* Düğme son eleman olduğu için girdinin sağ köşeleri düzleşiyordu. */
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+/* Grubu olmayan alanda girdi ile düğme aynı gözü paylaşıyor: düğme girdinin
+   üstünde sağda kalıyor, balon ise alttaki satıra düşüyor. */
+.pw-host--bare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pw-host--bare > .pw-input,
+.pw-host--bare > .pw-toggle {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.pw-host--bare > .pw-toggle {
+  width: 34px;
+  height: 34px;
+  align-self: center;
+  justify-self: end;
+  margin-right: 5px;
+  border-radius: var(--radius-sm);
+}
+
+.pw-host--bare > .pw-input {
+  padding-right: 42px;
+}
+
+.pw-toggle:hover {
+  color: var(--teal-primary);
+}
+
+.pw-host--bare > .pw-toggle:hover {
+  background: color-mix(in srgb, var(--teal-primary) 12%, transparent);
+}
+
+.pw-toggle:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 1px;
+}
+
+/* Girdi sarmalanınca hata iletisi artık girdinin kardeşi değil; sunucudan
+   gelen ileti bu yüzden gizli kalırdı. */
+.pw-host--bare:has(.is-invalid) ~ .invalid-feedback {
+  display: block;
+}
+
+/* ============================================================
+   Dosya Yöneticisi (/admin/files) — fmgr
+   Yükleme alanı + kuyruk + koleksiyon (ızgara / liste)
+   Not: kök öge bilerek .dropzone sınıfını taşımıyor; oradaki
+   !important'lı kütüphane geçersiz kılmaları bu tasarımı eziyordu.
+   ============================================================ */
+
+/* ---- Yükleme alanı ---- */
+.fmgr-dz {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 148px;
+  padding: 24px 20px;
+  border: 2px dashed color-mix(in srgb, var(--teal-primary) 30%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--teal-primary) 3%, var(--bg-input));
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base);
+}
+
+.fmgr-dz:hover {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 7%, var(--bg-input));
+}
+
+.fmgr-dz:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+}
+
+.fmgr-dz.dz-drag-hover {
+  border-style: solid;
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 12%, var(--bg-input));
+  box-shadow: var(--shadow-glow-teal);
+}
+
+.fmgr-dz__message {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  text-align: left;
+  margin: 0;
+}
+
+.fmgr-dz__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-md);
+  font-size: 26px;
+  color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal-primary) 22%, transparent);
+  transition: transform var(--transition-base);
+}
+
+.fmgr-dz:hover .fmgr-dz__icon,
+.fmgr-dz.dz-drag-hover .fmgr-dz__icon {
+  transform: translateY(-3px);
+}
+
+.fmgr-dz__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.fmgr-dz__title u {
+  color: var(--teal-primary);
+  text-decoration: none;
+  border-bottom: 1px dashed currentColor;
+}
+
+.fmgr-dz__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.fmgr-dz__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fmgr-dz__chips li {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.fmgr-dz__chips li i {
+  margin-right: 4px;
+  color: var(--teal-primary);
+}
+
+@media (max-width: 575.98px) {
+  .fmgr-dz__message { flex-direction: column; text-align: center; }
+  .fmgr-dz__chips { justify-content: center; }
+}
+
+/* ---- Yükleme kuyruğu ---- */
+.fmgr-queue {
+  margin-top: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.fmgr-queue__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-input);
+}
+
+.fmgr-queue__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.fmgr-queue__title i { color: var(--teal-primary); margin-right: 6px; }
+
+.fmgr-queue__counts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.fmgr-queue__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.fmgr-queue__count--ok { color: var(--neon-green); }
+.fmgr-queue__count--err { color: var(--neon-red); }
+.fmgr-queue__count--dup { color: var(--neon-orange); }
+.fmgr-queue__count.is-empty { display: none; }
+
+.fmgr-queue__track {
+  flex: 1 1 140px;
+  height: 6px;
+  min-width: 120px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text-muted) 22%, transparent);
+  overflow: hidden;
+}
+
+.fmgr-queue__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--teal-dark), var(--teal-light));
+  transition: width .25s ease;
+}
+
+.fmgr-queue__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* ---- Kuyruk satırı (Dropzone previewTemplate) ---- */
+.fmgr-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.fmgr-item.dz-success { border-color: color-mix(in srgb, var(--neon-green) 40%, transparent); }
+.fmgr-item.dz-error   { border-color: color-mix(in srgb, var(--neon-red) 45%, transparent); }
+.fmgr-item.is-duplicate { border-color: color-mix(in srgb, var(--neon-orange) 45%, transparent); }
+
+.fmgr-item__thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Küçük resim yalnızca Dropzone önizleme üretebildiğinde görünür; aksi hâlde
+   boş <img> kutusu ikonun yanında hayalet bir dikdörtgen bırakıyordu. */
+.fmgr-item__thumb img {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fmgr-item__thumb i {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+.fmgr-item.dz-image-preview .fmgr-item__thumb img { display: block; }
+.fmgr-item.dz-image-preview .fmgr-item__thumb i { display: none; }
+
+.fmgr-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fmgr-item__top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.fmgr-item__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fmgr-item__size {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.fmgr-item__track {
+  height: 4px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-muted) 22%, transparent);
+  overflow: hidden;
+  transition: opacity var(--transition-base);
+}
+
+.fmgr-item__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: var(--teal-primary);
+  transition: width .2s linear;
+}
+
+.fmgr-item.dz-complete .fmgr-item__track { opacity: 0; height: 0; margin-top: 0; }
+.fmgr-item.dz-success .fmgr-item__fill { background: var(--neon-green); }
+.fmgr-item.dz-error .fmgr-item__fill { background: var(--neon-red); }
+
+.fmgr-item__msg {
+  display: none;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--neon-red);
+}
+
+.fmgr-item.dz-error .fmgr-item__msg,
+.fmgr-item.is-duplicate .fmgr-item__msg { display: block; }
+.fmgr-item.is-duplicate .fmgr-item__msg { color: var(--neon-orange); }
+
+.fmgr-item__state {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  font-size: 16px;
+}
+
+.fmgr-item__state i { display: none; }
+.fmgr-item.dz-success .fmgr-item__state .fmgr-item__ok { display: block; color: var(--neon-green); }
+.fmgr-item.dz-error .fmgr-item__state .fmgr-item__err { display: block; color: var(--neon-red); }
+.fmgr-item.is-duplicate .fmgr-item__state .fmgr-item__ok { display: none; }
+.fmgr-item.is-duplicate .fmgr-item__state .fmgr-item__dup { display: block; color: var(--neon-orange); }
+
+.fmgr-item__remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.fmgr-item__remove:hover {
+  background: color-mix(in srgb, var(--neon-red) 16%, transparent);
+  color: var(--neon-red);
+}
+
+/* ---- Koleksiyon: ızgara / liste ortak kart ---- */
+.fmgr-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.fmgr-toolbar-row__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.fmgr-view-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.fmgr-view-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.fmgr-view-switch__btn:hover { color: var(--text-primary); }
+
+.fmgr-view-switch__btn.is-active {
+  background: var(--teal-primary);
+  color: #fff;
+}
+
+.fmgr-collection { display: grid; gap: 14px; }
+
+.fmgr-collection--grid {
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+}
+
+.fmgr-collection--list {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+/* Dar ekranda 168px'lik taban tek sütuna düşüyor ve kartlar dev gibi
+   görünüyordu; telefonda iki sütun daha okunur. Rozet o genişlikte yalnız
+   ikona iner, yoksa dokunmatikte hep açık duran eylem düğmeleriyle çakışıyor. */
+@media (max-width: 575.98px) {
+  .fmgr-collection--grid {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
+  }
+
+  .fmgr-collection--grid .fmgr-card__badge span { display: none; }
+  .fmgr-collection--grid .fmgr-card__btn { width: 26px; height: 26px; }
+}
+
+.fmgr-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.fmgr-card:hover {
+  border-color: var(--teal-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.fmgr-card__thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-card);
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.fmgr-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-base);
+}
+
+.fmgr-card:hover .fmgr-card__thumb img { transform: scale(1.05); }
+
+.fmgr-card__icon { font-size: 38px; opacity: .9; }
+
+.fmgr-card__badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-white);
+  background: rgba(10, 14, 26, .72);
+  backdrop-filter: blur(4px);
+}
+
+.fmgr-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 10px;
+  min-width: 0;
+}
+
+.fmgr-card__name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fmgr-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.fmgr-card__meta i { margin-right: 3px; }
+.fmgr-card__webp { color: var(--teal-primary); }
+
+.fmgr-card__actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.fmgr-card:hover .fmgr-card__actions,
+.fmgr-card:focus-within .fmgr-card__actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: none) {
+  .fmgr-card__actions { opacity: 1; transform: none; }
+}
+
+.fmgr-card__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+  background: rgba(10, 14, 26, .78);
+  backdrop-filter: blur(6px);
+  color: var(--text-white);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.fmgr-card__btn:hover { background: var(--teal-primary); color: #fff; }
+.fmgr-card__btn--danger:hover { background: var(--neon-red); color: #fff; }
+
+/* ---- Liste görünümü: aynı kart, satır düzeni ---- */
+.fmgr-collection--list .fmgr-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+}
+
+.fmgr-collection--list .fmgr-card:hover { transform: none; }
+
+.fmgr-collection--list .fmgr-card__thumb {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  aspect-ratio: auto;
+  border-radius: var(--radius-sm);
+}
+
+.fmgr-collection--list .fmgr-card__icon { font-size: 20px; }
+
+.fmgr-collection--list .fmgr-card__badge {
+  position: static;
+  order: 2;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  backdrop-filter: none;
+}
+
+.fmgr-collection--list .fmgr-card__body {
+  order: 1;
+  flex: 1 1 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 0;
+}
+
+.fmgr-collection--list .fmgr-card__name { flex: 1 1 40%; min-width: 0; }
+.fmgr-collection--list .fmgr-card__meta { flex-shrink: 0; }
+
+.fmgr-collection--list .fmgr-card__actions {
+  position: static;
+  order: 3;
+  opacity: 1;
+  transform: none;
+}
+
+.fmgr-collection--list .fmgr-card__btn {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.fmgr-collection--list .fmgr-card__btn:hover { color: #fff; }
+
+@media (max-width: 767.98px) {
+  .fmgr-collection--list .fmgr-card__body { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .fmgr-collection--list .fmgr-card__badge { display: none; }
+}
+
+/* ---- Boş durum ---- */
+.fmgr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 44px 16px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.fmgr-empty i { font-size: 42px; opacity: .35; }
+.fmgr-empty h6 { margin: 6px 0 0; color: var(--text-primary); }

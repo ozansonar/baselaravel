@@ -59,6 +59,8 @@ return [
         'explore'   => 'Explore Content',
         'share'     => 'Share',
         'copy_link' => 'Copy link',
+        'show_password' => 'Show password',
+        'hide_password' => 'Hide password',
     ],
 
     'blog' => [

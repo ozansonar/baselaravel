@@ -40,6 +40,9 @@
       "Bash(unzip *)",
       "Bash(zip *)",
       "Bash(tar *)",
+      "Bash(rm *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
       "Read",
       "Glob",
       "Grep",
@@ -47,10 +50,6 @@
       "Edit"
     ],
     "ask": [
-      "Bash(rm *)",
-      "Bash(curl *)",
-      "Bash(wget *)",
-      "Bash(chmod 777 *)",
       "Bash(git push --force*)",
       "Bash(git push -f *)",
       "Bash(git reset --hard*)",
@@ -59,7 +58,9 @@
       "Bash(php artisan migrate:reset*)",
       "Bash(php artisan migrate:rollback*)",
       "Bash(php artisan db:wipe*)",
-      "Bash(mysql * -e drop*)"
+      "Bash(mysql * -e drop*)",
+      "Bash(mysql * -e DROP*)",
+      "Bash(chmod 777 *)"
     ],
     "deny": [
       "Bash(npm *)",
@@ -72,6 +73,8 @@
       "Bash(webpack *)",
       "Bash(rm -rf /*)",
       "Bash(rm -rf ~*)",
+      "Bash(rm -rf .git*)",
+      "Bash(sudo *)",
       "Edit(./.env)",
       "Write(./.env)",
       "Edit(./vendor/**)",
