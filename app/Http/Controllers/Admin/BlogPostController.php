@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Concerns\ProvidesContentFileForm;
+use App\Enums\ContentStatus;
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkBlogPostRequest;
 use App\Http\Requests\Admin\StoreTranslatedBlogPostRequest;
 use App\Http\Requests\StoreBlogPostRequest;
 use App\Http\Requests\UpdateBlogPostRequest;
@@ -19,6 +22,8 @@ use Illuminate\View\View;
 
 final class BlogPostController extends Controller
 {
+    use ReturnsToList;
+
     use ProvidesContentFileForm;
 
     public function __construct(
@@ -139,4 +144,55 @@ final class BlogPostController extends Controller
             ->with('success', 'İçerik başarıyla geri yüklendi.');
     }
 
+    /**
+     * Listede seçilen içerikleri tek seferde siler.
+     */
+    public function bulkDestroy(BulkBlogPostRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new BlogPost());
+
+        $silinen = $this->blogService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-posts.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} içerik silindi." : 'Hiçbir içerik silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki içerikleri tek seferde geri yükler.
+     */
+    public function bulkRestore(BulkBlogPostRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new BlogPost());
+
+        $geriYuklenen = $this->blogService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-posts.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} içerik geri yüklendi." : 'Hiçbir içerik geri yüklenemedi.',
+        );
+    }
+
+    /**
+     * Seçilen içerikleri tek seferde yayına alır ya da taslağa çeker.
+     *
+     * Listedeki "Yayınla" ve "Taslağa Al" düğmeleri buraya bağlı; ikisi de
+     * önceden hiçbir şey yapmıyordu.
+     */
+    public function bulkStatus(BulkBlogPostRequest $request, string $status): RedirectResponse
+    {
+        $this->authorize('update', new BlogPost());
+
+        $hedef = $status === 'publish' ? ContentStatus::Published : ContentStatus::Draft;
+
+        $degisen = $this->blogService->changeStatusMany($request->ids(), $hedef);
+
+        $ad = $hedef === ContentStatus::Published ? 'yayına alındı' : 'taslağa alındı';
+
+        return $this->backToList($request, 'admin.blog-posts.index')->with(
+            $degisen > 0 ? 'success' : 'error',
+            $degisen > 0 ? "{$degisen} içerik {$ad}." : 'Hiçbir içerik değiştirilemedi.',
+        );
+    }
 }

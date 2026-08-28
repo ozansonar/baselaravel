@@ -137,9 +137,30 @@
                     </div>
 
                     <x-export-menu export="faqs" :total="$faqs->total()" />
-                    <div class="cl-bulk-actions d-none" id="bulkActions">
-                        <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
-                        <button type="button" class="usr-action-btn danger" onclick="openBulkDeleteModal()" title="Sil"><i class="bi bi-trash"></i></button>
+                    {{-- Seçim yapılınca beliriyor. Düğmeler type=button: çubuk
+                         süzgeç formunun içinde duruyor, aksi hâlde tıklama
+                         listeyi yeniden süzerdi. Sürücü: assets/admin/js/bulk-actions.js --}}
+                    <div class="cl-bulk-actions d-none" data-bulk-bar>
+                        <span class="cl-bulk-count"><span data-bulk-count>0</span> seçili</span>
+                        @if(request('status') === 'trashed')
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkRestoreForm"
+                                    data-bulk-title="Toplu Geri Yükleme"
+                                    data-bulk-message=":count soru geri yüklenecek. Onaylıyor musunuz?"
+                                    data-bulk-confirm="Evet, Geri Yükle"
+                                    data-bulk-icon="bi bi-arrow-counterclockwise"
+                                    title="Seçilenleri Geri Yükle"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        @else
+                            <button type="button" class="usr-action-btn danger"
+                                    data-bulk-action="bulkDeleteForm"
+                                    data-bulk-title="Toplu Silme Onayı"
+                                    data-bulk-message=":count soru silinecek. Silinenler &quot;Silinmiş&quot; sekmesinden geri alınabilir."
+                                    data-bulk-type="danger"
+                                    data-bulk-confirm="Evet, Sil"
+                                    data-bulk-icon="bi bi-trash3"
+                                    title="Seçilenleri Sil"><i class="bi bi-trash"></i></button>
+                        @endif
+                        <button type="button" class="usr-action-btn" data-bulk-clear title="Seçimi Bırak"><i class="bi bi-x-lg"></i></button>
                     </div>
                 </div>
             </form>
@@ -155,7 +176,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-all aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>Soru</th>
                             <th class="d-none d-md-table-cell">Cevap</th>
@@ -167,7 +188,7 @@
                     <tbody id="faqsTableBody">
                         @forelse($faqs as $faq)
                             <tr data-status="{{ $faq->trashed() ? 'trashed' : ($faq->is_active ? 'active' : 'passive') }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox faq-checkbox" value="{{ $faq->id }}" onchange="updateBulk()" data-fv-ignore></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox" data-bulk-item value="{{ $faq->id }}" data-fv-ignore></td>
                                 <td data-label="Soru">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ Str::limit($faq->question, 60) }}</span>
@@ -220,6 +241,17 @@
         @include('partials.admin.pagination', ['paginator' => $faqs, 'itemLabel' => 'SSS'])
     </div>
 
+    {{-- Toplu işlem formları: kutular listenin içinde, formlar dışında.
+         Satırlarda kendi silme formları var, iç içe form olmaz; kimlikleri
+         bulk-actions.js gönderim anında dolduruyor. --}}
+    <form method="POST" action="{{ route('admin.faqs.bulk-destroy', request()->query()) }}" id="bulkDeleteForm" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form method="POST" action="{{ route('admin.faqs.bulk-restore', request()->query()) }}" id="bulkRestoreForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
 @endsection
 
 @push('scripts')

@@ -139,9 +139,26 @@
                     </div>
                 </div>
 
-                <div class="usr-bulk-actions d-none" id="bulkActions">
-                    <span class="usr-bulk-count"><span id="selectedCount">0</span> seçili</span>
-                    <button type="button" class="btn-glass" onclick="confirmBulkDelete()"><i class="bi bi-trash me-1"></i>Sil</button>
+                {{-- Sürücü: assets/admin/js/bulk-actions.js --}}
+                <div class="usr-bulk-actions d-none" data-bulk-bar>
+                    <span class="usr-bulk-count"><span data-bulk-count>0</span> seçili</span>
+                    @if(request('status') === 'trashed')
+                        <button type="button" class="btn-glass"
+                                data-bulk-action="bulkRestoreForm"
+                                data-bulk-title="Toplu Geri Yükleme"
+                                data-bulk-message=":count kullanıcı geri yüklenecek. Onaylıyor musunuz?"
+                                data-bulk-confirm="Evet, Geri Yükle"
+                                data-bulk-icon="bi bi-arrow-counterclockwise"><i class="bi bi-arrow-counterclockwise me-1"></i>Geri Yükle</button>
+                    @else
+                        <button type="button" class="btn-glass"
+                                data-bulk-action="bulkDeleteForm"
+                                data-bulk-title="Toplu Silme Onayı"
+                                data-bulk-message=":count kullanıcı silinecek. Kendi hesabınız seçili olsa bile silinmez."
+                                data-bulk-type="danger"
+                                data-bulk-confirm="Evet, Sil"
+                                data-bulk-icon="bi bi-trash3"><i class="bi bi-trash me-1"></i>Sil</button>
+                    @endif
+                    <button type="button" class="btn-glass" data-bulk-clear><i class="bi bi-x-lg me-1"></i>Seçimi Bırak</button>
                 </div>
             </form>
         </div>
@@ -155,7 +172,7 @@
                     <thead>
                         <tr>
                             <th class="usr-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-all aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>Kullanıcı</th>
                             <th>Rol</th>
@@ -167,7 +184,7 @@
                     <tbody id="userTableBody">
                         @forelse($users as $user)
                         <tr>
-                            <td><input type="checkbox" class="usr-checkbox" value="{{ $user->id }}" onchange="updateBulk()" data-fv-ignore></td>
+                            <td><input type="checkbox" class="usr-checkbox" data-bulk-item value="{{ $user->id }}" data-fv-ignore></td>
                             <td>
                                 <div class="usr-user-cell">
                                     <div class="usr-avatar">
@@ -288,27 +305,15 @@
         </div>
     </div>
 
-    <!-- Bulk Delete Modal -->
-    <div class="modal fade" id="bulkDeleteModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center py-4">
-                    <div class="status-modal-icon danger">
-                        <i class="bi bi-exclamation-triangle"></i>
-                    </div>
-                    <h5 class="cl-modal-heading">Toplu Silme</h5>
-                    <p class="cl-modal-body-text">Seçili kullanıcıları silmek istediğinizden emin misiniz?</p>
-                    <p class="cl-modal-content-name" id="bulkDeleteCount"></p>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                        <button type="button" class="btn-teal btn-danger-gradient" onclick="executeBulkDelete()">
-                            <i class="bi bi-trash me-1"></i> Evet, Sil
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- Toplu işlem formları — kimlikleri bulk-actions.js dolduruyor. --}}
+    <form method="POST" action="{{ route('admin.users.bulk-destroy', request()->query()) }}" id="bulkDeleteForm" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form method="POST" action="{{ route('admin.users.bulk-restore', request()->query()) }}" id="bulkRestoreForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
 @endsection
 
 @push('scripts')

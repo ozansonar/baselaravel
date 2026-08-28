@@ -150,10 +150,35 @@
                     </div>
 
                     <x-export-menu export="blog-comments" :total="$comments->total()" />
-                    <div class="cl-bulk-actions d-none" id="bulkActions">
-                        <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
-                        <button type="button" class="usr-action-btn success" onclick="openBulkApproveModal()" title="Toplu Onayla"><i class="bi bi-check-lg"></i></button>
-                        <button type="button" class="usr-action-btn danger" onclick="openBulkDeleteModal()" title="Toplu Sil"><i class="bi bi-trash"></i></button>
+                    {{-- Sürücü: assets/admin/js/bulk-actions.js --}}
+                    <div class="cl-bulk-actions d-none" data-bulk-bar>
+                        <span class="cl-bulk-count"><span data-bulk-count>0</span> seçili</span>
+                        @if(request('status') === 'trashed')
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkRestoreForm"
+                                    data-bulk-title="Toplu Geri Yükleme"
+                                    data-bulk-message=":count yorum geri yüklenecek. Onaylıyor musunuz?"
+                                    data-bulk-confirm="Evet, Geri Yükle"
+                                    data-bulk-icon="bi bi-arrow-counterclockwise"
+                                    title="Seçilenleri Geri Yükle"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        @else
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkApproveForm"
+                                    data-bulk-title="Toplu Onay"
+                                    data-bulk-message=":count yorum onaylanacak ve sitede görünür olacak."
+                                    data-bulk-confirm="Evet, Onayla"
+                                    data-bulk-icon="bi bi-check-lg"
+                                    title="Seçilenleri Onayla"><i class="bi bi-check-lg"></i></button>
+                            <button type="button" class="usr-action-btn danger"
+                                    data-bulk-action="bulkDeleteForm"
+                                    data-bulk-title="Toplu Silme Onayı"
+                                    data-bulk-message=":count yorum silinecek. Silinenler &quot;Silinmiş&quot; sekmesinden geri alınabilir."
+                                    data-bulk-type="danger"
+                                    data-bulk-confirm="Evet, Sil"
+                                    data-bulk-icon="bi bi-trash3"
+                                    title="Seçilenleri Sil"><i class="bi bi-trash"></i></button>
+                        @endif
+                        <button type="button" class="usr-action-btn" data-bulk-clear title="Seçimi Bırak"><i class="bi bi-x-lg"></i></button>
                     </div>
                 </div>
             </form>
@@ -169,7 +194,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-all aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>Kişi</th>
                             <th>Yazı</th>
@@ -182,7 +207,7 @@
                     <tbody id="commentsTableBody">
                         @forelse($comments as $comment)
                             <tr data-status="{{ $comment->trashed() ? 'trashed' : $comment->status->value }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox comment-checkbox" value="{{ $comment->id }}" onchange="updateBulk()" data-fv-ignore></td>
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox" data-bulk-item value="{{ $comment->id }}" data-fv-ignore></td>
                                 <td data-label="Kişi">
                                     <div class="cl-content-info">
                                         <span class="cl-content-title">{{ $comment->name }}</span>
@@ -266,6 +291,19 @@
         @include('partials.admin.pagination', ['paginator' => $comments, 'itemLabel' => 'yorum'])
     </div>
 
+    {{-- Toplu işlem formları — kimlikleri bulk-actions.js dolduruyor. --}}
+    <form method="POST" action="{{ route('admin.blog-comments.bulk-approve', request()->query()) }}" id="bulkApproveForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-comments.bulk-destroy', request()->query()) }}" id="bulkDeleteForm" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-comments.bulk-restore', request()->query()) }}" id="bulkRestoreForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
 @endsection
 
 @push('scripts')

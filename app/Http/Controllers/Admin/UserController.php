@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
@@ -17,6 +19,8 @@ use Illuminate\View\View;
 
 final class UserController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly UserService $userService,
         private readonly RoleService $roleService,
@@ -121,5 +125,35 @@ final class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'Kullanıcı başarıyla geri yüklendi.');
+    }
+
+    /**
+     * Listede seçilen kullanıcıları tek seferde siler.
+     */
+    public function bulkDestroy(BulkUserRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new User());
+
+        $silinen = $this->userService->deleteMany($request->ids(), $request->user()?->id);
+
+        return $this->backToList($request, 'admin.users.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} kullanıcı silindi." : 'Hiçbir kullanıcı silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki kullanıcıları tek seferde geri yükler.
+     */
+    public function bulkRestore(BulkUserRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new User());
+
+        $geriYuklenen = $this->userService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.users.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} kullanıcı geri yüklendi." : 'Hiçbir kullanıcı geri yüklenemedi.',
+        );
     }
 }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Concerns\ProvidesContentFileForm;
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkPageRequest;
 use App\Http\Requests\Admin\StoreTranslatedPageRequest;
 use App\Models\Page;
 use App\Services\PageService;
@@ -15,6 +17,8 @@ use Illuminate\View\View;
 
 final class PageController extends Controller
 {
+    use ReturnsToList;
+
     use ProvidesContentFileForm;
 
     public function __construct(
@@ -101,5 +105,40 @@ final class PageController extends Controller
         return redirect()
             ->route('admin.pages.index')
             ->with('success', 'Sayfa başarıyla geri yüklendi.');
+    }
+
+    /**
+     * Listede seçilen sayfaleri tek seferde siler.
+     *
+     * Liste ekranındaki seçim kutuları buraya bağlı; önceden yalnız arayüz
+     * vardı, "Sil" kutuları temizliyor ama sunucuya istek gitmiyordu.
+     */
+    public function bulkDestroy(BulkPageRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new Page());
+
+        $silinen = $this->pageService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.pages.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} kayıt silindi." : 'Hiçbir kayıt silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki sayfaleri tek seferde geri yükler.
+     *
+     * Silinmişler sekmesinde toplu silmenin karşılığı bu.
+     */
+    public function bulkRestore(BulkPageRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new Page());
+
+        $geriYuklenen = $this->pageService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.pages.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} kayıt geri yüklendi." : 'Hiçbir kayıt geri yüklenemedi.',
+        );
     }
 }

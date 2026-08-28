@@ -313,38 +313,15 @@ final class GalleryService
     /**
      * Seçilen öğeleri tek seferde siler.
      *
-     * Liste her çeviri grubunu tek satırla gösteriyor; silme de satır satır
-     * değil grup grup işliyor — bir öğenin Türkçesini silip İngilizcesini
-     * bırakmak, ön yüzde sahipsiz bir çeviri bırakırdı.
-     *
-     * Aynı gruba ait iki satır seçilse bile grup bir kez siliniyor; sayı bu
-     * yüzden seçilen satır sayısı değil, gerçekten silinen grup sayısı.
+     * Döngünün kendisi ListsTranslationGroups içinde: aynı iş sayfa, slider,
+     * SSS ve kategori listelerinde de var, altı yerde ayrı yazılmasın.
      *
      * @param  list<int> $ids
      * @return int       silinen öğe sayısı
      */
     public function deleteMany(array $ids): int
     {
-        if ($ids === []) {
-            return 0;
-        }
-
-        $silinen = 0;
-
-        DB::transaction(function () use ($ids, &$silinen): void {
-            $items = GalleryItem::whereIn('id', $ids)->get();
-            $islenenGruplar = [];
-
-            foreach ($items as $item) {
-                if (in_array($item->lang_group_id, $islenenGruplar, true)) {
-                    continue;
-                }
-
-                $islenenGruplar[] = $item->lang_group_id;
-                $this->deleteTranslationGroup($item);
-                $silinen++;
-            }
-        });
+        $silinen = $this->deleteGroupsById(GalleryItem::class, $ids);
 
         if ($silinen > 0) {
             $this->clearCache();
@@ -361,26 +338,7 @@ final class GalleryService
      */
     public function restoreMany(array $ids): int
     {
-        if ($ids === []) {
-            return 0;
-        }
-
-        $geriYuklenen = 0;
-
-        DB::transaction(function () use ($ids, &$geriYuklenen): void {
-            $items = GalleryItem::onlyTrashed()->whereIn('id', $ids)->get();
-            $islenenGruplar = [];
-
-            foreach ($items as $item) {
-                if (in_array($item->lang_group_id, $islenenGruplar, true)) {
-                    continue;
-                }
-
-                $islenenGruplar[] = $item->lang_group_id;
-                $this->restoreTranslationGroup($item);
-                $geriYuklenen++;
-            }
-        });
+        $geriYuklenen = $this->restoreGroupsById(GalleryItem::class, $ids);
 
         if ($geriYuklenen > 0) {
             $this->clearCache();

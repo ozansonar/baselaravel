@@ -156,9 +156,10 @@ final class GalleryBulkActionTest extends TestCase
 
         $html = (string) $this->get(route('admin.gallery-items.index'))->assertOk()->getContent();
 
-        $this->assertStringContainsString('id="selectAll"', $html);
-        $this->assertStringContainsString('gallery-checkbox', $html);
-        $this->assertStringContainsString('id="bulkActions"', $html);
+        // İşaretler ortak: assets/admin/js/bulk-actions.js bunları arıyor.
+        $this->assertStringContainsString('data-bulk-all', $html);
+        $this->assertStringContainsString('data-bulk-item', $html);
+        $this->assertStringContainsString('data-bulk-bar', $html);
         $this->assertStringContainsString('id="bulkDeleteForm"', $html);
     }
 
@@ -171,8 +172,8 @@ final class GalleryBulkActionTest extends TestCase
         $html = (string) $this->get(route('admin.gallery-items.index', ['status' => 'trashed']))
             ->assertOk()->getContent();
 
-        $this->assertStringContainsString('bulkGalleryAction(\'restore\')', $html);
-        $this->assertStringNotContainsString('bulkGalleryAction(\'delete\')', $html);
+        $this->assertStringContainsString('data-bulk-action="bulkRestoreForm"', $html);
+        $this->assertStringNotContainsString('data-bulk-action="bulkDeleteForm"', $html);
     }
 
     public function test_the_grid_view_lists_the_same_items(): void
@@ -185,6 +186,6 @@ final class GalleryBulkActionTest extends TestCase
         $this->assertStringContainsString('id="galleryGrid"', $html);
         $this->assertStringContainsString('gl-card', $html);
         // Seçim ızgarada da çalışıyor: kutular aynı sınıfı taşıyor.
-        $this->assertStringContainsString('gallery-checkbox', $html);
+        $this->assertStringContainsString('data-bulk-item', $html);
     }
 }

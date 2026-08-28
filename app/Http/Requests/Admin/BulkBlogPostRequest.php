@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin;
 
 /**
- * Galeri öğeleri listesinde seçilen satırlar üzerinde toplu işlem.
+ * İçerikler listesinde seçilen satırlar üzerinde toplu işlem.
  *
  * Kural ve mesajlar {@see BulkActionRequest} içinde; burada yalnız tablo var.
  */
-final class BulkGalleryItemRequest extends BulkActionRequest
+final class BulkBlogPostRequest extends BulkActionRequest
 {
     protected function table(): string
     {
-        return 'gallery_items';
+        return 'blog_posts';
     }
 }

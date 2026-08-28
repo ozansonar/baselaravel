@@ -35,29 +35,10 @@
     });
   }
 
-  /* ==================== SELECT ALL / BULK ==================== */
-  window.toggleSelectAll = function (master) {
-    document.querySelectorAll('#commentsTableBody .comment-checkbox').forEach(function (cb) {
-      cb.checked = master.checked;
-    });
-    updateBulk();
-  };
-
-  window.updateBulk = function () {
-    var checked = document.querySelectorAll('#commentsTableBody .comment-checkbox:checked').length;
-    var bulk    = document.getElementById('bulkActions');
-    var counter = document.getElementById('selectedCount');
-    if (checked > 0) {
-      bulk.classList.remove('d-none');
-      counter.textContent = checked;
-    } else {
-      bulk.classList.add('d-none');
-    }
-    var all   = document.getElementById('selectAll');
-    var total = document.querySelectorAll('#commentsTableBody .comment-checkbox').length;
-    all.indeterminate = checked > 0 && checked < total;
-    all.checked       = checked === total && total > 0;
-  };
+  /* Toplu seçim ve toplu işlemler assets/admin/js/bulk-actions.js dosyasında:
+     aynı kod yedi listede kopyalanmıştı ve her biri kayıt başına ayrı bir
+     istek atıyordu — elli kayıt elli istek, yarısı düşerse ortada karışık bir
+     sonuç. İçerik listesinde ise hiç istek gitmiyordu. */
 
   /* ==================== CONFIRM ACTION (APPROVE / REJECT / RESTORE) ==================== */
   window.confirmCommentAction = function (type, commentId, commentName) {
@@ -116,91 +97,6 @@
       form.innerHTML = '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').getAttribute('content') + '"><input type="hidden" name="_method" value="DELETE">';
       document.body.appendChild(form);
       form.submit();
-    });
-  };
-
-  /* ==================== BULK DELETE ==================== */
-  window.openBulkDeleteModal = function () {
-    var checked = document.querySelectorAll('#commentsTableBody .comment-checkbox:checked');
-    if (checked.length === 0) {
-      showToast('Lütfen yorum seçin', 'warning');
-      return;
-    }
-
-    AdminModal.confirm({
-      title: 'Toplu Silme Onayı',
-      message: checked.length + ' yorumu silmek istediğinize emin misiniz?',
-      type: 'danger',
-      confirmText: 'Evet, Sil',
-      confirmIcon: 'bi bi-trash3',
-      warning: 'Bu işlem geri alınamaz.'
-    }).then(function (confirmed) {
-      if (!confirmed) return;
-
-      var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      var completed = 0;
-      var ids = [];
-      checked.forEach(function (cb) { ids.push(cb.value); });
-
-      ids.forEach(function (id) {
-        fetch('/admin/blog-comments/' + id, {
-          method: 'DELETE',
-          headers: {
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json'
-          }
-        }).then(function () {
-          completed++;
-          if (completed === ids.length) {
-            showToast(ids.length + ' yorum silindi', 'success');
-            setTimeout(function () { location.reload(); }, 800);
-          }
-        }).catch(function () {
-          completed++;
-        });
-      });
-    });
-  };
-
-  /* ==================== BULK APPROVE ==================== */
-  window.openBulkApproveModal = function () {
-    var checked = document.querySelectorAll('#commentsTableBody .comment-checkbox:checked');
-    if (checked.length === 0) {
-      showToast('Lütfen yorum seçin', 'warning');
-      return;
-    }
-
-    AdminModal.confirm({
-      title: 'Toplu Onay',
-      message: checked.length + ' yorumu onaylamak istediğinize emin misiniz?',
-      type: 'success',
-      confirmText: 'Evet, Onayla',
-      confirmIcon: 'bi bi-check-lg'
-    }).then(function (confirmed) {
-      if (!confirmed) return;
-
-      var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      var completed = 0;
-      var ids = [];
-      checked.forEach(function (cb) { ids.push(cb.value); });
-
-      ids.forEach(function (id) {
-        fetch('/admin/blog-comments/' + id + '/approve', {
-          method: 'PATCH',
-          headers: {
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json'
-          }
-        }).then(function () {
-          completed++;
-          if (completed === ids.length) {
-            showToast(ids.length + ' yorum onaylandı', 'success');
-            setTimeout(function () { location.reload(); }, 800);
-          }
-        }).catch(function () {
-          completed++;
-        });
-      });
     });
   };
 

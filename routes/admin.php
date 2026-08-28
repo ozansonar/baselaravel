@@ -61,10 +61,18 @@ Route::get('disa-aktar/{key}/{format}', ExportController::class)
     ->name('export');
 
 // Pages
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {page} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::delete('pages/toplu-sil', [PageController::class, 'bulkDestroy'])->name('pages.bulk-destroy');
+Route::patch('pages/toplu-geri-yukle', [PageController::class, 'bulkRestore'])->name('pages.bulk-restore');
 Route::resource('pages', PageController::class)->except('show');
 Route::patch('pages/{page}/restore', [PageController::class, 'restore'])->name('pages.restore')->withTrashed();
 
 // Sliders
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {slider} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::delete('sliders/toplu-sil', [SliderController::class, 'bulkDestroy'])->name('sliders.bulk-destroy');
+Route::patch('sliders/toplu-geri-yukle', [SliderController::class, 'bulkRestore'])->name('sliders.bulk-restore');
 Route::resource('sliders', SliderController::class)->except('show');
 Route::patch('sliders/{slider}/restore', [SliderController::class, 'restore'])->name('sliders.restore')->withTrashed();
 
@@ -91,6 +99,10 @@ Route::resource('gallery-items', GalleryItemController::class)->except('show');
 Route::patch('gallery-items/{galleryItem}/restore', [GalleryItemController::class, 'restore'])->name('gallery-items.restore')->withTrashed();
 
 // FAQs
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {faq} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::delete('faqs/toplu-sil', [FaqController::class, 'bulkDestroy'])->name('faqs.bulk-destroy');
+Route::patch('faqs/toplu-geri-yukle', [FaqController::class, 'bulkRestore'])->name('faqs.bulk-restore');
 Route::resource('faqs', FaqController::class)->except('show');
 Route::patch('faqs/{faq}/restore', [FaqController::class, 'restore'])->name('faqs.restore')->withTrashed();
 
@@ -148,6 +160,10 @@ Route::put('roller/{role}',          [RoleController::class, 'update'])->name('r
 Route::delete('roller/{role}',       [RoleController::class, 'destroy'])->name('roles.destroy');
 
 // Users
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {user} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::delete('users/toplu-sil', [UserController::class, 'bulkDestroy'])->name('users.bulk-destroy');
+Route::patch('users/toplu-geri-yukle', [UserController::class, 'bulkRestore'])->name('users.bulk-restore');
 Route::resource('users', UserController::class)->except('show');
 Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed();
 
@@ -265,6 +281,10 @@ Route::post('settings/clear-cache', [SettingController::class, 'clearCache'])->n
 Route::post('settings/test-telegram', [SettingController::class, 'testTelegram'])->name('settings.test-telegram');
 
 // Blog Categories
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {blogCategory} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::delete('blog-categories/toplu-sil', [BlogCategoryController::class, 'bulkDestroy'])->name('blog-categories.bulk-destroy');
+Route::patch('blog-categories/toplu-geri-yukle', [BlogCategoryController::class, 'bulkRestore'])->name('blog-categories.bulk-restore');
 Route::resource('blog-categories', BlogCategoryController::class)->except('show');
 Route::patch('blog-categories/{blogCategory}/restore', [BlogCategoryController::class, 'restore'])->name('blog-categories.restore')->withTrashed();
 
@@ -275,11 +295,22 @@ Route::delete('icerik-dosyasi/bekleyen/{token}', [ContentFileController::class, 
 Route::delete('icerik-dosyasi/{file}', [ContentFileController::class, 'destroy'])->name('content-files.destroy');
 
 // Blog Posts
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {blogPost} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::delete('blog-posts/toplu-sil', [BlogPostController::class, 'bulkDestroy'])->name('blog-posts.bulk-destroy');
+Route::patch('blog-posts/toplu-geri-yukle', [BlogPostController::class, 'bulkRestore'])->name('blog-posts.bulk-restore');
+Route::patch('blog-posts/toplu-durum/{status}', [BlogPostController::class, 'bulkStatus'])
+    ->whereIn('status', ['publish', 'draft'])->name('blog-posts.bulk-status');
 Route::resource('blog-posts', BlogPostController::class);
 Route::patch('blog-posts/{blogPost}/restore', [BlogPostController::class, 'restore'])->name('blog-posts.restore')->withTrashed();
 
 // Blog Comments
 Route::get('blog-comments', [BlogCommentController::class, 'index'])->name('blog-comments.index');
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {blogComment} kalıbına
+// uyuyor, sıra tersine dönerse istek tek kayıt silmeye giderdi.
+Route::patch('blog-comments/toplu-onayla', [BlogCommentController::class, 'bulkApprove'])->name('blog-comments.bulk-approve');
+Route::delete('blog-comments/toplu-sil', [BlogCommentController::class, 'bulkDestroy'])->name('blog-comments.bulk-destroy');
+Route::patch('blog-comments/toplu-geri-yukle', [BlogCommentController::class, 'bulkRestore'])->name('blog-comments.bulk-restore');
 Route::get('blog-comments/{blogComment}', [BlogCommentController::class, 'show'])->name('blog-comments.show');
 Route::patch('blog-comments/{blogComment}/approve', [BlogCommentController::class, 'approve'])->name('blog-comments.approve');
 Route::patch('blog-comments/{blogComment}/reject', [BlogCommentController::class, 'reject'])->name('blog-comments.reject');

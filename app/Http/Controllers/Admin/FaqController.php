@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkFaqRequest;
 use App\Http\Requests\Admin\StoreTranslatedFaqRequest;
 use App\Http\Requests\StoreFaqRequest;
 use App\Http\Requests\UpdateFaqRequest;
@@ -17,6 +19,8 @@ use Illuminate\View\View;
 
 final class FaqController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly FaqService $faqService,
     ) {}
@@ -103,5 +107,40 @@ final class FaqController extends Controller
         return redirect()
             ->route('admin.faqs.index')
             ->with('success', 'SSS başarıyla geri yüklendi.');
+    }
+
+    /**
+     * Listede seçilen soruleri tek seferde siler.
+     *
+     * Liste ekranındaki seçim kutuları buraya bağlı; önceden yalnız arayüz
+     * vardı, "Sil" kutuları temizliyor ama sunucuya istek gitmiyordu.
+     */
+    public function bulkDestroy(BulkFaqRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new Faq());
+
+        $silinen = $this->faqService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.faqs.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} kayıt silindi." : 'Hiçbir kayıt silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki soruleri tek seferde geri yükler.
+     *
+     * Silinmişler sekmesinde toplu silmenin karşılığı bu.
+     */
+    public function bulkRestore(BulkFaqRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new Faq());
+
+        $geriYuklenen = $this->faqService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.faqs.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} kayıt geri yüklendi." : 'Hiçbir kayıt geri yüklenemedi.',
+        );
     }
 }

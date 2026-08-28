@@ -195,6 +195,45 @@ final class PageService
         $this->clearCache();
     }
 
+    /**
+     * Listede seçilen sayfaleri tek seferde siler.
+     *
+     * Döngü ListsTranslationGroups içinde: liste her çeviri grubunu tek
+     * satırla gösteriyor, silme de grup grup işliyor — bir sayfain
+     * Türkçesini silip İngilizcesini bırakmak ön yüzde sahipsiz bir çeviri
+     * bırakırdı. Dönen sayı seçilen satır değil, silinen kayıt sayısı.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen kayıt sayısı
+     */
+    public function deleteMany(array $ids): int
+    {
+        $silinen = $this->deleteGroupsById(Page::class, $ids);
+
+        if ($silinen > 0) {
+            $this->clearCache();
+        }
+
+        return $silinen;
+    }
+
+    /**
+     * Seçilenleri çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen kayıt sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        $geriYuklenen = $this->restoreGroupsById(Page::class, $ids);
+
+        if ($geriYuklenen > 0) {
+            $this->clearCache();
+        }
+
+        return $geriYuklenen;
+    }
+
     public function restore(int $id): Page
     {
         $page = Page::withTrashed()->findOrFail($id);

@@ -173,6 +173,57 @@ final class BlogCommentService
         DB::transaction(fn () => $comment->delete());
     }
 
+    /**
+     * Listede seçilen yorumları tek seferde onaylar.
+     *
+     * Yorumlar çeviri grubu taşımıyor; her satır kendi başına bir kayıt.
+     * Zaten onaylı olanlar sayıya girmiyor: "5 yorum onaylandı" derken
+     * hiçbiri değişmemiş olabilirdi.
+     *
+     * @param  list<int> $ids
+     * @return int       durumu değişen yorum sayısı
+     */
+    public function approveMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        return DB::transaction(fn (): int => BlogComment::whereIn('id', $ids)
+            ->where('status', '!=', CommentStatus::Approved->value)
+            ->update(['status' => CommentStatus::Approved->value]));
+    }
+
+    /**
+     * Seçilen yorumları tek seferde siler.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen yorum sayısı
+     */
+    public function deleteMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        return DB::transaction(fn (): int => BlogComment::whereIn('id', $ids)->delete());
+    }
+
+    /**
+     * Seçilen yorumları çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen yorum sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        return DB::transaction(fn (): int => BlogComment::onlyTrashed()->whereIn('id', $ids)->restore());
+    }
+
     public function restore(BlogComment $comment): void
     {
         DB::transaction(fn () => $comment->restore());

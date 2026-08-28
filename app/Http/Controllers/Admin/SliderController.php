@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkSliderRequest;
 use App\Http\Requests\Admin\StoreTranslatedSliderRequest;
 use App\Http\Requests\StoreSliderRequest;
 use App\Http\Requests\UpdateSliderRequest;
@@ -16,6 +18,8 @@ use Illuminate\View\View;
 
 final class SliderController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly SliderService $sliderService,
     ) {}
@@ -98,5 +102,40 @@ final class SliderController extends Controller
         return redirect()
             ->route('admin.sliders.index')
             ->with('success', 'Slider başarıyla geri yüklendi.');
+    }
+
+    /**
+     * Listede seçilen sliderleri tek seferde siler.
+     *
+     * Liste ekranındaki seçim kutuları buraya bağlı; önceden yalnız arayüz
+     * vardı, "Sil" kutuları temizliyor ama sunucuya istek gitmiyordu.
+     */
+    public function bulkDestroy(BulkSliderRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new Slider());
+
+        $silinen = $this->sliderService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.sliders.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} kayıt silindi." : 'Hiçbir kayıt silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki sliderleri tek seferde geri yükler.
+     *
+     * Silinmişler sekmesinde toplu silmenin karşılığı bu.
+     */
+    public function bulkRestore(BulkSliderRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new Slider());
+
+        $geriYuklenen = $this->sliderService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.sliders.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} kayıt geri yüklendi." : 'Hiçbir kayıt geri yüklenemedi.',
+        );
     }
 }

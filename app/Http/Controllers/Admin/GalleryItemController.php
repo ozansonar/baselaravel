@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\GalleryType;
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkGalleryItemRequest;
 use App\Http\Requests\Admin\StoreTranslatedGalleryItemRequest;
@@ -19,6 +20,8 @@ use Illuminate\View\View;
 
 final class GalleryItemController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly GalleryService $galleryService,
     ) {}
@@ -119,7 +122,7 @@ final class GalleryItemController extends Controller
 
         $silinen = $this->galleryService->deleteMany($request->ids());
 
-        return $this->backToList($request)->with(
+        return $this->backToList($request, 'admin.gallery-items.index')->with(
             $silinen > 0 ? 'success' : 'error',
             $silinen > 0 ? "{$silinen} galeri öğesi silindi." : 'Hiçbir öğe silinemedi.',
         );
@@ -137,21 +140,10 @@ final class GalleryItemController extends Controller
 
         $geriYuklenen = $this->galleryService->restoreMany($request->ids());
 
-        return $this->backToList($request)->with(
+        return $this->backToList($request, 'admin.gallery-items.index')->with(
             $geriYuklenen > 0 ? 'success' : 'error',
             $geriYuklenen > 0 ? "{$geriYuklenen} galeri öğesi geri yüklendi." : 'Hiçbir öğe geri yüklenemedi.',
         );
-    }
-
-    /**
-     * Kullanıcı hangi süzgeç ve sayfadaysa oraya döndürür: toplu işlemden
-     * sonra listenin başına düşmek, uzun listede yeri kaybettiriyor.
-     */
-    private function backToList(Request $request): RedirectResponse
-    {
-        $query = $request->only(['status', 'type', 'category', 'search', 'per_page', 'page']);
-
-        return redirect()->route('admin.gallery-items.index', array_filter($query, static fn ($value): bool => $value !== null && $value !== ''));
     }
 
     public function restore(int $id): RedirectResponse

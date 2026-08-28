@@ -179,23 +179,30 @@
                         </a>
                     </div>
 
-                    {{-- Seçim yapılınca beliriyor. Düğmeler type=button: bu
-                         çubuk süzgeç formunun içinde duruyor, aksi hâlde
-                         tıklama listeyi yeniden süzerdi. --}}
-                    <div class="cl-bulk-actions d-none" id="bulkActions">
-                        <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
+                    {{-- Seçim yapılınca beliriyor. Düğmeler type=button: çubuk
+                         süzgeç formunun içinde duruyor, aksi hâlde tıklama
+                         listeyi yeniden süzerdi. Sürücü: assets/admin/js/bulk-actions.js --}}
+                    <div class="cl-bulk-actions d-none" data-bulk-bar>
+                        <span class="cl-bulk-count"><span data-bulk-count>0</span> seçili</span>
                         @if(request('status') === 'trashed')
-                            <button type="button" class="usr-action-btn success" onclick="bulkGalleryAction('restore')" title="Geri Yükle">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkRestoreForm"
+                                    data-bulk-title="Toplu Geri Yükleme"
+                                    data-bulk-message=":count galeri öğesi geri yüklenecek. Onaylıyor musunuz?"
+                                    data-bulk-confirm="Evet, Geri Yükle"
+                                    data-bulk-icon="bi bi-arrow-counterclockwise"
+                                    title="Seçilenleri Geri Yükle"><i class="bi bi-arrow-counterclockwise"></i></button>
                         @else
-                            <button type="button" class="usr-action-btn danger" onclick="bulkGalleryAction('delete')" title="Seçilenleri Sil">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            <button type="button" class="usr-action-btn danger"
+                                    data-bulk-action="bulkDeleteForm"
+                                    data-bulk-title="Toplu Silme Onayı"
+                                    data-bulk-message=":count galeri öğesi silinecek. Silinenler &quot;Silinmiş&quot; sekmesinden geri alınabilir."
+                                    data-bulk-type="danger"
+                                    data-bulk-confirm="Evet, Sil"
+                                    data-bulk-icon="bi bi-trash3"
+                                    title="Seçilenleri Sil"><i class="bi bi-trash"></i></button>
                         @endif
-                        <button type="button" class="usr-action-btn" onclick="clearGallerySelection()" title="Seçimi Bırak">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
+                        <button type="button" class="usr-action-btn" data-bulk-clear title="Seçimi Bırak"><i class="bi bi-x-lg"></i></button>
                     </div>
                 </div>
             </form>
@@ -211,8 +218,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll"
-                                       onchange="toggleSelectAll(this)" aria-label="Tümünü seç" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-all aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>Görsel</th>
                             <th>Başlık</th>
@@ -228,8 +234,8 @@
                         @forelse($items as $item)
                             <tr>
                                 <td data-label="Seç">
-                                    <input type="checkbox" class="usr-checkbox gallery-checkbox"
-                                           value="{{ $item->id }}" onchange="updateBulk()"
+                                    <input type="checkbox" class="usr-checkbox" data-bulk-item
+                                           value="{{ $item->id }}"
                                            aria-label="{{ $item->title }} seç" data-fv-ignore>
                                 </td>
                                 <td data-label="Görsel">
@@ -323,9 +329,9 @@
                     @foreach($items as $item)
                         <article class="gl-card {{ $item->trashed() ? 'gl-card--trashed' : '' }}">
                             <label class="gl-card__pick">
-                                <input type="checkbox" class="usr-checkbox gallery-checkbox"
-                                       value="{{ $item->id }}" onchange="updateBulk()"
-                                       aria-label="{{ $item->title }} seç" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-item
+                                           value="{{ $item->id }}"
+                                           aria-label="{{ $item->title }} seç" data-fv-ignore>
                             </label>
 
                             <div class="gl-card__media">
@@ -396,36 +402,15 @@
 
     {{-- Toplu işlem formları: seçim kutuları listenin içinde, formlar dışında.
          İç içe form olmasın diye ayrı duruyorlar; kimlikleri JS dolduruyor. --}}
-    <form method="POST" action="{{ route('admin.gallery-items.bulk-destroy') }}" id="bulkDeleteForm" class="d-none">
+    <form method="POST" action="{{ route('admin.gallery-items.bulk-destroy', request()->query()) }}" id="bulkDeleteForm" class="d-none">
         @csrf
         @method('DELETE')
     </form>
-    <form method="POST" action="{{ route('admin.gallery-items.bulk-restore') }}" id="bulkRestoreForm" class="d-none">
+    <form method="POST" action="{{ route('admin.gallery-items.bulk-restore', request()->query()) }}" id="bulkRestoreForm" class="d-none">
         @csrf
         @method('PATCH')
     </form>
 
-    {{-- BULK DELETE MODAL --}}
-    <div class="modal fade" id="bulkDeleteModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center py-4">
-                    <div class="status-modal-icon danger">
-                        <i class="bi bi-trash"></i>
-                    </div>
-                    <h5 class="cl-modal-heading">Toplu Silme Onayı</h5>
-                    <p class="cl-modal-body-text"><strong id="bulkDeleteCount">0</strong> galeri öğesini silmek istediğinizden emin misiniz?</p>
-                    <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Silinenler "Silinmiş" sekmesinden geri alınabilir.</p>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                        <button type="button" class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmBulkDelete()">
-                            <i class="bi bi-trash"></i> Evet, Sil
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('styles')

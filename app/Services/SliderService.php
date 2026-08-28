@@ -173,6 +173,45 @@ final class SliderService
         $this->clearCache();
     }
 
+    /**
+     * Listede seçilen sliderleri tek seferde siler.
+     *
+     * Döngü ListsTranslationGroups içinde: liste her çeviri grubunu tek
+     * satırla gösteriyor, silme de grup grup işliyor — bir sliderin
+     * Türkçesini silip İngilizcesini bırakmak ön yüzde sahipsiz bir çeviri
+     * bırakırdı. Dönen sayı seçilen satır değil, silinen kayıt sayısı.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen kayıt sayısı
+     */
+    public function deleteMany(array $ids): int
+    {
+        $silinen = $this->deleteGroupsById(Slider::class, $ids);
+
+        if ($silinen > 0) {
+            $this->clearCache();
+        }
+
+        return $silinen;
+    }
+
+    /**
+     * Seçilenleri çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen kayıt sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        $geriYuklenen = $this->restoreGroupsById(Slider::class, $ids);
+
+        if ($geriYuklenen > 0) {
+            $this->clearCache();
+        }
+
+        return $geriYuklenen;
+    }
+
     public function restore(int $id): Slider
     {
         $slider = Slider::withTrashed()->findOrFail($id);
