@@ -907,3 +907,47 @@ img { max-width: 100%; height: auto; }
 .pw-host--bare:has(.is-invalid) ~ .invalid-feedback {
     display: block;
 }
+
+/* Doğrulama balonu kabın çocuğu olarak ekleniyor.
+
+   Grup bir flex satırı: balon araya girince satırı dolduruyor ve göz düğmesini
+   alt satıra atıyordu — düğme alanın altında, balonun sağında beliriyordu.
+   Balon her zaman en sona ve kendi satırına alınıyor; düğme girdinin sağında
+   kalıyor. Kural iletinin geldiği ana değil düzenin kendisine bakıyor, yani
+   ileti sonradan da eklense sonuç aynı. */
+.pw-host > .formError {
+    order: 99;
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+/* Kimi kap sarmayı kapatıyor (admin'in .stg-input-group'u nowrap). O zaman
+   balon alt satıra inemiyor, girdinin yanına sıkışıp alanı daraltıyordu.
+   Sarma yalnızca balon varken açılıyor: hatasız haldeki düzen olduğu gibi
+   kalsın. */
+.pw-host:has(> .formError) {
+    flex-wrap: wrap;
+}
+
+/* Izgara kipinde balon ikinci satıra iniyor: satır belirtilmezse ilk boş göze,
+   yani girdinin üstüne yerleşiyordu. */
+.pw-host--bare > .formError {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+/* Geçersiz alanın sağ kenarındaki uyarı simgesi göz düğmesiyle aynı yere
+   düşüyordu; simge düğmenin soluna kaydırılıyor ve metin ikisinin de altına
+   girmiyor. Sayılar Bootstrap'ın kendi değerlerine düğme genişliği eklenerek
+   bulundu. */
+.pw-host > .pw-input.is-invalid,
+.pw-host > .pw-input.is-valid {
+    padding-right: calc(2.5rem + 1.5em + 0.75rem);
+    background-position: right calc(2.5rem + 0.375em + 0.1875rem) center;
+}
+
+.pw-host--bare > .pw-input.is-invalid,
+.pw-host--bare > .pw-input.is-valid {
+    padding-right: calc(2.35rem + 1.5em + 0.75rem);
+    background-position: right calc(2.35rem + 0.375em + 0.1875rem) center;
+}

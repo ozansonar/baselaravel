@@ -22,6 +22,9 @@
             <p class="page-subtitle">Fotoğrafları ve videoları listeleyin, filtreleyin, düzenleyin ve yönetin</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.gallery-items.bulk.create') }}" class="btn-glass">
+                <i class="bi bi-images"></i> Toplu Yükleme
+            </a>
             <a href="{{ route('admin.gallery-items.create') }}" class="btn-teal">
                 <i class="bi bi-plus-lg"></i> Yeni Öğe
             </a>

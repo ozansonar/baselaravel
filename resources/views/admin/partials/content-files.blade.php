@@ -62,16 +62,16 @@
          data-max-label="{{ $humanLimit($fileLimits['per_file']) }}"
          data-accept="{{ \App\Http\Requests\Admin\StoreContentFileRequest::acceptAttribute() }}">
 
-      <div class="bpf-dz" data-bpf-dropzone>
-        <div class="dz-message bpf-dz__message">
-          <div class="bpf-dz__icon"><i class="bi bi-cloud-arrow-up"></i></div>
+      <div class="updz" data-bpf-dropzone>
+        <div class="dz-message updz__message">
+          <div class="updz__icon"><i class="bi bi-cloud-arrow-up"></i></div>
           <div>
-            <p class="bpf-dz__title">Dosyaları buraya sürükle veya <u>bilgisayarından seç</u></p>
-            <p class="bpf-dz__hint">
+            <p class="updz__title">Dosyaları buraya sürükle veya <u>bilgisayarından seç</u></p>
+            <p class="updz__hint">
               Sayı sınırı yok · dosya başına en fazla {{ $humanLimit($fileLimits['per_file']) }} ·
               yüklenen dosya <strong>{{ $language->name }}</strong> içeriğine bağlanır
             </p>
-            <ul class="bpf-dz__chips">
+            <ul class="updz__chips">
               <li><i class="bi bi-file-earmark-image"></i>JPG · PNG · WebP · GIF</li>
               <li><i class="bi bi-file-earmark-pdf"></i>PDF</li>
               <li><i class="bi bi-file-earmark-spreadsheet"></i>XLS · XLSX · CSV</li>

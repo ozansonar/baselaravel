@@ -31101,6 +31101,49 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   display: block;
 }
 
+/* Doğrulama balonu kabın çocuğu olarak ekleniyor.
+
+   Grup bir flex satırı: balon araya girince satırı dolduruyor ve göz düğmesini
+   alt satıra atıyordu — düğme alanın altında, balonun sağında beliriyordu.
+   Balon her zaman en sona ve kendi satırına alınıyor; düğme girdinin sağında
+   kalıyor. Kural iletinin geldiği ana değil düzenin kendisine bakıyor, yani
+   ileti sonradan da eklense sonuç aynı. */
+.pw-host > .formError {
+  order: 99;
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* Kimi kap sarmayı kapatıyor (.stg-input-group nowrap). O zaman balon alt
+   satıra inemiyor, girdinin yanına sıkışıp alanı daraltıyordu. Sarma yalnızca
+   balon varken açılıyor: hatasız haldeki düzen olduğu gibi kalsın. */
+.pw-host:has(> .formError) {
+  flex-wrap: wrap;
+}
+
+/* Izgara kipinde balon ikinci satıra iniyor: satır belirtilmezse ilk boş göze,
+   yani girdinin üstüne yerleşiyordu. */
+.pw-host--bare > .formError {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+/* Geçersiz alanın sağ kenarındaki uyarı simgesi göz düğmesiyle aynı yere
+   düşüyordu; simge düğmenin soluna kaydırılıyor ve metin ikisinin de altına
+   girmiyor. Sayılar Bootstrap'ın kendi değerlerine düğme genişliği eklenerek
+   bulundu. */
+.pw-host > .pw-input.is-invalid,
+.pw-host > .pw-input.is-valid {
+  padding-right: calc(38px + 1.5em + 0.75rem);
+  background-position: right calc(38px + 0.375em + 0.1875rem) center;
+}
+
+.pw-host--bare > .pw-input.is-invalid,
+.pw-host--bare > .pw-input.is-valid {
+  padding-right: calc(39px + 1.5em + 0.75rem);
+  background-position: right calc(39px + 0.375em + 0.1875rem) center;
+}
+
 /* ============================================================
    Dosya Yöneticisi (/admin/files) — fmgr
    Yükleme alanı + kuyruk + koleksiyon (ızgara / liste)
@@ -31862,8 +31905,8 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 .bpf-file--yellow      { --bpf-accent: #eab308; }
 .bpf-file--gray        { --bpf-accent: var(--text-muted); }
 
-/* ---- Bırakma alanı ---- */
-.bpf-dz {
+/* ---- Bırakma alanı (updz) — içerik ekleri ve galeri toplu yükleme paylaşıyor ---- */
+.updz {
   position: relative;
   display: flex;
   align-items: center;
@@ -31877,24 +31920,24 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   transition: border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base);
 }
 
-.bpf-dz:hover {
+.updz:hover {
   border-color: var(--teal-primary);
   background: color-mix(in srgb, var(--teal-primary) 7%, var(--bg-input));
 }
 
-.bpf-dz:focus-visible {
+.updz:focus-visible {
   outline: 2px solid var(--teal-primary);
   outline-offset: 2px;
 }
 
-.bpf-dz.dz-drag-hover {
+.updz.dz-drag-hover {
   border-style: solid;
   border-color: var(--teal-primary);
   background: color-mix(in srgb, var(--teal-primary) 12%, var(--bg-input));
   box-shadow: var(--shadow-glow-teal);
 }
 
-.bpf-dz__message {
+.updz__message {
   display: flex;
   align-items: center;
   gap: 18px;
@@ -31902,7 +31945,7 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   margin: 0;
 }
 
-.bpf-dz__icon {
+.updz__icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -31917,35 +31960,35 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   transition: transform var(--transition-base);
 }
 
-.bpf-dz:hover .bpf-dz__icon,
-.bpf-dz.dz-drag-hover .bpf-dz__icon {
+.updz:hover .updz__icon,
+.updz.dz-drag-hover .updz__icon {
   transform: translateY(-3px);
 }
 
-.bpf-dz__title {
+.updz__title {
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 2px;
 }
 
-.bpf-dz__title u {
+.updz__title u {
   color: var(--teal-primary);
   text-decoration: none;
   border-bottom: 1px dashed currentColor;
 }
 
-.bpf-dz__hint {
+.updz__hint {
   font-size: 12px;
   color: var(--text-muted);
   margin: 0 0 8px;
 }
 
-.bpf-dz__hint strong {
+.updz__hint strong {
   color: var(--text-secondary);
 }
 
-.bpf-dz__chips {
+.updz__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -31954,7 +31997,7 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   padding: 0;
 }
 
-.bpf-dz__chips li {
+.updz__chips li {
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: .03em;
@@ -31965,7 +32008,7 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   padding: 3px 9px;
 }
 
-.bpf-dz__chips li i {
+.updz__chips li i {
   margin-right: 4px;
   color: var(--teal-primary);
 }
@@ -32139,11 +32182,121 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 }
 
 @media (max-width: 575.98px) {
-  .bpf-dz__message { flex-direction: column; text-align: center; }
-  .bpf-dz__chips { justify-content: center; }
+  .updz__message { flex-direction: column; text-align: center; }
+  .updz__chips { justify-content: center; }
   .bpf-file { flex-wrap: wrap; }
   /* Ad ve boyut alt satıra iniyor; simge ile eylemler üst satırın iki ucunda
      duruyor, yoksa düğmeler simgenin dibine yapışıyordu. */
   .bpf-file__body { flex-basis: 100%; order: 3; }
   .bpf-file__actions { margin-left: auto; }
+}
+
+/* ============================================================
+   Galeriye Toplu Yükleme (/admin/gallery-items/toplu-yukleme) — gbu
+   Bırakma alanı ortak (.updz); buradaki sınıflar yükleme özeti ve
+   başlık ızgarası için.
+   ============================================================ */
+
+/* ---- Yükleme özeti ---- */
+.gbu-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.gbu-summary__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.gbu-summary__item--ok i  { color: var(--neon-green); }
+.gbu-summary__item--err i { color: var(--neon-red); }
+
+.gbu-summary__track {
+  flex: 1 1 auto;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-input);
+  overflow: hidden;
+}
+
+.gbu-summary__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal-primary);
+  transition: width var(--transition-fast);
+}
+
+/* ---- Başlık ızgarası ----
+   Tek sütun değil ızgara: yüz satırı alt alta dizmek sayfayı okunmaz
+   uzunlukta yapıyordu, geniş ekranda yan yana üç satır sığıyor. */
+.gbu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 10px;
+}
+
+.gbu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.gbu-item:hover {
+  background: var(--bg-card-hover);
+  border-color: color-mix(in srgb, var(--teal-primary) 30%, var(--border-color));
+}
+
+.gbu-item__thumb {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.gbu-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.gbu-item__label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gbu-item__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 575.98px) {
+  .gbu-summary { flex-wrap: wrap; }
+  .gbu-summary__track { flex-basis: 100%; order: 3; }
+  .gbu-grid { grid-template-columns: 1fr; }
 }

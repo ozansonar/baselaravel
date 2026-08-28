@@ -210,6 +210,100 @@ final class GalleryService
         return $groupId;
     }
 
+    // ── Toplu yükleme ──
+
+    /**
+     * Bırakılan tek görseli galeri öğesine çevirir.
+     *
+     * Yüz fotoğraflık bir etkinlikte tekli formu yüz kez doldurmak mümkün değil;
+     * dosyalar bırakılır bırakılmaz kaydediliyor ve başlıkları sonradan ızgarada
+     * düzeltiliyor. Kayıt yüklemeyle birlikte doğuyor, "kaydet"i beklemiyor:
+     * bekletilseydi tarayıcı kapandığında yüz yükleme çöpe giderdi.
+     *
+     * Başlık zorunlu bir alan ve dosya adından türetiliyor — "bahar-senligi-01.jpg"
+     * → "Bahar Senligi 01". Boş kalamaz, kullanıcı da yüz başlığı elle yazmak
+     * zorunda değil.
+     *
+     * @param array{locale: string, gallery_category_id: ?int, is_active: bool, sort_order: int} $shared
+     */
+    public function createFromUpload(\Illuminate\Http\UploadedFile $file, array $shared): GalleryItem
+    {
+        $title = $this->titleFromFilename($file->getClientOriginalName());
+
+        return DB::transaction(function () use ($file, $shared, $title): GalleryItem {
+            $item = GalleryItem::create([
+                'locale'              => $shared['locale'],
+                'title'               => $title,
+                'type'                => GalleryType::Photo,
+                'gallery_category_id' => $shared['gallery_category_id'],
+                'is_active'           => $shared['is_active'],
+                'sort_order'          => $shared['sort_order'],
+                'image'               => $this->uploadService->uploadImage($file, 'gallery', $title, ['lg', 'md']),
+            ]);
+
+            $this->clearCache();
+
+            return $item;
+        });
+    }
+
+    /**
+     * Izgarada düzeltilen başlıkları tek seferde yazar.
+     *
+     * @param  array<int, string> $titles id => başlık
+     * @return int                        değişen kayıt sayısı
+     */
+    public function renameMany(array $titles): int
+    {
+        if ($titles === []) {
+            return 0;
+        }
+
+        $degisen = 0;
+
+        DB::transaction(function () use ($titles, &$degisen): void {
+            $items = GalleryItem::whereIn('id', array_keys($titles))->get()->keyBy('id');
+
+            foreach ($titles as $id => $title) {
+                $item = $items->get($id);
+
+                if ($item === null || $item->title === $title) {
+                    continue;
+                }
+
+                $item->update(['title' => $title]);
+                $degisen++;
+            }
+        });
+
+        if ($degisen > 0) {
+            $this->clearCache();
+        }
+
+        return $degisen;
+    }
+
+    /**
+     * Dosya adını okunur bir başlığa çevirir.
+     *
+     * Uzantı atılıyor, ayraçlar boşluğa dönüyor, baş harfler büyütülüyor.
+     * Adı boş kalan dosya (".jpg" gibi) başlıksız kalamaz; zorunlu alan.
+     */
+    private function titleFromFilename(string $filename): string
+    {
+        $ad = \Illuminate\Support\Str::of(pathinfo($filename, PATHINFO_FILENAME))
+            ->replaceMatches('/[_\-]+/u', ' ')
+            ->squish()
+            ->limit(240, '')
+            ->trim();
+
+        if ($ad->isEmpty()) {
+            return 'Görsel';
+        }
+
+        return \Illuminate\Support\Str::title((string) $ad);
+    }
+
     public function delete(GalleryItem $item): void
     {
         $this->deleteTranslationGroup($item);
