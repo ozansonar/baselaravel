@@ -2,10 +2,6 @@
 
 @section('title', 'Yeni İçerik Oluştur')
 
-@push('styles')
-<link rel="stylesheet" href="{{ versioned_asset('assets/vendor/glightbox/css/glightbox.min.css') }}">
-@endpush
-
 @section('content')
 {{-- data-validate hands the form to form-validation.js; the rules themselves
      live on the fields as data-validation-engine attributes. --}}
@@ -86,8 +82,6 @@
 @endsection
 
 @push('scripts')
-<script src="{{ versioned_asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-<script src="{{ versioned_asset('assets/admin/js/cover-image.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/slug.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-form.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>

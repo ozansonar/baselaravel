@@ -25,7 +25,7 @@ final class StoreGalleryItemRequest extends FormRequest
             'description'         => ['nullable', 'string', 'max:1000'],
             'type'                => ['required', Rule::enum(GalleryType::class)],
             'gallery_category_id' => ['nullable', 'integer', 'exists:gallery_categories,id'],
-            'image'               => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'image'               => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
             'video_url'           => ['nullable', 'required_if:type,video', 'string', 'max:500', 'url'],
             'duration'            => ['nullable', 'string', 'max:20'],
             'sort_order'          => ['nullable', 'integer', 'min:0'],

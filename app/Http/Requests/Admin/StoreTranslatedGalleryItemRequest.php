@@ -47,7 +47,7 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
             $rules["{$prefix}.gallery_category_id"] = ['nullable', 'integer', 'exists:gallery_categories,id'];
             $rules["{$prefix}.image"]               = [
                 $isCreate && $this->isSubmitted($locale) ? 'required' : 'nullable',
-                'image', 'mimes:jpg,jpeg,png,webp', 'max:4096',
+                'image', 'mimes:jpg,jpeg,png,webp', 'max:1024',
             ];
             $rules["{$prefix}.video_url"]  = ['nullable', "required_if:{$prefix}.type,video", 'string', 'max:500', 'url'];
             $rules["{$prefix}.duration"]   = ['nullable', 'integer', 'min:0', 'max:65535'];

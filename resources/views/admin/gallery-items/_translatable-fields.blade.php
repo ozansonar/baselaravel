@@ -162,16 +162,15 @@
                     <div class="card-body-custom">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label" for="image_{{ $language->code }}">
-                                    Görsel <span class="text-danger">*</span>
-                                </label>
-                                <input type="file"
-                                       class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                       id="image_{{ $language->code }}" name="translations[{{ $language->code }}][image]" accept="image/*" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="4" data-accept="image/jpeg,image/png,image/webp">
-                                @error("translations.{$language->code}.image")
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">PNG, JPG, WebP | Maks: 4 MB</div>
+                                {{-- Fotoğraf öğesinin görseli zorunlu; kaldırma düğmesi yok. --}}
+                                <x-image-field
+                                    :name="'translations[' . $language->code . '][image]'"
+                                    :id="'image_' . $language->code"
+                                    label="Görsel"
+                                    :required="true"
+                                    :current="$translation?->image"
+                                    :title="$translation?->title ?: 'Galeri görseli'"
+                                    :gallery="'galeri-' . $language->code" />
                             </div>
                         </div>
                     </div>

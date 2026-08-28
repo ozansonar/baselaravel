@@ -30,7 +30,7 @@ final class ProfileUpdateRequest extends FormRequest
             // session cannot lock the real owner out.
             'current_password' => ['required_with:password', 'current_password'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed', 'different:current_password'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:1024'],
             'remove_avatar' => ['nullable', 'boolean'],
         ];
     }

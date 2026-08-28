@@ -23,7 +23,7 @@ final class UpdateBlogPostRequest extends FormRequest
             'title'            => ['required', 'string', 'max:255'],
             'excerpt'          => ['nullable', 'string', 'max:500'],
             'body'             => ['required', 'string', 'max:200000'],
-            'image'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
             'is_published'     => ['nullable', 'boolean'],
             'published_at'     => ['nullable', 'date'],
             'meta_title'       => ['nullable', 'string', 'max:70'],

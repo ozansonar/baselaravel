@@ -151,20 +151,15 @@
 
                         <!-- Cover Image Upload -->
                         <div class="col-12">
-                            <label class="form-label" for="image_{{ $language->code }}">
-                                Kapak Görseli
-                            </label>
-                            <input
-                                type="file"
-                                class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
-                                id="image_{{ $language->code }}"
-                                name="translations[{{ $language->code }}][image]"
-                                accept="image/png,image/jpeg,image/webp"
-                             data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="2" data-accept="image/jpeg,image/png,image/webp">
-                            @error("translations.{$language->code}.image")
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">PNG, JPG, WebP | Maks. 2 MB | Önerilen: 1200x630 px</div>
+                            <x-image-field
+                                :name="'translations[' . $language->code . '][image]'"
+                                :id="'image_' . $language->code"
+                                label="Kapak Görseli"
+                                :current="$translation?->image"
+                                :title="$translation?->title ?: 'Kapak görseli'"
+                                :gallery="'kapak-' . $language->code"
+                                :remove-name="'translations[' . $language->code . '][remove_image]'"
+                                hint="Önerilen: 1200x630 px" />
                         </div>
 
                     </div>

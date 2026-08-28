@@ -44,7 +44,7 @@ final class StoreTranslatedSliderRequest extends FormRequest
             $rules["{$prefix}.subtitle"]    = ['nullable', 'string', 'max:500'];
             $rules["{$prefix}.image"]       = [
                 $isCreate && $this->isSubmitted($locale) ? 'required' : 'nullable',
-                'image', 'mimes:jpg,jpeg,png,webp', 'max:4096',
+                'image', 'mimes:jpg,jpeg,png,webp', 'max:1024',
             ];
             $rules["{$prefix}.button_text"] = ['nullable', 'string', 'max:100'];
             $rules["{$prefix}.button_url"]  = ['nullable', 'string', 'max:500'];
