@@ -7,7 +7,6 @@ namespace App\Listeners;
 use App\Enums\MailLogStatus;
 use App\Mail\BaseMail;
 use App\Models\MailLog;
-use Illuminate\Mail\Events\MessageFailed;
 use Illuminate\Mail\SendQueuedMailable;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Cache;
@@ -15,30 +14,6 @@ use Illuminate\Support\Facades\Log;
 
 final class UpdateMailLogOnFailed
 {
-    /**
-     * Handle MessageFailed event (Laravel 11+).
-     */
-    public function handleMessageFailed(MessageFailed $event): void
-    {
-        try {
-            $header = $event->message->getHeaders()->get('X-Mail-Log-Id');
-
-            if (! $header) {
-                return;
-            }
-
-            $mailLogId = (int) $header->getBodyAsString();
-
-            if ($mailLogId > 0) {
-                $this->markAsFailed($mailLogId, 'Mail gönderim hatası');
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Mail log durumu güncellenemedi (message failed)', [
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-
     /**
      * Handle queue JobFailed event for queued mailables.
      */

@@ -13,6 +13,8 @@ use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
+use App\Models\MailLog;
+use App\Enums\MailLogStatus;
 
 /**
  * Drains campaign_recipients a few rows at a time, on a schedule.
@@ -211,8 +213,17 @@ final class CampaignDispatcher
     {
         $mailable = new CampaignMail($campaign, $recipient);
 
+        // Kayıt gönderimden önce açılıyor: gönderilen gövdeyi ve sonucu mail
+        // olayı bu kayda yazıyor, deneme başarısız olsa bile iz kalıyor.
+        $mailLog = $this->openLog($campaign, $recipient, $mailable);
+        $mailable->mailLogId = $mailLog?->id;
+
         try {
             Mail::to($recipient->email, $recipient->name)->send($mailable);
+
+            if ($mailLog !== null) {
+                $this->mailLogService->finalize($mailLog, $mailable);
+            }
 
             $recipient->update([
                 'status'   => CampaignRecipientStatus::Sent,
@@ -220,8 +231,6 @@ final class CampaignDispatcher
                 'attempts' => $recipient->attempts + 1,
                 'error'    => null,
             ]);
-
-            $this->log($campaign, $recipient, $mailable, true, null);
 
             return CampaignRecipientStatus::Sent;
         } catch (Throwable $e) {
@@ -242,30 +251,53 @@ final class CampaignDispatcher
                 'error'       => $e->getMessage(),
             ]);
 
-            // Only counts against the campaign totals once it has really given up.
-            if ($exhausted) {
-                $this->log($campaign, $recipient, $mailable, false, $e->getMessage());
-            }
+            $this->failLog($mailLog, $e->getMessage());
 
             return $status;
         }
     }
 
-    private function log(Campaign $campaign, CampaignRecipient $recipient, CampaignMail $mailable, bool $success, ?string $error): void
+    /**
+     * Gönderimden önce bekleyen kaydı açar.
+     *
+     * Kaydın açılamaması gönderimi durdurmaz: kampanya, log yüzünden yarıda
+     * kalmamalı. Böyle bir durumda mail yine gider ve olay onu kendi başına
+     * kaydeder — yalnız kampanya bilgisi eksik kalır.
+     */
+    private function openLog(Campaign $campaign, CampaignRecipient $recipient, CampaignMail $mailable): ?MailLog
     {
         try {
-            $this->mailLogService->logMail(
+            return $this->mailLogService->logMail(
                 to: $recipient->email,
                 mailable: $mailable,
                 subject: $campaign->subject,
                 from: $campaign->senderAddress(),
-                success: $success,
-                error: $error,
                 metadata: ['campaign_id' => $campaign->id, 'recipient_id' => $recipient->id],
+                pending: true,
             );
         } catch (Throwable $e) {
-            // Logging must never take the send down with it.
-            Log::warning('Kampanya mail logu yazılamadı', ['error' => $e->getMessage()]);
+            Log::warning('Kampanya mail logu açılamadı', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Gitmeyen denemeyi kaydında kapatır.
+     */
+    private function failLog(?MailLog $mailLog, string $error): void
+    {
+        if ($mailLog === null) {
+            return;
+        }
+
+        try {
+            $mailLog->update([
+                'status'        => MailLogStatus::Failed,
+                'error_message' => mb_substr($error, 0, 500),
+            ]);
+        } catch (Throwable $e) {
+            Log::warning('Kampanya mail logu kapatılamadı', ['error' => $e->getMessage()]);
         }
     }
 

@@ -43,6 +43,7 @@ final class MailLogService
         ?string $replyTo = null,
         ?string $ipAddress = null,
         bool $pending = false,
+        ?string $mailableClass = null,
     ): MailLog {
         $resolvedSubject = $mailable?->subject ?? $subject ?? class_basename($mailable ?? 'Raw Mail');
         $status = $pending ? MailLogStatus::Pending : ($error ? MailLogStatus::Failed : ($success ? MailLogStatus::Sent : MailLogStatus::Pending));
@@ -57,7 +58,7 @@ final class MailLogService
             'reply_to'       => $replyTo,
             'subject'        => $resolvedSubject,
             'body'           => $body ?? $this->renderBody($mailable, $pending),
-            'mailable_class' => $mailable !== null ? $mailable::class : null,
+            'mailable_class' => $mailable !== null ? $mailable::class : $mailableClass,
             'status'         => $status,
             'error_message'  => $error,
             'sent_at'        => $status === MailLogStatus::Sent ? now() : null,
@@ -69,6 +70,40 @@ final class MailLogService
         Cache::forget('admin.mail_logs.stats');
 
         return $mailLog;
+    }
+
+    /**
+     * Gönderim döndükten sonra bekleyen kaydı kapatır.
+     *
+     * Kaydı normalde mail olayı kapatıyor; olayın doğmadığı durumlarda (mailer
+     * taklit edildiğinde ya da sürücü olay yaymadığında) kayıt "bekliyor" diye
+     * asılı kalmasın diye burada da kapatılıyor. Olay çoktan yazdıysa
+     * dokunulmaz: yalnız eksik alanlar tamamlanır.
+     *
+     * @param array<string, mixed> $extra
+     */
+    public function finalize(MailLog $mailLog, ?Mailable $mailable = null, array $extra = []): void
+    {
+        $mailLog->refresh();
+
+        $update = $extra;
+
+        if ($mailLog->status === MailLogStatus::Pending) {
+            $update['status'] = MailLogStatus::Sent;
+            $update['sent_at'] = now();
+        }
+
+        if ($mailLog->body === null && ($body = $this->renderBody($mailable, false)) !== null) {
+            $update['body'] = $body;
+        }
+
+        if ($update === []) {
+            return;
+        }
+
+        $mailLog->update($update);
+
+        Cache::forget('admin.mail_logs.stats');
     }
 
     /**

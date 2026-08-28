@@ -20,6 +20,9 @@ use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 use Illuminate\Database\Eloquent\Builder;
+use App\Mail\CampaignMail;
+use App\Enums\MailLogStatus;
+use Illuminate\Support\Facades\Mail;
 
 final class CampaignService
 {
@@ -135,6 +138,7 @@ final class CampaignService
 
     public function __construct(
         private readonly UploadService $uploadService,
+        private readonly MailLogService $mailLogService,
     ) {}
 
     /**
@@ -974,7 +978,31 @@ final class CampaignService
         ]);
         $recipient->setRelation('campaign', $campaign);
 
-        \Illuminate\Support\Facades\Mail::to($email)
-            ->send(new \App\Mail\CampaignMail($campaign, $recipient, isTest: true));
+        $mailable = new CampaignMail($campaign, $recipient, isTest: true);
+
+        // Test maili de kayda geçiyor: panelden çıkan hiçbir gönderim izsiz
+        // kalmamalı. Kayıt önce açılıyor, sonucu ve gövdesini mail olayı yazıyor.
+        $mailLog = $this->mailLogService->logMail(
+            to: $email,
+            mailable: $mailable,
+            subject: $campaign->subject,
+            from: $campaign->senderAddress(),
+            metadata: ['campaign_id' => $campaign->id, 'test' => true],
+            pending: true,
+        );
+        $mailable->mailLogId = $mailLog->id;
+
+        try {
+            Mail::to($email)->send($mailable);
+
+            $this->mailLogService->finalize($mailLog, $mailable);
+        } catch (Throwable $e) {
+            $mailLog->update([
+                'status'        => MailLogStatus::Failed,
+                'error_message' => mb_substr($e->getMessage(), 0, 500),
+            ]);
+
+            throw $e;
+        }
     }
 }

@@ -114,7 +114,10 @@ final class CampaignMail extends BaseMail
      */
     public function headers(): Headers
     {
-        $text = [];
+        // Tabandan gelen başlıklar korunuyor: kaydın kimliğini taşıyan
+        // X-Mail-Log-Id oradan geliyor, burada ezilirse gönderim kendi kaydını
+        // bulamıyor ve mail ikinci kez kaydediliyor.
+        $text = parent::headers()->text;
 
         if (! $this->isTest && ($url = $this->unsubscribeUrl()) !== null) {
             $text['List-Unsubscribe'] = '<' . $url . '>';
