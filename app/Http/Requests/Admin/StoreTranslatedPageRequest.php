@@ -60,11 +60,11 @@ final class StoreTranslatedPageRequest extends FormRequest
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
-            $rules["{$prefix}.sections"]         = ['nullable', 'array'];
         }
 
         return $rules;
     }
+
     /**
      * @return list<string>
      */

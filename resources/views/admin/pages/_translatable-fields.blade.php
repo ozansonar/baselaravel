@@ -160,7 +160,7 @@
                             @error("translations.{$language->code}.image")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text">PNG, JPG, WebP | Maks. 1 MB | Önerilen: 1200x630 px</div>
+                            <div class="form-text">PNG, JPG, WebP | Maks. 2 MB | Önerilen: 1200x630 px</div>
                         </div>
 
                     </div>

@@ -67,7 +67,7 @@ Route → Controller (thin) → FormRequest (validation)
 ### İçerik yönetimi
 | Modül | Admin | Front | Not |
 |---|---|---|---|
-| Sayfalar | ✅ CRUD + restore | ✅ `/{slug}` | Dinamik section desteği (`_sections-about`) |
+| Sayfalar | ✅ CRUD + restore | ✅ `/{slug}` | Başlık/içerik/görsel/SEO — dil sekmeli |
 | Blog | ✅ Yazı + kategori + yorum moderasyonu | ✅ liste/kategori/detay | RSS feed dahil |
 | Galeri | ✅ Öğe + kategori | ✅ `/galeri` | Görsel + video türü |
 | SSS | ✅ CRUD | ✅ `/sikca-sorulan-sorular` | |
