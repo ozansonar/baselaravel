@@ -118,12 +118,9 @@ final class PageService
         });
     }
 
-    /**
-     * @param array<int, \Illuminate\Http\UploadedFile> $teamPhotoFiles
-     */
-    public function update(Page $page, array $data, array $teamPhotoFiles = []): Page
+    public function update(Page $page, array $data): Page
     {
-        return DB::transaction(function () use ($page, $data, $teamPhotoFiles): Page {
+        return DB::transaction(function () use ($page, $data): Page {
             if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
                 $data['image'] = $this->uploadService->replaceImage(
                     $data['image'],
@@ -133,55 +130,11 @@ final class PageService
                 );
             }
 
-            // Merge team member photo files into sections data
-            if (isset($data['sections']['team'])) {
-                foreach ($teamPhotoFiles as $index => $photoFile) {
-                    $data['sections']['team'][$index]['photo_file'] = $photoFile;
-                }
-            }
-
-            // Handle sections with team member photo uploads
-            if (isset($data['sections'])) {
-                $data['sections'] = $this->processSections($data['sections'], $page);
-            }
-
             $page->update($data);
             $this->clearCache();
 
             return $page->refresh();
         });
-    }
-
-    /**
-     * Process sections data, handling team member photo uploads.
-     *
-     * @param array<string, mixed> $sections
-     */
-    private function processSections(array $sections, ?Page $page): array
-    {
-        $oldSections = $page->sections ?? [];
-
-        // Handle team member photo uploads
-        if (isset($sections['team']) && is_array($sections['team'])) {
-            foreach ($sections['team'] as $index => &$member) {
-                if (isset($member['photo_file']) && $member['photo_file'] instanceof \Illuminate\Http\UploadedFile) {
-                    $oldPhoto = $oldSections['team'][$index]['photo'] ?? null;
-                    $member['photo'] = $this->uploadService->replaceImage(
-                        $member['photo_file'],
-                        'pages/team',
-                        $member['name'] ?? 'team-member',
-                        $oldPhoto,
-                    );
-                    unset($member['photo_file']);
-                } elseif (isset($member['photo_existing'])) {
-                    $member['photo'] = $member['photo_existing'];
-                    unset($member['photo_existing']);
-                }
-            }
-            unset($member);
-        }
-
-        return $sections;
     }
 
     /**
@@ -242,12 +195,6 @@ final class PageService
             if ($existing === null && $default?->image) {
                 $fields['image'] = $default->image;
             }
-        }
-
-        // The about-page builder stores its blocks as JSON, and its team photos
-        // are uploads like any other, so they are processed per language too.
-        if (isset($fields['sections'])) {
-            $fields['sections'] = $this->processSections($fields['sections'], $existing);
         }
 
         return $fields;

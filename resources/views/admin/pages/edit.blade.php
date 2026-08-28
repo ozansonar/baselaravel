@@ -168,9 +168,6 @@
 
 @push('scripts')
 <script src="{{ versioned_asset('assets/admin/js/page-form.js') }}"></script>
-@if($page->slug === 'hakkimizda')
-<script src="{{ versioned_asset('assets/admin/js/page-sections.js') }}"></script>
-@endif
 @endpush
 
 @endsection

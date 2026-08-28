@@ -8,10 +8,8 @@ use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
 use App\Enums\ContentStatus;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Validator as ValidatorFactory;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
-use Illuminate\Validation\Validator;
 
 /**
  * A page arrives as one block of fields per language.
@@ -22,12 +20,6 @@ use Illuminate\Validation\Validator;
 final class StoreTranslatedPageRequest extends FormRequest
 {
     use ValidatesTranslationBlocks;
-
-    /**
-     * Ekip üyesi fotoğrafı: her dil ve her satır için tek joker anahtar.
-     * `sections[team][{i}][photo_file]` alanının istek içindeki tam yolu.
-     */
-    private const string TEAM_PHOTO_KEY = 'translations.*.sections.team.*.photo_file';
 
     public function authorize(): bool
     {
@@ -68,41 +60,9 @@ final class StoreTranslatedPageRequest extends FormRequest
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
-            $rules["{$prefix}.sections"]         = ['nullable', 'array'];
         }
 
         return $rules;
-    }
-
-    /**
-     * Bölüm içindeki dosya alanları burada denetlenir, `rules()` içinde değil.
-     *
-     * Nedeni Laravel'in dizi budaması: `sections` kuralı `array` içerdiği için,
-     * ona bir alt kural (`sections.team.*.photo_file`) eklendiği anda
-     * `validated()` yalnız o alt anahtarı döndürüyor — story, values, timeline,
-     * stats ve cta bloklarının tamamı sessizce düşüyor ve sayfa kaydedildiğinde
-     * içerik siliniyor. Ayrı bir doğrulayıcı kurup hatalarını buraya taşımak,
-     * `validated()` çıktısına hiç dokunmadan sunucu tarafı sınırı uyguluyor.
-     */
-    public function withValidator(Validator $validator): void
-    {
-        $validator->after(function (Validator $validator): void {
-            $files = ValidatorFactory::make(
-                $this->allFiles(),
-                [self::TEAM_PHOTO_KEY => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048']],
-                [
-                    self::TEAM_PHOTO_KEY.'.image' => 'Ekip üyesi fotoğrafı bir görsel olmalıdır.',
-                    self::TEAM_PHOTO_KEY.'.mimes' => 'Ekip üyesi fotoğrafı JPG, PNG veya WebP olmalıdır.',
-                    self::TEAM_PHOTO_KEY.'.max'   => 'Ekip üyesi fotoğrafı en fazla 2 MB olabilir.',
-                ],
-            );
-
-            foreach ($files->errors()->messages() as $attribute => $messages) {
-                foreach ($messages as $message) {
-                    $validator->errors()->add($attribute, $message);
-                }
-            }
-        });
     }
 
     /**

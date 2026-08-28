@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTranslatedPageRequest;
-use App\Http\Requests\StorePageRequest;
-use App\Http\Requests\UpdatePageRequest;
 use App\Models\Page;
 use App\Services\PageService;
 use Illuminate\Http\RedirectResponse;
@@ -72,21 +70,7 @@ final class PageController extends Controller
     {
         $this->authorize('update', $page);
 
-        $translations = $request->validated('translations');
-
-        // Uploads never survive validation, so team photos are pulled straight
-        // off the request and merged back into their own language block.
-        foreach ($translations as $locale => $fields) {
-            foreach (array_keys($fields['sections']['team'] ?? []) as $index) {
-                $photo = $request->file("translations.{$locale}.sections.team.{$index}.photo_file");
-
-                if ($photo !== null) {
-                    $translations[$locale]['sections']['team'][$index]['photo_file'] = $photo;
-                }
-            }
-        }
-
-        $this->pageService->updateTranslated($page, $translations);
+        $this->pageService->updateTranslated($page, $request->validated('translations'));
 
         return redirect()
             ->route('admin.pages.edit', $page)
