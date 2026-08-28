@@ -2520,7 +2520,7 @@ a.btn-glass {
   margin: 0 auto 20px;
   font-size: 36px;
   background: rgba(20, 184, 166, 0.12);
-  color: var(--neon-teal);
+  color: var(--neon-teal, #2ee6a8);
   animation: aiLoadingPulse 2s ease-in-out infinite;
 }
 
@@ -2549,7 +2549,7 @@ a.btn-glass {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--neon-teal);
+  background: var(--neon-teal, #2ee6a8);
   animation: aiLoadingDot 1.3s ease-in-out infinite;
 }
 
@@ -35291,8 +35291,20 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
 
 /* ==========================================================================
    Editörün dosya seçicisi
+   Not: bu blok eskiden tanımsız --text-teal değişkenini kullanıyordu; vurgu
+   renkleri hiç uygulanmıyordu. Her yerde --teal-primary kullanılıyor.
    ========================================================================== */
 
+.fp-modal { max-height: 92vh; }
+
+.fp-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ---- Üst çubuk ---- */
 .fp-toolbar {
   display: flex;
   align-items: center;
@@ -35308,50 +35320,208 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
   gap: 8px;
 }
 
-.fp-toolbar__actions .stg-input {
-  width: 200px;
+.fp-search {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/* Klasör yolu: uzun yollarda satır atlasın, kutuyu taşırmasın. */
+.fp-search i {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.fp-search input {
+  width: 220px;
+  padding: 7px 10px 7px 30px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 13px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.fp-search input::placeholder { color: var(--text-muted); }
+
+.fp-search input:focus {
+  outline: none;
+  border-color: var(--teal-primary);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+/* ---- Klasör yolu ---- */
 .fp-breadcrumb {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
 }
 
 .fp-crumb {
   padding: 4px 8px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 7px;
   background: transparent;
   color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
-  transition: background .2s ease, color .2s ease;
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .fp-crumb:hover { background: var(--bg-input); color: var(--text-primary); }
-.fp-crumb--aktif { color: var(--text-teal); font-weight: 600; }
-.fp-crumb__sep { color: var(--text-muted); font-size: 12px; }
+.fp-crumb--aktif { color: var(--teal-primary); font-weight: 600; }
 
+.fp-crumb__sep {
+  color: var(--text-muted);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Tür süzgeci ve görünüm anahtarı ---- */
+.fp-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.fp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.fp-chip i { font-size: 12px; }
+.fp-chip:hover { color: var(--text-primary); border-color: var(--teal-primary); }
+
+.fp-chip.is-active {
+  background: var(--teal-primary);
+  border-color: var(--teal-primary);
+  color: #fff;
+}
+
+.fp-view-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.fp-view-switch__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.fp-view-switch__btn:hover { color: var(--text-primary); }
+.fp-view-switch__btn.is-active { background: var(--teal-primary); color: #fff; }
+
+/* ---- Klasör şeridi ----
+   Klasörler dosya kutularıyla aynı boyutta çizilince on bir klasör pencerenin
+   tamamını kaplıyordu; burada tek satırlık yatay bir şerit. */
+.fp-folders {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  scrollbar-width: thin;
+}
+
+.fp-folder {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.fp-folder:hover {
+  border-color: var(--teal-primary);
+  background: color-mix(in srgb, var(--teal-primary) 8%, var(--bg-input));
+}
+
+.fp-folder > i { color: var(--teal-primary); font-size: 14px; }
+.fp-folder--geri > i { color: var(--text-muted); }
+
+.fp-folder__name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fp-folder__count {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- Durum satırı ---- */
 .fp-status {
-  min-height: 20px;
+  min-height: 18px;
   margin-bottom: 8px;
   color: var(--text-muted);
   font-size: 12.5px;
 }
 
-.fp-status--hata { color: var(--neon-red, #ef4444); }
-.fp-status--iyi  { color: var(--text-teal); }
+.fp-status--hata { color: var(--neon-red); }
+.fp-status--iyi  { color: var(--neon-green); }
 
-/* Izgara: dar ekranda kendiliğinden sütun düşürüyor. */
+/* ---- Izgara ---- */
 .fp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-  max-height: 52vh;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+  max-height: 46vh;
   overflow-y: auto;
   padding: 2px;
 }
@@ -35361,22 +35531,27 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--bg-input);
   overflow: hidden;
   cursor: pointer;
   text-align: left;
   padding: 0;
-  transition: border-color .2s ease, transform .2s ease;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.fp-tile:hover { border-color: var(--text-teal); transform: translateY(-2px); }
+.fp-tile:hover { border-color: var(--teal-primary); transform: translateY(-2px); }
+
+.fp-tile:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+}
 
 /* Seçili kutu yalnızca kenarlıkla değil halkayla da işaretli: kenarlık rengi
    tek başına renk körlüğünde ayırt edilemiyor. */
 .fp-tile--secili {
-  border-color: var(--text-teal);
-  box-shadow: 0 0 0 2px var(--text-teal) inset;
+  border-color: var(--teal-primary);
+  box-shadow: 0 0 0 2px var(--teal-primary) inset;
 }
 
 .fp-tile__preview {
@@ -35384,10 +35559,10 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
   align-items: center;
   justify-content: center;
   position: relative;
-  aspect-ratio: 1 / 1;
-  background: var(--bg-base);
-  color: var(--text-muted);
-  font-size: 30px;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 28px;
   overflow: hidden;
 }
 
@@ -35398,23 +35573,26 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
   display: block;
 }
 
-.fp-tile--klasor .fp-tile__preview { color: var(--text-teal); }
-
 .fp-tile__ext {
   position: absolute;
-  bottom: 8px;
-  font-size: 10px;
+  bottom: 5px;
+  left: 5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(10, 14, 26, .72);
+  backdrop-filter: blur(4px);
+  color: var(--text-white);
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--text-secondary);
 }
 
 .fp-tile__info {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px 10px;
+  padding: 7px 9px;
   min-width: 0;
 }
 
@@ -35423,7 +35601,7 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-primary);
-  font-size: 12.5px;
+  font-size: 12px;
 }
 
 .fp-tile__meta { color: var(--text-muted); font-size: 11px; }
@@ -35432,51 +35610,208 @@ body.tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
    bir çöp kutusu ızgarayı okunmaz hâle getiriyordu. */
 .fp-tile__delete {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 5px;
+  right: 5px;
   width: 26px;
   height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: 8px;
-  background: rgba(15, 18, 32, .78);
-  color: var(--neon-red, #ef4444);
+  border-radius: 7px;
+  background: rgba(10, 14, 26, .78);
+  backdrop-filter: blur(4px);
+  color: var(--neon-red);
   font-size: 12px;
   opacity: 0;
   cursor: pointer;
-  transition: opacity .2s ease, background .2s ease;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
 }
 
 .fp-tile:hover .fp-tile__delete,
 .fp-tile__delete:focus-visible { opacity: 1; }
-.fp-tile__delete:hover { background: rgba(239, 68, 68, .2); }
+.fp-tile__delete:hover { background: rgba(239, 68, 68, .25); }
 
+@media (hover: none) {
+  .fp-tile__delete { opacity: 1; }
+}
+
+/* İstek dönene kadar duran boş kutular */
+.fp-tile--iskelet {
+  aspect-ratio: 4 / 3;
+  border-style: dashed;
+  background: var(--bg-card);
+  cursor: default;
+  animation: fp-nabiz 1.4s ease-in-out infinite;
+}
+
+.fp-tile--iskelet:hover { transform: none; border-color: var(--border-color); }
+
+@keyframes fp-nabiz {
+  0%, 100% { opacity: .45; }
+  50% { opacity: .8; }
+}
+
+/* ---- Liste görünümü: aynı kutular, satır düzeni ---- */
+.fp-grid--list { grid-template-columns: 1fr; gap: 6px; }
+
+.fp-grid--list .fp-tile {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+}
+
+.fp-grid--list .fp-tile:hover { transform: none; }
+
+.fp-grid--list .fp-tile__preview {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  aspect-ratio: auto;
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+}
+
+.fp-grid--list .fp-tile__ext { display: none; }
+
+.fp-grid--list .fp-tile__info {
+  flex: 1 1 auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+}
+
+.fp-grid--list .fp-tile__delete { position: static; opacity: 1; background: transparent; }
+.fp-grid--list .fp-tile--iskelet { height: 54px; aspect-ratio: auto; }
+
+/* ---- Boş durum ---- */
 .fp-empty {
   grid-column: 1 / -1;
-  padding: 32px 0;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 0;
   color: var(--text-muted);
   font-size: 13px;
 }
 
+.fp-empty i { font-size: 34px; opacity: .35; }
+.fp-empty p { margin: 0; }
+
+/* ---- Sürükle-bırak perdesi ---- */
+.fp-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--teal-primary);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--teal-primary) 12%, var(--bg-card));
+  pointer-events: none;
+}
+
+.fp-body--birakma .fp-drop { display: flex; }
+
+.fp-drop__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--teal-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fp-drop__inner i { font-size: 36px; }
+
+/* ---- Alt çubuk: seçilen dosyanın önizlemesi ---- */
+.fp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .fp-selected {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 240px;
   min-width: 0;
+}
+
+.fp-selected__thumb {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.fp-selected.is-dolu .fp-selected__thumb {
+  border-color: var(--teal-primary);
+  color: var(--teal-primary);
+}
+
+.fp-selected__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fp-selected__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.fp-selected__name {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.fp-selected__meta {
   color: var(--text-muted);
-  font-size: 12.5px;
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fp-footer__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 575.98px) {
   .fp-toolbar__actions { width: 100%; }
-  .fp-toolbar__actions .stg-input { flex: 1; width: auto; }
-  .fp-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  .fp-search { flex: 1; }
+  .fp-search input { width: 100%; }
+  .fp-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); max-height: 40vh; }
+  .fp-filters { gap: 8px; }
+  .fp-chip { padding: 4px 9px; font-size: 11.5px; }
 }
-
 /* Seçici, TinyMCE'nin görsel diyalogundan açılıyor ve onun üstünde durmalı.
    Bootstrap modalı 1055'te, TinyMCE diyalogu 1100'de — seçici arkada kalıyordu.
 
@@ -35553,9 +35888,9 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   font-size: 13px;
 }
 
-.cmp-file__link:hover { color: var(--text-teal); }
+.cmp-file__link:hover { color: var(--teal-primary); }
 .cmp-file__link:hover .cmp-file__icon { transform: translateY(1px); }
-.cmp-file__icon { color: var(--text-teal); transition: transform .2s ease; }
+.cmp-file__icon { color: var(--teal-primary); transition: transform .2s ease; }
 
 .cmp-file__name {
   overflow: hidden;
@@ -35644,10 +35979,10 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   transition: border-color .2s ease, color .2s ease;
 }
 
-.cmp-chip:hover { border-color: var(--text-teal); color: var(--text-primary); }
+.cmp-chip:hover { border-color: var(--teal-primary); color: var(--text-primary); }
 
 .cmp-chip--aktif {
-  border-color: var(--text-teal);
+  border-color: var(--teal-primary);
   color: var(--text-primary);
   font-weight: 600;
 }
@@ -35709,13 +36044,13 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   gap: 12px;
   margin: 0 20px 12px;
   padding: 10px 14px;
-  border: 1px solid var(--text-teal);
+  border: 1px solid var(--teal-primary);
   border-radius: 12px;
   background: rgba(20, 184, 166, .08);
 }
 
 .cmp-bulk__count { color: var(--text-primary); font-size: 13px; }
-.cmp-bulk__count strong { color: var(--text-teal); }
+.cmp-bulk__count strong { color: var(--teal-primary); }
 
 .cmp-bulk__actions {
   display: flex;
@@ -35815,12 +36150,12 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 }
 
 .cmp-tag:hover {
-  border-color: var(--text-teal);
+  border-color: var(--teal-primary);
   color: var(--text-primary);
 }
 
 .cmp-tag code {
-  color: var(--text-teal);
+  color: var(--teal-primary);
   font-size: 11.5px;
   background: none;
   padding: 0;
@@ -35831,7 +36166,7 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 /* Eklendiğinde kısa bir onay: tıklamanın işe yaradığı, imleç başka yerdeyken
    de görünsün. */
 .cmp-tag--eklendi {
-  border-color: var(--text-teal);
+  border-color: var(--teal-primary);
   background: rgba(20, 184, 166, .14);
 }
 

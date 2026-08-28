@@ -45,7 +45,7 @@ final class StoreTranslatedPageRequest extends FormRequest
 
             $rules[$prefix]                     = ['array'];
             $rules["{$prefix}.title"]           = [$required, 'string', 'max:255'];
-            $rules["{$prefix}.content"]         = [$required, 'string', 'max:100000'];
+            $rules["{$prefix}.content"]         = [$required, 'string'];
             $rules["{$prefix}.slug"]            = [
                 'nullable', 'string', 'max:255',
                 // Slugs only clash within their own language.

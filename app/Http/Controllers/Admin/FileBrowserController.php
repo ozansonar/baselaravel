@@ -9,6 +9,7 @@ use App\Models\UploadedFile;
 use App\Services\FileBrowserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use RuntimeException;
 
 /**
@@ -33,7 +34,7 @@ final class FileBrowserController extends Controller
 
         $validated = $request->validate([
             'folder' => ['nullable', 'string', 'max:255'],
-            'type'   => ['nullable', 'string', 'in:image,all'],
+            'type'   => ['nullable', 'string', Rule::in([...FileBrowserService::CATEGORIES, 'all'])],
             'search' => ['nullable', 'string', 'max:191'],
             'page'   => ['nullable', 'integer', 'min:1'],
         ]);

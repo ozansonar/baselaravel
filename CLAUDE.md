@@ -45,7 +45,8 @@ kod yorumları ve değişken isimleri İngilizce olsun.
   | Slug | `custom[slug]` | — |
   | Site içi yol | `custom[sitePath]` | — |
   | Dil kodu | `custom[langCode]` | — |
-  | Tarih | `custom[date]` (+ `past[]`/`future[]`) | — |
+  | Tarih (`type=date`) | `custom[date]` (+ `past[]`/`future[]`) | — |
+  | Tarih + saat (`datetime-local`) | `custom[dateTime]` | — |
   | IP | `custom[ipv4]` | — |
   | Serbest metin | `maxSize[n]` (+ gerekirse `minSize[n]`) | — |
   | Görsel | `funcCall[FormValidation.rules.imageFile]` | — |
@@ -56,6 +57,12 @@ kod yorumları ve değişken isimleri İngilizce olsun.
 - **Her metin alanı `maxSize[n]` alır** ve bu sayı FormRequest'teki `max:` ile
   birebir aynı olur. İstemci kuralı sunucudan gevşek olamaz; sunucu her zaman
   son söz → detaylı rehber: `form-validation` skill'i
+- **Tek istisna: TinyMCE editörü olan alanlar.** Zengin metin alanlarına karakter
+  sınırı konmaz — ne `maxSize[n]` ne de FormRequest'te `max:`. Yalnız `required`
+  varsa o kalır. Gerekçe: HTML biçimlendirmesi karakter sayısını içerikten
+  bağımsız şişiriyor, sınır yazarın önüne çıkıyor. Sütunlar `longText`, doğal
+  tavan PHP'nin `post_max_size` ayarı. Bugün geçerli olduğu alanlar:
+  `blog_posts.body`, `pages.content`, `campaigns.body`, `mail_templates.body`
 - Inline style (`style="..."`) → YASAK, her zaman class kullan
 - Duplicate kod → YASAK, component/partial yap
 - SoftDeletes → HER MODELDE ZORUNLU

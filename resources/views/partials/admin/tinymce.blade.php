@@ -129,7 +129,10 @@
             }
 
             window.FilePicker.open({
-                type: meta.filetype === 'image' ? 'image' : '',
+                // Süzgeç yok: görsel diyalogundan açılsa bile PDF, video, zip
+                // hepsi listelenir. Kullanıcı isterse seçicinin kendi tür
+                // düğmeleriyle daraltır.
+                type: '',
                 onSelect: function (dosya) {
                     callback(dosya.url, { alt: '', title: dosya.name });
                 }
@@ -137,7 +140,7 @@
         },
 
         // File picker for images
-        file_picker_types: 'image',
+        file_picker_types: 'file image media',
         automatic_uploads: true,
         images_reuse_filename: true,
 

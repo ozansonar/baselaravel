@@ -55,7 +55,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
 
             $rules[$prefix]                      = ['array'];
             $rules["{$prefix}.title"]            = [$required, 'string', 'max:120'];
-            $rules["{$prefix}.body"]             = [$required, 'string', 'max:200000'];
+            $rules["{$prefix}.body"]             = [$required, 'string'];
             $rules["{$prefix}.blog_category_id"] = [$required, 'integer', 'exists:blog_categories,id'];
             $rules["{$prefix}.slug"]             = [
                 'nullable', 'string', 'max:255',

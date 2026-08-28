@@ -198,7 +198,7 @@
                     id="body_{{ $language->code }}"
                     name="translations[{{ $language->code }}][body]"
                     rows="12"
-                    data-validation-engine="{{ $rules(['maxSize[200000]']) }}"
+                    data-validation-engine="{{ $rules() }}"
                     data-prompt-target="body_error_{{ $language->code }}"
                   >{{ old("translations.{$language->code}.body", $translation?->body) }}</textarea>
                   {{-- TinyMCE hides the textarea, so the message needs its own slot. --}}
@@ -372,7 +372,7 @@
                     id="published_at_{{ $language->code }}"
                     name="translations[{{ $language->code }}][published_at]"
                     value="{{ old("translations.{$language->code}.published_at", $translation?->published_at?->format('Y-m-d\TH:i')) }}"
-                   data-validation-engine="validate[custom[date]]">
+                   data-validation-engine="validate[custom[dateTime]]">
                   @error("translations.{$language->code}.published_at")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror

@@ -5,12 +5,16 @@
  *
  * public/uploads dizinini gezip dosya seçmeyi, yüklemeyi ve silmeyi sağlıyor.
  * TinyMCE'nin file_picker_callback'i buraya bağlanıyor; daha önce yüklenmiş bir
- * görseli yeniden bulmanın yolu yoktu, her seferinde yeniden yükleniyordu.
+ * dosyayı yeniden bulmanın yolu yoktu, her seferinde yeniden yükleniyordu.
  *
  * Dışarıya tek kapı:
- *   FilePicker.open({ type: 'image', onSelect: function (dosya) { ... } })
+ *   FilePicker.open({ type: '', onSelect: function (dosya) { ... } })
  *
- * onSelect'e verilen nesne: { url, path, name, is_image, size }
+ * type boş bırakılırsa hiçbir tür elenmez; kullanıcı isterse ekrandaki tür
+ * düğmeleriyle daraltır. Eskiden editör her açılışta "image" gönderdiği için
+ * PDF, video, zip gibi dosyalar seçicide hiç görünmüyordu.
+ *
+ * onSelect'e verilen nesne: { url, path, name, is_image, size, category }
  */
 (function () {
     var ayar = window.filePickerConfig;
@@ -20,15 +24,20 @@
         return;
     }
 
+    var VIEW_KEY = 'fp.view';
+
+    var govde = document.getElementById('fpBody');
     var grid = document.getElementById('fpGrid');
+    var klasorSerit = document.getElementById('fpFolders');
     var breadcrumb = document.getElementById('fpBreadcrumb');
     var durum = document.getElementById('fpStatus');
     var arama = document.getElementById('fpSearch');
     var yukleGirdi = document.getElementById('fpUploadInput');
     var yukleDugme = document.getElementById('fpUploadBtn');
     var secDugme = document.getElementById('fpChoose');
-    var secilenEtiket = document.getElementById('fpSelected');
+    var secilenKutu = document.getElementById('fpSelected');
     var dahaDugme = document.getElementById('fpMore');
+    var birakPerde = document.getElementById('fpDrop');
     var tokenEl = document.querySelector('meta[name="csrf-token"]');
     var csrf = tokenEl ? tokenEl.getAttribute('content') : '';
 
@@ -38,12 +47,22 @@
     var secili = null;
     var onSelect = null;
     var aramaZaman = null;
+    var surukleSayac = 0;
 
     if (!ayar.canUpload) {
         yukleDugme.classList.add('d-none');
     }
 
     var BIRIMLER = ['B', 'KB', 'MB', 'GB'];
+
+    var KATEGORI_ETIKET = {
+        image: 'Görsel',
+        document: 'Belge',
+        video: 'Video',
+        audio: 'Ses',
+        archive: 'Arşiv',
+        other: 'Dosya'
+    };
 
     function okunurBoyut(bytes) {
         var i = 0;
@@ -61,23 +80,83 @@
         durum.className = 'fp-status' + (tur ? ' fp-status--' + tur : '');
     }
 
+    /* ---------- Görünüm ---------- */
+
+    function kayitliGorunum() {
+        try {
+            return window.localStorage.getItem(VIEW_KEY) === 'list' ? 'list' : 'grid';
+        } catch (e) {
+            return 'grid';
+        }
+    }
+
+    function gorunumUygula(gorunum) {
+        var liste = gorunum === 'list';
+        grid.classList.toggle('fp-grid--list', liste);
+
+        document.querySelectorAll('[data-fp-view]').forEach(function (b) {
+            b.classList.toggle('is-active', b.getAttribute('data-fp-view') === (liste ? 'list' : 'grid'));
+        });
+    }
+
+    /* ---------- Seçim ---------- */
+
     function seciliyiSifirla() {
         secili = null;
         secDugme.disabled = true;
-        secilenEtiket.textContent = 'Dosya seçilmedi';
+        secilenGoster(null);
         grid.querySelectorAll('.fp-tile--secili').forEach(function (t) {
             t.classList.remove('fp-tile--secili');
         });
     }
 
-    function yolCiz(klasor, ust) {
+    function secilenGoster(dosya) {
+        var kucuk = secilenKutu.querySelector('.fp-selected__thumb');
+        var ad = secilenKutu.querySelector('.fp-selected__name');
+        var meta = secilenKutu.querySelector('.fp-selected__meta');
+
+        if (!dosya) {
+            secilenKutu.classList.remove('is-dolu');
+            kucuk.innerHTML = '<i class="bi bi-hand-index"></i>';
+            ad.textContent = 'Dosya seçilmedi';
+            meta.textContent = 'Listeden bir dosyaya tıkla';
+
+            return;
+        }
+
+        secilenKutu.classList.add('is-dolu');
+        kucuk.innerHTML = '';
+
+        if (dosya.is_image) {
+            var img = document.createElement('img');
+            img.src = dosya.thumb || dosya.url;
+            img.alt = '';
+            kucuk.appendChild(img);
+        } else {
+            kucuk.innerHTML = '<i class="bi ' + (dosya.icon || 'bi-file-earmark') + '"></i>';
+        }
+
+        ad.textContent = dosya.name;
+        meta.textContent = (KATEGORI_ETIKET[dosya.category] || 'Dosya')
+            + ' · ' + okunurBoyut(dosya.size)
+            + ' · ' + dosya.path;
+    }
+
+    /* ---------- Yol ve klasörler ---------- */
+
+    function yolCiz(klasor) {
         breadcrumb.innerHTML = '';
 
         var parcalar = klasor === '' ? [] : klasor.split('/');
         var kokDugme = document.createElement('button');
         kokDugme.type = 'button';
         kokDugme.className = 'fp-crumb';
-        kokDugme.innerHTML = '<i class="bi bi-house"></i> uploads';
+        kokDugme.innerHTML = '<i class="bi bi-house-door"></i> uploads';
+
+        if (parcalar.length === 0) {
+            kokDugme.classList.add('fp-crumb--aktif');
+        }
+
         kokDugme.addEventListener('click', function () { yukle('', 1); });
         breadcrumb.appendChild(kokDugme);
 
@@ -88,7 +167,7 @@
 
             var ayrac = document.createElement('span');
             ayrac.className = 'fp-crumb__sep';
-            ayrac.textContent = '/';
+            ayrac.innerHTML = '<i class="bi bi-chevron-right"></i>';
             breadcrumb.appendChild(ayrac);
 
             var dugme = document.createElement('button');
@@ -106,27 +185,52 @@
         });
     }
 
-    function klasorKutusu(klasor) {
-        var kutu = document.createElement('button');
-        kutu.type = 'button';
-        kutu.className = 'fp-tile fp-tile--klasor';
-        kutu.innerHTML =
-            '<span class="fp-tile__preview"><i class="bi bi-folder-fill"></i></span>' +
-            '<span class="fp-tile__info">' +
-                '<span class="fp-tile__name"></span>' +
-                '<span class="fp-tile__meta">' + klasor.count + ' öğe</span>' +
-            '</span>';
-        // textContent ile yazılıyor: klasör adı diskten geliyor, HTML olarak
-        // yorumlanmamalı.
-        kutu.querySelector('.fp-tile__name').textContent = klasor.name;
-        kutu.addEventListener('click', function () { yukle(klasor.path, 1); });
+    function klasorleriCiz(klasorler, ustKlasor) {
+        klasorSerit.innerHTML = '';
 
-        return kutu;
+        var geriVar = durumKlasor !== '';
+
+        if (!geriVar && klasorler.length === 0) {
+            klasorSerit.classList.add('d-none');
+
+            return;
+        }
+
+        klasorSerit.classList.remove('d-none');
+
+        if (geriVar) {
+            var geri = document.createElement('button');
+            geri.type = 'button';
+            geri.className = 'fp-folder fp-folder--geri';
+            geri.innerHTML = '<i class="bi bi-arrow-90deg-up"></i><span class="fp-folder__name">Üst klasör</span>';
+            geri.addEventListener('click', function () { yukle(ustKlasor || '', 1); });
+            klasorSerit.appendChild(geri);
+        }
+
+        klasorler.forEach(function (klasor) {
+            var kutu = document.createElement('button');
+            kutu.type = 'button';
+            kutu.className = 'fp-folder';
+            kutu.innerHTML =
+                '<i class="bi bi-folder-fill"></i>' +
+                '<span class="fp-folder__name"></span>' +
+                '<span class="fp-folder__count"></span>';
+            // textContent ile yazılıyor: klasör adı diskten geliyor, HTML olarak
+            // yorumlanmamalı.
+            kutu.querySelector('.fp-folder__name').textContent = klasor.name;
+            kutu.querySelector('.fp-folder__count').textContent = klasor.count;
+            kutu.addEventListener('click', function () { yukle(klasor.path, 1); });
+            klasorSerit.appendChild(kutu);
+        });
     }
+
+    /* ---------- Dosya kutusu ---------- */
 
     function dosyaKutusu(dosya) {
         var kutu = document.createElement('div');
         kutu.className = 'fp-tile';
+        kutu.setAttribute('role', 'button');
+        kutu.tabIndex = 0;
 
         var onizleme = document.createElement('span');
         onizleme.className = 'fp-tile__preview';
@@ -139,10 +243,13 @@
             img.decoding = 'async';
             onizleme.appendChild(img);
         } else {
-            onizleme.innerHTML = '<i class="bi bi-file-earmark"></i>' +
-                '<span class="fp-tile__ext"></span>';
-            onizleme.querySelector('.fp-tile__ext').textContent = dosya.extension;
+            onizleme.innerHTML = '<i class="bi ' + (dosya.icon || 'bi-file-earmark') + '"></i>';
         }
+
+        var rozet = document.createElement('span');
+        rozet.className = 'fp-tile__ext';
+        rozet.textContent = dosya.extension || KATEGORI_ETIKET[dosya.category] || '';
+        onizleme.appendChild(rozet);
 
         var bilgiKutu = document.createElement('span');
         bilgiKutu.className = 'fp-tile__info';
@@ -173,15 +280,17 @@
             kutu.appendChild(sil);
         }
 
-        kutu.addEventListener('click', function () {
+        function isaretle() {
             grid.querySelectorAll('.fp-tile--secili').forEach(function (t) {
                 t.classList.remove('fp-tile--secili');
             });
             kutu.classList.add('fp-tile--secili');
             secili = dosya;
             secDugme.disabled = false;
-            secilenEtiket.textContent = dosya.name;
-        });
+            secilenGoster(dosya);
+        }
+
+        kutu.addEventListener('click', isaretle);
 
         // Çift tıklama doğrudan seçiyor: tek tık + "Seç" iki adım, alışkanlık bu.
         kutu.addEventListener('dblclick', function () {
@@ -189,13 +298,22 @@
             sec();
         });
 
+        kutu.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                isaretle();
+            }
+        });
+
         return kutu;
     }
+
+    /* ---------- Silme ---------- */
 
     function silmeyiSor(dosya) {
         AdminModal.confirm({
             title: 'Dosyayı Sil',
-            message: 'Dosya sunucudan kalıcı olarak silinecek. Bu dosyayı kullanan sayfalarda görsel kırılır.',
+            message: 'Dosya sunucudan kalıcı olarak silinecek. Bu dosyayı kullanan sayfalarda bağlantı kırılır.',
             detailTitle: dosya.name,
             detailMeta: okunurBoyut(dosya.size),
             type: 'danger',
@@ -237,6 +355,8 @@
             .catch(function () { bilgi('Dosya silinemedi, bağlantınızı kontrol edin.', 'hata'); });
     }
 
+    /* ---------- Listeleme ---------- */
+
     function yukle(klasor, sayfa) {
         durumKlasor = klasor;
         durumSayfa = sayfa;
@@ -244,9 +364,8 @@
         if (sayfa === 1) {
             grid.innerHTML = '';
             seciliyiSifirla();
+            iskeletCiz();
         }
-
-        bilgi('Yükleniyor...');
 
         var q = new URLSearchParams({ folder: klasor, page: String(sayfa) });
 
@@ -265,6 +384,7 @@
             .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
             .then(function (sonuc) {
                 if (!sonuc.ok) {
+                    grid.innerHTML = '';
                     bilgi(sonuc.d.message || 'Klasör okunamadı.', 'hata');
 
                     return;
@@ -272,19 +392,42 @@
 
                 ciz(sonuc.d);
             })
-            .catch(function () { bilgi('Klasör okunamadı, bağlantınızı kontrol edin.', 'hata'); });
+            .catch(function () {
+                grid.innerHTML = '';
+                bilgi('Klasör okunamadı, bağlantınızı kontrol edin.', 'hata');
+            });
+    }
+
+    /** İstek dönene kadar boş kutular: ızgara bir anda zıplamasın. */
+    function iskeletCiz() {
+        var parca = '';
+
+        for (var i = 0; i < 12; i++) {
+            parca += '<div class="fp-tile fp-tile--iskelet"></div>';
+        }
+
+        grid.innerHTML = parca;
+        bilgi('Yükleniyor...');
     }
 
     function ciz(veri) {
-        yolCiz(veri.folder, veri.parent);
+        yolCiz(veri.folder);
+        klasorleriCiz(veri.folders || [], veri.parent);
 
-        (veri.folders || []).forEach(function (k) { grid.appendChild(klasorKutusu(k)); });
+        grid.innerHTML = '';
         (veri.files || []).forEach(function (d) { grid.appendChild(dosyaKutusu(d)); });
 
         if (grid.children.length === 0) {
-            grid.innerHTML = '<p class="fp-empty">' +
-                (arama.value.trim() ? 'Bu aramayla eşleşen dosya yok.' : 'Bu klasör boş.') +
-                '</p>';
+            var mesaj = arama.value.trim()
+                ? 'Bu aramayla eşleşen dosya yok.'
+                : (durumTur ? 'Bu klasörde bu türde dosya yok.' : 'Bu klasör boş.');
+
+            grid.innerHTML =
+                '<div class="fp-empty">' +
+                    '<i class="bi bi-folder2-open"></i>' +
+                    '<p></p>' +
+                '</div>';
+            grid.querySelector('.fp-empty p').textContent = mesaj;
             bilgi('');
         } else {
             bilgi(veri.total + ' dosya' + (veri.truncated ? ' · ' + veri.shown + ' tanesi gösteriliyor' : ''));
@@ -303,6 +446,71 @@
         onSelect(dosya);
     }
 
+    /* ---------- Yükleme ---------- */
+
+    function dosyalariYukle(dosyalar) {
+        if (!ayar.canUpload || !dosyalar || dosyalar.length === 0) {
+            return;
+        }
+
+        var kuyruk = Array.prototype.slice.call(dosyalar);
+        var basarili = 0;
+        var hatali = 0;
+
+        yukleDugme.disabled = true;
+
+        function sonraki() {
+            if (kuyruk.length === 0) {
+                yukleDugme.disabled = false;
+                yukleGirdi.value = '';
+
+                bilgi(
+                    basarili + ' dosya yüklendi' + (hatali ? ', ' + hatali + ' dosya başarısız.' : '.'),
+                    hatali ? 'hata' : 'iyi'
+                );
+
+                if (basarili > 0) {
+                    // Yeni dosya en üstte görünsün diye liste tazeleniyor.
+                    yukle(durumKlasor, 1);
+                }
+
+                return;
+            }
+
+            var dosya = kuyruk.shift();
+            var fd = new FormData();
+            fd.append('file', dosya);
+            fd.append('folder', durumKlasor);
+
+            bilgi(dosya.name + ' yükleniyor... (' + (kuyruk.length + 1) + ' kaldı)');
+
+            fetch(ayar.uploadUrl, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                credentials: 'same-origin',
+                body: fd
+            })
+                .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+                .then(function (sonuc) {
+                    if (sonuc.ok) {
+                        basarili++;
+                    } else {
+                        hatali++;
+                    }
+
+                    sonraki();
+                })
+                .catch(function () {
+                    hatali++;
+                    sonraki();
+                });
+        }
+
+        sonraki();
+    }
+
+    /* ---------- Olaylar ---------- */
+
     secDugme.addEventListener('click', sec);
 
     dahaDugme.addEventListener('click', function () { yukle(durumKlasor, durumSayfa + 1); });
@@ -313,47 +521,73 @@
         aramaZaman = window.setTimeout(function () { yukle(durumKlasor, 1); }, 300);
     });
 
+    document.querySelectorAll('[data-fp-type]').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            durumTur = chip.getAttribute('data-fp-type');
+
+            document.querySelectorAll('[data-fp-type]').forEach(function (c) {
+                c.classList.toggle('is-active', c === chip);
+            });
+
+            yukle(durumKlasor, 1);
+        });
+    });
+
+    document.querySelectorAll('[data-fp-view]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var gorunum = btn.getAttribute('data-fp-view');
+            gorunumUygula(gorunum);
+
+            try {
+                window.localStorage.setItem(VIEW_KEY, gorunum);
+            } catch (e) {
+                // Gizli sekmede depolama kapalı olabilir — görünüm yine değişir.
+            }
+        });
+    });
+
     yukleDugme.addEventListener('click', function () { yukleGirdi.click(); });
 
     yukleGirdi.addEventListener('change', function () {
-        if (!yukleGirdi.files || yukleGirdi.files.length === 0) {
+        dosyalariYukle(yukleGirdi.files);
+    });
+
+    // Sürükle-bırak: gövdenin tamamı hedef. dragenter/dragleave iç öğelerde de
+    // tetiklendiği için sayaçla izleniyor, yoksa perde titriyor.
+    ['dragenter', 'dragover'].forEach(function (olay) {
+        govde.addEventListener(olay, function (e) {
+            if (!ayar.canUpload) {
+                return;
+            }
+
+            e.preventDefault();
+
+            if (olay === 'dragenter') {
+                surukleSayac++;
+            }
+
+            govde.classList.add('fp-body--birakma');
+        });
+    });
+
+    govde.addEventListener('dragleave', function () {
+        surukleSayac--;
+
+        if (surukleSayac <= 0) {
+            surukleSayac = 0;
+            govde.classList.remove('fp-body--birakma');
+        }
+    });
+
+    govde.addEventListener('drop', function (e) {
+        if (!ayar.canUpload) {
             return;
         }
 
-        var dosya = yukleGirdi.files[0];
-        var fd = new FormData();
-        fd.append('file', dosya);
-        fd.append('folder', durumKlasor);
-
-        yukleDugme.disabled = true;
-        bilgi(dosya.name + ' yükleniyor...');
-
-        fetch(ayar.uploadUrl, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
-            credentials: 'same-origin',
-            body: fd
-        })
-            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-            .then(function (sonuc) {
-                yukleDugme.disabled = false;
-                yukleGirdi.value = '';
-
-                if (!sonuc.ok) {
-                    bilgi(sonuc.d.message || (sonuc.d.errors && sonuc.d.errors.file && sonuc.d.errors.file[0]) || 'Dosya yüklenemedi.', 'hata');
-
-                    return;
-                }
-
-                bilgi(sonuc.d.name + ' yüklendi.', 'iyi');
-                // Yeni dosya en üstte görünsün diye liste tazeleniyor.
-                yukle(durumKlasor, 1);
-            })
-            .catch(function () {
-                yukleDugme.disabled = false;
-                yukleGirdi.value = '';
-                bilgi('Dosya yüklenemedi, bağlantınızı kontrol edin.', 'hata');
-            });
+        e.preventDefault();
+        surukleSayac = 0;
+        govde.classList.remove('fp-body--birakma');
+        dosyalariYukle(e.dataTransfer && e.dataTransfer.files);
     });
 
     // Katman sınıfı: seçici TinyMCE diyalogunun üstüne çıkarken perdesini de
@@ -372,8 +606,19 @@
             onSelect = secenekler.onSelect || null;
             durumTur = secenekler.type || '';
             arama.value = '';
-            yukleGirdi.setAttribute('accept', durumTur === 'image' ? 'image/*' : '');
 
+            document.querySelectorAll('[data-fp-type]').forEach(function (c) {
+                c.classList.toggle('is-active', c.getAttribute('data-fp-type') === durumTur);
+            });
+
+            // Süzgeç yoksa yükleme kutusu da tür dayatmıyor.
+            if (durumTur === 'image') {
+                yukleGirdi.setAttribute('accept', 'image/*');
+            } else {
+                yukleGirdi.removeAttribute('accept');
+            }
+
+            gorunumUygula(kayitliGorunum());
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
             yukle(secenekler.folder || '', 1);
         }

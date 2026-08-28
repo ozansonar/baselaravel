@@ -51,6 +51,11 @@ tarayıcıyı kimsenin göremediği bir mesajla kilitliyor.
 | Slug | `validate[required,custom[slug],maxSize[191]]` |
 | Şifre | `validate[required,minSize[8],maxSize[191]]` |
 | Şifre tekrarı | `validate[required,equals[password]]` |
+| TinyMCE editörü (zengin metin) | `validate[required]` — karakter sınırı **konmaz** |
+
+TinyMCE alanlarına `maxSize[n]` eklenmez, FormRequest'te de `max:` yazılmaz:
+HTML biçimlendirmesi karakter sayısını içerikten bağımsız şişirdiği için sınır
+yazarın önüne çıkıyor. Sütunlar `longText`, doğal tavan `post_max_size`.
 
 `custom[letters]` bu projeye özel: Türkçe harfleri kabul eder. Yerleşik
 `onlyLetterSp` yalnızca ASCII bilir, "Ömer" ya da "Çağla" reddedilir.
@@ -82,7 +87,8 @@ Karıştırmak yıllık bir alanı "en fazla 4 karakter" diye sınırlamaya benz
 
 | Alan | Kural |
 |---|---|
-| Tarih | `validate[required,custom[date]]` |
+| Tarih (`type="date"`) | `validate[required,custom[date]]` |
+| Tarih + saat (`type="datetime-local"`) | `validate[required,custom[dateTime]]` |
 | Geçmiş bir tarih | `validate[required,custom[date],past[now]]` |
 | Gelecek bir tarih | `validate[required,custom[date],future[now]]` |
 

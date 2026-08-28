@@ -20,7 +20,7 @@ final class MailTemplateUpdateRequest extends FormRequest
     {
         return [
             'subject'   => ['required', 'string', 'max:500'],
-            'body'      => ['required', 'string', 'max:65000'],
+            'body'      => ['required', 'string'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }
