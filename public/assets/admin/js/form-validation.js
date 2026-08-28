@@ -611,6 +611,42 @@
         }, true);
     }
 
+
+    /**
+     * Keeps focus in the field being edited while a submit button is pressed.
+     *
+     * Pressing the mouse moves focus to the button by default. The field that
+     * loses focus is validated straight away and its error prompt is inserted
+     * into the flow; the prompt (~65px over two lines) is born above the
+     * button, so the button slides down. By the time the mouse is released the
+     * pointer is no longer over the button, the browser produces no click, and
+     * the form is never submitted — the user sees an error on that one field
+     * only. The second press finds the prompt already in place, nothing
+     * shifts, the submit goes through and the remaining fields are validated.
+     *
+     * Cancelling mousedown keeps the field focused, so no prompt is born and
+     * the button stays put. Nothing is lost: submitting validates every field
+     * from scratch anyway.
+     */
+    document.addEventListener('mousedown', function (event) {
+        var button = event.target.closest('button[type="submit"], input[type="submit"]');
+
+        if (!button || !button.form || button.form.dataset.fvReady !== '1') {
+            return;
+        }
+
+        // Only step in for the case that causes the shift: focus sits in a
+        // field the engine validates on blur. Everywhere else the browser
+        // keeps its own behaviour.
+        var active = document.activeElement;
+
+        if (!active || !active.matches || !active.matches('[data-validation-engine]')) {
+            return;
+        }
+
+        event.preventDefault();
+    });
+
     // ==================== SETUP ====================
 
     function setup(form, options) {
