@@ -1,27 +1,28 @@
 {
   "permissions": {
     "allow": [
-      "bash(composer *)",
-      "bash(php artisan *)",
-      "bash(php *)",
-      "bash(mysql *)",
-      "bash(cat *)",
-      "bash(ls *)",
-      "bash(mkdir *)",
-      "bash(cp *)",
-      "bash(mv *)",
-      "bash(rm *)",
-      "bash(grep *)",
-      "bash(find *)",
-      "bash(chmod *)",
-      "bash(git *)",
-      "write(*)"
+      "Bash(composer *)",
+      "Bash(php artisan *)",
+      "Bash(php *)",
+      "Bash(mysql *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(chmod *)",
+      "Bash(git *)",
+      "Bash(vendor/bin/pint *)",
+      "Write",
+      "Edit"
     ],
     "deny": [
-      "bash(npm *)",
-      "bash(npx *)",
-      "bash(yarn *)",
-      "bash(node *)"
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(yarn *)",
+      "Bash(node *)"
     ]
   }
 }
