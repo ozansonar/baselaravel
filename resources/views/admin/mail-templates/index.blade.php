@@ -174,7 +174,6 @@
                     <div class="mt-field">
                         <span>Değişken</span>
                         <select class="cl-filter-select" name="variable" aria-label="Değişken"
-                                data-select2-search="always"
                                 onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm değişkenler</option>
                             @foreach($variableOptions as $variableKey => $option)

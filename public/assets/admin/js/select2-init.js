@@ -3,8 +3,9 @@
  *
  * Every <select> in the admin becomes a Select2 without the page having to ask
  * for it, so a new form gets search, keyboard handling and the same look as the
- * rest without repeating an init call. A select that must stay native opts out
- * with data-no-select2.
+ * rest without repeating an init call. The search box is on for every list,
+ * however short. A select that must stay native opts out with data-no-select2;
+ * one that wants no search box says data-select2-search="never".
  *
  * The Bootstrap 5 theme handles the shape; the panel's own tokens (colours,
  * radius, focus ring) are laid over it in styles.css so it matches the dark and
@@ -49,8 +50,13 @@
             theme: 'bootstrap-5',
             width: '100%',
             language: (document.documentElement.lang || 'tr').slice(0, 2),
-            // A handful of options is faster to read than to search through.
-            minimumResultsForSearch: 8
+            // Arama kutusu her listede açık. Önce yalnız sekiz seçenekten uzun
+            // listelerde çıkıyordu; aynı görünen iki açılır listeden birinde
+            // yazılabilip ötekinde yazılamaması, kısa listede de kullanıcıyı
+            // klavyeden fareye geçmeye zorluyordu. Tek tek "always" demek
+            // zorunda kalan alanlar da bunu söylüyordu.
+            // Tek tek kapatmak gerekirse: data-select2-search="never".
+            minimumResultsForSearch: 0
         },
 
         /**
@@ -106,14 +112,14 @@
             options.width = $select.data('select2-width')
                 || ($select.is(INLINE_SELECTOR) ? 'auto' : '100%');
 
-            // Arama kutusu varsayılan olarak yalnızca uzun listelerde çıkıyor;
-            // bir alan her hâlükârda aranabilir olmalıysa bunu kendisi söyler.
+            // Arama artık varsayılan; nitelik yalnızca kapatmak için var.
+            // "always" da kabul ediliyor: varsayılanı yineliyor, kırmıyor.
             var search = $select.data('select2-search');
 
-            if (search === 'always') {
-                options.minimumResultsForSearch = 0;
-            } else if (search === 'never') {
+            if (search === 'never') {
                 options.minimumResultsForSearch = Infinity;
+            } else if (search === 'always') {
+                options.minimumResultsForSearch = 0;
             }
 
             return options;
