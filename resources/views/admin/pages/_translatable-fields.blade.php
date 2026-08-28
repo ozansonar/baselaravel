@@ -35,7 +35,8 @@
                                        data-validation-engine="validate[required,maxSize[255]]"
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
-                                oninput="generateSlug(this.value); updateCharCounter(this, 120); updateSeoPreview()">
+                                data-slug-source data-slug-target="slug_{{ $language->code }}"
+                                oninput="updateCharCounter(this, 120); updateSeoPreview()">
                             @error("translations.{$language->code}.title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -58,6 +59,7 @@
                                        data-validation-engine="validate[custom[slug],maxSize[255]]"
                                     value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                                     placeholder="otomatik-olusturulur"
+                                    data-slug-field
                                     oninput="updateSeoPreview()">
                             </div>
                             @error("translations.{$language->code}.slug")

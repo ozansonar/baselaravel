@@ -82,5 +82,6 @@
 @endsection
 
 @push('scripts')
+<script src="{{ versioned_asset('assets/admin/js/slug.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>
 @endpush
