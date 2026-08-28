@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Enums\PermissionKey;
-use App\Listeners\UpdateMailLogOnFailed;
-use App\Listeners\UpdateMailLogOnSent;
 use App\Models\BlogCategory;
 use App\Models\BlogComment;
 use App\Models\BlogPost;
@@ -32,10 +30,6 @@ use App\Services\TranslationService;
 use App\Translation\DatabaseOverrideLoader;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Mail\Events\MessageFailed;
-use Illuminate\Mail\Events\MessageSent;
-use Illuminate\Queue\Events\JobFailed;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
@@ -107,9 +101,9 @@ class AppServiceProvider extends ServiceProvider
         // Audit Trail — automatic activity log on critical models
         \App\Models\Setting::observe(\App\Observers\AuditObserver::class);
 
-        // Mail log status tracking via events
-        Event::listen(MessageSent::class, [UpdateMailLogOnSent::class, 'handle']);
-        Event::listen(JobFailed::class, [UpdateMailLogOnFailed::class, 'handleJobFailed']);
+        // Mail olaylarının dinleyicileri app/Listeners dizininden kendiliğinden
+        // bağlanıyor (LogOutgoingMail, UpdateMailLogOnFailed). Elle bir kez daha
+        // bağlanırlarsa her mail iki kez kaydedilir.
 
         // Share dynamic header menu with navbar partial
         View::composer('partials.navbar', function (\Illuminate\View\View $view): void {

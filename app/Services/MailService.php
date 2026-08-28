@@ -24,11 +24,28 @@ final class MailService
      */
     public function send(string|array $to, Mailable $mailable): bool
     {
-        return $this->attempt(
-            fn () => Mail::to($to)->send($mailable),
-            $to,
-            $mailable,
-        );
+        // Kayıt gönderimden önce açılıyor: mail olayı bu kaydı kapatsın,
+        // kendi başına ikinci bir kayıt açmasın.
+        $mailLog = $this->logMailableDetails($to, $mailable, pending: true);
+        $this->stampLogId($mailable, $mailLog->id);
+
+        try {
+            Mail::to($to)->send($mailable);
+
+            $this->mailLogService->finalize($mailLog, $mailable);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Mail gönderilemedi', [
+                'to'       => $to,
+                'mailable' => $mailable::class,
+                'error'    => $e->getMessage(),
+            ]);
+
+            $this->failLog($mailLog, $e->getMessage());
+
+            return false;
+        }
     }
 
     /**
@@ -81,19 +98,27 @@ final class MailService
     {
         $this->purgeMailer();
 
+        $mailLog = $this->mailLogService->logMail(
+            to: $to,
+            subject: $subject,
+            body: $body,
+            pending: true,
+        );
+
         try {
-            Mail::raw($body, function (Message $message) use ($to, $subject): void {
+            Mail::raw($body, function (Message $message) use ($to, $subject, $mailLog): void {
                 $message->to($to)->subject($subject);
+                $this->stampMessage($message, $mailLog->id);
             });
 
-            $this->mailLogService->logMail($to, null, $subject, null, true, null, null, $body);
+            $this->mailLogService->finalize($mailLog);
         } catch (\Throwable $e) {
             Log::error('Raw mail gönderilemedi', [
                 'to'    => $to,
                 'error' => $e->getMessage(),
             ]);
 
-            $this->mailLogService->logMail($to, null, $subject, null, false, $e->getMessage(), null, $body);
+            $this->failLog($mailLog, $e->getMessage());
 
             throw $e;
         }
@@ -110,19 +135,24 @@ final class MailService
 
         $this->purgeMailer();
 
-        try {
-            Mail::html($mailLog->body, fn (Message $message) => $this->applyRecipients($message, $mailLog));
+        $resendLog = $this->mailLogService->logMail(
+            to: $mailLog->to,
+            subject: '[Yeniden] ' . $mailLog->subject,
+            body: $mailLog->body,
+            cc: $mailLog->cc,
+            bcc: $mailLog->bcc,
+            replyTo: $mailLog->reply_to,
+            metadata: ['resent_from' => $mailLog->id],
+            pending: true,
+        );
 
-            $this->mailLogService->logMail(
-                to: $mailLog->to,
-                subject: '[Yeniden] ' . $mailLog->subject,
-                body: $mailLog->body,
-                cc: $mailLog->cc,
-                bcc: $mailLog->bcc,
-                replyTo: $mailLog->reply_to,
-                success: true,
-                metadata: ['resent_from' => $mailLog->id],
-            );
+        try {
+            Mail::html($mailLog->body, function (Message $message) use ($mailLog, $resendLog): void {
+                $this->applyRecipients($message, $mailLog);
+                $this->stampMessage($message, $resendLog->id);
+            });
+
+            $this->mailLogService->finalize($resendLog);
 
             return true;
         } catch (\Throwable $e) {
@@ -131,14 +161,7 @@ final class MailService
                 'error'       => $e->getMessage(),
             ]);
 
-            $this->mailLogService->logMail(
-                to: $mailLog->to,
-                subject: '[Yeniden] ' . $mailLog->subject,
-                body: $mailLog->body,
-                success: false,
-                error: $e->getMessage(),
-                metadata: ['resent_from' => $mailLog->id],
-            );
+            $this->failLog($resendLog, $e->getMessage());
 
             return false;
         }
@@ -164,7 +187,10 @@ final class MailService
         $this->purgeMailer();
 
         try {
-            Mail::html($mailLog->body, fn (Message $message) => $this->applyRecipients($message, $mailLog));
+            Mail::html($mailLog->body, function (Message $message) use ($mailLog): void {
+                $this->applyRecipients($message, $mailLog);
+                $this->stampMessage($message, $mailLog->id);
+            });
 
             $mailLog->update([
                 'status'        => MailLogStatus::Sent,
@@ -227,27 +253,37 @@ final class MailService
     }
 
     /**
-     * Execute a mail action with logging and error handling.
+     * Kaydın kimliğini maile iliştirir.
+     *
+     * Mail olayı bu başlığı görünce yeni kayıt açmak yerine mevcut kaydı
+     * kapatır; ham gönderimlerde başlık mesajın kendisine ekleniyor.
      */
-    private function attempt(callable $action, string|array $to, Mailable $mailable): bool
+    private function stampLogId(Mailable $mailable, int $mailLogId): void
     {
-        try {
-            $action();
-
-            $this->logMailableDetails($to, $mailable, true);
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('Mail gönderilemedi', [
-                'to'       => $to,
-                'mailable' => $mailable::class,
-                'error'    => $e->getMessage(),
-            ]);
-
-            $this->logMailableDetails($to, $mailable, false, $e->getMessage());
-
-            return false;
+        if ($mailable instanceof BaseMail) {
+            $mailable->mailLogId = $mailLogId;
         }
+    }
+
+    /**
+     * Ham gönderimlerde kaydın kimliğini mesaja iliştirir.
+     */
+    private function stampMessage(Message $message, int $mailLogId): void
+    {
+        $message->getSymfonyMessage()->getHeaders()->addTextHeader('X-Mail-Log-Id', (string) $mailLogId);
+    }
+
+    /**
+     * Bekleyen kaydı başarısız olarak kapatır.
+     */
+    private function failLog(\App\Models\MailLog $mailLog, string $error): void
+    {
+        $mailLog->update([
+            'status'        => MailLogStatus::Failed,
+            'error_message' => mb_substr($error, 0, 500),
+        ]);
+
+        Cache::forget('admin.mail_logs.stats');
     }
 
     /**
