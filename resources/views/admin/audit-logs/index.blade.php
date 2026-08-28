@@ -125,7 +125,6 @@
                     <div class="al-field">
                         <span>Kullanıcı</span>
                         <select class="cl-filter-select" name="user_id" aria-label="Kullanıcı"
-                                data-select2-search="always"
                                 onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kullanıcılar</option>
                             <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
@@ -140,7 +139,6 @@
                     <div class="al-field">
                         <span>Kayıt türü</span>
                         <select class="cl-filter-select" name="model" aria-label="Kayıt türü"
-                                data-select2-search="always"
                                 onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kayıt türleri</option>
                             @foreach($modelOptions as $class => $option)
@@ -154,7 +152,6 @@
                     <div class="al-field">
                         <span>IP adresi</span>
                         <select class="cl-filter-select" name="ip" aria-label="IP adresi"
-                                data-select2-search="always"
                                 onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
                             <option value="">Tüm IP adresleri</option>
                             @foreach($ipOptions as $ip => $count)

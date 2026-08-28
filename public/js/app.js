@@ -36,15 +36,33 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* ---- Active nav link by current path ---- */
-    const path = window.location.pathname;
+    /* ---- Active nav link by current path ----
+
+       Eşleşme parça sınırında kesiliyor. Önce düz startsWith kullanılıyordu ve
+       adresler dil önekine geçtiğinden anasayfa bağlantısı "/tr" oldu: "/tr" ile
+       başlayan her sayfada — yani sitenin tamamında — Anasayfa etkin görünüyor,
+       gerçekten açık olan sayfayla birlikte iki bağlantı birden yanıyordu.
+
+       Kök bağlantı (/ ya da /tr gibi dil kökü) yalnız tam eşleşmede etkin.
+       Ötekiler kendi adresinde ve altındaki sayfalarda etkin: /tr/blog,
+       /tr/blog/kategori/yazi'da da yanar ama /tr/blogumsu'da yanmaz. */
+    const LOCALE_ROOT = /^\/[a-z]{2}(-[a-z]{2})?$/;   // routes/web.php'deki {locale} kalıbı
+    const normalizePath = function (value) {
+        return value.replace(/\/+$/, '') || '/';
+    };
+    const path = normalizePath(window.location.pathname);
+
     document.querySelectorAll('.main-nav .nav-link, .mobile-nav .nav-link').forEach(function (link) {
         const href = link.getAttribute('href');
         if (!href || href === '#') return;
         try {
-            const url = new URL(href, window.location.origin);
-            if (url.pathname !== '/' && path.startsWith(url.pathname)) link.classList.add('active');
-            if (url.pathname === '/' && path === '/') link.classList.add('active');
+            const target = normalizePath(new URL(href, window.location.origin).pathname);
+            const isRoot = target === '/' || LOCALE_ROOT.test(target);
+            const active = isRoot
+                ? path === target
+                : path === target || path.startsWith(target + '/');
+
+            if (active) link.classList.add('active');
         } catch (e) { /* noop */ }
     });
 
@@ -110,10 +128,18 @@ window.fetchJson = async function (url, options = {}) {
     return res.json();
 };
 
-/* ---- Global result modal ---- */
+/* ---- Global result modal ----
+
+   message hem dizge hem dizi olabiliyor. Sunucudan birden çok hata dönünce
+   satırlar önce '<br>' ile birleştiriliyordu; kutu metni textContent ile
+   bastığı için ziyaretçi etiketin kendisini okuyordu ("...zorunludur.<br>E-posta
+   ...").  Etiketi yorumlatmak (innerHTML) sunucudan gelen metni sayfaya HTML
+   olarak sokardı; onun yerine her satır kendi düğümü olarak ekleniyor. */
 window.showResultModal = function (type, message, title) {
     const el = document.getElementById('resultModal');
-    if (!el) { alert(message); return; }
+    const lines = Array.isArray(message) ? message : String(message ?? '').split('\n');
+
+    if (!el) { alert(lines.join('\n')); return; }
 
     const map = {
         success: { icon: 'fa-circle-check',        cls: 'result-icon--success', title: 'Başarılı' },
@@ -127,7 +153,13 @@ window.showResultModal = function (type, message, title) {
     iconWrap.className = 'result-icon ' + cfg.cls;
     iconWrap.innerHTML = '<i class="fa-solid ' + cfg.icon + '"></i>';
     document.getElementById('resultModalTitle').textContent = title || cfg.title;
-    document.getElementById('resultModalBody').textContent = message;
+
+    const body = document.getElementById('resultModalBody');
+    body.textContent = '';
+    lines.filter(Boolean).forEach(function (line, index) {
+        if (index > 0) body.appendChild(document.createElement('br'));
+        body.appendChild(document.createTextNode(line));
+    });
 
     bootstrap.Modal.getOrCreateInstance(el).show();
 };

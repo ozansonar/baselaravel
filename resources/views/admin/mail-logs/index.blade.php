@@ -217,7 +217,6 @@
                     <div class="ml-field">
                         <span>Mail türü</span>
                         <select class="cl-filter-select" name="mailable" aria-label="Mail türü"
-                                data-select2-search="always"
                                 onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm mail türleri</option>
                             @foreach($mailableOptions as $class => $option)
@@ -231,7 +230,6 @@
                     <div class="ml-field">
                         <span>Alıcı</span>
                         <select class="cl-filter-select" name="recipient" aria-label="Alıcı"
-                                data-select2-search="always"
                                 onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm alıcılar</option>
                             {{-- Listede olmayan bir adres elle geldiyse (eski bağlantı,
@@ -250,7 +248,6 @@
                     <div class="ml-field">
                         <span>Tetikleyen</span>
                         <select class="cl-filter-select" name="user_id" aria-label="Tetikleyen kullanıcı"
-                                data-select2-search="always"
                                 onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
                             <option value="">Tüm kullanıcılar</option>
                             <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>

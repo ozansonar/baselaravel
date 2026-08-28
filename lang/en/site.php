@@ -64,6 +64,7 @@ return [
     ],
 
     'blog' => [
+        'comment_recaptcha' => 'Please confirm you are not a robot.',
         'featured'  => 'Featured',
         'read_time' => ':count min read',
         'lead' => 'Fresh articles, guides and news. Find something worth your time.',
