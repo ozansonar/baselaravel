@@ -295,4 +295,32 @@ return [
         'subscribed'         => 'Thanks for subscribing!',
         'already_subscribed' => 'This address is already on the list.',
     ],
+    /*
+     * Article attachments. Kind keys mirror App\Enums\FileKind exactly; a case
+     * with no entry here renders its key instead of a heading.
+     */
+    'attachments' => [
+        'title'       => 'Attachments',
+        'lead'        => 'Files published with this article. Click a file to download it.',
+        'count'       => ':count files',
+        'total_size'  => ':size total',
+        'download'    => 'Download',
+        'open'        => 'Open',
+        'preview'     => 'Enlarge',
+        'kinds'       => [
+            'image'        => 'Images',
+            'video'        => 'Videos',
+            'audio'        => 'Audio',
+            'pdf'          => 'PDF Documents',
+            'document'     => 'Documents',
+            'spreadsheet'  => 'Spreadsheets',
+            'presentation' => 'Presentations',
+            'archive'      => 'Archives',
+            'other'        => 'Other Files',
+        ],
+        'unsupported' => 'Your browser cannot play this media.',
+        'close'       => 'Close',
+        'prev'        => 'Previous',
+        'next'        => 'Next',
+    ],
 ];

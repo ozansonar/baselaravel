@@ -8,6 +8,10 @@
 @section('og_image', url(upload_url($post->image, 'lg')))
 @endif
 
+@push('styles')
+<link rel="stylesheet" href="{{ versioned_asset('css/blog-attachments.css') }}">
+@endpush
+
 @section('content')
 
     {{-- ══════════ PAGE HERO ══════════ --}}
@@ -49,6 +53,11 @@
                     <div class="article__body">
                         {!! $autoLinkedBody !!}
                     </div>
+
+                    {{-- Ekler: yazının diline ait dosyalar, türlerine göre --}}
+                    @if($attachmentGroups->isNotEmpty())
+                        @include('partials.blog-attachments', ['attachmentGroups' => $attachmentGroups])
+                    @endif
 
                     <hr class="divider my-4">
 
@@ -117,3 +126,18 @@
     </section>
 
 @endsection
+
+@push('scripts')
+{{-- Büyütme penceresinin etiketleri sunucudan: pencere ziyaretçinin dilinde
+     açılmalı, JS içine gömülü metin İngilizce sayfada yanlış olurdu. --}}
+@php
+    $attachmentLabels = [
+        'close'    => __('site.attachments.close'),
+        'prev'     => __('site.attachments.prev'),
+        'next'     => __('site.attachments.next'),
+        'download' => __('site.attachments.download'),
+    ];
+@endphp
+<script type="application/json" id="attachmentsLabels">@json($attachmentLabels)</script>
+<script src="{{ versioned_asset('js/blog-attachments.js') }}" defer></script>
+@endpush

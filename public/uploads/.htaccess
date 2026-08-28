@@ -1,0 +1,42 @@
+# public/uploads — burada duran hiçbir dosya çalıştırılmaz.
+#
+# Yükleme kutuları zaten beyaz liste tutuyor (uzantı + MIME) ve diskteki ad
+# noktalarından arındırılıp tek uzantıyla yazılıyor, yani "rapor.php.xlsx"
+# diske "raporphp-a1b2c3d4e5.xlsx" olarak iniyor. Yine de tek savunma bu
+# olmamalı: ileride başka bir modül buraya yazarsa ya da bir liste gevşerse,
+# çalıştırılabilir dosya bu satırlara takılır.
+#
+# Not: bu dosya Apache içindir (paylaşımlı hosting'in varsayılanı). Nginx'te
+# aynı korumayı sunucu bloğunda kurmak gerekir:
+#     location ^~ /uploads/ { location ~ \.(php|phar|phtml|cgi|pl|py|sh)$ { deny all; } }
+
+# ── Uzantıya bakan erişim reddi ──
+# FPM/CGI kurulumlarında "engine off" işlemez; asıl koruma burasıdır.
+<FilesMatch "(?i)\.(php|php[0-9]|phtml|phps|phar|pht|cgi|fcgi|pl|py|rb|sh|bash|exe|com|bat|jar|htaccess|htpasswd)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ── PHP yorumlayıcısı kapalı (mod_php kurulumları) ──
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# ── Kayıtlı bir işleyici kalmışsa devre dışı ──
+# Dosya çalıştırılmak yerine düz metin olarak servis edilir.
+<IfModule mod_mime.c>
+    RemoveHandler .php .php3 .php4 .php5 .php7 .php8 .phtml .phar .cgi .fcgi .pl .py .rb .sh
+    RemoveType .php .php3 .php4 .php5 .php7 .php8 .phtml .phar
+    AddType text/plain .php .phtml .phar .cgi .pl .py .rb .sh
+</IfModule>

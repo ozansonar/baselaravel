@@ -122,9 +122,11 @@ window.Slug = (function () {
 
             // Hedefe input olayı GÖNDERİLMİYOR: kendi dinleyicimize geri
             // düşer, alanı "elle düzenlendi" sayar ve ilk tuştan sonra
-            // otomatik üretim kilitlenirdi.
+            // otomatik üretim kilitlenirdi. Bunun yerine kendi olayımız;
+            // SEO önizlemesi (content-form.js) buna bağlı.
             if (hedef && !elleDuzenlenen[hedef.id]) {
                 hedef.value = from(oge.value);
+                hedef.dispatchEvent(new CustomEvent('slug:degisti', { bubbles: true }));
             }
 
             return;
@@ -134,6 +136,7 @@ window.Slug = (function () {
         if (oge.hasAttribute('data-slug-field')) {
             alaniDuzelt(oge, true);
             elleDuzenlenen[oge.id] = oge.value.trim() !== '';
+            oge.dispatchEvent(new CustomEvent('slug:degisti', { bubbles: true }));
         }
     });
 

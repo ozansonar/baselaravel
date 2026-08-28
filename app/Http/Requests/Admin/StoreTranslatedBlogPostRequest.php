@@ -69,6 +69,10 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
             $rules["{$prefix}.remove_image"]     = ['nullable', 'in:0,1'];
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:60'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
+            // Ekler dosya olarak değil belirteç olarak geliyor: dosyalar forma
+            // binmeden, tek tek kendi istekleriyle yüklendi.
+            $rules["{$prefix}.file_tokens"]      = ['nullable', 'array'];
+            $rules["{$prefix}.file_tokens.*"]    = ['string', 'uuid'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
             $rules["{$prefix}.status"]           = ['nullable', new Enum(ContentStatus::class)];
         }

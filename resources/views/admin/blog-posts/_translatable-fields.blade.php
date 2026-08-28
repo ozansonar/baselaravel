@@ -28,6 +28,7 @@
             <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
             <option value="section-content_{{ $language->code }}">İçerik Editörü</option>
             <option value="section-media_{{ $language->code }}">Medya Yönetimi</option>
+            <option value="section-files_{{ $language->code }}">Dosya Ekleri</option>
             <option value="section-seo_{{ $language->code }}">SEO Ayarları</option>
             <option value="section-publish_{{ $language->code }}">Yayın Ayarları</option>
           </select>
@@ -50,6 +51,10 @@
               <a href="#section-media_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media_{{ $language->code }}', this)">
                 <i class="bi bi-images"></i>
                 <div><span>Medya Yönetimi</span><small>Kapak görseli</small></div>
+              </a>
+              <a href="#section-files_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-files_{{ $language->code }}', this)">
+                <i class="bi bi-paperclip"></i>
+                <div><span>Dosya Ekleri</span><small>Belge, tablo, video</small></div>
               </a>
               <a href="#section-seo_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-seo_{{ $language->code }}', this)">
                 <i class="bi bi-search"></i>
@@ -94,13 +99,13 @@
                     maxlength="120"
                     data-validation-engine="{{ $rules(['maxSize[120]']) }}"
                     data-slug-source data-slug-target="slug_{{ $language->code }}"
-                    oninput="updateCharCounter(this, 120); updateSeoPreview()">
+                    oninput="updateCharCounter(this, 120); updateSeoPreview(this)">
                   @error("translations.{$language->code}.title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Dikkat çekici ve SEO uyumlu bir başlık girin</div>
-                    <div class="form-text"><span id="title-counter">{{ Str::length(old("translations.{$language->code}.title", '')) }}</span>/120</div>
+                    <div class="form-text"><span id="title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.title", '')) }}</span>/120</div>
                   </div>
                 </div>
 
@@ -186,7 +191,7 @@
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Arama sonuçlarında ve listelerde gösterilecek kısa açıklama</div>
-                    <div class="form-text"><span id="excerpt-counter">{{ Str::length(old("translations.{$language->code}.excerpt", '')) }}</span>/300</div>
+                    <div class="form-text"><span id="excerpt_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.excerpt", '')) }}</span>/300</div>
                   </div>
                 </div>
 
@@ -235,22 +240,29 @@
                     Kapak Görseli
                   </label>
 
-                  {{-- Yüklü görselin önizlemesi. Kapak varken hiçbir şey
-                       görünmüyordu: kullanıcı ne olduğunu göremiyor, kaldıramıyordu.
-                       Tıklayınca galeri (GLightbox) açılıyor. --}}
+                  {{-- Yüklü görselin önizlemesi: küçük resim + ad + eylemler
+                       tek satırda. Önce tam boy basılıyordu; kart yüksekliğinin
+                       yarısını kaplıyor ve etiketle aynı satıra düşüyordu
+                       (ikisi de inline-block idi). --}}
                   <div class="ca-cover {{ $translation?->image ? '' : 'd-none' }}" data-cover-box>
                     <a href="{{ $translation?->image ? upload_url($translation->image) : '' }}"
-                       class="glightbox ca-cover__link"
+                       class="glightbox ca-cover__thumb"
                        data-gallery="kapak-{{ $language->code }}"
                        data-title="{{ $translation?->title ?? 'Kapak görseli' }}"
                        data-cover-link>
-                      <img src="{{ $translation?->image ? upload_url($translation->image, 'md') : '' }}"
+                      <img src="{{ $translation?->image ? upload_url($translation->image, 'thumb') : '' }}"
                            alt="{{ $translation?->title ?? 'Kapak görseli' }}"
-                           class="ca-cover__img" loading="lazy" data-cover-img>
+                           loading="lazy" data-cover-img>
                       <span class="ca-cover__zoom"><i class="bi bi-arrows-fullscreen"></i></span>
                     </a>
+
+                    <div class="ca-cover__info">
+                      <span class="ca-cover__name" data-cover-name>{{ $translation?->image ? basename($translation->image) : '' }}</span>
+                      <span class="ca-cover__hint">Büyütmek için görsele tıkla</span>
+                    </div>
+
                     <button type="button" class="ca-cover__remove" data-cover-remove>
-                      <i class="bi bi-trash3"></i> Kaldır
+                      <i class="bi bi-trash3"></i><span>Kaldır</span>
                     </button>
                   </div>
 
@@ -279,7 +291,11 @@
           </div>
 
 
-          <!-- ==================== SECTION 4: SEO AYARLARI ==================== -->
+          <!-- ==================== SECTION 4: DOSYA EKLERİ ==================== -->
+          @include('admin.blog-posts._files', ['language' => $language, 'translation' => $translation, 'fileLimits' => $fileLimits, 'pendingFiles' => $pendingFiles])
+
+
+          <!-- ==================== SECTION 5: SEO AYARLARI ==================== -->
           <div class="card-dark mb-4" id="section-seo_{{ $language->code }}">
             <div class="card-header-custom">
               <div class="form-section-header mb-0">
@@ -297,9 +313,9 @@
                 <div class="col-12">
                   <label class="form-label">Google Arama Önizlemesi</label>
                   <div class="ca-seo-preview">
-                    <div class="ca-seo-url">{{ config('app.url') }}/blog/<span id="seoPreviewSlug">yeni-icerik</span></div>
-                    <div class="ca-seo-title" id="seoPreviewTitle">İçerik Başlığı Buraya Gelecek</div>
-                    <div class="ca-seo-desc" id="seoPreviewDesc">İçeriğinizin meta açıklaması burada görünecek. Arama sonuçlarında kullanıcıların göreceği metin budur.</div>
+                    <div class="ca-seo-url">{{ config('app.url') }}/blog/<span id="seoPreviewSlug_{{ $language->code }}">yeni-icerik</span></div>
+                    <div class="ca-seo-title" id="seoPreviewTitle_{{ $language->code }}">İçerik Başlığı Buraya Gelecek</div>
+                    <div class="ca-seo-desc" id="seoPreviewDesc_{{ $language->code }}">İçeriğinizin meta açıklaması burada görünecek. Arama sonuçlarında kullanıcıların göreceği metin budur.</div>
                   </div>
                 </div>
 
@@ -315,13 +331,13 @@
                     maxlength="60"
                     placeholder="SEO için özel başlık (boş bırakılırsa içerik başlığı kullanılır)"
                     data-validation-engine="validate[maxSize[60]]"
-                    oninput="updateCharCounter(this, 60); updateSeoPreview()">
+                    oninput="updateCharCounter(this, 60); updateSeoPreview(this)">
                   @error("translations.{$language->code}.meta_title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Önerilen: 50-60 karakter</div>
-                    <div class="form-text"><span id="meta_title-counter">{{ Str::length(old("translations.{$language->code}.meta_title", '')) }}</span>/60</div>
+                    <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_title", '')) }}</span>/60</div>
                   </div>
                 </div>
 
@@ -336,14 +352,14 @@
                     maxlength="160"
                     placeholder="Arama sonuçlarında görünecek açıklama metni..."
                     data-validation-engine="validate[maxSize[160]]"
-                    oninput="updateCharCounter(this, 160); updateSeoPreview()"
+                    oninput="updateCharCounter(this, 160); updateSeoPreview(this)"
                   >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
                   @error("translations.{$language->code}.meta_description")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Önerilen: 120-160 karakter</div>
-                    <div class="form-text"><span id="meta_description-counter">{{ Str::length(old("translations.{$language->code}.meta_description", '')) }}</span>/160</div>
+                    <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_description", '')) }}</span>/160</div>
                   </div>
                 </div>
 
@@ -352,7 +368,7 @@
           </div>
 
 
-          <!-- ==================== SECTION 5: YAYIN AYARLARI ==================== -->
+          <!-- ==================== SECTION 6: YAYIN AYARLARI ==================== -->
           <div class="card-dark mb-4" id="section-publish_{{ $language->code }}">
             <div class="card-header-custom">
               <div class="form-section-header mb-0">
