@@ -230,10 +230,35 @@
               <div class="row g-3">
 
                 <!-- Kapak Görseli -->
-                <div class="col-12">
+                <div class="col-12" data-cover="{{ $language->code }}">
                   <label class="form-label" for="image_{{ $language->code }}">
                     Kapak Görseli
                   </label>
+
+                  {{-- Yüklü görselin önizlemesi. Kapak varken hiçbir şey
+                       görünmüyordu: kullanıcı ne olduğunu göremiyor, kaldıramıyordu.
+                       Tıklayınca galeri (GLightbox) açılıyor. --}}
+                  <div class="ca-cover {{ $translation?->image ? '' : 'd-none' }}" data-cover-box>
+                    <a href="{{ $translation?->image ? upload_url($translation->image) : '' }}"
+                       class="glightbox ca-cover__link"
+                       data-gallery="kapak-{{ $language->code }}"
+                       data-title="{{ $translation?->title ?? 'Kapak görseli' }}"
+                       data-cover-link>
+                      <img src="{{ $translation?->image ? upload_url($translation->image, 'md') : '' }}"
+                           alt="{{ $translation?->title ?? 'Kapak görseli' }}"
+                           class="ca-cover__img" loading="lazy" data-cover-img>
+                      <span class="ca-cover__zoom"><i class="bi bi-arrows-fullscreen"></i></span>
+                    </a>
+                    <button type="button" class="ca-cover__remove" data-cover-remove>
+                      <i class="bi bi-trash3"></i> Kaldır
+                    </button>
+                  </div>
+
+                  {{-- Kaldırma bayrağı: sunucuda SyncsTranslations bunu görünce
+                       dosyayı diskten de siliyor. --}}
+                  <input type="hidden" name="translations[{{ $language->code }}][remove_image]"
+                         value="0" data-cover-flag data-fv-ignore>
+
                   <input
                     type="file"
                     class="form-control @error("translations.{$language->code}.image") is-invalid @enderror"
@@ -241,12 +266,12 @@
                     name="translations[{{ $language->code }}][image]"
                     accept="image/png,image/jpeg,image/webp"
                     data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
-                    data-max-size="4"
+                    data-max-size="1"
                     data-accept="image/jpeg,image/png,image/webp">
                   @error("translations.{$language->code}.image")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
-                  <div class="form-text">PNG, JPG, WebP | Maks. 4 MB | Önerilen: 1200x630 px</div>
+                  <div class="form-text">PNG, JPG, WebP | Maks. 1 MB</div>
                 </div>
 
               </div>
