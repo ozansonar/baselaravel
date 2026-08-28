@@ -118,25 +118,6 @@ final class PageService
         });
     }
 
-    public function update(Page $page, array $data): Page
-    {
-        return DB::transaction(function () use ($page, $data): Page {
-            if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
-                $data['image'] = $this->uploadService->replaceImage(
-                    $data['image'],
-                    'pages',
-                    $data['title'] ?? $page->title,
-                    $page->image,
-                );
-            }
-
-            $page->update($data);
-            $this->clearCache();
-
-            return $page->refresh();
-        });
-    }
-
     /**
      * Save a page in every language the form supplied.
      *
