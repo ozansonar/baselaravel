@@ -83,6 +83,10 @@ Route::get('gallery-items/toplu-yukleme', [GalleryBulkUploadController::class, '
 Route::post('gallery-items/toplu-yukleme', [GalleryBulkUploadController::class, 'store'])->name('gallery-items.bulk.store');
 Route::put('gallery-items/toplu-yukleme', [GalleryBulkUploadController::class, 'update'])->name('gallery-items.bulk.update');
 Route::delete('gallery-items/toplu-yukleme/{galleryItem}', [GalleryBulkUploadController::class, 'destroy'])->name('gallery-items.bulk.destroy');
+// Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {galleryItem}
+// kalıbına uyuyor, sıra tersine dönerse istek öğe silmeye giderdi.
+Route::delete('gallery-items/toplu-sil', [GalleryItemController::class, 'bulkDestroy'])->name('gallery-items.bulk-destroy');
+Route::patch('gallery-items/toplu-geri-yukle', [GalleryItemController::class, 'bulkRestore'])->name('gallery-items.bulk-restore');
 Route::resource('gallery-items', GalleryItemController::class)->except('show');
 Route::patch('gallery-items/{galleryItem}/restore', [GalleryItemController::class, 'restore'])->name('gallery-items.restore')->withTrashed();
 

@@ -32300,3 +32300,177 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   .gbu-summary__track { flex-basis: 100%; order: 3; }
   .gbu-grid { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Galeri listesi — görünüm değiştirici ve ızgara
+   Tablo satırında galeri karesi 64×48'e sıkışıyor; galeri modülünde asıl
+   içerik görselin kendisi olduğu için ızgara görünümü onu öne alıyor.
+   Renkler ve yuvarlaklıklar panelin kendi değişkenlerinden geliyor.
+   ========================================================================== */
+
+.gl-view-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.gl-view-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.gl-view-btn:hover { color: var(--teal-light); }
+
+.gl-view-btn.active {
+  background: var(--teal-primary);
+  color: #fff;
+}
+
+/* ---- Izgara ---- */
+
+.gl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.gl-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.gl-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--teal-primary);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .28);
+}
+
+/* Silinmiş öğe soluk duruyor: aynı ızgarada duran canlı kayıtlardan ayrılsın. */
+.gl-card--trashed { opacity: .62; }
+.gl-card--trashed:hover { opacity: 1; }
+
+.gl-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-secondary);
+}
+
+.gl-card__media img,
+.gl-card__media a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gl-card__media img {
+  object-fit: cover;
+  transition: transform var(--transition-base);
+}
+
+.gl-card:hover .gl-card__media img { transform: scale(1.05); }
+
+.gl-card__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 2rem;
+}
+
+/* Seçim kutusu karenin üstünde: satırdaki gibi ayrı bir sütun yok. */
+.gl-card__pick {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: rgba(10, 14, 26, .72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.gl-card__type {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: rgba(10, 14, 26, .72);
+  color: #fff;
+  font-size: .95rem;
+}
+
+/* Rozet görselin üstünde duruyor; açık renkli bir karede okunabilmesi için
+   arkasına koyu bir zemin ve gölge alıyor. */
+.gl-card__status {
+  position: absolute;
+  bottom: .5rem;
+  left: .5rem;
+  box-shadow: 0 2px 10px rgba(10, 14, 26, .55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.gl-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding: .85rem .9rem .5rem;
+  flex: 1;
+}
+
+.gl-card__title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: .92rem;
+  line-height: 1.35;
+}
+
+.gl-card__meta {
+  color: var(--text-muted);
+  font-size: .78rem;
+}
+
+.gl-card__actions {
+  display: flex;
+  gap: .4rem;
+  padding: 0 .9rem .85rem;
+}
+
+.gl-empty {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--text-muted);
+}
+
+.gl-empty i {
+  display: block;
+  font-size: 2.75rem;
+  margin-bottom: .75rem;
+  opacity: .5;
+}
