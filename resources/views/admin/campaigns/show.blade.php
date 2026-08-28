@@ -666,37 +666,69 @@
             <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="card-header-custom"><h6><i class="bi bi-info-circle me-2 text-teal"></i>Kampanya Bilgisi</h6></div>
                 <div class="card-body-custom">
-                    <div class="contact-info__label">Gönderen</div>
-                    <div class="mb-3">{{ $campaign->senderName() }} &lt;{{ $campaign->senderAddress() }}&gt;</div>
+                    <div class="detail-list">
+                        {{-- Gönderen adı ile adresi ayrı satırlarda: tek satıra
+                             sıkışınca ikisi de okunmuyordu. --}}
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-send"></i> Gönderen</span>
+                            <span class="detail-value">
+                                {{ $campaign->senderName() }}
+                                <span class="detail-hint">{{ $campaign->senderAddress() }}</span>
+                            </span>
+                        </div>
 
-                    @if($campaign->reply_to)
-                        <div class="contact-info__label">Yanıt Adresi</div>
-                        <div class="mb-3">{{ $campaign->reply_to }}</div>
-                    @endif
-
-                    <div class="contact-info__label">Gönderim Şekli</div>
-                    <div class="mb-3">{{ $campaign->throttled ? 'Saate yayarak' : 'Limit dolana kadar aralıksız' }}</div>
-
-                    @if($campaign->locale)
-                        <div class="contact-info__label">Dil</div>
-                        <div class="mb-3">{{ strtoupper($campaign->locale) }}</div>
-                    @endif
-
-                    @foreach([
-                        'Zamanlanan'  => $campaign->scheduled_at,
-                        'Başlangıç'   => $campaign->started_at,
-                        'Tamamlanma'  => $campaign->completed_at,
-                    ] as $label => $date)
-                        @if($date)
-                            <div class="contact-info__label">{{ $label }}</div>
-                            <div class="mb-3">{{ $date->format('d.m.Y H:i') }}</div>
+                        @if($campaign->reply_to)
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-reply"></i> Yanıt Adresi</span>
+                                <span class="detail-value">{{ $campaign->reply_to }}</span>
+                            </div>
                         @endif
-                    @endforeach
 
-                    @if($campaign->author)
-                        <div class="contact-info__label">Oluşturan</div>
-                        <div>{{ $campaign->author->full_name }}</div>
-                    @endif
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-speedometer2"></i> Gönderim Şekli</span>
+                            <span class="detail-value">
+                                <span class="menu-manage-tag menu-manage-tag--{{ $campaign->throttled ? 'blue' : 'orange' }}">
+                                    <i class="bi {{ $campaign->throttled ? 'bi-hourglass-split' : 'bi-lightning-charge-fill' }}"></i>
+                                    {{ $campaign->throttled ? 'Saate yayarak' : 'Aralıksız' }}
+                                </span>
+                                <span class="detail-hint">
+                                    {{ $campaign->throttled
+                                        ? 'Saatlik sınır kadar gönderilir, kalanı sonraki saate kalır.'
+                                        : 'Saatlik sınır dolana kadar ara vermeden gönderilir.' }}
+                                </span>
+                            </span>
+                        </div>
+
+                        @if($campaign->locale)
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-translate"></i> Dil</span>
+                                <span class="detail-value">{{ strtoupper($campaign->locale) }}</span>
+                            </div>
+                        @endif
+
+                        @foreach([
+                            'Zamanlanan' => ['date' => $campaign->scheduled_at, 'icon' => 'bi-calendar-event'],
+                            'Başlangıç'  => ['date' => $campaign->started_at,   'icon' => 'bi-play-circle'],
+                            'Tamamlanma' => ['date' => $campaign->completed_at, 'icon' => 'bi-check-circle'],
+                        ] as $label => $row)
+                            @if($row['date'])
+                                <div class="detail-item">
+                                    <span class="detail-label"><i class="bi {{ $row['icon'] }}"></i> {{ $label }}</span>
+                                    <span class="detail-value">
+                                        {{ $row['date']->translatedFormat('d F Y, H:i') }}
+                                        <span class="detail-hint">{{ $row['date']->diffForHumans() }}</span>
+                                    </span>
+                                </div>
+                            @endif
+                        @endforeach
+
+                        @if($campaign->author)
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-person-badge"></i> Oluşturan</span>
+                                <span class="detail-value">{{ $campaign->author->full_name }}</span>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
 

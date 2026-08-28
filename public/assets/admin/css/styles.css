@@ -36696,3 +36696,54 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 .export-menu .dropdown-menu {
   min-width: 160px;
 }
+
+/* ── Bilgi Listesi ───────────────────────────────────────────────────────── */
+/* Etiket–değer çiftlerini alt alta sıralayan kart içeriği: mail kaydı, dosya
+   ve kampanya detaylarında ortak. Dar kolonda okunsun diye etiket üstte küçük
+   ve soluk, değer altta belirgin duruyor. */
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.detail-item:first-child {
+  padding-top: 0;
+}
+
+.detail-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  /* Uzun e-posta ve adresler kolonu taşırmasın. */
+  overflow-wrap: anywhere;
+}
+
+/* Değerin altındaki ikincil satır: adres, açıklama, ek bilgi. */
+.detail-hint {
+  display: block;
+  margin-top: 1px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}

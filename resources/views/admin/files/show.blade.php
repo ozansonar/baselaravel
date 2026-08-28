@@ -76,27 +76,27 @@
                 <div class="card-body-custom">
                     <h6 class="text-teal mb-3"><i class="bi bi-info-circle me-1"></i> Dosya Bilgileri</h6>
 
-                    <div class="ml-detail-list">
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-file-earmark me-1"></i> Orijinal Ad</span>
-                            <span class="ml-detail-value fw-semibold">{{ $file->original_name }}</span>
+                    <div class="detail-list">
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-file-earmark me-1"></i> Orijinal Ad</span>
+                            <span class="detail-value fw-semibold">{{ $file->original_name }}</span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-tag me-1"></i> Kategori</span>
-                            <span class="ml-detail-value">{{ $file->categoryLabel() }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-tag me-1"></i> Kategori</span>
+                            <span class="detail-value">{{ $file->categoryLabel() }}</span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-filetype-pdf me-1"></i> Uzantı / MIME</span>
-                            <span class="ml-detail-value">.{{ $file->extension }} <small class="text-muted">({{ $file->mime_type }})</small></span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-filetype-pdf me-1"></i> Uzantı / MIME</span>
+                            <span class="detail-value">.{{ $file->extension }} <small class="text-muted">({{ $file->mime_type }})</small></span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-hdd me-1"></i> Orijinal Boyut</span>
-                            <span class="ml-detail-value">{{ $file->humanSize() }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-hdd me-1"></i> Orijinal Boyut</span>
+                            <span class="detail-value">{{ $file->humanSize() }}</span>
                         </div>
                         @if($file->isImage() && $file->webp_size)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-arrow-down-circle me-1"></i> WebP Boyut</span>
-                                <span class="ml-detail-value">
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-arrow-down-circle me-1"></i> WebP Boyut</span>
+                                <span class="detail-value">
                                     {{ $file->webpSizeHuman() }}
                                     @if($file->webpSavingsPercent() !== null && $file->webpSavingsPercent() > 0)
                                         <small class="badge bg-success-subtle text-success-emphasis ms-1">
@@ -107,29 +107,29 @@
                             </div>
                         @endif
                         @if($file->isImage() && $file->width && $file->height)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-rulers me-1"></i> Çözünürlük</span>
-                                <span class="ml-detail-value">{{ $file->width }} × {{ $file->height }} px</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-rulers me-1"></i> Çözünürlük</span>
+                                <span class="detail-value">{{ $file->width }} × {{ $file->height }} px</span>
                             </div>
                         @endif
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-download me-1"></i> İndirme Sayısı</span>
-                            <span class="ml-detail-value">{{ number_format($file->download_count) }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-download me-1"></i> İndirme Sayısı</span>
+                            <span class="detail-value">{{ number_format($file->download_count) }}</span>
                         </div>
                         @if($file->uploader)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-person me-1"></i> Yükleyen</span>
-                                <span class="ml-detail-value">{{ $file->uploader->name ?: '-' }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-person me-1"></i> Yükleyen</span>
+                                <span class="detail-value">{{ $file->uploader->name ?: '-' }}</span>
                             </div>
                         @endif
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-calendar-plus me-1"></i> Yükleme Tarihi</span>
-                            <span class="ml-detail-value">{{ $file->created_at->translatedFormat('d M Y H:i:s') }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-calendar-plus me-1"></i> Yükleme Tarihi</span>
+                            <span class="detail-value">{{ $file->created_at->translatedFormat('d M Y H:i:s') }}</span>
                         </div>
                         @if($file->hash)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-fingerprint me-1"></i> SHA256 Hash</span>
-                                <span class="ml-detail-value fmgr-hash">{{ \Illuminate\Support\Str::limit($file->hash, 24, '...') }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-fingerprint me-1"></i> SHA256 Hash</span>
+                                <span class="detail-value fmgr-hash">{{ \Illuminate\Support\Str::limit($file->hash, 24, '...') }}</span>
                             </div>
                         @endif
                     </div>
@@ -357,12 +357,6 @@
 
 @push('styles')
 <style>
-.ml-detail-list{display:flex;flex-direction:column;gap:0}
-.ml-detail-item{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid color-mix(in srgb, var(--border-color) 40%, transparent)}
-.ml-detail-item:last-child{border-bottom:none}
-.ml-detail-label{font-size:12px;color:var(--text-muted);display:flex;align-items:center}
-.ml-detail-value{font-size:14px;color:var(--text-primary);word-break:break-all}
-
 .fmgr-preview-link{display:block}
 .fmgr-preview-image{width:100%;height:auto;display:block}
 
