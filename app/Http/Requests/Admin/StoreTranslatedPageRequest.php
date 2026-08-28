@@ -59,6 +59,10 @@ final class StoreTranslatedPageRequest extends FormRequest
             $rules["{$prefix}.sort_order"]       = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
+            // Ekler dosya olarak değil belirteç olarak geliyor: dosyalar forma
+            // binmeden, tek tek kendi istekleriyle yüklendi.
+            $rules["{$prefix}.file_tokens"]      = ['nullable', 'array'];
+            $rules["{$prefix}.file_tokens.*"]    = ['string', 'uuid'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];
         }
 

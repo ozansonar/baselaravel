@@ -1,6 +1,9 @@
 /**
  * İçerik ekleri — dil sekmesi başına bir Dropzone.
  *
+ * Blog yazısı ve sayfa aynı dosyayı kullanıyor; hedef içerik kapsayıcıdaki
+ * data-attachable-type / data-attachable-id ikilisinden okunuyor.
+ *
  * Dropzone kütüphanesi admin layout'ta zaten yüklü
  * (assets/vendor/dropzone/dropzone.min.js). Bu dosya içerik formundaki her dil
  * sekmesinin bırakma alanını ve ek listesini kuruyor.
@@ -36,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /**
  * Yükleme sırasındaki satır. Kayıtlı ek satırıyla aynı iskelet
- * (admin/blog-posts/_file-row.blade.php): kullanıcı hangisinin kaydedildiğini
+ * (admin/partials/content-file-row.blade.php): kullanıcı hangisinin kaydedildiğini
  * satırın şeklinden çıkarmaya çalışmasın diye ikisi aynı görünüyor.
  */
 var ONIZLEME = [
@@ -81,8 +84,9 @@ function kurulum(kapsayici) {
     var csrf = meta ? meta.getAttribute('content') : '';
 
     var ayar = {
-        locale:     kapsayici.dataset.locale || '',
-        postId:     kapsayici.dataset.postId || '',
+        locale:         kapsayici.dataset.locale || '',
+        attachableType: kapsayici.dataset.attachableType || '',
+        attachableId:   kapsayici.dataset.attachableId || '',
         uploadUrl:  kapsayici.dataset.uploadUrl,
         discardUrl: kapsayici.dataset.discardUrl,
         destroyUrl: kapsayici.dataset.destroyUrl,
@@ -269,10 +273,15 @@ function kurulum(kapsayici) {
     dz.on('sending', function (dosya, xhr, veri) {
         veri.append('_token', csrf);
 
-        // Çevirisi kayıtlı dilde ek doğrudan o satıra bağlanıyor; boşsa sunucu
-        // belirteçle bekletiyor.
-        if (ayar.postId) {
-            veri.append('blog_post_id', ayar.postId);
+        // Tür her zaman gidiyor: kayıt henüz yokken bile sunucu hangi içeriğin
+        // yaratma yetkisine bakacağını bilmeli. Kimlik varsa ek doğrudan o
+        // satıra bağlanıyor, yoksa sunucu belirteçle bekletiyor.
+        if (ayar.attachableType) {
+            veri.append('attachable_type', ayar.attachableType);
+        }
+
+        if (ayar.attachableId) {
+            veri.append('attachable_id', ayar.attachableId);
         }
     });
 

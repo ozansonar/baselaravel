@@ -292,7 +292,13 @@
 
 
           <!-- ==================== SECTION 4: DOSYA EKLERİ ==================== -->
-          @include('admin.blog-posts._files', ['language' => $language, 'translation' => $translation, 'fileLimits' => $fileLimits, 'pendingFiles' => $pendingFiles])
+          @include('admin.partials.content-files', [
+              'language'       => $language,
+              'translation'    => $translation,
+              'attachableType' => \App\Enums\AttachableContent::BlogPost,
+              'fileLimits'     => $fileLimits,
+              'pendingFiles'   => $pendingFiles,
+          ])
 
 
           <!-- ==================== SECTION 5: SEO AYARLARI ==================== -->

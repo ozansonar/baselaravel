@@ -97,10 +97,11 @@ Schedule::call($run('campaigns:purge-attachments'))
     ->dailyAt('04:15')
     ->withoutOverlapping();
 
-// İçerik ekleri: aynı gerekçe. Çevirisi olmayan bir dil sekmesinde dosya
-// içerikten önce yükleniyor; form terk edilirse ek sahipsiz kalıyor.
-Schedule::call($run('blog-posts:purge-files'))
-    ->name('blog-posts-purge-files')
+// İçerik ekleri (blog yazısı ve sayfa): aynı gerekçe. Çevirisi olmayan bir dil
+// sekmesinde dosya içerikten önce yükleniyor; form terk edilirse ek sahipsiz
+// kalıyor.
+Schedule::call($run('content-files:purge'))
+    ->name('content-files-purge')
     ->dailyAt('04:25')
     ->withoutOverlapping();
 

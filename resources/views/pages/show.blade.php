@@ -11,6 +11,10 @@
 @endif
 @section('canonical', $canonicalUrl)
 
+@push('styles')
+<link rel="stylesheet" href="{{ versioned_asset('css/content-attachments.css') }}">
+@endpush
+
 @section('content')
 
     {{-- ══════════ PAGE HERO ══════════ --}}
@@ -40,9 +44,29 @@
                     <article class="article__body">
                         {!! $page->content !!}
                     </article>
+
+                    {{-- Ekler: sayfanın diline ait dosyalar, türlerine göre --}}
+                    @if($attachmentGroups->isNotEmpty())
+                        @include('partials.content-attachments', ['attachmentGroups' => $attachmentGroups])
+                    @endif
                 </div>
             </div>
         </div>
     </section>
 
 @endsection
+
+@push('scripts')
+{{-- Büyütme penceresinin etiketleri sunucudan: pencere ziyaretçinin dilinde
+     açılmalı, JS içine gömülü metin İngilizce sayfada yanlış olurdu. --}}
+@php
+    $attachmentLabels = [
+        'close'    => __('site.attachments.close'),
+        'prev'     => __('site.attachments.prev'),
+        'next'     => __('site.attachments.next'),
+        'download' => __('site.attachments.download'),
+    ];
+@endphp
+<script type="application/json" id="attachmentsLabels">@json($attachmentLabels)</script>
+<script src="{{ versioned_asset('js/content-attachments.js') }}" defer></script>
+@endpush

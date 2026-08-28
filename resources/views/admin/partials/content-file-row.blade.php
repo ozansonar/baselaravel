@@ -1,7 +1,7 @@
 {{--
     Tek ek satırı.
 
-    Aynı biçim JS tarafında da üretiliyor (assets/admin/js/blog-post-files.js):
+    Aynı biçim JS tarafında da üretiliyor (assets/admin/js/content-files.js):
     kayıtlı ek ile az önce yüklenen ek aynı listede, aynı görünüyor. İkisi ayrı
     çizilseydi kullanıcı hangisinin kaydedildiğini satırın şeklinden çıkarmaya
     çalışırdı.
@@ -9,12 +9,12 @@
     İçeriği olmayan ek "bekleyen"dir: o dilin satırı henüz yok. Belirtecini gizli
     alanla taşıyor, satır doğduğunda iliştiriliyor.
 
-    @var \App\Models\BlogPostFile $file
+    @var \App\Models\ContentFile $file
     @var string $locale
 --}}
 @php
     $kind = $file->kind();
-    $pending = $file->blog_post_id === null;
+    $pending = $file->attachable_id === null;
 @endphp
 <div class="bpf-file bpf-file--{{ $kind->color() }}" data-bpf-item
      @if($pending) data-token="{{ $file->token }}" @else data-file-id="{{ $file->id }}" @endif>

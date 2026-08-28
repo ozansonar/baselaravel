@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\BlogPostController;
-use App\Http\Controllers\Admin\BlogPostFileController;
+use App\Http\Controllers\Admin\ContentFileController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
@@ -257,12 +257,13 @@ Route::post('settings/test-telegram', [SettingController::class, 'testTelegram']
 Route::resource('blog-categories', BlogCategoryController::class)->except('show');
 Route::patch('blog-categories/{blogCategory}/restore', [BlogCategoryController::class, 'restore'])->name('blog-categories.restore')->withTrashed();
 
+// İçerik ekleri — blog yazısı da sayfa da aynı uçları kullanıyor. Hedef içerik
+// istekteki kısa tür anahtarından çözülüyor (App\Enums\AttachableContent).
+Route::post('icerik-dosyasi', [ContentFileController::class, 'store'])->name('content-files.upload');
+Route::delete('icerik-dosyasi/bekleyen/{token}', [ContentFileController::class, 'destroyPending'])->name('content-files.discard');
+Route::delete('icerik-dosyasi/{file}', [ContentFileController::class, 'destroy'])->name('content-files.destroy');
+
 // Blog Posts
-// Ekler kaynak rotalarından önce: blog-posts/{blogPost} kalıbı "dosya-yukle"yi
-// de yakalar, sıra tersine dönerse yükleme isteği içerik göstermeye gider.
-Route::post('blog-posts/dosya-yukle', [BlogPostFileController::class, 'store'])->name('blog-posts.files.upload');
-Route::delete('blog-posts/dosya-yukle/{token}', [BlogPostFileController::class, 'destroyPending'])->name('blog-posts.files.discard');
-Route::delete('blog-posts/dosya/{file}', [BlogPostFileController::class, 'destroy'])->name('blog-posts.files.destroy');
 Route::resource('blog-posts', BlogPostController::class);
 Route::patch('blog-posts/{blogPost}/restore', [BlogPostController::class, 'restore'])->name('blog-posts.restore')->withTrashed();
 

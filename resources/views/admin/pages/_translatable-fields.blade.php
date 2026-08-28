@@ -7,6 +7,8 @@
 
     @var \App\Models\Language $language
     @var \App\Models\Page|null $translation
+    @var array{per_file: int, post_max: int, max_files: int} $fileLimits
+    @var array<string, \Illuminate\Support\Collection<int, \App\Models\ContentFile>> $pendingFiles
 --}}
             <!-- ==================== SECTION 1: TEMEL BİLGİLER ==================== -->
             <div class="card-dark mb-4" id="section-basic_{{ $language->code }}">
@@ -170,7 +172,17 @@
             </div>
 
 
-            <!-- ==================== SECTION 4: SEO AYARLARI ==================== -->
+            <!-- ==================== SECTION 4: DOSYA EKLERİ ==================== -->
+            @include('admin.partials.content-files', [
+                'language'       => $language,
+                'translation'    => $translation,
+                'attachableType' => \App\Enums\AttachableContent::Page,
+                'fileLimits'     => $fileLimits,
+                'pendingFiles'   => $pendingFiles,
+            ])
+
+
+            <!-- ==================== SECTION 5: SEO AYARLARI ==================== -->
             <div class="card-dark mb-4" id="section-seo_{{ $language->code }}">
                 <div class="card-header-custom">
                     <div class="form-section-header mb-0">
@@ -241,7 +253,7 @@
             </div>
 
 
-            <!-- ==================== SECTION 5: YAYIN AYARLARI ==================== -->
+            <!-- ==================== SECTION 6: YAYIN AYARLARI ==================== -->
             <div class="card-dark mb-4" id="section-publish_{{ $language->code }}">
                 <div class="card-header-custom">
                     <div class="form-section-header mb-0">
@@ -291,7 +303,7 @@
             </div>
 
 
-            <!-- ==================== SECTION 6: GELİŞMİŞ AYARLAR ==================== -->
+            <!-- ==================== SECTION 7: GELİŞMİŞ AYARLAR ==================== -->
             <div class="card-dark mb-4" id="section-advanced_{{ $language->code }}">
                 <div class="card-header-custom">
                     <div class="form-section-header mb-0">

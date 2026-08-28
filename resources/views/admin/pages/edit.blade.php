@@ -45,6 +45,7 @@
         <option value="section-basic">Temel Bilgiler</option>
         <option value="section-content">İçerik Editörü</option>
         <option value="section-media">Medya Yönetimi</option>
+        <option value="section-files">Dosya Ekleri</option>
         <option value="section-seo">SEO Ayarları</option>
         <option value="section-publish">Yayın Ayarları</option>
         <option value="section-advanced">Gelişmiş Ayarlar</option>
@@ -81,6 +82,10 @@
                 <a href="#section-media" class="stg-nav-item" onclick="scrollToSection('section-media', this)">
                     <i class="bi bi-images"></i>
                     <div><span>Medya Yönetimi</span><small>Kapak görseli</small></div>
+                </a>
+                <a href="#section-files" class="stg-nav-item" onclick="scrollToSection('section-files', this)">
+                    <i class="bi bi-paperclip"></i>
+                    <div><span>Dosya Ekleri</span><small>Belge, tablo, video</small></div>
                 </a>
                 <a href="#section-seo" class="stg-nav-item" onclick="scrollToSection('section-seo', this)">
                     <i class="bi bi-search"></i>
@@ -170,6 +175,7 @@
 <script src="{{ versioned_asset('assets/admin/js/slug.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-form.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/page-form.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/content-files.js') }}"></script>
 @endpush
 
 @endsection

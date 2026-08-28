@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ProvidesContentFileForm;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTranslatedBlogPostRequest;
 use App\Http\Requests\StoreBlogPostRequest;
 use App\Http\Requests\UpdateBlogPostRequest;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
-use App\Models\BlogPostFile;
-use App\Services\BlogPostFileService;
 use App\Services\BlogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,9 +19,10 @@ use Illuminate\View\View;
 
 final class BlogPostController extends Controller
 {
+    use ProvidesContentFileForm;
+
     public function __construct(
         private readonly BlogService $blogService,
-        private readonly BlogPostFileService $blogPostFiles,
     ) {}
 
     public function index(Request $request): View
@@ -49,12 +49,7 @@ final class BlogPostController extends Controller
             // Every language's categories; each tab shows only its own.
             'categories'    => BlogCategory::active()->sorted()->get(),
             'formLanguages' => $this->blogService->formLanguages(),
-            // Ek kutusunun gösterdiği tavan sunucununkiyle aynı olmalı; iki
-            // yerde ayrı yazılsaydı ekranda yazan sayı ile kabul edilen boyut
-            // zamanla ayrışırdı.
-            'fileLimits'    => $this->blogPostFiles->limits(),
-            'pendingFiles'  => $this->pendingFilesFromOldInput(),
-        ]);
+        ] + $this->contentFileFormData());
     }
 
     public function store(StoreTranslatedBlogPostRequest $request): RedirectResponse
@@ -90,44 +85,7 @@ final class BlogPostController extends Controller
             'post'          => $blogPost,
             'categories'    => BlogCategory::active()->sorted()->get(),
             'formLanguages' => $this->blogService->formLanguages(),
-            'fileLimits'    => $this->blogPostFiles->limits(),
-            'pendingFiles'  => $this->pendingFilesFromOldInput(),
-        ]);
-    }
-
-    /**
-     * Doğrulama hatasından sonra forma geri dönen bekleyen ekler.
-     *
-     * Yüklenen dosyanın satırını JS çiziyor; sayfa yeniden yüklenince o satır
-     * kayboluyor. Başlığı boş bırakıp kaydeden kullanıcı, hatayı düzeltip
-     * tekrar kaydettiğinde az önce yüklediği beş dosyayı listede bulamıyor ve
-     * dosyalar bir gün sonra temizliğe takılana kadar sahipsiz bekliyordu.
-     *
-     * Bekleyenler sahibiyle aranıyor: belirteç uydurulsa bile başkasının
-     * dosyası forma geri gelmiyor.
-     *
-     * @return array<string, \Illuminate\Support\Collection<int, BlogPostFile>> locale => files
-     */
-    private function pendingFilesFromOldInput(): array
-    {
-        $userId = auth()->id();
-        $restored = [];
-
-        foreach ((array) old('translations', []) as $locale => $fields) {
-            $tokens = is_array($fields) ? ($fields['file_tokens'] ?? null) : null;
-
-            if (! is_array($tokens) || $tokens === []) {
-                continue;
-            }
-
-            $restored[$locale] = BlogPostFile::query()
-                ->pending($userId)
-                ->whereIn('token', $tokens)
-                ->sorted()
-                ->get();
-        }
-
-        return $restored;
+        ] + $this->contentFileFormData());
     }
 
     public function update(StoreTranslatedBlogPostRequest $request, BlogPost $blogPost): RedirectResponse
