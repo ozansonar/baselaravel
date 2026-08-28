@@ -15,6 +15,9 @@
 
 @section('content')
 
+    {{-- Okuma çubuğu: uzun yazıda ne kadar kaldığını gösteriyor. --}}
+    <div class="read-progress" data-read-progress role="presentation"></div>
+
     {{-- ══════════ PAGE HERO ══════════ --}}
     <section class="page-hero">
         <div class="container">
@@ -25,6 +28,9 @@
                     <li class="breadcrumb-item"><a href="{{ route('blog.category', $post->category->slug) }}">{{ $post->category->name }}</a></li>
                 </ol>
             </nav>
+            @if($post->category)
+                <span class="page-hero__eyebrow"><i class="fa-solid fa-folder-open"></i> {{ $post->category->name }}</span>
+            @endif
             <h1 class="page-hero__title">{{ $post->title }}</h1>
             <div class="article__meta mt-3">
                 <span><i class="fa-regular fa-calendar me-1"></i>{{ optional($post->published_at)->translatedFormat('d M Y') }}</span>
@@ -89,28 +95,8 @@
                 <div class="row g-4">
                     @foreach($relatedPosts as $related)
                         @continue($related->id === $post->id)
-                        <div class="col-md-6 col-lg-4">
-                            <article class="post-card">
-                                <a href="{{ route('blog.show', [$related->category->slug, $related->slug]) }}" class="post-card__media">
-                                    @if($related->image)
-                                        <img src="{{ upload_url($related->image, 'md') }}" alt="{{ $related->title }}" class="post-card__img" loading="lazy" decoding="async">
-                                    @else
-                                        <span class="post-card__ph"><i class="fa-regular fa-image"></i></span>
-                                    @endif
-                                    @if($related->category)
-                                        <span class="post-card__cat">{{ $related->category->name }}</span>
-                                    @endif
-                                </a>
-                                <div class="post-card__body">
-                                    <div class="post-card__meta">
-                                        <span><i class="fa-regular fa-calendar me-1"></i>{{ optional($related->published_at)->translatedFormat('d M Y') }}</span>
-                                    </div>
-                                    <h3 class="post-card__title">
-                                        <a href="{{ route('blog.show', [$related->category->slug, $related->slug]) }}">{{ $related->title }}</a>
-                                    </h3>
-                                    <a href="{{ route('blog.show', [$related->category->slug, $related->slug]) }}" class="post-card__more">{{ __('site.actions.read_more') }} <i class="fa-solid fa-arrow-right"></i></a>
-                                </div>
-                            </article>
+                        <div class="col-md-6 col-lg-4" data-reveal data-reveal-delay="{{ $loop->index % 4 }}">
+                            @include('partials.post-card', ['post' => $related, 'showExcerpt' => false])
                         </div>
                     @endforeach
                 </div>

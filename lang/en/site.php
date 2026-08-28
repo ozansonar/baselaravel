@@ -64,6 +64,8 @@ return [
     ],
 
     'blog' => [
+        'featured'  => 'Featured',
+        'read_time' => ':count min read',
         'lead' => 'Fresh articles, guides and news. Find something worth your time.',
         'meta_desc' => 'Fresh articles, guides and news, sorted into categories so you can find what interests you.',
         'category_meta' => 'Articles in the :category category.',
@@ -95,6 +97,8 @@ return [
     ],
 
     'gallery' => [
+        'view'    => 'Enlarge',
+        'watch'   => 'Watch',
         'meta_desc' => 'Photo and video gallery. Take a closer look at us through our shots and videos.',
         'lead' => 'Take a closer look at us through our shots and videos.',
         'title'  => 'Gallery',
@@ -267,6 +271,23 @@ return [
 
 
     'home' => [
+        // Trust strip under the hero — three lines that say what the site
+        // offers before the visitor scrolls.
+        'trust_1' => 'Content managed from the panel',
+        'trust_2' => 'Multilingual foundation',
+        'trust_3' => 'Mobile-first design',
+        'process_eyebrow' => 'How It Works',
+        'process' => 'Go live in three steps',
+        'process_lead' => 'From setup to launch the process stays simple: you bring the content, the platform handles the rest.',
+        'p1_title' => 'Setup & Configuration',
+        'p1_text' => 'Domain, language and brand settings are defined once from the admin panel.',
+        'p2_title' => 'Content Entry',
+        'p2_text' => 'Pages, posts, gallery items and sliders are added from the panel and appear at once.',
+        'p3_title' => 'Launch & Track',
+        'p3_text' => 'The site goes live and visitor activity is followed from the analytics screen.',
+        'gallery_eyebrow' => 'Gallery',
+        'gallery_title' => 'Shots from our work',
+        'gallery_lead' => 'The latest images added from the admin panel.',
         'features_lead' => 'Modern, sustainable solutions built around what you actually need.',
         'cta_lead' => 'Have questions? Our team would be glad to help.',
         'f1_title' => 'High Performance',
@@ -327,4 +348,13 @@ return [
         'prev'        => 'Previous',
         'next'        => 'Next',
     ],
+    /*
+     * Light/dark switch. The label names the action ("Dark theme" = switch to
+     * dark), not the current state — that is what a screen reader needs.
+     */
+    'theme' => [
+        'dark'  => 'Dark theme',
+        'light' => 'Light theme',
+    ],
+
 ];

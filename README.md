@@ -79,7 +79,7 @@ Ayrıca değiştirmek isteyebileceklerin:
 
 - `composer.json` → `name` ve `description`
 - `resources/views/admin-theme/` → tema referans dosyaları (opsiyonel, silinebilir)
-- Seeder'lardaki örnek içerik: `PageSeeder`, `BlogSeeder`, `FaqSeeder`, `SliderSeeder`
+- Seeder'lardaki örnek içerik: `PageSeeder`, `BlogSeeder`, `FaqSeeder`, `DemoMediaSeeder`
 
 ### Sunucuyu çalıştırma
 

@@ -67,6 +67,8 @@ return [
     ],
 
     'blog' => [
+        'featured'  => 'Öne çıkan',
+        'read_time' => ':count dk okuma',
         'lead' => 'Güncel yazılar, rehberler ve haberler. İlginizi çekecek içerikleri keşfedin.',
         'meta_desc' => 'Güncel yazılar, rehberler ve haberler. İlginizi çekecek içerikleri kategorilere göre keşfedin.',
         'category_meta' => ':category kategorisindeki içerikler.',
@@ -98,6 +100,8 @@ return [
     ],
 
     'gallery' => [
+        'view'    => 'Büyüt',
+        'watch'   => 'İzle',
         'meta_desc' => 'Fotoğraf ve video galerisi. Kareler ve videolarla bize daha yakından bakın.',
         'lead' => 'Kareler ve videolarla bize daha yakından bakın.',
         'title'  => 'Galeri',
@@ -270,6 +274,23 @@ return [
 
 
     'home' => [
+        // Kahraman altındaki güven şeridi — sayfanın ilk ekranında ne
+        // sunulduğunu tek bakışta söyleyen üç madde.
+        'trust_1' => 'Panelden yönetilen içerik',
+        'trust_2' => 'Çok dilli altyapı',
+        'trust_3' => 'Mobil öncelikli tasarım',
+        'process_eyebrow' => 'Nasıl Çalışıyoruz',
+        'process' => 'Üç adımda yayına alın',
+        'process_lead' => 'Kurulumdan yayına kadar süreç sade: içerik sizde, teknik taraf altyapıda.',
+        'p1_title' => 'Kurulum ve Yapılandırma',
+        'p1_text' => 'Alan adı, dil ve marka ayarları yönetim panelinden tek seferde tanımlanır.',
+        'p2_title' => 'İçerik Girişi',
+        'p2_text' => 'Sayfa, blog, galeri ve slider kayıtları panelden eklenir; site anında güncellenir.',
+        'p3_title' => 'Yayın ve Takip',
+        'p3_text' => 'Site yayına alınır, ziyaretçi hareketleri panelin analitik ekranından izlenir.',
+        'gallery_eyebrow' => 'Galeri',
+        'gallery_title' => 'Çalışmalarımızdan kareler',
+        'gallery_lead' => 'Yönetim panelinden eklenen son görseller.',
         'features_lead' => 'İhtiyaçlarınıza uygun, modern ve sürdürülebilir çözümler sunuyoruz.',
         'cta_lead' => 'Sorularınız mı var? Ekibimiz size yardımcı olmaktan memnuniyet duyar.',
         'f1_title' => 'Yüksek Performans',
@@ -331,4 +352,13 @@ return [
         'prev'        => 'Önceki',
         'next'        => 'Sonraki',
     ],
+    /*
+     * Koyu/açık kip düğmesi. Etiket eylemi söylüyor ("Koyu tema" = koyuya
+     * geç), durumu değil; ekran okuyucunun duyması gereken bu.
+     */
+    'theme' => [
+        'dark'  => 'Koyu tema',
+        'light' => 'Açık tema',
+    ],
+
 ];

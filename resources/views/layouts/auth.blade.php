@@ -6,6 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
 
+    {{-- Koyu/açık kip, stiller inmeden önce yazılıyor: sayfa yanlış kiple
+         boyanıp sonra atlamıyor. --}}
+    @include('partials.theme-init')
+
     @php
         $siteName = \App\Models\Setting::getValue('site_name', config('app.name'));
         $siteLogo = \App\Models\Setting::getValue('site_logo');
@@ -39,6 +43,12 @@
     @endif
 
     <div class="auth-wrap">
+
+        {{-- Giriş ekranının kendi kip düğmesi: bu düzende başlık yok, doğrudan
+             /giris adresine gelen kişinin geçiş yapacak başka yeri kalmıyor. --}}
+        <div class="auth-theme-toggle">
+            @include('partials.theme-toggle')
+        </div>
 
         {{-- Left: decorative brand panel (lg+ only) --}}
         <aside class="auth-aside">
@@ -86,6 +96,7 @@
     <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
     <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
     <script src="{{ versioned_asset('js/app.js') }}"></script>
+    <script src="{{ versioned_asset('js/theme.js') }}"></script>
     {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı sayfanın dilinden geliyor. --}}
     <script src="{{ versioned_asset('js/password-toggle.js') }}"
             data-show-label="{{ __('site.actions.show_password') }}"

@@ -56,13 +56,20 @@
                 @endauth
 
                 @include('partials.language-switcher')
+
+                {{-- Koyu/açık kip --}}
+                @include('partials.theme-toggle')
             </div>
 
             {{-- Mobile toggle --}}
-            <button class="nav-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"
-                    aria-controls="mobileNav" aria-label="{{ __('site.misc.open_menu') }}">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+            <div class="d-flex align-items-center gap-2 d-lg-none">
+                @include('partials.theme-toggle')
+
+                <button class="nav-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"
+                        aria-controls="mobileNav" aria-label="{{ __('site.misc.open_menu') }}">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
         </div>
     </nav>
 </header>
