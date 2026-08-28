@@ -66,30 +66,71 @@
         </div>
     </div>
 
-    {{-- ==================== UPLOAD FORM ==================== --}}
+    {{-- ==================== UPLOAD ==================== --}}
     <div class="card-dark mb-4" data-aos="fade-up">
         <div class="card-header-custom d-flex align-items-center gap-3">
             <div class="form-section-icon bg-icon-teal"><i class="bi bi-cloud-upload-fill"></i></div>
             <div class="flex-grow-1">
                 <h6 class="mb-0">Dosya Yükle</h6>
                 <small class="text-muted">
-                    Dosya bırakılır bırakılmaz <strong>otomatik yüklenir</strong> · 6 paralel istek ·
-                    Max 50 MB · 50 dosya/seans · Aynı dosya tekrar yüklenmez (SHA256) ·
-                    SVG kabul edilmez
+                    Dosya bırakılır bırakılmaz otomatik yüklenir · 6 paralel istek ·
+                    aynı dosya ikinci kez kaydedilmez (SHA256)
                 </small>
             </div>
         </div>
         <div class="card-body-custom">
-            <div id="fileManagerDropzone"
-                 class="dropzone fmgr-dropzone"
+
+            {{-- Bırakma alanı: önizlemeler buraya değil, alttaki kuyruk paneline
+                 düşer. Alan her zaman aynı yükseklikte kalır. --}}
+            <div id="fileManagerDropzone" class="fmgr-dz"
                  data-upload-url="{{ route('admin.files.upload') }}">
-                {{-- Dropzone JS init eder, autoProcessQueue: true --}}
+                <div class="dz-message fmgr-dz__message">
+                    <div class="fmgr-dz__icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                    <div>
+                        <p class="fmgr-dz__title">Dosyaları buraya sürükle veya <u>bilgisayarından seç</u></p>
+                        <p class="fmgr-dz__hint">Dosya başına en fazla 50 MB · tek seferde 50 dosya · SVG kabul edilmiyor</p>
+                        <ul class="fmgr-dz__chips">
+                            <li><i class="bi bi-image"></i>JPG · PNG · WebP · GIF</li>
+                            <li><i class="bi bi-file-earmark-text"></i>PDF · DOC · XLSX · CSV</li>
+                            <li><i class="bi bi-file-earmark-zip"></i>ZIP</li>
+                            <li><i class="bi bi-play-btn"></i>MP4 · MP3</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-3">
-                <button type="button" id="fmgrClearAllBtn" class="btn-glass">
-                    <i class="bi bi-x-circle me-1"></i> Hatalıları/Tümünü Kaldır
-                </button>
+            {{-- Yükleme kuyruğu: dosya eklenene kadar gizli --}}
+            <div class="fmgr-queue d-none" id="fmgrQueue">
+                <div class="fmgr-queue__head">
+                    <span class="fmgr-queue__title">
+                        <i class="bi bi-list-check"></i>Kuyruk (<span id="fmgrCountTotal">0</span>)
+                    </span>
+
+                    <div class="fmgr-queue__counts">
+                        <span class="fmgr-queue__count fmgr-queue__count--ok is-empty" id="fmgrCountOk" title="Yüklendi">
+                            <i class="bi bi-check-circle-fill"></i><span data-fmgr-value>0</span>
+                        </span>
+                        <span class="fmgr-queue__count fmgr-queue__count--dup is-empty" id="fmgrCountDup" title="Zaten yüklüydü">
+                            <i class="bi bi-arrow-repeat"></i><span data-fmgr-value>0</span>
+                        </span>
+                        <span class="fmgr-queue__count fmgr-queue__count--err is-empty" id="fmgrCountErr" title="Başarısız">
+                            <i class="bi bi-exclamation-triangle-fill"></i><span data-fmgr-value>0</span>
+                        </span>
+                    </div>
+
+                    <div class="fmgr-queue__track" role="progressbar" aria-label="Toplam yükleme ilerlemesi">
+                        <span class="fmgr-queue__fill" id="fmgrQueueFill"></span>
+                    </div>
+
+                    <button type="button" class="btn-glass btn-sm d-none" id="fmgrReloadBtn">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Listeyi Yenile
+                    </button>
+                    <button type="button" class="btn-glass btn-sm" id="fmgrClearAllBtn">
+                        <i class="bi bi-x-circle me-1"></i>Temizle
+                    </button>
+                </div>
+
+                <div class="fmgr-queue__list" id="fmgrQueueList"></div>
             </div>
         </div>
     </div>
@@ -139,11 +180,11 @@
         </div>
     </div>
 
-    {{-- ==================== FILE GRID ==================== --}}
+    {{-- ==================== FILE COLLECTION ==================== --}}
     <div class="card-dark mb-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card-body-custom">
             @if($files->isEmpty())
-                <div class="fmgr-empty-state">
+                <div class="fmgr-empty">
                     <i class="bi bi-folder2-open"></i>
                     <h6>Dosya bulunamadı</h6>
                     <p class="text-muted small mb-0">
@@ -155,67 +196,75 @@
                     </p>
                 </div>
             @else
-                <div class="row g-3">
+                {{-- Görünüm anahtarı: aynı kartlar iki düzende dizilir, tercih
+                     localStorage'da tutulur. --}}
+                <div class="fmgr-toolbar-row">
+                    <p class="fmgr-toolbar-row__title">
+                        <i class="bi bi-collection me-1"></i>{{ $files->firstItem() }}-{{ $files->lastItem() }}
+                        / {{ number_format($files->total(), 0, ',', '.') }} dosya
+                    </p>
+
+                    <div class="fmgr-view-switch" role="group" aria-label="Görünüm">
+                        <button type="button" class="fmgr-view-switch__btn is-active" data-fmgr-view="grid">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>Izgara
+                        </button>
+                        <button type="button" class="fmgr-view-switch__btn" data-fmgr-view="list">
+                            <i class="bi bi-list-ul"></i>Liste
+                        </button>
+                    </div>
+                </div>
+
+                <div class="fmgr-collection fmgr-collection--grid" id="fmgrCollection">
                     @foreach($files as $file)
-                        <div class="col-xl-3 col-lg-4 col-md-6">
-                            <div class="fmgr-tile fmgr-tile--{{ $file->category }}">
-                                {{-- Preview --}}
-                                <a href="{{ route('admin.files.show', $file) }}" class="fmgr-tile__preview" title="Detay">
-                                    @if($file->isImage())
-                                        <img src="{{ $file->thumbnailUrl() }}"
-                                             alt="{{ $file->alt_text ?? $file->original_name }}"
-                                             loading="lazy"
-                                             class="img-fluid">
-                                    @else
-                                        <div class="fmgr-tile__icon">
-                                            <i class="bi {{ $file->iconClass() }} {{ $file->iconColorClass() }}"></i>
-                                        </div>
+                        <article class="fmgr-card">
+                            <a href="{{ route('admin.files.show', $file) }}" class="fmgr-card__thumb" title="Detay">
+                                @if($file->isImage())
+                                    <img src="{{ $file->thumbnailUrl() }}"
+                                         alt="{{ $file->alt_text ?? $file->original_name }}"
+                                         loading="lazy" class="img-fluid">
+                                @else
+                                    <i class="bi {{ $file->iconClass() }} {{ $file->iconColorClass() }} fmgr-card__icon"></i>
+                                @endif
+                            </a>
+
+                            <span class="fmgr-card__badge" title="{{ $file->categoryLabel() }}">
+                                <i class="bi {{ $file->iconClass() }}"></i><span>{{ $file->categoryLabel() }}</span>
+                            </span>
+
+                            <div class="fmgr-card__body">
+                                <h3 class="fmgr-card__name" title="{{ $file->original_name }}">{{ $file->original_name }}</h3>
+                                <div class="fmgr-card__meta">
+                                    <span title="Orijinal boyut"><i class="bi bi-hdd"></i>{{ $file->humanSize() }}</span>
+                                    @if($file->isImage() && $file->webp_size)
+                                        <span class="fmgr-card__webp" title="WebP boyut">
+                                            <i class="bi bi-arrow-down-circle"></i>{{ $file->webpSizeHuman() }}
+                                        </span>
                                     @endif
-                                    <span class="fmgr-tile__category-badge">{{ $file->categoryLabel() }}</span>
-                                </a>
-
-                                {{-- Meta --}}
-                                <div class="fmgr-tile__meta">
-                                    <div class="fmgr-tile__name" title="{{ $file->original_name }}">
-                                        {{ \Illuminate\Support\Str::limit($file->original_name, 28) }}
-                                    </div>
-                                    <div class="fmgr-tile__info">
-                                        @if($file->isImage() && $file->webp_size)
-                                            <span title="Orijinal boyut">
-                                                <i class="bi bi-hdd me-1"></i>{{ $file->humanSize() }}
-                                            </span>
-                                            <span class="fmgr-tile__webp-size" title="WebP boyut">
-                                                → <i class="bi bi-arrow-down-circle me-1"></i>{{ $file->webpSizeHuman() }}
-                                            </span>
-                                        @else
-                                            <span><i class="bi bi-hdd me-1"></i>{{ $file->humanSize() }}</span>
-                                        @endif
-                                        <span class="ms-auto"><i class="bi bi-clock me-1"></i>{{ $file->created_at->diffForHumans() }}</span>
-                                    </div>
-                                </div>
-
-                                {{-- Actions --}}
-                                <div class="fmgr-tile__actions">
-                                    <button type="button" class="usr-action-btn"
-                                            data-fmgr-url="{{ $file->fullUrl() }}"
-                                            data-fmgr-name="{{ $file->original_name }}"
-                                            onclick="fmgrCopyUrl(this)"
-                                            title="Full URL Kopyala">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                    <a href="{{ route('admin.files.show', $file) }}" class="usr-action-btn" title="Detay">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <button type="button" class="usr-action-btn fmgr-action-danger"
-                                            data-file-id="{{ $file->id }}"
-                                            data-file-name="{{ $file->original_name }}"
-                                            onclick="fmgrConfirmDelete(this)"
-                                            title="Sil">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <span title="{{ $file->created_at->format('d.m.Y H:i') }}">
+                                        <i class="bi bi-clock"></i>{{ $file->created_at->diffForHumans() }}
+                                    </span>
                                 </div>
                             </div>
-                        </div>
+
+                            <div class="fmgr-card__actions">
+                                <button type="button" class="fmgr-card__btn" data-fmgr-copy
+                                        data-fmgr-url="{{ $file->fullUrl() }}"
+                                        data-fmgr-name="{{ $file->original_name }}"
+                                        title="Full URL kopyala" aria-label="Full URL kopyala">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                                <a href="{{ route('admin.files.show', $file) }}" class="fmgr-card__btn"
+                                   title="Detay" aria-label="Detay">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button type="button" class="fmgr-card__btn fmgr-card__btn--danger" data-fmgr-delete
+                                        data-fmgr-action="{{ route('admin.files.destroy', $file) }}"
+                                        data-fmgr-name="{{ $file->original_name }}"
+                                        title="Sil" aria-label="Sil">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </article>
                     @endforeach
                 </div>
 
@@ -229,118 +278,7 @@
 
 @endsection
 
-@push('styles')
-<style>
-.fmgr-dropzone{min-height:160px;border:2px dashed var(--border-color);background:var(--bg-input);border-radius:12px;transition:border-color .2s ease}
-.fmgr-dropzone:hover{border-color:var(--text-teal)}
-
-.fmgr-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 16px;color:var(--text-muted);text-align:center}
-.fmgr-empty-state i{font-size:48px;opacity:.4}
-.fmgr-empty-state h6{margin:8px 0 0;color:var(--text-primary)}
-
-.fmgr-tile{display:flex;flex-direction:column;background:var(--bg-input);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;transition:all .2s ease;height:100%}
-.fmgr-tile:hover{border-color:var(--text-teal);transform:translateY(-2px)}
-
-.fmgr-tile__preview{display:block;position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--bg-base);text-decoration:none}
-.fmgr-tile__preview img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
-.fmgr-tile__preview:hover img{transform:scale(1.04)}
-.fmgr-tile__icon{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:64px;opacity:.85}
-.fmgr-tile__category-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.04em}
-
-.fmgr-tile__meta{padding:10px 12px;display:flex;flex-direction:column;gap:4px;flex-grow:1}
-.fmgr-tile__name{font-size:13px;font-weight:600;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fmgr-tile__info{display:flex;font-size:11px;color:var(--text-muted);flex-wrap:wrap;gap:6px;align-items:center}
-.fmgr-tile__webp-size{color:var(--text-teal)}
-
-.fmgr-tile__actions{display:flex;gap:4px;padding:0 12px 10px;justify-content:flex-end}
-.fmgr-action-danger{color:#ef4444}
-.fmgr-action-danger:hover{background:rgba(239,68,68,.15)}
-
-.text-purple{color:#a855f7}
-
-.dz-warning .dz-progress{background:rgba(255,193,7,.3) !important}
-.dz-warning .dz-progress .dz-upload{background:#ffc107 !important}
-</style>
-@endpush
-
 @push('scripts')
-<script src="{{ asset('assets/admin/js/file-manager-upload.js') }}?v={{ filemtime(public_path('assets/admin/js/file-manager-upload.js')) }}" defer></script>
-<script>
-'use strict';
-
-document.getElementById('fmgrSearch')?.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        document.getElementById('filterForm').submit();
-    }
-});
-
-function fmgrCopyUrl(btn) {
-    var url = btn.getAttribute('data-fmgr-url');
-    var name = btn.getAttribute('data-fmgr-name');
-
-    var notify = function (success) {
-        if (success) {
-            if (typeof showToast === 'function') {
-                showToast('URL kopyalandı: ' + name, 'success');
-            }
-        } else if (window.AdminModal && typeof AdminModal.status === 'function') {
-            AdminModal.status({
-                title: 'Kopyalanamadı',
-                message: 'Tarayıcı izin vermedi. Detay sayfasından elle kopyalayabilirsin.',
-                type: 'warning',
-            });
-        }
-    };
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function () { notify(true); }, function () { notify(false); });
-    } else {
-        // Fallback: temp textarea
-        var ta = document.createElement('textarea');
-        ta.value = url;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try {
-            var ok = document.execCommand('copy');
-            notify(ok);
-        } catch (e) {
-            notify(false);
-        }
-        document.body.removeChild(ta);
-    }
-}
-
-function fmgrConfirmDelete(btn) {
-    var id = btn.getAttribute('data-file-id');
-    var name = btn.getAttribute('data-file-name');
-    var csrf = document.querySelector('meta[name="csrf-token"]').content;
-
-    var doSubmit = function () {
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/admin/files/' + id;
-        form.innerHTML =
-            '<input type="hidden" name="_token" value="' + csrf + '">' +
-            '<input type="hidden" name="_method" value="DELETE">';
-        document.body.appendChild(form);
-        form.submit();
-    };
-
-    if (window.AdminModal && typeof AdminModal.confirm === 'function') {
-        AdminModal.confirm({
-            title: 'Dosya Silinsin Mi?',
-            message: '<strong>' + name + '</strong> kalıcı olarak silinecek (dosya + DB kaydı). Bu işlem geri alınamaz.',
-            type: 'danger',
-            confirmText: 'Evet, Sil',
-            confirmIcon: 'bi bi-trash3',
-        }).then(function (confirmed) {
-            if (confirmed) doSubmit();
-        });
-    } else if (window.confirm(name + ' silinsin mi?')) {
-        doSubmit();
-    }
-}
-</script>
+    <script src="{{ versioned_asset('assets/admin/js/file-manager-upload.js') }}" defer></script>
+    <script src="{{ versioned_asset('assets/admin/js/file-manager.js') }}" defer></script>
 @endpush

@@ -1,60 +1,107 @@
 /**
  * FileManager toplu yükleme — Dropzone.js entegrasyonu.
  *
- * Mevcut admin layout'ta Dropzone library'si zaten yüklü
- * (assets/vendor/dropzone/dropzone.min.js). Bu dosya sadece
- * /admin/files sayfasındaki #fileManagerDropzone'ı init eder.
+ * Dropzone kütüphanesi admin layout'ta zaten yüklü
+ * (assets/vendor/dropzone/dropzone.min.js). Bu dosya /admin/files
+ * sayfasındaki bırakma alanını ve yükleme kuyruğunu kurar.
+ *
+ * Tasarım kararı: önizlemeler bırakma alanının İÇİNDE değil, altındaki
+ * ayrı kuyruk panelinde (previewsContainer) satır satır listelenir.
+ * Böylece bırakma alanı hep aynı yükseklikte kalır, 14 dosya bırakınca
+ * sayfa üç ekran boyuna uzamaz ve her satırın kendi ilerleme çubuğu olur.
  *
  * Davranış:
- *   - Dropzone'a sürüklenen her dosya AYRI POST (paralel 4) ile gider
- *   - Backend tek dosya işler, JSON döner (duplicate flag dahil)
- *   - Hatalı dosya için kırmızı X mesajı (diğerleri devam eder)
- *   - Duplicate dosya için sarı uyarı + mevcut kaydın URL'i
- *   - "Tümünü Yükle" butonuyla manuel tetikleme
+ *   - Bırakılan her dosya AYRI POST ile gider (6 paralel)
+ *   - Backend tek dosya işler, JSON döner (duplicate bayrağı dahil)
+ *   - Satır durumları: bekliyor → yükleniyor → başarılı / kopya / hata
+ *   - Kuyruk başlığında toplam ilerleme ve sayaçlar
+ *   - Hata varsa sayfa yenilenmez, satır ekranda kalır
  *
  * CLAUDE.md uyumu:
  *   - Vanilla JS, jQuery yok
- *   - AdminModal.confirm/status (alert/confirm yasak)
+ *   - alert/confirm yok → AdminModal
  *   - CSRF meta'dan
  */
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
     var dzElement = document.getElementById('fileManagerDropzone');
-    var startBtn = document.getElementById('fmgrStartUploadBtn');
-    var clearBtn = document.getElementById('fmgrClearAllBtn');
 
     if (!dzElement || typeof Dropzone === 'undefined') {
         return;
     }
+
+    var queuePanel = document.getElementById('fmgrQueue');
+    var queueList  = document.getElementById('fmgrQueueList');
+    var queueFill  = document.getElementById('fmgrQueueFill');
+    var countTotal = document.getElementById('fmgrCountTotal');
+    var countOk    = document.getElementById('fmgrCountOk');
+    var countDup   = document.getElementById('fmgrCountDup');
+    var countErr   = document.getElementById('fmgrCountErr');
+    var clearBtn   = document.getElementById('fmgrClearAllBtn');
+    var reloadBtn  = document.getElementById('fmgrReloadBtn');
 
     Dropzone.autoDiscover = false;
 
     var csrfToken = document.querySelector('meta[name="csrf-token"]');
     var uploadUrl = dzElement.getAttribute('data-upload-url');
 
+    /** Uzantıya göre Bootstrap Icons sınıfı — görsel olmayan dosyaların satır ikonu. */
+    var ICONS = {
+        pdf: 'bi-file-earmark-pdf', doc: 'bi-file-earmark-word', docx: 'bi-file-earmark-word',
+        xls: 'bi-file-earmark-excel', xlsx: 'bi-file-earmark-excel', csv: 'bi-file-earmark-spreadsheet',
+        ppt: 'bi-file-earmark-slides', pptx: 'bi-file-earmark-slides', txt: 'bi-file-earmark-text',
+        zip: 'bi-file-earmark-zip', mp4: 'bi-file-earmark-play', mp3: 'bi-file-earmark-music',
+    };
+
+    var PREVIEW_TEMPLATE = [
+        '<div class="fmgr-item">',
+        '  <div class="fmgr-item__thumb">',
+        '    <img data-dz-thumbnail alt="">',
+        '    <i class="bi bi-file-earmark"></i>',
+        '  </div>',
+        '  <div class="fmgr-item__body">',
+        '    <div class="fmgr-item__top">',
+        '      <span class="fmgr-item__name" data-dz-name></span>',
+        '      <span class="fmgr-item__size" data-dz-size></span>',
+        '    </div>',
+        '    <div class="fmgr-item__track"><span class="fmgr-item__fill" data-dz-uploadprogress></span></div>',
+        '    <div class="fmgr-item__msg" data-dz-errormessage></div>',
+        '  </div>',
+        '  <div class="fmgr-item__state">',
+        '    <i class="bi bi-check-circle-fill fmgr-item__ok"></i>',
+        '    <i class="bi bi-exclamation-triangle-fill fmgr-item__err"></i>',
+        '    <i class="bi bi-arrow-repeat fmgr-item__dup"></i>',
+        '  </div>',
+        '  <button type="button" class="fmgr-item__remove" data-dz-remove title="Kaldır" aria-label="Kaldır">',
+        '    <i class="bi bi-x-lg"></i>',
+        '  </button>',
+        '</div>',
+    ].join('');
+
     var dropzone = new Dropzone(dzElement, {
         url: uploadUrl,
         method: 'POST',
         paramName: 'file',
-        maxFilesize: 50,                                 // MB (server max:51200 KB ile uyumlu)
+        maxFilesize: 50,                                  // MB (server max:51200 KB ile uyumlu)
         acceptedFiles: '.jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.zip,.mp4,.mp3',
         maxFiles: 50,
-        parallelUploads: 6,                              // 6 paralel ayrı POST/dosya
+        parallelUploads: 6,                               // 6 paralel ayrı POST/dosya
         uploadMultiple: false,                            // her dosya ayrı request — ZORUNLU
         autoProcessQueue: true,                           // dosya eklendiği anda otomatik upload
-        addRemoveLinks: true,
+        addRemoveLinks: false,                            // kaldırma düğmesi şablonda
+        previewsContainer: queueList,                     // önizlemeler bırakma alanının dışında
+        previewTemplate: PREVIEW_TEMPLATE,
         timeout: 180000,                                  // 3 dk (büyük video dosyaları için)
-        thumbnailWidth: 100,
-        thumbnailHeight: 100,
+        thumbnailWidth: 84,
+        thumbnailHeight: 84,
         thumbnailMethod: 'crop',
         headers: csrfToken ? { 'X-CSRF-TOKEN': csrfToken.content } : {},
 
         // Türkçe mesajlar
-        dictDefaultMessage: 'Dosyaları buraya sürükle veya tıkla<br><small>JPG/PNG/WebP/GIF, PDF/DOC/XLSX/CSV, ZIP, MP4/MP3 — max 50 MB</small>',
         dictRemoveFile: 'Kaldır',
         dictCancelUpload: 'İptal',
-        dictFileTooBig: 'Dosya çok büyük ({{filesize}}MB). Maks: {{maxFilesize}}MB.',
+        dictFileTooBig: 'Dosya çok büyük ({{filesize}} MB). En fazla {{maxFilesize}} MB.',
         dictInvalidFileType: 'Bu dosya türü desteklenmiyor.',
         dictMaxFilesExceeded: 'En fazla {{maxFiles}} dosya yükleyebilirsin.',
         dictResponseError: 'Sunucu hatası: {{statusCode}}',
@@ -62,9 +109,32 @@ document.addEventListener('DOMContentLoaded', function () {
         init: function () {
             var dz = this;
 
+            this.on('addedfile', function (file) {
+                if (!file.previewElement) {
+                    return;
+                }
+
+                var ext = (file.name.split('.').pop() || '').toLowerCase();
+                var icon = file.previewElement.querySelector('.fmgr-item__thumb i');
+                if (icon && ICONS[ext]) {
+                    icon.className = 'bi ' + ICONS[ext];
+                }
+
+                refreshQueue();
+            });
+
+            this.on('removedfile', refreshQueue);
+            this.on('processing', refreshQueue);
+
             this.on('sending', function (file, xhr, formData) {
                 if (csrfToken) {
                     formData.append('_token', csrfToken.content);
+                }
+            });
+
+            this.on('totaluploadprogress', function (progress) {
+                if (queueFill) {
+                    queueFill.style.width = progress + '%';
                 }
             });
 
@@ -74,22 +144,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 file.fileId = response.file_id;
+                file.isDuplicate = !!response.duplicate;
 
-                // Duplicate ise sarı uyarı, normal upload ise yeşil
-                if (response.duplicate) {
-                    file.previewElement.classList.add('dz-warning');
-                    if (typeof showToast === 'function') {
-                        showToast(file.name + ' — daha önce yüklenmiş, mevcut kayıt kullanıldı.', 'warning');
-                    }
-                } else {
-                    if (typeof showToast === 'function') {
-                        showToast(file.name + ' yüklendi.', 'success');
-                    }
+                if (file.isDuplicate && file.previewElement) {
+                    file.previewElement.classList.add('is-duplicate');
+                    setMessage(file, 'Bu dosya zaten yüklüydü — mevcut kayıt kullanıldı.');
                 }
+
+                refreshQueue();
             });
 
             this.on('error', function (file, message) {
                 var msg;
+
                 if (typeof message === 'string') {
                     msg = message;
                 } else if (message && message.errors) {
@@ -100,71 +167,121 @@ document.addEventListener('DOMContentLoaded', function () {
                     msg = 'Yükleme hatası.';
                 }
 
-                var errorEl = file.previewElement
-                    ? file.previewElement.querySelector('[data-dz-errormessage]')
-                    : null;
-                if (errorEl) errorEl.textContent = msg;
-
-                if (typeof showToast === 'function') {
-                    showToast(file.name + ': ' + msg, 'error');
-                }
-            });
-
-            this.on('addedfile', function () {
-                // autoProcessQueue: true olduğu için Dropzone otomatik upload başlatır.
-                // "Tümünü Yükle" butonu kaldırıldı (gereksiz).
+                setMessage(file, msg);
+                refreshQueue();
             });
 
             this.on('queuecomplete', function () {
-                var successCount = dz.getFilesWithStatus(Dropzone.SUCCESS).length;
-                var errorCount = dz.getFilesWithStatus(Dropzone.ERROR).length;
+                var ok  = successCount();
+                var err = dz.getFilesWithStatus(Dropzone.ERROR).length;
 
-                if (window.AdminModal && typeof AdminModal.status === 'function') {
-                    AdminModal.status({
-                        title: 'Yükleme tamamlandı',
-                        message: successCount + ' başarılı, ' + errorCount + ' başarısız.',
-                        type: errorCount === 0 ? 'success' : 'warning',
-                    });
+                if (queueFill) {
+                    queueFill.style.width = '100%';
                 }
 
-                // Başarılıları kuyruktan temizle, hatalı kalsın (kullanıcı görsün)
-                dz.getFilesWithStatus(Dropzone.SUCCESS).forEach(function (f) {
-                    dz.removeFile(f);
-                });
+                refreshQueue();
 
-                if (successCount > 0) {
-                    setTimeout(function () { window.location.reload(); }, 1500);
+                if (typeof showToast === 'function' && (ok || err)) {
+                    showToast(
+                        ok + ' dosya yüklendi' + (err ? ', ' + err + ' dosya başarısız.' : '.'),
+                        err ? 'warning' : 'success'
+                    );
+                }
+
+                // Hata varsa listeyi kendiliğinden yenileme: kullanıcı hangi
+                // dosyanın neden düştüğünü görebilsin, yenilemeyi kendi seçsin.
+                if (ok > 0 && err === 0) {
+                    setTimeout(function () { window.location.reload(); }, 1200);
+                } else if (ok > 0 && reloadBtn) {
+                    reloadBtn.classList.remove('d-none');
                 }
             });
         },
     });
 
-    // "Tümünü Yükle" butonu — autoProcessQueue: true olduğu için artık gereksiz.
-    // Geriye dönük uyum için DOM'da varsa pasif bırak (kullanıcı bilsin).
-    if (startBtn) {
-        startBtn.style.display = 'none';
+    function setMessage(file, text) {
+        var el = file.previewElement
+            ? file.previewElement.querySelector('[data-dz-errormessage]')
+            : null;
+
+        if (el) {
+            el.textContent = text;
+        }
+    }
+
+    function successCount() {
+        return dropzone.getFilesWithStatus(Dropzone.SUCCESS).length;
+    }
+
+    function duplicateCount() {
+        return dropzone.files.filter(function (f) { return f.isDuplicate; }).length;
+    }
+
+    function setCount(el, value) {
+        if (!el) {
+            return;
+        }
+
+        el.querySelector('[data-fmgr-value]').textContent = String(value);
+        el.classList.toggle('is-empty', value === 0);
+    }
+
+    function refreshQueue() {
+        var total = dropzone.files.length;
+
+        if (queuePanel) {
+            queuePanel.classList.toggle('d-none', total === 0);
+        }
+
+        var dup = duplicateCount();
+
+        if (countTotal) {
+            countTotal.textContent = String(total);
+        }
+
+        setCount(countOk, successCount() - dup);
+        setCount(countDup, dup);
+        setCount(countErr, dropzone.getFilesWithStatus(Dropzone.ERROR).length);
+
+        if (total === 0 && queueFill) {
+            queueFill.style.width = '0%';
+        }
     }
 
     if (clearBtn) {
         clearBtn.addEventListener('click', function () {
-            if (dropzone.files.length === 0) return;
+            if (dropzone.files.length === 0) {
+                return;
+            }
 
             var doClear = function () {
                 dropzone.removeAllFiles(true);
+                refreshQueue();
             };
 
             if (window.AdminModal && typeof AdminModal.confirm === 'function') {
                 AdminModal.confirm({
-                    title: 'Tümünü Kaldır?',
-                    message: 'Kuyruktaki ' + dropzone.files.length + ' dosya silinecek (sunucuya yüklenmemiş olanlar). Devam edilsin mi?',
+                    title: 'Kuyruk Temizlensin Mi?',
+                    message: 'Kuyruktaki <strong>' + dropzone.files.length + '</strong> satır ekrandan kaldırılacak. '
+                        + 'Yüklenmiş dosyalar silinmez, sadece bu liste temizlenir.',
                     type: 'warning',
-                    confirmText: 'Evet, Kaldır',
+                    confirmText: 'Evet, Temizle',
                 }).then(function (confirmed) {
-                    if (confirmed) doClear();
+                    if (confirmed) {
+                        doClear();
+                    }
                 });
             } else {
                 doClear();
             }
         });
     }
+
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', function () {
+            window.location.reload();
+        });
+    }
+
+    refreshQueue();
 });
