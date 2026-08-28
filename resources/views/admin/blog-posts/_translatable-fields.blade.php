@@ -94,13 +94,13 @@
                     maxlength="120"
                     data-validation-engine="{{ $rules(['maxSize[120]']) }}"
                     data-slug-source data-slug-target="slug_{{ $language->code }}"
-                    oninput="updateCharCounter(this, 120); updateSeoPreview()">
+                    oninput="updateCharCounter(this, 120); updateSeoPreview(this)">
                   @error("translations.{$language->code}.title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Dikkat çekici ve SEO uyumlu bir başlık girin</div>
-                    <div class="form-text"><span id="title-counter">{{ Str::length(old("translations.{$language->code}.title", '')) }}</span>/120</div>
+                    <div class="form-text"><span id="title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.title", '')) }}</span>/120</div>
                   </div>
                 </div>
 
@@ -186,7 +186,7 @@
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Arama sonuçlarında ve listelerde gösterilecek kısa açıklama</div>
-                    <div class="form-text"><span id="excerpt-counter">{{ Str::length(old("translations.{$language->code}.excerpt", '')) }}</span>/300</div>
+                    <div class="form-text"><span id="excerpt_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.excerpt", '')) }}</span>/300</div>
                   </div>
                 </div>
 
@@ -297,9 +297,9 @@
                 <div class="col-12">
                   <label class="form-label">Google Arama Önizlemesi</label>
                   <div class="ca-seo-preview">
-                    <div class="ca-seo-url">{{ config('app.url') }}/blog/<span id="seoPreviewSlug">yeni-icerik</span></div>
-                    <div class="ca-seo-title" id="seoPreviewTitle">İçerik Başlığı Buraya Gelecek</div>
-                    <div class="ca-seo-desc" id="seoPreviewDesc">İçeriğinizin meta açıklaması burada görünecek. Arama sonuçlarında kullanıcıların göreceği metin budur.</div>
+                    <div class="ca-seo-url">{{ config('app.url') }}/blog/<span id="seoPreviewSlug_{{ $language->code }}">yeni-icerik</span></div>
+                    <div class="ca-seo-title" id="seoPreviewTitle_{{ $language->code }}">İçerik Başlığı Buraya Gelecek</div>
+                    <div class="ca-seo-desc" id="seoPreviewDesc_{{ $language->code }}">İçeriğinizin meta açıklaması burada görünecek. Arama sonuçlarında kullanıcıların göreceği metin budur.</div>
                   </div>
                 </div>
 
@@ -315,13 +315,13 @@
                     maxlength="60"
                     placeholder="SEO için özel başlık (boş bırakılırsa içerik başlığı kullanılır)"
                     data-validation-engine="validate[maxSize[60]]"
-                    oninput="updateCharCounter(this, 60); updateSeoPreview()">
+                    oninput="updateCharCounter(this, 60); updateSeoPreview(this)">
                   @error("translations.{$language->code}.meta_title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Önerilen: 50-60 karakter</div>
-                    <div class="form-text"><span id="meta_title-counter">{{ Str::length(old("translations.{$language->code}.meta_title", '')) }}</span>/60</div>
+                    <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_title", '')) }}</span>/60</div>
                   </div>
                 </div>
 
@@ -336,14 +336,14 @@
                     maxlength="160"
                     placeholder="Arama sonuçlarında görünecek açıklama metni..."
                     data-validation-engine="validate[maxSize[160]]"
-                    oninput="updateCharCounter(this, 160); updateSeoPreview()"
+                    oninput="updateCharCounter(this, 160); updateSeoPreview(this)"
                   >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
                   @error("translations.{$language->code}.meta_description")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Önerilen: 120-160 karakter</div>
-                    <div class="form-text"><span id="meta_description-counter">{{ Str::length(old("translations.{$language->code}.meta_description", '')) }}</span>/160</div>
+                    <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_description", '')) }}</span>/160</div>
                   </div>
                 </div>
 

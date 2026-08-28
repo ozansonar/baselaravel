@@ -3,40 +3,8 @@
 
   /* Slug üretimi ve anlık düzeltme slug.js'e taşındı — bkz. content-add.js */
 
-  /* ==================== CHARACTER COUNTER ==================== */
-  window.updateCharCounter = function (input, max) {
-    var counter = document.getElementById(input.id + '-counter');
-    if (!counter) return;
-    var len = input.value.length;
-    counter.textContent = len;
-    if (len > max) {
-      counter.classList.add('text-danger');
-    } else {
-      counter.classList.remove('text-danger');
-    }
-  };
-
-  /* ==================== SEO PREVIEW ==================== */
-  window.updateSeoPreview = function () {
-    var title = document.getElementById('meta_title');
-    var desc = document.getElementById('meta_description');
-    var slug = document.getElementById('slug');
-    var pageTitle = document.getElementById('title');
-
-    var previewTitle = document.getElementById('seoPreviewTitle');
-    var previewDesc = document.getElementById('seoPreviewDesc');
-    var previewSlug = document.getElementById('seoPreviewSlug');
-
-    if (previewTitle) {
-      previewTitle.textContent = (title && title.value) ? title.value : (pageTitle ? pageTitle.value || 'Sayfa Başlığı' : 'Sayfa Başlığı');
-    }
-    if (previewDesc) {
-      previewDesc.textContent = (desc && desc.value) ? desc.value : 'Sayfanızın meta açıklaması burada görünecek.';
-    }
-    if (previewSlug && slug) {
-      previewSlug.textContent = slug.value || 'sayfa-url';
-    }
-  };
+  /* Karakter sayacı ve SEO önizlemesi content-form.js'e taşındı
+     — bkz. content-add.js */
 
   /* ==================== SCROLL SPY ==================== */
   function updateActiveNav() {

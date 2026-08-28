@@ -36,13 +36,13 @@
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
                                 data-slug-source data-slug-target="slug_{{ $language->code }}"
-                                oninput="updateCharCounter(this, 120); updateSeoPreview()">
+                                oninput="updateCharCounter(this, 120); updateSeoPreview(this)">
                             @error("translations.{$language->code}.title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="d-flex justify-content-between mt-1">
                                 <div class="form-text">Dikkat çekici ve SEO uyumlu bir başlık girin</div>
-                                <div class="form-text"><span id="title-counter_{{ $language->code }}">0</span>/120</div>
+                                <div class="form-text"><span id="title_{{ $language->code }}-counter">0</span>/120</div>
                             </div>
                         </div>
 
@@ -60,7 +60,7 @@
                                     value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                                     placeholder="otomatik-olusturulur"
                                     data-slug-field
-                                    oninput="updateSeoPreview()">
+                                    oninput="updateSeoPreview(this)">
                             </div>
                             @error("translations.{$language->code}.slug")
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -104,7 +104,7 @@
                             @enderror
                             <div class="d-flex justify-content-between mt-1">
                                 <div class="form-text">Listeleme sayfalarında gösterilecek kısa açıklama</div>
-                                <div class="form-text"><span id="excerpt-counter_{{ $language->code }}">0</span>/300</div>
+                                <div class="form-text"><span id="excerpt_{{ $language->code }}-counter">0</span>/300</div>
                             </div>
                         </div>
 
@@ -188,9 +188,9 @@
                         <div class="col-12">
                             <label class="form-label">Google Arama Önizlemesi</label>
                             <div class="ca-seo-preview">
-                                <div class="ca-seo-url">{{ url('/') }}/sayfa/<span id="seoPreviewSlug">sayfa-url</span></div>
-                                <div class="ca-seo-title" id="seoPreviewTitle">Sayfa Başlığı</div>
-                                <div class="ca-seo-desc" id="seoPreviewDesc">Sayfanızın meta açıklaması burada görünecek.</div>
+                                <div class="ca-seo-url">{{ url('/') }}/sayfa/<span id="seoPreviewSlug_{{ $language->code }}">sayfa-url</span></div>
+                                <div class="ca-seo-title" id="seoPreviewTitle_{{ $language->code }}">Sayfa Başlığı</div>
+                                <div class="ca-seo-desc" id="seoPreviewDesc_{{ $language->code }}">Sayfanızın meta açıklaması burada görünecek.</div>
                             </div>
                         </div>
 
@@ -205,13 +205,13 @@
                                        data-validation-engine="validate[maxSize[70]]"
                                 value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
                                 placeholder="SEO için özel başlık (boş bırakılırsa sayfa başlığı kullanılır)"
-                                oninput="updateSeoPreview(); updateCharCounter(this, 60)">
+                                oninput="updateSeoPreview(this); updateCharCounter(this, 60)">
                             @error("translations.{$language->code}.meta_title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="d-flex justify-content-between mt-1">
                                 <div class="form-text">Önerilen: 50–60 karakter</div>
-                                <div class="form-text"><span id="meta_title-counter_{{ $language->code }}">0</span>/60</div>
+                                <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">0</span>/60</div>
                             </div>
                         </div>
 
@@ -225,14 +225,14 @@
                                        data-validation-engine="validate[maxSize[160]]"
                                 rows="3"
                                 placeholder="Arama sonuçlarında görünecek açıklama metni..."
-                                oninput="updateSeoPreview(); updateCharCounter(this, 160)"
+                                oninput="updateSeoPreview(this); updateCharCounter(this, 160)"
                             >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
                             @error("translations.{$language->code}.meta_description")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="d-flex justify-content-between mt-1">
                                 <div class="form-text">Önerilen: 120–160 karakter</div>
-                                <div class="form-text"><span id="meta_description-counter_{{ $language->code }}">0</span>/160</div>
+                                <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">0</span>/160</div>
                             </div>
                         </div>
 
