@@ -1,28 +1,7 @@
 (function () {
   'use strict';
 
-  /* ==================== SLUG GENERATION ==================== */
-  var trMap = {
-    'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'İ': 'i',
-    'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u'
-  };
-
-  window.generateSlug = function (value) {
-    var slug = value.toLowerCase();
-    Object.keys(trMap).forEach(function (key) {
-      slug = slug.replace(new RegExp(key, 'g'), trMap[key]);
-    });
-    slug = slug
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    var slugInput = document.getElementById('slug');
-    if (slugInput) slugInput.value = slug;
-
-    updateSeoPreview();
-  };
+  /* Slug üretimi ve anlık düzeltme slug.js'e taşındı — bkz. content-add.js */
 
   /* ==================== CHARACTER COUNTER ==================== */
   window.updateCharCounter = function (input, max) {

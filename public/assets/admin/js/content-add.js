@@ -14,44 +14,9 @@
   };
 
 
-  // ==================== SLUG GENERATION ====================
-  var slugManuallyEdited = false;
-  var slugField = document.getElementById('slug');
-  if (slugField) {
-    slugField.addEventListener('input', function () {
-      slugManuallyEdited = true;
-    });
-    // If slug already has value (edit mode), mark as manually edited
-    if (slugField.value.trim() !== '') {
-      slugManuallyEdited = true;
-    }
-  }
-
-  window.generateSlug = function (title) {
-    if (slugManuallyEdited) return;
-    if (!slugField) return;
-
-    var charMap = {
-      'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'İ': 'i',
-      'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u'
-    };
-
-    var slug = title.toLowerCase();
-    for (var key in charMap) {
-      slug = slug.split(key).join(charMap[key]);
-    }
-    slug = slug
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    slugField.value = slug;
-
-    // Update SEO preview slug
-    var seoSlug = document.getElementById('seoPreviewSlug');
-    if (seoSlug) seoSlug.textContent = slug || 'yeni-icerik';
-  };
+  // Slug üretimi ve anlık düzeltme slug.js'e taşındı: burada ve
+  // page-form.js'te iki ayrı kopyası vardı, ikisi de dil sekmeleri geldikten
+  // sonra var olmayan #slug alanını arıyordu.
 
 
   // ==================== SEO PREVIEW ====================

@@ -93,7 +93,8 @@
                     placeholder="İçeriğin ana başlığını yazın..."
                     maxlength="120"
                     data-validation-engine="{{ $rules(['maxSize[120]']) }}"
-                    oninput="updateCharCounter(this, 120); generateSlug(this.value); updateSeoPreview()">
+                    data-slug-source data-slug-target="slug_{{ $language->code }}"
+                    oninput="updateCharCounter(this, 120); updateSeoPreview()">
                   @error("translations.{$language->code}.title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -116,7 +117,8 @@
                       value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                       placeholder="otomatik-oluşturulur"
                       data-validation-engine="validate[custom[slug],maxSize[255]]"
-                      data-prompt-target="slug_error_{{ $language->code }}">
+                      data-prompt-target="slug_error_{{ $language->code }}"
+                      data-slug-field>
                   </div>
                   <div id="slug_error_{{ $language->code }}"></div>
                   @error("translations.{$language->code}.slug")
