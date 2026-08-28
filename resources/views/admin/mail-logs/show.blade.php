@@ -50,65 +50,65 @@
                 <div class="card-body-custom">
                     <h6 class="text-teal mb-3"><i class="bi bi-info-circle me-1"></i> Mail Bilgileri</h6>
 
-                    <div class="ml-detail-list">
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-person me-1"></i> Alıcı</span>
-                            <span class="ml-detail-value">{{ $mailLog->to }}</span>
+                    <div class="detail-list">
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-person me-1"></i> Alıcı</span>
+                            <span class="detail-value">{{ $mailLog->to }}</span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-send me-1"></i> Gönderen</span>
-                            <span class="ml-detail-value">{{ $mailLog->from ?? '-' }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-send me-1"></i> Gönderen</span>
+                            <span class="detail-value">{{ $mailLog->from ?? '-' }}</span>
                         </div>
                         @if($mailLog->cc)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-people me-1"></i> CC</span>
-                                <span class="ml-detail-value">{{ $mailLog->cc }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-people me-1"></i> CC</span>
+                                <span class="detail-value">{{ $mailLog->cc }}</span>
                             </div>
                         @endif
                         @if($mailLog->bcc)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-people-fill me-1"></i> BCC</span>
-                                <span class="ml-detail-value">{{ $mailLog->bcc }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-people-fill me-1"></i> BCC</span>
+                                <span class="detail-value">{{ $mailLog->bcc }}</span>
                             </div>
                         @endif
                         @if($mailLog->reply_to)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-reply me-1"></i> Reply-To</span>
-                                <span class="ml-detail-value">{{ $mailLog->reply_to }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-reply me-1"></i> Reply-To</span>
+                                <span class="detail-value">{{ $mailLog->reply_to }}</span>
                             </div>
                         @endif
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-chat-left-text me-1"></i> Konu</span>
-                            <span class="ml-detail-value fw-semibold">{{ $mailLog->subject }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-chat-left-text me-1"></i> Konu</span>
+                            <span class="detail-value fw-semibold">{{ $mailLog->subject }}</span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-code-square me-1"></i> Mailable</span>
-                            <span class="ml-detail-value">{{ $mailLog->short_mailable }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-code-square me-1"></i> Mailable</span>
+                            <span class="detail-value">{{ $mailLog->short_mailable }}</span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-flag me-1"></i> Durum</span>
-                            <span class="ml-detail-value">
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-flag me-1"></i> Durum</span>
+                            <span class="detail-value">
                                 <span class="ord-status-badge {{ $mailLog->status->cssClass() }}"><i class="bi {{ $mailLog->status->icon() }}"></i> {{ $mailLog->status->label() }}</span>
                             </span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-calendar-plus me-1"></i> Oluşturulma</span>
-                            <span class="ml-detail-value">{{ $mailLog->created_at->translatedFormat('d M Y H:i:s') }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-calendar-plus me-1"></i> Oluşturulma</span>
+                            <span class="detail-value">{{ $mailLog->created_at->translatedFormat('d M Y H:i:s') }}</span>
                         </div>
-                        <div class="ml-detail-item">
-                            <span class="ml-detail-label"><i class="bi bi-calendar-check me-1"></i> Gönderilme</span>
-                            <span class="ml-detail-value">{{ $mailLog->sent_at?->translatedFormat('d M Y H:i:s') ?? '-' }}</span>
+                        <div class="detail-item">
+                            <span class="detail-label"><i class="bi bi-calendar-check me-1"></i> Gönderilme</span>
+                            <span class="detail-value">{{ $mailLog->sent_at?->translatedFormat('d M Y H:i:s') ?? '-' }}</span>
                         </div>
                         @if($mailLog->ip_address)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-globe me-1"></i> IP Adresi</span>
-                                <span class="ml-detail-value">{{ $mailLog->ip_address }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-globe me-1"></i> IP Adresi</span>
+                                <span class="detail-value">{{ $mailLog->ip_address }}</span>
                             </div>
                         @endif
                         @if($mailLog->user)
-                            <div class="ml-detail-item">
-                                <span class="ml-detail-label"><i class="bi bi-person-check me-1"></i> Tetikleyen</span>
-                                <span class="ml-detail-value">{{ $mailLog->user->full_name }}</span>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="bi bi-person-check me-1"></i> Tetikleyen</span>
+                                <span class="detail-value">{{ $mailLog->user->full_name }}</span>
                             </div>
                         @endif
                     </div>
@@ -161,13 +161,6 @@
 
 @push('styles')
 <style>
-/* Mail detail list */
-.ml-detail-list{display:flex;flex-direction:column;gap:0}
-.ml-detail-item{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid color-mix(in srgb, var(--border-color) 40%, transparent)}
-.ml-detail-item:last-child{border-bottom:none}
-.ml-detail-label{font-size:12px;color:var(--text-muted);display:flex;align-items:center}
-.ml-detail-value{font-size:14px;color:var(--text-primary);word-break:break-all}
-
 /* Metadata pre */
 .ml-metadata-pre{font-size:12px;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border-color);max-height:150px;overflow:auto}
 
