@@ -14,8 +14,10 @@
  *   - Bırakılan her dosya AYRI POST ile gider (6 paralel)
  *   - Backend tek dosya işler, JSON döner (duplicate bayrağı dahil)
  *   - Satır durumları: bekliyor → yükleniyor → başarılı / kopya / hata
- *   - Kuyruk başlığında toplam ilerleme ve sayaçlar
- *   - Hata varsa sayfa yenilenmez, satır ekranda kalır
+ *   - Kuyruk başlığında toplam ilerleme, sayaçlar ve sonuç özeti
+ *   - Yükleme bitince sayfa YENİLENMEZ: yalnız alttaki liste sunucudan
+ *     tazelenir (FileManagerList.refresh). Böylece başarılı dosyalar listeye
+ *     anında düşerken hatalı satırlar iletisiyle birlikte ekranda kalır
  *
  * CLAUDE.md uyumu:
  *   - Vanilla JS, jQuery yok
@@ -38,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var countOk    = document.getElementById('fmgrCountOk');
     var countDup   = document.getElementById('fmgrCountDup');
     var countErr   = document.getElementById('fmgrCountErr');
+    var summaryEl  = document.getElementById('fmgrQueueSummary');
     var clearBtn   = document.getElementById('fmgrClearAllBtn');
     var reloadBtn  = document.getElementById('fmgrReloadBtn');
 
@@ -181,18 +184,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 refreshQueue();
 
-                if (typeof showToast === 'function' && (ok || err)) {
-                    showToast(
-                        ok + ' dosya yüklendi' + (err ? ', ' + err + ' dosya başarısız.' : '.'),
-                        err ? 'warning' : 'success'
-                    );
+                // Özet satır içi yazılıyor; showToast() bu projede AdminModal'ı
+                // açıyor ve engelleyici kutu tam da sonucun görüleceği listeyi
+                // kapatıyordu.
+                setSummary(
+                    ok + ' dosya yüklendi' + (err ? ' · ' + err + ' dosya başarısız' : ''),
+                    err ? 'err' : 'ok'
+                );
+
+                if (ok === 0) {
+                    return;
                 }
 
-                // Hata varsa listeyi kendiliğinden yenileme: kullanıcı hangi
-                // dosyanın neden düştüğünü görebilsin, yenilemeyi kendi seçsin.
-                if (ok > 0 && err === 0) {
-                    setTimeout(function () { window.location.reload(); }, 1200);
-                } else if (ok > 0 && reloadBtn) {
+                // Sayfa YENİLENMİYOR: yenilenirse hata satırları kaybolur ve
+                // kullanıcı hangi dosyanın neden düştüğünü göremez. Bunun yerine
+                // yalnız liste gövdesi sunucudan tazeleniyor; başarılı dosyalar
+                // aşağıdaki listeye anında düşüyor, hatalı satırlar kuyrukta kalıyor.
+                if (window.FileManagerList && typeof FileManagerList.refresh === 'function') {
+                    FileManagerList.refresh().then(function (refreshed) {
+                        if (refreshed) {
+                            clearSettledFiles();
+                        } else if (reloadBtn) {
+                            // Tazeleme tutmadı (oturum düşmüş olabilir) — son çare.
+                            reloadBtn.classList.remove('d-none');
+                        }
+                    });
+                } else if (reloadBtn) {
                     reloadBtn.classList.remove('d-none');
                 }
             });
@@ -213,8 +230,34 @@ document.addEventListener('DOMContentLoaded', function () {
         return dropzone.getFilesWithStatus(Dropzone.SUCCESS).length;
     }
 
+    /**
+     * Sorunsuz yüklenenleri kuyruktan düşürür — dosya artık aşağıdaki listede
+     * görünüyor, satırın ekranda kalmasının bir anlamı yok. Kopya ve hatalı
+     * satırlar kalır: ikisi de kullanıcının okuması gereken bir ileti taşıyor.
+     */
+    function clearSettledFiles() {
+        setTimeout(function () {
+            dropzone.getFilesWithStatus(Dropzone.SUCCESS).forEach(function (file) {
+                if (!file.isDuplicate) {
+                    dropzone.removeFile(file);
+                }
+            });
+
+            refreshQueue();
+        }, 1500);
+    }
+
     function duplicateCount() {
         return dropzone.files.filter(function (f) { return f.isDuplicate; }).length;
+    }
+
+    function setSummary(text, tone) {
+        if (!summaryEl) {
+            return;
+        }
+
+        summaryEl.textContent = text;
+        summaryEl.classList.toggle('fmgr-queue__summary--err', tone === 'err');
     }
 
     function setCount(el, value) {
@@ -243,8 +286,12 @@ document.addEventListener('DOMContentLoaded', function () {
         setCount(countDup, dup);
         setCount(countErr, dropzone.getFilesWithStatus(Dropzone.ERROR).length);
 
-        if (total === 0 && queueFill) {
-            queueFill.style.width = '0%';
+        if (total === 0) {
+            if (queueFill) {
+                queueFill.style.width = '0%';
+            }
+
+            setSummary('', 'ok');
         }
     }
 
