@@ -37,6 +37,10 @@ final class BlogCommentController extends Controller
             'statusCounts' => $this->commentService->statusCounts(),
             'pendingCount' => $this->commentService->pendingCount(),
             'perPage'      => $perPage,
+            // Süzgeç listesi yalnız yorumu olan yazıları gösteriyor: yorumu
+            // olmayan yüzlerce yazı arasında seçim yapmak süzgeci
+            // kullanılmaz hâle getiriyordu.
+            'posts'        => $this->commentService->commentedPosts(),
         ]);
     }
 

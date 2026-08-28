@@ -88,14 +88,23 @@
       confirmText: 'Evet, Sil',
       confirmIcon: 'bi bi-trash3',
       detailTitle: commentName,
-      warning: 'Bu işlem geri alınamaz.'
+      // Yorumlar yumuşak siliniyor; "geri alınamaz" demek yanlıştı.
+      warning: 'Silinen yorum "Silinmiş" sekmesinden geri alınabilir.'
     }).then(function (confirmed) {
       if (!confirmed) return;
-      var form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/admin/blog-comments/' + commentId;
-      form.innerHTML = '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').getAttribute('content') + '"><input type="hidden" name="_method" value="DELETE">';
-      document.body.appendChild(form);
+
+      // Sayfada hazır form varsa (detay ekranı) o kullanılıyor; listede
+      // satır başına form açmamak için gerektiğinde kuruluyor.
+      var form = document.getElementById('deleteForm-' + commentId);
+
+      if (!form) {
+        form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/blog-comments/' + commentId;
+        form.innerHTML = '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').getAttribute('content') + '"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(form);
+      }
+
       form.submit();
     });
   };
