@@ -31,6 +31,8 @@
 
     <form method="POST" action="{{ route('admin.popups.update', $popup) }}" enctype="multipart/form-data" data-validate novalidate>
         @csrf
+        {{-- Rota PUT bekliyor; tarayıcı form POST gönderiyor. --}}
+        @method('PUT')
                 {{-- Her dil kendi sekmesinde --}}
 
                 <x-language-tabs :languages="$formLanguages" :model="$popup" id="popupLangTabs">
