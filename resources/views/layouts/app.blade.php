@@ -48,7 +48,10 @@
     <meta property="og:title" content="@yield('og_title', trim(View::yieldContent('title', $ogTitle)))">
     <meta property="og:description" content="@yield('og_description', trim(View::yieldContent('meta_description', $ogDesc)))">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:locale" content="{{ app()->getLocale() }}">
+    {{-- Metnin dili sayfanınkinden ayrılabiliyor: çevirisi olmayan içerik
+         ziyaretçinin dilinde de kendi diliyle basılıyor. og:locale sayfayı
+         değil metni anlatmalı. --}}
+    <meta property="og:locale" content="@yield('og_locale', app()->getLocale())">
     <meta property="og:site_name" content="{{ $siteTitle }}">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     @hasSection('og_image')

@@ -2,8 +2,9 @@
 
 @section('title', ($post->meta_title ?? $post->title))
 @section('meta_description', $post->meta_description ?? \Illuminate\Support\Str::limit($post->excerpt ?? strip_tags($post->body), 160))
-@section('canonical', route('blog.show', [$post->category->slug, $post->slug]))
+@section('canonical', $canonicalUrl)
 @section('og_type', 'article')
+@section('og_locale', $post->locale)
 @if($post->image)
 @section('og_image', url(upload_url($post->image, 'lg')))
 @endif
@@ -35,6 +36,9 @@
                     <span class="pill pill--active"><i class="fa-solid fa-folder me-1"></i>{{ $post->category->name }}</span>
                 @endif
             </div>
+
+            {{-- Bu yazının öteki dildeki sürümüne doğrudan geçiş --}}
+            @include('partials.content-language-links', ['contentLocale' => $post->locale])
         </div>
     </section>
 
