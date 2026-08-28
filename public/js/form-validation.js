@@ -285,6 +285,42 @@
         return true;
     }
 
+
+    /**
+     * Gönder düğmesine basıldığında odak, o an yazılan alanda kalıyor.
+     *
+     * Fareyle basmanın varsayılan davranışı odağı düğmeye almak. Odaktan düşen
+     * alanı doğrulama motoru hemen denetliyor ve hata balonunu akışa ekliyor;
+     * balon (iki satırda ~65px) düğmenin üstünde doğduğu için düğme aşağı
+     * kayıyor. Parmak kalktığında imleç artık düğmenin üstünde olmadığından
+     * tarayıcı click üretmiyor ve form gönderilmiyor: kullanıcı yalnız o tek
+     * alanın hatasını görüyor. İkinci tıklamada balon zaten yerinde, kayma
+     * olmuyor, gönderim geçiyor ve kalan alanlar da doğrulanıyor — "ilk
+     * tıklamada sadece bir alan doğrulandı" şikâyetinin tamamı bu.
+     *
+     * mousedown iptal edilince alan odağını koruyor, balon doğmuyor, düğme
+     * yerinde kalıyor. Kaybedilen bir şey yok: gönderimde bütün alanlar
+     * zaten baştan denetleniyor.
+     */
+    document.addEventListener('mousedown', function (event) {
+        var button = event.target.closest('button[type="submit"], input[type="submit"]');
+
+        if (!button || !button.form || button.form.dataset.fvReady !== '1') {
+            return;
+        }
+
+        // Yalnız kaymayı doğuran durumda araya giriliyor: odak, motorun
+        // odaktan çıkışta denetlediği bir alanda. Başka her durumda tarayıcı
+        // kendi davranışını sürdürüyor.
+        var active = document.activeElement;
+
+        if (!active || !active.matches || !active.matches('[data-validation-engine]')) {
+            return;
+        }
+
+        event.preventDefault();
+    });
+
     // ==================== BAĞLAMA ====================
 
     function setup(form, options) {

@@ -259,6 +259,44 @@ class AdminContentCrudTest extends TestCase
         $this->assertSoftDeleted('sliders', ['id' => $slider->id]);
     }
 
+    /**
+     * Düzenleme yolu ayrıca sınanıyor: oluşturma çalışırken güncelleme
+     * kırılabiliyor. Slider, galeri ve popup formlarında tam olarak bu oldu —
+     * @method('PUT') satırı düşünce POST giden istek 405 aldı ve düzenleme üç
+     * modülde de kaydedilemedi. Formun yöntemini FormMethodSpoofingTest
+     * bekliyor; burada denetlenen, isteğin karşılığında kaydın gerçekten
+     * değişmesi (yeni görsel dahil).
+     */
+    public function test_a_slider_can_be_updated_with_a_new_image(): void
+    {
+        $this->post('/admin/sliders', ['translations' => [
+            'tr' => [
+                'title'      => 'Kampanya',
+                'image'      => $this->image('slider.jpg'),
+                'is_active'  => 1,
+                'sort_order' => 0,
+            ],
+        ]])->assertSessionHasNoErrors();
+
+        $slider = Slider::where('title', 'Kampanya')->firstOrFail();
+        $oldImage = $slider->image;
+
+        $this->put("/admin/sliders/{$slider->id}", ['translations' => [
+            'tr' => [
+                'title'      => 'Yenilenen Kampanya',
+                'image'      => $this->image('yeni-slider.jpg'),
+                'is_active'  => 1,
+                'sort_order' => 3,
+            ],
+        ]])->assertSessionHasNoErrors()->assertRedirect();
+
+        $slider->refresh();
+
+        $this->assertSame('Yenilenen Kampanya', $slider->title);
+        $this->assertSame(3, $slider->sort_order);
+        $this->assertNotSame($oldImage, $slider->image);
+    }
+
     public function test_a_slider_without_an_image_is_rejected(): void
     {
         $this->from('/admin/sliders/create')
