@@ -65,7 +65,8 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
                     ->ignore($this->translationIdFor($locale, $post)),
             ];
             $rules["{$prefix}.excerpt"]          = ['nullable', 'string', 'max:300'];
-            $rules["{$prefix}.image"]            = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+            $rules["{$prefix}.image"]            = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'];
+            $rules["{$prefix}.remove_image"]     = ['nullable', 'in:0,1'];
             $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:60'];
             $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
             $rules["{$prefix}.published_at"]     = ['nullable', 'date'];

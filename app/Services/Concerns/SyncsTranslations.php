@@ -190,8 +190,27 @@ trait SyncsTranslations
     ): array {
         $image = $fields[$imageKey] ?? null;
 
+        // Kaldırma isteği forma özel bir bayrakla geliyor ve sütun olmadığı
+        // için modele ulaşmadan çıkarılıyor.
+        $kaldir = filter_var($fields['remove_'.$imageKey] ?? false, FILTER_VALIDATE_BOOL);
+        unset($fields['remove_'.$imageKey]);
+
         if (! $image instanceof \Illuminate\Http\UploadedFile) {
             unset($fields[$imageKey]);
+
+            if ($kaldir) {
+                // Dosya diskten de siliniyor; kayıt boşaltılıp dosya bırakılsa
+                // uploads dizininde sahibi olmayan görseller birikirdi.
+                if ($existing?->getAttribute($imageKey)) {
+                    $this->uploadService->deleteImage((string) $existing->getAttribute($imageKey));
+                }
+
+                $fields[$imageKey] = null;
+
+                // Kaldırma açıkça istendi: varsayılan dilin görseli de
+                // devralınmıyor, yoksa kaldırdığı görsel geri gelmiş gibi olurdu.
+                return $fields;
+            }
 
             // A brand new translation with no artwork of its own borrows the
             // default language's, so the content still renders while the

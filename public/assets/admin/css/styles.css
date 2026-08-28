@@ -31733,3 +31733,78 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
 
 .fmgr-empty i { font-size: 42px; opacity: .35; }
 .fmgr-empty h6 { margin: 6px 0 0; color: var(--text-primary); }
+
+/* ==========================================================================
+   Kapak görseli alanı — önizleme, kaldırma, galeri
+   ========================================================================== */
+
+.ca-cover {
+  position: relative;
+  display: inline-block;
+  max-width: 320px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-input);
+}
+
+.ca-cover__link {
+  display: block;
+  position: relative;
+  line-height: 0;
+}
+
+.ca-cover__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/* Büyütme işareti: görselin tıklanabilir olduğu, üstüne gelmeden de belli. */
+.ca-cover__zoom {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(10, 14, 26, .72);
+  backdrop-filter: blur(4px);
+  color: var(--text-white);
+  font-size: 12px;
+  transition: background var(--transition-fast);
+}
+
+.ca-cover__link:hover .ca-cover__zoom {
+  background: var(--teal-primary);
+}
+
+.ca-cover__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+  background: rgba(10, 14, 26, .78);
+  backdrop-filter: blur(4px);
+  color: var(--neon-red);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.ca-cover__remove:hover {
+  background: var(--neon-red);
+  color: #fff;
+}
