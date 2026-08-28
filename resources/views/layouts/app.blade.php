@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Koyu/açık kip, stiller inmeden önce yazılıyor: sayfa yanlış kiple
+         boyanıp sonra atlamıyor. --}}
+    @include('partials.theme-init')
+
     @php
         $siteName  = \App\Models\Setting::getValue('site_name', config('app.name'));
         $siteTitle = \App\Models\Setting::getValue('site_title', $siteName);
@@ -82,7 +86,10 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
     @endif
-    <meta name="theme-color" content="#4f46e5">
+    {{-- Tarayıcı çubuğu etkin kiple aynı renkte olsun; tek renk verilse
+         koyu kipte açık bir şerit kalıyordu. --}}
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
 
     {{-- Preload critical --}}
     @if($siteLogo)
@@ -185,6 +192,8 @@
     @include('partials.result-modal')
     @include('partials.confirm-modal')
     @include('partials.popup-modal')
+    {{-- Galeri büyütme penceresi; ızgarası olan sayfada devreye giriyor. --}}
+    @include('partials.lightbox')
 
     {{-- JS --}}
     <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
@@ -195,6 +204,9 @@
     <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
     <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
     <script src="{{ versioned_asset('js/app.js') }}"></script>
+    {{-- Koyu/açık kip düğmesi. Kipin kendisini <head>'deki satır içi betik
+         yazıyor; bu dosya yalnızca düğmeyi bağlıyor. --}}
+    <script src="{{ versioned_asset('js/theme.js') }}"></script>
     {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı sayfanın dilinden geliyor. --}}
     <script src="{{ versioned_asset('js/password-toggle.js') }}"
             data-show-label="{{ __('site.actions.show_password') }}"

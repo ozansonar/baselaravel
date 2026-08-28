@@ -229,3 +229,192 @@ window.showConfirmModal = function (options) {
         }
     });
 })();
+
+/* ==========================================================================
+   Scroll reveal
+
+   Elements marked [data-reveal] start shifted and settle into place once they
+   enter the viewport. When the visitor asked for reduced motion nothing is
+   observed at all — the CSS already leaves those elements visible, so the page
+   is complete without this file running.
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var targets = document.querySelectorAll('[data-reveal]');
+        if (!targets.length) return;
+
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // No observer (or no motion wanted): show everything straight away
+        // rather than leaving the page half empty.
+        if (reduced || typeof IntersectionObserver === 'undefined') {
+            targets.forEach(function (el) { el.classList.add('is-revealed'); });
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-revealed');
+                observer.unobserve(entry.target);
+            });
+        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.05 });
+
+        targets.forEach(function (el) { observer.observe(el); });
+    });
+})();
+
+/* ==========================================================================
+   Reading progress
+
+   The bar tracks how much of the article body has scrolled past, not how much
+   of the document: comments and related posts are not part of the read.
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var bar = document.querySelector('[data-read-progress]');
+        var body = document.querySelector('.article__body');
+        if (!bar || !body) return;
+
+        var update = function () {
+            var rect = body.getBoundingClientRect();
+            var total = rect.height - window.innerHeight;
+
+            // Short article: it fits on one screen, so there is nothing to track.
+            if (total <= 0) {
+                bar.style.width = rect.bottom <= window.innerHeight ? '100%' : '0';
+                return;
+            }
+
+            var passed = Math.min(Math.max(-rect.top, 0), total);
+            bar.style.width = ((passed / total) * 100).toFixed(2) + '%';
+        };
+
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update, { passive: true });
+        update();
+    });
+})();
+
+/* ==========================================================================
+   Gallery lightbox
+
+   Photos enlarge inside the page. They used to open the raw upload in a new
+   tab, which threw the visitor out of the gallery and showed them an unstyled
+   image on a blank background.
+
+   Markup: partials/lightbox.blade.php — one container per page, filled from
+   whichever [data-lightbox-gallery] grid was clicked.
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var box = document.querySelector('[data-lightbox]');
+        if (!box) return;
+
+        var img     = box.querySelector('[data-lightbox-img]');
+        var caption = box.querySelector('[data-lightbox-caption]');
+        var closeBtn = box.querySelector('[data-lightbox-close]');
+        var prevBtn = box.querySelector('[data-lightbox-prev]');
+        var nextBtn = box.querySelector('[data-lightbox-next]');
+
+        var items = [];
+        var index = 0;
+        var opener = null;
+
+        function render() {
+            var item = items[index];
+            if (!item) return;
+
+            var title = item.dataset.title || '';
+            var extra = item.dataset.caption || '';
+
+            img.setAttribute('src', item.getAttribute('href'));
+            img.setAttribute('alt', title);
+            caption.innerHTML = '';
+
+            if (title) {
+                var strong = document.createElement('strong');
+                strong.textContent = title;
+                caption.appendChild(strong);
+            }
+            if (extra) {
+                caption.appendChild(document.createTextNode(extra));
+            }
+
+            // A single photo has nowhere to go; the arrows would be dead controls.
+            var many = items.length > 1;
+            prevBtn.hidden = !many;
+            nextBtn.hidden = !many;
+        }
+
+        function open(gallery, clicked) {
+            items = Array.prototype.slice.call(gallery.querySelectorAll('[data-lightbox-item]'));
+            index = Math.max(0, items.indexOf(clicked));
+            opener = clicked;
+
+            render();
+            box.hidden = false;
+            // The class drives the fade, so it is set on the next frame — set
+            // together with `hidden` the transition would never run.
+            window.requestAnimationFrame(function () { box.classList.add('lightbox--open'); });
+            document.body.style.overflow = 'hidden';
+            closeBtn.focus();
+        }
+
+        function close() {
+            box.classList.remove('lightbox--open');
+            document.body.style.overflow = '';
+
+            var done = function () {
+                box.hidden = true;
+                box.removeEventListener('transitionend', done);
+            };
+            box.addEventListener('transitionend', done);
+            // Reduced motion kills the transition, and then transitionend never
+            // fires — the panel would stay in the layout, invisible and on top.
+            window.setTimeout(done, 400);
+
+            if (opener) opener.focus();
+            opener = null;
+        }
+
+        function step(delta) {
+            if (items.length < 2) return;
+            index = (index + delta + items.length) % items.length;
+            render();
+        }
+
+        document.addEventListener('click', function (event) {
+            var trigger = event.target.closest('[data-lightbox-item]');
+            if (!trigger) return;
+
+            var gallery = trigger.closest('[data-lightbox-gallery]');
+            if (!gallery) return;
+
+            event.preventDefault();
+            open(gallery, trigger);
+        });
+
+        closeBtn.addEventListener('click', close);
+        prevBtn.addEventListener('click', function () { step(-1); });
+        nextBtn.addEventListener('click', function () { step(1); });
+
+        // Clicking the backdrop closes; clicking the photo itself does not.
+        box.addEventListener('click', function (event) {
+            if (event.target === box) close();
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (box.hidden) return;
+            if (event.key === 'Escape') { close(); return; }
+            if (event.key === 'ArrowLeft') { step(-1); return; }
+            if (event.key === 'ArrowRight') { step(1); }
+        });
+    });
+})();

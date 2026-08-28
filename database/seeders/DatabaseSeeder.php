@@ -25,8 +25,9 @@ class DatabaseSeeder extends Seeder
             MenuSeeder::class,
         ]);
 
-        // NOT: SliderSeeder demo görselleri gerçek dosya gerektirdiğinden
-        // varsayılan seed'e dahil değildir. Slider'lar admin panelinden
-        // eklenir; istenirse: php artisan db:seed --class=SliderSeeder
+        // NOT: DemoMediaSeeder (slider + galeri) varsayılan seed'e dahil değil.
+        // Görselleri kendisi üretip public/uploads altına yazıyor; canlıda
+        // istenmeyen içerik doğurmaması için elle çağrılıyor:
+        //   php artisan db:seed --class=DemoMediaSeeder
     }
 }

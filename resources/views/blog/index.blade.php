@@ -20,6 +20,7 @@
                     @endif
                 </ol>
             </nav>
+            <span class="page-hero__eyebrow"><i class="fa-solid fa-newspaper"></i> Blog</span>
             <h1 class="page-hero__title">{{ $activeCategory?->name ?? __('site.blog.title') }}</h1>
             <p class="page-hero__lead">{{ __('site.blog.lead') }}</p>
         </div>
@@ -41,37 +42,29 @@
             @endif
 
             @if($posts->isNotEmpty())
-                <div class="row g-4">
-                    @foreach($posts as $post)
-                        <div class="col-md-6 col-lg-4">
-                            <article class="post-card">
-                                <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="post-card__media">
-                                    @if($post->image)
-                                        <img src="{{ upload_url($post->image, 'md') }}" alt="{{ $post->title }}" class="post-card__img" loading="lazy" decoding="async">
-                                    @else
-                                        <span class="post-card__ph"><i class="fa-regular fa-image"></i></span>
-                                    @endif
-                                    @if($post->category)
-                                        <span class="post-card__cat">{{ $post->category->name }}</span>
-                                    @endif
-                                </a>
-                                <div class="post-card__body">
-                                    <div class="post-card__meta">
-                                        <span><i class="fa-regular fa-calendar me-1"></i>{{ optional($post->published_at)->translatedFormat('d M Y') }}</span>
-                                        <span><i class="fa-regular fa-eye me-1"></i>{{ number_format((int) $post->views) }}</span>
-                                    </div>
-                                    <h2 class="post-card__title">
-                                        <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}">{{ $post->title }}</a>
-                                    </h2>
-                                    @if($post->excerpt)
-                                        <p class="post-card__excerpt">{{ \Illuminate\Support\Str::limit($post->excerpt, 110) }}</p>
-                                    @endif
-                                    <a href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" class="post-card__more">{{ __('site.actions.read_more') }} <i class="fa-solid fa-arrow-right"></i></a>
-                                </div>
-                            </article>
-                        </div>
-                    @endforeach
-                </div>
+                @php
+                    // En yeni yazı yalnız ilk sayfada geniş kart oluyor. Sonraki
+                    // sayfalarda "öne çıkan" ilan etmek yanlış olurdu; oradaki
+                    // yazı yalnızca sıradaki yazı.
+                    $lead       = $posts->currentPage() === 1 ? $posts->first() : null;
+                    $gridPosts  = $lead ? collect($posts->items())->slice(1) : collect($posts->items());
+                @endphp
+
+                @if($lead)
+                    <div class="mb-4" data-reveal>
+                        @include('partials.post-card', ['post' => $lead, 'featured' => true, 'titleTag' => 'h2'])
+                    </div>
+                @endif
+
+                @if($gridPosts->isNotEmpty())
+                    <div class="row g-4">
+                        @foreach($gridPosts as $post)
+                            <div class="col-md-6 col-lg-4" data-reveal data-reveal-delay="{{ $loop->index % 4 }}">
+                                @include('partials.post-card', ['post' => $post, 'titleTag' => 'h2'])
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
 
                 <div class="mt-5">
                     {{ $posts->onEachSide(1)->links('pagination::bootstrap-5') }}
