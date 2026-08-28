@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 final class MailLogService
 {
@@ -55,7 +56,7 @@ final class MailLogService
             'from'           => $from ?? config('mail.from.address'),
             'reply_to'       => $replyTo,
             'subject'        => $resolvedSubject,
-            'body'           => $body,
+            'body'           => $body ?? $this->renderBody($mailable, $pending),
             'mailable_class' => $mailable !== null ? $mailable::class : null,
             'status'         => $status,
             'error_message'  => $error,
@@ -68,6 +69,36 @@ final class MailLogService
         Cache::forget('admin.mail_logs.stats');
 
         return $mailLog;
+    }
+
+    /**
+     * Gövdeyi mailable'dan üretir.
+     *
+     * Kaydı yazan taraf gövdeyi hazır verdiyse ona dokunulmaz; vermediyse
+     * burada üretilir. Kendi mailer'ını çağıran yollar (kampanya gönderimi
+     * gibi) aksi hâlde "hangi maili gönderdik" sorusuna yanıt vermeyen,
+     * içeriksiz kayıtlar bırakıyordu.
+     *
+     * Kuyruğa alınan mailde atlanır: gövde orada, kuyruk serileştirmesi
+     * bittikten sonra ayrıca yazılıyor. Üretim başarısız olursa kayıt yine de
+     * açılır — log, gönderimi bloke etmemeli.
+     */
+    private function renderBody(?Mailable $mailable, bool $pending): ?string
+    {
+        if ($mailable === null || $pending) {
+            return null;
+        }
+
+        try {
+            return $mailable->render();
+        } catch (\Throwable $e) {
+            Log::warning('Mail gövdesi log için üretilemedi', [
+                'mailable' => $mailable::class,
+                'error'    => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     /**
