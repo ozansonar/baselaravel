@@ -135,6 +135,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="popups" :total="$popups->total()" />
                 </div>
             </form>
         </div>

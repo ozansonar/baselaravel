@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class PopupService
 {
@@ -35,7 +36,26 @@ final class PopupService
     /**
      * @param array<string, mixed> $filters
      */
-    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'search'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<Popup>
+     */
+    public function query(array $filters = []): Builder
     {
         $query = $this->onlyGroupRepresentatives(Popup::withTrashed(), Popup::class)->sorted();
 
@@ -59,7 +79,15 @@ final class PopupService
             });
         }
 
-        return $this->attachGroupLocales($query->paginate($perPage), Popup::class);
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        return $this->attachGroupLocales($this->query($filters)->paginate($perPage), Popup::class);
     }
 
     public function findById(int $id): Popup

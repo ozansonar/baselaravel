@@ -85,6 +85,48 @@ final class NotificationCenter
             ->update(['read_at' => now()]);
     }
 
+    /**
+     * Bildirim listesinin tanıdığı süzgeç anahtarları.
+     *
+     * @return list<string>
+     */
+    public static function filterKeys(): array
+    {
+        return ['level', 'unread_only', 'q'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış bildirim sorgusu.
+     *
+     * Bildirimler kişiye bağlı: sorgu her zaman bir kullanıcıyla sınırlı
+     * kurulur, yoksa ekranda görünmeyen kayıtlar dosyaya sızar.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<AdminNotification>
+     */
+    public static function listQuery(?int $userId, array $filters = []): Builder
+    {
+        $query = AdminNotification::query()->forUser($userId);
+
+        if (($filters['level'] ?? '') !== '') {
+            $query->where('level', $filters['level']);
+        }
+
+        if (filter_var($filters['unread_only'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $query->whereNull('read_at');
+        }
+
+        if (($filters['q'] ?? '') !== '') {
+            $search = '%' . $filters['q'] . '%';
+
+            $query->where(function (Builder $sub) use ($search): void {
+                $sub->where('title', 'like', $search)->orWhere('message', 'like', $search);
+            });
+        }
+
+        return $query->orderByDesc('created_at');
+    }
+
     public static function unreadCount(?int $userId = null): int
     {
         return AdminNotification::query()

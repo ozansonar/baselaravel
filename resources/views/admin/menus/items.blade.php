@@ -24,9 +24,12 @@
                 Sürükle-bırak ile sıralayın, düzenleyin ve alt öğeler ekleyin
             </p>
         </div>
-        <button type="button" class="btn-teal" data-bs-toggle="modal" data-bs-target="#menuItemModal" id="addRootItemBtn">
-            <i class="bi bi-plus-lg"></i> Yeni Öğe Ekle
-        </button>
+        <div class="d-flex gap-2 flex-wrap">
+            <x-export-menu export="menu-items" :params="['menu' => $menu->id]" :total="$menu->rootItems->count()" />
+            <button type="button" class="btn-teal" data-bs-toggle="modal" data-bs-target="#menuItemModal" id="addRootItemBtn">
+                <i class="bi bi-plus-lg"></i> Yeni Öğe Ekle
+            </button>
+        </div>
     </div>
 
 

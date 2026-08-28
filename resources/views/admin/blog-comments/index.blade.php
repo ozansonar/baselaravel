@@ -148,6 +148,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="blog-comments" :total="$comments->total()" />
                     <div class="cl-bulk-actions d-none" id="bulkActions">
                         <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
                         <button type="button" class="usr-action-btn success" onclick="openBulkApproveModal()" title="Toplu Onayla"><i class="bi bi-check-lg"></i></button>

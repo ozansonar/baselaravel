@@ -19,9 +19,118 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
+use Illuminate\Database\Eloquent\Builder;
 
 final class CampaignService
 {
+    /**
+     * Alıcı listesinin tanıdığı süzgeç anahtarları.
+     *
+     * @return list<string>
+     */
+    public function recipientFilterKeys(): array
+    {
+        return ['rstatus', 'rsearch'];
+    }
+
+    /**
+     * Bir kampanyanın süzülmüş alıcı sorgusu.
+     *
+     * Ekran, CSV indirmesi ve dışa aktarma aynı sorguyu kullanır: "başarısızları
+     * ver" diyen biri üç ayrı yerde üç ayrı liste görmemeli.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<CampaignRecipient>
+     */
+    public function recipientQuery(Campaign $campaign, array $filters = []): Builder
+    {
+        $status = (string) ($filters['rstatus'] ?? '');
+        $search = trim((string) ($filters['rsearch'] ?? ''));
+
+        // İlişki yerine doğrudan sorgu: ilişki nesnesi sorgu arayüzünü
+        // karşılamıyor, dışa aktarma ise sorgu üzerinden geziyor.
+        return CampaignRecipient::query()
+            ->where('campaign_id', $campaign->getKey())
+            ->when(
+                CampaignRecipientStatus::tryFrom($status) !== null,
+                static fn (Builder $query) => $query->where('status', $status),
+            )
+            ->when($search !== '', static function (Builder $query) use ($search): void {
+                // Joker karakterler düz metin sayılıyor, yoksa "%" tüm listeyi getirir.
+                $term = '%' . addcslashes($search, '%_\\') . '%';
+
+                $query->where(static function (Builder $inner) use ($term): void {
+                    $inner->where('email', 'like', $term)
+                        ->orWhere('first_name', 'like', $term)
+                        ->orWhere('last_name', 'like', $term);
+                });
+            })
+            ->orderBy('id');
+    }
+
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['search', 'status', 'audience', 'from', 'to', 'sort'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış kampanya sorgusu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<Campaign>
+     */
+    public function query(array $filters = []): Builder
+    {
+        $query = Campaign::query()->withCount('recipients')->with('author');
+
+        if (($case = CampaignStatus::tryFrom((string) ($filters['status'] ?? ''))) !== null) {
+            $query->where('status', $case);
+        }
+
+        if (($audience = CampaignAudience::tryFrom((string) ($filters['audience'] ?? ''))) !== null) {
+            $query->where('audience', $audience);
+        }
+
+        if (($filters['search'] ?? '') !== '') {
+            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
+            // getirmemeli.
+            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+
+            $query->where(function (Builder $sub) use ($term): void {
+                $sub->where('name', 'like', $term)->orWhere('subject', 'like', $term);
+            });
+        }
+
+        // Tarih aralığı oluşturulma gününe göre; bitiş günü de dâhil.
+        if (($filters['from'] ?? '') !== '') {
+            $query->whereDate('created_at', '>=', $filters['from']);
+        }
+
+        if (($filters['to'] ?? '') !== '') {
+            $query->whereDate('created_at', '<=', $filters['to']);
+        }
+
+        // Sıralama seçenekleri sabit: istekten gelen değer doğrudan sütun adı
+        // olarak sorguya giremiyor.
+        match ($filters['sort'] ?? '') {
+            'oldest'     => $query->oldest('id'),
+            'name'       => $query->orderBy('name'),
+            'recipients' => $query->orderByDesc('total_recipients')->orderByDesc('id'),
+            'sent'       => $query->orderByDesc('sent_count')->orderByDesc('id'),
+            default      => $query->latest('id'),
+        };
+
+        return $query;
+    }
+
     private const UPLOAD_FOLDER = 'campaigns';
 
     public function __construct(

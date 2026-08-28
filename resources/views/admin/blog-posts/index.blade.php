@@ -153,6 +153,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="blog-posts" :total="$posts->total()" />
                     <div class="cl-bulk-actions d-none" id="bulkActions">
                         <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
                         <button type="button" class="usr-action-btn success" onclick="bulkContentAction('publish')" title="Yayınla"><i class="bi bi-check-circle"></i></button>

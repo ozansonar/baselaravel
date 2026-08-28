@@ -27,7 +27,7 @@ final class ContactMessageController extends Controller
             ? (int) $request->query('per_page')
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->contactMessageService->filterKeys());
 
         return view('admin.contact-messages.index', [
             'messages'     => $this->contactMessageService->paginate($perPage, $filters),

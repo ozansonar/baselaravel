@@ -264,6 +264,8 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <x-export-menu export="visits" :total="$visits->total()" />
                         </div>
                     </div>
                 </div>

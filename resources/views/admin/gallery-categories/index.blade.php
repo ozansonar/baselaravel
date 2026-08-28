@@ -135,6 +135,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="gallery-categories" :total="$categories->total()" />
                 </div>
             </form>
         </div>

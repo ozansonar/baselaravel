@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -66,9 +67,25 @@ final class UserService
     // ── Admin Paginate ──
 
     /**
-     * @param array<string, mixed> $filters
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; anahtarlar iki yerde ayrı ayrı
+     * yazılsaydı zamanla dosyaya inen ile ekranda görünen ayrışırdı.
+     *
+     * @return list<string>
      */
-    public function paginate(int $perPage = 10, array $filters = []): LengthAwarePaginator
+    public function filterKeys(): array
+    {
+        return ['status', 'search', 'role'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<User>
+     */
+    public function query(array $filters = []): Builder
     {
         $query = User::with('roles')->latest();
 
@@ -96,7 +113,15 @@ final class UserService
             });
         }
 
-        return $query->paginate($perPage)->withQueryString();
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function paginate(int $perPage = 10, array $filters = []): LengthAwarePaginator
+    {
+        return $this->query($filters)->paginate($perPage)->withQueryString();
     }
 
     // ── CRUD ──

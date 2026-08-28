@@ -32,13 +32,39 @@ final class AuditLogService
      * @param array<string, mixed> $filters
      * @return LengthAwarePaginator<int, AuditLog>
      */
-    public function paginate(array $filters, int $perPage = 50): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['event', 'user_id', 'model', 'ip', 'from', 'to', 'q'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<AuditLog>
+     */
+    public function query(array $filters = []): Builder
     {
         return $this->filtered($filters)
             ->with('user:id,first_name,last_name,email')
-            ->orderByDesc('created_at')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->orderByDesc('created_at');
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     * @return LengthAwarePaginator<int, AuditLog>
+     */
+    public function paginate(array $filters, int $perPage = 50): LengthAwarePaginator
+    {
+        return $this->query($filters)->paginate($perPage)->withQueryString();
     }
 
     /**

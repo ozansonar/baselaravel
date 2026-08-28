@@ -29,7 +29,7 @@ final class FaqController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->faqService->filterKeys());
 
         return view('admin.faqs.index', [
             'faqs'         => $this->faqService->paginate($perPage, $filters),

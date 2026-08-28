@@ -79,46 +79,8 @@ final class CampaignController extends Controller
             'sort'     => $sort,
         ];
 
-        $query = Campaign::query()->withCount('recipients')->with('author');
-
-        if (($case = CampaignStatus::tryFrom($filters['status'])) !== null) {
-            $query->where('status', $case);
-        }
-
-        if (($audience = CampaignAudience::tryFrom($filters['audience'])) !== null) {
-            $query->where('audience', $audience);
-        }
-
-        if ($filters['search'] !== '') {
-            // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
-            // getirmemeli.
-            $term = '%' . addcslashes($filters['search'], '%_\\') . '%';
-
-            $query->where(function ($q) use ($term): void {
-                $q->where('name', 'like', $term)->orWhere('subject', 'like', $term);
-            });
-        }
-
-        // Tarih aralığı oluşturulma gününe göre; bitiş günü de dâhil olsun diye
-        // gün sonuna kadar alınıyor.
-        if ($filters['from'] !== '') {
-            $query->whereDate('created_at', '>=', $filters['from']);
-        }
-
-        if ($filters['to'] !== '') {
-            $query->whereDate('created_at', '<=', $filters['to']);
-        }
-
-        match ($filters['sort']) {
-            'oldest'     => $query->oldest('id'),
-            'name'       => $query->orderBy('name'),
-            'recipients' => $query->orderByDesc('total_recipients')->orderByDesc('id'),
-            'sent'       => $query->orderByDesc('sent_count')->orderByDesc('id'),
-            default      => $query->latest('id'),
-        };
-
         return view('admin.campaigns.index', [
-            'campaigns'    => $query->paginate($perPage)->withQueryString(),
+            'campaigns'    => $this->campaigns->query($filters)->paginate($perPage)->withQueryString(),
             'stats'        => $this->stats(),
             'statusCounts' => $this->statusCounts(),
             'statuses'     => CampaignStatus::cases(),
@@ -559,25 +521,8 @@ final class CampaignController extends Controller
      */
     private function recipientList(Campaign $campaign, Request $request)
     {
-        $status = (string) $request->string('rstatus')->value();
-        $search = (string) $request->string('rsearch')->trim()->value();
-
-        return $campaign->recipients()
-            ->when(
-                CampaignRecipientStatus::tryFrom($status) !== null,
-                fn ($query) => $query->where('status', $status),
-            )
-            ->when($search !== '', function ($query) use ($search): void {
-                // Joker karakterler düz metin sayılıyor, yoksa "%" tüm listeyi getirir.
-                $term = '%' . addcslashes($search, '%_\\') . '%';
-
-                $query->where(function ($inner) use ($term): void {
-                    $inner->where('email', 'like', $term)
-                        ->orWhere('first_name', 'like', $term)
-                        ->orWhere('last_name', 'like', $term);
-                });
-            })
-            ->orderBy('id')
+        return $this->campaigns
+            ->recipientQuery($campaign, $request->only($this->campaigns->recipientFilterKeys()))
             ->paginate(25, ['*'], 'ralici')
             ->withQueryString();
     }
@@ -707,24 +652,10 @@ final class CampaignController extends Controller
     {
         $this->authorize('view', $campaign);
 
-        $status = (string) $request->string('rstatus')->value();
-        $search = (string) $request->string('rsearch')->trim()->value();
-
-        $query = $campaign->recipients()
-            ->when(
-                CampaignRecipientStatus::tryFrom($status) !== null,
-                fn ($q) => $q->where('status', $status),
-            )
-            ->when($search !== '', function ($q) use ($search): void {
-                $term = '%' . addcslashes($search, '%_\\') . '%';
-
-                $q->where(function ($inner) use ($term): void {
-                    $inner->where('email', 'like', $term)
-                        ->orWhere('first_name', 'like', $term)
-                        ->orWhere('last_name', 'like', $term);
-                });
-            })
-            ->orderBy('id');
+        $query = $this->campaigns->recipientQuery(
+            $campaign,
+            $request->only($this->campaigns->recipientFilterKeys()),
+        );
 
         $filename = 'alicilar-' . $campaign->id . '-' . now()->format('Ymd-Hi') . '.csv';
 

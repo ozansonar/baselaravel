@@ -11,6 +11,7 @@ use App\Services\Concerns\ResolvesLocalizedSlugs;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Builder;
 
 final class MenuService
 {
@@ -25,6 +26,21 @@ final class MenuService
      * A language that has no menu of its own falls back to the default one, so
      * activating a language never leaves the site without navigation.
      */
+    /**
+     * Yönetim listesindeki menüler.
+     *
+     * Ekran da dışa aktarma da bu sorguyu kullanır; sıralama menüleri konum ve
+     * dil bazında bir arada tutar.
+     *
+     * @return Builder<Menu>
+     */
+    public function listQuery(): Builder
+    {
+        return Menu::withCount('items')
+            ->orderBy('location')
+            ->orderBy('locale');
+    }
+
     public function getByLocation(string $location): ?Menu
     {
         return Cache::remember(

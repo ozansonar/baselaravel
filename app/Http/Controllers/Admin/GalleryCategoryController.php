@@ -28,7 +28,7 @@ final class GalleryCategoryController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->galleryCategoryService->filterKeys());
 
         return view('admin.gallery-categories.index', [
             'categories'   => $this->galleryCategoryService->paginate($perPage, $filters),

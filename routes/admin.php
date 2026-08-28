@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FileBrowserController;
 use App\Http\Controllers\Admin\GalleryCategoryController;
@@ -48,6 +49,14 @@ use Illuminate\Support\Facades\Route;
 
 // Dashboard
 Route::get('/', DashboardController::class)->name('dashboard');
+
+// Liste dışa aktarma (Excel / PDF)
+// Bütün listeleme ekranları tek uçtan geçiyor: hangi liste olduğu anahtardan,
+// hangi kayıtların gireceği ekrandaki süzgeçlerden geliyor. Hız sınırı, ağır
+// dosya üreten bu ucun art arda tetiklenmesini engelliyor.
+Route::get('disa-aktar/{key}/{format}', ExportController::class)
+    ->middleware('throttle:30,1')
+    ->name('export');
 
 // Pages
 Route::resource('pages', PageController::class)->except('show');

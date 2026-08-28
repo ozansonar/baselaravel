@@ -193,6 +193,7 @@
                         <a href="{{ route('admin.backups.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
                             <i class="bi bi-arrow-counterclockwise"></i>
                         </a>
+                        <x-export-menu export="backups" :total="count($backups)" />
                     </div>
                 </div>
             </form>

@@ -132,6 +132,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="files" :total="$files->total()" />
                 </div>
             </form>
         </div>

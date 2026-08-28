@@ -28,7 +28,7 @@ final class PopupController extends Controller
             ? (int) $request->input('per_page', 25)
             : 25;
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only($this->popupService->filterKeys());
 
         return view('admin.popups.index', [
             'popups'       => $this->popupService->paginate($perPage, $filters),

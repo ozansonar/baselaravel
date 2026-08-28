@@ -24,13 +24,14 @@
             <h1 class="page-title">Roller & İzinler</h1>
             <p class="page-subtitle">Rolleri yönetin ve her rolün hangi işlemleri yapabileceğini belirleyin</p>
         </div>
-        @can('create', App\Models\Role::class)
         <div class="d-flex gap-2 flex-wrap">
+            <x-export-menu export="roles" :total="$roles->count()" />
+            @can('create', App\Models\Role::class)
             <button type="button" class="btn-teal" data-bs-toggle="modal" data-bs-target="#roleModal" id="addRoleBtn">
                 <i class="bi bi-plus-lg"></i> Yeni Rol
             </button>
+            @endcan
         </div>
-        @endcan
     </div>
 
     {{-- ==================== SECTION 1: STATS ==================== --}}

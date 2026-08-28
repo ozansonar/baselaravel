@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 final class GalleryService
 {
@@ -56,7 +57,26 @@ final class GalleryService
     /**
      * @param array<string, mixed> $filters
      */
-    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['status', 'type', 'category', 'search'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<GalleryItem>
+     */
+    public function query(array $filters = []): Builder
     {
         $query = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)->sorted()->with('galleryCategory');
 
@@ -94,7 +114,15 @@ final class GalleryService
             });
         }
 
-        return $this->attachGroupLocales($query->paginate($perPage), GalleryItem::class);
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        return $this->attachGroupLocales($this->query($filters)->paginate($perPage), GalleryItem::class);
     }
 
     public function findById(int $id): GalleryItem

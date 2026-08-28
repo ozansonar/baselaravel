@@ -197,13 +197,40 @@ final class FileManagerService
      *
      * @param  array{q?: string, category?: string, date_from?: string, date_to?: string}  $filters
      */
-    public function paginate(int $perPage, array $filters = []): LengthAwarePaginator
+    /**
+     * Liste ekranının tanıdığı süzgeç anahtarları.
+     *
+     * Ekran da dışa aktarma da bu listeyi okur; iki yerde ayrı yazılsaydı
+     * dosyaya inen ile ekranda görünen zamanla ayrışırdı.
+     *
+     * @return list<string>
+     */
+    public function filterKeys(): array
+    {
+        return ['q', 'category', 'date_from', 'date_to'];
+    }
+
+    /**
+     * Süzgeçler uygulanmış, sayfalanmamış sorgu.
+     *
+     * @param array<string, mixed> $filters
+     * @return Builder<UploadedFile>
+     */
+    public function query(array $filters = []): Builder
     {
         $query = UploadedFile::query()->with('uploader')->latest('id');
 
         $this->applyFilters($query, $filters);
 
-        return $query->paginate($perPage)->withQueryString();
+        return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function paginate(int $perPage, array $filters = []): LengthAwarePaginator
+    {
+        return $this->query($filters)->paginate($perPage)->withQueryString();
     }
 
     /**

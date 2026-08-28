@@ -134,6 +134,8 @@
                                 <i class="bi bi-arrow-clockwise me-1"></i> Sıfırla
                             </a>
                         @endif
+
+                        <x-export-menu export="users" :total="$users->total()" />
                     </div>
                 </div>
 
