@@ -10,6 +10,7 @@ use App\Services\BlogCategoryService;
 use App\Services\BlogCommentService;
 use App\Services\BlogPostFileService;
 use App\Services\BlogService;
+use App\Services\LocalizedUrlService;
 use App\Services\UploadService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\View\View;
@@ -21,6 +22,7 @@ final class BlogController extends Controller
         private readonly BlogCategoryService $blogCategoryService,
         private readonly BlogCommentService $blogCommentService,
         private readonly BlogPostFileService $blogPostFiles,
+        private readonly LocalizedUrlService $localizedUrls,
     ) {}
 
     public function index(): View
@@ -65,6 +67,13 @@ final class BlogController extends Controller
 
         return view('blog.show', [
             'post'            => $post,
+            // Kanonik, ziyaretçinin diline değil metnin yazıldığı dile bakıyor:
+            // çevirisi olmayan yazı /en/ altında da Türkçesiyle basılıyor ve
+            // kanonik kendini gösterseydi aynı metin iki adreste kanonik olurdu.
+            'canonicalUrl'    => $this->localizedUrls->canonical('blog.show', [
+                'categorySlug' => $post->category->slug,
+                'slug'         => $post->slug,
+            ], $post->locale),
             'categories'      => $this->blogCategoryService->allActive(),
             'relatedPosts'    => $this->blogService->getRelatedPosts($post, 4),
             'autoLinkedBody'  => $post->body ?? '',

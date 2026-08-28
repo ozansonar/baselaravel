@@ -652,6 +652,71 @@ img { max-width: 100%; height: auto; }
     font-weight: 600;
 }
 
+/* Bu sayfanın o dilde sürümü yok: bağlantı ana sayfaya gidiyor ve rozet bunu
+   söylüyor. Rozetsizken tıklayan kişi okuduğu yazıyı kaybettiğini sanıyordu. */
+.lang-switcher__missing {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: lowercase;
+    color: var(--muted);
+    background: var(--surface-3);
+    border-radius: var(--radius-pill);
+    padding: .1rem .45rem;
+    white-space: nowrap;
+}
+
+/* ── Bu içeriğin öteki dildeki sürümü ────────────────────────────── */
+.content-langs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+.content-langs__link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .4rem .85rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--brand);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.content-langs__link:hover {
+    color: #fff;
+    background: var(--brand);
+    border-color: var(--brand);
+}
+
+.content-langs__link i {
+    font-size: .72rem;
+    transition: transform var(--transition);
+}
+
+.content-langs__link:hover i { transform: translateX(2px); }
+
+.content-langs__flag { font-size: 1rem; line-height: 1; }
+
+.content-langs__note {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .4rem .8rem;
+    font-size: .8rem;
+    color: var(--body);
+    background: var(--surface-3);
+    border-radius: var(--radius-pill);
+}
+
+.content-langs__note i { color: var(--brand); }
+
 /* Inside the mobile off-canvas the switcher spans the full width like the
    buttons above it. */
 .mobile-nav .d-grid .lang-switcher,

@@ -257,6 +257,10 @@ return [
         'optional' => '(optional)',
         'language'      => 'Language',
         'language_aria' => 'Language selection — current language :language',
+        // Jump to this content in another language — partials/content-language-links
+        'read_in'          => 'Read in :language',
+        'reading_original' => 'This content has not been translated yet — you are reading it in :language.',
+        'no_translation'   => 'not translated',
         'search'        => 'Search',
         'loading'       => 'Loading...',
     ],

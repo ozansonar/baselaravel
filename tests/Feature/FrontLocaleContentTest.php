@@ -366,6 +366,66 @@ class FrontLocaleContentTest extends TestCase
         $this->assertSame('gallery/tr.webp', $turkishItems->first()?->image);
     }
 
+    // ── İçerikten içeriğe dil geçişi ──
+
+    public function test_a_post_links_straight_to_its_translation(): void
+    {
+        $this->blogPair();
+
+        // Başlıktaki dil değiştirici sitenin dilini değiştiriyor; okunan yazının
+        // çevirisine götürdüğü tıklamadan anlaşılmıyordu. Bağlantı artık metnin
+        // yanında ve karşı dilde yazılı.
+        $this->get(route('blog.show', ['locale' => 'tr', 'categorySlug' => 'duyurular', 'slug' => 'turkce-yazi']))
+            ->assertOk()
+            ->assertSee('content-langs__link')
+            ->assertSee('Read in English')
+            ->assertSee(route('blog.show', ['locale' => 'en', 'categorySlug' => 'announcements', 'slug' => 'english-post']));
+    }
+
+    public function test_a_post_with_no_translation_offers_no_link_and_the_switcher_says_so(): void
+    {
+        $category = BlogCategory::factory()->create(['locale' => 'tr', 'name' => 'Duyurular', 'slug' => 'duyurular']);
+        BlogPost::factory()->create([
+            'locale'           => 'tr',
+            'blog_category_id' => $category->id,
+            'title'            => 'Yalnız Türkçe',
+            'slug'             => 'yalniz-turkce',
+        ]);
+
+        $response = $this->get(route('blog.show', ['locale' => 'tr', 'categorySlug' => 'duyurular', 'slug' => 'yalniz-turkce']));
+
+        $response->assertOk()
+            ->assertDontSee('content-langs__link')
+            // Çevirisi olmayan dil sessizce ana sayfaya atmıyor, bunu söylüyor.
+            ->assertSee('lang-switcher__missing');
+    }
+
+    /**
+     * Çevirisi olmayan içerik ziyaretçinin dilinde de kendi diliyle basılıyor.
+     * Kanonik kendini gösterseydi aynı metin iki adreste kanonik ilan edilir ve
+     * arama motoru için kopya içerik doğardı.
+     */
+    public function test_content_served_through_the_fallback_points_its_canonical_at_its_own_language(): void
+    {
+        $category = BlogCategory::factory()->create(['locale' => 'tr', 'name' => 'Duyurular', 'slug' => 'duyurular']);
+        BlogPost::factory()->create([
+            'locale'           => 'tr',
+            'blog_category_id' => $category->id,
+            'title'            => 'Yalnız Türkçe',
+            'slug'             => 'yalniz-turkce',
+        ]);
+
+        $turkishUrl = route('blog.show', ['locale' => 'tr', 'categorySlug' => 'duyurular', 'slug' => 'yalniz-turkce']);
+        $englishUrl = route('blog.show', ['locale' => 'en', 'categorySlug' => 'duyurular', 'slug' => 'yalniz-turkce']);
+
+        $html = $this->get($englishUrl)->assertOk()->getContent();
+
+        $this->assertStringContainsString('<link rel="canonical" href="' . $turkishUrl . '">', $html);
+        $this->assertStringNotContainsString('<link rel="canonical" href="' . $englishUrl . '">', $html);
+        // Metnin dili sayfanınkinden ayrıldığında og:locale metni anlatmalı.
+        $this->assertStringContainsString('<meta property="og:locale" content="tr">', $html);
+    }
+
     /**
      * A sitemap should advertise every language, so it is deliberately not
      * scoped to the visitor's locale.

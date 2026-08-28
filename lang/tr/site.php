@@ -260,6 +260,10 @@ return [
         'optional' => '(opsiyonel)',
         'language'      => 'Dil seçimi',
         'language_aria' => 'Dil seçimi — aktif dil :language',
+        // İçeriğin öteki dildeki sürümüne geçiş — partials/content-language-links
+        'read_in'          => ':language oku',
+        'reading_original' => 'Bu içerik henüz çevrilmedi; :language sürümünü okuyorsunuz.',
+        'no_translation'   => 'çeviri yok',
         'search'        => 'Ara',
         'loading'       => 'Yükleniyor...',
     ],

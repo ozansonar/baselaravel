@@ -2,10 +2,11 @@
     $languageService = app(\App\Services\LanguageService::class);
     $availableLanguages = $languageService->active();
     $currentLanguage = $languageService->findByCode(app()->getLocale()) ?? $languageService->default();
-    // The same page in each language. Content with no translation yet has no
-    // address of its own, so that language falls back to its home page rather
-    // than to a dead link.
-    $languageUrls = app(\App\Services\LocalizedUrlService::class)->alternates();
+    // Her dil için bir adres ve o dilde sürüm olup olmadığı. Çevirisi olmayan
+    // dil yine ana sayfaya gidiyor — dili değiştirmek yine de işe yarıyor — ama
+    // artık bunu söylüyor: sessizce ana sayfaya düşen bağlantı, kullanıcıya
+    // "dil düğmesi beni okuduğum yazıdan attı" diye görünüyordu.
+    $languageTargets = app(\App\Services\LocalizedUrlService::class)->switcherTargets();
 @endphp
 
 {{-- A single language is not a choice, so the switcher stays hidden. --}}
@@ -19,15 +20,21 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end lang-switcher__menu">
             @foreach($availableLanguages as $language)
+                @php $target = $languageTargets[$language->code] ?? null; @endphp
                 <li>
                     <a class="dropdown-item {{ $language->code === $currentLanguage->code ? 'active' : '' }}"
-                       href="{{ $languageUrls[$language->code] ?? route('home', ['locale' => $language->code]) }}"
+                       href="{{ $target['url'] ?? route('home', ['locale' => $language->code]) }}"
                        hreflang="{{ $language->code }}"
                        @if($language->code === $currentLanguage->code) aria-current="true" @endif>
                         <span class="lang-switcher__flag">{{ $language->flag }}</span>
                         {{ $language->native_name ?: $language->name }}
                         @if($language->code === $currentLanguage->code)
                             <i class="fa-solid fa-check ms-auto"></i>
+                        @elseif($target && ! $target['translated'])
+                            {{-- Bu sayfanın o dilde sürümü yok: bağlantı ana sayfaya
+                                 gider. Rozet olmadan tıklayan kişi okuduğu yazıyı
+                                 kaybettiğini sanıyordu. --}}
+                            <span class="lang-switcher__missing ms-auto">{{ __('site.misc.no_translation') }}</span>
                         @endif
                     </a>
                 </li>

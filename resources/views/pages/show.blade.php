@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $page->meta_title ?? $page->title)
+@section('og_locale', $page->locale)
 {{-- Blade treats @section('x', null) as the block form and opens an output
      buffer that never gets closed, so the section is only declared when there
      is something to put in it. Leaving it out also lets the layout fall back to
@@ -8,7 +9,7 @@
 @if($page->meta_description || $page->excerpt)
 @section('meta_description', $page->meta_description ?: $page->excerpt)
 @endif
-@section('canonical', url()->current())
+@section('canonical', $canonicalUrl)
 
 @section('content')
 
@@ -25,6 +26,9 @@
             @if($page->excerpt)
                 <p class="page-hero__lead">{{ $page->excerpt }}</p>
             @endif
+
+            {{-- Bu sayfanın öteki dildeki sürümüne doğrudan geçiş --}}
+            @include('partials.content-language-links', ['contentLocale' => $page->locale])
         </div>
     </section>
 

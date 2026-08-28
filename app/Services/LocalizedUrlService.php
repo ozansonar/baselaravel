@@ -79,6 +79,54 @@ final class LocalizedUrlService
     }
 
     /**
+     * Dil değiştiricinin listesi: her dil için bir adres ve o dilde gerçekten
+     * bir sürüm olup olmadığı.
+     *
+     * alternates() ile karıştırılmamalı. Orası hreflang'i besliyor ve çevirisi
+     * olmayan dili bilerek dışarıda bırakıyor: olmayan bir sürümü arama
+     * motoruna bildirmek, hiçbir şey söylememekten kötü. Değiştirici ise her
+     * dili göstermek zorunda — ziyaretçi dili değiştirebilmeli. Aradaki fark
+     * "translated" bayrağıyla taşınıyor ki arayüz çevirisi olmayan dili sessizce
+     * ana sayfaya atmak yerine bunu söyleyebilsin.
+     *
+     * @return array<string, array{url: string, translated: bool}>
+     */
+    public function switcherTargets(): array
+    {
+        $alternates = $this->alternates();
+        $targets = [];
+
+        foreach ($this->languages->active() as $language) {
+            $code = $language->code;
+            $translated = isset($alternates[$code]);
+
+            $targets[$code] = [
+                'url'        => $alternates[$code] ?? route('home', ['locale' => $code]),
+                'translated' => $translated,
+            ];
+        }
+
+        return $targets;
+    }
+
+    /**
+     * İçeriğin kendi dilindeki adresi.
+     *
+     * Çevirisi olmayan içerik ziyaretçinin dilinde de kendi diliyle basılıyor
+     * (HasTranslations::scopeLocaleWithFallback): Türkçe yazı /en/ altında da
+     * açılıyor. Kanonik url()->current() olduğunda aynı metin iki ayrı adreste
+     * kendini kanonik ilan ediyor ve arama motoru için kopya içerik doğuyor.
+     * Kanonik, metnin gerçekten yazıldığı dile bakmalı.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function canonical(string $routeName, array $parameters, string $contentLocale): string
+    {
+        return $this->route($routeName, $parameters, $contentLocale)
+            ?? url()->current();
+    }
+
+    /**
      * Map any internal URL onto its counterpart in another language.
      *
      * Used when the visitor switches language from a link that was not built by
