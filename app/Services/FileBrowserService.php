@@ -33,6 +33,27 @@ final class FileBrowserService
      */
     private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'bmp', 'avif'];
 
+    /**
+     * Uzantı → kategori. Seçicideki süzgeç düğmeleri ve ikonlar buradan
+     * besleniyor; etiketler dosya yöneticisiyle (UploadedFile) aynı kalsın
+     * diye kategori adları da o modeldeki sabitlerle birebir.
+     *
+     * @var array<string, array<int, string>>
+     */
+    private const CATEGORY_EXTENSIONS = [
+        'document' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'txt', 'rtf', 'odt', 'ods'],
+        'video'    => ['mp4', 'mov', 'avi', 'webm', 'mkv', 'm4v'],
+        'audio'    => ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'],
+        'archive'  => ['zip', 'rar', '7z', 'tar', 'gz'],
+    ];
+
+    /**
+     * Kategori süzgecinde kabul edilen değerler. Boş dize ve "all" süzgeçsiz.
+     *
+     * @var array<int, string>
+     */
+    public const CATEGORIES = ['image', 'document', 'video', 'audio', 'archive', 'other'];
+
     public function __construct(
         private readonly UploadService $uploads,
         private readonly FileManagerService $fileManager,
@@ -42,7 +63,7 @@ final class FileBrowserService
      * Bir klasörün içeriğini döndürür.
      *
      * @param  string $folder Uploads köküne göre klasör ("" = kök)
-     * @param  string $type   "image" → yalnızca görseller
+     * @param  string $type   Kategori süzgeci; boş ya da "all" → hepsi
      * @param  string $search Ada göre süzme
      * @return array{folder: string, parent: ?string, folders: array<int, array{name: string, path: string, count: int}>, files: array<int, array<string, mixed>>, total: int, shown: int, truncated: bool}
      */
@@ -77,8 +98,12 @@ final class FileBrowserService
 
             $extension = mb_strtolower((string) pathinfo((string) $entry, PATHINFO_EXTENSION));
             $isImage = in_array($extension, self::IMAGE_EXTENSIONS, true);
+            $category = $this->category($extension, $isImage);
 
-            if ($type === 'image' && ! $isImage) {
+            // Süzgeç isteğe bağlı: boş ya da "all" gelince hiçbir tür elenmiyor.
+            // Eskiden editör her zaman "image" gönderdiği için PDF, video, zip
+            // gibi dosyalar seçicide hiç görünmüyordu.
+            if ($type !== '' && $type !== 'all' && $type !== $category) {
                 continue;
             }
 
@@ -96,6 +121,8 @@ final class FileBrowserService
                 'extension' => $extension,
                 'size'      => (int) filesize($full),
                 'is_image'  => $isImage,
+                'category'  => $category,
+                'icon'      => $this->icon($extension),
                 'modified'  => (int) filemtime($full),
             ];
         }
@@ -274,6 +301,43 @@ final class FileBrowserService
         return is_file($directory . '/' . $aday)
             ? UploadService::url(($info['dirname'] === '.' ? '' : $info['dirname'] . '/') . $aday)
             : UploadService::url($relative);
+    }
+
+    /**
+     * Uzantının kategorisi. Eşleşme yoksa "other".
+     */
+    private function category(string $extension, bool $isImage): string
+    {
+        if ($isImage) {
+            return 'image';
+        }
+
+        foreach (self::CATEGORY_EXTENSIONS as $category => $extensions) {
+            if (in_array($extension, $extensions, true)) {
+                return $category;
+            }
+        }
+
+        return 'other';
+    }
+
+    /**
+     * Bootstrap Icons sınıfı. Dosya yöneticisindeki UploadedFile::iconClass()
+     * ile aynı eşleme: aynı dosya iki ekranda farklı ikonla görünmesin.
+     */
+    private function icon(string $extension): string
+    {
+        return match ($extension) {
+            'pdf'                           => 'bi-file-earmark-pdf',
+            'doc', 'docx', 'rtf', 'odt'     => 'bi-file-earmark-word',
+            'xls', 'xlsx', 'csv', 'ods'     => 'bi-file-earmark-excel',
+            'ppt', 'pptx'                   => 'bi-file-earmark-slides',
+            'zip', 'rar', '7z', 'tar', 'gz' => 'bi-file-earmark-zip',
+            'mp4', 'mov', 'avi', 'webm', 'mkv', 'm4v' => 'bi-camera-reels',
+            'mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac' => 'bi-music-note-beamed',
+            'txt'                           => 'bi-file-earmark-text',
+            default                         => 'bi-file-earmark',
+        };
     }
 
     private function countFiles(string $directory): int

@@ -101,14 +101,17 @@
         browser_spellcheck: true,
         // "Bir resim arayın" düğmesi panelin dosya seçicisini açıyor; kampanya
         // editörüyle aynı davransın diye burada da tanımlı.
-        file_picker_types: 'image',
+        file_picker_types: 'file image media',
         file_picker_callback: function (callback, value, meta) {
             if (!window.FilePicker) {
                 return;
             }
 
             window.FilePicker.open({
-                type: meta.filetype === 'image' ? 'image' : '',
+                // Süzgeç yok: görsel diyalogundan açılsa bile PDF, video, zip
+                // hepsi listelenir. Kullanıcı isterse seçicinin kendi tür
+                // düğmeleriyle daraltır.
+                type: '',
                 onSelect: function (dosya) {
                     callback(dosya.url, { alt: '', title: dosya.name });
                 }
