@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FileBrowserController;
+use App\Http\Controllers\Admin\GalleryBulkUploadController;
 use App\Http\Controllers\Admin\GalleryCategoryController;
 use App\Http\Controllers\Admin\GalleryItemController;
 use App\Http\Controllers\Admin\HealthController;
@@ -76,6 +77,12 @@ Route::resource('gallery-categories', GalleryCategoryController::class)->except(
 Route::patch('gallery-categories/{galleryCategory}/restore', [GalleryCategoryController::class, 'restore'])->name('gallery-categories.restore')->withTrashed();
 
 // Gallery Items
+// Toplu yükleme kaynak rotalarından önce: gallery-items/{galleryItem} kalıbı
+// "toplu-yukleme"yi de yakalar, sıra tersine dönerse ekran öğe düzenlemeye gider.
+Route::get('gallery-items/toplu-yukleme', [GalleryBulkUploadController::class, 'create'])->name('gallery-items.bulk.create');
+Route::post('gallery-items/toplu-yukleme', [GalleryBulkUploadController::class, 'store'])->name('gallery-items.bulk.store');
+Route::put('gallery-items/toplu-yukleme', [GalleryBulkUploadController::class, 'update'])->name('gallery-items.bulk.update');
+Route::delete('gallery-items/toplu-yukleme/{galleryItem}', [GalleryBulkUploadController::class, 'destroy'])->name('gallery-items.bulk.destroy');
 Route::resource('gallery-items', GalleryItemController::class)->except('show');
 Route::patch('gallery-items/{galleryItem}/restore', [GalleryItemController::class, 'restore'])->name('gallery-items.restore')->withTrashed();
 
