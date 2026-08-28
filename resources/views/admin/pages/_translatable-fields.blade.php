@@ -115,7 +115,7 @@
                                 class="@error("translations.{$language->code}.content") is-invalid @enderror"
                                 id="content_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][content]"
-                                       data-validation-engine="validate[required,maxSize[100000]]"
+                                       data-validation-engine="validate[required]"
                                 data-prompt-target="content_error_{{ $language->code }}"
                                 rows="12"
                             >{{ old("translations.{$language->code}.content", $translation?->content) }}</textarea>

@@ -198,7 +198,7 @@
                     id="body_{{ $language->code }}"
                     name="translations[{{ $language->code }}][body]"
                     rows="12"
-                    data-validation-engine="{{ $rules(['maxSize[200000]']) }}"
+                    data-validation-engine="{{ $rules() }}"
                     data-prompt-target="body_error_{{ $language->code }}"
                   >{{ old("translations.{$language->code}.body", $translation?->body) }}</textarea>
                   {{-- TinyMCE hides the textarea, so the message needs its own slot. --}}
