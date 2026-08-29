@@ -98,6 +98,9 @@ return [
     ],
 
     'gallery' => [
+        'all' => 'All',
+        'type_filter' => 'Type filter',
+        'no_results' => 'No items match this filter',
         'view'    => 'Enlarge',
         'watch'   => 'Watch',
         'meta_desc' => 'Photo and video gallery. Take a closer look at us through our shots and videos.',

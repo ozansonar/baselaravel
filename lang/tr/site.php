@@ -101,6 +101,9 @@ return [
     ],
 
     'gallery' => [
+        'all' => 'Tümü',
+        'type_filter' => 'Tür filtresi',
+        'no_results' => 'Bu süzgece uyan görsel bulunamadı',
         'view'    => 'Büyüt',
         'watch'   => 'İzle',
         'meta_desc' => 'Fotoğraf ve video galerisi. Kareler ve videolarla bize daha yakından bakın.',
