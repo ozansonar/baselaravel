@@ -22,7 +22,9 @@ final class RssFeedController extends Controller
         $content = view('feed', [
             'posts'    => $posts,
             'siteName' => $this->settingService->get('site_name', config('app.name')),
-            'siteDesc' => $this->settingService->get('site_description', 'Modern, hızlı ve güvenilir kurumsal çözümler.'),
+            // Ayarlarda site açıklaması yoksa devreye giren metin de çevrilebilir
+            // olmalı: sabit yazılmış Türkçe cümle İngilizce akışa da düşüyordu.
+            'siteDesc' => $this->settingService->get('site_description', __('site.misc.site_description')),
         ])->render();
 
         return response($content, 200)

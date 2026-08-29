@@ -1,10 +1,10 @@
 {!! '<?xml version="1.0" encoding="UTF-8"?>' !!}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>{{ $siteName }} - Blog</title>
+        <title>{{ __('site.blog.feed_title', ['site' => $siteName]) }}</title>
         <link>{{ route('blog.index') }}</link>
         <description>{{ $siteDesc }}</description>
-        <language>tr</language>
+        <language>{{ app()->getLocale() }}</language>
         <lastBuildDate>{{ $posts->first()?->published_at?->toRssString() ?? now()->toRssString() }}</lastBuildDate>
         <atom:link href="{{ route('feed') }}" rel="self" type="application/rss+xml" />
         @foreach($posts as $post)

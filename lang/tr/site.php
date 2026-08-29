@@ -67,6 +67,8 @@ return [
     ],
 
     'blog' => [
+        'eyebrow' => 'Blog',
+        'feed_title' => ':site Blog',
         'comment_recaptcha' => 'Lütfen robot olmadığınızı doğrulayın.',
         'featured'  => 'Öne çıkan',
         'read_time' => ':count dk okuma',
@@ -182,6 +184,7 @@ return [
     ],
 
     'login' => [
+        'email_ph' => 'ornek@mail.com',
         'welcome_back' => 'Tekrar hoş geldiniz',
         'title'      => 'Giriş Yap',
         'subtitle'   => 'Hesabınıza giriş yapın',
@@ -194,6 +197,8 @@ return [
     ],
 
     'register' => [
+        'email_ph' => 'ornek@mail.com',
+        'phone_ph' => '05XX XXX XX XX',
         'first_name_ph' => 'Adınız',
         'last_name_ph' => 'Soyadınız',
         'join_us' => 'Aramıza katılın',
@@ -204,12 +209,13 @@ return [
         'password_hint' => 'En az 8 karakter kullanın.',
         'title'          => 'Üye Ol',
         'subtitle'       => 'Yeni bir hesap oluşturun',
-        'have_account'   => 'Zaten hesabınız var mı?',
+        'have_account'   => 'Zaten üye misiniz?',
         'submit'         => 'Hesap Oluştur',
         'password_again' => 'Şifre (Tekrar)',
     ],
 
     'password' => [
+        'email_ph' => 'ornek@mail.com',
         'reset_subtitle' => 'Hesabınız için yeni bir şifre oluşturun',
         'forgot_title'    => 'Şifrenizi mi unuttunuz?',
         'forgot_subtitle' => 'E-postanıza sıfırlama bağlantısı gönderelim',
@@ -250,6 +256,7 @@ return [
     ],
 
     'misc' => [
+        'main_nav' => 'Ana navigasyon',
         'site_description' => 'Modern, hızlı ve güvenilir kurumsal çözümler.',
         'retry' => 'Tekrar Dene',
         'rights' => 'Tüm hakları saklıdır.',
@@ -278,6 +285,8 @@ return [
 
 
     'home' => [
+        'blog_eyebrow' => 'Blog',
+        'slide_aria' => 'Slayt :number',
         // Kahraman altındaki güven şeridi — sayfanın ilk ekranında ne
         // sunulduğunu tek bakışta söyleyen üç madde.
         'trust_1' => 'Panelden yönetilen içerik',

@@ -4,7 +4,7 @@
 @endphp
 
 <header class="site-header">
-    <nav class="navbar navbar-expand-lg" aria-label="Ana navigasyon">
+    <nav class="navbar navbar-expand-lg" aria-label="{{ __('site.misc.main_nav') }}">
         <div class="container">
 
             {{-- Brand --}}

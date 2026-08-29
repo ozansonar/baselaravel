@@ -18,7 +18,7 @@
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email') }}"
                        data-validation-engine="validate[required,custom[email],maxSize[255]]"
-                       placeholder="ornek@mail.com" autofocus autocomplete="email">
+                       placeholder="{{ __('site.password.email_ph') }}" autofocus autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

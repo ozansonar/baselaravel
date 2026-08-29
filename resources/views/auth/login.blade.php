@@ -18,7 +18,7 @@
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email') }}"
                        data-validation-engine="validate[required,custom[email],maxSize[255]]"
-                       placeholder="ornek@mail.com" autofocus autocomplete="email">
+                       placeholder="{{ __('site.login.email_ph') }}" autofocus autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -58,6 +58,6 @@
     </form>
 
     <p class="text-center text-muted mt-4 mb-0">
-        Hesabınız yok mu? <a href="{{ route('register') }}" class="fw-semibold">{{ __('site.auth.register') }}</a>
+        {{ __('site.login.no_account') }} <a href="{{ route('register') }}" class="fw-semibold">{{ __('site.auth.register') }}</a>
     </p>
 @endsection
