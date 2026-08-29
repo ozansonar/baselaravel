@@ -26,6 +26,8 @@ use App\Observers\RedirectObserver;
 use App\Observers\UserObserver;
 use App\Services\MenuItemService;
 use App\Services\MenuService;
+use App\Services\LanguageService;
+use App\Services\LocalizedUrlService;
 use App\Services\TranslationService;
 use App\Translation\DatabaseOverrideLoader;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -54,6 +56,14 @@ class AppServiceProvider extends ServiceProvider
         // per-request memo of the overrides. A second instance would clear its
         // own memo on save while the loader kept serving the stale one.
         $this->app->singleton(TranslationService::class);
+
+        // Dil listesi ve adres çevirici istek içinde onlarca kez soruluyor
+        // (locale kapsamı, hreflang, dil değiştirici, kanonik, alt bilgi
+        // bağlantıları). İkisi de cevabı örnekte saklıyor; singleton
+        // olmasalardı her app() çağrısı yeni bir örnek doğurur ve saklama
+        // hiç işe yaramazdı.
+        $this->app->singleton(LanguageService::class);
+        $this->app->singleton(LocalizedUrlService::class);
 
         // Interface texts stay in lang/ files; the panel's edits are laid over
         // them at load time. Decorating the loader keeps every __() call and

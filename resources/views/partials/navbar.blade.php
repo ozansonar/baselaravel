@@ -35,7 +35,7 @@
                             <span>{{ auth()->user()->full_name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            @if(auth()->user()->roles()->whereHas('permissions')->exists())
+                            @if(auth()->user()->canAccessPanel())
                                 <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge me-2"></i>{{ __('site.auth.admin_panel') }}</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             @endif
@@ -99,7 +99,7 @@
         <div class="mt-auto d-grid gap-2 pt-3">
             @auth
                 <a href="{{ route('account.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-house-user"></i> {{ __('site.auth.account') }}</a>
-                @if(auth()->user()->roles()->whereHas('permissions')->exists())
+                @if(auth()->user()->canAccessPanel())
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-light"><i class="fa-solid fa-gauge"></i> {{ __('site.auth.admin_panel') }}</a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="d-grid">

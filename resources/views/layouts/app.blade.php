@@ -219,7 +219,7 @@
     @endif
 
     {{-- Analytics tracker (async; panel kullanıcıları sayılmaz) --}}
-    @unless(auth()->check() && auth()->user()->roles()->whereHas('permissions')->exists())
+    @unless(auth()->check() && auth()->user()->canAccessPanel())
     <script src="{{ versioned_asset('js/analytics-tracker.js') }}" defer></script>
     @endunless
 
