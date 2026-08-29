@@ -25,6 +25,39 @@ use Illuminate\Support\Facades\Route as RouteFacade;
  */
 final class LocalizedUrlService
 {
+    /**
+     * İstek içi hatırlatıcılar.
+     *
+     * Aynı adres bir sayfada defalarca çözülüyor: hreflang etiketleri,
+     * dil değiştirici (başlıkta ve mobil menüde iki kez), içeriğin çeviri
+     * bağlantısı, kanonik ve alt bilgideki sayfa bağlantıları. Her çözüm
+     * iki-üç sorgu demek; blog detayında aynı yazı dokuz kez sorgulanıyordu.
+     *
+     * Cevaplar bir istek boyunca değişmediği için ilk çözümde saklanıyor.
+     * Servis singleton olarak bağlı, yoksa her app() çağrısı yeni bir örnek
+     * doğurur ve hatırlatıcı hiç işe yaramazdı.
+     *
+     * @var array<string, string|null>
+     */
+    private array $routeMemo = [];
+
+    /** @var array<string, array<string, mixed>|null> */
+    private array $parameterMemo = [];
+
+    /** @var array<string, array<string, string>> */
+    private array $alternatesMemo = [];
+
+    /**
+     * Slug → çeviri grubu.
+     *
+     * Grup araması hedef dile bakmıyor (sıralama ipucu isteğin kendi dilini
+     * kullanıyor), yani aynı slug için sonuç her dilde aynı. Dil başına
+     * yeniden sorulunca iki dilli bir sayfada aynı sorgu iki kez gidiyordu.
+     *
+     * @var array<string, string|null>
+     */
+    private array $groupMemo = [];
+
     public function __construct(
         private readonly LanguageService $languages,
     ) {}
@@ -57,6 +90,12 @@ final class LocalizedUrlService
      */
     public function alternatesFor(string $routeName, array $parameters): array
     {
+        $anahtar = $this->memoKey($routeName, $parameters, '*');
+
+        if (isset($this->alternatesMemo[$anahtar])) {
+            return $this->alternatesMemo[$anahtar];
+        }
+
         $urls = [];
 
         foreach ($this->languages->active() as $language) {
@@ -67,7 +106,7 @@ final class LocalizedUrlService
             }
         }
 
-        return $urls;
+        return $this->alternatesMemo[$anahtar] = $urls;
     }
 
     /**
@@ -188,18 +227,67 @@ final class LocalizedUrlService
 
         unset($parameters['locale']);
 
-        $translated = match ($routeName) {
-            'pages.show'    => $this->pageParameters($parameters, $locale),
-            'blog.show'     => $this->postParameters($parameters, $locale),
-            'blog.category' => $this->categoryParameters($parameters, $locale),
-            default         => $parameters,
-        };
+        $anahtar = $this->memoKey($routeName, $parameters, $locale);
 
-        if ($translated === null) {
-            return null;
+        if (array_key_exists($anahtar, $this->routeMemo)) {
+            return $this->routeMemo[$anahtar];
         }
 
-        return route($routeName, array_merge(['locale' => $locale], $translated));
+        // Çeviri araması sorguya gidiyor; sonucu ayrıca saklamak, aynı
+        // adresi başka bir yerden isteyen çağrının da sorgusuz dönmesini
+        // sağlıyor (kanonik ile hreflang aynı yazıyı soruyor).
+        if (array_key_exists($anahtar, $this->parameterMemo)) {
+            $translated = $this->parameterMemo[$anahtar];
+        } else {
+            $translated = match ($routeName) {
+                'pages.show'    => $this->pageParameters($parameters, $locale),
+                'blog.show'     => $this->postParameters($parameters, $locale),
+                'blog.category' => $this->categoryParameters($parameters, $locale),
+                default         => $parameters,
+            };
+
+            $this->parameterMemo[$anahtar] = $translated;
+        }
+
+        if ($translated === null) {
+            return $this->routeMemo[$anahtar] = null;
+        }
+
+        return $this->routeMemo[$anahtar] = route($routeName, array_merge(['locale' => $locale], $translated));
+    }
+
+    /**
+     * Slug'ın çeviri grubunu bulur ve istek boyunca saklar.
+     *
+     * @param class-string<\Illuminate\Database\Eloquent\Model> $modelClass
+     */
+    private function groupOf(string $modelClass, string $slug): ?string
+    {
+        $anahtar = $modelClass . '|' . $slug;
+
+        if (array_key_exists($anahtar, $this->groupMemo)) {
+            return $this->groupMemo[$anahtar];
+        }
+
+        $group = $modelClass::query()
+            ->where('slug', $slug)
+            ->orderByRaw('case when locale = ? then 0 else 1 end', [app()->getLocale()])
+            ->value('lang_group_id');
+
+        return $this->groupMemo[$anahtar] = is_string($group) ? $group : null;
+    }
+
+    /**
+     * Hatırlatıcı anahtarı: rota adı + parametreler + dil.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    private function memoKey(string $routeName, array $parameters, string $locale): string
+    {
+        unset($parameters['locale']);
+        ksort($parameters);
+
+        return $routeName . '|' . $locale . '|' . json_encode($parameters);
     }
 
     /**
@@ -214,10 +302,7 @@ final class LocalizedUrlService
             return null;
         }
 
-        $group = Page::query()
-            ->where('slug', $slug)
-            ->orderByRaw('case when locale = ? then 0 else 1 end', [app()->getLocale()])
-            ->value('lang_group_id');
+        $group = $this->groupOf(Page::class, $slug);
 
         if ($group === null) {
             return null;
@@ -244,10 +329,7 @@ final class LocalizedUrlService
             return null;
         }
 
-        $group = BlogPost::query()
-            ->where('slug', $slug)
-            ->orderByRaw('case when locale = ? then 0 else 1 end', [app()->getLocale()])
-            ->value('lang_group_id');
+        $group = $this->groupOf(BlogPost::class, $slug);
 
         if ($group === null) {
             return null;
@@ -282,10 +364,7 @@ final class LocalizedUrlService
             return null;
         }
 
-        $group = BlogCategory::query()
-            ->where('slug', $slug)
-            ->orderByRaw('case when locale = ? then 0 else 1 end', [app()->getLocale()])
-            ->value('lang_group_id');
+        $group = $this->groupOf(BlogCategory::class, $slug);
 
         if ($group === null) {
             return null;

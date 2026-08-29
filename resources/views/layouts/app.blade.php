@@ -84,7 +84,8 @@
     <link rel="apple-touch-icon" href="{{ upload_url($siteFavicon) }}">
     @else
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
+    {{-- iOS .ico okumuyor; ana ekrana eklenen kısayol için PNG gerekiyor. --}}
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
     @endif
     {{-- Tarayıcı çubuğu etkin kiple aynı renkte olsun; tek renk verilse
          koyu kipte açık bir şerit kalıyordu. --}}
@@ -218,7 +219,7 @@
     @endif
 
     {{-- Analytics tracker (async; panel kullanıcıları sayılmaz) --}}
-    @unless(auth()->check() && auth()->user()->roles()->whereHas('permissions')->exists())
+    @unless(auth()->check() && auth()->user()->canAccessPanel())
     <script src="{{ versioned_asset('js/analytics-tracker.js') }}" defer></script>
     @endunless
 

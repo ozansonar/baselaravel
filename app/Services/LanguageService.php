@@ -24,10 +24,30 @@ final class LanguageService
     private const CACHE_TTL = 86400;
 
     /**
+     * İstek içi hatırlatıcı.
+     *
+     * Cache::remember her çağrıda önbellek sürücüsüne gidiyor; sürücü
+     * veritabanıysa (bu projenin varsayılanı) her çağrı bir SELECT demek.
+     * Dil listesi bir istek boyunca onlarca kez soruluyor — locale kapsamı,
+     * hreflang, dil değiştirici, çeviri bağlantıları — ve tek bir sayfada
+     * yirmiden fazla "select * from cache" doğuruyordu. Cevap istek içinde
+     * değişmediği için ilk okumada burada saklanıyor.
+     */
+    private ?Collection $activeMemo = null;
+
+    private ?Language $defaultMemo = null;
+
+    private bool $defaultResolved = false;
+
+    /**
      * @return Collection<int, Language>
      */
     public function active(): Collection
     {
+        if ($this->activeMemo !== null) {
+            return $this->activeMemo;
+        }
+
         /** @var Collection<int, Language> $languages */
         $languages = Cache::remember(
             self::CACHE_KEY_ACTIVE,
@@ -35,7 +55,7 @@ final class LanguageService
             fn () => Language::active()->sorted()->get(),
         );
 
-        return $languages;
+        return $this->activeMemo = $languages;
     }
 
     /**
@@ -52,6 +72,10 @@ final class LanguageService
      */
     public function default(): ?Language
     {
+        if ($this->defaultResolved) {
+            return $this->defaultMemo;
+        }
+
         /** @var Language|null $language */
         $language = Cache::remember(
             self::CACHE_KEY_DEFAULT,
@@ -60,7 +84,9 @@ final class LanguageService
                 ?? Language::active()->sorted()->first(),
         );
 
-        return $language;
+        $this->defaultResolved = true;
+
+        return $this->defaultMemo = $language;
     }
 
     public function defaultCode(): string
@@ -300,6 +326,12 @@ final class LanguageService
 
     public function clearCache(): void
     {
+        // İstek içi hatırlatıcı da düşüyor: aynı istekte dil eklenip hemen
+        // liste sorulduğunda (panelde olan budur) eski liste dönerdi.
+        $this->activeMemo = null;
+        $this->defaultMemo = null;
+        $this->defaultResolved = false;
+
         Cache::forget(self::CACHE_KEY_ACTIVE);
         Cache::forget(self::CACHE_KEY_DEFAULT);
         // Switching a language on or off adds or removes a whole language's

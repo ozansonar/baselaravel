@@ -13,8 +13,10 @@
     @endphp
     @if($adminFavicon)
     <link rel="icon" href="{{ upload_url($adminFavicon) }}">
+    <link rel="apple-touch-icon" href="{{ upload_url($adminFavicon) }}">
     @else
     <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
     @endif
 
     {{-- CSS (Self-hosted) --}}

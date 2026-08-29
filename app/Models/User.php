@@ -73,6 +73,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return BelongsToMany<Role, $this>
      */
+    /** canAccessPanel() için istek içi hatırlatıcı; sütun değil. */
+    private ?bool $panelAccess = null;
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
@@ -118,6 +121,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->roles
             ->loadMissing('permissions')
             ->contains(fn (Role $role): bool => $role->permissions->contains('key', $key));
+    }
+
+    /**
+     * Kullanıcının panele girebilecek bir rolü var mı?
+     *
+     * Aynı soru ön yüzde üç yerde soruluyordu (başlıktaki menü iki kez,
+     * düzendeki analitik koşulu bir kez) ve her biri ayrı bir exists sorgusu
+     * atıyordu. Cevap istek boyunca değişmiyor; ilk sorguda saklanıyor.
+     */
+    public function canAccessPanel(): bool
+    {
+        return $this->panelAccess ??= $this->roles()->whereHas('permissions')->exists();
     }
 
     /**

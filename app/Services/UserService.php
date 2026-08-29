@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use App\Observers\DashboardStatsObserver;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -219,7 +220,10 @@ final class UserService
         $silinen = DB::transaction(fn (): int => User::whereIn('id', $ids)->delete());
 
         if ($silinen > 0) {
+            // Toplu silme sorgu kurucusundan gidiyor, model olayı doğmuyor:
+            // panonun önbelleğini gözlemci değil bu satır düşürüyor.
             Cache::forget('admin_user_stats');
+            Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }
 
         return $silinen;
@@ -241,6 +245,7 @@ final class UserService
 
         if ($geriYuklenen > 0) {
             Cache::forget('admin_user_stats');
+            Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }
 
         return $geriYuklenen;
