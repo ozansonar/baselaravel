@@ -44,7 +44,8 @@ final class BlogService
      */
     public function getRelatedPosts(BlogPost $post, int $limit = 4): Collection
     {
-        return BlogPost::with(['category', 'author'])
+        /** @var Collection<int, BlogPost> $related */
+        $related = BlogPost::query()
             ->published()
             ->localeWithFallback()
             ->where('id', '!=', $post->id)
@@ -52,6 +53,35 @@ final class BlogService
             ->recent()
             ->limit($limit)
             ->get();
+
+        if ($related->isEmpty()) {
+            return $related;
+        }
+
+        // İlgili yazılar tanımı gereği aynı kategoriden: kategori zaten
+        // elimizde, yeniden sorulmasına gerek yok. Sorulunca aynı satır
+        // ikinci kez çekiliyordu (blog detayında mükerrer sorgu buydu).
+        $post->loadMissing('category');
+
+        if ($post->category !== null) {
+            $related->each(fn (BlogPost $item) => $item->setRelation('category', $post->category));
+        }
+
+        // Yazar için aynı garanti yok; yalnız aynı yazara ait olanlara
+        // elimizdeki kayıt veriliyor, kalanlar tek sorguda yükleniyor.
+        $post->loadMissing('author');
+
+        if ($post->author !== null) {
+            $related->each(function (BlogPost $item) use ($post): void {
+                if ($item->user_id === $post->user_id) {
+                    $item->setRelation('author', $post->author);
+                }
+            });
+        }
+
+        $related->loadMissing('author');
+
+        return $related;
     }
 
     public function paginatePublished(int $perPage = 9): LengthAwarePaginator

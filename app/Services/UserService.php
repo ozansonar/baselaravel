@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Exceptions\EmailAlreadyTakenException;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -241,6 +242,15 @@ final class UserService
             return 0;
         }
 
+        // Adresi bu arada başkasına geçenler atlanıyor. Geri yüklenselerdi iki
+        // canlı kullanıcı aynı adrese binerdi; veritabanı zaten reddeder ama
+        // toplu işlemin tamamı tek bir çakışma yüzünden düşerdi.
+        $ids = $this->restorableIds($ids);
+
+        if ($ids === []) {
+            return 0;
+        }
+
         $geriYuklenen = DB::transaction(fn (): int => User::onlyTrashed()->whereIn('id', $ids)->restore());
 
         if ($geriYuklenen > 0) {
@@ -251,9 +261,63 @@ final class UserService
         return $geriYuklenen;
     }
 
+    /**
+     * @throws EmailAlreadyTakenException adres bu arada başka bir hesaba geçmişse
+     */
     public function restore(User $user): void
     {
+        if ($this->emailTakenByAnother($user)) {
+            throw EmailAlreadyTakenException::for((string) $user->email);
+        }
+
         $user->restore();
         Cache::forget('admin_user_stats');
+    }
+
+    /**
+     * Kullanıcının adresini yaşayan başka biri tutuyor mu?
+     */
+    private function emailTakenByAnother(User $user): bool
+    {
+        return User::query()
+            ->where('email', $user->email)
+            ->whereKeyNot($user->getKey())
+            ->exists();
+    }
+
+    /**
+     * Verilen kimliklerden gerçekten geri yüklenebilecek olanlar.
+     *
+     * İki eleme var. Birincisi adresi yaşayan bir hesaba geçmiş olanlar.
+     * İkincisi çöpte aynı adresi paylaşan kayıtlar: aynı adres birden çok kez
+     * silinmiş olabilir ve hepsi birden geri yüklenirse bu kez kendi
+     * aralarında çakışırlar, o yüzden her adresten yalnız biri geçiyor.
+     *
+     * @param  list<int> $ids
+     * @return list<int>
+     */
+    private function restorableIds(array $ids): array
+    {
+        $copteki = User::onlyTrashed()
+            ->whereIn('id', $ids)
+            ->orderBy('id')
+            ->pluck('email', 'id');
+
+        if ($copteki->isEmpty()) {
+            return [];
+        }
+
+        $yasayan = User::query()
+            ->whereIn('email', $copteki->values()->unique()->all())
+            ->pluck('email')
+            ->all();
+
+        return $copteki
+            ->reject(fn (?string $email): bool => in_array($email, $yasayan, true))
+            ->unique()
+            ->keys()
+            ->map(static fn ($id): int => (int) $id)
+            ->values()
+            ->all();
     }
 }

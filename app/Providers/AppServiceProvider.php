@@ -62,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
         // bağlantıları). İkisi de cevabı örnekte saklıyor; singleton
         // olmasalardı her app() çağrısı yeni bir örnek doğurur ve saklama
         // hiç işe yaramazdı.
+        $this->app->singleton(\App\Services\TranslationGroupResolver::class);
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 
@@ -125,6 +126,11 @@ class AppServiceProvider extends ServiceProvider
         // Share dynamic header menu with navbar partial
         View::composer('partials.navbar', function (\Illuminate\View\View $view): void {
             $view->with('headerMenu', app(\App\Services\MenuService::class)->getByLocation('header'));
+        });
+
+        // Alt bilginin bağlantı sütunları da menü modülünden geliyor.
+        View::composer('partials.footer', function (\Illuminate\View\View $view): void {
+            $view->with('footerMenu', app(\App\Services\MenuService::class)->getByLocation('footer'));
         });
 
         // Share active popups for the current page with the front layout

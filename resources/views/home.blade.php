@@ -16,7 +16,7 @@
                     <div class="carousel-indicators">
                         @foreach($sliders as $i => $s)
                             <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="{{ $i }}"
-                                    class="{{ $i === 0 ? 'active' : '' }}" aria-label="Slayt {{ $i + 1 }}"></button>
+                                    class="{{ $i === 0 ? 'active' : '' }}" aria-label="{{ __('site.home.slide_aria', ['number' => $i + 1]) }}"></button>
                         @endforeach
                     </div>
                     @endif
@@ -241,7 +241,7 @@
             <div class="container">
                 <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4" data-reveal>
                     <div>
-                        <span class="section__eyebrow"><i class="fa-solid fa-newspaper"></i> Blog</span>
+                        <span class="section__eyebrow"><i class="fa-solid fa-newspaper"></i> {{ __('site.home.blog_eyebrow') }}</span>
                         <h2 class="section__title mb-0">{{ __('site.blog.latest') }}</h2>
                     </div>
                     <a href="{{ route('blog.index') }}" class="btn btn-outline-primary">{{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i></a>

@@ -215,5 +215,8 @@ final class GalleryCategoryService
     {
         $this->forgetLocalized('gallery_categories.active');
         Cache::forget('admin.gallery_categories.stats');
+        // Kategorilerin süzülmüş adresleri sitemap'te ayrı birer giriş; adı,
+        // slug'ı veya durumu değişen bir kategori oraya hemen yansımalı.
+        Cache::forget('sitemap.urls');
     }
 }

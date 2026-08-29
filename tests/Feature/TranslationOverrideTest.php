@@ -344,7 +344,11 @@ class TranslationOverrideTest extends TestCase
 
         // The test client sends Accept-Language: en by default, so the locale
         // has to be asked for explicitly.
-        $html = $this->get('/tr')->getContent();
+        //
+        // Sayfa anasayfadan galeriye taşındı: nav.home artık anasayfada değil,
+        // iç sayfaların kırıntı yolunda basılıyor. Alt bilgi bağlantıları menü
+        // modülüne geçince anasayfa bu anahtarı kullanmayı bıraktı.
+        $html = $this->get('/tr/galeri')->getContent();
         $this->assertStringContainsString('Ana Sayfam', $html);
     }
 

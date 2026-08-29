@@ -20,7 +20,7 @@
                     @endif
                 </ol>
             </nav>
-            <span class="page-hero__eyebrow"><i class="fa-solid fa-newspaper"></i> Blog</span>
+            <span class="page-hero__eyebrow"><i class="fa-solid fa-newspaper"></i> {{ __('site.blog.eyebrow') }}</span>
             <h1 class="page-hero__title">{{ $activeCategory?->name ?? __('site.blog.title') }}</h1>
             <p class="page-hero__lead">{{ __('site.blog.lead') }}</p>
         </div>

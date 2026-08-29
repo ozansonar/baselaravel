@@ -47,19 +47,11 @@ final class LocalizedUrlService
     /** @var array<string, array<string, string>> */
     private array $alternatesMemo = [];
 
-    /**
-     * Slug → çeviri grubu.
-     *
-     * Grup araması hedef dile bakmıyor (sıralama ipucu isteğin kendi dilini
-     * kullanıyor), yani aynı slug için sonuç her dilde aynı. Dil başına
-     * yeniden sorulunca iki dilli bir sayfada aynı sorgu iki kez gidiyordu.
-     *
-     * @var array<string, string|null>
-     */
-    private array $groupMemo = [];
-
     public function __construct(
         private readonly LanguageService $languages,
+        // Grup araması menü bağlantılarında da yapılıyor; iki taraf aynı
+        // çözücüyü paylaşmasa sorgu her sayfada iki kez giderdi.
+        private readonly TranslationGroupResolver $groups,
     ) {}
 
     /**
@@ -257,27 +249,6 @@ final class LocalizedUrlService
     }
 
     /**
-     * Slug'ın çeviri grubunu bulur ve istek boyunca saklar.
-     *
-     * @param class-string<\Illuminate\Database\Eloquent\Model> $modelClass
-     */
-    private function groupOf(string $modelClass, string $slug): ?string
-    {
-        $anahtar = $modelClass . '|' . $slug;
-
-        if (array_key_exists($anahtar, $this->groupMemo)) {
-            return $this->groupMemo[$anahtar];
-        }
-
-        $group = $modelClass::query()
-            ->where('slug', $slug)
-            ->orderByRaw('case when locale = ? then 0 else 1 end', [app()->getLocale()])
-            ->value('lang_group_id');
-
-        return $this->groupMemo[$anahtar] = is_string($group) ? $group : null;
-    }
-
-    /**
      * Hatırlatıcı anahtarı: rota adı + parametreler + dil.
      *
      * @param array<string, mixed> $parameters
@@ -302,7 +273,7 @@ final class LocalizedUrlService
             return null;
         }
 
-        $group = $this->groupOf(Page::class, $slug);
+        $group = $this->groups->resolve(Page::class, $slug);
 
         if ($group === null) {
             return null;
@@ -329,7 +300,7 @@ final class LocalizedUrlService
             return null;
         }
 
-        $group = $this->groupOf(BlogPost::class, $slug);
+        $group = $this->groups->resolve(BlogPost::class, $slug);
 
         if ($group === null) {
             return null;
@@ -364,7 +335,7 @@ final class LocalizedUrlService
             return null;
         }
 
-        $group = $this->groupOf(BlogCategory::class, $slug);
+        $group = $this->groups->resolve(BlogCategory::class, $slug);
 
         if ($group === null) {
             return null;

@@ -54,6 +54,67 @@ final class GalleryService
         ];
     }
 
+    // ── Ön yüz galerisi ──
+
+    /**
+     * Ön yüzde bir sayfaya kaç öğe düşeceği.
+     *
+     * Görünüm de sayfalama da bu sayıyı okur; ikisi ayrı yazılsaydı "kaç
+     * kayıt var" özeti ile ekrandaki kutu sayısı zamanla ayrışırdı.
+     */
+    public const FRONT_PER_PAGE = 10;
+
+    /**
+     * Ziyaretçinin gördüğü galeri: süzgeçler uygulanmış, sayfalanmış.
+     *
+     * Eskiden bütün galeri tek seferde belleğe çekiliyordu; iki yüz fotoğraflı
+     * bir sitede bu iki yüz kaydın tamamını okuyup on tanesini basmak demekti.
+     * Artık sayfa neyi gösteriyorsa onu sorguluyor.
+     *
+     * @param  string|null $categorySlug null ya da tanınmayan slug → tümü
+     * @param  string|null $type         'photo' | 'video' | null → tümü
+     * @return LengthAwarePaginator<int, GalleryItem>
+     */
+    public function paginateActive(
+        ?string $categorySlug = null,
+        ?string $type = null,
+        int $perPage = self::FRONT_PER_PAGE,
+    ): LengthAwarePaginator {
+        $query = GalleryItem::active()->localeWithFallback()->sorted()->with('galleryCategory');
+
+        if ($categorySlug !== null && $categorySlug !== '') {
+            $this->scopeToCategorySlug($query, $categorySlug);
+        }
+
+        if ($galleryType = GalleryType::tryFrom((string) $type)) {
+            $query->where('type', $galleryType);
+        }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Sorguyu bir kategoriye daraltır — kimlikle değil, çeviri grubuyla.
+     *
+     * Kategorinin her dilde ayrı bir satırı var ve öğe kendi dilindeki satıra
+     * bağlı. Ziyaretçinin dilindeki kategori kimliğine göre süzülseydi, o dile
+     * çevrilmemiş olduğu için varsayılan dilden düşen öğeler —ki sayfa onları
+     * gösteriyor— süzgecin dışında kalır, kategori boş görünürdü.
+     *
+     * @param Builder<GalleryItem> $query
+     */
+    private function scopeToCategorySlug(Builder $query, string $slug): void
+    {
+        $query->whereIn(
+            'gallery_category_id',
+            \App\Models\GalleryCategory::query()
+                ->select('id')
+                ->whereIn('lang_group_id', \App\Models\GalleryCategory::query()
+                    ->select('lang_group_id')
+                    ->where('slug', $slug)),
+        );
+    }
+
     /**
      * @param array<string, mixed> $filters
      */

@@ -286,4 +286,217 @@ class SitemapTest extends TestCase
             $this->get($url['loc'])->assertOk();
         }
     }
+
+    // ── Galeri: süzülmüş kategori adresleri ──
+
+    /**
+     * @return array{tr: GalleryCategory, en: GalleryCategory}
+     */
+    private function galleryCategoryPair(string $trSlug = 'sinama-ofis', string $enSlug = 'sinama-office'): array
+    {
+        $tr = GalleryCategory::create([
+            'locale' => 'tr', 'name' => 'Sinama Ofis', 'slug' => $trSlug, 'is_active' => true,
+        ]);
+
+        $en = GalleryCategory::create([
+            'locale' => 'en', 'lang_group_id' => $tr->lang_group_id,
+            'name' => 'Sinama Office', 'slug' => $enSlug, 'is_active' => true,
+        ]);
+
+        return ['tr' => $tr, 'en' => $en];
+    }
+
+    private function photo(string $locale, string $title, GalleryCategory $category, int $sort = 0): GalleryItem
+    {
+        return GalleryItem::create([
+            'locale'              => $locale,
+            'gallery_category_id' => $category->id,
+            'title'               => $title,
+            'type'                => 'photo',
+            'image'               => 'gallery/' . \Illuminate\Support\Str::slug($title) . '.webp',
+            'is_active'           => true,
+            'sort_order'          => $sort,
+        ]);
+    }
+
+    /**
+     * Kategori süzgeci ekranda gerçek bağlantılar üretiyor: kendi başlığı,
+     * kendi H1'i ve kendini gösteren canonical'ı olan sayfalar. Sitemap
+     * dışında kalsalardı arama motoru onlara ancak gezinerek ulaşırdı.
+     */
+    public function test_a_gallery_category_gets_its_own_address(): void
+    {
+        $pair = $this->galleryCategoryPair();
+        $this->photo('tr', 'Ofis karesi', $pair['tr']);
+
+        $this->assertNotNull(
+            $this->entry(route('gallery', ['locale' => 'tr', 'kategori' => 'sinama-ofis'])),
+            'Kategori süzgecinin adresi sitemap\'te yok',
+        );
+    }
+
+    /** İki dildeki kategori aynı kategorinin iki sürümü; birbirlerini göstermeli. */
+    public function test_the_two_language_versions_of_a_category_point_at_each_other(): void
+    {
+        $pair = $this->galleryCategoryPair();
+        $this->photo('tr', 'Ofis karesi', $pair['tr']);
+        $this->photo('en', 'Office frame', $pair['en']);
+
+        $trUrl = route('gallery', ['locale' => 'tr', 'kategori' => 'sinama-ofis']);
+        $enUrl = route('gallery', ['locale' => 'en', 'kategori' => 'sinama-office']);
+
+        $tr = $this->entry($trUrl);
+        $en = $this->entry($enUrl);
+
+        $this->assertNotNull($tr);
+        $this->assertNotNull($en);
+        $this->assertSame($enUrl, $tr['alternates']['en'] ?? null);
+        $this->assertSame($trUrl, $en['alternates']['tr'] ?? null);
+    }
+
+    /**
+     * İçi boş kategori sitemap'e girmemeli: arama motoruna boş bir sayfa
+     * göstermek soft-404 sayılıyor.
+     */
+    public function test_an_empty_category_is_not_advertised(): void
+    {
+        $this->galleryCategoryPair('bos-kategori', 'empty-category');
+
+        $this->assertNull(
+            $this->entry(route('gallery', ['locale' => 'tr', 'kategori' => 'bos-kategori'])),
+            'Karesi olmayan kategori sitemap\'e girdi',
+        );
+    }
+
+    public function test_a_passive_category_is_not_advertised(): void
+    {
+        $pair = $this->galleryCategoryPair('pasif-kategori', 'passive-category');
+        $this->photo('tr', 'Bir kare', $pair['tr']);
+        $pair['tr']->update(['is_active' => false]);
+        $pair['en']->update(['is_active' => false]);
+
+        $this->assertNull($this->entry(route('gallery', ['locale' => 'tr', 'kategori' => 'pasif-kategori'])));
+    }
+
+    /**
+     * Galeri sayfası sayfalanıyor: /galeri adresinde yalnız ilk on kare var.
+     * Sitemap bütün galeriyi o adresin altında ilan etseydi, işaret ettiği
+     * sayfada olmayan görselleri duyururdu.
+     */
+    public function test_the_gallery_url_only_claims_the_images_on_its_first_page(): void
+    {
+        $pair = $this->galleryCategoryPair();
+
+        foreach (range(1, 25) as $i) {
+            $this->photo('tr', "Kare {$i}", $pair['tr'], $i);
+        }
+
+        $entry = $this->entry(route('gallery', ['locale' => 'tr']));
+
+        $this->assertNotNull($entry);
+        $this->assertCount(\App\Services\GalleryService::FRONT_PER_PAGE, $entry['images']);
+    }
+
+    /** Kategori adresi de yalnız kendi karelerini duyurmalı. */
+    public function test_a_category_url_claims_only_its_own_images(): void
+    {
+        $ofis = $this->galleryCategoryPair('sinama-ofis', 'sinama-office');
+        $ekip = $this->galleryCategoryPair('sinama-ekip', 'sinama-team');
+
+        $this->photo('tr', 'Ofis karesi', $ofis['tr']);
+        $this->photo('tr', 'Ekip karesi', $ekip['tr']);
+
+        $entry = $this->entry(route('gallery', ['locale' => 'tr', 'kategori' => 'sinama-ofis']));
+
+        $this->assertNotNull($entry);
+        $this->assertCount(1, $entry['images']);
+        $this->assertSame('Ofis karesi', $entry['images'][0]['title']);
+    }
+
+    /**
+     * Kategori kimliği değil çeviri grubu taşınıyor. Kimliğe bakılsaydı,
+     * İngilizceye çevrilmemiş olduğu için varsayılan dilden düşen kare —ki
+     * sayfa onu gösteriyor— İngilizce kategori adresinin dışında kalırdı.
+     */
+    public function test_a_category_url_covers_the_frames_that_fell_back(): void
+    {
+        $pair = $this->galleryCategoryPair();
+        $this->photo('tr', 'Cevrilmemis kare', $pair['tr']);
+
+        $entry = $this->entry(route('gallery', ['locale' => 'en', 'kategori' => 'sinama-office']));
+
+        $this->assertNotNull($entry, 'İngilizce kategori adresi hiç üretilmedi');
+        $this->assertSame(['Cevrilmemis kare'], array_column($entry['images'], 'title'));
+    }
+
+    // ── x-default ──
+
+    /**
+     * Kök adres ziyaretçinin dilini kendisi seçip yönlendiriyor; Google'ın
+     * x-default'tan beklediği tam olarak bu. Öteki sayfaların böyle bir adresi
+     * yok, onlarda varsayılan dil sürümü x-default kalıyor.
+     */
+    public function test_the_home_page_hands_x_default_to_the_language_neutral_root(): void
+    {
+        $entry = $this->entry(route('home', ['locale' => 'tr']));
+
+        $this->assertNotNull($entry);
+        $this->assertSame(route('root'), $entry['x_default']);
+    }
+
+    public function test_an_inner_page_still_hands_x_default_to_the_default_language(): void
+    {
+        $this->translatedPagePair();
+
+        $entry = $this->entry(route('pages.show', ['locale' => 'en', 'slug' => 'about-us']));
+
+        $this->assertNotNull($entry);
+        $this->assertSame(route('pages.show', ['locale' => 'tr', 'slug' => 'hakkimizda']), $entry['x_default']);
+    }
+
+    // ── Kapsam ──
+
+    /**
+     * Ziyaretçinin gezinebildiği her genel sayfa haritada olmalı. Modül
+     * eklendikçe unutulan bir rota sessizce dizin dışında kalıyor.
+     */
+    public function test_every_public_section_of_the_site_is_on_the_map(): void
+    {
+        $this->translatedPagePair();
+
+        $category = BlogCategory::create(['locale' => 'tr', 'name' => 'Duyurular', 'slug' => 'duyurular', 'is_active' => true]);
+
+        BlogPost::create([
+            'locale' => 'tr', 'blog_category_id' => $category->id,
+            'title' => 'Yazı', 'slug' => 'yazi', 'body' => 'Gövde',
+            'status' => 'published', 'published_at' => now()->subDay(),
+        ]);
+
+        $locs = array_column($this->urls(), 'loc');
+
+        foreach ([
+            route('home', ['locale' => 'tr']),
+            route('blog.index', ['locale' => 'tr']),
+            route('gallery', ['locale' => 'tr']),
+            route('contact', ['locale' => 'tr']),
+            route('faq', ['locale' => 'tr']),
+            route('pages.show', ['locale' => 'tr', 'slug' => 'hakkimizda']),
+            route('blog.category', ['locale' => 'tr', 'categorySlug' => 'duyurular']),
+            route('blog.show', ['locale' => 'tr', 'categorySlug' => 'duyurular', 'slug' => 'yazi']),
+        ] as $expected) {
+            $this->assertContains($expected, $locs, "Haritada yok: {$expected}");
+        }
+    }
+
+    /** Sorgu dizisi taşıyan adresler XML'de kaçırılmış olmalı. */
+    public function test_filtered_addresses_are_escaped_in_the_xml(): void
+    {
+        $pair = $this->galleryCategoryPair();
+        $this->photo('tr', 'Ofis karesi', $pair['tr']);
+
+        $xml = (string) $this->get('/sitemap.xml')->assertOk()->getContent();
+
+        $this->assertNotFalse(simplexml_load_string($xml), 'Süzülmüş adres eklenince XML bozuldu');
+        $this->assertStringContainsString('kategori=sinama-ofis', $xml);
+    }
 }

@@ -36,8 +36,14 @@ final class BlogShowQueryBudgetTest extends TestCase
      *
      * Optimizasyondan sonra ölçülen sayının biraz üstünde: küçük
      * değişiklikler testi kırmasın, ama eski hâline (76) dönüş fark edilsin.
+     *
+     * 30'dan 34'e çıkarıldı: alt bilginin bağlantıları menü modülüne taşındı
+     * ve soğuk önbellekte menüyü okumak üç sorgu ekliyor (menü + kök öğeler +
+     * çocukları). Ölçülen sayı 31. Sıcak önbellekte maliyet sıfır — menü bir
+     * saat önbellekte duruyor, tarayıcıda /tr/hakkimizda hâlâ 13 sorgu ve
+     * içlerinde menü sorgusu yok.
      */
-    private const BUDGET = 30;
+    private const BUDGET = 34;
 
     /** Aynı sorgunun kaç kez tekrarlanabileceği. */
     private const DUPLICATE_BUDGET = 6;

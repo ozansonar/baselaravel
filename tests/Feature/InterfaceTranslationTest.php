@@ -125,15 +125,37 @@ class InterfaceTranslationTest extends TestCase
         $this->assertStringNotContainsString('Hemen Başlayın', $html, 'İngilizce sayfada Türkçe buton kaldı');
     }
 
+    /**
+     * Anahtar, alt bilgi menü modülüne taşınınca değişti.
+     *
+     * Bu denetim eskiden anasayfadaki alt bilgi bağlantılarına bakıyordu; o
+     * yazılar artık __() değil, menü kayıtları. Menü etiketleri kendi dilinde
+     * bir menü yoksa varsayılan dilinkine düşüyor — modülün tasarlanmış
+     * davranışı bu. Dili izlemesi gereken şey arayüzün geri kalanı, ve onu
+     * basan yer kırıntı yolu ile sayfa başlığı.
+     */
     public function test_the_navigation_follows_the_chosen_language(): void
     {
         $this->get(route('locale.switch', 'en'));
 
-        $html = $this->followingRedirects()->get('/')->getContent();
+        $root = $this->followingRedirects()->get('/');
+        $root->assertOk();
 
-        $this->assertStringContainsString('Gallery', $html);
-        $this->assertStringContainsString('Contact', $html);
-        $this->assertStringNotContainsString('>Galeri<', $html);
+        $this->assertStringContainsString('<html lang="en"', (string) $root->getContent());
+
+        $html = (string) $this->get('/en/galeri')->assertOk()->getContent();
+
+        $this->assertStringContainsString('<h1 class="page-hero__title">Gallery</h1>', $html);
+
+        // Olumsuz denetim yalnız kırıntı yoluna bakıyor. Üst menü etiketleri
+        // menü kayıtlarından geliyor ve İngilizce menüsü olmayan kurulumda
+        // Türkçe menüye düşüyor; sayfanın tamamına bakılsaydı bu tasarlanmış
+        // davranış hata sanılırdı.
+        preg_match('/<ol class="breadcrumb[^"]*">(.*?)<\/ol>/s', $html, $breadcrumb);
+
+        $this->assertNotEmpty($breadcrumb, 'Kırıntı yolu basılmadı');
+        $this->assertStringContainsString('>Home</a>', $breadcrumb[1], 'Kırıntı yolu çevrilmedi');
+        $this->assertStringNotContainsString('Anasayfa', $breadcrumb[1]);
     }
 
     public function test_the_sign_in_page_is_translated(): void

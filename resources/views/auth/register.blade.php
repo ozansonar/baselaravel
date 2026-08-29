@@ -45,8 +45,8 @@
                 <input type="text"
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email') }}"
-                       data-validation-engine="validate[required,custom[email],maxSize[255]]"
-                       placeholder="ornek@mail.com" autocomplete="email">
+                       data-validation-engine="validate[required,custom[email],maxSize[191]]"
+                       placeholder="{{ __('site.register.email_ph') }}" autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -65,7 +65,7 @@
                        class="form-control @error('phone') is-invalid @enderror"
                        id="phone" name="phone" value="{{ old('phone') }}"
                        data-validation-engine="validate[custom[phone],maxSize[20]]"
-                       placeholder="05XX XXX XX XX" autocomplete="tel">
+                       placeholder="{{ __('site.register.phone_ph') }}" autocomplete="tel">
                 @error('phone')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -110,6 +110,6 @@
     </form>
 
     <p class="text-center text-muted mt-4 mb-0">
-        Zaten üye misiniz? <a href="{{ route('login') }}" class="fw-semibold">{{ __('site.auth.login_long') }}</a>
+        {{ __('site.register.have_account') }} <a href="{{ route('login') }}" class="fw-semibold">{{ __('site.auth.login_long') }}</a>
     </p>
 @endsection

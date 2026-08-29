@@ -25,10 +25,29 @@ class MailConfigServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (! $this->app->runningUnitTests()) {
-            $this->applyMailConfig();
+        if ($this->app->runningUnitTests()) {
+            return;
         }
+
+        // Ayarlar mail göndermeye kalkışılınca okunuyor, her istekte değil.
+        // Önce boot içinde okunuyordu: tablo var mı diye bir şema sorgusu,
+        // bir de ayar sorgusu — mail göndermeyen her sayfa (yani neredeyse
+        // hepsi) iki sorgunun bedelini ödüyordu.
+        //
+        // Kanca mail yöneticisi kaptan çıkarken çalışıyor; yönetici ayarları
+        // asıl gönderim anında okuduğu için yapılandırma zamanında yerinde.
+        $this->app->resolving('mail.manager', function (): void {
+            if ($this->applied) {
+                return;
+            }
+
+            $this->applied = true;
+            $this->applyMailConfig();
+        });
     }
+
+    /** Ayarlar istek başına bir kez uygulanıyor. */
+    private bool $applied = false;
 
     private function applyMailConfig(): void
     {

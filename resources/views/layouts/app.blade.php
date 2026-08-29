@@ -45,7 +45,7 @@
     @if($alternateUrls !== [])
     <link rel="alternate" hreflang="x-default" href="{{ $alternateUrls[app(\App\Services\LanguageService::class)->defaultCode()] ?? reset($alternateUrls) }}">
     @endif
-    <link rel="alternate" type="application/rss+xml" title="{{ $siteName }} Blog" href="{{ route('feed') }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ __('site.blog.feed_title', ['site' => $siteName]) }}" href="{{ route('feed') }}">
     @stack('pagination-meta')
 
     {{-- Open Graph --}}

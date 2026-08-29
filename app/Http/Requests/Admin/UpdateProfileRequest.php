@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\UserEmail;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 final class UpdateProfileRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ final class UpdateProfileRequest extends FormRequest
         return [
             'first_name' => ['required', 'string', 'max:100'],
             'last_name'  => ['required', 'string', 'max:100'],
-            'email'      => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'email'      => ['required', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique($userId)],
             'phone'      => ['nullable', 'string', 'max:20'],
             'bio'        => ['nullable', 'string', 'max:1000'],
             'location'   => ['nullable', 'string', 'max:255'],

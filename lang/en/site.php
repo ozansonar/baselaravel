@@ -15,17 +15,11 @@ declare(strict_types=1);
 return [
 
     'nav' => [
-        'privacy' => 'Privacy Policy',
-        'terms' => 'Terms of Use',
         'skip_to_content' => 'Skip to main content',
         'home'      => 'Home',
         'blog'      => 'Blog',
-        'about'     => 'About Us',
         'gallery'   => 'Gallery',
         'contact'   => 'Contact',
-        'faq'       => 'FAQ',
-        'menu'      => 'Menu',
-        'corporate' => 'Corporate',
         'toggle'    => 'Toggle menu',
     ],
 
@@ -64,6 +58,8 @@ return [
     ],
 
     'blog' => [
+        'eyebrow' => 'Blog',
+        'feed_title' => ':site Blog',
         'comment_recaptcha' => 'Please confirm you are not a robot.',
         'featured'  => 'Featured',
         'read_time' => ':count min read',
@@ -98,6 +94,9 @@ return [
     ],
 
     'gallery' => [
+        'all' => 'All',
+        'type_filter' => 'Type filter',
+        'no_results' => 'No items match this filter',
         'view'    => 'Enlarge',
         'watch'   => 'Watch',
         'meta_desc' => 'Photo and video gallery. Take a closer look at us through our shots and videos.',
@@ -176,6 +175,7 @@ return [
     ],
 
     'login' => [
+        'email_ph' => 'name@example.com',
         'welcome_back' => 'Welcome back',
         'title'      => 'Sign in',
         'subtitle'   => 'Sign in to your account',
@@ -188,6 +188,8 @@ return [
     ],
 
     'register' => [
+        'email_ph' => 'name@example.com',
+        'phone_ph' => '05XX XXX XX XX',
         'first_name_ph' => 'Your first name',
         'last_name_ph' => 'Your last name',
         'join_us' => 'Join us',
@@ -204,6 +206,7 @@ return [
     ],
 
     'password' => [
+        'email_ph' => 'name@example.com',
         'reset_subtitle' => 'Choose a new password for your account',
         'forgot_title'    => 'Forgot your password?',
         'forgot_subtitle' => "We'll email you a reset link",
@@ -244,6 +247,7 @@ return [
     ],
 
     'misc' => [
+        'main_nav' => 'Main navigation',
         'site_description' => 'Modern, fast and dependable corporate solutions.',
         'retry' => 'Try again',
         'rights' => 'All rights reserved.',
@@ -272,6 +276,8 @@ return [
 
 
     'home' => [
+        'blog_eyebrow' => 'Blog',
+        'slide_aria' => 'Slide :number',
         // Trust strip under the hero — three lines that say what the site
         // offers before the visitor scrolls.
         'trust_1' => 'Content managed from the panel',
