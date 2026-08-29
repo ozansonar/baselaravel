@@ -108,8 +108,10 @@ class RedirectManagementTest extends TestCase
             ->getContent();
 
         $this->assertStringContainsString('data-validate', $html);
-        $this->assertStringContainsString('validate[required,custom[sitePath],maxSize[500]]', $html);
-        $this->assertStringContainsString('validate[required,custom[redirectTarget],maxSize[500]]', $html);
+        // Sınır sütun genişliğinden geliyor: redirects.old_url ve new_url 191
+        // karakter (eski MySQL'in indeks anahtarı sınırı yüzünden bilerek).
+        $this->assertStringContainsString('validate[required,custom[sitePath],maxSize[191]]', $html);
+        $this->assertStringContainsString('validate[required,custom[redirectTarget],maxSize[191]]', $html);
         $this->assertStringContainsString('validate[maxSize[500]]', $html);
     }
 

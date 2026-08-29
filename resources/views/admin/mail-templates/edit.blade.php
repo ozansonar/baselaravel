@@ -44,7 +44,7 @@
                         <input type="text"
                                class="stg-input @error('subject') is-invalid @enderror"
                                id="subject"
-                               name="subject" data-validation-engine="validate[required,maxSize[191]]"
+                               name="subject" data-validation-engine="validate[required,maxSize[500]]"
                                value="{{ old('subject', $template->subject) }}"
                                placeholder="E-posta konu satırı">
                         @error('subject')

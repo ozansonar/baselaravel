@@ -83,7 +83,7 @@
                                 <label for="itemLabel" class="form-label text-clr-secondary">Etiket <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-theme">
                                     <span class="input-group-text"><i class="bi bi-tag-fill"></i></span>
-                                    <input type="text" class="form-control form-control-theme" id="itemLabel" name="label" maxlength="255" data-validation-engine="validate[required,maxSize[255]]" placeholder="Anasayfa">
+                                    <input type="text" class="form-control form-control-theme" id="itemLabel" name="label" maxlength="255" data-validation-engine="validate[required,maxSize[191]]" placeholder="Anasayfa">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -132,7 +132,7 @@
                                 <div class="input-group input-group-theme">
                                     <span class="input-group-text"><i class="bi bi-link"></i></span>
                                     <input type="text" class="form-control form-control-theme" id="itemUrl" name="url"
-                                           data-validation-engine="validate[maxSize[500]]"
+                                           data-validation-engine="validate[maxSize[191]]"
                                            placeholder="/ozel-sayfa veya https://harici-site.com" maxlength="500">
                                 </div>
                             </div>

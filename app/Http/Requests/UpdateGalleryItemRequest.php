@@ -21,12 +21,12 @@ final class UpdateGalleryItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'               => ['required', 'string', 'max:255'],
+            'title'               => ['required', 'string', 'max:191'],
             'description'         => ['nullable', 'string', 'max:1000'],
             'type'                => ['required', Rule::enum(GalleryType::class)],
             'gallery_category_id' => ['nullable', 'integer', 'exists:gallery_categories,id'],
             'image'               => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
-            'video_url'           => ['nullable', 'required_if:type,video', 'string', 'max:500', 'url'],
+            'video_url'           => ['nullable', 'required_if:type,video', 'string', 'max:191', 'url'],
             'duration'            => ['nullable', 'string', 'max:20'],
             'sort_order'          => ['nullable', 'integer', 'min:0'],
             'is_active'           => ['nullable', 'boolean'],

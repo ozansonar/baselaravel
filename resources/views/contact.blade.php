@@ -89,7 +89,7 @@
                                     <input type="text"
                                            class="form-control @error('name') is-invalid @enderror"
                                            id="name" name="name" value="{{ old('name') }}"
-                                           data-validation-engine="validate[required,maxSize[255]]"
+                                           data-validation-engine="validate[required,maxSize[191]]"
                                            placeholder="{{ __('site.contact.name') }}" autocomplete="name">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -101,7 +101,7 @@
                                     <input type="text"
                                            class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email" value="{{ old('email') }}"
-                                           data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                                           data-validation-engine="validate[required,custom[email],maxSize[191]]"
                                            placeholder="{{ __('site.contact.email_ph') }}" autocomplete="email">
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -128,7 +128,7 @@
                                     <input type="text"
                                            class="form-control @error('subject') is-invalid @enderror"
                                            id="subject" name="subject" value="{{ old('subject') }}"
-                                           data-validation-engine="validate[required,maxSize[255]]"
+                                           data-validation-engine="validate[required,maxSize[191]]"
                                            placeholder="{{ __('site.contact.subject_ph') }}">
                                     @error('subject')
                                         <div class="invalid-feedback">{{ $message }}</div>

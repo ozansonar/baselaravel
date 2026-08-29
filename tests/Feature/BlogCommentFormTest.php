@@ -92,7 +92,7 @@ final class BlogCommentFormTest extends TestCase
 
         foreach ([
             'validate[required,minSize[2],maxSize[100]]',           // name  → min:2  max:100
-            'validate[required,custom[email],maxSize[255]]',        // email → email  max:255
+            'validate[required,custom[email],maxSize[191]]',        // email → email  max:191
             'validate[required,minSize[3],maxSize[2000]]',          // body  → min:3  max:2000
         ] as $rule) {
             $this->assertStringContainsString($rule, $html, "Kural eksik: {$rule}");

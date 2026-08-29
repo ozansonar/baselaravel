@@ -23,10 +23,10 @@ final class StoreContactMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'    => ['required', 'string', 'max:255'],
-            'email'   => ['required', 'string', 'email:rfc,dns', 'max:255'],
+            'name'    => ['required', 'string', 'max:191'],
+            'email'   => ['required', 'string', 'email:rfc,dns', 'max:191'],
             'phone'   => ['nullable', 'string', 'max:20'],
-            'subject' => ['required', 'string', 'max:255'],
+            'subject' => ['required', 'string', 'max:191'],
             'message'              => ['required', 'string', 'min:10', 'max:5000'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()
                 ? ['required', new RecaptchaRule()]

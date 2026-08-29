@@ -23,12 +23,12 @@ final class StoreRedirectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'old_url'     => 'required|string|max:500|unique:redirects,old_url|starts_with:/',
+            'old_url'     => 'required|string|max:191|unique:redirects,old_url|starts_with:/',
             'new_url'     => [
                 'nullable',
                 'required_unless:status_code,404,410',
                 'string',
-                'max:500',
+                'max:191',
                 new SafeRedirectTarget(),
                 // Kendine ya da halkaya dönen yönlendirme sayfayı hiç açtırmaz.
                 new NotACircularRedirect((string) $this->input('old_url'), null),

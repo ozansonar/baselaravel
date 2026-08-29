@@ -121,7 +121,7 @@
                       name="translations[{{ $language->code }}][slug]"
                       value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                       placeholder="otomatik-oluşturulur"
-                      data-validation-engine="validate[custom[slug],maxSize[255]]"
+                      data-validation-engine="validate[custom[slug],maxSize[191]]"
                       data-prompt-target="slug_error_{{ $language->code }}"
                       data-slug-field>
                   </div>

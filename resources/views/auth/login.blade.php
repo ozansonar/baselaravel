@@ -17,7 +17,7 @@
                 <input type="text"
                        class="form-control @error('email') is-invalid @enderror"
                        id="email" name="email" value="{{ old('email') }}"
-                       data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                       data-validation-engine="validate[required,custom[email],maxSize[191]]"
                        placeholder="{{ __('site.login.email_ph') }}" autofocus autocomplete="email">
                 @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>

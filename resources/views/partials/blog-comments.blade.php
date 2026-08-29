@@ -39,7 +39,7 @@
                          kendi balonunun değil. --}}
                     <input type="text" id="comment-email" name="email" value="{{ old('email') }}"
                            class="form-control @error('email') is-invalid @enderror"
-                           data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                           data-validation-engine="validate[required,custom[email],maxSize[191]]"
                            placeholder="{{ __('site.blog.comment_email_ph') }}" autocomplete="email">
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <small class="text-muted">{{ __('site.blog.comment_email_note') }}</small>

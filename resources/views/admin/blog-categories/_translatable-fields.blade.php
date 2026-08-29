@@ -74,7 +74,7 @@
                                 value="{{ old("translations.{$code}.name", $translation?->name) }}"
                                 placeholder="Kategori adını yazın..."
                                 maxlength="255"
-                                data-validation-engine="{{ $rules(['maxSize[255]']) }}">
+                                data-validation-engine="{{ $rules(['maxSize[191]']) }}">
                             @error("translations.{$code}.name")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

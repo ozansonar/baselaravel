@@ -20,7 +20,7 @@ final class UpdateBlogPostRequest extends FormRequest
     {
         return [
             'blog_category_id' => ['required', 'integer', 'exists:blog_categories,id'],
-            'title'            => ['required', 'string', 'max:255'],
+            'title'            => ['required', 'string', 'max:191'],
             'excerpt'          => ['nullable', 'string', 'max:500'],
             'body'             => ['required', 'string', 'max:200000'],
             'image'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],

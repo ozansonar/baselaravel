@@ -24,7 +24,7 @@ final class StoreBlogCommentRequest extends FormRequest
             'blog_post_id' => ['required', 'integer', 'exists:blog_posts,id'],
             'parent_id'    => ['nullable', 'integer', 'exists:blog_comments,id'],
             'name'         => ['required', 'string', 'min:2', 'max:100'],
-            'email'        => ['required', 'email', 'max:255'],
+            'email'        => ['required', 'email', 'max:191'],
             'body'                 => ['required', 'string', 'min:3', 'max:2000'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()
                 ? ['required', new RecaptchaRule()]

@@ -36,7 +36,7 @@ final class StoreTranslatedFaqRequest extends FormRequest
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                = ['array'];
-            $rules["{$prefix}.question"]   = [$required, 'string', 'max:500'];
+            $rules["{$prefix}.question"]   = [$required, 'string', 'max:191'];
             $rules["{$prefix}.answer"]     = [$required, 'string', 'max:10000'];
             $rules["{$prefix}.sort_order"] = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.is_active"]  = ['nullable', 'boolean'];

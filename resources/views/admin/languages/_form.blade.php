@@ -25,7 +25,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="flag">Bayrak</label>
                             <input type="text" class="stg-input @error('flag') is-invalid @enderror"
-                                   id="flag" name="flag" data-validation-engine="validate[maxSize[16]]" value="{{ old('flag', $language?->flag) }}"
+                                   id="flag" name="flag" data-validation-engine="validate[maxSize[8]]" value="{{ old('flag', $language?->flag) }}"
                                    maxlength="16" placeholder="🇩🇪">
                             <small class="stg-hint">Emoji, dil seçicide görünür</small>
                             @error('flag') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror

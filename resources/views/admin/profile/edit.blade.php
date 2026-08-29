@@ -110,7 +110,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="location">Konum</label>
                             <input type="text" class="stg-input @error('location') is-invalid @enderror"
-                                   id="location" name="location" data-validation-engine="validate[maxSize[255]]"
+                                   id="location" name="location" data-validation-engine="validate[maxSize[100]]"
                                    value="{{ old('location', $user->location) }}"
                                    placeholder="Örn: İstanbul, Türkiye">
                             @error('location')

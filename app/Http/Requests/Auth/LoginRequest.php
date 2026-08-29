@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\UserEmail;
 use App\Rules\RecaptchaRule;
 use App\Services\RecaptchaService;
 use Illuminate\Foundation\Http\FormRequest;
@@ -21,7 +22,7 @@ final class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH],
             'password' => ['required', 'string', 'min:8'],
             'remember'             => ['nullable', 'in:on,1,true'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()

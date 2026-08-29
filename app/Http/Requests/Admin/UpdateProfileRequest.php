@@ -27,7 +27,7 @@ final class UpdateProfileRequest extends FormRequest
             'email'      => ['required', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique($userId)],
             'phone'      => ['nullable', 'string', 'max:20'],
             'bio'        => ['nullable', 'string', 'max:1000'],
-            'location'   => ['nullable', 'string', 'max:255'],
+            'location'   => ['nullable', 'string', 'max:100'],
             'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
             // Changing a password requires proving the current one, so a hijacked
             // session cannot lock the real owner out. Without nullable the rule

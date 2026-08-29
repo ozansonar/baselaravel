@@ -68,7 +68,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                        id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]"
-                                       data-validation-engine="validate[required,maxSize[255]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       data-validation-engine="validate[required,maxSize[191]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                        placeholder="Slider başlığını girin..." @if($language->is_default) @endif>
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -81,7 +81,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.subtitle") is-invalid @enderror"
                                        id="subtitle_{{ $language->code }}" name="translations[{{ $language->code }}][subtitle]"
-                                       data-validation-engine="validate[maxSize[500]]" value="{{ old("translations.{$language->code}.subtitle", $translation?->subtitle) }}"
+                                       data-validation-engine="validate[maxSize[191]]" value="{{ old("translations.{$language->code}.subtitle", $translation?->subtitle) }}"
                                        placeholder="Slider alt başlığını girin...">
                                 @error("translations.{$language->code}.subtitle")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -166,7 +166,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.button_text") is-invalid @enderror"
                                        id="button_text_{{ $language->code }}" name="translations[{{ $language->code }}][button_text]"
-                                       data-validation-engine="validate[maxSize[100]]"
+                                       data-validation-engine="validate[maxSize[50]]"
                                        value="{{ old("translations.{$language->code}.button_text", $translation?->button_text) }}"
                                        placeholder="Keşfet">
                                 @error("translations.{$language->code}.button_text")
@@ -181,7 +181,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.button_url") is-invalid @enderror"
                                        id="button_url_{{ $language->code }}" name="translations[{{ $language->code }}][button_url]"
-                                       data-validation-engine="validate[maxSize[500]]"
+                                       data-validation-engine="validate[maxSize[191]]"
                                        value="{{ old("translations.{$language->code}.button_url", $translation?->button_url) }}"
                                        placeholder="/blog/...">
                                 @error("translations.{$language->code}.button_url")

@@ -19,7 +19,7 @@ final class StoreFaqRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'question'   => ['required', 'string', 'max:500'],
+            'question'   => ['required', 'string', 'max:191'],
             'answer'     => ['required', 'string', 'max:10000'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active'  => ['nullable', 'boolean'],

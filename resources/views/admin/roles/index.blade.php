@@ -259,14 +259,14 @@
                         <div class="mb-3">
                             <label class="form-label text-clr-secondary" for="roleName">Rol Adı <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-theme @error('name') is-invalid @enderror"
-                                   id="roleName" name="name" value="{{ old('name') }}" data-validation-engine="validate[required,maxSize[100]]">
+                                   id="roleName" name="name" value="{{ old('name') }}" data-validation-engine="validate[required,maxSize[50]]">
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label text-clr-secondary" for="roleSlug">Rol Anahtarı <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-theme @error('slug') is-invalid @enderror"
-                                   id="roleSlug" name="slug" value="{{ old('slug') }}" placeholder="ornek-rol" data-validation-engine="validate[required,custom[slug],maxSize[100]]">
+                                   id="roleSlug" name="slug" value="{{ old('slug') }}" placeholder="ornek-rol" data-validation-engine="validate[required,custom[slug],maxSize[50]]">
                             <small class="form-text text-clr-muted">Kodda kullanılan benzersiz anahtar. Sistem rollerinde değiştirilemez.</small>
                             @error('slug')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -275,7 +275,7 @@
                             <label class="form-label text-clr-secondary" for="roleDescription">Açıklama</label>
                             <textarea class="form-control form-control-theme" id="roleDescription"
                                       name="description" rows="2"
-                                      data-validation-engine="validate[maxSize[255]]">{{ old('description') }}</textarea>
+                                      data-validation-engine="validate[maxSize[191]]">{{ old('description') }}</textarea>
                         </div>
                     </div>
 
