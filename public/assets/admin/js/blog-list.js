@@ -3,62 +3,10 @@
 (function () {
   'use strict';
 
-  // ==================== SELECT ALL / BULK ====================
-  window.toggleSelectAll = function (checkbox) {
-    var rows = document.querySelectorAll('#contentTableBody .content-checkbox');
-    rows.forEach(function (cb) { cb.checked = checkbox.checked; });
-    updateBulk();
-  };
-
-  window.updateBulk = function () {
-    var checked = document.querySelectorAll('#contentTableBody .content-checkbox:checked').length;
-    var bulk = document.getElementById('bulkActions');
-    var count = document.getElementById('selectedCount');
-    if (!bulk || !count) return;
-
-    if (checked > 0) {
-      bulk.classList.remove('d-none');
-      count.textContent = checked;
-    } else {
-      bulk.classList.add('d-none');
-    }
-  };
-
-  window.bulkContentAction = function (action) {
-    var checked = document.querySelectorAll('#contentTableBody .content-checkbox:checked');
-    if (checked.length === 0) return;
-
-    if (action === 'delete') {
-      document.getElementById('bulkDeleteCount').textContent = checked.length;
-      var modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
-      modal.show();
-      return;
-    }
-
-    var actionText = { publish: 'yayınlamak', draft: 'taslağa almak' };
-    AdminModal.confirm({
-      title: 'Toplu İşlem Onayı',
-      message: checked.length + ' içeriği ' + (actionText[action] || action) + ' istediğinize emin misiniz?',
-      type: 'warning',
-      confirmText: 'Evet, Devam Et',
-      confirmIcon: 'bi bi-check-lg'
-    }).then(function (confirmed) {
-      if (!confirmed) return;
-      checked.forEach(function (cb) { cb.checked = false; });
-      var selectAll = document.getElementById('selectAll');
-      if (selectAll) selectAll.checked = false;
-      updateBulk();
-    });
-  };
-
-  window.confirmBulkDelete = function () {
-    var checked = document.querySelectorAll('#contentTableBody .content-checkbox:checked');
-    checked.forEach(function (cb) { cb.checked = false; });
-    var selectAll = document.getElementById('selectAll');
-    if (selectAll) selectAll.checked = false;
-    updateBulk();
-  };
-
+  /* Toplu seçim ve toplu işlemler assets/admin/js/bulk-actions.js dosyasında:
+     aynı kod yedi listede kopyalanmıştı ve her biri kayıt başına ayrı bir
+     istek atıyordu — elli kayıt elli istek, yarısı düşerse ortada karışık bir
+     sonuç. İçerik listesinde ise hiç istek gitmiyordu. */
 
   // ==================== DELETE MODAL ====================
   window.openDeleteModal = function (title, id) {

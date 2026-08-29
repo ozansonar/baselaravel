@@ -68,36 +68,10 @@ function restoreView() {
     } catch (e) {}
 }
 
-// ========== Checkbox / Bulk Operations ==========
-function toggleSelectAll(masterCheckbox) {
-    var checkboxes = document.querySelectorAll('#userTableBody .usr-checkbox');
-    checkboxes.forEach(function (cb) {
-        cb.checked = masterCheckbox.checked;
-    });
-    updateBulk();
-}
-
-function updateBulk() {
-    var checkboxes = document.querySelectorAll('#userTableBody .usr-checkbox:checked');
-    var bulkActions = document.getElementById('bulkActions');
-    var selectedCount = document.getElementById('selectedCount');
-
-    if (!bulkActions || !selectedCount) return;
-
-    if (checkboxes.length > 0) {
-        bulkActions.classList.remove('d-none');
-        selectedCount.textContent = checkboxes.length;
-    } else {
-        bulkActions.classList.add('d-none');
-    }
-
-    var masterCheckbox = document.getElementById('selectAll');
-    var allCheckboxes = document.querySelectorAll('#userTableBody .usr-checkbox');
-    if (masterCheckbox && allCheckboxes.length > 0) {
-        masterCheckbox.checked = checkboxes.length === allCheckboxes.length;
-        masterCheckbox.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
-    }
-}
+/* Toplu seçim ve toplu işlemler assets/admin/js/bulk-actions.js dosyasında:
+ aynı kod yedi listede kopyalanmıştı ve her biri kayıt başına ayrı bir
+ istek atıyordu — elli kayıt elli istek, yarısı düşerse ortada karışık bir
+ sonuç. İçerik listesinde ise hiç istek gitmiyordu. */
 
 // ========== Delete Modal ==========
 function openDeleteModal(id, name) {
@@ -119,47 +93,6 @@ function openDeleteModal(id, name) {
       form.innerHTML = '<input type="hidden" name="_token" value="' + document.querySelector('meta[name="csrf-token"]').getAttribute('content') + '"><input type="hidden" name="_method" value="DELETE">';
       document.body.appendChild(form);
       form.submit();
-    });
-}
-
-// ========== Bulk Delete ==========
-function confirmBulkDelete() {
-    var checkboxes = document.querySelectorAll('#userTableBody .usr-checkbox:checked');
-    if (checkboxes.length === 0) return;
-
-    var bulkDeleteCount = document.getElementById('bulkDeleteCount');
-    if (bulkDeleteCount) {
-        bulkDeleteCount.textContent = checkboxes.length + ' kullanıcı seçildi';
-    }
-
-    var modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
-    modal.show();
-}
-
-function executeBulkDelete() {
-    var checkboxes = document.querySelectorAll('#userTableBody .usr-checkbox:checked');
-    var ids = [];
-    checkboxes.forEach(function (cb) {
-        ids.push(cb.value);
-    });
-
-    if (ids.length === 0) return;
-
-    var csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (!csrfToken) return;
-
-    var promises = ids.map(function (id) {
-        return fetch('/admin/users/' + id, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
-                'Accept': 'application/json'
-            }
-        });
-    });
-
-    Promise.all(promises).then(function () {
-        window.location.reload();
     });
 }
 

@@ -10,6 +10,23 @@ use Illuminate\Support\Facades\File;
 abstract class TestCase extends BaseTestCase
 {
     /**
+     * Ayarlar sınıf içinde statik bir dizide tutuluyor ve bu dizi testler
+     * arasında yaşıyor.
+     *
+     * RefreshDatabase satırları geri alıyor ama statik diziye dokunmuyor:
+     * reCAPTCHA'yı açan bir test bitince veritabanında ayar kalmıyor, statik
+     * dizide "açık" kalıyordu — sonraki testlerin yorum gönderimi robot
+     * doğrulaması istediği için 422 alıyordu. Her test kendi ayarlarıyla
+     * başlasın.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        \App\Models\Setting::clearSettingsCache();
+    }
+
+    /**
      * Roles carry database permissions, so a test that hands a user a role has
      * to seed both or the role grants nothing.
      */
@@ -26,6 +43,8 @@ abstract class TestCase extends BaseTestCase
      */
     protected function tearDown(): void
     {
+        \App\Models\Setting::clearSettingsCache();
+
         $uploadsPath = config('uploads.path');
 
         if (is_string($uploadsPath)

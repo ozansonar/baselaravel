@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkBlogCommentRequest;
 use App\Models\BlogComment;
 use App\Services\BlogCommentService;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +15,8 @@ use Illuminate\View\View;
 
 final class BlogCommentController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly BlogCommentService $commentService,
     ) {}
@@ -33,6 +37,10 @@ final class BlogCommentController extends Controller
             'statusCounts' => $this->commentService->statusCounts(),
             'pendingCount' => $this->commentService->pendingCount(),
             'perPage'      => $perPage,
+            // Süzgeç listesi yalnız yorumu olan yazıları gösteriyor: yorumu
+            // olmayan yüzlerce yazı arasında seçim yapmak süzgeci
+            // kullanılmaz hâle getiriyordu.
+            'posts'        => $this->commentService->commentedPosts(),
         ]);
     }
 
@@ -81,5 +89,53 @@ final class BlogCommentController extends Controller
         $this->commentService->restore($blogComment);
 
         return redirect()->route('admin.blog-comments.index')->with('success', 'Yorum geri yüklendi.');
+    }
+
+    /**
+     * Seçilen yorumları tek seferde onaylar.
+     *
+     * Zaten onaylı olanlar sayıya girmiyor: hiçbiri değişmemişken
+     * "5 yorum onaylandı" demek olan biteni yanlış anlatırdı.
+     */
+    public function bulkApprove(BulkBlogCommentRequest $request): RedirectResponse
+    {
+        $this->authorize('approve', new BlogComment());
+
+        $onaylanan = $this->commentService->approveMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-comments.index')->with(
+            $onaylanan > 0 ? 'success' : 'info',
+            $onaylanan > 0 ? "{$onaylanan} yorum onaylandı." : 'Seçilen yorumlar zaten onaylıydı.',
+        );
+    }
+
+    /**
+     * Seçilen yorumları tek seferde siler.
+     */
+    public function bulkDestroy(BulkBlogCommentRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new BlogComment());
+
+        $silinen = $this->commentService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-comments.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} yorum silindi." : 'Hiçbir yorum silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki yorumları tek seferde geri yükler.
+     */
+    public function bulkRestore(BulkBlogCommentRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new BlogComment());
+
+        $geriYuklenen = $this->commentService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-comments.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} yorum geri yüklendi." : 'Hiçbir yorum geri yüklenemedi.',
+        );
     }
 }

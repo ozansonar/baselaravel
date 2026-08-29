@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\GalleryType;
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkGalleryItemRequest;
 use App\Http\Requests\Admin\StoreTranslatedGalleryItemRequest;
 use App\Http\Requests\StoreGalleryItemRequest;
 use App\Http\Requests\UpdateGalleryItemRequest;
@@ -18,6 +20,8 @@ use Illuminate\View\View;
 
 final class GalleryItemController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly GalleryService $galleryService,
     ) {}
@@ -32,6 +36,12 @@ final class GalleryItemController extends Controller
 
         $filters = $request->only($this->galleryService->filterKeys());
 
+        // Görünüm tercihi adreste taşınıyor: sayfa değiştirince, süzgeç
+        // uygulayınca ve bağlantı paylaşılınca da korunuyor. Tarayıcı
+        // hafızasına yazılsaydı listenin geri kalanı adresten, görünüm başka
+        // yerden gelirdi.
+        $viewMode = $request->input('view') === 'grid' ? 'grid' : 'table';
+
         return view('admin.gallery-items.index', [
             'items'        => $this->galleryService->paginate($perPage, $filters),
             'stats'        => $this->galleryService->getAdminStats(),
@@ -39,6 +49,7 @@ final class GalleryItemController extends Controller
             'types'        => GalleryType::cases(),
             'categories'   => GalleryCategory::active()->sorted()->get(),
             'perPage'      => $perPage,
+            'viewMode'     => $viewMode,
         ]);
     }
 
@@ -97,6 +108,42 @@ final class GalleryItemController extends Controller
         return redirect()
             ->route('admin.gallery-items.index')
             ->with('success', 'Galeri öğesi başarıyla silindi.');
+    }
+
+    /**
+     * Listede seçilen öğeleri tek seferde siler.
+     *
+     * Yüz fotoğraflık bir yüklemeyi tek tek silmek mümkün değil; toplu
+     * yükleme varken toplu silmenin olmaması listeyi tek yönlü bırakıyordu.
+     */
+    public function bulkDestroy(BulkGalleryItemRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new GalleryItem());
+
+        $silinen = $this->galleryService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.gallery-items.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} galeri öğesi silindi." : 'Hiçbir öğe silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki öğeleri tek seferde geri yükler.
+     *
+     * Silinmişler sekmesinde toplu silmenin karşılığı bu: orada "sil" demenin
+     * anlamı yok, satırlar zaten silinmiş durumda.
+     */
+    public function bulkRestore(BulkGalleryItemRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new GalleryItem());
+
+        $geriYuklenen = $this->galleryService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.gallery-items.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} galeri öğesi geri yüklendi." : 'Hiçbir öğe geri yüklenemedi.',
+        );
     }
 
     public function restore(int $id): RedirectResponse

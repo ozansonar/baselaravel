@@ -89,6 +89,9 @@
 <script src="{{ versioned_asset('assets/admin/js/password-toggle.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/select2-init.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/export-menu.js') }}"></script>
+{{-- Toplu işlem motoru: işaretleri olmayan sayfada hiçbir şey yapmıyor,
+     olan her listede aynı şekilde çalışıyor. --}}
+<script src="{{ versioned_asset('assets/admin/js/bulk-actions.js') }}"></script>
 @if(Route::has('admin.notifications.recent'))
 <script src="{{ versioned_asset('assets/admin/js/notification-bell.js') }}"></script>
 @endif

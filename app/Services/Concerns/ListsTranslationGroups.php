@@ -125,6 +125,67 @@ trait ListsTranslationGroups
     }
 
     /**
+     * Listede seçilen satırları tek seferde siler.
+     *
+     * Listede her grup tek satırla duruyor, silme de grup grup işliyor —
+     * tekil silmeyle aynı kural. Aynı gruba ait iki satır seçilse bile grup
+     * bir kez siliniyor; dönen sayı bu yüzden seçilen satır sayısı değil,
+     * gerçekten silinen kayıt sayısı: ekranda "3 seçildi" deyip "5 silindi"
+     * yazmak kullanıcıya ne olduğunu yanlış anlatırdı.
+     *
+     * @param  class-string<Model> $modelClass
+     * @param  list<int>           $ids
+     * @return int                 silinen kayıt sayısı
+     */
+    protected function deleteGroupsById(string $modelClass, array $ids): int
+    {
+        return $this->applyToGroups($modelClass::query()->whereIn('id', $ids)->get(), $this->deleteTranslationGroup(...));
+    }
+
+    /**
+     * Seçilen satırları çöpten tek seferde çıkarır.
+     *
+     * @param  class-string<Model> $modelClass
+     * @param  list<int>           $ids
+     * @return int                 geri yüklenen kayıt sayısı
+     */
+    protected function restoreGroupsById(string $modelClass, array $ids): int
+    {
+        return $this->applyToGroups($modelClass::onlyTrashed()->whereIn('id', $ids)->get(), $this->restoreTranslationGroup(...));
+    }
+
+    /**
+     * Her grubu bir kez işler; hepsi tek işlemde.
+     *
+     * @param  \Illuminate\Support\Collection<int, Model> $rows
+     * @return int                                        işlenen grup sayısı
+     */
+    private function applyToGroups($rows, callable $action): int
+    {
+        if ($rows->isEmpty()) {
+            return 0;
+        }
+
+        $islenen = 0;
+
+        DB::transaction(function () use ($rows, $action, &$islenen): void {
+            $gorulen = [];
+
+            foreach ($rows as $row) {
+                if (in_array($row->lang_group_id, $gorulen, true)) {
+                    continue;
+                }
+
+                $gorulen[] = $row->lang_group_id;
+                $action($row);
+                $islenen++;
+            }
+        });
+
+        return $islenen;
+    }
+
+    /**
      * Brings a whole group back out of the bin.
      */
     protected function restoreTranslationGroup(Model $row): void

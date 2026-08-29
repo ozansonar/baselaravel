@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\CommentStatus;
+use App\Mail\BlogCommentAdminNotification;
+use App\Mail\BlogCommentApprovedMail;
+use App\Mail\BlogCommentReceivedMail;
 use App\Models\BlogComment;
 use App\Models\BlogPost;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
@@ -15,6 +19,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class BlogCommentService
 {
+    public function __construct(
+        private readonly MailService $mailService,
+    ) {}
+
     // ── Frontend ──
 
     /**
@@ -35,7 +43,14 @@ final class BlogCommentService
             $data['ip_address'] = $ipAddress;
         }
 
-        return DB::transaction(fn (): BlogComment => BlogComment::create($data));
+        $comment = DB::transaction(fn (): BlogComment => BlogComment::create($data));
+
+        // Yeni yorum bekleyen sayısını artırıyor; kart hemen doğru göstersin.
+        $this->clearCache();
+
+        $this->notifyOnCreated($comment);
+
+        return $comment;
     }
 
     // ── Admin ──
@@ -56,7 +71,7 @@ final class BlogCommentService
      */
     public function filterKeys(): array
     {
-        return ['status', 'search', 'post_id'];
+        return ['status', 'search', 'post_id', 'date_from', 'date_to'];
     }
 
     /**
@@ -95,7 +110,42 @@ final class BlogCommentService
             $query->where('blog_post_id', $filters['post_id']);
         }
 
+        // Tarih aralığı gün bazında: "1 Ocak"tan başlayan bir süzgeç o günün
+        // sabahından, biten süzgeç o günün gece yarısına kadar sürüyor.
+        // whereDate yerine sınırlar açıkça yazılıyor: sütun üzerinde işlev
+        // çağrısı indeksi kullanılamaz hâle getiriyordu.
+        if (!empty($filters['date_from'])) {
+            $baslangic = $this->parseDate($filters['date_from']);
+
+            if ($baslangic !== null) {
+                $query->where('created_at', '>=', $baslangic->startOfDay());
+            }
+        }
+
+        if (!empty($filters['date_to'])) {
+            $bitis = $this->parseDate($filters['date_to']);
+
+            if ($bitis !== null) {
+                $query->where('created_at', '<=', $bitis->endOfDay());
+            }
+        }
+
         return $query;
+    }
+
+    /**
+     * Süzgeçten gelen tarih metnini güvenle çevirir.
+     *
+     * Değer adres çubuğundan geliyor; elle yazılmış bir metin ayrıştırma
+     * hatası fırlatıp bütün listeyi düşürebilirdi.
+     */
+    private function parseDate(string $value): ?\Illuminate\Support\Carbon
+    {
+        try {
+            return \Illuminate\Support\Carbon::parse($value);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -109,6 +159,18 @@ final class BlogCommentService
     public function findById(int $id): BlogComment
     {
         return BlogComment::with(['post', 'parent', 'replies'])->findOrFail($id);
+    }
+
+    /**
+     * Süzgeç listesinde gösterilecek yazılar: yalnız yorumu olanlar.
+     *
+     * @return Collection<int, BlogPost>
+     */
+    public function commentedPosts(): Collection
+    {
+        return BlogPost::whereHas('comments')
+            ->orderBy('title')
+            ->get(['id', 'title']);
     }
 
     public function pendingCount(): int
@@ -160,21 +222,174 @@ final class BlogCommentService
 
     public function approve(BlogComment $comment): void
     {
+        // Zaten onaylıysa ikinci kez mail göndermenin anlamı yok: aynı kişi
+        // "yorumunuz yayınlandı" mailini iki kez alırdı.
+        $zatenOnayli = $comment->status === CommentStatus::Approved;
+
         $comment->update(['status' => CommentStatus::Approved]);
+        $this->clearCache();
+
+        if (! $zatenOnayli) {
+            $this->notifyApproved($comment);
+        }
     }
 
     public function reject(BlogComment $comment): void
     {
         $comment->update(['status' => CommentStatus::Rejected]);
+        $this->clearCache();
     }
 
     public function delete(BlogComment $comment): void
     {
         DB::transaction(fn () => $comment->delete());
+        $this->clearCache();
+    }
+
+    /**
+     * Listede seçilen yorumları tek seferde onaylar.
+     *
+     * Yorumlar çeviri grubu taşımıyor; her satır kendi başına bir kayıt.
+     * Zaten onaylı olanlar sayıya girmiyor: "5 yorum onaylandı" derken
+     * hiçbiri değişmemiş olabilirdi.
+     *
+     * @param  list<int> $ids
+     * @return int       durumu değişen yorum sayısı
+     */
+    public function approveMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        // Kimlerin durumu gerçekten değişecek: mail yalnız onlara gidecek.
+        $degisecekler = BlogComment::with('post.category')
+            ->whereIn('id', $ids)
+            ->where('status', '!=', CommentStatus::Approved->value)
+            ->get();
+
+        $degisen = DB::transaction(fn (): int => BlogComment::whereIn('id', $degisecekler->pluck('id'))
+            ->update(['status' => CommentStatus::Approved->value]));
+
+        if ($degisen > 0) {
+            $this->clearCache();
+
+            foreach ($degisecekler as $comment) {
+                $comment->status = CommentStatus::Approved;
+                $this->notifyApproved($comment);
+            }
+        }
+
+        return $degisen;
+    }
+
+    /**
+     * Seçilen yorumları tek seferde siler.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen yorum sayısı
+     */
+    public function deleteMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        $silinen = DB::transaction(fn (): int => BlogComment::whereIn('id', $ids)->delete());
+
+        if ($silinen > 0) {
+            $this->clearCache();
+        }
+
+        return $silinen;
+    }
+
+    /**
+     * Seçilen yorumları çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen yorum sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        $geriYuklenen = DB::transaction(fn (): int => BlogComment::onlyTrashed()->whereIn('id', $ids)->restore());
+
+        if ($geriYuklenen > 0) {
+            $this->clearCache();
+        }
+
+        return $geriYuklenen;
     }
 
     public function restore(BlogComment $comment): void
     {
         DB::transaction(fn () => $comment->restore());
+        $this->clearCache();
+    }
+
+    /**
+     * İstatistik kartlarının okuduğu sayılar beş dakika önbellekte duruyor.
+     *
+     * Durum değiştiren her yol bunu düşürmek zorunda: düşürülmediği için
+     * kartlar bekleyen yorum sayısını olduğundan farklı gösteriyordu —
+     * yorum onaylanıyor, kart hâlâ eski sayıyı yazıyordu.
+     */
+    public function clearCache(): void
+    {
+        Cache::forget('admin.blog_comments.stats');
+    }
+
+    // ── Bildirimler ──
+
+    /**
+     * Yeni yorumda iki bildirim: yöneticiye "bak, onay bekliyor", yazan kişiye
+     * "aldık, değerlendiriyoruz".
+     *
+     * Mail gönderimi yorumun kaydedilmesini bozmamalı — SMTP kapalıysa ya da
+     * adres tanımsızsa yorum yine kaydedilmiş sayılır; hata yalnız günlüğe
+     * düşüyor. Gönderim MailService üzerinden gittiği için mail loglarına da
+     * kendiliğinden yazılıyor.
+     */
+    private function notifyOnCreated(BlogComment $comment): void
+    {
+        $comment->loadMissing('post.category');
+
+        $adminEmail = config('mail.admin_address', config('mail.from.address'));
+
+        if ($adminEmail) {
+            $this->trySend((string) $adminEmail, new BlogCommentAdminNotification($comment), 'yönetici bildirimi');
+        }
+
+        if ($comment->email) {
+            $this->trySend($comment->email, new BlogCommentReceivedMail($comment), 'yorum alındı bildirimi');
+        }
+    }
+
+    /** Onaylanan yorumun sahibine yayınlandı bildirimi. */
+    private function notifyApproved(BlogComment $comment): void
+    {
+        if (! $comment->email) {
+            return;
+        }
+
+        $comment->loadMissing('post.category');
+
+        $this->trySend($comment->email, new BlogCommentApprovedMail($comment), 'yorum onay bildirimi');
+    }
+
+    private function trySend(string $to, \Illuminate\Contracts\Mail\Mailable $mailable, string $ne): void
+    {
+        try {
+            $this->mailService->queue($to, $mailable);
+        } catch (\Throwable $e) {
+            Log::warning("Yorum {$ne} kuyruğa eklenemedi", [
+                'to'    => $to,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

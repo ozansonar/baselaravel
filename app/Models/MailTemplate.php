@@ -43,6 +43,9 @@ final class MailTemplate extends Model
         'contact_message' => ['icon' => 'bi-chat-dots-fill',      'color' => 'purple'],
         'contact_reply'   => ['icon' => 'bi-reply-fill',          'color' => 'teal'],
         'test'            => ['icon' => 'bi-wrench-adjustable',   'color' => 'muted'],
+        'blog_comment_admin'    => ['icon' => 'bi-chat-left-text-fill', 'color' => 'purple'],
+        'blog_comment_received' => ['icon' => 'bi-hourglass-split',     'color' => 'orange'],
+        'blog_comment_approved' => ['icon' => 'bi-patch-check-fill',    'color' => 'green'],
     ];
 
     public function getIconAttribute(): string

@@ -326,6 +326,87 @@ final class BlogService
         $this->clearCache();
     }
 
+    /**
+     * Seçilen içerikleri tek seferde yayına alır ya da taslağa çeker.
+     *
+     * Durum bütün çeviri grubuna işliyor: listede tek satır görünen bir
+     * içeriğin Türkçesi yayında, İngilizcesi taslakta kalsaydı ön yüzde
+     * yarısı görünen bir içerik olurdu.
+     *
+     * Yayına alırken tarihi olmayan içeriğe şimdiki zaman yazılıyor; tarihsiz
+     * bir yazı "yayında" görünüp listede hiç çıkmıyordu.
+     *
+     * @param  list<int> $ids
+     * @return int       durumu değişen içerik sayısı
+     */
+    public function changeStatusMany(array $ids, ContentStatus $status): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        $gruplar = BlogPost::whereIn('id', $ids)->pluck('lang_group_id')->unique()->all();
+
+        if ($gruplar === []) {
+            return 0;
+        }
+
+        DB::transaction(function () use ($gruplar, $status): void {
+            $degerler = ['status' => $status->value];
+
+            BlogPost::whereIn('lang_group_id', $gruplar)->update($degerler);
+
+            if ($status === ContentStatus::Published) {
+                BlogPost::whereIn('lang_group_id', $gruplar)
+                    ->whereNull('published_at')
+                    ->update(['published_at' => now()]);
+            }
+        });
+
+        $this->clearCache();
+
+        return count($gruplar);
+    }
+
+    /**
+     * Listede seçilen içerikleri tek seferde siler.
+     *
+     * Döngü ListsTranslationGroups içinde: liste her çeviri grubunu tek
+     * satırla gösteriyor, silme de grup grup işliyor — bir içerikin
+     * Türkçesini silip İngilizcesini bırakmak ön yüzde sahipsiz bir çeviri
+     * bırakırdı. Dönen sayı seçilen satır değil, silinen kayıt sayısı.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen kayıt sayısı
+     */
+    public function deleteMany(array $ids): int
+    {
+        $silinen = $this->deleteGroupsById(BlogPost::class, $ids);
+
+        if ($silinen > 0) {
+            $this->clearCache();
+        }
+
+        return $silinen;
+    }
+
+    /**
+     * Seçilenleri çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen kayıt sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        $geriYuklenen = $this->restoreGroupsById(BlogPost::class, $ids);
+
+        if ($geriYuklenen > 0) {
+            $this->clearCache();
+        }
+
+        return $geriYuklenen;
+    }
+
     public function restore(int $id): BlogPost
     {
         $post = BlogPost::withTrashed()->findOrFail($id);

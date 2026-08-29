@@ -129,13 +129,40 @@
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
                 @endif
-                @if(request('post_id'))
-                    <input type="hidden" name="post_id" value="{{ request('post_id') }}">
-                @endif
                 <div class="cl-search">
                     <i class="bi bi-search"></i>
                     <input type="text" name="search" id="commentSearch" placeholder="Ad, e-posta veya yorum içeriğinde ara..." value="{{ request('search') }}" data-fv-ignore>
                 </div>
+
+                {{-- Yazı ve tarih süzgeçleri. Durum süzgeci üstteki sekmelerde
+                     duruyor; üçü birden aynı adreste birleşiyor, biri
+                     ötekini sıfırlamıyor. --}}
+                <div class="cl-filters">
+                    <select class="cl-filter-select" name="post_id"
+                            onchange="document.getElementById('filterForm').submit()"
+                            data-placeholder="Tüm Yazılar" data-fv-ignore>
+                        <option value="">Tüm Yazılar</option>
+                        @foreach($posts as $post)
+                            <option value="{{ $post->id }}" {{ (int) request('post_id') === $post->id ? 'selected' : '' }}>
+                                {{ Str::limit($post->title, 45) }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="cmt-date-range">
+                        <label for="dateFrom" class="cmt-date-range__label">Tarih</label>
+                        <input type="date" class="cl-filter-select" id="dateFrom" name="date_from"
+                               value="{{ request('date_from') }}" max="{{ now()->toDateString() }}"
+                               onchange="document.getElementById('filterForm').submit()"
+                               aria-label="Başlangıç tarihi" data-fv-ignore>
+                        <span class="cmt-date-range__sep">—</span>
+                        <input type="date" class="cl-filter-select" id="dateTo" name="date_to"
+                               value="{{ request('date_to') }}" max="{{ now()->toDateString() }}"
+                               onchange="document.getElementById('filterForm').submit()"
+                               aria-label="Bitiş tarihi" data-fv-ignore>
+                    </div>
+                </div>
+
                 <div class="cl-toolbar-actions">
                     <a href="{{ route('admin.blog-comments.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
                         <i class="bi bi-arrow-counterclockwise"></i>
@@ -150,10 +177,35 @@
                     </div>
 
                     <x-export-menu export="blog-comments" :total="$comments->total()" />
-                    <div class="cl-bulk-actions d-none" id="bulkActions">
-                        <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
-                        <button type="button" class="usr-action-btn success" onclick="openBulkApproveModal()" title="Toplu Onayla"><i class="bi bi-check-lg"></i></button>
-                        <button type="button" class="usr-action-btn danger" onclick="openBulkDeleteModal()" title="Toplu Sil"><i class="bi bi-trash"></i></button>
+                    {{-- Sürücü: assets/admin/js/bulk-actions.js --}}
+                    <div class="cl-bulk-actions d-none" data-bulk-bar>
+                        <span class="cl-bulk-count"><span data-bulk-count>0</span> seçili</span>
+                        @if(request('status') === 'trashed')
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkRestoreForm"
+                                    data-bulk-title="Toplu Geri Yükleme"
+                                    data-bulk-message=":count yorum geri yüklenecek. Onaylıyor musunuz?"
+                                    data-bulk-confirm="Evet, Geri Yükle"
+                                    data-bulk-icon="bi bi-arrow-counterclockwise"
+                                    title="Seçilenleri Geri Yükle"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        @else
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkApproveForm"
+                                    data-bulk-title="Toplu Onay"
+                                    data-bulk-message=":count yorum onaylanacak ve sitede görünür olacak."
+                                    data-bulk-confirm="Evet, Onayla"
+                                    data-bulk-icon="bi bi-check-lg"
+                                    title="Seçilenleri Onayla"><i class="bi bi-check-lg"></i></button>
+                            <button type="button" class="usr-action-btn danger"
+                                    data-bulk-action="bulkDeleteForm"
+                                    data-bulk-title="Toplu Silme Onayı"
+                                    data-bulk-message=":count yorum silinecek. Silinenler &quot;Silinmiş&quot; sekmesinden geri alınabilir."
+                                    data-bulk-type="danger"
+                                    data-bulk-confirm="Evet, Sil"
+                                    data-bulk-icon="bi bi-trash3"
+                                    title="Seçilenleri Sil"><i class="bi bi-trash"></i></button>
+                        @endif
+                        <button type="button" class="usr-action-btn" data-bulk-clear title="Seçimi Bırak"><i class="bi bi-x-lg"></i></button>
                     </div>
                 </div>
             </form>
@@ -169,11 +221,10 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-all aria-label="Tümünü seç" data-fv-ignore>
                             </th>
-                            <th>Kişi</th>
-                            <th>Yazı</th>
-                            <th class="d-none d-md-table-cell">Yorum</th>
+                            <th>Yorum</th>
+                            <th class="d-none d-lg-table-cell">Yazı</th>
                             <th>Durum</th>
                             <th class="d-none d-lg-table-cell">Tarih</th>
                             <th class="cl-th-actions">İşlem</th>
@@ -182,27 +233,35 @@
                     <tbody id="commentsTableBody">
                         @forelse($comments as $comment)
                             <tr data-status="{{ $comment->trashed() ? 'trashed' : $comment->status->value }}">
-                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox comment-checkbox" value="{{ $comment->id }}" onchange="updateBulk()" data-fv-ignore></td>
-                                <td data-label="Kişi">
-                                    <div class="cl-content-info">
-                                        <span class="cl-content-title">{{ $comment->name }}</span>
-                                        <span class="cl-content-meta"><i class="bi bi-envelope me-1"></i>{{ $comment->email }}</span>
-                                        @if($comment->parent_id)
-                                            <span class="cl-content-meta text-info"><i class="bi bi-reply me-1"></i>Yanıt</span>
-                                        @endif
+                                <td data-label="Seç"><input type="checkbox" class="usr-checkbox" data-bulk-item value="{{ $comment->id }}" data-fv-ignore></td>
+                                {{-- Kişi ve yorum tek hücrede: yorum listesinde asıl
+                                     okunacak şey metnin kendisi, ayrı sütuna
+                                     sıkıştırılınca 60 karakteri geçemiyordu. --}}
+                                <td data-label="Yorum">
+                                    <div class="cmt-cell">
+                                        <span class="cmt-avatar">{{ mb_strtoupper(mb_substr($comment->name, 0, 1)) }}</span>
+                                        <div class="cmt-cell__body">
+                                            <span class="cmt-cell__head">
+                                                <strong class="cmt-cell__name">{{ $comment->name }}</strong>
+                                                @if($comment->parent_id)
+                                                    <span class="cmt-tag"><i class="bi bi-reply"></i> Yanıt</span>
+                                                @endif
+                                            </span>
+                                            <a href="mailto:{{ $comment->email }}" class="cmt-cell__mail"><i class="bi bi-envelope me-1"></i>{{ $comment->email }}</a>
+                                            <p class="cmt-cell__text">{{ Str::limit($comment->body, 130) }}</p>
+                                        </div>
                                     </div>
                                 </td>
-                                <td data-label="Yazı">
+                                <td data-label="Yazı" class="d-none d-lg-table-cell">
                                     @if($comment->post)
-                                        <a href="{{ route('admin.blog-comments.index', ['post_id' => $comment->blog_post_id]) }}" class="cl-content-meta text-teal">
-                                            {{ Str::limit($comment->post->title, 35) }}
+                                        <a href="{{ route('admin.blog-comments.index', array_merge(request()->except('page'), ['post_id' => $comment->blog_post_id])) }}"
+                                           class="cmt-post-link" title="Bu yazının yorumlarını süz">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                            <span>{{ Str::limit($comment->post->title, 30) }}</span>
                                         </a>
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
-                                </td>
-                                <td data-label="Yorum" class="d-none d-md-table-cell">
-                                    <span class="cl-content-meta">{{ Str::limit($comment->body, 60) }}</span>
                                 </td>
                                 <td data-label="Durum">
                                     @if($comment->trashed())
@@ -252,9 +311,17 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-5">
+                                <td colspan="6" class="text-center text-muted py-5">
                                     <i class="bi bi-chat-dots d-block fs-1 mb-2"></i>
-                                    Yorum bulunamadı.
+                                    @if(request()->hasAny(['search', 'post_id', 'date_from', 'date_to', 'status']))
+                                        Bu süzgeçlere uyan yorum yok.
+                                        <br>
+                                        <a href="{{ route('admin.blog-comments.index') }}" class="btn-glass mt-3 d-inline-flex">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Süzgeçleri temizle
+                                        </a>
+                                    @else
+                                        Henüz yorum yapılmamış.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
@@ -266,6 +333,19 @@
         @include('partials.admin.pagination', ['paginator' => $comments, 'itemLabel' => 'yorum'])
     </div>
 
+    {{-- Toplu işlem formları — kimlikleri bulk-actions.js dolduruyor. --}}
+    <form method="POST" action="{{ route('admin.blog-comments.bulk-approve', request()->query()) }}" id="bulkApproveForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-comments.bulk-destroy', request()->query()) }}" id="bulkDeleteForm" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-comments.bulk-restore', request()->query()) }}" id="bulkRestoreForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
 @endsection
 
 @push('scripts')

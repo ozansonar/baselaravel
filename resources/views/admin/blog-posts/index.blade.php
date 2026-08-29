@@ -155,11 +155,42 @@
                     </div>
 
                     <x-export-menu export="blog-posts" :total="$posts->total()" />
-                    <div class="cl-bulk-actions d-none" id="bulkActions">
-                        <span class="cl-bulk-count"><span id="selectedCount">0</span> seçili</span>
-                        <button type="button" class="usr-action-btn success" onclick="bulkContentAction('publish')" title="Yayınla"><i class="bi bi-check-circle"></i></button>
-                        <button type="button" class="usr-action-btn" onclick="bulkContentAction('draft')" title="Taslağa Al"><i class="bi bi-file-earmark"></i></button>
-                        <button type="button" class="usr-action-btn danger" onclick="bulkContentAction('delete')" title="Sil"><i class="bi bi-trash"></i></button>
+                    {{-- Sürücü: assets/admin/js/bulk-actions.js --}}
+                    <div class="cl-bulk-actions d-none" data-bulk-bar>
+                        <span class="cl-bulk-count"><span data-bulk-count>0</span> seçili</span>
+                        @if(request('status') === 'trashed')
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkRestoreForm"
+                                    data-bulk-title="Toplu Geri Yükleme"
+                                    data-bulk-message=":count içerik geri yüklenecek. Onaylıyor musunuz?"
+                                    data-bulk-confirm="Evet, Geri Yükle"
+                                    data-bulk-icon="bi bi-arrow-counterclockwise"
+                                    title="Seçilenleri Geri Yükle"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        @else
+                            <button type="button" class="usr-action-btn success"
+                                    data-bulk-action="bulkPublishForm"
+                                    data-bulk-title="Toplu Yayınlama"
+                                    data-bulk-message=":count içerik yayına alınacak ve sitede görünür olacak."
+                                    data-bulk-confirm="Evet, Yayınla"
+                                    data-bulk-icon="bi bi-check-circle"
+                                    title="Seçilenleri Yayınla"><i class="bi bi-check-circle"></i></button>
+                            <button type="button" class="usr-action-btn"
+                                    data-bulk-action="bulkDraftForm"
+                                    data-bulk-title="Toplu Taslağa Alma"
+                                    data-bulk-message=":count içerik taslağa alınacak ve sitede görünmeyecek."
+                                    data-bulk-confirm="Evet, Taslağa Al"
+                                    data-bulk-icon="bi bi-file-earmark"
+                                    title="Seçilenleri Taslağa Al"><i class="bi bi-file-earmark"></i></button>
+                            <button type="button" class="usr-action-btn danger"
+                                    data-bulk-action="bulkDeleteForm"
+                                    data-bulk-title="Toplu Silme Onayı"
+                                    data-bulk-message=":count içerik silinecek. Silinenler &quot;Silinmiş&quot; sekmesinden geri alınabilir."
+                                    data-bulk-type="danger"
+                                    data-bulk-confirm="Evet, Sil"
+                                    data-bulk-icon="bi bi-trash3"
+                                    title="Seçilenleri Sil"><i class="bi bi-trash"></i></button>
+                        @endif
+                        <button type="button" class="usr-action-btn" data-bulk-clear title="Seçimi Bırak"><i class="bi bi-x-lg"></i></button>
                     </div>
                 </div>
             </form>
@@ -174,7 +205,7 @@
                     <thead>
                         <tr>
                             <th class="cl-th-checkbox">
-                                <input type="checkbox" class="usr-checkbox" id="selectAll" onchange="toggleSelectAll(this)" data-fv-ignore>
+                                <input type="checkbox" class="usr-checkbox" data-bulk-all aria-label="Tümünü seç" data-fv-ignore>
                             </th>
                             <th>İçerik</th>
                             <th class="d-none d-md-table-cell">Kategori</th>
@@ -207,7 +238,7 @@
                             @endphp
                             <tr>
                                 <td data-label="Seç">
-                                    <input type="checkbox" class="usr-checkbox content-checkbox" value="{{ $post->id }}" onchange="updateBulk()" data-fv-ignore>
+                                    <input type="checkbox" class="usr-checkbox" data-bulk-item value="{{ $post->id }}" data-fv-ignore>
                                 </td>
                                 <td data-label="İçerik">
                                     <div class="cl-content-cell">
@@ -304,27 +335,23 @@
         @include('partials.admin.pagination', ['paginator' => $posts, 'itemLabel' => 'içerik'])
     </div>
 
-    {{-- BULK DELETE MODAL --}}
-    <div class="modal fade" id="bulkDeleteModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center py-4">
-                    <div class="status-modal-icon danger">
-                        <i class="bi bi-trash"></i>
-                    </div>
-                    <h5 class="cl-modal-heading">Toplu Silme Onayı</h5>
-                    <p class="cl-modal-body-text"><strong id="bulkDeleteCount">0</strong> içeriği silmek istediğinizden emin misiniz?</p>
-                    <p class="cl-modal-warning"><i class="bi bi-exclamation-circle me-1"></i>Bu işlem geri alınamaz.</p>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
-                        <button class="btn-teal btn-danger-gradient" data-bs-dismiss="modal" onclick="confirmBulkDelete()">
-                            <i class="bi bi-trash"></i> Evet, Sil
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- Toplu işlem formları — kimlikleri bulk-actions.js dolduruyor. --}}
+    <form method="POST" action="{{ route('admin.blog-posts.bulk-status', array_merge(['status' => 'publish'], request()->query())) }}" id="bulkPublishForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-posts.bulk-status', array_merge(['status' => 'draft'], request()->query())) }}" id="bulkDraftForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-posts.bulk-destroy', request()->query()) }}" id="bulkDeleteForm" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form method="POST" action="{{ route('admin.blog-posts.bulk-restore', request()->query()) }}" id="bulkRestoreForm" class="d-none">
+        @csrf
+        @method('PATCH')
+    </form>
 @endsection
 
 @push('scripts')

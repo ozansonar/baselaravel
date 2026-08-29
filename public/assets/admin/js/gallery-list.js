@@ -3,6 +3,16 @@
 (function () {
   'use strict';
 
+  // ==================== BÜYÜTME ====================
+  function lightboxKur() {
+    if (typeof GLightbox === 'undefined' || !document.querySelector('.glightbox')) {
+      return;
+    }
+
+    GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
+  }
+
+
   // ==================== DELETE MODAL ====================
   window.openDeleteModal = function (title, id) {
     AdminModal.confirm({
@@ -63,6 +73,7 @@
   // ==================== INIT ====================
   function init() {
     animateCounters();
+    lightboxKur();
   }
 
   if (document.readyState === 'loading') {

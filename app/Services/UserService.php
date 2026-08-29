@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 final class UserService
@@ -192,6 +193,57 @@ final class UserService
     {
         $user->delete();
         Cache::forget('admin_user_stats');
+    }
+
+    /**
+     * Listede seçilen kullanıcıları tek seferde siler.
+     *
+     * Önce tarayıcı her kayıt için ayrı bir istek atıyordu; elli kullanıcı
+     * elli istek demekti ve yarısı düşerse ortada karışık bir sonuç kalıyordu.
+     * Tek istek, tek işlem.
+     *
+     * Kişi kendini silemez: oturumu açık olan kullanıcı listede seçili olsa
+     * bile atlanıyor, yoksa yönetici kendi erişimini kapatabilirdi.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen kullanıcı sayısı
+     */
+    public function deleteMany(array $ids, ?int $exceptId = null): int
+    {
+        $ids = array_values(array_diff($ids, $exceptId === null ? [] : [$exceptId]));
+
+        if ($ids === []) {
+            return 0;
+        }
+
+        $silinen = DB::transaction(fn (): int => User::whereIn('id', $ids)->delete());
+
+        if ($silinen > 0) {
+            Cache::forget('admin_user_stats');
+        }
+
+        return $silinen;
+    }
+
+    /**
+     * Seçilen kullanıcıları çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen kullanıcı sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        $geriYuklenen = DB::transaction(fn (): int => User::onlyTrashed()->whereIn('id', $ids)->restore());
+
+        if ($geriYuklenen > 0) {
+            Cache::forget('admin_user_stats');
+        }
+
+        return $geriYuklenen;
     }
 
     public function restore(User $user): void

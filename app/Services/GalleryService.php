@@ -310,6 +310,43 @@ final class GalleryService
         $this->clearCache();
     }
 
+    /**
+     * Seçilen öğeleri tek seferde siler.
+     *
+     * Döngünün kendisi ListsTranslationGroups içinde: aynı iş sayfa, slider,
+     * SSS ve kategori listelerinde de var, altı yerde ayrı yazılmasın.
+     *
+     * @param  list<int> $ids
+     * @return int       silinen öğe sayısı
+     */
+    public function deleteMany(array $ids): int
+    {
+        $silinen = $this->deleteGroupsById(GalleryItem::class, $ids);
+
+        if ($silinen > 0) {
+            $this->clearCache();
+        }
+
+        return $silinen;
+    }
+
+    /**
+     * Seçilen öğeleri çöpten tek seferde çıkarır.
+     *
+     * @param  list<int> $ids
+     * @return int       geri yüklenen öğe sayısı
+     */
+    public function restoreMany(array $ids): int
+    {
+        $geriYuklenen = $this->restoreGroupsById(GalleryItem::class, $ids);
+
+        if ($geriYuklenen > 0) {
+            $this->clearCache();
+        }
+
+        return $geriYuklenen;
+    }
+
     public function restore(int $id): GalleryItem
     {
         $item = GalleryItem::withTrashed()->findOrFail($id);

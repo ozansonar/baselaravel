@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkBlogCategoryRequest;
 use App\Http\Requests\Admin\StoreTranslatedBlogCategoryRequest;
 use App\Http\Requests\StoreBlogCategoryRequest;
 use App\Http\Requests\UpdateBlogCategoryRequest;
@@ -16,6 +18,8 @@ use Illuminate\View\View;
 
 final class BlogCategoryController extends Controller
 {
+    use ReturnsToList;
+
     public function __construct(
         private readonly BlogCategoryService $blogCategoryService,
     ) {}
@@ -98,5 +102,40 @@ final class BlogCategoryController extends Controller
         return redirect()
             ->route('admin.blog-categories.index')
             ->with('success', 'İçerik kategorisi başarıyla geri yüklendi.');
+    }
+
+    /**
+     * Listede seçilen kategorileri tek seferde siler.
+     *
+     * Liste ekranındaki seçim kutuları buraya bağlı; önceden yalnız arayüz
+     * vardı, "Sil" kutuları temizliyor ama sunucuya istek gitmiyordu.
+     */
+    public function bulkDestroy(BulkBlogCategoryRequest $request): RedirectResponse
+    {
+        $this->authorize('delete', new BlogCategory());
+
+        $silinen = $this->blogCategoryService->deleteMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-categories.index')->with(
+            $silinen > 0 ? 'success' : 'error',
+            $silinen > 0 ? "{$silinen} kayıt silindi." : 'Hiçbir kayıt silinemedi.',
+        );
+    }
+
+    /**
+     * Çöpteki kategorileri tek seferde geri yükler.
+     *
+     * Silinmişler sekmesinde toplu silmenin karşılığı bu.
+     */
+    public function bulkRestore(BulkBlogCategoryRequest $request): RedirectResponse
+    {
+        $this->authorize('restore', new BlogCategory());
+
+        $geriYuklenen = $this->blogCategoryService->restoreMany($request->ids());
+
+        return $this->backToList($request, 'admin.blog-categories.index')->with(
+            $geriYuklenen > 0 ? 'success' : 'error',
+            $geriYuklenen > 0 ? "{$geriYuklenen} kayıt geri yüklendi." : 'Hiçbir kayıt geri yüklenemedi.',
+        );
     }
 }

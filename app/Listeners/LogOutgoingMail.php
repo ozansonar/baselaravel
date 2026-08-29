@@ -110,6 +110,23 @@ final class LogOutgoingMail
             $update['body'] = $body;
         }
 
+        $log = MailLog::find($mailLogId);
+
+        // Konu da gönderim anında belli oluyor: kayıt gönderimden önce
+        // açılıyor, envelope() ile content() ise gönderim sırasında çalışıyor
+        // ve şablon kullanan maillerde konuyu belirleyen de o. Kayda sınıf
+        // adı ("BlogCommentReceivedMail") düşüyordu.
+        //
+        // Yalnız o durumda yazılıyor: kaydı açan taraf anlamlı bir konu
+        // yazdıysa dokunulmuyor. Yeniden gönderimde kaydın konusu
+        // "[Yeniden] ..." oluyor ama giden iletide özgün konu duruyor;
+        // koşulsuz yazılsaydı işaret kaybolurdu.
+        $subject = $message->getSubject();
+
+        if ($log !== null && $subject !== null && $subject !== '' && $this->subjectIsPlaceholder($log)) {
+            $update['subject'] = $subject;
+        }
+
         $updated = MailLog::where('id', $mailLogId)
             ->where('status', MailLogStatus::Pending)
             ->update($update);
@@ -117,6 +134,24 @@ final class LogOutgoingMail
         if ($updated) {
             Cache::forget('admin.mail_logs.stats');
         }
+    }
+
+    /**
+     * Kayıttaki konu gerçek bir konu mu, yoksa yer tutucu mu?
+     *
+     * Konu bilinmediğinde MailLogService sınıf adını yazıyor; asıl konunun
+     * üzerine yazılacağı tek durum bu.
+     */
+    private function subjectIsPlaceholder(MailLog $log): bool
+    {
+        $subject = (string) $log->subject;
+
+        if ($subject === '') {
+            return true;
+        }
+
+        return $log->mailable_class !== null
+            && $subject === class_basename($log->mailable_class);
     }
 
     private function existingLogId(Email $message): ?int

@@ -80,6 +80,9 @@ class MailLog extends Model
         'ResetPasswordMail'          => ['label' => 'Şifre Sıfırlama', 'icon' => 'bi-key-fill', 'color' => 'text-warning'],
         'ContactMessageReplyMail'    => ['label' => 'İletişim Yanıtı', 'icon' => 'bi-reply-fill', 'color' => 'text-neon-green'],
         'TestMail'                   => ['label' => 'Test Maili', 'icon' => 'bi-wrench-adjustable', 'color' => 'text-secondary'],
+        'BlogCommentAdminNotification' => ['label' => 'Yeni Yorum (Yönetici)', 'icon' => 'bi-chat-left-text-fill', 'color' => 'text-neon-purple'],
+        'BlogCommentReceivedMail'      => ['label' => 'Yorum Alındı', 'icon' => 'bi-hourglass-split', 'color' => 'text-neon-orange'],
+        'BlogCommentApprovedMail'      => ['label' => 'Yorum Onaylandı', 'icon' => 'bi-patch-check-fill', 'color' => 'text-neon-green'],
     ];
 
     public function getShortMailableAttribute(): string
