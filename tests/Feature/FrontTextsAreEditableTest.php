@@ -19,6 +19,11 @@ use Tests\TestCase;
  *
  * Bu yüzden denetim tek tek metin saymak yerine görünümleri tarıyor: sonradan
  * eklenen bir yazı da aynı kuralı karşılamak zorunda.
+ *
+ * Aynı sözleşmenin öteki yönü de burada: panelde görünen her satırın sitede bir
+ * karşılığı olmalı. Kullanılmayan anahtar hata vermiyor ama sessizce yanlış
+ * yönlendiriyor — yönetici metni değiştiriyor, kaydediyor, sitede hiçbir şey
+ * olmuyor.
  */
 final class FrontTextsAreEditableTest extends TestCase
 {
@@ -38,6 +43,9 @@ final class FrontTextsAreEditableTest extends TestCase
      * @var list<string>
      */
     private const NOT_PROSE = ['breadcrumb', 'button', 'true', 'false', 'null'];
+
+    /** Panelin düzenlettiği tek çeviri grubu. */
+    private const GROUP = 'site';
 
     public function test_no_front_view_writes_a_visitor_facing_string_by_hand(): void
     {
@@ -250,5 +258,136 @@ final class FrontTextsAreEditableTest extends TestCase
 
         // İçinde harf olmayan (rakam, simge, madde imi) değerler yazı değil.
         return preg_match('/\p{L}/u', $text) === 1;
+    }
+
+    /**
+     * Panelde görünen her anahtarın kodda bir çağrısı olmalı.
+     *
+     * Ölü anahtar hata vermiyor: ekranda satır olarak duruyor, yönetici metni
+     * değiştirip kaydediyor ve sitede hiçbir şey değişmiyor. Çoğu, canlı bir
+     * anahtarın biraz farklı yazılmış ikizi olarak birikiyordu
+     * (comment_form ↔ comment_title, no_comments ↔ comment_empty).
+     *
+     * Testler taramanın dışında. Anahtarı ayakta tutan tek şey bir test
+     * fikstürüyse o anahtar uygulamada ölüdür; bir kez öyle oldu.
+     */
+    public function test_every_key_the_panel_offers_is_actually_used(): void
+    {
+        $used = $this->calledKeys();
+
+        // Tarayıcı bozulursa küme boşalır ve denetim hiçbir şey bulmadan
+        // yeşil geçerdi. Ölçtüğünden emin olunmadan sonucuna güvenilmez.
+        $this->assertGreaterThan(
+            200,
+            count($used),
+            'Çeviri çağrıları okunamıyor; denetim ölçmüyor',
+        );
+
+        $olu = array_values(array_diff(
+            array_keys(app(TranslationService::class)->fileLines('tr', self::GROUP)),
+            $used,
+        ));
+
+        sort($olu);
+
+        $this->assertSame(
+            [],
+            $olu,
+            "Panelde görünen ama hiçbir yerde çağrılmayan anahtar:\n  " . implode("\n  ", $olu),
+        );
+    }
+
+    /**
+     * Çağrılan her anahtar tanımlı da olmalı.
+     *
+     * Tanımsız anahtar hata vermiyor, Laravel anahtarın kendisini basıyor:
+     * ekranda "site.blog.eyebrow" yazıyor. Yukarıdaki denetim yalnız ön yüze
+     * bakıyor, bu bütün projeye.
+     */
+    public function test_no_call_points_at_a_key_that_does_not_exist(): void
+    {
+        $tanimli = app(TranslationService::class)->fileLines('tr', self::GROUP);
+
+        $eksik = array_values(array_diff($this->calledKeys(), array_keys($tanimli)));
+
+        sort($eksik);
+
+        $this->assertSame([], $eksik, "Tanımsız anahtar çağrısı:\n  " . implode("\n  ", $eksik));
+    }
+
+    /**
+     * Kodun çağırdığı site.* anahtarları.
+     *
+     * Yalnız çeviri çağrısının içindekiler sayılıyor. Düz "site." aramak
+     * yetmiyordu: metinde geçen "site.com" ve "site.php" de anahtar sanılıyordu.
+     *
+     * @return list<string>
+     */
+    private function calledKeys(): array
+    {
+        $pattern = '/(?:__|@lang|trans|trans_choice|Lang::get)\(\s*[\'"]'
+            . preg_quote(self::GROUP, '/') . '\.([a-z0-9_.]+)[\'"]/i';
+
+        $keys = [];
+
+        foreach ($this->projectSources() as $file) {
+            preg_match_all($pattern, (string) file_get_contents($file), $matches);
+
+            foreach ($matches[1] as $key) {
+                $keys[$key] = true;
+            }
+        }
+
+        $keys = array_keys($keys);
+        sort($keys);
+
+        return $keys;
+    }
+
+    /**
+     * Anahtarın çağrılabileceği her yer.
+     *
+     * Yönetim görünümleri de dahil: ölü anahtar denetimi ön yüzle sınırlı
+     * olsaydı, yalnız panelde kullanılan bir anahtar ölü sanılırdı.
+     *
+     * @return list<string>
+     */
+    private function projectSources(): array
+    {
+        $files = [];
+
+        foreach (['app', 'resources', 'routes', 'database', 'config', 'public'] as $directory) {
+            $path = base_path($directory);
+
+            if (! is_dir($path)) {
+                continue;
+            }
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+            );
+
+            foreach ($iterator as $file) {
+                if (! $file->isFile()) {
+                    continue;
+                }
+
+                $name = $file->getFilename();
+
+                // admin-theme hazır HTML tasarım referansı; vendor kütüphaneleri
+                // bizim anahtarlarımızı tanımıyor.
+                if ((! str_ends_with($name, '.php') && ! str_ends_with($name, '.js'))
+                    || str_contains($file->getPathname(), '/admin-theme/')
+                    || str_contains($file->getPathname(), '/vendor/')) {
+                    continue;
+                }
+
+                $files[] = $file->getPathname();
+            }
+        }
+
+        sort($files);
+
+        return $files;
     }
 }

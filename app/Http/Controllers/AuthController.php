@@ -80,7 +80,7 @@ final class AuthController extends Controller
         auth()->login($user);
 
         return redirect()->route('verification.notice')
-            ->with('success', 'Hesabınız oluşturuldu. Son adım: e-posta adresinizi doğrulayın.');
+            ->with('success', __('site.register.created'));
     }
 
     /**
@@ -109,7 +109,7 @@ final class AuthController extends Controller
         $status = $this->authService->sendResetLink($request->string('email')->value());
 
         if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('success', 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.');
+            return back()->with('success', __('site.password.link_sent'));
         }
 
         return back()
@@ -145,7 +145,7 @@ final class AuthController extends Controller
 
         if ($status === Password::PASSWORD_RESET) {
             return redirect()->route('login')
-                ->with('success', 'Şifreniz başarıyla sıfırlandı. Giriş yapabilirsiniz.');
+                ->with('success', __('site.password.reset_done'));
         }
 
         return back()->withErrors(['email' => 'Şifre sıfırlama başarısız. Lütfen tekrar deneyin.']);

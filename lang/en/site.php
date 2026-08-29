@@ -17,10 +17,8 @@ return [
     'nav' => [
         'skip_to_content' => 'Skip to main content',
         'home'      => 'Home',
-        'blog'      => 'Blog',
         'gallery'   => 'Gallery',
         'contact'   => 'Contact',
-        'toggle'    => 'Toggle menu',
     ],
 
     'auth' => [
@@ -42,17 +40,11 @@ return [
         'contact_us' => 'Contact Us',
         'read_more' => 'Read more',
         'view_all'  => 'View all',
-        'send'      => 'Send',
-        'save'      => 'Save',
         'cancel'    => 'Cancel',
-        'confirm'   => 'Confirm',
         'close'     => 'Close',
-        'back'      => 'Back',
-        'discover'  => 'Discover',
         'get_start' => 'Get Started',
         'explore'   => 'Explore Content',
         'share'     => 'Share',
-        'copy_link' => 'Copy link',
         'show_password' => 'Show password',
         'hide_password' => 'Hide password',
     ],
@@ -82,15 +74,10 @@ return [
         'title'        => 'Articles',
         'all'          => 'All',
         'empty'        => 'No content yet',
-        'categories'   => 'Categories',
         'latest'       => 'Latest Articles',
-        'published_at' => 'Published on',
-        'views'        => 'Views',
         'related'      => 'Related Articles',
         'comments'     => 'Comments',
-        'comment_form' => 'Leave a comment',
-        'comment_sent' => 'Your comment was received and will appear once approved.',
-        'no_comments'  => 'No comments yet. Be the first to write one.',
+        'comment_sent' => 'Your comment was sent. It will be published once an administrator approves it.',
     ],
 
     'gallery' => [
@@ -118,6 +105,7 @@ return [
     ],
 
     'contact' => [
+        'sent' => 'Your message has been sent. We will get back to you shortly.',
         'meta_desc' => 'Get in touch with :site. Reach us with your questions, suggestions and requests.',
         'hero_lead' => 'Reach out with your questions, suggestions or requests. Our team will get back to you shortly.',
         'lead' => 'Use any of the channels below, or fill in the form to send us a message.',
@@ -126,7 +114,6 @@ return [
         'subject_ph' => 'What is your message about?',
         'message_ph' => 'Write your message here...',
         'info' => 'Contact Details',
-        'title'         => 'Contact',
         'form_title'    => 'Write to us',
         'name'          => 'Your Name',
         'email'         => 'Your Email',
@@ -142,6 +129,7 @@ return [
     ],
 
     'account' => [
+        'profile_updated' => 'Your profile has been updated.',
         'dashboard_desc' => 'View and manage your account details.',
         'welcome' => 'Welcome, :name',
         'dashboard_lead' => 'Below is a summary of your account; you can update your profile at any time.',
@@ -157,13 +145,9 @@ return [
         'edit_profile' => 'Edit Profile',
         'full_name' => 'Full Name',
         'member_since' => 'Member Since',
-        'title'            => 'My Account',
-        'profile'          => 'Profile',
-        'profile_update'   => 'Profile Details',
         'first_name'       => 'First Name',
         'last_name'        => 'Last Name',
         'email'            => 'Email',
-        'phone'            => 'Phone',
         'avatar'           => 'Profile Photo',
         'remove_avatar'    => 'Remove photo',
         'change_password'  => 'Change Password',
@@ -184,10 +168,10 @@ return [
         'remember'   => 'Remember me',
         'forgot'     => 'Forgot your password?',
         'no_account' => "Don't have an account?",
-        'submit'     => 'Sign in',
     ],
 
     'register' => [
+        'created' => 'Your account is ready. One last step: verify your e-mail address.',
         'email_ph' => 'name@example.com',
         'phone_ph' => '05XX XXX XX XX',
         'first_name_ph' => 'Your first name',
@@ -199,13 +183,13 @@ return [
         'phone' => 'Phone',
         'password_hint' => 'Use at least 8 characters.',
         'title'          => 'Sign up',
-        'subtitle'       => 'Create a new account',
         'have_account'   => 'Already have an account?',
-        'submit'         => 'Create Account',
         'password_again' => 'Password (again)',
     ],
 
     'password' => [
+        'link_sent' => 'A password reset link has been sent to your e-mail address.',
+        'reset_done' => 'Your password has been reset. You can sign in now.',
         'email_ph' => 'name@example.com',
         'reset_subtitle' => 'Choose a new password for your account',
         'forgot_title'    => 'Forgot your password?',
@@ -217,6 +201,8 @@ return [
     ],
 
     'verify' => [
+        'verified' => 'Your e-mail address has been verified.',
+        'link_sent' => 'A verification link has been sent to your e-mail address.',
         'title'   => 'Verify your email',
         'sent_to' => 'We sent a verification link to :email. Click it to start using your account.',
         'spam'    => "If it hasn't arrived, check your spam folder. The link is valid for 60 minutes.",
@@ -242,8 +228,6 @@ return [
         '419'     => 'Your session expired. Please try again.',
         '429'     => 'Too many requests. Please wait a moment.',
         '500'     => 'Something went wrong.',
-        '503'     => 'The site is under maintenance. We will be back shortly.',
-        'go_home' => 'Back to Home',
     ],
 
     'misc' => [
@@ -264,14 +248,11 @@ return [
         'share_on' => 'Share on :network',
         'copy_link_aria' => 'Copy link',
         'optional' => '(optional)',
-        'language'      => 'Language',
         'language_aria' => 'Language selection — current language :language',
         // Jump to this content in another language — partials/content-language-links
         'read_in'          => 'Read in :language',
         'reading_original' => 'This content has not been translated yet — you are reading it in :language.',
         'no_translation'   => 'not translated',
-        'search'        => 'Search',
-        'loading'       => 'Loading...',
     ],
 
 
@@ -325,7 +306,6 @@ return [
         'subscribe'          => 'Subscribe to our newsletter',
         'email_placeholder'  => 'Your email address',
         'subscribed'         => 'Thanks for subscribing!',
-        'already_subscribed' => 'This address is already on the list.',
     ],
     /*
      * Article attachments. Kind keys mirror App\Enums\FileKind exactly; a case
@@ -337,7 +317,6 @@ return [
         'count'       => ':count files',
         'total_size'  => ':size total',
         'download'    => 'Download',
-        'open'        => 'Open',
         'preview'     => 'Enlarge',
         'kinds'       => [
             'image'        => 'Images',

@@ -98,7 +98,7 @@ class TranslationOverrideTest extends TestCase
         $this->service()->save('tr', self::GROUP, ['nav.home' => 'Ana Sayfam']);
 
         $this->assertSame('İletişim', __('site.nav.contact'));
-        $this->assertSame('Kaydet', __('site.actions.save'));
+        $this->assertSame('Tümü', __('site.blog.all'));
         $this->assertSame('Galeri', __('site.gallery.title'));
     }
 
@@ -224,7 +224,7 @@ class TranslationOverrideTest extends TestCase
         });
 
         app()->setLocale('tr');
-        foreach (['nav.home', 'nav.contact', 'actions.save', 'gallery.title', 'faq.title'] as $key) {
+        foreach (['nav.home', 'nav.contact', 'blog.all', 'gallery.title', 'faq.title'] as $key) {
             __('site.' . $key);
         }
 
@@ -324,7 +324,7 @@ class TranslationOverrideTest extends TestCase
         $keys = $this->service()->keysFrom(self::GROUP);
         $html = $this->actingAs($this->editor())->get(route('admin.translations.index'))->getContent();
 
-        foreach (['nav.home', 'actions.save', 'newsletter.subscribe', 'errors.404_title'] as $key) {
+        foreach (['nav.home', 'blog.all', 'newsletter.subscribe', 'errors.404_title'] as $key) {
             $this->assertArrayHasKey($key, $keys);
             $this->assertStringContainsString('values[' . $key . ']', $html);
         }

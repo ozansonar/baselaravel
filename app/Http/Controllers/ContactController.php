@@ -35,6 +35,6 @@ final class ContactController extends Controller
 
         return redirect()
             ->route('contact')
-            ->with('success', 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.');
+            ->with('success', __('site.contact.sent'));
     }
 }

@@ -23,7 +23,7 @@ final class BlogCommentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Yorumunuz başarıyla gönderildi. Yönetici onayından sonra yayınlanacaktır.',
+            'message' => __('site.blog.comment_sent'),
         ]);
     }
 }

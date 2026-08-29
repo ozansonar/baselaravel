@@ -63,6 +63,6 @@ final class AccountController extends Controller
         $this->accountService->updateProfile($user, $data);
 
         return redirect()->route('account.profile')
-            ->with('success', 'Profiliniz başarıyla güncellendi.');
+            ->with('success', __('site.account.profile_updated'));
     }
 }

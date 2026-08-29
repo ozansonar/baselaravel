@@ -20,10 +20,8 @@ return [
     'nav' => [
         'skip_to_content' => 'Ana içeriğe geç',
         'home'      => 'Anasayfa',
-        'blog'      => 'Blog',
         'gallery'   => 'Galeri',
         'contact'   => 'İletişim',
-        'toggle'    => 'Menüyü aç/kapat',
     ],
 
     'auth' => [
@@ -45,17 +43,11 @@ return [
         'contact_us' => 'Bize Ulaşın',
         'read_more'  => 'Devamını oku',
         'view_all'   => 'Tümünü Gör',
-        'send'       => 'Gönder',
-        'save'       => 'Kaydet',
         'cancel'     => 'Vazgeç',
-        'confirm'    => 'Onayla',
         'close'      => 'Kapat',
-        'back'       => 'Geri',
-        'discover'   => 'Keşfet',
         'get_start'  => 'Hemen Başlayın',
         'explore'    => 'İçerikleri Keşfet',
         'share'      => 'Paylaş',
-        'copy_link'  => 'Bağlantıyı kopyala',
         'show_password' => 'Şifreyi göster',
         'hide_password' => 'Şifreyi gizle',
     ],
@@ -85,15 +77,10 @@ return [
         'title'        => 'İçerikler',
         'all'          => 'Tümü',
         'empty'        => 'Henüz içerik yok',
-        'categories'   => 'Kategoriler',
         'latest'       => 'Son İçerikler',
-        'published_at' => 'Yayın tarihi',
-        'views'        => 'Görüntülenme',
         'related'      => 'İlgili İçerikler',
         'comments'     => 'Yorumlar',
-        'comment_form' => 'Yorum Yaz',
-        'comment_sent' => 'Yorumunuz alındı, onaylandıktan sonra yayınlanacak.',
-        'no_comments'  => 'Henüz yorum yok. İlk yorumu siz yazın.',
+        'comment_sent' => 'Yorumunuz başarıyla gönderildi. Yönetici onayından sonra yayınlanacaktır.',
     ],
 
     'gallery' => [
@@ -121,6 +108,7 @@ return [
     ],
 
     'contact' => [
+        'sent' => 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.',
         'meta_desc' => ':site ile iletişime geçin. Sorularınız, önerileriniz ve talepleriniz için bize ulaşın.',
         'hero_lead' => 'Sorularınız, önerileriniz veya talepleriniz için bize ulaşın. Ekibimiz en kısa sürede size dönüş yapacaktır.',
         'lead' => 'Aşağıdaki kanallardan bize doğrudan erişebilir veya formu doldurarak mesaj gönderebilirsiniz.',
@@ -129,7 +117,6 @@ return [
         'subject_ph' => 'Mesajınızın konusu',
         'message_ph' => 'Mesajınızı buraya yazın...',
         'info' => 'İletişim Bilgileri',
-        'title'         => 'İletişim',
         'form_title'    => 'Bize Yazın',
         'name'          => 'Adınız Soyadınız',
         'email'         => 'E-posta Adresiniz',
@@ -145,6 +132,7 @@ return [
     ],
 
     'account' => [
+        'profile_updated' => 'Profiliniz başarıyla güncellendi.',
         'dashboard_desc' => 'Hesap bilgilerinizi görüntüleyin ve yönetin.',
         'welcome' => 'Hoş geldiniz, :name',
         'dashboard_lead' => 'Hesap bilgilerinizin özetini aşağıda görebilir, profilinizi güncelleyebilirsiniz.',
@@ -160,13 +148,9 @@ return [
         'edit_profile' => 'Profili Düzenle',
         'full_name' => 'Ad Soyad',
         'member_since' => 'Üyelik Tarihi',
-        'title'            => 'Hesabım',
-        'profile'          => 'Profil',
-        'profile_update'   => 'Profil Bilgileri',
         'first_name'       => 'Ad',
         'last_name'        => 'Soyad',
         'email'            => 'E-posta',
-        'phone'            => 'Telefon',
         'avatar'           => 'Profil Fotoğrafı',
         'remove_avatar'    => 'Fotoğrafı kaldır',
         'change_password'  => 'Şifre Değiştir',
@@ -187,10 +171,10 @@ return [
         'remember'   => 'Beni hatırla',
         'forgot'     => 'Şifremi unuttum',
         'no_account' => 'Hesabınız yok mu?',
-        'submit'     => 'Giriş Yap',
     ],
 
     'register' => [
+        'created' => 'Hesabınız oluşturuldu. Son adım: e-posta adresinizi doğrulayın.',
         'email_ph' => 'ornek@mail.com',
         'phone_ph' => '05XX XXX XX XX',
         'first_name_ph' => 'Adınız',
@@ -202,13 +186,13 @@ return [
         'phone' => 'Telefon',
         'password_hint' => 'En az 8 karakter kullanın.',
         'title'          => 'Üye Ol',
-        'subtitle'       => 'Yeni bir hesap oluşturun',
         'have_account'   => 'Zaten üye misiniz?',
-        'submit'         => 'Hesap Oluştur',
         'password_again' => 'Şifre (Tekrar)',
     ],
 
     'password' => [
+        'link_sent' => 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
+        'reset_done' => 'Şifreniz başarıyla sıfırlandı. Giriş yapabilirsiniz.',
         'email_ph' => 'ornek@mail.com',
         'reset_subtitle' => 'Hesabınız için yeni bir şifre oluşturun',
         'forgot_title'    => 'Şifrenizi mi unuttunuz?',
@@ -220,6 +204,8 @@ return [
     ],
 
     'verify' => [
+        'verified' => 'E-posta adresiniz doğrulandı.',
+        'link_sent' => 'Doğrulama bağlantısı e-posta adresinize gönderildi.',
         'title'    => 'E-postanızı doğrulayın',
         'sent_to'  => ':email adresine bir doğrulama bağlantısı gönderdik. Hesabınızı kullanmaya başlamak için bağlantıya tıklamanız yeterli.',
         'spam'     => 'E-posta gelmediyse spam klasörünü kontrol edin. Bağlantının geçerlilik süresi 60 dakikadır.',
@@ -245,8 +231,6 @@ return [
         '419'      => 'Oturumunuz zaman aşımına uğradı. Lütfen tekrar deneyin.',
         '429'      => 'Çok fazla istek gönderdiniz. Lütfen biraz bekleyin.',
         '500'      => 'Beklenmeyen bir hata oluştu.',
-        '503'      => 'Site bakımda. Kısa süre içinde geri döneceğiz.',
-        'go_home'  => 'Anasayfaya Dön',
     ],
 
     'misc' => [
@@ -267,14 +251,11 @@ return [
         'share_on' => ':network üzerinde paylaş',
         'copy_link_aria' => 'Linki kopyala',
         'optional' => '(opsiyonel)',
-        'language'      => 'Dil seçimi',
         'language_aria' => 'Dil seçimi — aktif dil :language',
         // İçeriğin öteki dildeki sürümüne geçiş — partials/content-language-links
         'read_in'          => ':language oku',
         'reading_original' => 'Bu içerik henüz çevrilmedi; :language sürümünü okuyorsunuz.',
         'no_translation'   => 'çeviri yok',
-        'search'        => 'Ara',
-        'loading'       => 'Yükleniyor...',
     ],
 
 
@@ -328,7 +309,6 @@ return [
         'subscribe'          => 'Bültene abone ol',
         'email_placeholder'  => 'E-posta adresiniz',
         'subscribed'         => 'Abone olduğunuz için teşekkürler!',
-        'already_subscribed' => 'Bu adres zaten kayıtlı.',
     ],
     /*
      * İçerik ekleri — yazıya iliştirilen dosyalar.
@@ -341,7 +321,6 @@ return [
         'count'       => ':count dosya',
         'total_size'  => 'Toplam :size',
         'download'    => 'İndir',
-        'open'        => 'Aç',
         'preview'     => 'Büyüt',
         'kinds'       => [
             'image'        => 'Görseller',
