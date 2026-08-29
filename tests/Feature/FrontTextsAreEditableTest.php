@@ -390,4 +390,183 @@ final class FrontTextsAreEditableTest extends TestCase
 
         return $files;
     }
+
+    /**
+     * Ziyaretçinin gördüğü formların uyarıları da panelden yönetilmeli.
+     *
+     * FormRequest::messages() koda gömülü metin taşıdığında iki şey birden
+     * oluyor: İngilizce ziyaretçi Türkçe uyarı görüyor ve yönetici metni
+     * değiştiremiyor. Görünüm taraması bunu göremiyor, çünkü metin Blade'de
+     * değil PHP'de duruyor.
+     *
+     * Hangi isteklerin ziyaretçiye açık olduğu elle listelenmiyor: yönetim
+     * dışındaki bir kontrolcünün kullandığı her istek ziyaretçiye açıktır.
+     * Yeni bir ön yüz formu kendiliğinden kapsama giriyor.
+     */
+    public function test_no_visitor_facing_form_writes_its_warnings_by_hand(): void
+    {
+        $siniflar = $this->visitorFacingRequests();
+
+        $this->assertGreaterThan(
+            4,
+            count($siniflar),
+            'Ön yüz istek sınıfları bulunamıyor; denetim ölçmüyor',
+        );
+
+        $bulgular = [];
+
+        // Hız sınırı uyarıları da aynı formlarda görünüyor ama FormRequest'te
+        // değil, sınırlayıcının yanıt kapanışında duruyorlar.
+        $kaynaklar = array_merge(
+            array_map(static fn (string $f): array => [$f, 'messages'], $siniflar),
+            [[app_path('Providers/AppServiceProvider.php'), 'configureRateLimiting']],
+        );
+
+        foreach ($kaynaklar as [$file, $method]) {
+            $source = (string) file_get_contents($file);
+            $body = $this->methodBody($source, $method);
+
+            if ($body === '') {
+                continue;
+            }
+
+            // Çeviri çağrıları maskeleniyor; geriye kalan her metin elle
+            // yazılmış demektir. Anahtarlar da metin olduğu için yalnız
+            // "=>" sağındaki değerlere bakılıyor.
+            $masked = $this->maskTranslationCalls($body);
+            $relative = str_replace(base_path() . '/', '', $file);
+            $offset = strpos($source, $body);
+
+            preg_match_all(
+                '/=>\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
+                $masked,
+                $matches,
+                PREG_OFFSET_CAPTURE,
+            );
+
+            foreach ($matches[1] as [$literal, $at]) {
+                $line = substr_count(substr($source, 0, (int) $offset + (int) $at), "\n") + 1;
+                $bulgular[] = "{$relative}:{$line}  {$literal}";
+            }
+        }
+
+        sort($bulgular);
+
+        $this->assertSame(
+            [],
+            $bulgular,
+            "Panelden değiştirilemeyen form uyarısı — lang/*/site.php'ye anahtar açıp __() ile çağırın:\n  "
+                . implode("\n  ", $bulgular),
+        );
+    }
+
+    /**
+     * Ziyaretçiye açık FormRequest dosyaları.
+     *
+     * Yönetim paneli kapsam dışı: tek dilde ve yalnız yöneticinin gördüğü
+     * arayüz. Ayrım kontrolcünün yerinden geliyor — Admin dizini dışındaki bir
+     * kontrolcünün kullandığı istek, ziyaretçinin doldurduğu bir formdur.
+     *
+     * @return list<string>
+     */
+    private function visitorFacingRequests(): array
+    {
+        $files = [];
+
+        foreach ((array) glob(app_path('Http/Controllers/*.php')) as $controller) {
+            preg_match_all(
+                '/use\s+App\\\\Http\\\\Requests\\\\([A-Za-z0-9_\\\\]+);/',
+                (string) file_get_contents((string) $controller),
+                $matches,
+            );
+
+            foreach ($matches[1] as $class) {
+                $path = app_path('Http/Requests/' . str_replace('\\', '/', $class) . '.php');
+
+                if (is_file($path)) {
+                    $files[$path] = true;
+                }
+            }
+        }
+
+        $files = array_keys($files);
+        sort($files);
+
+        return $files;
+    }
+
+    /**
+     * __('...') çağrılarını, parantezleri sayarak boşlukla değiştirir.
+     *
+     * Düzenli ifadeyle yapılamıyor: çağrının içinde yer değiştirme dizisi
+     * (__('site.x', ['count' => 3])) olabiliyor ve kalıp yanlış yerde
+     * kapanınca geride kalan parça elle yazılmış metin sanılıyor.
+     */
+    private function maskTranslationCalls(string $source): string
+    {
+        $result = '';
+        $length = strlen($source);
+        $i = 0;
+
+        while ($i < $length) {
+            if (preg_match('/\G(?:__|trans|trans_choice)\s*\(/', $source, $m, 0, $i) !== 1) {
+                $result .= $source[$i];
+                $i++;
+
+                continue;
+            }
+
+            $start = $i;
+            $i += strlen($m[0]);
+            $depth = 1;
+
+            while ($i < $length && $depth > 0) {
+                $depth += match ($source[$i]) {
+                    '(' => 1,
+                    ')' => -1,
+                    default => 0,
+                };
+                $i++;
+            }
+
+            $result .= (string) preg_replace('/[^\n]/', ' ', substr($source, $start, $i - $start));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Bir metodun gövdesi, süslü parantezler sayılarak.
+     *
+     * @return string metot yoksa boş
+     */
+    private function methodBody(string $source, string $method): string
+    {
+        // Görünürlük serbest: aranan metot private de olabiliyor (hız
+        // sınırlayıcısının kurulumu böyle) ve parametre alabilir.
+        $pattern = '/(?:public|protected|private)\s+function\s+'
+            . preg_quote($method, '/') . '\s*\([^)]*\)[^{;]*\{/';
+
+        if (preg_match($pattern, $source, $m, PREG_OFFSET_CAPTURE) !== 1) {
+            return '';
+        }
+
+        $open = (int) $m[0][1] + strlen($m[0][0]) - 1;
+        $depth = 0;
+        $length = strlen($source);
+
+        for ($i = $open; $i < $length; $i++) {
+            $depth += match ($source[$i]) {
+                '{' => 1,
+                '}' => -1,
+                default => 0,
+            };
+
+            if ($depth === 0) {
+                return substr($source, $open + 1, $i - $open - 1);
+            }
+        }
+
+        return '';
+    }
 }

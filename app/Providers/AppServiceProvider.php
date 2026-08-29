@@ -175,30 +175,50 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('upload-editor-media', fn (User $user): bool => $user->hasPermission(PermissionKey::EditorUpload));
     }
 
+    /**
+     * İsteğin dili — uygulamanınki değil.
+     *
+     * Sınırlayıcının yanıtı SetLocale'den önce üretiliyor (ThrottleRequests
+     * çerçevenin öncelik listesinde, SetLocale değil), yani o anda
+     * app()->getLocale() hâlâ varsayılan dili söylüyor: İngilizce ziyaretçi
+     * Türkçe uyarı alıyordu.
+     */
+    private function localeOf(Request $request): string
+    {
+        return app(\App\Services\LocaleResolver::class)->forRequest($request);
+    }
+
+    /**
+     * Uyarı metinleri panelden yönetiliyor.
+     *
+     * __() burada değil, yanıt kapanışının içinde: kapanış istek anında
+     * çalışıyor, yani metin ziyaretçinin dilinde çözülüyor. Sınırlayıcı ise
+     * bir kez, açılışta kuruluyor.
+     */
     private function configureRateLimiting(): void
     {
         RateLimiter::for('login', function (Request $request): Limit {
             $key = $request->input('email', '') . '|' . $request->ip();
 
-            return Limit::perMinute(5)->by($key)->response(function () {
+            return Limit::perMinute(5)->by($key)->response(function () use ($request) {
                 return back()->withErrors([
-                    'email' => 'Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika bekleyin.',
+                    'email' => __('site.forms.throttle_login', [], $this->localeOf($request)),
                 ]);
             });
         });
 
         RateLimiter::for('contact', function (Request $request): Limit {
-            return Limit::perMinute(3)->by($request->ip())->response(function () {
+            return Limit::perMinute(3)->by($request->ip())->response(function () use ($request) {
                 return back()->withErrors([
-                    'message' => 'Çok fazla mesaj gönderdiniz. Lütfen birkaç dakika bekleyin.',
+                    'message' => __('site.forms.throttle_contact', [], $this->localeOf($request)),
                 ]);
             });
         });
 
         RateLimiter::for('register', function (Request $request): Limit {
-            return Limit::perMinute(3)->by($request->ip())->response(function () {
+            return Limit::perMinute(3)->by($request->ip())->response(function () use ($request) {
                 return back()->withErrors([
-                    'email' => 'Çok fazla kayıt denemesi yaptınız. Lütfen birkaç dakika bekleyin.',
+                    'email' => __('site.forms.throttle_register', [], $this->localeOf($request)),
                 ]);
             });
         });

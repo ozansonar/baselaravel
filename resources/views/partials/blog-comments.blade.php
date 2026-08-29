@@ -118,7 +118,7 @@
         data-sending="{{ __('site.misc.sending') }}"
         data-error-generic="{{ __('site.misc.error_generic') }}"
         data-error-retry="{{ __('site.misc.error_retry') }}"
-        data-recaptcha-required="{{ __('site.blog.comment_recaptcha') }}"
+        data-recaptcha-required="{{ __('site.forms.recaptcha') }}"
         data-recaptcha-enabled="{{ app(\App\Services\RecaptchaService::class)->isEnabled() ? '1' : '0' }}"
         defer></script>
 @endpush

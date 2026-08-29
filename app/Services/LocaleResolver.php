@@ -20,6 +20,45 @@ final class LocaleResolver
     ) {}
 
     /**
+     * İsteğin hangi dili kastettiği — uygulamadan değil, isteğin kendisinden.
+     *
+     * SetLocale dili kurmadan önce çalışan bir şey (hız sınırlayıcısının yanıt
+     * kapanışı gibi) app()->getLocale() ile varsayılan dili görüyor ve
+     * ziyaretçiye yanlış dilde yazıyor. Burası yan etkisiz: oturuma yazmıyor,
+     * 404 vermiyor, yalnız cevabı söylüyor.
+     */
+    public function forRequest(Request $request): string
+    {
+        $fromUrl = $this->fromUrl($request);
+
+        return $fromUrl !== null && $this->languages->isSupported($fromUrl)
+            ? $fromUrl
+            : $this->fromRequest($request);
+    }
+
+    /**
+     * Yerelleştirilmiş bir rotanın adresindeki dil kodu.
+     *
+     * Yalnız okuyor. Kodun geçerli olup olmadığına, oturuma yazılıp
+     * yazılmayacağına SetLocale karar veriyor — orada bir istek bir kez
+     * işleniyor, burada aynı soru başka yerlerden de sorulabiliyor.
+     */
+    public function fromUrl(Request $request): ?string
+    {
+        $route = $request->route();
+
+        // Dili ilk parçasında taşıyan yalnız ön yüz grubu; panelin {locale}
+        // parametreleri başka bir şey anlatıyor.
+        if ($route === null || ! str_starts_with($route->uri(), '{locale}')) {
+            return null;
+        }
+
+        $code = $route->parameter('locale');
+
+        return is_string($code) ? $code : null;
+    }
+
+    /**
      * Preference order: the language they picked, then the best match from
      * their browser, then the site default.
      */

@@ -56,17 +56,13 @@ final class SetLocale
      */
     private function fromUrl(Request $request): ?string
     {
-        $route = $request->route();
+        // Adresten kodu okumak LocaleResolver'da: aynı soruyu hız
+        // sınırlayıcısı da soruyor ve iki yerde ayrı yazılınca biri değişip
+        // öteki geride kalıyor. Karar —geçerli mi, oturuma yazılsın mı—
+        // burada kalıyor; o bir isteği bir kez işlemenin işi.
+        $code = $this->resolver->fromUrl($request);
 
-        // Only the front group carries the language in its first segment; the
-        // panel has its own {locale} parameters that mean something else.
-        if ($route === null || ! str_starts_with($route->uri(), '{locale}')) {
-            return null;
-        }
-
-        $code = $route->parameter('locale');
-
-        if (! is_string($code)) {
+        if ($code === null) {
             return null;
         }
 
@@ -87,7 +83,7 @@ final class SetLocale
         // would arrive as the first one — /tr/hakkimizda would look up the page
         // "tr". It has done its job here; URL::defaults puts it back on the way
         // out.
-        $route->forgetParameter('locale');
+        $request->route()?->forgetParameter('locale');
 
         return $code;
     }

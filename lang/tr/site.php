@@ -53,9 +53,18 @@ return [
     ],
 
     'blog' => [
+        'comment_name_required'       => 'Ad Soyad alanı zorunludur.',
+        'comment_name_min'            => 'Ad Soyad en az :min karakter olmalıdır.',
+        'comment_name_max'            => 'Ad Soyad en fazla :max karakter olabilir.',
+        'comment_email_required'      => 'E-posta alanı zorunludur.',
+        'comment_body_required'       => 'Yorum alanı zorunludur.',
+        'comment_body_min'            => 'Yorum en az :min karakter olmalıdır.',
+        'comment_body_max'            => 'Yorum en fazla :max karakter olabilir.',
+        'comment_post_required'       => 'Yazı bilgisi eksik.',
+        'comment_post_invalid'        => 'Geçersiz yazı.',
+        'comment_parent_missing'      => 'Yanıtlanan yorum bulunamadı.',
         'eyebrow' => 'Blog',
         'feed_title' => ':site Blog',
-        'comment_recaptcha' => 'Lütfen robot olmadığınızı doğrulayın.',
         'featured'  => 'Öne çıkan',
         'read_time' => ':count dk okuma',
         'lead' => 'Güncel yazılar, rehberler ve haberler. İlginizi çekecek içerikleri keşfedin.',
@@ -108,6 +117,13 @@ return [
     ],
 
     'contact' => [
+        'name_required'               => 'Ad soyad zorunludur.',
+        'name_max'                    => 'Ad soyad en fazla :max karakter olabilir.',
+        'subject_required'            => 'Konu zorunludur.',
+        'subject_max'                 => 'Konu en fazla :max karakter olabilir.',
+        'message_required'            => 'Mesaj zorunludur.',
+        'message_min'                 => 'Mesaj en az :min karakter olmalıdır.',
+        'message_max'                 => 'Mesaj en fazla :max karakter olabilir.',
         'sent' => 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.',
         'meta_desc' => ':site ile iletişime geçin. Sorularınız, önerileriniz ve talepleriniz için bize ulaşın.',
         'hero_lead' => 'Sorularınız, önerileriniz veya talepleriniz için bize ulaşın. Ekibimiz en kısa sürede size dönüş yapacaktır.',
@@ -132,6 +148,15 @@ return [
     ],
 
     'account' => [
+        'current_password_required'   => 'Şifrenizi değiştirmek için mevcut şifrenizi girmelisiniz.',
+        'current_password_wrong'      => 'Mevcut şifreniz hatalı.',
+        'password_same'               => 'Yeni şifre mevcut şifrenizle aynı olamaz.',
+        'email_taken'                 => 'Bu e-posta adresi başka bir hesapta kullanılıyor.',
+        'phone_max'                   => 'Telefon numarası en fazla :max karakter olabilir.',
+        'password_confirmed'          => 'Şifreler eşleşmiyor.',
+        'avatar_image'                => 'Avatar bir görsel dosyası olmalıdır.',
+        'avatar_mimes'                => 'Avatar JPEG, PNG veya WebP formatında olmalıdır.',
+        'avatar_max'                  => 'Avatar dosyası en fazla :max KB olabilir.',
         'profile_updated' => 'Profiliniz başarıyla güncellendi.',
         'dashboard_desc' => 'Hesap bilgilerinizi görüntüleyin ve yönetin.',
         'welcome' => 'Hoş geldiniz, :name',
@@ -174,6 +199,13 @@ return [
     ],
 
     'register' => [
+        'first_name_min'              => 'Ad en az :min karakter olmalıdır.',
+        'first_name_max'              => 'Ad en fazla :max karakter olabilir.',
+        'last_name_min'               => 'Soyad en az :min karakter olmalıdır.',
+        'last_name_max'               => 'Soyad en fazla :max karakter olabilir.',
+        'email_taken'                 => 'Bu e-posta adresi zaten kayıtlı.',
+        'phone_digits'                => 'Telefon numarası yalnızca rakam içerebilir.',
+        'password_confirmed'          => 'Şifre tekrarı uyuşmuyor.',
         'created' => 'Hesabınız oluşturuldu. Son adım: e-posta adresinizi doğrulayın.',
         'email_ph' => 'ornek@mail.com',
         'phone_ph' => '05XX XXX XX XX',
@@ -347,4 +379,21 @@ return [
         'light' => 'Açık tema',
     ],
 
+
+    // Form uyarıları — birden çok formun paylaştığı metinler.
+    'forms' => [
+        'throttle_login'              => 'Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika bekleyin.',
+        'throttle_contact'            => 'Çok fazla mesaj gönderdiniz. Lütfen birkaç dakika bekleyin.',
+        'throttle_register'           => 'Çok fazla kayıt denemesi yaptınız. Lütfen birkaç dakika bekleyin.',
+        'recaptcha'                   => 'Lütfen robot olmadığınızı doğrulayın.',
+        'email_required'              => 'E-posta adresi zorunludur.',
+        'email_invalid'               => 'Geçerli bir e-posta adresi girin.',
+        'email_invalid_formal'        => 'Geçerli bir e-posta adresi giriniz.',
+        'password_required'           => 'Şifre zorunludur.',
+        'password_min'                => 'Şifre en az :min karakter olmalıdır.',
+        'first_name_required'         => 'Ad alanı zorunludur.',
+        'first_name_letters'          => 'Ad yalnızca harf ve boşluk içerebilir.',
+        'last_name_required'          => 'Soyad alanı zorunludur.',
+        'last_name_letters'           => 'Soyad yalnızca harf ve boşluk içerebilir.',
+    ],
 ];

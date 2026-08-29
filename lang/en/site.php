@@ -50,9 +50,18 @@ return [
     ],
 
     'blog' => [
+        'comment_name_required'       => 'Your name is required.',
+        'comment_name_min'            => 'Your name must be at least :min characters.',
+        'comment_name_max'            => 'Your name may be at most :max characters.',
+        'comment_email_required'      => 'An e-mail address is required.',
+        'comment_body_required'       => 'A comment is required.',
+        'comment_body_min'            => 'The comment must be at least :min characters.',
+        'comment_body_max'            => 'The comment may be at most :max characters.',
+        'comment_post_required'       => 'The post is missing.',
+        'comment_post_invalid'        => 'Invalid post.',
+        'comment_parent_missing'      => 'The comment being replied to was not found.',
         'eyebrow' => 'Blog',
         'feed_title' => ':site Blog',
-        'comment_recaptcha' => 'Please confirm you are not a robot.',
         'featured'  => 'Featured',
         'read_time' => ':count min read',
         'lead' => 'Fresh articles, guides and news. Find something worth your time.',
@@ -105,6 +114,13 @@ return [
     ],
 
     'contact' => [
+        'name_required'               => 'Your name is required.',
+        'name_max'                    => 'Your name may be at most :max characters.',
+        'subject_required'            => 'A subject is required.',
+        'subject_max'                 => 'The subject may be at most :max characters.',
+        'message_required'            => 'A message is required.',
+        'message_min'                 => 'The message must be at least :min characters.',
+        'message_max'                 => 'The message may be at most :max characters.',
         'sent' => 'Your message has been sent. We will get back to you shortly.',
         'meta_desc' => 'Get in touch with :site. Reach us with your questions, suggestions and requests.',
         'hero_lead' => 'Reach out with your questions, suggestions or requests. Our team will get back to you shortly.',
@@ -129,6 +145,15 @@ return [
     ],
 
     'account' => [
+        'current_password_required'   => 'Enter your current password to change it.',
+        'current_password_wrong'      => 'Your current password is incorrect.',
+        'password_same'               => 'The new password cannot be the same as your current one.',
+        'email_taken'                 => 'This e-mail address is in use by another account.',
+        'phone_max'                   => 'The phone number may be at most :max characters.',
+        'password_confirmed'          => 'The passwords do not match.',
+        'avatar_image'                => 'The avatar must be an image file.',
+        'avatar_mimes'                => 'The avatar must be a JPEG, PNG or WebP file.',
+        'avatar_max'                  => 'The avatar file may be at most :max KB.',
         'profile_updated' => 'Your profile has been updated.',
         'dashboard_desc' => 'View and manage your account details.',
         'welcome' => 'Welcome, :name',
@@ -171,6 +196,13 @@ return [
     ],
 
     'register' => [
+        'first_name_min'              => 'The first name must be at least :min characters.',
+        'first_name_max'              => 'The first name may be at most :max characters.',
+        'last_name_min'               => 'The last name must be at least :min characters.',
+        'last_name_max'               => 'The last name may be at most :max characters.',
+        'email_taken'                 => 'This e-mail address is already registered.',
+        'phone_digits'                => 'The phone number may contain digits only.',
+        'password_confirmed'          => 'The password confirmation does not match.',
         'created' => 'Your account is ready. One last step: verify your e-mail address.',
         'email_ph' => 'name@example.com',
         'phone_ph' => '05XX XXX XX XX',
@@ -343,4 +375,21 @@ return [
         'light' => 'Light theme',
     ],
 
+
+    // Form uyarıları — birden çok formun paylaştığı metinler.
+    'forms' => [
+        'throttle_login'              => 'Too many sign-in attempts. Please wait a minute.',
+        'throttle_contact'            => 'You have sent too many messages. Please wait a few minutes.',
+        'throttle_register'           => 'Too many sign-up attempts. Please wait a few minutes.',
+        'recaptcha'                   => 'Please confirm that you are not a robot.',
+        'email_required'              => 'An e-mail address is required.',
+        'email_invalid'               => 'Enter a valid e-mail address.',
+        'email_invalid_formal'        => 'Please enter a valid e-mail address.',
+        'password_required'           => 'A password is required.',
+        'password_min'                => 'The password must be at least :min characters.',
+        'first_name_required'         => 'The first name is required.',
+        'first_name_letters'          => 'The first name may contain only letters and spaces.',
+        'last_name_required'          => 'The last name is required.',
+        'last_name_letters'           => 'The last name may contain only letters and spaces.',
+    ],
 ];

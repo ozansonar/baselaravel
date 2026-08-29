@@ -35,21 +35,28 @@ final class StoreContactMessageRequest extends FormRequest
     }
 
     /**
+     * Uyarı metinleri panelden yönetiliyor (Dil Yazıları).
+     *
+     * Koda gömülü olduklarında İngilizce ziyaretçi Türkçe uyarı görüyordu ve
+     * yönetici metni değiştiremiyordu. Sayılar :min / :max ile kuraldan
+     * geliyor: elle yazılan sayı, kural değişince yalan söylüyor — nitekim
+     * söylemişti: iletişim formu sınır 191'ken "255" diyordu.
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'name.required'    => 'Ad soyad zorunludur.',
-            'name.max'         => 'Ad soyad en fazla 255 karakter olabilir.',
-            'email.required'   => 'E-posta adresi zorunludur.',
-            'email.email'      => 'Geçerli bir e-posta adresi giriniz.',
-            'subject.required' => 'Konu zorunludur.',
-            'subject.max'      => 'Konu en fazla 255 karakter olabilir.',
-            'message.required' => 'Mesaj zorunludur.',
-            'message.min'      => 'Mesaj en az 10 karakter olmalıdır.',
-            'message.max'                      => 'Mesaj en fazla 5.000 karakter olabilir.',
-            'g-recaptcha-response.required'    => 'Lütfen robot olmadığınızı doğrulayın.',
+            'name.required'                 => __('site.contact.name_required'),
+            'name.max'                      => __('site.contact.name_max'),
+            'email.required'                => __('site.forms.email_required'),
+            'email.email'                   => __('site.forms.email_invalid_formal'),
+            'subject.required'              => __('site.contact.subject_required'),
+            'subject.max'                   => __('site.contact.subject_max'),
+            'message.required'              => __('site.contact.message_required'),
+            'message.min'                   => __('site.contact.message_min'),
+            'message.max'                   => __('site.contact.message_max'),
+            'g-recaptcha-response.required' => __('site.forms.recaptcha'),
         ];
     }
 }
