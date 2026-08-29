@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
+use App\Models\GalleryCategory;
 use App\Models\GalleryItem;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -58,6 +59,7 @@ final class SitemapService
 
             return array_merge(
                 $this->staticUrls($locales),
+                $this->galleryCategoryUrls($locales),
                 $this->pageUrls(),
                 $this->blogCategoryUrls(),
                 $this->blogPostUrls(),
@@ -119,6 +121,11 @@ final class SitemapService
                     priority: $route['priority'],
                     alternates: $alternates,
                     images: $route['name'] === 'gallery' ? ($galleryImages[$locale] ?? []) : [],
+                    // Kök adres ziyaretçinin dilini kendisi seçip yönlendiriyor;
+                    // Google'ın x-default'tan beklediği tam olarak bu. Öteki
+                    // sayfaların böyle bir adresi yok, onlarda varsayılan dil
+                    // sürümü x-default kalıyor.
+                    xDefault: $route['name'] === 'home' && count($locales) > 1 ? route('root') : null,
                 );
             }
         }
@@ -236,6 +243,7 @@ final class SitemapService
         string $priority,
         array $alternates,
         array $images = [],
+        ?string $xDefault = null,
     ): array {
         // Content published in a single language has nothing to point at, and
         // an alternate set of one says nothing a self-referencing link does not.
@@ -247,29 +255,134 @@ final class SitemapService
             'changefreq' => $changefreq,
             'priority'   => $priority,
             'alternates' => $hasTranslations ? $alternates : [],
-            'x_default'  => $hasTranslations
+            'x_default'  => $xDefault ?? ($hasTranslations
                 ? ($alternates[$this->languages->defaultCode()] ?? null)
-                : null,
+                : null),
             'images'     => array_slice($images, 0, self::MAX_IMAGES_PER_URL),
         ];
     }
 
     /**
-     * The photos the gallery page shows, per language.
+     * Galeri sayfasının ilk sayfasında görünen fotoğraflar, dil dil.
      *
-     * The page falls back to the default language for anything not translated,
-     * so the sitemap has to describe the same set — otherwise it would announce
-     * images that are not on the page it points at.
+     * Sayfa artık sayfalanıyor: /galeri adresinde sadece ilk on kare var.
+     * Sitemap bütün galeriyi o adresin altında ilan etseydi, işaret ettiği
+     * sayfada olmayan görselleri duyururdu.
      *
      * @param array<int, string> $locales
      * @return array<string, array<int, array{loc: string, title: string}>>
      */
     private function galleryImages(array $locales): array
     {
+        $result = [];
+
+        foreach ($this->visibleGalleryItems($locales) as $locale => $items) {
+            $result[$locale] = $this->imagesOf($items->take(GalleryService::FRONT_PER_PAGE));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Galeri kategorilerinin süzülmüş adresleri.
+     *
+     * Kategori süzgeci ekranda gerçek bağlantılar üretiyor: kendi başlığı,
+     * kendi H1'i ve kendini gösteren canonical'ı olan ayrı sayfalar. Sitemap
+     * dışında kalsalardı arama motoru onlara ancak galeri sayfasından
+     * gezinerek ulaşırdı.
+     *
+     * Diller birbirine bağlanıyor: /tr/galeri?kategori=ofis ile
+     * /en/galeri?kategori=office aynı kategorinin iki sürümü.
+     *
+     * @param array<int, string> $locales
+     * @return array<int, array<string, mixed>>
+     */
+    private function galleryCategoryUrls(array $locales): array
+    {
+        $categories = GalleryCategory::active()->get(['id', 'locale', 'lang_group_id', 'slug', 'updated_at']);
+
+        if ($categories->isEmpty()) {
+            return [];
+        }
+
+        $itemsByLocale = $this->visibleGalleryItems($locales);
+        $urls = [];
+
+        foreach ($categories->groupBy('lang_group_id') as $group) {
+            $alternates = [];
+
+            foreach ($group as $category) {
+                if (! in_array($category->locale, $locales, true)) {
+                    continue;
+                }
+
+                $alternates[$category->locale] = route('gallery', [
+                    'locale'   => $category->locale,
+                    'kategori' => $category->slug,
+                ]);
+            }
+
+            foreach ($group as $category) {
+                if (! isset($alternates[$category->locale])) {
+                    continue;
+                }
+
+                /** @var Collection<int, GalleryItem> $ownItems */
+                $ownItems = ($itemsByLocale[$category->locale] ?? collect())
+                    ->filter(fn (GalleryItem $item): bool => $item->categoryGroupId === $category->lang_group_id);
+
+                // İçi boş kategori sitemap'e girmiyor: arama motoruna boş bir
+                // sayfa göstermek soft-404 sayılıyor. Kategoriye kare eklenince
+                // önbellek düştüğü için adres kendiliğinden geri geliyor.
+                if ($ownItems->isEmpty()) {
+                    continue;
+                }
+
+                $urls[] = $this->entry(
+                    loc: $alternates[$category->locale],
+                    lastmod: $category->updated_at?->toW3cString() ?? now()->toW3cString(),
+                    changefreq: 'weekly',
+                    priority: '0.5',
+                    alternates: $alternates,
+                    images: $this->imagesOf($ownItems->take(GalleryService::FRONT_PER_PAGE)),
+                );
+            }
+        }
+
+        return $urls;
+    }
+
+    /**
+     * Galeri sayfasının her dilde gösterdiği kareler, ekrandaki sırayla.
+     *
+     * Sayfa kendi dilinde olmayan kareyi varsayılan dilden düşürerek
+     * gösteriyor; sitemap de aynı kümeyi tarif etmeli, yoksa sayfada olmayanı
+     * duyurur. Kategori kimliği değil çeviri grubu taşınıyor: süzgeç de öyle
+     * çalışıyor.
+     *
+     * @param array<int, string> $locales
+     * @return array<string, Collection<int, GalleryItem>>
+     */
+    private function visibleGalleryItems(array $locales): array
+    {
         $items = GalleryItem::active()
             ->photos()
             ->orderBy('sort_order')
-            ->get(['id', 'locale', 'lang_group_id', 'title', 'image']);
+            ->get(['id', 'locale', 'lang_group_id', 'gallery_category_id', 'title', 'image']);
+
+        if ($items->isEmpty()) {
+            return array_fill_keys($locales, collect());
+        }
+
+        $categoryGroups = GalleryCategory::query()
+            ->whereIn('id', $items->pluck('gallery_category_id')->filter()->unique())
+            ->pluck('lang_group_id', 'id');
+
+        $items->each(function (GalleryItem $item) use ($categoryGroups): void {
+            // Süzgeç kategoriyi çeviri grubuyla eşliyor; karenin hangi gruba
+            // ait olduğu burada bir kez çözülüyor, kategori başına yeniden değil.
+            $item->categoryGroupId = $categoryGroups->get($item->gallery_category_id);
+        });
 
         $default = $this->languages->defaultCode();
         $byLocale = $items->groupBy('locale');
@@ -286,13 +399,22 @@ final class SitemapService
                 : $byLocale->get($default, collect())
                     ->reject(fn (GalleryItem $item): bool => in_array($item->lang_group_id, $translated, true));
 
-            $result[$locale] = $own->concat($fallback)
-                ->flatMap(fn (GalleryItem $item): array => $this->imageOf($item->image, (string) $item->title))
-                ->values()
-                ->all();
+            $result[$locale] = $own->concat($fallback)->sortBy('sort_order')->values();
         }
 
         return $result;
+    }
+
+    /**
+     * @param  Collection<int, GalleryItem> $items
+     * @return array<int, array{loc: string, title: string}>
+     */
+    private function imagesOf(Collection $items): array
+    {
+        return $items
+            ->flatMap(fn (GalleryItem $item): array => $this->imageOf($item->image, (string) $item->title))
+            ->values()
+            ->all();
     }
 
     /**
