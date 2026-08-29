@@ -42,23 +42,21 @@
                 </div>
             </div>
 
-            {{-- Quick links --}}
-            <div class="col-6 col-lg-2">
-                <h5>{{ __('site.nav.menu') }}</h5>
-                <a class="footer-link" href="{{ route('home') }}">{{ __('site.nav.home') }}</a>
-                <a class="footer-link" href="{{ route('blog.index') }}">{{ __('site.blog.title') }}</a>
-                <a class="footer-link" href="{{ route('gallery') }}">{{ __('site.nav.gallery') }}</a>
-                <a class="footer-link" href="{{ route('faq') }}">{{ __('site.nav.faq') }}</a>
-                <a class="footer-link" href="{{ route('contact') }}">{{ __('site.nav.contact') }}</a>
-            </div>
-
-            {{-- Corporate pages --}}
-            <div class="col-6 col-lg-2">
-                <h5>{{ __('site.nav.corporate') }}</h5>
-                <a class="footer-link" href="{{ page_url('hakkimizda') }}">{{ __('site.nav.about') }}</a>
-                <a class="footer-link" href="{{ page_url('gizlilik-politikasi') }}">{{ __('site.nav.privacy') }}</a>
-                <a class="footer-link" href="{{ page_url('kullanim-kosullari') }}">{{ __('site.nav.terms') }}</a>
-            </div>
+            {{-- Bağlantı sütunları — panelden "Alt Menü" ile yönetiliyor.
+                 Kök öğe sütun başlığı, çocukları o sütunun bağlantıları. --}}
+            @if(isset($footerMenu) && $footerMenu)
+                @php $menuItemService = app(\App\Services\MenuItemService::class); @endphp
+                @foreach($footerMenu->rootItems as $column)
+                    @continue(! $column->is_active || $column->activeChildren->isEmpty())
+                    <div class="col-6 col-lg-2">
+                        <h5>{{ $column->label }}</h5>
+                        @foreach($column->activeChildren as $link)
+                            <a class="footer-link" href="{{ $menuItemService->resolveUrl($link) }}"
+                               @if($link->target === '_blank') target="_blank" rel="noopener" @endif>{{ $link->label }}</a>
+                        @endforeach
+                    </div>
+                @endforeach
+            @endif
 
             {{-- Contact --}}
             <div class="col-lg-4">

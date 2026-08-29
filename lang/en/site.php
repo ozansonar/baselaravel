@@ -15,17 +15,11 @@ declare(strict_types=1);
 return [
 
     'nav' => [
-        'privacy' => 'Privacy Policy',
-        'terms' => 'Terms of Use',
         'skip_to_content' => 'Skip to main content',
         'home'      => 'Home',
         'blog'      => 'Blog',
-        'about'     => 'About Us',
         'gallery'   => 'Gallery',
         'contact'   => 'Contact',
-        'faq'       => 'FAQ',
-        'menu'      => 'Menu',
-        'corporate' => 'Corporate',
         'toggle'    => 'Toggle menu',
     ],
 

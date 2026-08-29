@@ -128,6 +128,11 @@ class AppServiceProvider extends ServiceProvider
             $view->with('headerMenu', app(\App\Services\MenuService::class)->getByLocation('header'));
         });
 
+        // Alt bilginin bağlantı sütunları da menü modülünden geliyor.
+        View::composer('partials.footer', function (\Illuminate\View\View $view): void {
+            $view->with('footerMenu', app(\App\Services\MenuService::class)->getByLocation('footer'));
+        });
+
         // Share active popups for the current page with the front layout
         View::composer('layouts.app', function (\Illuminate\View\View $view): void {
             $pageMap = [

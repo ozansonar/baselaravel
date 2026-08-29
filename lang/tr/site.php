@@ -18,17 +18,11 @@ declare(strict_types=1);
 return [
 
     'nav' => [
-        'privacy' => 'Gizlilik Politikası',
-        'terms' => 'Kullanım Koşulları',
         'skip_to_content' => 'Ana içeriğe geç',
         'home'      => 'Anasayfa',
         'blog'      => 'Blog',
-        'about'     => 'Hakkımızda',
         'gallery'   => 'Galeri',
         'contact'   => 'İletişim',
-        'faq'       => 'SSS',
-        'menu'      => 'Menü',
-        'corporate' => 'Kurumsal',
         'toggle'    => 'Menüyü aç/kapat',
     ],
 
