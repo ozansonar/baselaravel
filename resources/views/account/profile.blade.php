@@ -85,7 +85,7 @@
                                     <input type="text"
                                            class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email"
-                                           data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                                           data-validation-engine="validate[required,custom[email],maxSize[191]]"
                                            value="{{ old('email', $user->email) }}">
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>

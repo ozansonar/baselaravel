@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Rules\UserEmail;
 use App\Enums\Department;
 use App\Enums\Gender;
 use Illuminate\Foundation\Http\FormRequest;
@@ -25,7 +26,7 @@ final class StoreUserRequest extends FormRequest
         return [
             'first_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'last_name'   => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'       => ['required', 'string', 'email:rfc,dns', 'max:255', Rule::unique('users', 'email')],
+            'email'       => ['required', 'string', 'email:rfc,dns', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique()],
             'phone'       => ['nullable', 'string', 'max:20'],
             'birth_date'  => ['nullable', 'date', 'before:today'],
             'gender'      => ['nullable', 'string', Rule::enum(Gender::class)],

@@ -106,7 +106,7 @@
                         <label class="stg-label">E-posta Adresi <span class="text-neon-red">*</span></label>
                         <div class="stg-input-group">
                             <span class="stg-input-prefix"><i class="bi bi-envelope"></i></span>
-                            <input type="text" class="stg-input @error('email') is-invalid @enderror" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]" id="email"
+                            <input type="text" class="stg-input @error('email') is-invalid @enderror" name="email" data-validation-engine="validate[required,custom[email],maxSize[191]]" id="email"
                                    placeholder="ornek@mail.com" value="{{ old('email', $u?->email) }}">
                         </div>
                         @error('email')

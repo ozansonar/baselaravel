@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\EmailAlreadyTakenException;
 use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkUserRequest;
@@ -120,7 +121,15 @@ final class UserController extends Controller
         $user = User::withTrashed()->findOrFail($id);
         $this->authorize('restore', $user);
 
-        $this->userService->restore($user);
+        try {
+            $this->userService->restore($user);
+        } catch (EmailAlreadyTakenException $e) {
+            // Adres silindikten sonra serbest kalıyor ve başkası alabiliyor.
+            // Yakalanmasaydı yönetici ham bir veritabanı hatası görürdü.
+            return redirect()
+                ->route('admin.users.index')
+                ->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('admin.users.index')
@@ -149,11 +158,23 @@ final class UserController extends Controller
     {
         $this->authorize('restore', new User());
 
+        $istenen = count($request->ids());
         $geriYuklenen = $this->userService->restoreMany($request->ids());
+        $atlanan = $istenen - $geriYuklenen;
+
+        // Atlananlar sessizce yutulmuyor: adresi bu arada başkasına geçmiş bir
+        // kullanıcı geri yüklenemez ve yönetici bunu bilmeli.
+        $mesaj = $geriYuklenen > 0
+            ? "{$geriYuklenen} kullanıcı geri yüklendi."
+            : 'Hiçbir kullanıcı geri yüklenemedi.';
+
+        if ($atlanan > 0) {
+            $mesaj .= " {$atlanan} kullanıcı atlandı: e-posta adresleri silindikten sonra başka hesaplara verilmiş.";
+        }
 
         return $this->backToList($request, 'admin.users.index')->with(
             $geriYuklenen > 0 ? 'success' : 'error',
-            $geriYuklenen > 0 ? "{$geriYuklenen} kullanıcı geri yüklendi." : 'Hiçbir kullanıcı geri yüklenemedi.',
+            $mesaj,
         );
     }
 }

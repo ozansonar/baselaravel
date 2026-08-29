@@ -84,7 +84,7 @@
                         <div class="stg-field">
                             <label class="stg-label" for="email">E-posta</label>
                             <input type="text" class="stg-input @error('email') is-invalid @enderror"
-                                   id="email" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                                   id="email" name="email" data-validation-engine="validate[required,custom[email],maxSize[191]]"
                                    value="{{ old('email', $user->email) }}">
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
