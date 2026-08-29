@@ -98,6 +98,13 @@ class AppServiceProvider extends ServiceProvider
         BlogPost::observe(BlogPostObserver::class);
         BlogCategory::observe(BlogCategoryObserver::class);
 
+        // Gösterge panosunun sayıları: besleyen dört model değiştiğinde
+        // önbellek düşüyor. Tek tek servislere bırakılsaydı yeni bir yol
+        // eklendiğinde yine unutulurdu.
+        foreach ([User::class, BlogPost::class, Page::class, \App\Models\ContactMessage::class] as $model) {
+            $model::observe(\App\Observers\DashboardStatsObserver::class);
+        }
+
         // Audit Trail — automatic activity log on critical models
         \App\Models\Setting::observe(\App\Observers\AuditObserver::class);
 

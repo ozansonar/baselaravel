@@ -9,6 +9,7 @@ use App\Models\ContactMessage;
 use App\Models\Page;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use App\Observers\DashboardStatsObserver;
 use Illuminate\Support\Facades\Cache;
 
 final class DashboardService
@@ -18,7 +19,7 @@ final class DashboardService
      */
     public function getStats(): array
     {
-        return Cache::remember('admin.dashboard.stats', 300, function (): array {
+        return Cache::remember(DashboardStatsObserver::CACHE_KEY, 300, function (): array {
             return [
                 'total_users'     => User::count(),
                 'total_posts'     => BlogPost::count(),

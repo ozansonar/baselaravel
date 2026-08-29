@@ -19,6 +19,12 @@
 
     <title>@yield('title', __('site.auth.login')) | {{ $siteName }}</title>
 
+    {{-- Giriş ekranı kendi düzeninde; ikon burada ayrıca veriliyor, yoksa
+         sekmede tarayıcının varsayılan boş simgesi kalıyordu. --}}
+    @php $authFavicon = \App\Models\Setting::getValue('site_favicon'); @endphp
+    <link rel="icon" href="{{ $authFavicon ? upload_url($authFavicon) : asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ $authFavicon ? upload_url($authFavicon) : asset('images/apple-touch-icon.png') }}">
+
     @if($gaId)
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $gaId }}');</script>
