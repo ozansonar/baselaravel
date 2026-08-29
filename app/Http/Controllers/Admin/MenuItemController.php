@@ -48,10 +48,9 @@ final class MenuItemController extends Controller
     {
         $this->authorize('create', MenuItem::class);
 
-        $data = $request->validated();
-        $data['menu_id'] = $menu->id;
-
-        $this->menuItemService->create($data);
+        // menu_id doğrulamadan geçiyor: adresteki menü isteğe orada
+        // ekleniyor, burada ikinci kez yazılırsa iki kaynak doğar.
+        $this->menuItemService->create($request->validated());
 
         return redirect()
             ->route('admin.menus.items.index', $menu)
