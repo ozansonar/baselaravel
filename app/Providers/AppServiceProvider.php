@@ -62,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
         // bağlantıları). İkisi de cevabı örnekte saklıyor; singleton
         // olmasalardı her app() çağrısı yeni bir örnek doğurur ve saklama
         // hiç işe yaramazdı.
+        $this->app->singleton(\App\Services\TranslationGroupResolver::class);
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 

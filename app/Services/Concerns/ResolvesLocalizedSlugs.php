@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Concerns;
 
 use App\Models\Page;
+use App\Services\TranslationGroupResolver;
 
 /**
  * Turns a page slug into the slug that same page uses in another language.
@@ -34,12 +35,9 @@ trait ResolvesLocalizedSlugs
             return $this->localizedSlugs[$key];
         }
 
-        // A slug is unique per language, so the same one may exist in two;
-        // prefer the row already in the language we are resolving for.
-        $group = Page::query()
-            ->where('slug', $slug)
-            ->orderByRaw('case when locale = ? then 0 else 1 end', [$locale])
-            ->value('lang_group_id');
+        // Arama ortak çözücüde: adres çeviricisi de aynı soruyu soruyor ve
+        // iki ayrı kopya tutulduğunda sorgu her sayfada iki kez gidiyordu.
+        $group = app(TranslationGroupResolver::class)->resolve(Page::class, $slug, $locale);
 
         $resolved = $slug;
 
