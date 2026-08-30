@@ -151,10 +151,11 @@
                                        id="button_url_{{ $language->code }}" name="translations[{{ $language->code }}][button_url]"
                                        data-validation-engine="validate[maxSize[500]]"
                                        value="{{ old("translations.{$language->code}.button_url", $translation?->button_url) }}"
-                                       placeholder="/blog/...">
+                                       placeholder="hakkimizda">
                                 @error("translations.{$language->code}.button_url")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <div class="form-text">Dil ön eki yazmayın: "iletisim" yazın, ziyaretçinin diline göre /tr/ ya da /en/ eklenir. Harici adresler olduğu gibi kullanılır.</div>
                                 <div class="form-text">Dahili veya harici link girebilirsiniz</div>
                             </div>
                         </div>

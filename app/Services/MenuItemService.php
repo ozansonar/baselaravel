@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Services\LocalizedUrlService;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Services\Concerns\ResolvesLocalizedSlugs;
@@ -78,7 +79,9 @@ final class MenuItemService
             }
         }
 
-        return $item->url ?: '#';
+        // Yönetici dil ön eki yazmıyor; bağlantı ziyaretçinin diline burada
+        // taşınıyor. Dış adresler ve çapalar olduğu gibi kalıyor.
+        return app(LocalizedUrlService::class)->fromInput($item->url);
     }
 
     /**

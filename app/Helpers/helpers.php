@@ -156,3 +156,18 @@ if (!function_exists('image_alt')) {
         return app(\App\Services\ImageAltResolver::class)->resolve(...$candidates);
     }
 }
+
+if (!function_exists('local_url')) {
+    /**
+     * Panelden girilen bağlantıyı ziyaretçinin diline taşır.
+     *
+     * Yönetici "iletisim" yazıyor, ziyaretçi hangi dilde geziniyorsa bağlantı
+     * oraya gidiyor. Dış adresler ve çapalar olduğu gibi kalıyor.
+     *
+     * @see \App\Services\LocalizedUrlService::fromInput()
+     */
+    function local_url(?string $input): string
+    {
+        return app(\App\Services\LocalizedUrlService::class)->fromInput($input);
+    }
+}

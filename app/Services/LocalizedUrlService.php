@@ -198,6 +198,45 @@ final class LocalizedUrlService
      * is the translation the visitor is reading, or the original when that
      * page has no version in their language.
      */
+    /**
+     * Panelden girilen bir bağlantıyı ziyaretçinin diline taşır.
+     *
+     * Yönetici artık dil ön eki yazmıyor: "iletisim" yazıyor, ziyaretçi hangi
+     * dilde geziniyorsa bağlantı oraya gidiyor. Eskiden her dil için ayrı
+     * kayıt gerekiyordu ve bu kaçınılmaz olarak unutuluyordu — İngilizce
+     * sayfadaki düğme Türkçe sayfaya götürüyordu.
+     *
+     * Kayıtlı adres zaten bir dil ön eki taşıyorsa (eski veri "/tr/iletisim"
+     * diye duruyor) o ön ek atılıp bugünkü dille değiştiriliyor. Böylece
+     * geçmiş kayıtlar da düzeliyor, taşıma göçü gerekmiyor.
+     *
+     * Dışarı çıkan ya da sayfaya gitmeyen adresler olduğu gibi kalıyor:
+     * http(s), protokolsüz //, mailto, tel, çapa ve sorgu dizisi.
+     */
+    public function fromInput(?string $input): string
+    {
+        $value = trim((string) $input);
+
+        if ($value === '') {
+            return '#';
+        }
+
+        if (preg_match('~^(?:[a-z][a-z0-9+.-]*:|//|[#?])~i', $value) === 1) {
+            return $value;
+        }
+
+        $path = ltrim($value, '/');
+        $locale = app()->getLocale();
+        $segments = explode('/', $path, 2);
+
+        // Baştaki parça bir dil koduysa yerine bugünkü dil geçiyor.
+        if ($this->languages->isSupported($segments[0])) {
+            $path = $segments[1] ?? '';
+        }
+
+        return $path === '' ? url($locale) : url($locale . '/' . $path);
+    }
+
     public function page(string $slug): string
     {
         $locale = app()->getLocale();

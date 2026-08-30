@@ -24,7 +24,7 @@
                         @endif
 
                         @if($popup->button_text && $popup->button_url)
-                            <a href="{{ $popup->button_url }}" class="btn btn-primary">
+                            <a href="{{ local_url($popup->button_url) }}" class="btn btn-primary">
                                 {{ $popup->button_text }} <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         @endif

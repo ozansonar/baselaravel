@@ -42,7 +42,7 @@
                                             @endif
                                             <div class="d-flex flex-wrap gap-2">
                                                 @if($s->button_text && $s->button_url)
-                                                    <a href="{{ $s->button_url }}" class="btn btn-light btn-lg">{{ $s->button_text }} <i class="fa-solid fa-arrow-right"></i></a>
+                                                    <a href="{{ local_url($s->button_url) }}" class="btn btn-light btn-lg">{{ $s->button_text }} <i class="fa-solid fa-arrow-right"></i></a>
                                                 @endif
                                                 <a href="{{ route('contact') }}" class="btn btn-glass btn-lg">{{ __('site.actions.contact_us') }}</a>
                                             </div>
