@@ -128,16 +128,42 @@ window.fetchJson = async function (url, options = {}) {
     return res.json();
 };
 
+/* ---- Metni düz metne indirger ----
+
+   Kutulara metin textContent ile yazılıyor: içindeki etiket ekranda etiket
+   olarak görünüyor. Etiketi yorumlatmak (innerHTML) sunucudan ve kullanıcıdan
+   gelen metni sayfaya HTML olarak sokardı; onun yerine etiketler atılıyor.
+
+   Satır sonu anlamı taşıyan etiketler önce satır sonuna çevriliyor ki çok
+   satırlı bir uyarı tek satıra yapışmasın. Varlık imleri textarea üzerinden
+   çözülüyor: textarea'nın içeriği HTML olarak ayrıştırılmaz, yani &quot;
+   çözülürken yeni bir eleman doğmaz. */
+window.plainText = function (value) {
+    var text = String(value === null || value === undefined ? '' : value)
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
+        .replace(/<[^>]*>/g, '');
+
+    if (text.indexOf('&') === -1) return text;
+
+    var holder = document.createElement('textarea');
+    holder.innerHTML = text;
+
+    return holder.value;
+};
+
 /* ---- Global result modal ----
 
    message hem dizge hem dizi olabiliyor. Sunucudan birden çok hata dönünce
    satırlar önce '<br>' ile birleştiriliyordu; kutu metni textContent ile
    bastığı için ziyaretçi etiketin kendisini okuyordu ("...zorunludur.<br>E-posta
-   ...").  Etiketi yorumlatmak (innerHTML) sunucudan gelen metni sayfaya HTML
-   olarak sokardı; onun yerine her satır kendi düğümü olarak ekleniyor. */
+   ..."). Her satır kendi düğümü olarak ekleniyor. */
 window.showResultModal = function (type, message, title) {
     const el = document.getElementById('resultModal');
-    const lines = Array.isArray(message) ? message : String(message ?? '').split('\n');
+    const lines = (Array.isArray(message) ? message : [message])
+        .map(window.plainText)
+        .join('\n')
+        .split('\n');
 
     if (!el) { alert(lines.join('\n')); return; }
 
@@ -152,7 +178,7 @@ window.showResultModal = function (type, message, title) {
     const iconWrap = document.getElementById('resultModalIcon');
     iconWrap.className = 'result-icon ' + cfg.cls;
     iconWrap.innerHTML = '<i class="fa-solid ' + cfg.icon + '"></i>';
-    document.getElementById('resultModalTitle').textContent = title || cfg.title;
+    document.getElementById('resultModalTitle').textContent = window.plainText(title) || cfg.title;
 
     const body = document.getElementById('resultModalBody');
     body.textContent = '';
@@ -169,11 +195,11 @@ window.showConfirmModal = function (options) {
     const el = document.getElementById('confirmModal');
     if (!el) { if (confirm(options.message)) options.onConfirm && options.onConfirm(); return; }
 
-    document.getElementById('confirmModalTitle').textContent = options.title || 'Emin misiniz?';
-    document.getElementById('confirmModalBody').textContent = options.message || '';
+    document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || 'Emin misiniz?';
+    document.getElementById('confirmModalBody').textContent = window.plainText(options.message);
 
     const confirmBtn = document.getElementById('confirmModalConfirmBtn');
-    confirmBtn.textContent = options.confirmText || 'Evet';
+    confirmBtn.textContent = window.plainText(options.confirmText) || 'Evet';
 
     // Reset listener by cloning
     const fresh = confirmBtn.cloneNode(true);

@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.AdminModal && typeof AdminModal.confirm === 'function') {
                 AdminModal.confirm({
                     title: 'Kuyruk Temizlensin Mi?',
-                    message: 'Kuyruktaki <strong>' + dropzone.files.length + '</strong> satır ekrandan kaldırılacak. '
+                    message: 'Kuyruktaki ' + dropzone.files.length + ' satır ekrandan kaldırılacak. '
                         + 'Yüklenmiş dosyalar silinmez, sadece bu liste temizlenir.',
                     type: 'warning',
                     confirmText: 'Evet, Temizle',

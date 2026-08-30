@@ -448,7 +448,9 @@ function fmgrConfirmDelete(btn) {
     if (window.AdminModal && typeof AdminModal.confirm === 'function') {
         AdminModal.confirm({
             title: 'Dosya Silinsin Mi?',
-            message: '<strong>' + name + '</strong> kalıcı olarak silinecek (dosya + DB kaydı). Geri alınamaz.',
+            // Ad ayrıntı kutusunda; mesaja gömülen etiket ekranda metin olarak görünüyordu.
+            message: 'Dosya kalıcı olarak silinecek (dosya + veritabanı kaydı). Geri alınamaz.',
+            detailTitle: name,
             type: 'danger',
             confirmText: 'Evet, Sil',
             confirmIcon: 'bi bi-trash3',

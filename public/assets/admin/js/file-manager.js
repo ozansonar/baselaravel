@@ -207,7 +207,10 @@ window.FileManagerList = (function () {
         if (window.AdminModal && typeof AdminModal.confirm === 'function') {
             AdminModal.confirm({
                 title: 'Dosya Silinsin Mi?',
-                message: '<strong>' + name + '</strong> kalıcı olarak silinecek (dosya + DB kaydı). Bu işlem geri alınamaz.',
+                // Dosya adı mesaja gömülmüyor: modalın ayrıntı kutusu zaten
+                // bunun için var ve adı olduğu gibi, biçimlendirmesiz gösteriyor.
+                message: 'Dosya kalıcı olarak silinecek (dosya + veritabanı kaydı). Bu işlem geri alınamaz.',
+                detailTitle: name,
                 type: 'danger',
                 confirmText: 'Evet, Sil',
                 confirmIcon: 'bi bi-trash3',

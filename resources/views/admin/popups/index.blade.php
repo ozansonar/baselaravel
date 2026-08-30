@@ -256,7 +256,10 @@
     function openDeleteModal(id, title) {
         AdminModal.confirm({
             title: 'Silme Onayı',
-            message: '<strong>' + title + '</strong> popup\'ını silmek istediğinizden emin misiniz?',
+            // Başlık mesaja gömülmüyor: modalın ayrıntı kutusu zaten bunun
+            // için var ve etiketleri metin olarak göstermiyor.
+            message: 'Bu duyuru kalıcı olarak silinecek. İşlemi onaylıyor musunuz?',
+            detailTitle: title,
             type: 'danger',
             confirmText: 'Evet, Sil',
             confirmIcon: 'bi bi-trash3'
