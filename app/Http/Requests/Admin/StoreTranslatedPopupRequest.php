@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin;
 
 use App\Http\Requests\Concerns\ValidatesTranslationBlocks;
+use App\Enums\PopupDisplayMode;
 use App\Enums\PopupPage;
 use App\Enums\PopupSize;
 use App\Services\LanguageService;
@@ -47,6 +48,7 @@ final class StoreTranslatedPopupRequest extends FormRequest
             $rules["{$prefix}.button_text"]  = ['nullable', 'string', 'max:100'];
             $rules["{$prefix}.button_url"]   = ['nullable', 'string', 'max:500'];
             $rules["{$prefix}.size"]         = ['nullable', Rule::enum(PopupSize::class)];
+            $rules["{$prefix}.display_mode"] = ['nullable', Rule::enum(PopupDisplayMode::class)];
             $rules["{$prefix}.pages"]        = [$required, 'array', 'min:1'];
             $rules["{$prefix}.pages.*"]      = ['required', Rule::enum(PopupPage::class)];
             $rules["{$prefix}.start_date"]   = ['nullable', 'date'];

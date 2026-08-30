@@ -90,7 +90,7 @@
                                 <select class="form-select @error("translations.{$language->code}.type") is-invalid @enderror"
                                         id="type_{{ $language->code }}" name="translations[{{ $language->code }}][type]" data-fv-ignore>
                                     @foreach($types as $type)
-                                        <option value="{{ $type->value }}" {{ old("translations.{$language->code}.type", 'photo') === $type->value ? 'selected' : '' }}>
+                                        <option value="{{ $type->value }}" {{ old("translations.{$language->code}.type", $translation?->type?->value ?? 'photo') === $type->value ? 'selected' : '' }}>
                                             {{ $type->label() }}
                                         </option>
                                     @endforeach

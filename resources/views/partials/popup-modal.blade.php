@@ -2,7 +2,9 @@
     @foreach($popups as $popup)
         <div class="modal fade site-popup" id="popupModal{{ $popup->id }}" tabindex="-1"
              aria-labelledby="popupTitle{{ $popup->id }}" aria-hidden="true"
-             data-popup-id="{{ $popup->id }}">
+             data-popup-id="{{ $popup->id }}"
+             data-popup-store="{{ $popup->display_mode->storage() ?? '' }}"
+             data-popup-remember="{{ $popup->display_mode->remembersOnClose() ? 'close' : 'show' }}">
             <div class="modal-dialog modal-dialog-centered {{ $popup->size->modalClass() }}">
                 <div class="modal-content site-popup__content">
                     <button type="button" class="site-popup__close" data-bs-dismiss="modal" aria-label="{{ __('site.actions.close') }}">

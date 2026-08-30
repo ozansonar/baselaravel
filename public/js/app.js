@@ -80,12 +80,36 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    /* ---- Site popups (once per browser session) ---- */
+    /* ---- Site popups ----
+
+       Kaç kez görüneceği yöneticinin kararı; her duyuru kendi kuralını
+       data- niteliklerinde taşıyor:
+
+         data-popup-store    'session' | 'local' | ''  → görüldüğü nerede tutulacak
+         data-popup-remember 'show' | 'close'          → işaret ne zaman konacak
+
+       Boş depo "her zaman göster" demek: hiçbir yere yazılmıyor. 'show'
+       görüldüğü an biter (bir kez göster), 'close' ise ziyaretçi kapatana
+       kadar her açılışta çıkar. */
     var popupEls = document.querySelectorAll('[data-popup-id]');
     if (popupEls.length && typeof bootstrap !== 'undefined') {
-        var store = window.sessionStorage;
+        var storeOf = function (el) {
+            try {
+                if (el.dataset.popupStore === 'session') return window.sessionStorage;
+                if (el.dataset.popupStore === 'local') return window.localStorage;
+            } catch (e) {}
+            return null;
+        };
+        var seenKey = function (el) { return 'popup_seen_' + el.dataset.popupId; };
+        var markSeen = function (el) {
+            var store = storeOf(el);
+            try { if (store) store.setItem(seenKey(el), '1'); } catch (e) {}
+        };
+
         var queue = Array.prototype.filter.call(popupEls, function (el) {
-            try { return !store || store.getItem('popup_seen_' + el.dataset.popupId) !== '1'; }
+            var store = storeOf(el);
+            // Deposu olmayan duyuru her zaman gösterilir.
+            try { return !store || store.getItem(seenKey(el)) !== '1'; }
             catch (e) { return true; }
         });
         var pi = 0;
@@ -93,9 +117,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (pi >= queue.length) return;
             var el = queue[pi];
             var modal = bootstrap.Modal.getOrCreateInstance(el);
+
+            // "Bir kez göster" görüldüğü an biter: ziyaretçi kapatmaya
+            // fırsat bulmadan sayfayı yenilese bile duyuru tekrarlanmaz.
+            if (el.dataset.popupRemember === 'show') markSeen(el);
+
             el.addEventListener('hidden.bs.modal', function handler() {
                 el.removeEventListener('hidden.bs.modal', handler);
-                try { if (store) store.setItem('popup_seen_' + el.dataset.popupId, '1'); } catch (e) {}
+                if (el.dataset.popupRemember !== 'show') markSeen(el);
                 pi++;
                 if (pi < queue.length) setTimeout(showNextPopup, 400);
             });
