@@ -184,6 +184,7 @@ return [
     ],
 
     'login' => [
+        'failed'                => 'The e-mail address or password is incorrect.',
         'email_ph' => 'name@example.com',
         'welcome_back' => 'Welcome back',
         'title'      => 'Sign in',
@@ -220,6 +221,8 @@ return [
     ],
 
     'password' => [
+        'no_account'            => 'No account is registered with this e-mail address.',
+        'reset_failed'          => 'The password could not be reset. Please try again.',
         'link_sent' => 'A password reset link has been sent to your e-mail address.',
         'reset_done' => 'Your password has been reset. You can sign in now.',
         'email_ph' => 'name@example.com',
@@ -233,6 +236,7 @@ return [
     ],
 
     'verify' => [
+        'already'               => 'Your e-mail address is already verified.',
         'verified' => 'Your e-mail address has been verified.',
         'link_sent' => 'A verification link has been sent to your e-mail address.',
         'title'   => 'Verify your email',

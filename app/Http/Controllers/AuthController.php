@@ -42,7 +42,7 @@ final class AuthController extends Controller
         )) {
             return back()
                 ->withInput($request->only('email', 'remember'))
-                ->withErrors(['email' => 'E-posta veya şifre hatalı.']);
+                ->withErrors(['email' => __('site.login.failed')]);
         }
 
         $user = $request->user();
@@ -114,7 +114,7 @@ final class AuthController extends Controller
 
         return back()
             ->withInput()
-            ->withErrors(['email' => 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.']);
+            ->withErrors(['email' => __('site.password.no_account')]);
     }
 
     /**
@@ -148,6 +148,6 @@ final class AuthController extends Controller
                 ->with('success', __('site.password.reset_done'));
         }
 
-        return back()->withErrors(['email' => 'Şifre sıfırlama başarısız. Lütfen tekrar deneyin.']);
+        return back()->withErrors(['email' => __('site.password.reset_failed')]);
     }
 }

@@ -187,6 +187,7 @@ return [
     ],
 
     'login' => [
+        'failed'                => 'E-posta veya şifre hatalı.',
         'email_ph' => 'ornek@mail.com',
         'welcome_back' => 'Tekrar hoş geldiniz',
         'title'      => 'Giriş Yap',
@@ -223,6 +224,8 @@ return [
     ],
 
     'password' => [
+        'no_account'            => 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.',
+        'reset_failed'          => 'Şifre sıfırlama başarısız. Lütfen tekrar deneyin.',
         'link_sent' => 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
         'reset_done' => 'Şifreniz başarıyla sıfırlandı. Giriş yapabilirsiniz.',
         'email_ph' => 'ornek@mail.com',
@@ -236,6 +239,7 @@ return [
     ],
 
     'verify' => [
+        'already'               => 'E-posta adresiniz zaten doğrulanmış.',
         'verified' => 'E-posta adresiniz doğrulandı.',
         'link_sent' => 'Doğrulama bağlantısı e-posta adresinize gönderildi.',
         'title'    => 'E-postanızı doğrulayın',

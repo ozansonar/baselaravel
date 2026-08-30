@@ -31,7 +31,7 @@ final class EmailVerificationController extends Controller
     {
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->route('account.dashboard')
-                ->with('info', 'E-posta adresiniz zaten doğrulanmış.');
+                ->with('info', __('site.verify.already'));
         }
 
         $request->fulfill();
