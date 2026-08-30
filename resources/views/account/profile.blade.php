@@ -100,7 +100,7 @@
                                     <input type="text"
                                            class="form-control @error('phone') is-invalid @enderror"
                                            id="phone" name="phone"
-                                           data-validation-engine="validate[maxSize[20]]"
+                                           data-validation-engine="validate[custom[phone],maxSize[20]]" data-fv-mask="phone"
                                            value="{{ old('phone', $user->phone) }}" placeholder="{{ __('site.account.phone_ph') }}">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>

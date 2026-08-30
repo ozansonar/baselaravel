@@ -117,6 +117,7 @@ return [
     ],
 
     'contact' => [
+        'name_min'              => 'Ad soyad en az :min karakter olmalıdır.',
         'name_required'               => 'Ad soyad zorunludur.',
         'name_max'                    => 'Ad soyad en fazla :max karakter olabilir.',
         'subject_required'            => 'Konu zorunludur.',
@@ -404,6 +405,8 @@ return [
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
+        'name_letters'          => 'Ad soyad yalnızca harf ve boşluk içerebilir.',
+        'phone_format'          => 'Telefon numarası yalnızca rakam ve + ( ) - . işaretlerini içerebilir.',
         'throttle_login'              => 'Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika bekleyin.',
         'throttle_contact'            => 'Çok fazla mesaj gönderdiniz. Lütfen birkaç dakika bekleyin.',
         'throttle_register'           => 'Çok fazla kayıt denemesi yaptınız. Lütfen birkaç dakika bekleyin.',

@@ -124,7 +124,7 @@
     // ==================== GİRİŞ MASKELERİ ====================
 
     /**
-     * data-fv-mask="letters|digits|decimal"
+     * data-fv-mask="letters|digits|decimal|phone"
      *
      * Kural gönderimde denetler, maske yanlış karakterin yazılmasını en baştan
      * engeller. Desenler custom[letters] / custom[integer] / custom[number] ile
@@ -137,6 +137,18 @@
         },
         digits: function (value) {
             return value.replace(/\D/g, '');
+        },
+        /**
+         * Telefon: kuralın (custom[phone]) kabul ettiği her karakter geçiyor,
+         * harf geçmiyor.
+         *
+         * "digits" olsaydı maske kuraldan katı olurdu: kural "+90 555 111 22 33"
+         * biçimini kabul ediyor, maske ise artı işaretini ve boşlukları
+         * silerdi — kullanıcı geçerli bir numarayı yazamazdı. Maske kuralın
+         * kapısı, daha dar bir kapı değil.
+         */
+        phone: function (value) {
+            return value.replace(/[^0-9+()\-.\s]/g, '');
         },
         decimal: function (value) {
             var cleaned = value.replace(/,/g, '.').replace(/[^0-9.]/g, '');

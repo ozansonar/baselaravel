@@ -28,7 +28,7 @@
                          bakardı. --}}
                     <input type="text" id="comment-name" name="name" value="{{ old('name') }}"
                            class="form-control @error('name') is-invalid @enderror"
-                           data-validation-engine="validate[required,minSize[2],maxSize[100]]"
+                           data-validation-engine="validate[required,custom[letters],minSize[2],maxSize[100]]" data-fv-mask="letters"
                            placeholder="{{ __('site.blog.comment_name_ph') }}" autocomplete="name">
                     @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>

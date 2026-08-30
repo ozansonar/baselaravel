@@ -114,6 +114,7 @@ return [
     ],
 
     'contact' => [
+        'name_min'              => 'Your name must be at least :min characters.',
         'name_required'               => 'Your name is required.',
         'name_max'                    => 'Your name may be at most :max characters.',
         'subject_required'            => 'A subject is required.',
@@ -400,6 +401,8 @@ return [
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
+        'name_letters'          => 'The name may contain only letters and spaces.',
+        'phone_format'          => 'The phone number may contain only digits and + ( ) - . characters.',
         'throttle_login'              => 'Too many sign-in attempts. Please wait a minute.',
         'throttle_contact'            => 'You have sent too many messages. Please wait a few minutes.',
         'throttle_register'           => 'Too many sign-up attempts. Please wait a few minutes.',

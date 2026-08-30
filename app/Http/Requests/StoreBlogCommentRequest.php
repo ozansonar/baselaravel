@@ -23,7 +23,7 @@ final class StoreBlogCommentRequest extends FormRequest
         return [
             'blog_post_id' => ['required', 'integer', 'exists:blog_posts,id'],
             'parent_id'    => ['nullable', 'integer', 'exists:blog_comments,id'],
-            'name'         => ['required', 'string', 'min:2', 'max:100'],
+            'name'         => ['required', 'string', 'min:2', 'max:100', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'email'        => ['required', 'email', 'max:191'],
             'body'                 => ['required', 'string', 'min:3', 'max:2000'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()
@@ -47,6 +47,7 @@ final class StoreBlogCommentRequest extends FormRequest
         return [
             'name.required'                 => __('site.blog.comment_name_required'),
             'name.min'                      => __('site.blog.comment_name_min'),
+            'name.regex'                    => __('site.forms.name_letters'),
             'name.max'                      => __('site.blog.comment_name_max'),
             'email.required'                => __('site.blog.comment_email_required'),
             'email.email'                   => __('site.forms.email_invalid_formal'),

@@ -89,7 +89,7 @@
                                     <input type="text"
                                            class="form-control @error('name') is-invalid @enderror"
                                            id="name" name="name" value="{{ old('name') }}"
-                                           data-validation-engine="validate[required,maxSize[191]]"
+                                           data-validation-engine="validate[required,custom[letters],minSize[2],maxSize[191]]" data-fv-mask="letters"
                                            placeholder="{{ __('site.contact.name') }}" autocomplete="name">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -116,7 +116,7 @@
                                     <input type="text"
                                            class="form-control @error('phone') is-invalid @enderror"
                                            id="phone" name="phone" value="{{ old('phone') }}"
-                                           data-validation-engine="validate[maxSize[20]]"
+                                           data-validation-engine="validate[custom[phone],maxSize[20]]" data-fv-mask="phone"
                                            placeholder="{{ __('site.contact.phone_ph') }}" autocomplete="tel">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>

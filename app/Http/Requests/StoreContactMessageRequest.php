@@ -23,9 +23,11 @@ final class StoreContactMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'    => ['required', 'string', 'max:191'],
+            // İstemci maskesi harf dışını yazdırmıyor; sunucu da aynı şeyi söylemeli,
+            // yoksa formu atlayan bir istek rakamlı ad geçirebilir.
+            'name'    => ['required', 'string', 'min:2', 'max:191', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'email'   => ['required', 'string', 'email:rfc,dns', 'max:191'],
-            'phone'   => ['nullable', 'string', 'max:20'],
+            'phone'   => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'subject' => ['required', 'string', 'max:191'],
             'message'              => ['required', 'string', 'min:10', 'max:5000'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()
@@ -48,6 +50,9 @@ final class StoreContactMessageRequest extends FormRequest
     {
         return [
             'name.required'                 => __('site.contact.name_required'),
+            'name.min'                      => __('site.contact.name_min'),
+            'name.regex'                    => __('site.forms.name_letters'),
+            'phone.regex'                   => __('site.forms.phone_format'),
             'name.max'                      => __('site.contact.name_max'),
             'email.required'                => __('site.forms.email_required'),
             'email.email'                   => __('site.forms.email_invalid_formal'),

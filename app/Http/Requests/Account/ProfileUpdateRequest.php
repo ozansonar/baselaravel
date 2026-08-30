@@ -25,7 +25,7 @@ final class ProfileUpdateRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'last_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'email' => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique($userId)],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             // Changing a password requires proving the current one, so a hijacked
             // session cannot lock the real owner out.
             'current_password' => ['required_with:password', 'current_password'],
@@ -59,6 +59,7 @@ final class ProfileUpdateRequest extends FormRequest
             'email.email'                       => __('site.forms.email_invalid'),
             'email.unique'                      => __('site.account.email_taken'),
             'phone.max'                         => __('site.account.phone_max'),
+            'phone.regex'                       => __('site.forms.phone_format'),
             'password.min'                      => __('site.forms.password_min'),
             'password.confirmed'                => __('site.account.password_confirmed'),
             'avatar.image'                      => __('site.account.avatar_image'),
