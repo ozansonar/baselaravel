@@ -201,7 +201,9 @@
     {{-- Form doğrulama motoru. jQuery yalnızca bunun için yükleniyor; kendi
          kodumuz vanilla. Front dosyası admin'inkinden ayrı: js/form-validation.js --}}
     <script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine-tr.js') }}"></script>
+    {{-- Uyarı metinleri ziyaretçinin dilinde: dosya sabit yazılıydı ve
+         İngilizce sayfada Türkçe uyarı çıkıyordu. --}}
+    <script src="{{ asset(validation_engine_script()) }}"></script>
     <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
     <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
     <script src="{{ versioned_asset('js/app.js') }}"></script>

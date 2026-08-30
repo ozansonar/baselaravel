@@ -65,6 +65,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\TranslationGroupResolver::class);
         // Sitenin yedek alt metni istek başına bir kez seçilsin.
         $this->app->singleton(\App\Services\ImageAltResolver::class);
+        // Dil dosyasının varlığı istek başına bir kez bakılsın.
+        $this->app->singleton(\App\Services\ValidationEngineLocale::class);
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 

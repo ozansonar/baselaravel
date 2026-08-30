@@ -171,3 +171,15 @@ if (!function_exists('local_url')) {
         return app(\App\Services\LocalizedUrlService::class)->fromInput($input);
     }
 }
+
+if (!function_exists('validation_engine_script')) {
+    /**
+     * Doğrulama motorunun aktif dildeki dosya yolu.
+     *
+     * @see \App\Services\ValidationEngineLocale
+     */
+    function validation_engine_script(): string
+    {
+        return app(\App\Services\ValidationEngineLocale::class)->scriptPath();
+    }
+}
