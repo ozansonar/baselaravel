@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ __('site.errors.maintenance_mode') }} | {{ \App\Models\Setting::getValue('site_name', config('app.name')) }}</title>
+    <title>{{ __('site.errors.maintenance_mode') }} | {{ $siteName ?? config('app.name') }}</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="{{ versioned_asset('css/maintenance.css') }}">
+    {{-- Varlıklar sunucunun kendisinden. Bakımdaki bir sunucu genelde dışarı
+         çıkamayan sunucudur; CDN'e ulaşılamazsa sayfa tam da görüntünün
+         önemli olduğu anda biçimsiz açılırdı. Ayrıca CDN'deki sürüm sabit
+         yazılıydı ve projenin kendi sürümüyle birlikte güncellenmiyordu. --}}
+    <link href="{{ asset('assets/vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/fontawesome/css/all.min.css') }}" rel="stylesheet">
+    <link href="{{ versioned_asset('css/maintenance.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="maintenance">
@@ -17,11 +21,13 @@
         </div>
 
         <div class="maintenance__card">
-            @php
-                $siteLogo = \App\Models\Setting::getValue('site_logo');
-            @endphp
-            @if($siteLogo)
-                <img src="{{ upload_url($siteLogo) }}" alt="{{ image_alt(\App\Models\Setting::getValue('site_name', config('app.name'))) }}" class="maintenance__logo" loading="lazy">
+            {{-- Site adı ve logo görünüme dışarıdan veriliyor, burada
+                 sorulmuyor: Laravel bu sayfayı "php artisan down" için de
+                 basıyor ve orada veritabanı düşmüş olabilir. Ayarı okuyan
+                 yer, okumanın güvenli olduğunu bilen yer. --}}
+            @if(! empty($siteLogo))
+                <img src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName ?? null) }}"
+                     class="maintenance__logo" loading="lazy" decoding="async">
             @endif
 
             <div class="maintenance__icon">
@@ -48,7 +54,7 @@
         </div>
 
         <footer class="maintenance__footer">
-            <p>&copy; {{ date('Y') }} {{ \App\Models\Setting::getValue('site_name', config('app.name')) }}. {{ __('site.misc.rights') }}</p>
+            <p>&copy; {{ date('Y') }} {{ $siteName ?? config('app.name') }}. {{ __('site.misc.rights') }}</p>
         </footer>
     </div>
 </body>

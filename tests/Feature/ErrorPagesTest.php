@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -217,5 +218,162 @@ final class ErrorPagesTest extends TestCase
             $this->assertStringContainsString((string) $status, (string) $response->getContent());
             $this->assertStringContainsString('empty-state', (string) $response->getContent());
         }
+    }
+
+    // ── Bakım sayfası ──
+
+    /**
+     * Sayfa varlıklarını sunucunun kendisinden almalı.
+     *
+     * Bakımdaki bir sunucu genelde dışarı çıkamayan sunucudur: CDN'e
+     * ulaşılamazsa sayfa tam da görüntünün önemli olduğu anda biçimsiz
+     * açılırdı. Sabitlenmiş CDN sürümü ayrıca projenin kendi sürümüyle
+     * birlikte güncellenmiyor, ikisi zamanla ayrışıyordu.
+     */
+    public function test_the_maintenance_page_asks_nothing_from_outside(): void
+    {
+        $html = $this->maintenanceHtml();
+
+        preg_match_all('/(?:href|src)="([^"]+)"/i', $html, $matches);
+
+        // asset() mutlak adres üretiyor; "dışarısı" demek başka bir konak
+        // demek. Protokolsüz // ile başlayanlar da dışarıya çıkıyor.
+        $kendiKonak = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        $disari = array_values(array_filter($matches[1], static function (string $url) use ($kendiKonak): bool {
+            if (str_starts_with($url, '//')) {
+                return true;
+            }
+
+            $konak = parse_url($url, PHP_URL_HOST);
+
+            return $konak !== null && $konak !== $kendiKonak;
+        }));
+
+        $this->assertSame(
+            [],
+            $disari,
+            "Bakım sayfası dışarıdan kaynak istiyor:\n  " . implode("\n  ", $disari),
+        );
+    }
+
+    public function test_the_maintenance_page_loads_the_projects_own_libraries(): void
+    {
+        $html = $this->maintenanceHtml();
+
+        foreach ([
+            'assets/vendor/bootstrap/bootstrap.min.css',
+            'assets/vendor/fontawesome/css/all.min.css',
+            'css/maintenance.css',
+        ] as $asset) {
+            $this->assertStringContainsString($asset, $html, "{$asset} yüklenmiyor");
+        }
+    }
+
+    /** İşaret edilen dosyalar gerçekten diskte olmalı. */
+    public function test_the_libraries_it_points_at_really_exist(): void
+    {
+        foreach ([
+            'assets/vendor/bootstrap/bootstrap.min.css',
+            'assets/vendor/fontawesome/css/all.min.css',
+            'css/maintenance.css',
+        ] as $asset) {
+            $this->assertFileExists(public_path($asset));
+            $this->assertGreaterThan(0, filesize(public_path($asset)), "{$asset} boş");
+        }
+    }
+
+    /**
+     * Görünüm ayar okumamalı.
+     *
+     * Laravel aynı sayfayı "php artisan down" için de basıyor ve orada
+     * veritabanı düşmüş olabilir. Ayarı okuyan yer, okumanın güvenli olduğunu
+     * bilen yer: bakım modunda olduğumuzu zaten ayardan öğrenen ara katman.
+     */
+    public function test_the_maintenance_page_touches_no_database(): void
+    {
+        $sorgular = [];
+
+        \Illuminate\Support\Facades\DB::listen(function ($query) use (&$sorgular): void {
+            $sorgular[] = $query->sql;
+        });
+
+        view('errors.503', ['maintenanceMessage' => 'Deneme'])->render();
+
+        $riskli = array_values(array_filter(
+            $sorgular,
+            static fn (string $sql): bool => str_contains($sql, '"settings"') || str_contains($sql, '"cache"'),
+        ));
+
+        $this->assertSame(
+            [],
+            $riskli,
+            "Bakım sayfası ayar okuyor:\n  " . implode("\n  ", $riskli),
+        );
+    }
+
+    /** Veri gelmediğinde de sayfa basılabilmeli. */
+    public function test_the_maintenance_page_renders_with_nothing_handed_to_it(): void
+    {
+        $html = view('errors.503')->render();
+
+        $this->assertStringContainsString((string) config('app.name'), $html);
+        $this->assertStringContainsString(__('site.errors.503_title'), $html);
+    }
+
+    /** Bakım modu açıkken ziyaretçi gerçekten bu sayfayı görmeli. */
+    public function test_maintenance_mode_serves_the_page_with_its_own_code(): void
+    {
+        Setting::setValue('maintenance_mode', '1');
+        Setting::clearSettingsCache();
+
+        $response = $this->get('/tr');
+
+        $response->assertStatus(503);
+        $this->assertStringContainsString('maintenance__card', (string) $response->getContent());
+    }
+
+    /**
+     * Bakım mesajı ziyaretçinin dilinde olmalı.
+     *
+     * Yönetici bir mesaj yazmadıysa devreye giren metin koda gömülü Türkçeydi:
+     * İngilizce ziyaretçi Türkçe bakım duyurusu görüyordu.
+     */
+    public function test_the_default_maintenance_message_follows_the_visitor(): void
+    {
+        Setting::setValue('maintenance_mode', '1');
+        Setting::setValue('maintenance_message', '');
+        Setting::clearSettingsCache();
+
+        $tr = (string) $this->get('/tr')->assertStatus(503)->getContent();
+        $en = (string) $this->get('/en')->assertStatus(503)->getContent();
+
+        $this->assertStringContainsString(__('site.errors.503_message', [], 'tr'), $tr);
+        $this->assertStringContainsString(__('site.errors.503_message', [], 'en'), $en);
+    }
+
+    /** Yöneticinin yazdığı mesaj varsa o gösterilmeli. */
+    public function test_the_admins_own_message_wins(): void
+    {
+        Setting::setValue('maintenance_mode', '1');
+        Setting::setValue('maintenance_message', 'Sunucu bakımı sürüyor.');
+        Setting::clearSettingsCache();
+
+        $this->get('/tr')->assertStatus(503)->assertSee('Sunucu bakımı sürüyor.', false);
+    }
+
+    /**
+     * Bakım sayfası hangi kaynakları istiyor?
+     *
+     * Ara katmandan gelen veriyle basılıyor; gerçek istekte de böyle
+     * çağrılıyor.
+     */
+    private function maintenanceHtml(): string
+    {
+        return view('errors.503', [
+            'maintenanceMessage' => __('site.errors.503_message'),
+            'siteName'           => 'Deneme Sitesi',
+            'siteLogo'           => null,
+        ])->render();
     }
 }
