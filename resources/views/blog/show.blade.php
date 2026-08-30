@@ -56,7 +56,7 @@
 
                     {{-- Cover --}}
                     @if($post->image)
-                        <img src="{{ upload_url($post->image, 'lg') }}" alt="{{ $post->title }}" class="article__cover mb-4" loading="eager" decoding="async">
+                        <img src="{{ upload_url($post->image, 'lg') }}" alt="{{ image_alt($post->meta_title, $post->title) }}" class="article__cover mb-4" loading="eager" decoding="async">
                     @endif
 
                     {{-- Body --}}

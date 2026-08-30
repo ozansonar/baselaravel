@@ -141,3 +141,18 @@ if (!function_exists('page_url')) {
         return app(\App\Services\LocalizedUrlService::class)->page($slug);
     }
 }
+
+if (!function_exists('image_alt')) {
+    /**
+     * Bir görselin alt metni: ilk dolu aday, hiçbiri yoksa sitenin genel metni.
+     *
+     * Görünümde `alt="{{ image_alt($item->title) }}"` diye çağrılıyor; boş
+     * kalma ihtimali olan her yerde bu zincir devreye giriyor.
+     *
+     * @see \App\Services\ImageAltResolver
+     */
+    function image_alt(?string ...$candidates): string
+    {
+        return app(\App\Services\ImageAltResolver::class)->resolve(...$candidates);
+    }
+}

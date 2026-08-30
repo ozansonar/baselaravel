@@ -10,7 +10,8 @@
             {{-- Brand --}}
             <a class="brand" href="{{ route('home') }}">
                 @if($siteLogo)
-                    <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ $siteName }}" width="140" height="38">
+                    <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName) }}"
+                         width="140" height="38" loading="eager" fetchpriority="high" decoding="sync">
                 @else
                     <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                     <span class="brand__text">{{ $siteName }}</span>
@@ -79,7 +80,8 @@
     <div class="offcanvas-header border-bottom">
         <a class="brand" href="{{ route('home') }}" id="mobileNavLabel">
             @if($siteLogo)
-                <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ $siteName }}" width="130" height="34">
+                <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName) }}"
+                     width="130" height="34" loading="lazy" decoding="async">
             @else
                 <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                 <span class="brand__text">{{ $siteName }}</span>

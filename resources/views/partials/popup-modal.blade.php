@@ -12,7 +12,7 @@
                     </button>
 
                     @if($popup->image)
-                        <img src="{{ upload_url($popup->image, 'lg') }}" alt="{{ $popup->title }}"
+                        <img src="{{ upload_url($popup->image, 'lg') }}" alt="{{ image_alt($popup->title) }}"
                              class="site-popup__img" loading="lazy" decoding="async">
                     @endif
 

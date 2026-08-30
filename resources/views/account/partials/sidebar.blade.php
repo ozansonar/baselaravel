@@ -6,7 +6,7 @@
     {{-- User mini profile --}}
     <div class="text-center px-2 pt-3 pb-2">
         @if($user->avatar)
-            <img src="{{ upload_url($user->avatar) }}" alt="{{ $user->full_name }}"
+            <img src="{{ upload_url($user->avatar) }}" alt="{{ image_alt($user->full_name) }}"
                  class="avatar-lg mx-auto mb-3" width="96" height="96" loading="lazy" decoding="async">
         @else
             <div class="avatar-ph mx-auto mb-3">{{ mb_strtoupper(mb_substr($user->first_name, 0, 1)) }}</div>

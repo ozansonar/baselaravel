@@ -21,7 +21,7 @@
                 $siteLogo = \App\Models\Setting::getValue('site_logo');
             @endphp
             @if($siteLogo)
-                <img src="{{ upload_url($siteLogo) }}" alt="{{ \App\Models\Setting::getValue('site_name', config('app.name')) }}" class="maintenance__logo" loading="lazy">
+                <img src="{{ upload_url($siteLogo) }}" alt="{{ image_alt(\App\Models\Setting::getValue('site_name', config('app.name'))) }}" class="maintenance__logo" loading="lazy">
             @endif
 
             <div class="maintenance__icon">

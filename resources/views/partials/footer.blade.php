@@ -23,7 +23,8 @@
             <div class="col-lg-4">
                 <a class="footer-brand" href="{{ route('home') }}">
                     @if($fLogo)
-                        <img src="{{ upload_url($fLogo) }}" alt="{{ $fName }}" height="34" class="brand__logo">
+                        <img src="{{ upload_url($fLogo) }}" alt="{{ image_alt($fName) }}" height="34"
+                             class="brand__logo" loading="lazy" decoding="async">
                     @else
                         <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                     @endif

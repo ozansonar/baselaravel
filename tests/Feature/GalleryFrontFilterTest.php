@@ -206,8 +206,14 @@ final class GalleryFrontFilterTest extends TestCase
 
         $html = (string) $this->get(route('gallery', ['locale' => 'tr']))->assertOk()->getContent();
 
-        $this->assertSame(8, substr_count($html, 'loading="lazy"'));
-        $this->assertSame(2, substr_count($html, 'loading="eager"'));
+        // Sayım galeri karelerine daraltılıyor: sayfadaki başka görseller de
+        // (logo, büyütme penceresi) kuralı taşıyor ve toplam sayı onlarla
+        // birlikte değişiyor — ölçülmek istenen ızgaranın kendisi.
+        preg_match_all('/<img[^>]*gallery-item__img[^>]*>/s', $html, $kareler);
+
+        $this->assertCount(10, $kareler[0]);
+        $this->assertSame(8, substr_count(implode('', $kareler[0]), 'loading="lazy"'));
+        $this->assertSame(2, substr_count(implode('', $kareler[0]), 'loading="eager"'));
     }
 
     /** İkinci sayfada "açılışta ekranda" diye bir şey yok; hepsi tembel. */

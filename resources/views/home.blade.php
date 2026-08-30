@@ -24,7 +24,7 @@
                         @foreach($sliders as $i => $s)
                             <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
                                 <div class="hero-slide">
-                                    <img src="{{ upload_url($s->image) }}" alt="{{ $s->title }}" class="hero-slide__img"
+                                    <img src="{{ upload_url($s->image) }}" alt="{{ image_alt($s->title, $s->subtitle) }}" class="hero-slide__img"
                                          loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
                                          fetchpriority="{{ $i === 0 ? 'high' : 'auto' }}" decoding="async">
                                     <div class="hero-slide__overlay">
@@ -211,7 +211,7 @@
                            data-title="{{ $photo->title }}"
                            data-caption="{{ $photo->galleryCategory?->name }}"
                            aria-label="{{ $photo->title }}">
-                            <img src="{{ upload_url($photo->image, 'md') }}" alt="{{ $photo->title }}"
+                            <img src="{{ upload_url($photo->image, 'md') }}" alt="{{ image_alt($photo->title, $photo->galleryCategory?->name) }}"
                                  class="gallery-item__img" loading="lazy" decoding="async">
                             <span class="gallery-item__zoom" aria-hidden="true"><i class="fa-solid fa-expand"></i></span>
                             <span class="gallery-item__overlay">

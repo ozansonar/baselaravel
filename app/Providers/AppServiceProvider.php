@@ -63,6 +63,8 @@ class AppServiceProvider extends ServiceProvider
         // olmasalardı her app() çağrısı yeni bir örnek doğurur ve saklama
         // hiç işe yaramazdı.
         $this->app->singleton(\App\Services\TranslationGroupResolver::class);
+        // Sitenin yedek alt metni istek başına bir kez seçilsin.
+        $this->app->singleton(\App\Services\ImageAltResolver::class);
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 
