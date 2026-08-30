@@ -136,6 +136,13 @@
         </a>
         @endcan
 
+        @can('viewAny', \App\Models\CustomRoute::class)
+        <a href="{{ route('admin.custom-routes.index') }}"
+           class="nav-link {{ Route::is('admin.custom-routes.*') ? 'active' : '' }}">
+            <i class="bi bi-signpost-split-fill"></i> Özel Adresler
+        </a>
+        @endcan
+
 
         {{-- ─── SİSTEM ───────────────────────────────────────── --}}
         <div class="nav-section-title">Sistem</div>

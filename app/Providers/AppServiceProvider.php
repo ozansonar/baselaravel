@@ -67,6 +67,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\ImageAltResolver::class);
         // Dil dosyasının varlığı istek başına bir kez bakılsın.
         $this->app->singleton(\App\Services\ValidationEngineLocale::class);
+        // Adres haritası istek başına bir kez okunsun: her çağrıda yeni bir
+        // örnek doğarsa önbellek sürücüsüne tekrar tekrar gidilir.
+        $this->app->singleton(\App\Services\CustomRouteService::class);
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 

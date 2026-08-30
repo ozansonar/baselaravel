@@ -2,7 +2,7 @@
 
 @section('title', __('site.faq.title'))
 @section('meta_description', __('site.faq.meta_desc'))
-@section('canonical', url()->current())
+@section('canonical', canonical_url('faq'))
 
 @section('content')
 

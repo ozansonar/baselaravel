@@ -234,7 +234,69 @@ final class LocalizedUrlService
             $path = $segments[1] ?? '';
         }
 
-        return $path === '' ? url($locale) : url($locale . '/' . $path);
+        if ($path === '') {
+            return url($locale);
+        }
+
+        // Girilen slug bu dilde başka bir adrese açılmışsa o kullanılıyor:
+        // yönetici "iletisim" yazar, İngilizce sayfa /en/contact'a gider.
+        $custom = app(CustomRouteService::class)->resolve($locale, $path);
+
+        if ($custom === null) {
+            $ownSlug = $this->localisedSlugOfBuiltInPath($path, $locale);
+            $path = $ownSlug ?? $path;
+        }
+
+        return url($locale . '/' . $path);
+    }
+
+    /**
+     * Bir rotanın bu dildeki tercih edilen adresi.
+     *
+     * Panelden bir adres açıldığında aynı sayfaya iki yoldan gidilebiliyor:
+     * rotanın kendi adresi ve açılan adres. İkisi de kendini gösteren bir
+     * canonical basarsa arama motoru aynı içeriği iki kez görür ve hangisini
+     * dizine alacağını kendi seçer.
+     *
+     * Tercih edilen, açılmış adres: yönetici o sayfayı o adreste yayınlamayı
+     * seçmiş demektir.
+     *
+     * @param array<string, mixed> $params
+     */
+    public function canonicalFor(string $routeName, array $params = []): string
+    {
+        $locale = app()->getLocale();
+        $slug = app(CustomRouteService::class)->slugFor($routeName, $locale, $params);
+
+        return $slug === null
+            ? route($routeName, $params)
+            : url($locale . '/' . $slug);
+    }
+
+    /**
+     * Yerleşik bir rotanın bu dildeki özel adresi — varsa.
+     *
+     * Girilen yol hangi rotaya karşılık geliyorsa, o rota için bu dilde
+     * açılmış bir adres aranıyor. "iletisim" yazan bir bağlantı İngilizce
+     * sayfada /en/contact'a gidiyor.
+     */
+    private function localisedSlugOfBuiltInPath(string $path, string $locale): ?string
+    {
+        $routes = app(CustomRouteService::class);
+
+        foreach ($routes->availableTargets() as $name => $label) {
+            if ($routes->parametersFor($name) !== []) {
+                continue;
+            }
+
+            $uri = ltrim((string) preg_replace('~^\{locale\}/?~', '', (string) app('router')->getRoutes()->getByName($name)?->uri()), '/');
+
+            if ($uri !== '' && $uri === $path) {
+                return $routes->slugFor($name, $locale);
+            }
+        }
+
+        return null;
     }
 
     public function page(string $slug): string

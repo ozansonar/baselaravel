@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\CustomRouteController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BackupController;
@@ -174,6 +175,22 @@ Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('
 // Ekleme ve düzenleme kendi sayfasında; pencere yerine tam form.
 Route::resource('redirects', RedirectController::class)->except(['show']);
 Route::patch('redirects/{redirect}/restore', [RedirectController::class, 'restore'])->name('redirects.restore')->withTrashed();
+
+/*
+|--------------------------------------------------------------------------
+| Özel Adresler (URL Yönlendirme Yöneticisi)
+|--------------------------------------------------------------------------
+| Panelden açılan adresler: bir slug, var olan bir rotaya bağlanıyor.
+*/
+Route::prefix('custom-routes')->name('custom-routes.')->group(function () {
+    Route::delete('toplu-sil', [CustomRouteController::class, 'bulkDestroy'])->name('bulk-destroy');
+    Route::patch('toplu-geri-yukle', [CustomRouteController::class, 'bulkRestore'])->name('bulk-restore');
+    Route::patch('{id}/restore', [CustomRouteController::class, 'restore'])->name('restore');
+});
+
+Route::resource('custom-routes', CustomRouteController::class)->except('show')->parameters([
+    'custom-routes' => 'custom_route',
+]);
 Route::patch('redirects/{redirect}/toggle-active', [RedirectController::class, 'toggleActive'])->name('redirects.toggle-active');
 
 // Analytics (Visitor Statistics)

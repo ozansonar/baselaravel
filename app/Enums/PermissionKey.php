@@ -71,6 +71,9 @@ enum PermissionKey: string
     case RedirectsView = 'redirects.view';
     case RedirectsManage = 'redirects.manage';
     case RedirectsDelete = 'redirects.delete';
+    case CustomRoutesView = 'custom-routes.view';
+    case CustomRoutesManage = 'custom-routes.manage';
+    case CustomRoutesDelete = 'custom-routes.delete';
     case MailTemplatesView = 'mail-templates.view';
     case MailTemplatesManage = 'mail-templates.manage';
     case MailLogsView = 'mail-logs.view';
@@ -143,6 +146,9 @@ enum PermissionKey: string
             self::RedirectsView => 'Yönlendirmeleri görüntüle',
             self::RedirectsManage => 'Yönlendirme ekle ve düzenle',
             self::RedirectsDelete => 'Yönlendirme sil',
+            self::CustomRoutesView => 'Özel adresleri görüntüle',
+            self::CustomRoutesManage => 'Özel adres ekle ve düzenle',
+            self::CustomRoutesDelete => 'Özel adres sil',
             self::MailTemplatesView => 'Mail şablonlarını görüntüle',
             self::MailTemplatesManage => 'Mail şablonlarını düzenle',
             self::MailLogsView => 'Mail loglarını görüntüle',
@@ -214,6 +220,9 @@ enum PermissionKey: string
             self::RolesDelete => PermissionGroup::System,
             self::SettingsView => PermissionGroup::System,
             self::SettingsManage => PermissionGroup::System,
+            self::CustomRoutesView => PermissionGroup::System,
+            self::CustomRoutesManage => PermissionGroup::System,
+            self::CustomRoutesDelete => PermissionGroup::System,
             self::RedirectsView => PermissionGroup::System,
             self::RedirectsManage => PermissionGroup::System,
             self::RedirectsDelete => PermissionGroup::System,

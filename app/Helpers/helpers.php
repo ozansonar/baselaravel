@@ -183,3 +183,19 @@ if (!function_exists('validation_engine_script')) {
         return app(\App\Services\ValidationEngineLocale::class)->scriptPath();
     }
 }
+
+if (!function_exists('canonical_url')) {
+    /**
+     * Bir rotanın bu dildeki tercih edilen adresi.
+     *
+     * Panelden açılmış bir adres varsa canonical onu gösteriyor; yoksa
+     * rotanın kendi adresini.
+     *
+     * @param  array<string, mixed> $params
+     * @see \App\Services\LocalizedUrlService::canonicalFor()
+     */
+    function canonical_url(string $routeName, array $params = []): string
+    {
+        return app(\App\Services\LocalizedUrlService::class)->canonicalFor($routeName, $params);
+    }
+}

@@ -31,6 +31,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\HandleRedirects::class,
             \App\Http\Middleware\SetLocale::class,
+            // Panelden açılmış adresler burada karşılanıyor. SetLocale'den
+            // sonra: hangi dilin adresi olduğunu bilmesi gerekiyor. Eşleşme
+            // yoksa hiçbir şey yapmadan çekiliyor.
+            \App\Http\Middleware\ResolveCustomRoutes::class,
             \App\Http\Middleware\CheckMaintenanceMode::class,
         ]);
     })

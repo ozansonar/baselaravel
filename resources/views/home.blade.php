@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', \App\Models\Setting::getValue('site_title', config('app.name')))
-@section('canonical', route('home'))
+@section('canonical', canonical_url('home'))
 
 @section('content')
 
