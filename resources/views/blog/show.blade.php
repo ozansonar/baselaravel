@@ -23,8 +23,8 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('site.nav.home') }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">{{ __('site.blog.title') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ localized_route('home') }}">{{ __('site.nav.home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ localized_route('blog.index') }}">{{ __('site.blog.title') }}</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('blog.category', $post->category->slug) }}">{{ $post->category->name }}</a></li>
                 </ol>
             </nav>

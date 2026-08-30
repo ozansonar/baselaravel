@@ -58,7 +58,7 @@
 
         {{-- Left: decorative brand panel (lg+ only) --}}
         <aside class="auth-aside">
-            <a href="{{ route('home') }}" class="brand text-white">
+            <a href="{{ localized_route('home') }}" class="brand text-white">
                 <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                 <span class="brand__text">{{ $siteName }}</span>
             </a>
@@ -77,7 +77,7 @@
             <div class="auth-card">
 
                 {{-- Brand --}}
-                <a href="{{ route('home') }}" class="auth-brand">
+                <a href="{{ localized_route('home') }}" class="auth-brand">
                     <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                     <span class="brand__text">{{ $siteName }}</span>
                 </a>

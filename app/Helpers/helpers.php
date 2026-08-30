@@ -184,17 +184,19 @@ if (!function_exists('validation_engine_script')) {
     }
 }
 
-if (!function_exists('canonical_url')) {
+if (!function_exists('localized_route')) {
     /**
      * Bir rotanın bu dildeki tercih edilen adresi.
      *
-     * Panelden açılmış bir adres varsa canonical onu gösteriyor; yoksa
-     * rotanın kendi adresini.
+     * Panelden o rota için bir adres açılmışsa o kullanılıyor, yoksa rotanın
+     * kendi adresi. Bağlantı da canonical da aynı soruyu soruyor, o yüzden
+     * tek yardımcı: ikisi ayrışırsa sayfa kendini göstermediği bir adrese
+     * bağlantı verir.
      *
      * @param  array<string, mixed> $params
      * @see \App\Services\LocalizedUrlService::canonicalFor()
      */
-    function canonical_url(string $routeName, array $params = []): string
+    function localized_route(string $routeName, array $params = []): string
     {
         return app(\App\Services\LocalizedUrlService::class)->canonicalFor($routeName, $params);
     }

@@ -57,7 +57,7 @@
     </table>
 
     <div class="em-btn-wrap">
-        <a href="{{ route('home') }}" class="em-btn">&#127807; Siteyi Keşfet</a>
+        <a href="{{ localized_route('home') }}" class="em-btn">&#127807; Siteyi Keşfet</a>
     </div>
 
     <hr class="em-divider">

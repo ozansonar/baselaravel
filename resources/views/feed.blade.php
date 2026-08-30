@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>{{ __('site.blog.feed_title', ['site' => $siteName]) }}</title>
-        <link>{{ route('blog.index') }}</link>
+        <link>{{ localized_route('blog.index') }}</link>
         <description>{{ $siteDesc }}</description>
         <language>{{ app()->getLocale() }}</language>
         <lastBuildDate>{{ $posts->first()?->published_at?->toRssString() ?? now()->toRssString() }}</lastBuildDate>

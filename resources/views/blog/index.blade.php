@@ -11,9 +11,9 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('site.nav.home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ localized_route('home') }}">{{ __('site.nav.home') }}</a></li>
                     @if($activeCategory)
-                        <li class="breadcrumb-item"><a href="{{ route('blog.index') }}">{{ __('site.blog.title') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ localized_route('blog.index') }}">{{ __('site.blog.title') }}</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $activeCategory->name }}</li>
                     @else
                         <li class="breadcrumb-item active" aria-current="page">{{ __('site.blog.title') }}</li>
@@ -33,7 +33,7 @@
             {{-- Category filter --}}
             @if($categories->isNotEmpty())
                 <nav class="pill-nav mb-4" aria-label="{{ __('site.misc.category_filter') }}">
-                    <a href="{{ route('blog.index') }}" class="pill {{ $activeCategory ? '' : 'pill--active' }}">{{ __('site.blog.all') }}</a>
+                    <a href="{{ localized_route('blog.index') }}" class="pill {{ $activeCategory ? '' : 'pill--active' }}">{{ __('site.blog.all') }}</a>
                     @foreach($categories as $cat)
                         <a href="{{ route('blog.category', $cat->slug) }}"
                            class="pill {{ $activeCategory?->id === $cat->id ? 'pill--active' : '' }}">{{ $cat->name }}</a>

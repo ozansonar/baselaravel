@@ -21,7 +21,7 @@
         <div class="row g-4 g-lg-5">
             {{-- Brand --}}
             <div class="col-lg-4">
-                <a class="footer-brand" href="{{ route('home') }}">
+                <a class="footer-brand" href="{{ localized_route('home') }}">
                     @if($fLogo)
                         <img src="{{ upload_url($fLogo) }}" alt="{{ image_alt($fName) }}" height="34"
                              class="brand__logo" loading="lazy" decoding="async">

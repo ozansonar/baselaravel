@@ -8,7 +8,7 @@
         <div class="container">
 
             {{-- Brand --}}
-            <a class="brand" href="{{ route('home') }}">
+            <a class="brand" href="{{ localized_route('home') }}">
                 @if($siteLogo)
                     <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName) }}"
                          width="140" height="38" loading="eager" fetchpriority="high" decoding="sync">
@@ -78,7 +78,7 @@
 {{-- Mobile offcanvas --}}
 <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header border-bottom">
-        <a class="brand" href="{{ route('home') }}" id="mobileNavLabel">
+        <a class="brand" href="{{ localized_route('home') }}" id="mobileNavLabel">
             @if($siteLogo)
                 <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName) }}"
                      width="130" height="34" loading="lazy" decoding="async">

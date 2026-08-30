@@ -2,7 +2,7 @@
 
 @section('title', __('site.faq.title'))
 @section('meta_description', __('site.faq.meta_desc'))
-@section('canonical', canonical_url('faq'))
+@section('canonical', localized_route('faq'))
 
 @section('content')
 
@@ -11,7 +11,7 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('site.nav.home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ localized_route('home') }}">{{ __('site.nav.home') }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ __('site.faq.title') }}</li>
                 </ol>
             </nav>
@@ -60,7 +60,7 @@
                     <div class="cta text-center mt-5">
                         <h2 class="mb-3">{{ __('site.faq.have_question') }}</h2>
                         <p class="cta__lead mb-4 mx-auto mw-readable">{{ __('site.faq.cta_lead') }}</p>
-                        <a href="{{ route('contact') }}" class="btn btn-light btn-lg"><i class="fa-solid fa-paper-plane"></i> {{ __('site.contact.form_title') }}</a>
+                        <a href="{{ localized_route('contact') }}" class="btn btn-light btn-lg"><i class="fa-solid fa-paper-plane"></i> {{ __('site.contact.form_title') }}</a>
                     </div>
                 </div>
             </div>

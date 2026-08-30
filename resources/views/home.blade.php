@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', \App\Models\Setting::getValue('site_title', config('app.name')))
-@section('canonical', canonical_url('home'))
+@section('canonical', localized_route('home'))
 
 @section('content')
 
@@ -44,7 +44,7 @@
                                                 @if($s->button_text && $s->button_url)
                                                     <a href="{{ local_url($s->button_url) }}" class="btn btn-light btn-lg">{{ $s->button_text }} <i class="fa-solid fa-arrow-right"></i></a>
                                                 @endif
-                                                <a href="{{ route('contact') }}" class="btn btn-glass btn-lg">{{ __('site.actions.contact_us') }}</a>
+                                                <a href="{{ localized_route('contact') }}" class="btn btn-glass btn-lg">{{ __('site.actions.contact_us') }}</a>
                                             </div>
                                         </div>
                                     </div>
@@ -73,8 +73,8 @@
                         <h1 class="hero__title">{!! __('site.home.hero_title') !!}</h1>
                         <p class="hero__lead">{{ __('site.home.hero_lead') }}</p>
                         <div class="d-flex flex-wrap gap-3 mt-4">
-                            <a href="{{ route('contact') }}" class="btn btn-primary btn-lg">{{ __('site.actions.get_start') }} <i class="fa-solid fa-arrow-right"></i></a>
-                            <a href="{{ route('blog.index') }}" class="btn btn-light btn-lg">{{ __('site.actions.explore') }}</a>
+                            <a href="{{ localized_route('contact') }}" class="btn btn-primary btn-lg">{{ __('site.actions.get_start') }} <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="{{ localized_route('blog.index') }}" class="btn btn-light btn-lg">{{ __('site.actions.explore') }}</a>
                         </div>
 
                         {{-- Güven şeridi: ilk ekranda ne sunulduğunu tek bakışta söylüyor.
@@ -201,7 +201,7 @@
                         <h2 class="section__title mb-2">{{ __('site.home.gallery_title') }}</h2>
                         <p class="section__lead mb-0">{{ __('site.home.gallery_lead') }}</p>
                     </div>
-                    <a href="{{ route('gallery') }}" class="btn btn-outline-primary">{{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="{{ localized_route('gallery') }}" class="btn btn-outline-primary">{{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="gallery-grid gallery-grid--masonry" data-lightbox-gallery>
@@ -244,7 +244,7 @@
                         <span class="section__eyebrow"><i class="fa-solid fa-newspaper"></i> {{ __('site.home.blog_eyebrow') }}</span>
                         <h2 class="section__title mb-0">{{ __('site.blog.latest') }}</h2>
                     </div>
-                    <a href="{{ route('blog.index') }}" class="btn btn-outline-primary">{{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="{{ localized_route('blog.index') }}" class="btn btn-outline-primary">{{ __('site.actions.view_all') }} <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="mb-4" data-reveal>
@@ -270,7 +270,7 @@
             <div class="cta text-center" data-reveal>
                 <h2 class="mb-3">{{ __('site.home.cta') }}</h2>
                 <p class="cta__lead mb-4 mx-auto mw-readable">{{ __('site.home.cta_lead') }}</p>
-                <a href="{{ route('contact') }}" class="btn btn-light btn-lg">{{ __('site.actions.contact_us') }} <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="{{ localized_route('contact') }}" class="btn btn-light btn-lg">{{ __('site.actions.contact_us') }} <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </div>
     </section>

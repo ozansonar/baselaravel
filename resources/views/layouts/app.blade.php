@@ -151,7 +151,7 @@
             '@context'    => 'https://schema.org',
             '@type'       => 'WebSite',
             'name'        => $siteName,
-            'url'         => route('home'),
+            'url'         => localized_route('home'),
             'description' => $siteDesc,
             'inLanguage'  => app()->getLocale(),
         ];

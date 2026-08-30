@@ -197,10 +197,11 @@ final class CustomRouteTest extends TestCase
     public function test_a_redirect_record_is_not_used_for_writing_links(): void
     {
         // Yönlendirme, bir bağlantının yazılacağı yer değil: eski bir adresin
-        // yenisine taşınması.
-        $this->route(['locale' => 'en', 'slug' => 'eski', 'type' => CustomRouteType::MovedPermanently]);
+        // yenisine taşınması. Hedef olarak tohumlanmamış bir rota seçiliyor ki
+        // ölçülen şey yalnız bu kural olsun.
+        $this->route(['locale' => 'en', 'slug' => 'eski', 'target_route' => 'blog.index', 'type' => CustomRouteType::MovedPermanently]);
 
-        $this->assertNull($this->service()->slugFor('contact', 'en'));
+        $this->assertNull($this->service()->slugFor('blog.index', 'en'));
     }
 
     /**
@@ -325,5 +326,52 @@ final class CustomRouteTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('admin.custom-routes.index'))
             ->assertForbidden();
+    }
+
+    // ── Yerleşik sayfaların İngilizce adresleri ──
+
+    /**
+     * Rota yolları Türkçe yazılmış (/iletisim, /galeri). Ön ek dile göre
+     * değişiyordu ama slug değişmiyordu: İngilizce sayfada bağlantı
+     * /en/iletisim diyordu ve /en/contact 404 veriyordu.
+     */
+    public function test_the_built_in_pages_answer_at_their_english_addresses(): void
+    {
+        foreach (['/en/contact', '/en/gallery', '/en/faq'] as $adres) {
+            $this->get($adres)->assertOk();
+        }
+    }
+
+    /** Türkçe adresler çalışmaya devam etmeli; kimse bağlantısını kaybetmesin. */
+    public function test_the_turkish_addresses_keep_working(): void
+    {
+        foreach (['/tr/iletisim', '/tr/galeri', '/tr/sikca-sorulan-sorular'] as $adres) {
+            $this->get($adres)->assertOk();
+        }
+
+        // İngilizce slug Türkçe tarafta açılmamalı: kayıtlar dile özgü.
+        $this->get('/tr/contact')->assertNotFound();
+    }
+
+    /** Kullanıcının bildirdiği sorun: menüdeki "İletişim" /en/iletisim'e gidiyordu. */
+    public function test_the_english_navigation_uses_english_addresses(): void
+    {
+        app(\App\Services\MenuService::class)->clearAllCaches();
+
+        $html = (string) $this->get('/en')->assertOk()->getContent();
+
+        $this->assertStringContainsString('/en/contact', $html);
+        $this->assertStringContainsString('/en/gallery', $html);
+        $this->assertStringNotContainsString('/en/iletisim', $html);
+        $this->assertStringNotContainsString('/en/galeri', $html);
+    }
+
+    /** Yönetici bunları panelde görebilmeli; gizli bir kural olmamalı. */
+    public function test_the_seeded_addresses_are_visible_in_the_panel(): void
+    {
+        $html = (string) $this->actingAs($this->admin)
+            ->get(route('admin.custom-routes.index'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('/en/contact', $html);
     }
 }

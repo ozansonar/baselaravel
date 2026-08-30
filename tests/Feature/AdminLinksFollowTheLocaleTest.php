@@ -47,8 +47,23 @@ final class AdminLinksFollowTheLocaleTest extends TestCase
 
     public function test_a_bare_link_gets_the_current_language(): void
     {
+        // Dil kaydı olmayan bir yol olduğu gibi, ön ekiyle çıkıyor.
+        $this->assertSame(url('tr/kampanya'), $this->resolve('kampanya', 'tr'));
+        $this->assertSame(url('en/kampanya'), $this->resolve('kampanya', 'en'));
+    }
+
+    /**
+     * Yerleşik bir sayfanın adresi yazıldığında bağlantı o sayfanın bu
+     * dildeki adresine gidiyor.
+     *
+     * Yönetici "iletisim" yazıyor; Türkçe sayfada /tr/iletisim, İngilizce
+     * sayfada /en/contact çıkıyor. Zahmet ortadan kalkan tam olarak bu:
+     * her dil için ayrı kayıt tutmak gerekmiyor.
+     */
+    public function test_a_built_in_page_link_lands_on_that_languages_address(): void
+    {
         $this->assertSame(url('tr/iletisim'), $this->resolve('iletisim', 'tr'));
-        $this->assertSame(url('en/iletisim'), $this->resolve('iletisim', 'en'));
+        $this->assertSame(url('en/contact'), $this->resolve('iletisim', 'en'));
     }
 
     public function test_a_leading_slash_changes_nothing(): void
@@ -59,8 +74,10 @@ final class AdminLinksFollowTheLocaleTest extends TestCase
     /** Eski kayıtlar "/tr/iletisim" diye duruyor; ön ek bugünküyle değişmeli. */
     public function test_an_old_record_with_its_own_prefix_still_follows_the_visitor(): void
     {
-        $this->assertSame(url('en/iletisim'), $this->resolve('/tr/iletisim', 'en'));
+        $this->assertSame(url('en/contact'), $this->resolve('/tr/iletisim', 'en'));
         $this->assertSame(url('tr/iletisim'), $this->resolve('/en/iletisim', 'tr'));
+        // Yerleşik olmayan bir yolda yalnız ön ek değişiyor.
+        $this->assertSame(url('en/kampanya'), $this->resolve('/tr/kampanya', 'en'));
     }
 
     public function test_a_deep_path_keeps_its_shape(): void
@@ -120,7 +137,8 @@ final class AdminLinksFollowTheLocaleTest extends TestCase
         ]);
 
         $this->assertStringContainsString('/tr/iletisim', (string) $this->get('/tr')->assertOk()->getContent());
-        $this->assertStringContainsString('/en/iletisim', (string) $this->get('/en')->assertOk()->getContent());
+        // İngilizce sayfada düğme İngilizce adrese gidiyor.
+        $this->assertStringContainsString('/en/contact', (string) $this->get('/en')->assertOk()->getContent());
     }
 
     public function test_a_popup_button_follows_the_visitor(): void

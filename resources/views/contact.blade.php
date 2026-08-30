@@ -2,7 +2,7 @@
 
 @section('title', __('site.nav.contact') . ' | ' . \App\Models\Setting::getValue('site_name', config('app.name')))
 @section('meta_description', __('site.contact.meta_desc', ['site' => \App\Models\Setting::getValue('site_name', config('app.name'))]))
-@section('canonical', canonical_url('contact'))
+@section('canonical', localized_route('contact'))
 
 @section('content')
 
