@@ -195,4 +195,60 @@ class ApiAccountDataTest extends TestCase
         // İstendi: yalnız bu isteği yapan jeton kaldı.
         $this->assertSame(1, $user->tokens()->count());
     }
+
+    // ── Bildirim tercihleri ──
+
+    public function test_the_preferences_endpoint_describes_every_type(): void
+    {
+        $user = $this->user();
+
+        $this->withToken($this->tokenFor($user))
+            ->getJson('/api/v1/account/notification-preferences')
+            ->assertOk()
+            ->assertJsonPath('data.preferences.comment_updates', true)
+            ->assertJsonPath('data.newsletter', false)
+            ->assertJsonStructure(['data' => ['types' => [['key', 'label', 'description']]]]);
+    }
+
+    public function test_a_preference_can_be_turned_off_through_the_api(): void
+    {
+        $user = $this->user();
+
+        $this->withToken($this->tokenFor($user))
+            ->putJson('/api/v1/account/notification-preferences', [
+                'preferences' => ['comment_updates' => false],
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.preferences.comment_updates', false);
+
+        $this->assertFalse(
+            app(\App\Services\NotificationPreferenceService::class)
+                ->allows($user->fresh(), \App\Enums\NotificationPreference::CommentUpdates)
+        );
+    }
+
+    /**
+     * Tanınmayan anahtar sessizce yutulsaydı istemci "kapattım" sanır, posta
+     * gelmeye devam ederdi.
+     */
+    public function test_an_unknown_preference_key_is_refused(): void
+    {
+        $user = $this->user();
+
+        $this->withToken($this->tokenFor($user))
+            ->putJson('/api/v1/account/notification-preferences', [
+                'preferences' => ['uydurma_tur' => false],
+            ])
+            ->assertStatus(422);
+    }
+
+    public function test_the_newsletter_switch_works_through_the_api(): void
+    {
+        $user = $this->user();
+
+        $this->withToken($this->tokenFor($user))
+            ->putJson('/api/v1/account/notification-preferences', ['newsletter' => true])
+            ->assertOk()
+            ->assertJsonPath('data.newsletter', true);
+    }
 }

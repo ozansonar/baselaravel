@@ -35,6 +35,7 @@ return [
     ],
 
     'actions' => [
+        'save'        => 'Kaydet',
         'yes' => 'Evet',
         'ok' => 'Tamam',
         'sure' => 'Emin misiniz?',
@@ -324,6 +325,21 @@ return [
         'confirm_close' => 'Hesabınız kapatılacak ve oturumunuz sonlanacak. Devam edilsin mi?',
         'closed'        => 'Hesabınız kapatıldı. İlginiz için teşekkür ederiz.',
         'close_blocked_for_staff' => 'Yönetici yetkisi olan hesaplar buradan kapatılamaz; bir yöneticiyle iletişime geçin.',
+    ],
+
+    'notifications' => [
+        'title' => 'Bildirimler',
+        'desc'  => 'Hangi e-postaları alacağınızı seçin.',
+        'lead'  => 'Size gönderilen e-postaları buradan açıp kapatabilirsiniz.',
+
+        'newsletter'      => 'Bülten ve duyurular',
+        'newsletter_hint' => 'Yeni içerikler ve kampanyalar için gönderilen toplu e-postalar.',
+
+        'comment_updates'      => 'Yorum bildirimleri',
+        'comment_updates_hint' => 'Yorumunuz yayınlandığında haber verilir.',
+
+        'always_on' => 'Şifre sıfırlama, e-posta doğrulama ve hesap güvenliğiyle ilgili uyarılar her zaman gönderilir; bunlar kapatılamaz.',
+        'saved'     => 'Bildirim tercihleriniz kaydedildi.',
     ],
 
     'login' => [

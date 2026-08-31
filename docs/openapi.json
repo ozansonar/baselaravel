@@ -4556,6 +4556,222 @@
           }
         }
       }
+    },
+    "/account/notification-preferences": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "getNotificationPreferences",
+        "summary": "Bildirim tercihlerim",
+        "description": "Türlerin listesi, etiketleri ve kişinin kararları. Etiketler sunucudan geliyor ki yeni bir tür mağaza güncellemesi beklemeden görünsün. Güvenlik postaları (şifre sıfırlama, doğrulama, adres değişikliği uyarısı) listede yok ve kapatılamıyor.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tercihler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newsletter": {
+                          "type": "boolean",
+                          "description": "Kaynağı abone tablosu, tercih tablosu değil."
+                        },
+                        "preferences": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "boolean"
+                          }
+                        },
+                        "types": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "key",
+                              "label",
+                              "description"
+                            ],
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "updateNotificationPreferences",
+        "summary": "Bildirim tercihlerimi güncelle",
+        "description": "Gönderilmeyen tür değişmiyor; tek anahtar çevirmek için bütün listeyi taşımak gerekmiyor. Tanınmayan anahtar 422 ile reddediliyor — sessizce yutulsaydı istemci kapattım sanır, posta gelmeye devam ederdi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newsletter": {
+                    "type": "boolean"
+                  },
+                  "preferences": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Güncellendi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newsletter": {
+                          "type": "boolean",
+                          "description": "Kaynağı abone tablosu, tercih tablosu değil."
+                        },
+                        "preferences": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "boolean"
+                          }
+                        },
+                        "types": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "key",
+                              "label",
+                              "description"
+                            ],
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
     }
   }
 }

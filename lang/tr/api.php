@@ -15,6 +15,7 @@ declare(strict_types=1);
 return [
 
     'common' => [
+        'invalid_field' => 'Tanınmayan alan.',
         'ok'                 => 'İşlem başarılı.',
         'error'              => 'İstek işlenemedi.',
         'not_found'          => 'Kayıt bulunamadı.',

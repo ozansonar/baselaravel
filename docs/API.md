@@ -427,6 +427,24 @@ değiştirecek istemcinin ad, soyad ve e-postayı da taşıması gerekirdi.
 `logout_other_devices` açılırsa bu isteği yapan jeton dışındaki bütün jetonlar
 düşer.
 
+### `GET|PUT /account/notification-preferences` *(jeton gerekli)*
+
+```json
+{ "newsletter": true, "preferences": { "comment_updates": false } }
+```
+
+Yanıt aynı gövdeyi, bir de `types` listesini taşır: her türün anahtarı,
+etiketi ve açıklaması. Etiketler sunucudan geliyor — uygulamanın kendi metin
+listesini tutması, yeni bir tür eklendiğinde mağaza güncellemesi beklemek
+demekti. Gönderilmeyen tür değişmez; tanınmayan anahtar **422** döner.
+
+Güvenlik postaları (şifre sıfırlama, e-posta doğrulama, adres değişikliği
+uyarısı) listede yok ve kapatılamaz: kapatılabilseydi hesabı ele geçiren biri
+ilk iş onları susturur, sahibi olan bitenden habersiz kalırdı.
+
+Bülten ayrı bir alan çünkü kaynağı `subscribers` tablosu; iki yerde iki bayrak
+tutmak, birinin ötekiyle çelişmesi demekti.
+
 ### `GET /account/export` *(jeton gerekli — `profile:read`)*
 
 Kişinin kendi verisinin kopyası: profil, yorumlar, iletişim mesajları, bülten

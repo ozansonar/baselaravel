@@ -124,6 +124,15 @@ Route::prefix('account')
             ->middleware(['abilities:profile:write', 'throttle:api-password'])
             ->name('password.update');
 
+        // Bildirim tercihleri. Güvenlik postaları listede yok ve
+        // kapatılamıyor; gerekçe NotificationPreference enum'unda.
+        Route::get('/notification-preferences', [AccountController::class, 'notificationPreferences'])
+            ->middleware('abilities:profile:read')
+            ->name('notification-preferences.index');
+        Route::put('/notification-preferences', [AccountController::class, 'updateNotificationPreferences'])
+            ->middleware('abilities:profile:write')
+            ->name('notification-preferences.update');
+
         // Kişinin kendi verisinin kopyası. Okuma yetkisi yetiyor: dosya
         // yalnızca zaten görebildiği kayıtları topluyor.
         Route::get('/export', [AccountController::class, 'export'])

@@ -26,7 +26,7 @@ maddenin bir kabul ölçütü ve en az bir testi var.
 
 ---
 
-## Faz 1 — Hesap ve Kimlik (web + API birlikte)
+## Faz 1 — Hesap ve Kimlik (web + API birlikte) — ✅ TAMAMLANDI
 
 Bugün hesap alanı iki ekran: pano ve profil. API tarafı ondan bir adım önde
 (cihaz yönetimi var), web tarafı geride. Bir base kit'in en çok kopyalanan
@@ -71,7 +71,7 @@ düşürme seçeneği), e-posta değişiminde doğrulama akışının API karş�
 **Kabul:** Şifre değişince — istenirse — öteki cihazların jetonu düşüyor.
 Test: `Api/ApiAccountTest` genişletmesi.
 
-### 1.5 Bildirim tercihleri
+### 1.5 Bildirim tercihleri — ✅ bitti
 **Neden:** Kullanıcının aldığı e-postaları (bülten, yorum yanıtı, duyuru)
 kapatabileceği tek yer bülten çıkış bağlantısı. Tercih tablosu olmadan her yeni
 e-posta türü aynı sorunu tekrar doğuruyor.

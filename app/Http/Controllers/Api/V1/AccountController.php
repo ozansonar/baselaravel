@@ -6,13 +6,16 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\ProfileUpdateRequest;
+use App\Enums\NotificationPreference;
 use App\Http\Requests\Api\V1\ChangePasswordRequest;
 use App\Http\Requests\Api\V1\CloseAccountRequest;
+use App\Http\Requests\Api\V1\UpdateNotificationPreferencesRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use App\Services\AccountDataService;
 use App\Services\AccountService;
+use App\Services\NotificationPreferenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -33,6 +36,7 @@ final class AccountController extends Controller
     public function __construct(
         private readonly AccountService $account,
         private readonly AccountDataService $data,
+        private readonly NotificationPreferenceService $preferences,
     ) {}
 
     /**
@@ -110,6 +114,67 @@ final class AccountController extends Controller
         }
 
         return ApiResponse::success(null, __('site.account.password_updated'));
+    }
+
+    /**
+     * GET /api/v1/account/notification-preferences
+     *
+     * Uygulamanın ayarlar ekranını çizmesi için: hangi türler var, kişi
+     * hangilerini açık tutuyor. Bülten ayrı bir alan çünkü onun kaynağı
+     * abone tablosu, tercih tablosu değil.
+     */
+    public function notificationPreferences(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        return ApiResponse::success($this->notificationPayload($user));
+    }
+
+    /**
+     * PUT /api/v1/account/notification-preferences
+     *
+     * Gönderilmeyen tür değişmiyor: uygulamanın tek anahtarı çevirmek için
+     * bütün listeyi taşıması gerekmesin.
+     */
+    public function updateNotificationPreferences(UpdateNotificationPreferencesRequest $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        /** @var array<string, mixed> $incoming */
+        $incoming = (array) $request->input('preferences', []);
+
+        foreach (NotificationPreference::cases() as $type) {
+            if (array_key_exists($type->value, $incoming)) {
+                $this->preferences->set($user, $type, filter_var($incoming[$type->value], FILTER_VALIDATE_BOOL));
+            }
+        }
+
+        if ($request->has('newsletter')) {
+            $this->preferences->setNewsletter($user, $request->boolean('newsletter'));
+        }
+
+        return ApiResponse::success($this->notificationPayload($user), __('site.notifications.saved'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function notificationPayload(User $user): array
+    {
+        return [
+            'newsletter'  => $this->preferences->newsletterEnabled($user),
+            'preferences' => $this->preferences->all($user),
+            // Etiketler sunucudan geliyor: uygulamanın kendi metin listesini
+            // tutması, yeni bir tür eklendiğinde mağaza güncellemesi
+            // beklemek demekti.
+            'types' => array_map(fn (NotificationPreference $type): array => [
+                'key'         => $type->value,
+                'label'       => $type->label(),
+                'description' => $type->description(),
+            ], NotificationPreference::cases()),
+        ];
     }
 
     /**

@@ -7,9 +7,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Account\PasswordConfirmationRequest;
 use App\Http\Requests\Account\ProfileUpdateRequest;
 use App\Models\User;
+use App\Enums\NotificationPreference;
 use App\Services\AccountDataService;
 use App\Services\AccountDeviceService;
 use App\Services\AccountService;
+use App\Services\NotificationPreferenceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -21,6 +23,7 @@ final class AccountController extends Controller
         private readonly AccountService $accountService,
         private readonly AccountDeviceService $devices,
         private readonly AccountDataService $data,
+        private readonly NotificationPreferenceService $preferences,
     ) {}
 
     /**
@@ -207,5 +210,47 @@ final class AccountController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home')->with('success', __('site.data.closed'));
+    }
+
+    /**
+     * Bildirim tercihleri.
+     */
+    public function notifications(): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return view('account.notifications', [
+            'user'        => $user,
+            'preferences' => $this->preferences->all($user),
+            'newsletter'  => $this->preferences->newsletterEnabled($user),
+        ]);
+    }
+
+    /**
+     * Tercihleri kaydeder.
+     *
+     * Form bütün anahtarları her seferinde gönderiyor (işaretsiz kutu hiç
+     * gönderilmediği için her anahtarın önünde gizli bir 0 var), yani gelen
+     * gövde kararın tamamı: eksik anahtar "değiştirme" değil "kapat" demek
+     * değil — hiç gelmeyen tür zaten ekranda yoktur.
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        foreach (NotificationPreference::cases() as $type) {
+            if ($request->has('preferences.' . $type->value)) {
+                $this->preferences->set($user, $type, $request->boolean('preferences.' . $type->value));
+            }
+        }
+
+        if ($request->has('newsletter')) {
+            $this->preferences->setNewsletter($user, $request->boolean('newsletter'));
+        }
+
+        return redirect()->route('account.notifications')
+            ->with('success', __('site.notifications.saved'));
     }
 }

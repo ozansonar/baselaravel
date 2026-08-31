@@ -32,6 +32,7 @@ return [
     ],
 
     'actions' => [
+        'save'        => 'Save',
         'yes' => 'Yes',
         'ok' => 'OK',
         'sure' => 'Are you sure?',
@@ -321,6 +322,21 @@ return [
         'confirm_close' => 'Your account will be closed and you will be signed out. Continue?',
         'closed'        => 'Your account has been closed. Thank you for your time with us.',
         'close_blocked_for_staff' => 'Accounts with administrator rights cannot be closed here; please contact an administrator.',
+    ],
+
+    'notifications' => [
+        'title' => 'Notifications',
+        'desc'  => 'Choose which e-mails you receive.',
+        'lead'  => 'Turn the e-mails we send you on or off here.',
+
+        'newsletter'      => 'Newsletter and announcements',
+        'newsletter_hint' => 'Bulk e-mails about new content and campaigns.',
+
+        'comment_updates'      => 'Comment notifications',
+        'comment_updates_hint' => 'We let you know when your comment is published.',
+
+        'always_on' => 'Password resets, e-mail verification and account security warnings are always sent; those cannot be turned off.',
+        'saved'     => 'Your notification preferences have been saved.',
     ],
 
     'login' => [

@@ -2009,3 +2009,34 @@ hr { border-color: var(--line); opacity: 1; }
 .field-card--danger {
     border-color: rgba(220, 38, 38, .35);
 }
+
+/* Bildirim tercihi anahtarları: başlık ve açıklama etiketin içinde, tıklama
+   alanı bütün satır. */
+.pref-switch {
+    padding: .85rem 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+}
+
+.pref-switch:last-of-type {
+    border-bottom: 0;
+}
+
+.pref-switch .form-check-input {
+    flex-shrink: 0;
+    margin-top: .15rem;
+}
+
+.pref-switch__title {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.pref-switch__hint {
+    display: block;
+    font-size: .875rem;
+    color: var(--muted);
+}

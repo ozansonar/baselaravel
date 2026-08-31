@@ -7,7 +7,9 @@ namespace App\Services;
 use App\Support\LikeSearch;
 use App\Enums\CommentStatus;
 use App\Mail\BlogCommentAdminNotification;
+use App\Enums\NotificationPreference;
 use App\Mail\BlogCommentApprovedMail;
+use App\Models\User;
 use App\Mail\BlogCommentReceivedMail;
 use App\Models\BlogComment;
 use App\Models\BlogPost;
@@ -22,6 +24,7 @@ final class BlogCommentService
 {
     public function __construct(
         private readonly MailService $mailService,
+        private readonly NotificationPreferenceService $preferences,
     ) {}
 
     // ── Frontend ──
@@ -374,6 +377,15 @@ final class BlogCommentService
     private function notifyApproved(BlogComment $comment): void
     {
         if (! $comment->email) {
+            return;
+        }
+
+        // Kullanıcı bu türü kapattıysa gönderilmiyor. Yorum girişsiz de
+        // bırakılabildiği için eşleşme adresle: kaydı olmayan ziyaretçinin
+        // tercihi de yok, o yüzden ona her zaman gidiyor.
+        $user = User::where('email', $comment->email)->first();
+
+        if ($user instanceof User && ! $this->preferences->allows($user, NotificationPreference::CommentUpdates)) {
             return;
         }
 

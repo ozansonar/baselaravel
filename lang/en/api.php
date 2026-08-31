@@ -14,6 +14,7 @@ declare(strict_types=1);
 return [
 
     'common' => [
+        'invalid_field' => 'Unknown field.',
         'ok'                 => 'Request completed.',
         'error'              => 'The request could not be processed.',
         'not_found'          => 'Not found.',

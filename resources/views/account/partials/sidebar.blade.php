@@ -37,6 +37,11 @@
         <i class="fa-solid fa-shield-halved"></i> {{ __('site.two_factor.title') }}
     </a>
 
+    <a href="{{ route('account.notifications') }}"
+       class="account-nav__link @if(request()->routeIs('account.notifications')) active @endif">
+        <i class="fa-solid fa-bell"></i> {{ __('site.notifications.title') }}
+    </a>
+
     <a href="{{ route('account.data') }}"
        class="account-nav__link @if(request()->routeIs('account.data')) active @endif">
         <i class="fa-solid fa-file-shield"></i> {{ __('site.data.title') }}

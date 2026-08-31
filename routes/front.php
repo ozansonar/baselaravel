@@ -161,6 +161,15 @@ Route::middleware(['auth', 'verified'])->prefix('hesabim')->name('account.')->gr
      * kaydına dokunuyor, ikisi de şifreyle korunuyor — indirme dosyası
      * kişisel veri taşıyor, kapatma geri dönüşü zor bir işlem.
      */
+    /*
+     * Bildirim tercihleri: hangi e-postaların geleceği. Güvenlik postaları
+     * (şifre sıfırlama, doğrulama, adres değişikliği uyarısı) listede yok ve
+     * kapatılamıyor — kapatılabilseydi hesabı ele geçiren ilk iş onları
+     * susturur, sahibi olan bitenden habersiz kalırdı.
+     */
+    Route::get('/bildirimler', [AccountController::class, 'notifications'])->name('notifications');
+    Route::put('/bildirimler', [AccountController::class, 'updateNotifications'])->name('notifications.update');
+
     Route::get('/veriler', [AccountController::class, 'data'])->name('data');
     Route::get('/veriler/indir', [AccountController::class, 'downloadData'])
         ->middleware('throttle:6,1')
