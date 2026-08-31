@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1172 test / 4286 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1186 test / 4355 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -985,6 +985,87 @@ Sebep `email:rfc,dns` kuralının DNS sorgusu; bu değişikliklerden önce de ay
 
 ---
 
+## 5o. robots.txt — ✅ Dosyadan Rotaya Taşındı
+
+`public/robots.txt` sabit bir dosyaydı ve iki ayrı sebeple yanlıştı.
+
+**Kopyalanabilir olması.** Dosya depoyla birlikte geliyordu, yani bu base
+kit'ten türeyen **her proje** arama motorlarına şu satırı veriyordu:
+
+```
+Sitemap: https://orhanbabaninciftligi.com/sitemap.xml
+```
+
+Yani yeni projenin sitemap'i hiç bildirilmiyor, bildirilen adres başka bir siteyi
+gösteriyordu. Aynı dosyada sökülmüş modüllerden kalan `Disallow: /*/sepet` ve
+`/*/siparis` satırları da duruyordu. Hiçbiri hata vermiyordu.
+
+**Eskimesi.** Adresler artık panelden açılıyor (`custom_routes`) ve diller
+panelden yayına alınıyor. Elle yazılmış bir liste bu iki ekranın arkasından
+kaçınılmaz olarak geride kalıyordu: yeni bir dil yayına alındığında o dilin
+`/de/giris` adresi robots'ta hiç görünmüyordu.
+
+### Şimdi nasıl çalışıyor
+
+`RobotsService` listeyi **rotaların kendisinden** üretiyor:
+
+| Kaynak | Ne veriyor |
+|---|---|
+| Rota adları (`login`, `account.dashboard`, …) | Yolun gerçek hâli. Rota yolu değişirse robots kendiliğinden takip ediyor |
+| `LanguageService::activeCodes()` | Her yayındaki dil için ayrı satır — joker (`/*/`) yerine gerçek önekler |
+| `CustomRouteService::map()` | Panelden özel bir alana açılmış adresler. `/en/login` açılırsa o da yasaklanıyor — asıl adresi yasaklayıp takma adını açık bırakmak hiçbir işe yaramaz |
+| `route('sitemap')` | Sitemap satırı bu sitenin adresini gösteriyor |
+
+Ek olarak iki uç nokta listeye girdi: dil değiştirici (`/dil/`) ve **bülten
+çıkış bağlantısı** (`/bulten/cikis/`). İkincisi giriş istemeyen, durum
+değiştiren bir GET — bir tarayıcı robotunun izlemesi gereken en son bağlantı ve
+eski dosyada hiç yoktu.
+
+**Canlı olmayan kopya tümüyle kapalı.** `APP_ENV !== production` ise gövde
+yalnızca `Disallow: /`. Staging kopyası da `Allow: /` deseydi aynı içerik iki
+alan adında dizine girer ve canlı siteyle kopya içerik çakışması üretirdi.
+
+**Önbelleğe alınmıyor.** Dayandığı iki kaynak (aktif diller, özel adres
+haritası) zaten kendi önbelleklerinden geliyor; üçüncü bir önbellek yalnızca
+geçersizleştirilecek bir yüzey daha eklerdi.
+
+### Fazla satır basılmıyor
+
+Robots kuralları önek eşleştirdiği için `/tr/hesabim` yazıldıktan sonra
+`/tr/hesabim/profil` fazladan satır. Üretilen liste tekrarları atıyor ve kısa
+öneki olan uzun yolları düşürüyor.
+
+### Bakım modu
+
+`/robots.txt` `web` grubunda, yani bakım modunda `CheckMaintenanceMode` 503
+dönüyor. Bu bilinçli: arama motorları robots.txt'e gelen 5xx'i "şimdilik hiçbir
+şeyi tarama" diye okur, bakım penceresinde istenen davranış tam olarak budur.
+
+### Yol üzerinde bulunan şey
+
+Giriş/kayıt/şifre sayfalarına `@section('robots', 'noindex, nofollow')` eklemeye
+kalkıldı — gereksizdi: `layouts/auth.blade.php` `noindex` etiketini zaten sabit
+basıyor ve o layout böyle bir section yield etmiyor. Eklenen satırlar ölü kod
+olacaktı, geri alındı. (`auth/verify-email.blade.php:5` içinde aynı sebeple ölü
+duran bir section var; zararsız olduğu için dokunulmadı.)
+
+### Testler
+
+`RobotsTest` (14): statik dosyanın geri gelmemesi (gelirse web sunucusu onu
+basar ve rota ölü koda döner), canlı olmayan kopyanın kapalı olması, sitemap
+satırının bu siteyi göstermesi, başka projenin alan adının kalmaması, sökülmüş
+modül yollarının gitmiş olması, panelin yasaklı olması, her yayındaki dilin
+kendi satırlarını alması, **yeni bir dil yayına alındığında listenin
+genişlemesi**, özel adresin yasaklanması, herkese açık özel adresin
+(`/en/contact`) yasaklanmaması, dil öneki öncesi eski adresler, dil taşımayan
+uç noktalar, önek tekrarının basılmaması ve yolların rota tanımından okunduğu.
+
+Düzeltme geri alınıp doğrulandı: statik dosya geri konunca 1, sitemap satırı
+sabitlenip ortam kontrolü kaldırılınca 3 test düşüyor.
+
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1028,8 +1109,7 @@ Sıradakiler:
    değişiklikleri kayıt dışı.
 6. **Kuyruk izleyici ekranı** — `failed_jobs` yalnızca `HealthCheckService`
    içinde sayılıyor; listeleme, yeniden deneme ve silme yok.
-7. **`robots.txt` route'a taşınsın** — statik dosya eski projenin alan adını
-   `Sitemap:` satırında taşıyor ve staging kopyası da `Allow: /` diyor.
+7. ~~**`robots.txt` route'a taşınsın**~~ — kapatıldı (bkz. bölüm 5o)
 8. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı
 9. ~~Kalan ölü kodu temizle~~ — tamamlandı
 10. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta

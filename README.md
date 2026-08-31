@@ -148,6 +148,25 @@ Siteye doğrudan erişiliyorsa değer **boş bırakılır** — varsayılan budu
 
 ---
 
+## Arama motorları
+
+`robots.txt` ve `sitemap.xml` ikisi de **rota**, `public/` altında dosya değil.
+`robots.txt`'in yasak listesi rota tanımlarından, yayındaki dillerden ve
+panelden açılmış adreslerden üretilir; elle güncellenmesi gerekmez.
+
+`public/robots.txt` diye bir dosya oluşturulmamalı — web sunucusu var olan
+dosyayı rotadan önce basar ve liste o anda donar. `RobotsTest` bunu bekçilik
+eder.
+
+Canlı olmayan kurulumlar (`APP_ENV` production değilse) tümüyle kapalı gelir:
+
+```
+User-agent: *
+Disallow: /
+```
+
+---
+
 ## Yazma izinleri
 
 ```bash
@@ -505,6 +524,9 @@ composer test
   proxy arkasında gerçek ziyaretçi adresinin geçmesi, HSTS'in iletilen şemayla
   çıkması, aynı proxy arkasındaki iki ziyaretçinin ayrı hız sınırı kovasına
   düşmesi
+- `RobotsTest` — yasak listesinin rota tanımlarından üretilmesi, yeni dil
+  yayına alınınca genişlemesi, sitemap satırının bu siteyi göstermesi, canlı
+  olmayan kopyanın kapalı gelmesi ve `public/robots.txt`'in geri gelmemesi
 
 ---
 

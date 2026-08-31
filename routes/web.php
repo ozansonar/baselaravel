@@ -6,6 +6,7 @@ use App\Http\Controllers\AnalyticsTrackController;
 use App\Http\Controllers\LegacyUrlController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\RootRedirectController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,12 @@ use Illuminate\Support\Facades\Route;
 
 // Sitemap (XML — machine-readable for search engines)
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+
+// robots.txt — a route rather than a file in public/. The disallow list is
+// built from the routes themselves and from the addresses opened in the panel,
+// so it cannot fall behind them, and the Sitemap line names this site rather
+// than whichever one the file was first written for.
+Route::get('/robots.txt', RobotsController::class)->name('robots');
 
 // Language switcher — forwards to the same page in the requested language.
 Route::get('/dil/{code}', LocaleController::class)->name('locale.switch');
