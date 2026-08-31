@@ -32825,3 +32825,61 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ---------- Rapor merkezi: temada karşılığı olmayan dört parça -------------
+   Tasarımdaki bölümler ve sınıflar aynen kullanıldı; bunlar yalnızca kit'e
+   özgü dört ek: seçili rapor kartının işareti, özet listesi, zamanlanmış
+   raporun hata rozeti ve tablo içi arama kutusunun genişliği. */
+.rpr-quick-card.rpr-quick-current {
+  border-color: rgba(45, 212, 191, 0.55);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.25);
+}
+
+.rpr-metric-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rpr-metric-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rpr-metric-item:last-child {
+  border-bottom: 0;
+}
+
+.rpr-metric-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.rpr-metric-hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.rpr-metric-value {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.rpr-sched-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #f87171;
+}
+
+.rpr-table-search {
+  max-width: 260px;
+  width: 100%;
+}

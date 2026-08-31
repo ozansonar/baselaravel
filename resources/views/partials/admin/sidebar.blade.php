@@ -233,6 +233,16 @@
 
         @endif
 
+        @if(Route::has('admin.reports.index'))
+        @can('view-reports')
+        <a href="{{ route('admin.reports.index') }}"
+           class="nav-link {{ Route::is('admin.reports.*') ? 'active' : '' }}">
+            <i class="bi bi-file-earmark-bar-graph"></i> Raporlar
+        </a>
+        @endcan
+
+        @endif
+
         @if(Route::has('admin.system-health.index'))
         @can('view-system-health')
         <a href="{{ route('admin.system-health.index') }}"

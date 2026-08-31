@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\GalleryBulkUploadController;
 use App\Http\Controllers\Admin\GalleryCategoryController;
 use App\Http\Controllers\Admin\GalleryItemController;
 use App\Http\Controllers\Admin\HealthController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\MailLogController;
 use App\Http\Controllers\Admin\QueueController;
 use App\Http\Controllers\Admin\MailTemplateController;
@@ -109,6 +110,21 @@ Route::resource('faqs', FaqController::class)->except('show');
 Route::patch('faqs/{faq}/restore', [FaqController::class, 'restore'])->name('faqs.restore')->withTrashed();
 
 // System Health
+/*
+|--------------------------------------------------------------------------
+| Rapor merkezi
+|--------------------------------------------------------------------------
+| Raporun kendisi ekranda, indirmesi genel dışa aktarma yolunda
+| (/admin/disa-aktar/reports/{format}) — rapor da bir liste ve ikinci bir indirme
+| kodu yazmanın anlamı yok.
+*/
+Route::get('raporlar', [ReportController::class, 'index'])->name('reports.index');
+Route::get('raporlar/onizleme/{type}', [ReportController::class, 'preview'])->name('reports.preview');
+Route::post('raporlar/zamanlama', [ReportController::class, 'storeSchedule'])->name('reports.schedules.store');
+Route::put('raporlar/zamanlama/{schedule}', [ReportController::class, 'updateSchedule'])->name('reports.schedules.update');
+Route::delete('raporlar/zamanlama/{schedule}', [ReportController::class, 'destroySchedule'])->name('reports.schedules.destroy');
+Route::post('raporlar/zamanlama/{schedule}/calistir', [ReportController::class, 'runSchedule'])->name('reports.schedules.run');
+
 Route::get('sistem-saglik', [HealthController::class, 'index'])->name('system-health.index');
 Route::get('sistem-saglik/json', [HealthController::class, 'json'])->name('system-health.json');
 

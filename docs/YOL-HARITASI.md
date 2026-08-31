@@ -133,7 +133,7 @@ Test: `AccessibilityBaselineTest` (etiketsiz girdi ve adsız ikon düğmesi yok)
 Temada tasarımı hazır olup kodu olmayan üç ekran. Tasarım dosyaları
 `resources/views/admin-theme/` altında duruyor, birebir uyarlanacak.
 
-### 3.1 Raporlar (`reports.html`)
+### 3.1 Raporlar (`reports.html`) — ✅ bitti
 **Neden:** Veri panelde toplanıyor (ziyaret, içerik, mail, kullanıcı, kampanya)
 ama tek bir yerden okunmuyor; yönetici sayıları beş ekrandan derliyor.
 **Kapsam:** Tarih aralığı seçimli rapor ekranı — trafik, içerik üretimi, mail
