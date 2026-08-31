@@ -77,6 +77,11 @@ final class BlogPostController extends Controller
         // gerçeğin yarısı olur.
         $this->posts->incrementViews($post);
 
+        // Yorum sayısı burada sayılıyor, servisin sorgusunda değil: liste ucu
+        // bu sayıyı hiç istemiyor ve her sayfa için fazladan bir alt sorgunun
+        // bedelini ödemesi gerekmiyor.
+        $post->loadCount('approvedComments');
+
         return ApiResponse::success(BlogPostDetailResource::make($post));
     }
 }

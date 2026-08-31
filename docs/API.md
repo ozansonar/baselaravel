@@ -352,6 +352,20 @@ modunda da açık kalır (ön yüzde `/giris` de öyle).
 | GET | `/menus/{location}` | Tek konum (`header`, `footer`, `custom`) |
 | GET | `/pages` | Yayındaki sayfalar (menü için; içerik taşımaz) |
 | GET | `/pages/{slug}` | Sayfa içeriği — HTML |
+| GET | `/sliders` | Ana sayfa görsel şeridi |
+| GET | `/faqs` | Sıkça sorulan sorular |
+| GET | `/home` | Açılış ekranının tamamı tek istekte |
+
+**`/home` üç bölümü bir arada verir**: `sliders`, `posts` (son yazılar) ve
+`gallery` (fotoğraf şeridi). Parçalar ayrı ayrı da yayında; bu uç uygulama
+açılışındaki üç gidiş dönüşü bire indirmek için var — mobil bağlantıda ekranın
+gecikmesinin büyük kısmı o. Bölüm başına kaç kayıt döneceği `config/api.php` →
+`home` içinde ve ön yüzdeki ana sayfayla aynı sayılarla başlar.
+
+**Slider buton adresi çözülmüş ve dile duyarlı gelir.** Panelde `/iletisim`
+yazılı olsa bile İngilizce isteyen istemci İngilizce adresi alır; ham yol
+verilseydi uygulama yanlış dildeki sayfaya düşerdi. Butonu olmayan slider'da
+alan `null` olur.
 
 **`/settings` her ayarı yayınlamaz.** settings tablosu SMTP parolasını, reCAPTCHA
 gizli anahtarını ve Telegram jetonunu da tutar. Yayınlanacak gruplar ve elenen
@@ -378,7 +392,9 @@ uygulamanın güncellenmesi gerekmez.
 |---|---|---|
 | GET | `/blog/posts` | Yayındaki yazılar, sayfalı |
 | GET | `/blog/posts?category={slug}&per_page=20` | Kategoriye göre |
-| GET | `/blog/posts/{slug}` | Yazı detayı — gövde, SEO alanları, ekler |
+| GET | `/blog/posts/{slug}` | Yazı detayı — gövde, SEO alanları, ekler, yorum sayısı |
+| GET | `/blog/posts/{slug}/comments` | Onaylı yorumlar, yanıtlarıyla ağaç olarak |
+| POST | `/blog/comments` | Yorum gönderir — onay bekler |
 | GET | `/blog/categories` | Etkin kategoriler, yazı sayılarıyla |
 
 Liste yanıtı **gövde taşımaz** (`body`): yirmi yazılık bir sayfa aksi hâlde
@@ -387,6 +403,21 @@ yirmi tam metin demek olurdu. Kategori ve yazar ilişkileri baştan yüklenir
 
 Olmayan bir kategori slug'ı boş liste değil **404** döner: istemci yanlış
 yazdığını "bu kategoride yazı yok" sanmamalı.
+
+**Yorumlar detaya gömülü değil.** Detay yanıtı yalnız `comment_count` taşır
+(ön yüzdeki sayı gibi üst düzey yorumları sayar, yanıtları değil — aynı yazı
+web'de ve uygulamada farklı sayı göstermemeli); yorumların kendisi ayrı uçtan
+istenir. Gömülü olsaydı kırk yorumlu bir yazının detayı, yorumları hiç açmayan
+bir ekran için bile kırk yorum taşırdı.
+
+Gönderilen yorum **onay bekleyerek** kaydedilir ve listede görünmez; yanıt bunu
+söyler. Yorumda `email` ve `ip_address` hiçbir koşulda dışarı çıkmaz — form
+yorumcuya "e-posta adresiniz yayınlanmayacaktır" diyor ve bu söz API'de de
+tutulur.
+
+> **reCAPTCHA burada da yok** ve yorum alanları spam'in birinci hedefi. İki fren
+> var: hız sınırı (IP başına dakikada 3) ve moderasyon — hiçbir gönderim
+> doğrudan yayına girmiyor, spam yayına değil kuyruğa düşüyor.
 
 ### Galeri
 
@@ -400,6 +431,22 @@ yazdığını "bu kategoride yazı yok" sanmamalı.
 Kategori süzgeci slug ile çalışır (kimlikle değil): kategorinin her dilde ayrı
 bir satırı vardır ve kimliğe göre süzülseydi o dile çevrilmemiş olduğu için
 varsayılan dilden düşen öğeler süzgecin dışında kalırdı.
+
+### Bülten aboneliği
+
+`POST /newsletter/subscribe`
+
+```json
+{ "email": "abone@ornek.com", "first_name": "Ozan", "last_name": "Sonar" }
+```
+
+Ad ve soyad isteğe bağlı. Abone varsayılan işaretli listeye düşer — ön yüzle
+aynı kural. Aynı adresle yeniden abone olmak yeni satır açmaz, mevcut kaydı
+canlandırır.
+
+Abonelikten çıkma bilerek yok: çıkış bağlantısı her kampanya mailinin altında,
+imzalı ve giriş gerektirmiyor. Uygulamaya taşımak çıkışı zorlaştırmaktan başka
+bir işe yaramazdı.
 
 ### İletişim formu
 
@@ -456,10 +503,13 @@ tamamlanır).
 | `api-contact` | 3/dk | IP |
 | `api-password` | 5/dk | e-posta + IP — kod isteme ve kod deneme ortak |
 | `api-verification` | 3/dk | kullanıcı |
+| `api-comment` | 3/dk | IP — ön yüzdekinden (5/dk) bilerek sıkı |
+| `api-newsletter` | 5/dk | IP |
 
 Değerler `.env` üzerinden değiştirilir (`API_RATE_LIMIT`,
 `API_RATE_LIMIT_LOGIN`, `API_RATE_LIMIT_REGISTER`, `API_RATE_LIMIT_CONTACT`,
-`API_RATE_LIMIT_PASSWORD`, `API_RATE_LIMIT_VERIFICATION`).
+`API_RATE_LIMIT_PASSWORD`, `API_RATE_LIMIT_VERIFICATION`, `API_RATE_LIMIT_COMMENT`,
+`API_RATE_LIMIT_NEWSLETTER`).
 
 Sınıra takılan istek **429** ve `Retry-After` başlığıyla döner. Giriş kovasının
 e-posta+IP ile sayılması, tek IP'den kırk hesabı denemeyi de kırk IP'den tek
@@ -511,6 +561,8 @@ API_RATE_LIMIT_REGISTER=3
 API_RATE_LIMIT_CONTACT=3
 API_RATE_LIMIT_PASSWORD=5
 API_RATE_LIMIT_VERIFICATION=3
+API_RATE_LIMIT_COMMENT=3
+API_RATE_LIMIT_NEWSLETTER=5
 ```
 
 `config/api.php`: sayfalama tavanı, dışarı açılan ayar grupları ve çeviri
@@ -560,5 +612,5 @@ app/Http/Middleware/EnsureApiUserIsActive.php
 app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     77 sınama
+tests/Feature/Api/                     94 sınama
 ```

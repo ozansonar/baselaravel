@@ -704,6 +704,11 @@ composer test
   adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
   posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
   (ön yüz formu, API ucu, panel) geçerli olması
+- `Api/ApiContentEndpointsTest` — açılış ekranının tek istekte gelmesi, slider
+  buton adresinin isteğin diline göre çözülmesi, yalnız onaylı yorumların ağaç
+  olarak listelenmesi, yorumun e-posta ve IP'sinin dışarı çıkmaması, yayında
+  olmayan yazıya yorum yazılamaması ve tekrar abone olmanın satır
+  çoğaltmaması
 - `Api/ApiPasswordResetTest` — kodun hash'li saklanması, tek kullanımlık olması,
   süresi dolduğunda reddedilmesi, sıfırlamanın bütün jetonları düşürmesi,
   kayıtlı olmayan adresin ayırt edilememesi ve **kodu kıramaz kılan hız
@@ -778,6 +783,7 @@ taraf aynı Service katmanını kullanır: panelden değiştirilen bir menü, ay
 yazı ikisinde birden değişir.
 
 ```
+GET  /api/v1/home                 Açılış ekranı: slider + son yazılar + galeri
 GET  /api/v1/languages            Yayındaki diller
 GET  /api/v1/settings             Dışarı açılan ayarlar (gruplara göre)
 GET  /api/v1/translations         Arayüz metinleri
@@ -787,9 +793,14 @@ GET  /api/v1/pages/{slug}         Sayfa içeriği — gizlilik, KVKK, hakkımız
 GET  /api/v1/blog/posts           Yazılar (sayfalı) — ?category, ?per_page
 GET  /api/v1/blog/posts/{slug}    Yazı detayı
 GET  /api/v1/blog/categories      Kategoriler
+GET  /api/v1/blog/posts/{slug}/comments  Onaylı yorumlar (ağaç)
+POST /api/v1/blog/comments        Yorum gönder — onay bekler
 GET  /api/v1/gallery              Galeri — ?category, ?type=photo|video
 GET  /api/v1/gallery/categories   Galeri kategorileri
+GET  /api/v1/sliders              Ana sayfa görsel şeridi
+GET  /api/v1/faqs                 Sıkça sorulan sorular
 POST /api/v1/contact              İletişim formu
+POST /api/v1/newsletter/subscribe Bülten aboneliği
 
 POST /api/v1/auth/register        Kayıt (jeton döner)
 POST /api/v1/auth/login           Giriş (jeton döner)

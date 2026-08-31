@@ -26,7 +26,14 @@ final class BlogPostDetailResource extends BlogPostResource
                 'title'       => $this->meta_title ?: $this->title,
                 'description' => $this->meta_description ?: $this->excerpt,
             ],
-            'attachments' => ContentFileResource::collection($this->whenLoaded('files')),
+            // Yorumların kendisi ayrı uçtan geliyor; burada yalnız sayısı var ki
+            // istemci "12 Yorum" başlığını istek atmadan çizebilsin.
+            //
+            // Ön yüzdeki sayı gibi yalnız üst düzey yorumları sayıyor,
+            // yanıtları değil: aynı yazı web'de ve uygulamada farklı sayı
+            // göstermemeli.
+            'comment_count' => $this->whenCounted('approvedComments'),
+            'attachments'   => ContentFileResource::collection($this->whenLoaded('files')),
         ];
     }
 }

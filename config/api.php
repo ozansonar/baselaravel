@@ -80,6 +80,26 @@ return [
         // App\Services\PasswordResetCodeService'teki gerekçeyi okuyun.
         'password'     => (int) env('API_RATE_LIMIT_PASSWORD', 5),
         'verification' => (int) env('API_RATE_LIMIT_VERIFICATION', 3),
+        // Yorum alanları spam'in birinci hedefi ve API'de reCAPTCHA yok;
+        // ön yüzdeki sınırdan (5/dk) bilerek daha sıkı.
+        'comment'    => (int) env('API_RATE_LIMIT_COMMENT', 3),
+        'newsletter' => (int) env('API_RATE_LIMIT_NEWSLETTER', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Açılış ekranı
+    |--------------------------------------------------------------------------
+    |
+    | /home ucunun her bölümde kaç kayıt döndüreceği. Ön yüzdeki ana sayfayla
+    | aynı sayılarla başlıyor: dört yazı (ilki geniş kart, kalan üçü ızgara) ve
+    | sekiz görsellik bir galeri şeridi.
+    |
+    */
+
+    'home' => [
+        'posts'           => (int) env('API_HOME_POSTS', 4),
+        'gallery_photos'  => (int) env('API_HOME_GALLERY_PHOTOS', 8),
     ],
 
     /*

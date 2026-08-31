@@ -5,14 +5,19 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlogCategoryController;
+use App\Http\Controllers\Api\V1\BlogCommentController;
 use App\Http\Controllers\Api\V1\BlogPostController;
 use App\Http\Controllers\Api\V1\ContactController;
+use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\GalleryCategoryController;
 use App\Http\Controllers\Api\V1\GalleryController;
+use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\LanguageController;
 use App\Http\Controllers\Api\V1\MenuController;
+use App\Http\Controllers\Api\V1\NewsletterController;
 use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\SettingController;
+use App\Http\Controllers\Api\V1\SliderController;
 use App\Http\Controllers\Api\V1\TranslationController;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Support\Facades\Route;
@@ -103,9 +108,17 @@ Route::prefix('account')
 
 Route::middleware('api.available')->group(function (): void {
 
+    // ── Açılış ekranı ──
+    // Parçalar aşağıda ayrı ayrı da yayında; bu uç üçünü bir araya getiriyor
+    // çünkü uygulama açılışında üç gidiş dönüş, ekranın gecikmesinin büyük
+    // kısmı demek.
+    Route::get('/home', HomeController::class)->name('api.v1.home');
+
     // ── Site geneli ──
 
     Route::get('/languages', [LanguageController::class, 'index'])->name('api.v1.languages.index');
+    Route::get('/sliders', [SliderController::class, 'index'])->name('api.v1.sliders.index');
+    Route::get('/faqs', [FaqController::class, 'index'])->name('api.v1.faqs.index');
     Route::get('/settings', [SettingController::class, 'index'])->name('api.v1.settings.index');
     Route::get('/translations', [TranslationController::class, 'index'])->name('api.v1.translations.index');
 
@@ -127,6 +140,17 @@ Route::middleware('api.available')->group(function (): void {
         Route::get('/categories', [BlogCategoryController::class, 'index'])->name('categories.index');
         Route::get('/posts', [BlogPostController::class, 'index'])->name('posts.index');
         Route::get('/posts/{slug}', [BlogPostController::class, 'show'])->name('posts.show');
+
+        // Yorumlar detaydan ayrı: kırk yorumlu bir yazının detayı, yorumları
+        // hiç açmayan bir ekran için bile kırk yorum taşımasın.
+        Route::get('/posts/{slug}/comments', [BlogCommentController::class, 'index'])->name('comments.index');
+
+        // reCAPTCHA mobilde yok; yorum alanları da spam'in birinci hedefi.
+        // Buradaki tek fren hız sınırı — ikincisi gecikmeli: yorum onay
+        // bekleyerek kaydediliyor, yani spam yayına değil kuyruğa düşüyor.
+        Route::post('/comments', [BlogCommentController::class, 'store'])
+            ->middleware('throttle:api-comment')
+            ->name('comments.store');
     });
 
     // ── Galeri ──
@@ -141,6 +165,12 @@ Route::middleware('api.available')->group(function (): void {
     Route::post('/contact', [ContactController::class, 'store'])
         ->middleware('throttle:api-contact')
         ->name('api.v1.contact.store');
+
+    // Abonelikten çıkma bilerek yok: çıkış bağlantısı her kampanya mailinin
+    // altında, imzalı ve girişsiz. Uygulamaya taşımak çıkışı zorlaştırırdı.
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
+        ->middleware('throttle:api-newsletter')
+        ->name('api.v1.newsletter.subscribe');
 });
 
 /*
