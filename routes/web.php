@@ -7,6 +7,7 @@ use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\LegacyUrlController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PwaController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\RootRedirectController;
 use App\Http\Controllers\SitemapController;
@@ -29,6 +30,18 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 // so it cannot fall behind them, and the Sitemap line names this site rather
 // than whichever one the file was first written for.
 Route::get('/robots.txt', RobotsController::class)->name('robots');
+
+/*
+ * PWA: uygulama bildirimi, servis çalışanı ve çevrimdışı sayfası.
+ *
+ * Üçü de kökte, dil ön eki olmadan: servis çalışanının kapsamı bulunduğu
+ * dizinle sınırlı — /tr/sw.js yalnız /tr/ altını görebilirdi. Bildirimin
+ * içeriği dile göre değişiyor ama adresi değişmiyor; kurulan uygulama
+ * ziyaretçinin kendi diline açılıyor (start_url = /).
+ */
+Route::get('/site.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
+Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.service-worker');
+Route::get('/offline', [PwaController::class, 'offline'])->name('offline');
 
 // Language switcher — forwards to the same page in the requested language.
 Route::get('/dil/{code}', LocaleController::class)->name('locale.switch');

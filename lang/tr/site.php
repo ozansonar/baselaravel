@@ -342,6 +342,13 @@ return [
         'saved'     => 'Bildirim tercihleriniz kaydedildi.',
     ],
 
+    'offline' => [
+        'title' => 'Bağlantı yok',
+        'desc'  => 'İnternet bağlantısı kurulamadı.',
+        'lead'  => 'Bu sayfayı gösterebilmek için internete ihtiyacımız var. Bağlantınız geri geldiğinde tekrar deneyin.',
+        'retry' => 'Yeniden dene',
+    ],
+
     'login' => [
         'failed'                => 'E-posta veya şifre hatalı.',
         'deactivated'           => 'Hesabınız pasife alındığı için oturumunuz kapatıldı.',
@@ -511,6 +518,7 @@ return [
     ],
 
     'newsletter' => [
+        'submit_aria' => 'Bültene abone ol',
         'unsubscribe_title'  => 'Abonelikten Çık',
         'unsubscribed'       => 'Abonelikten çıkarıldınız',
         'unsubscribed_lead'  => ':email adresine artık bülten göndermeyeceğiz.',

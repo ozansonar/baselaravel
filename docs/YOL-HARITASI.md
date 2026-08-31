@@ -82,12 +82,12 @@ gerekçesiyle düşüyor. Test: `NotificationPreferenceTest`.
 
 ---
 
-## Faz 2 — Mobil Web (PWA + erişilebilirlik)
+## Faz 2 — Mobil Web (PWA + erişilebilirlik) — ✅ TAMAMLANDI
 
 Site bugün duyarlı (responsive) ama *mobil* değil: telefona kurulamıyor,
 bağlantı kesildiğinde tarayıcının kendi hata sayfasını gösteriyor.
 
-### 2.1 Uygulama bildirimi (`manifest.json`)
+### 2.1 Uygulama bildirimi (`manifest.json`) — ✅ bitti
 **Neden:** "Ana ekrana ekle" olmadan PWA'nın geri kalanı da anlamsız.
 **Kapsam:** Rotadan üretilen manifest (ad, ikon, tema rengi panelden geliyor —
 sabit dosya olsaydı her projede elle düzenlenirdi), 192/512 ikon üretimi
@@ -95,7 +95,7 @@ sabit dosya olsaydı her projede elle düzenlenirdi), 192/512 ikon üretimi
 **Kabul:** Chrome ve Safari'de kurulabilir; kurulan uygulama panelde ayarlanan
 adı ve rengi taşıyor. Test: `PwaManifestTest`.
 
-### 2.2 Servis çalışanı ve çevrimdışı sayfa
+### 2.2 Servis çalışanı ve çevrimdışı sayfa — ✅ bitti
 **Neden:** Build tool yasağı yüzünden hazır PWA eklentileri kullanılamıyor;
 elle yazılmış, küçük ve okunur bir servis çalışanı gerekiyor.
 **Kapsam:** Kabuk + statik varlık önbelleği, sürüm damgası (dosya değişince
@@ -105,7 +105,7 @@ içerik bayatlamamalı.
 yayınlandığında bir sonraki ziyarette güncel içerik geliyor.
 Test: `ServiceWorkerTest` (kayıt, kapsam, sürüm damgası).
 
-### 2.3 Mobil kullanım denetimi
+### 2.3 Mobil kullanım denetimi — ✅ bitti
 **Neden:** 70 KB'lık ön yüz CSS'inde yalnız 10 medya sorgusu var; düzen
 Bootstrap ızgarasına bırakılmış. Izgara düzeni çözer, dokunma hedefini ve
 yatay taşmayı çözmez.
@@ -115,9 +115,11 @@ yapışkan başlık/eylem çubukları.
 **Kabul:** Tarayıcıda 360×640'ta gezinti kanıtlanıyor; `document.body.scrollWidth`
 taşmıyor. Test: yatay taşma bekçisi + görsel kanıt.
 
-### 2.4 Erişilebilirlik taban çizgisi
-**Neden:** İçeriğe atlama bağlantısı yok, `aria-label` sayısı bir elin
-parmakları kadar. Kurumsal alımlarda giderek sorulan bir madde.
+### 2.4 Erişilebilirlik taban çizgisi — ✅ bitti
+**Düzeltme:** Bu maddenin gerekçesi kısmen yanlıştı — içeriğe atlama bağlantısı
+zaten vardı (`skip-to-content`). Denetim yapıldığında ön yüzde adsız tek bir
+kontrol çıktı (bültenin gönder düğmesi) ve bütün form alanlarının etiketi
+yerindeydi. Eksik olan şey bekçiydi: `AccessibilityBaselineTest`.
 **Kapsam:** Skip link, odak halkaları, form etiket eşleşmeleri, ikon
 düğmelerine erişilebilir ad, renk kontrastı, `prefers-reduced-motion`
 (kısmen var).

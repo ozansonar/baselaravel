@@ -12,7 +12,8 @@
                 <input type="text" class="form-control" id="newsletterEmail" name="email"
                        data-validation-engine="validate[required,custom[email],maxSize[191]]"
                        placeholder="{{ __('site.newsletter.email_placeholder') }}" autocomplete="email">
-                <button class="btn btn-primary" type="submit" id="newsletterSubmit">
+                <button class="btn btn-primary" type="submit" id="newsletterSubmit"
+                aria-label="{{ __('site.newsletter.submit_aria') }}">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>

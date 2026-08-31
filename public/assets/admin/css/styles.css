@@ -12649,7 +12649,12 @@ label.stg-mode-card.active > strong {
     align-items: stretch;
   }
   .usr-search {
-    min-width: 100%;
+    /* min-width: 100% idi ve dar ekranda öğeyi kendi kabından taşırıyordu:
+       yüzde, esnek kabın genişliği daralmadan önce çözülüyor ve 375 pikselde
+       satır sağa doğru 22 piksel taşıyordu. Sütun düzeninde öğe zaten
+       kabın tamamını kaplıyor; gereken tek şey daralabilmesi. */
+    min-width: 0;
+    width: 100%;
   }
   .usr-filters {
     flex-wrap: wrap;
@@ -12657,6 +12662,24 @@ label.stg-mode-card.active > strong {
   .usr-toolbar-actions {
     margin-left: 0;
     justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  /* Esnek öğenin varsayılan min-width'i "auto": içeriği ne kadar genişse o
+     kadar yer istiyor ve daralmayı reddediyor. Dar ekranda süzgeç kutuları
+     bu yüzden satırı taşırıyordu. */
+  .usr-toolbar > *,
+  .usr-filters > *,
+  .usr-toolbar-actions > * {
+    min-width: 0;
+  }
+  .usr-filters,
+  .usr-toolbar-actions {
+    width: 100%;
+  }
+  .usr-filter-select,
+  .usr-search input,
+  .usr-filters .select2-container {
+    max-width: 100%;
   }
   .usr-detail-content {
     width: 100%;
@@ -23783,6 +23806,21 @@ a.cl-content-link:hover .cl-link-icon {
   border-radius: 10px;
   padding: 3px;
   gap: 2px;
+  /* Yedi düğme dar ekranda tek satıra sığmıyor ve sayfayı yatay olarak
+     taşırıyordu. Sarmak yerine kendi içinde kaydırılıyor: düğmeler tek sıra
+     olduğunda hangi aralığın seçili olduğu bir bakışta görünüyor. */
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.analytics-range-group::-webkit-scrollbar {
+  display: none;
+}
+
+.analytics-range-group > * {
+  flex: 0 0 auto;
 }
 
 .analytics-range-btn {

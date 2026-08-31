@@ -2040,3 +2040,41 @@ hr { border-color: var(--line); opacity: 1; }
     font-size: .875rem;
     color: var(--muted);
 }
+
+/* Çevrimdışı sayfasının ikonu — satır içi SVG, ikon fontuna bağlı değil. */
+.offline-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+/* ---------- Dokunma hedefleri ------------------------------------------------
+   Parmakla kullanılan ekranda kontrolün en küçük kenarı 44 piksel olmalı;
+   Bootstrap'in varsayılanları bunun altında kalan iki yer bırakıyor. Kural
+   yalnız kaba işaretçilerde (parmak) uygulanıyor — farede küçük hedef sorun
+   değil ve düzeni gereksiz yere şişirmenin anlamı yok. */
+@media (pointer: coarse) {
+    /* Slayt göstergeleri 4 piksel yüksekliğinde: çizginin kendisi görünür
+       kalıyor, dokunma alanı saydam dolguyla büyütülüyor. */
+    .carousel-indicators [data-bs-target] {
+        position: relative;
+        height: 4px;
+    }
+
+    .carousel-indicators [data-bs-target]::after {
+        content: '';
+        position: absolute;
+        inset: -20px 0;
+    }
+
+    /* Offcanvas ve modal kapatma düğmesi. */
+    .btn-close {
+        width: 44px;
+        height: 44px;
+        background-size: 1rem;
+    }
+}

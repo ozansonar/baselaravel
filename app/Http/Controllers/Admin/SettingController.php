@@ -160,6 +160,10 @@ final class SettingController extends Controller
                         'mail_logo' => [400, 400, [], true],
                         'site_logo' => [400, 400, [], false],
                         'site_favicon' => [64, 64, [], false],
+                        // PWA ikonu PNG kalmalı ve büyük kalmalı: manifest'in
+                        // ikonları bundan üretiliyor ve 512 pikselin altına
+                        // düşerse Chrome kurulumu reddediyor.
+                        'pwa_icon' => [1024, 1024, [], true],
                         default => [null, null, null, false],
                     };
 

@@ -339,6 +339,13 @@ return [
         'saved'     => 'Your notification preferences have been saved.',
     ],
 
+    'offline' => [
+        'title' => 'No connection',
+        'desc'  => 'We could not reach the internet.',
+        'lead'  => 'This page needs a connection. Try again once you are back online.',
+        'retry' => 'Try again',
+    ],
+
     'login' => [
         'failed'                => 'The e-mail address or password is incorrect.',
         'deactivated'           => 'Your account has been deactivated, so you have been signed out.',
@@ -508,6 +515,7 @@ return [
     ],
 
     'newsletter' => [
+        'submit_aria' => 'Subscribe to the newsletter',
         'unsubscribe_title'  => 'Unsubscribe',
         'unsubscribed'       => 'You have been unsubscribed',
         'unsubscribed_lead'  => 'We will no longer send our newsletter to :email.',
