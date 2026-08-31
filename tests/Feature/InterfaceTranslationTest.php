@@ -52,30 +52,61 @@ class InterfaceTranslationTest extends TestCase
     /**
      * A missing key silently falls back to the other language, which looks like
      * a half-translated page rather than an error. This catches it instead.
+     *
+     * Sınav bütün ortak dosyalar üzerinde koşuyor. Eskiden yalnız site.php'ye
+     * bakıyordu; validation.php'de Laravel 13'le gelen dokuz yeni kural
+     * Türkçesiz kalmıştı ve o kurallardan biri kullanıldığında Türkçe sayfada
+     * anahtarın kendisi ("validation.base64") görünecekti.
      */
     public function test_every_language_file_carries_the_same_keys(): void
     {
-        $turkish = $this->flatten(require lang_path('tr/site.php'));
-        $english = $this->flatten(require lang_path('en/site.php'));
+        $files = $this->sharedLanguageFiles();
 
-        $this->assertSame(
-            [],
-            array_keys(array_diff_key($turkish, $english)),
-            'İngilizce dosyada eksik anahtar var',
-        );
+        $this->assertNotEmpty($files, 'Dil dosyaları bulunamadı.');
 
-        $this->assertSame(
-            [],
-            array_keys(array_diff_key($english, $turkish)),
-            'Türkçe dosyada eksik anahtar var',
-        );
+        foreach ($files as $file) {
+            $turkish = $this->flatten(require lang_path("tr/{$file}"));
+            $english = $this->flatten(require lang_path("en/{$file}"));
+
+            $this->assertSame(
+                [],
+                array_keys(array_diff_key($turkish, $english)),
+                "en/{$file} içinde eksik anahtar var",
+            );
+
+            $this->assertSame(
+                [],
+                array_keys(array_diff_key($english, $turkish)),
+                "tr/{$file} içinde eksik anahtar var",
+            );
+        }
+    }
+
+    /**
+     * İki dilde de bulunan dosyalar.
+     *
+     * Yalnız birinde olanlar kasıtlı: auth.php, passwords.php ve
+     * pagination.php Türkçede var çünkü yedek dil Türkçe ve dosya olmadığında
+     * anahtarın kendisi görünüyordu; İngilizcede çerçevenin kendi dosyaları
+     * devreye giriyor.
+     *
+     * @return list<string>
+     */
+    private function sharedLanguageFiles(): array
+    {
+        $turkish = array_map('basename', glob(lang_path('tr/*.php')) ?: []);
+        $english = array_map('basename', glob(lang_path('en/*.php')) ?: []);
+
+        return array_values(array_intersect($turkish, $english));
     }
 
     public function test_no_translation_value_is_left_empty(): void
     {
         foreach (['tr', 'en'] as $locale) {
-            foreach ($this->flatten(require lang_path("{$locale}/site.php")) as $key => $value) {
-                $this->assertNotSame('', trim((string) $value), "{$locale}/site.php içinde {$key} boş");
+            foreach ($this->sharedLanguageFiles() as $file) {
+                foreach ($this->flatten(require lang_path("{$locale}/{$file}")) as $key => $value) {
+                    $this->assertNotSame('', trim((string) $value), "{$locale}/{$file} içinde {$key} boş");
+                }
             }
         }
     }

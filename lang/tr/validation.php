@@ -11,8 +11,11 @@ return [
     'alpha'                => ':attribute sadece harflerden oluşmalıdır.',
     'alpha_dash'           => ':attribute sadece harfler, rakamlar, tire ve alt çizgi içerebilir.',
     'alpha_num'            => ':attribute sadece harfler ve rakamlardan oluşmalıdır.',
+    'any_of'               => ':attribute geçersiz.',
     'array'                => ':attribute bir dizi olmalıdır.',
+    'array_keys'           => ':attribute yalnızca şu anahtarları içerebilir: :values.',
     'ascii'                => ':attribute yalnızca tek baytlık alfanümerik karakterler ve semboller içermelidir.',
+    'base64'               => ':attribute geçerli bir Base64 metni olmalıdır.',
     'before'               => ':attribute :date tarihinden önce olmalıdır.',
     'before_or_equal'      => ':attribute :date tarihine eşit veya önce olmalıdır.',
     'between'              => [
@@ -37,9 +40,11 @@ return [
     'digits_between'       => ':attribute :min ile :max basamak arasında olmalıdır.',
     'dimensions'           => ':attribute geçersiz görsel boyutlarına sahip.',
     'distinct'             => ':attribute tekrarlanan bir değere sahip.',
+    'doesnt_contain'       => ':attribute şunlardan hiçbirini içermemelidir: :values.',
     'doesnt_end_with'      => ':attribute şunlardan biriyle bitmemelidir: :values.',
     'doesnt_start_with'    => ':attribute şunlardan biriyle başlamamalıdır: :values.',
     'email'                => ':attribute geçerli bir e-posta adresi olmalıdır.',
+    'encoding'             => ':attribute :encoding ile kodlanmış olmalıdır.',
     'ends_with'            => ':attribute şunlardan biriyle bitmelidir: :values.',
     'enum'                 => 'Seçilen :attribute geçersiz.',
     'exists'               => 'Seçilen :attribute geçersiz.',
@@ -62,6 +67,7 @@ return [
     'image'                => ':attribute bir görsel olmalıdır.',
     'in'                   => 'Seçilen :attribute geçersiz.',
     'in_array'             => ':attribute :other içinde mevcut değil.',
+    'in_array_keys'        => ':attribute şu anahtarlardan en az birini içermelidir: :values.',
     'integer'              => ':attribute bir tam sayı olmalıdır.',
     'ip'                   => ':attribute geçerli bir IP adresi olmalıdır.',
     'ipv4'                 => ':attribute geçerli bir IPv4 adresi olmalıdır.',
@@ -121,6 +127,8 @@ return [
     'present_with_all'     => ':values mevcut olduğunda :attribute mevcut olmalıdır.',
     'prohibited'           => ':attribute yasaktır.',
     'prohibited_if'        => ':other :value olduğunda :attribute yasaktır.',
+    'prohibited_if_accepted' => ':other kabul edildiğinde :attribute yasaktır.',
+    'prohibited_if_declined' => ':other reddedildiğinde :attribute yasaktır.',
     'prohibited_unless'    => ':other :values içinde olmadığında :attribute yasaktır.',
     'prohibits'            => ':attribute :other alanının mevcut olmasını yasaklar.',
     'regex'                => ':attribute biçimi geçersiz.',
@@ -150,6 +158,20 @@ return [
     'url'                  => ':attribute geçerli bir URL olmalıdır.',
     'ulid'                 => ':attribute geçerli bir ULID olmalıdır.',
     'uuid'                 => ':attribute geçerli bir UUID olmalıdır.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alana Özel Mesajlar
+    |--------------------------------------------------------------------------
+    | Çerçevenin yer tutucusu. Bu kit'te alan bazlı mesajlar FormRequest
+    | sınıflarında `messages()` ile veriliyor; burası, dilin İngilizce dosyayla
+    | aynı anahtarları taşıması için duruyor.
+    */
+    'custom' => [
+        'attribute-name' => [
+            'rule-name' => 'custom-message',
+        ],
+    ],
 
     'attributes' => [
         'email'                 => 'E-posta',

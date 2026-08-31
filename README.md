@@ -937,6 +937,8 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 
 - `CLAUDE.md` — proje kuralları (zorunlu)
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
+- `docs/PROJE-DURUMU-V2.md` — denetim kaydı: bulunan kusurlar, çözümleri, kurulan bekçiler
+- `docs/YOL-HARITASI.md` — fazlar ve kabul ölçütleri
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
 - `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)
@@ -991,15 +993,59 @@ eski önbellek silinir. Sayfalar "önce ağ" ile gelir (içerik sitesinde
 
 ---
 
+## Liste dışa aktarma
+
+Panelin **bütün liste ekranları** — kullanıcılar, bloglar, yorumlar, sayfalar,
+galeri, menüler, iletişim mesajları, aboneler, kampanyalar, diller, çeviriler,
+yönlendirmeler, özel adresler, dosyalar, yedekler, denetim kayıtları, mail
+kayıtları, ziyaretler, başarısız işler, birleşik içerik listesi ve dahası —
+**Excel, CSV ve PDF** olarak indirilebilir. Ekranın sağ üstündeki *Dışa Aktar*
+menüsü üç biçimi de sunar.
+
+**Dosyaya ekranın kendisi iner.** Adres satırındaki süzgeçler dosyaya aynen
+geçer: ekranda "son 30 gün, yayında olanlar" görünüyorsa dosyada da o vardır.
+Sayfa numarası süzgeç sayılmaz — dosyaya tek sayfa değil, listenin tamamı iner.
+
+| Biçim | Ne zaman | Notlar |
+|---|---|---|
+| **Excel** (`.xlsx`) | Tabloyla çalışırken | Başlık satırı donuk, otomatik süzgeç açık, tarih ve sayı hücreleri gerçek tip |
+| **CSV** (`.csv`) | Veri başka bir sisteme taşınırken | UTF-8 BOM ve noktalı virgül ayracı — Türkçe Excel'de doğru açılır |
+| **PDF** (`.pdf`) | Yazdırma ve paylaşım | Sütunlar sığmıyorsa sayfa kendiliğinden yatay döner |
+
+Excel ve CSV satırları akış hâlinde yazar; yüz binlerce satırda da bellek sabit
+kalır. PDF'in bir satır tavanı vardır (mPDF sayfaları belge kapanana kadar
+bellekte tutuyor) ve tavan sunucunun `memory_limit` değerine göre daralır —
+aşıldığında dosya sessizce kırpılmaz, kullanıcı uyarılıp Excel/CSV'ye
+yönlendirilir.
+
+**Yeni bir liste eklemek** için `App\Support\Export\ListExport` sınıfından
+türeyen bir tanım yazıp `config/export.php`'ye tek satır eklemek yeterlidir;
+ayrı rota, denetleyici ya da biçim kodu gerekmez. Ekrana menüyü koymak da tek
+satır: `<x-export-menu export="anahtar" :total="$kayitlar->total()" />`
+
+Her indirme denetim kaydına düşer — dışa aktarma, veriyi sistemin dışına
+çıkaran tek okuma işlemidir. Yetki ekranla aynıdır: listeyi göremeyen dosyayı
+da indiremez.
+
+CSV'nin üç ayarı yerel ayara göre değiştirilebilir:
+`EXPORT_CSV_DELIMITER`, `EXPORT_CSV_DECIMAL_SEPARATOR`, `EXPORT_CSV_BOM`.
+
+`ListExportTest` bir bekçidir: `config/export.php`'ye eklenen her liste, ayrıca
+test yazmaya gerek kalmadan kapsama girer — üç biçimde de dosya ürettiği,
+yetkinin çalıştığı ve satır başına sorgu atmadığı sınanır.
+
+---
+
 ## Rapor merkezi
 
 **Admin → Raporlar** altı raporu tek ekranda toplar: trafik, içerik, kullanıcı,
-e-posta, kampanya ve abone. Her rapor seçilen tarih aralığında üretilir, Excel
-ya da PDF olarak indirilir.
+e-posta, kampanya ve abone. Her rapor seçilen tarih aralığında üretilir, Excel,
+CSV ya da PDF olarak indirilir.
 
 **Zamanlanmış raporlar** aynı raporu düzenli aralıklarla e-postayla gönderir
-(günlük, haftalık, aylık). Üretim cron'dan geçer (`reports:dispatch`) ve
-ekranda indirilen dosya ile postayla gelen dosya aynı kodun ürünüdür.
+(günlük, haftalık, aylık). Biçim tanımda seçilir (Excel, CSV, PDF); üretim
+cron'dan geçer (`reports:dispatch`) ve ekranda indirilen dosya ile postayla
+gelen dosya aynı kodun ürünüdür.
 
 Rapor okuma ile zamanlama ayrı izinlerdir: editör raporu görebilir ama düzenli
 gönderim tanımlayamaz — dışarıya sürekli veri gönderen bir iş yöneticinin

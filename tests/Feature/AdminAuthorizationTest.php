@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
@@ -25,6 +26,7 @@ class AdminAuthorizationTest extends TestCase
         parent::setUp();
 
         $this->seedAuthorization();
+        $this->seed(\Database\Seeders\LanguageSeeder::class);
     }
 
     /**
@@ -41,6 +43,8 @@ class AdminAuthorizationTest extends TestCase
             '/admin/contact-messages'   => [200, 200, 200],
             // Moderation is what the moderator role exists for
             '/admin/blog-comments'      => [200, 200, 200],
+            // The in-panel guide is for whoever has to run the panel
+            '/admin/yardim'             => [200, 200, 200],
 
             // Content — admin and editor
             '/admin/pages'              => [200, 200, 403],
@@ -52,6 +56,13 @@ class AdminAuthorizationTest extends TestCase
             '/admin/menus'              => [200, 200, 403],
             '/admin/files'              => [200, 200, 403],
             '/admin/analytics'          => [200, 200, 403],
+            '/admin/blog-categories'    => [200, 200, 403],
+            '/admin/gallery-categories' => [200, 200, 403],
+            '/admin/icerikler'          => [200, 200, 403],
+            '/admin/raporlar'           => [200, 200, 403],
+            // Mailing is content work too: the editor writes and sends it
+            '/admin/aboneler'           => [200, 200, 403],
+            '/admin/kampanyalar'        => [200, 200, 403],
 
             // Admin only
             '/admin/settings'           => [200, 403, 403],
@@ -63,7 +74,59 @@ class AdminAuthorizationTest extends TestCase
             '/admin/aktivite-loglari'   => [200, 403, 403],
             '/admin/yedekler'           => [200, 403, 403],
             '/admin/sistem-saglik'      => [200, 403, 403],
+            '/admin/custom-routes'      => [200, 403, 403],
+            '/admin/diller'             => [200, 403, 403],
+            '/admin/dil-yazilari'       => [200, 403, 403],
+            '/admin/kuyruk'             => [200, 403, 403],
         ];
+    }
+
+    /**
+     * Matris panelin tamamını kapsıyor mu?
+     *
+     * Matris elle yazılıyor — hangi rolün neyi göreceği bir iş kararı, koddan
+     * çıkarılamaz. Kapsamının tam olması ise koddan çıkarılabilir: panele yeni
+     * bir modül eklendiğinde bu test kırmızı oluyor ve kararın verilmesini
+     * zorluyor. Eskiden liste on iki modül geride kalmıştı; aralarında sistem
+     * ayarlarına dokunan ekranlar da vardı (diller, kuyruk, özel adresler) ve
+     * hiçbirinin rol davranışı sınanmıyordu.
+     */
+    public function test_the_matrix_covers_every_module_in_the_panel(): void
+    {
+        // Sidebar'da yeri olmayan uçlar: ekran değil, başka bir ekranın
+        // beslendiği JSON kaynağı. Yetkileri kendi testlerinde sınanıyor.
+        $notScreens = ['admin.file-browser.index'];
+
+        $covered = array_keys($this->matrix());
+        $missing = [];
+
+        foreach (Route::getRoutes() as $route) {
+            $name = (string) $route->getName();
+            $uri = $route->uri();
+
+            if (! str_starts_with($name, 'admin.') || ! str_ends_with($name, '.index')) {
+                continue;
+            }
+
+            if (in_array($name, $notScreens, true)) {
+                continue;
+            }
+
+            if (str_contains($uri, '{') || in_array('/' . $uri, $covered, true)) {
+                continue;
+            }
+
+            $missing[] = '/' . $uri;
+        }
+
+        sort($missing);
+
+        $this->assertSame(
+            [],
+            $missing,
+            "Rol matrisinde olmayan modül — hangi rolün göreceğine karar verip ekleyin:\n  "
+                . implode("\n  ", $missing),
+        );
     }
 
     private function userWithRole(string $slug): User

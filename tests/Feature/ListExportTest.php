@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\AuditLog;
 use App\Models\Campaign;
+use Illuminate\Support\Facades\DB;
 use App\Models\Role;
 use App\Models\User;
 use App\Support\Export\ExportFormat;
@@ -274,6 +275,69 @@ class ListExportTest extends TestCase
         $this->assertStringContainsString('tavan2@example.test', $csv);
     }
 
+    // ── Sorgu bütçesi ──
+
+    /**
+     * Dışa aktarma satır başına sorgu atmıyor.
+     *
+     * Bu, listelerin en sessiz tehlikesi: ekranda yirmi beş satır varken
+     * ilişkiye dokunan bir sütun fark edilmiyor, aynı sütun on bin satırlık
+     * dosyada on bin sorgu açıyor ve istek zaman aşımına düşüyor. Sınav sayıya
+     * değil davranışa bakıyor: kayıt sayısı artınca sorgu sayısı artmamalı.
+     */
+    #[DataProvider('exportKeys')]
+    public function test_no_export_queries_once_per_row(string $key): void
+    {
+        // Bağlam isteyen listeler (bir kampanyanın alıcıları gibi) dışarıda:
+        // sorguları tek bir üst kayda bağlı, kayıt sayısıyla büyümüyorlar.
+        if ($key === 'campaign-recipients') {
+            $this->markTestSkipped('Kampanya alıcıları tek kampanyaya bağlı.');
+        }
+
+        $export = app(ExportRegistry::class)->get($key);
+
+        try {
+            $model = $export->query([])->getModel()::class;
+        } catch (\LogicException) {
+            // Arkasında tablo olmayan listeler (yedekler, sistem durumu,
+            // başarısız işler) kendi kaynaklarından okuyor.
+            $this->markTestSkipped("{$key} sorgu üzerinden gezilmiyor.");
+        }
+
+        if (! method_exists($model, 'factory')) {
+            $this->markTestSkipped("{$key} için fabrika yok.");
+        }
+
+        $admin = $this->admin();
+        $query = $this->requiredQueryFor($key);
+
+        $model::factory()->create();
+
+        // Isıtma: ilk istek ayarları ve dilleri önbelleğe alıyor, o sorgular
+        // listeye değil kuruluma ait. Ölçüm ısınmış durumdan başlamalı.
+        $this->actingAs($admin)->get("/admin/disa-aktar/{$key}/csv{$query}")->assertOk();
+
+        $first = $this->countQueries(fn () => $this->actingAs($admin)
+            ->get("/admin/disa-aktar/{$key}/csv{$query}")->assertOk());
+
+        $model::factory()->count(4)->create();
+
+        // İkinci ısıtma: kayıt eklemek ilgili önbellekleri düşürüyor (örneğin
+        // yönlendirme haritası), o bir kerelik tazeleme sorgusu satır sayısına
+        // bağlı değil ve ölçüme karışmamalı.
+        $this->actingAs($admin)->get("/admin/disa-aktar/{$key}/csv{$query}")->assertOk();
+
+        $second = $this->countQueries(fn () => $this->actingAs($admin)
+            ->get("/admin/disa-aktar/{$key}/csv{$query}")->assertOk());
+
+        $this->assertSame(
+            $first,
+            $second,
+            "{$key} listesi dört kayıt daha eklenince {$second} sorgu attı (önce {$first}); "
+                . 'ilişkileri eager loading ile çekin.',
+        );
+    }
+
     // ── Denetim izi ──
 
     public function test_every_download_leaves_an_audit_record(): void
@@ -409,6 +473,24 @@ class ListExportTest extends TestCase
         $user->markEmailAsVerified();
 
         return $user;
+    }
+
+    /**
+     * Bir işin attığı sorgu sayısı.
+     *
+     * @param callable(): mixed $work
+     */
+    private function countQueries(callable $work): int
+    {
+        $count = 0;
+
+        DB::listen(static function () use (&$count): void {
+            ++$count;
+        });
+
+        $work();
+
+        return $count;
     }
 
     /**

@@ -5,7 +5,8 @@
 **Kapsam:** üç yüz birden — masaüstü web, mobil web, API
 
 Bu belge *ne eksik* sorusunun cevabı. *Ne var* sorusunun cevabı
-[`PROJE-DURUMU.md`](PROJE-DURUMU.md)'de; API sözleşmesi
+[`PROJE-DURUMU.md`](PROJE-DURUMU.md)'de; *yapıldı denilen gerçekten çalışıyor mu*
+sorusunun cevabı [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md)'de; API sözleşmesi
 [`API.md`](API.md) ve [`openapi.json`](openapi.json)'da.
 
 ---

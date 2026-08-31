@@ -564,6 +564,16 @@ dönüyordu. Düzeltildi — yalnız gerçekten bulunan dil hatırlanıyor.
 - Bir koşuda `ModelFactoriesTest`'te tek seferlik bir hata görüldü; ardından
   dört ayrı koşuda tekrarlanmadı. Sebebi bulunamadı, kayda geçirildi.
 
+### 🔎 v2 denetimi (2026-09-01)
+
+Yol haritasının beş fazı kapandıktan sonra bir denetim turu koştu: yapıldı
+denilenlerin gerçekten çalıştığı doğrulandı ve kimsenin bakmadığı yerde ne
+biriktiği arandı. On altı kusur çıktı — on ikisi "kural yazılı ama bekçisi ya
+yok ya da elle yazılmış dar bir listeye bakıyor" desenindeydi. Hepsi kapatıldı
+ve her biri için liste yerine kaynağından beslenen bir bekçi kuruldu.
+
+Ayrıntılar: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md).
+
 ### ✅ Bu turda kapananlar
 
 Faz 1 (hesap ve kimlik), Faz 2 (mobil web), Faz 3 (panel ekranları),
