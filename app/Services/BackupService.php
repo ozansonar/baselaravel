@@ -26,6 +26,10 @@ use ZipArchive;
  */
 final class BackupService
 {
+    public function __construct(
+        private readonly BackupOffsiteService $offsite,
+    ) {}
+
     /**
      * Arşivlerin yazıldığı dizin.
      *
@@ -44,7 +48,7 @@ final class BackupService
     /**
      * Tam yedek al — DB + uploads → ZIP.
      *
-     * @return array{success: bool, file: ?string, size: int, size_human: string, db_size: int, files_size: int, message: string, hash: ?string}
+     * @return array{success: bool, file: ?string, size: int, size_human: string, db_size: int, files_size: int, message: string, hash: ?string, offsite?: string}
      */
     public function create(): array
     {
@@ -118,15 +122,24 @@ final class BackupService
             // 5. Setting'e son backup zamanı yaz (Health Check için)
             Setting::setValue('last_backup_at', now()->toIso8601String(), 'backup', 'datetime');
 
-            // 6. Rotation
+            // 6. Dış kopya — yedek, yedeklediği veriyle aynı diskte durmasın.
+            //
+            // Sonuç mesaja yazılıyor ama yedeğin kendisini başarısız
+            // saymıyor: yerel kopya alındıysa iş görülmüştür ve dış hedefin
+            // ulaşılamaz olması onu geri almaz. Yönetici durumu ekranda ve
+            // denetim izinde görüyor.
+            $offsite = $this->offsite->copy($zipPath);
+
+            // 7. Rotation
             $this->rotate();
 
-            // 7. Audit log
+            // 8. Audit log
             AuditLogger::custom('Sistem yedeklemesi alındı', [
                 'file'        => $zipName,
                 'size_mb'     => round($totalSize / 1_048_576, 2),
                 'db_size_mb'  => round($dbSize / 1_048_576, 2),
                 'files_mb'    => round($filesSize / 1_048_576, 2),
+                'dis_kopya'   => $offsite['status'],
             ]);
 
             return [
@@ -136,9 +149,12 @@ final class BackupService
                 'size_human' => $this->humanBytes($totalSize),
                 'db_size'    => $dbSize,
                 'files_size' => $filesSize,
-                'message'    => $dbDumpPath === null
+                'offsite'    => $offsite['status'],
+                'message'    => trim(($dbDumpPath === null
                     ? "Yedek alındı: {$zipName} — bu sürücüde veritabanı dökümü desteklenmiyor, arşiv yalnız dosyaları taşıyor."
-                    : "Yedek alındı: {$zipName}",
+                    : "Yedek alındı: {$zipName}")
+                    . ($offsite['status'] === 'failed' ? ' Dış kopya alınamadı: ' . $offsite['message'] : '')
+                    . ($offsite['status'] === 'ok' ? ' Dış kopya da alındı.' : '')),
                 'hash'       => $hash,
             ];
         } catch (\Throwable $e) {

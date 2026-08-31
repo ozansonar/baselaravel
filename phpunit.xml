@@ -18,6 +18,12 @@
         </include>
     </source>
     <php>
+        <!-- Suite'in tepe belleği 140 MB'ı aşıyor (1700 test, her biri kendi
+             uygulama örneğiyle). PHP'nin stok CLI sınırı 128 MB olduğu için
+             `composer test` klonlayan geliştiricinin makinesinde yarıda
+             düşüyordu; sınır burada bildiriliyor ki sunucunun php.ini'sine
+             dokunmak gerekmesin. -->
+        <ini name="memory_limit" value="512M"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

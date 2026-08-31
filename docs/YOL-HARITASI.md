@@ -203,9 +203,9 @@ uçlar eklendikçe bu bekçi güncel kalmalı, yoksa sessizce bayatlar.
 
 ---
 
-## Faz 5 — Dayanıklılık ve Bakım
+## Faz 5 — Dayanıklılık ve Bakım — ✅ TAMAMLANDI (bir madde bilerek ertelendi)
 
-### 5.1 Yedeğin dış kopyası
+### 5.1 Yedeğin dış kopyası — ✅ bitti
 **Neden:** Arşiv, yedeklediği veriyle aynı diskte duruyor. Diski kaybeden
 yedeği de kaybediyor — yedeklemenin var olma sebebi bu senaryoydu.
 **Kapsam:** Yapılandırılabilir dış hedef (S3 uyumlu ya da FTP), yükleme sonrası
@@ -213,7 +213,7 @@ doğrulama, başarısızlıkta yöneticiye bildirim, dış kopyada saklama süre
 **Kabul:** Yedek alındıktan sonra dış hedefte aynı boyutta dosya bulunuyor;
 hedef erişilemezse iş "başarılı" sayılmıyor. Test: `BackupOffsiteTest`.
 
-### 5.2 `jenssegers/agent` bağımlılığından çıkış — 🟡 yarısı yapıldı
+### 5.2 `jenssegers/agent` bağımlılığından çıkış — ✅ bitti
 **Neden:** 2020'den beri güncellenmiyor. Tek kullanım yeri `AnalyticsService`;
 etki alanı dar olduğu için şimdi çıkmak ucuz, PHP 9'da mecbur kalmak pahalı.
 **Kapsam:** Tarayıcı/işletim sistemi/cihaz türü tespiti için küçük bir iç
@@ -224,7 +224,7 @@ zenginleştirip bağımlılığı `composer.json`'dan düşürmek.
 **Kabul:** Analitik ekranındaki dağılımlar değişmiyor; bağımlılık
 `composer.json`'dan düşüyor. Test: `UserAgentParserTest`.
 
-### 5.3 Test paketinin bellek bütçesi
+### 5.3 Test paketinin bellek bütçesi — ✅ bitti
 **Neden:** `vendor/bin/phpunit` 1516 testi 44 saniyede yeşil bitiriyor ama tepe
 belleği **131 MB**. Stok `memory_limit=128M` ile suite yarıda düşüyor
 (`RolePermissionManagementTest` render ederken). Tek başına en ağır sınıf
@@ -237,12 +237,16 @@ gereken sınırı kendisi vermeli ve README bunu yazmalı.
 **Kabul:** `composer test` stok 128 MB'lık bir PHP ile baştan sona koşuyor.
 Test: mevcut suite (kendisi ölçüt).
 
-### 5.4 Sertleştirme kararları
+### 5.4 Sertleştirme kararları — 🟡 biri yapıldı
 **Neden:** İki config değeri bilinçli olarak varsayılanda bırakılmıştı; karar
 verilmiş ama uygulanmamış hâlde duruyorlar.
 **Kapsam:** `session.serialization = json` (bakım penceresinde, oturumlar
 düşeceği için) ve `cache.serializable_classes` için izin listesi.
-**Kabul:** İkisi de açık, beş önbellekli servis çalışıyor. Test: mevcut suite.
+**Yapılan:** `cache.serializable_classes` izin listesi kuruldu ve yedi
+önbellekli yolun hepsi iki geçişli testle (yaz + geri oku) kapsandı.
+**Kalan:** `session.serialization = json`. Bilerek ertelendi: çevirmek o anda
+açık olan bütün oturumları düşürüyor ve bu, çalışan bir kurulumda bakım
+penceresi gerektiren bir karar — kod değil, zamanlama meselesi.
 
 ---
 
