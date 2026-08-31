@@ -290,6 +290,26 @@ Kurulumla gelen roller ve varsayılan yetkileri:
 | Moderatör (`moderator`) | Mesaj yanıtlama ve yorum moderasyonu. |
 | Kullanıcı (`user`), İzleyici (`viewer`) | Panel yetkisi yok. |
 
+### Denetim izi
+
+**Admin → Aktivite Logları** kim ne zaman ne değiştirdi sorusunu cevaplar. Üç
+kaynaktan beslenir ve hiçbiri elle çağrı gerektirmez:
+
+- **Model değişiklikleri** — ayarlar, kullanıcılar, roller, yönlendirmeler,
+  panelden açılan adresler, mail şablonları ve diller. Yeni bir kritik model
+  eklemek `AppServiceProvider` içindeki listeye tek satır eklemektir.
+- **Kimlik doğrulama** — giriş, çıkış ve başarısız giriş denemesi. Denenen
+  şifre hiçbir biçimde kaydedilmez.
+- **Toplu ve pivot işlemleri** — izin matrisi, kullanıcı rolleri, toplu silme
+  ve geri yükleme, şifre sıfırlama. Bunlar model olayı doğurmadığı için ilgili
+  servis kaydı kendisi düşer.
+
+İçerik modelleri (sayfa, blog, galeri) bilinçli olarak **dışarıdadır**: her
+kaydetmede satır üretip 90 günlük saklama süresi içinde asıl aranan kaydı
+bulunamaz hâle getirirlerdi.
+
+Şifre, token ve API anahtarı gibi alanlar `AuditLogger` tarafından maskelenir.
+
 `UserRole` enum'undaki roller **sistem rolüdür**: yeniden adlandırılabilir ama
 silinemez ve anahtarları değiştirilemez. Panelden istediğin kadar **özel rol**
 ekleyip izinlerini matristen verebilirsin.
@@ -556,6 +576,9 @@ composer test
   bildirim kanalı patlasa bile hatanın loga yazılmaya devam etmesi
 - `LogHealthCheckTest` — log dizini boyutu ve günlük dönüşün açık olup
   olmadığının Sistem Sağlık ekranında bildirilmesi
+- `AuditTrailCoverageTest` — izlenen her modelin denetim izine düşmesi, içerik
+  modellerinin bilinçli olarak dışarıda kalması, giriş/çıkış/başarısız
+  denemenin kaydı ve denenen şifrenin ize hiç girmemesi
 
 ---
 

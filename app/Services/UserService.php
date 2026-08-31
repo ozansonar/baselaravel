@@ -229,6 +229,14 @@ final class UserService
             // kalmaya devam ederdi.
             $this->sessionRevoker->revokeMany($ids);
 
+            // Denetim izi de gözlemciye bakıyor; toplu silme onu doğurmadığı
+            // için kayıt buradan düşüyor. Aksi hâlde elli kullanıcının
+            // silindiği tek işlem izde hiç görünmezdi.
+            AuditLogger::custom('Kullanıcılar toplu silindi', [
+                'adet'   => $silinen,
+                'id' => $ids,
+            ]);
+
             Cache::forget('admin_user_stats');
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }
@@ -260,6 +268,11 @@ final class UserService
         $geriYuklenen = DB::transaction(fn (): int => User::onlyTrashed()->whereIn('id', $ids)->restore());
 
         if ($geriYuklenen > 0) {
+            AuditLogger::custom('Kullanıcılar toplu geri yüklendi', [
+                'adet' => $geriYuklenen,
+                'id'   => $ids,
+            ]);
+
             Cache::forget('admin_user_stats');
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }

@@ -147,8 +147,16 @@ final class RoleService
     {
         $permissionIds = Permission::pluck('id', 'key');
 
-        DB::transaction(function () use ($assignments, $permissionIds): void {
-            foreach (Role::all() as $role) {
+        // Neyin değiştiği denetim izine yazılıyor: izin matrisi panelin en
+        // keskin ekranı, bir rolün neyi ne zaman kazandığı sonradan
+        // sorulacak ilk şey. Pivot tablosunun modeli olmadığı için gözlemci
+        // bunu göremiyor, kayıt buradan düşüyor.
+        $changes = [];
+
+        DB::transaction(function () use ($assignments, $permissionIds, &$changes): void {
+            foreach (Role::with('permissions')->get() as $role) {
+                $before = $role->permissions->pluck('key')->sort()->values()->all();
+
                 if ($this->isLocked($role)) {
                     $role->permissions()->sync($permissionIds->values());
 
@@ -164,8 +172,28 @@ final class RoleService
                     ->values();
 
                 $role->permissions()->sync($ids);
+
+                $after = $role->permissions()->pluck('key')->sort()->values()->all();
+
+                $added = array_values(array_diff($after, $before));
+                $removed = array_values(array_diff($before, $after));
+
+                if ($added === [] && $removed === []) {
+                    continue;
+                }
+
+                $changes[$role->slug] = array_filter([
+                    'eklenen'   => $added,
+                    'kaldirilan' => $removed,
+                ]);
             }
         });
+
+        // Hiçbir şey değişmediyse kayıt da yok: ekranı açıp kaydete basmak
+        // denetim izini doldurmamalı.
+        if ($changes !== []) {
+            AuditLogger::custom('Rol izinleri güncellendi', $changes);
+        }
     }
 
     /**
@@ -173,7 +201,24 @@ final class RoleService
      */
     public function syncUserRoles(User $user, array $roleIds): void
     {
+        $before = $user->roles()->pluck('slug')->sort()->values()->all();
+
         $user->roles()->sync($roleIds);
+
+        $after = $user->roles()->pluck('slug')->sort()->values()->all();
+
+        $added = array_values(array_diff($after, $before));
+        $removed = array_values(array_diff($before, $after));
+
+        if ($added === [] && $removed === []) {
+            return;
+        }
+
+        AuditLogger::custom('Kullanıcı rolleri değiştirildi', array_filter([
+            'kullanici'  => '#' . $user->getKey() . ' ' . $user->email,
+            'eklenen'    => $added,
+            'kaldirilan' => $removed,
+        ]));
     }
 
     /**

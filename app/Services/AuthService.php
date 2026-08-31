@@ -95,7 +95,16 @@ final class AuthService
      */
     public function sendResetLink(string $email): string
     {
-        return Password::sendResetLink(['email' => $email]);
+        $status = Password::sendResetLink(['email' => $email]);
+
+        // Bağlantı isteği hiçbir satırı değiştirmiyor, yani gözlemci onu
+        // göremiyor. Denetim açısından ise bir hesabı ele geçirme girişiminin
+        // ilk adımı: kayıt tutulmazsa şifrenin neden değiştiği hiç bilinmez.
+        if ($status === Password::RESET_LINK_SENT) {
+            AuditLogger::custom('Şifre sıfırlama bağlantısı istendi', ['e-posta' => $email]);
+        }
+
+        return $status;
     }
 
     /**
@@ -105,7 +114,7 @@ final class AuthService
      */
     public function resetPassword(array $data): string
     {
-        return Password::reset(
+        $status = Password::reset(
             $data,
             function (User $user, string $password): void {
                 $user->forceFill([
@@ -113,5 +122,13 @@ final class AuthService
                 ])->save();
             }
         );
+
+        // Kaydın kendisi gözlemciden de düşüyor ama "User #3 güncellendi"
+        // diye. Şifre sıfırlaması denetim izinde adıyla görünmeli.
+        if ($status === Password::PASSWORD_RESET) {
+            AuditLogger::custom('Şifre sıfırlandı', ['e-posta' => (string) ($data['email'] ?? '')]);
+        }
+
+        return $status;
     }
 }

@@ -9,12 +9,13 @@ use App\Services\AuditLogger;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Audit Observer — kritik model'lerde otomatik kayıt.
+ * Denetim gözlemcisi — kritik modellerde otomatik kayıt.
  *
- * Bind: AppServiceProvider::boot() içinde
- *   InstagramPost::observe(AuditObserver::class);
- *   Setting::observe(AuditObserver::class);
- *   ...
+ * Hangi modellere bağlandığı `AppServiceProvider::boot()` içindeki listede
+ * duruyor. Gözlemci yalnızca satır değişikliklerini görür; giriş/çıkış gibi
+ * satır değiştirmeyen olaylar için `AuditAuthenticationEvents`, sorgu
+ * kurucusundan giden toplu işlemler için servislerin kendi
+ * `AuditLogger::custom()` çağrıları var — ikisi de model olayı doğurmuyor.
  */
 final class AuditObserver
 {
@@ -31,5 +32,24 @@ final class AuditObserver
     public function deleted(Model $model): void
     {
         AuditLogger::log(AuditEvent::Deleted, $model, $model->getOriginal(), []);
+    }
+
+    /**
+     * Çöpten geri alma da bir yönetici kararı.
+     *
+     * Silmenin kaydı varken geri almanınki olmasaydı denetim izi "silindi"
+     * diyen ama hâlâ yayında olan kayıtlar gösterirdi.
+     */
+    public function restored(Model $model): void
+    {
+        AuditLogger::log(AuditEvent::Updated, $model, [], ['deleted_at' => null]);
+    }
+
+    /**
+     * Kalıcı silme: geri dönüşü olmayan tek işlem, izi de o yüzden önemli.
+     */
+    public function forceDeleted(Model $model): void
+    {
+        AuditLogger::log(AuditEvent::Deleted, $model, $model->getOriginal(), ['kalici' => true]);
     }
 }

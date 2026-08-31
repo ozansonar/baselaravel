@@ -32,6 +32,7 @@ use App\Services\TranslationService;
 use App\Translation\DatabaseOverrideLoader;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
@@ -123,8 +124,32 @@ class AppServiceProvider extends ServiceProvider
             $model::observe(\App\Observers\DashboardStatsObserver::class);
         }
 
-        // Audit Trail — automatic activity log on critical models
-        \App\Models\Setting::observe(\App\Observers\AuditObserver::class);
+        // Denetim izi — kim ne zaman ne değiştirdi.
+        //
+        // Liste dizi üzerinden geçiyor: yeni bir kritik model eklendiğinde tek
+        // satır yetiyor ve gözden kaçmıyor.
+        //
+        // Kapsam bilinçli olarak dar: içerik modelleri (sayfa, blog, galeri)
+        // her kaydetmede satır üretir ve denetim izini kendi gürültüsünde
+        // boğar — 90 günlük saklama süresiyle asıl aranan kayıt bulunamaz
+        // hâle gelir. Buradakiler erişimi, yetkiyi, gönderilen mailleri ve
+        // ziyaretçinin nereye gideceğini belirleyenler. İçeriğin geçmişi
+        // denetim izinin değil sürümlemenin işi.
+        foreach ([
+            \App\Models\Setting::class,
+            \App\Models\User::class,
+            \App\Models\Role::class,
+            \App\Models\Redirect::class,
+            \App\Models\CustomRoute::class,
+            \App\Models\MailTemplate::class,
+            \App\Models\Language::class,
+        ] as $audited) {
+            $audited::observe(\App\Observers\AuditObserver::class);
+        }
+
+        // Giriş, çıkış ve başarısız deneme hiçbir satırı değiştirmiyor, yani
+        // gözlemci onları göremez. Denetimin ilk sorduğu şeyler de bunlar.
+        Event::subscribe(\App\Listeners\AuditAuthenticationEvents::class);
 
         // Mail olaylarının dinleyicileri app/Listeners dizininden kendiliğinden
         // bağlanıyor (LogOutgoingMail, UpdateMailLogOnFailed). Elle bir kez daha

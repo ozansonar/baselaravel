@@ -37,6 +37,11 @@ class AuditLogDetailTest extends TestCase
 
         $admin->roles()->attach(Role::where('slug', 'admin')->firstOrFail());
 
+        // Yöneticiyi oluşturmak da denetim izine düşüyor (User artık izleniyor).
+        // Bu dosyadaki testler kendi kurdukları kayıtların sayısına bakıyor,
+        // yani sayfayı açan kişinin kendi izi sonuçları kaydırır.
+        AuditLog::query()->forceDelete();
+
         return $admin;
     }
 

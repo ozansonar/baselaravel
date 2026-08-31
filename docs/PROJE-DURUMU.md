@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1206 test / 4412 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1223 test / 4449 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1169,6 +1169,86 @@ anlamı (iş yeniden deneme verbosity'si) hata bildirimiyle ilgisiz.
 
 ---
 
+## 5r. Denetim İzi — ✅ Tek Modelden Kritik Kümeye
+
+Altyapı baştan iyi yazılmıştı: `audit_logs` tablosu, indeksleri, saklama süresi
+temizliği, panel ekranı, süzgeçleri ve **hassas alan maskesi** hepsi yerindeydi.
+Eksik olan tek şey neyin izlendiğiydi — `AuditObserver`
+`AppServiceProvider.php:127`'de **tek bir modele** bağlıydı: `Setting`.
+
+Yani "kim giriş yaptı", "kim başarısız giriş denedi", "kim hangi rolün iznini
+değiştirdi", "kim kullanıcı sildi", "kim yönlendirme ekledi" sorularının
+hiçbirinin cevabı yoktu. Kurumsal bir denetimin ilk sorduğu şeyler de bunlar.
+
+### Üç ayrı yol, çünkü tek gözlemci hepsini göremiyor
+
+| Yol | Neyi yakalıyor | Neden ayrı |
+|---|---|---|
+| `AuditObserver` (model listesi) | `Setting`, `User`, `Role`, `Redirect`, `CustomRoute`, `MailTemplate`, `Language` | Satır değişikliklerini görür |
+| `AuditAuthenticationEvents` (abone) | Giriş, çıkış, başarısız deneme | Bu olaylar hiçbir satırı değiştirmiyor |
+| Servislerin kendi `AuditLogger::custom()` çağrıları | İzin matrisi, kullanıcı rolleri, toplu silme/geri yükleme, şifre sıfırlama | Pivot tablosunun modeli yok; toplu işlemler sorgu kurucusundan gidiyor ve model olayı doğurmuyor |
+
+Model listesi dizi üzerinden geçiyor — yeni bir kritik model eklendiğinde tek
+satır yetiyor.
+
+### Kapsam neden içerik modellerini almıyor
+
+Sayfa, blog ve galeri her kaydetmede satır üretir. 90 günlük saklama süresiyle
+denetim izi kendi gürültüsünde boğulur ve asıl aranan kayıt — bir yetkinin ne
+zaman verildiği — bulunamaz hâle gelir. Buradaki liste erişimi, yetkiyi,
+gönderilen mailleri ve ziyaretçinin nereye gideceğini belirleyenler. İçeriğin
+geçmişi denetim izinin değil **sürümlemenin** işi (bkz. modül önerileri).
+
+Testi var: `Page` oluşturmak denetim izine düşmüyor.
+
+### Ayrıntılar
+
+**Şifre hiçbir biçimde ize girmiyor.** İki katman: `Failed` dinleyicisi
+`$event->credentials`'tan yalnızca adresi alıyor (dizi şifreyi de taşıyor),
+`AuditLogger`'ın maskesi de arkada duruyor. İkisinin de testi var.
+
+**Boş kayıt yazılmıyor.** İzin matrisi ekranını açıp hiçbir şey değiştirmeden
+kaydete basmak satır üretmiyor; yalnızca gerçekten eklenen/kaldırılan izinler
+yazılıyor, rol bazında ayrı ayrı.
+
+**Geri alma ve kalıcı silme de kayıtta.** Silmenin izi varken geri almanınki
+olmasaydı denetim izi "silindi" diyen ama hâlâ yayında olan kayıtlar
+gösterirdi.
+
+**Etiket artık kimden söz ettiğini söylüyor.** `buildLabel` zinciri kullanıcıda
+`name`/`title` bulamayıp "User #12 güncellendi" diyordu; ad-soyad birleşimi,
+e-posta ve slug zincire eklendi.
+
+**`Lockout` bilinçli olarak dinlenmiyor:** onu `ThrottlesLogins` trait'i
+fırlatıyor, bu proje hız sınırını `throttle:login` ara katmanıyla kuruyor, yani
+olay hiç doğmuyor. Dinlemek ölü kod olurdu.
+
+**Ekranda değişiklik gerekmedi:** tür süzgeci `modelOptions()` ile tablodaki
+gerçek verilerden üretiliyor, yeni modeller kendiliğinden listeye giriyor.
+
+### Yol üzerinde bulunan
+
+`AuditLogPageTest` ve `AuditLogDetailTest` kendi kurdukları kayıtların sayısına
+bakıyordu; `User` izlenmeye başlayınca sayfayı açan yöneticinin kendi izi
+sonuçları kaydırdı ve 5 test düştü. Fikstür kurulumundan sonra tablo
+sıfırlanıyor — testlerin niyeti "şu N kayıt verildiğinde özet şunu der",
+kurulum gürültüsü değil.
+
+### Testler
+
+`AuditTrailCoverageTest` (17): izlenen modellerin her biri için gerçekten kayıt
+doğması, içerik modellerinin dışarıda kalması, şifrenin ize hiç girmemesi,
+etiketin kullanıcıyı adıyla anması, giriş/çıkış/başarısız denemenin kaydı,
+denenen şifrenin yazılmaması, sıfırlama bağlantısı isteği, izin matrisi
+değişikliği, **değişmeyen kaydın yazılmaması**, kullanıcı rolleri, toplu silme
+ve geri yükleme, geri alma ve kalıcı silme.
+
+Bağlantı kaldırılıp doğrulandı: gözlemci listesi ve abone çıkarılınca 9 test
+düşüyor.
+
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1207,9 +1287,7 @@ Sıradakiler:
    değil; `lang/` çeviri dosyalarına taşınması gerekiyor.
 4. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
    blog listesi/detayı ve galeri sorguları da `localeWithFallback` kullanmalı.
-5. **Denetim izini yay** — `AuditObserver` yalnızca `Setting` modeline bağlı;
-   giriş/çıkış olayları ve `User`, `Role`, `Redirect`, `MailTemplate`
-   değişiklikleri kayıt dışı.
+5. ~~**Denetim izini yay**~~ — kapatıldı (bkz. bölüm 5r)
 6. **Kuyruk izleyici ekranı** — `failed_jobs` yalnızca `HealthCheckService`
    içinde sayılıyor; listeleme, yeniden deneme ve silme yok.
 7. ~~**İşlenmeyen hata kimseye ulaşmıyor**~~ — kapatıldı (bkz. bölüm 5p)
