@@ -19,6 +19,8 @@ Taban adres: `https://site-adresi/api/v1`
 - [Cihazlar](#cihazlar)
 - [Hesap](#hesap)
 - [Uçlar](#uçlar)
+- [Jeton yetkileri](#jeton-yetkileri)
+- [Önbellek](#önbellek)
 - [Hız sınırları](#hız-sınırları)
 - [CORS](#cors)
 - [Yapılandırma](#yapılandırma)
@@ -540,6 +542,78 @@ tamamlanır).
 
 ---
 
+## Jeton yetkileri
+
+Varsayılan jeton `*` taşır — hepsini yapabilir. Mobil uygulama hesabın tamamını
+yönetiyor ve daraltmanın anlamı yok. Yetkiler, jetonun bir uygulamaya değil bir
+**entegrasyona** verildiği durum için: bilgi ekranı, rapor aracı, üçüncü taraf
+istemci. Böyle bir yere tam yetkili jeton vermek, onu ele geçiren birine hesabın
+tamamını vermek demek.
+
+| Yetki | Neyi açar |
+|---|---|
+| `profile:read` | `GET /auth/me` |
+| `profile:write` | `PUT /account/profile` |
+| `devices:manage` | `/auth/devices` uçları |
+
+Giriş ve kayıt isteğe bağlı bir `abilities` dizisi kabul eder:
+
+```json
+{ "email": "...", "password": "...", "abilities": ["profile:read"] }
+```
+
+**Parametre yalnızca daraltabilir.** Tanınmayan her değer — `*` dahil —
+doğrulamada **422** ile reddedilir; sessizce yok sayılsaydı istemci istediğini
+aldığını sanırdı. Yani bu yol hiçbir koşulda yetki yükseltmeye açılmaz.
+
+Verilen yetkiler giriş/kayıt yanıtında `data.abilities`, sonrasında
+`GET /auth/me` yanıtında `meta.abilities` olarak bildirilir — uygulama ekranını
+buna göre çizsin ve yapamayacağı bir isteği hiç atmasın.
+
+Yetkisi olmayan bir istek **403** ve makine tarafından okunabilir bir gövde
+döner:
+
+```json
+{
+  "success": false,
+  "message": "Bu jetonun bu işlem için yetkisi yok.",
+  "errors": { "code": ["missing_ability"], "abilities": ["profile:write"] }
+}
+```
+
+> **`logout` bilerek yetkisizdir.** Bir jeton her zaman kendini iptal
+> edebilmeli; aksi hâlde dar yetkili bir jeton ele geçtiğinde sahibi onu
+> kapatamazdı.
+
+---
+
+## Önbellek
+
+Seyrek değişen uçlar `ETag` ve `Cache-Control` ile döner. İstemci
+`If-None-Match` gönderdiğinde içerik değişmemişse **304** alır ve gövde hiç
+inmez — çeviri sözlüğü yüz kilobayta yaklaşabildiği için mobil veri açısından
+en ucuz kazanç budur.
+
+Önbelleklenen uçlar: `/languages`, `/settings`, `/translations`, `/menus`,
+`/menus/{location}`, `/pages`, `/pages/{slug}`, `/faqs`, `/sliders`,
+`/blog/categories`, `/gallery/categories`.
+
+**İçerik listeleri bilerek dışarıda** (`/blog/posts`, `/gallery`, `/home`):
+orada tazelik önbellekten değerli ve sayfalama ETag'i zaten sürekli değiştiriyor.
+Hata yanıtları da önbelleklenmez — bir anlık 404, istemcinin elinde dakikalarca
+kalıcı bir 404 hâline gelirdi.
+
+Her API yanıtı `Vary: Accept-Language, X-Locale` taşır. Aynı adres dile göre
+farklı içerik döndürüyor; bu bildirilmezse araya giren her önbellek (CDN, vekil,
+istemci) ilk gelenin dilini ötekilere de servis eder — ETag'lerle birlikte bu,
+yanlış dilin kalıcı olarak saklanması demektir.
+
+Süre `API_CACHE_MAX_AGE` ile ayarlanır (varsayılan 60 saniye). Kısa tutuluyor:
+panelden yapılan bir düzeltmenin uygulamaya yansıması dakikalar değil saniyeler
+almalı.
+
+---
+
 ## Hız sınırları
 
 | Kova | Varsayılan | Sayım anahtarı |
@@ -610,6 +684,9 @@ API_RATE_LIMIT_PASSWORD=5
 API_RATE_LIMIT_VERIFICATION=3
 API_RATE_LIMIT_COMMENT=3
 API_RATE_LIMIT_NEWSLETTER=5
+
+# Onbellek suresi (saniye)
+API_CACHE_MAX_AGE=60
 ```
 
 `config/api.php`: sayfalama tavanı, dışarı açılan ayar grupları ve çeviri
@@ -659,5 +736,5 @@ app/Http/Middleware/EnsureApiUserIsActive.php
 app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     102 sınama
+tests/Feature/Api/                     117 sınama
 ```

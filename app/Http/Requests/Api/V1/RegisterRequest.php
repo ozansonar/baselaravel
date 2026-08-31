@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1;
 
 use App\Rules\UserEmail;
+use App\Enums\TokenAbility;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -41,6 +43,11 @@ final class RegisterRequest extends FormRequest
             // Jetonun etiketi: kullanıcı "hangi cihazdan girmişim" sorusunu
             // bununla yanıtlıyor. Zorunlu değil, gönderilmezse config'teki ad.
             'device_name' => ['nullable', 'string', 'max:100'],
+            // Yetki istemek yalnızca DARALTIR: gönderilmezse jeton tam yetkili
+            // olur, gönderilirse yalnız listedekiler verilir. Bu yol hiçbir
+            // koşulda `*` üretemez.
+            'abilities'   => ['nullable', 'array'],
+            'abilities.*' => ['string', Rule::enum(TokenAbility::class)],
         ];
     }
 

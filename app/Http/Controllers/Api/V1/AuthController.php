@@ -17,6 +17,7 @@ use App\Services\ApiAuthService;
 use App\Services\PasswordResetCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 
 /**
  * Kayıt, giriş, çıkış ve "ben kimim".
@@ -46,6 +47,7 @@ final class AuthController extends Controller
         $result = $this->apiAuth->register(
             $request->validated(),
             $request->string('device_name')->value(),
+            (array) $request->input('abilities', []),
         );
 
         return ApiResponse::created(
@@ -63,6 +65,7 @@ final class AuthController extends Controller
             $request->string('email')->value(),
             $request->string('password')->value(),
             $request->string('device_name')->value(),
+            (array) $request->input('abilities', []),
         );
 
         if ($result === null) {
@@ -104,7 +107,20 @@ final class AuthController extends Controller
         // kuruyor ve ayrı bir uç için ikinci gidiş dönüş yapmak zorunda kalmasın.
         $user->loadMissing('roles');
 
-        return ApiResponse::success(UserResource::make($user));
+        // Jetonun yetkileri de burada: uygulama yeniden açıldığında elindeki
+        // jetonun neye yettiğini tek istekle öğreniyor.
+        $token = $user->currentAccessToken();
+
+        return ApiResponse::success(
+            UserResource::make($user),
+            extra: ['meta' => [
+                'abilities' => $token instanceof PersonalAccessToken
+                    ? $token->abilities
+                    // Oturum çerezi ile gelen ön yüz isteğinde jeton yok;
+                    // oturumun kendisi tam yetkili.
+                    : ['*'],
+            ]],
+        );
     }
 
     /**
@@ -178,7 +194,7 @@ final class AuthController extends Controller
      * Giriş ve kayıt aynı gövdeyi dönüyor: istemcinin iki ayrı ayrıştırıcı
      * yazmasına gerek kalmıyor.
      *
-     * @param array{user: User, token: string, expires_at: string|null} $result
+     * @param array{user: User, token: string, expires_at: string|null, abilities: array<int, string>} $result
      * @return array<string, mixed>
      */
     private function authPayload(array $result): array
@@ -188,6 +204,9 @@ final class AuthController extends Controller
             'token'      => $result['token'],
             'token_type' => 'Bearer',
             'expires_at' => $result['expires_at'],
+            // İstemci ne yapabileceğini yanıttan öğreniyor: yapamayacağı bir
+            // isteği hiç atmasın, ekranı ona göre çizsin.
+            'abilities' => $result['abilities'],
         ];
     }
 }

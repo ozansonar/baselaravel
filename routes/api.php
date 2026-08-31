@@ -69,11 +69,16 @@ Route::prefix('auth')->name('api.v1.auth.')->group(function (): void {
         ->name('password.reset');
 
     Route::middleware(['auth:sanctum', 'api.active'])->group(function (): void {
+        // Çıkış bilerek yetkisiz: bir jeton her zaman kendini iptal
+        // edebilmeli, yoksa dar yetkili bir jeton ele geçtiğinde sahibi onu
+        // kapatamaz.
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
         // Doğrulanmamış kullanıcı da kendi durumunu görebilmeli: uygulama
         // "e-postanı doğrula" ekranını buna bakarak çiziyor.
-        Route::get('/me', [AuthController::class, 'me'])->name('me');
+        Route::get('/me', [AuthController::class, 'me'])
+            ->middleware('abilities:profile:read')
+            ->name('me');
 
         Route::post('/email/resend', [AuthController::class, 'resendVerification'])
             ->middleware('throttle:api-verification')
@@ -82,11 +87,13 @@ Route::prefix('auth')->name('api.v1.auth.')->group(function (): void {
         // "Cihazlarım". Doğrulanmış e-posta şartı bilerek yok: hesabına
         // şüpheli bir erişim olduğunu düşünen kişi, doğrulama adımını
         // tamamlayamamış olsa bile oturumları kapatabilmeli.
-        Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
-        Route::delete('/devices', [DeviceController::class, 'destroyOthers'])->name('devices.destroy-others');
-        Route::delete('/devices/{device}', [DeviceController::class, 'destroy'])
-            ->whereNumber('device')
-            ->name('devices.destroy');
+        Route::middleware('abilities:devices:manage')->group(function (): void {
+            Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+            Route::delete('/devices', [DeviceController::class, 'destroyOthers'])->name('devices.destroy-others');
+            Route::delete('/devices/{device}', [DeviceController::class, 'destroy'])
+                ->whereNumber('device')
+                ->name('devices.destroy');
+        });
     });
 });
 
@@ -105,7 +112,9 @@ Route::prefix('account')
         // Avatar aynı istekte gidiyor. PHP çok parçalı gövdeyi yalnız POST'ta
         // ayrıştırdığı için istemci dosyayla birlikte POST + _method=PUT
         // kullanmalı; Laravel bunu bu rotaya eşliyor.
-        Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile', [AccountController::class, 'updateProfile'])
+            ->middleware('abilities:profile:write')
+            ->name('profile.update');
     });
 
 /*
@@ -116,7 +125,21 @@ Route::prefix('account')
 | yüzü. Bakım modunda kapanıyorlar.
 */
 
-Route::middleware('api.available')->group(function (): void {
+/*
+ * Seyrek değişen uçlar ETag ile dönüyor: istemci `If-None-Match` gönderdiğinde
+ * içerik değişmemişse 304 alıyor ve gövde hiç inmiyor. Çeviri sözlüğü yüz
+ * kilobayta yaklaşabildiği için mobil veri açısından en ucuz kazanç bu.
+ *
+ * İçerik listeleri (yazılar, galeri, açılış ekranı) bilerek dışarıda: orada
+ * tazelik önbellekten daha değerli ve sayfalama zaten ETag'i sürekli
+ * değiştiriyor.
+ *
+ * Dile duyarlılık `Vary` ile bildiriliyor (SetApiLocale) — olmasaydı araya
+ * giren her önbellek ilk gelenin dilini ötekilere de servis ederdi.
+ */
+$cacheable = 'cache.headers:public;max_age=' . (int) config('api.cache.max_age', 60) . ';etag';
+
+Route::middleware('api.available')->group(function () use ($cacheable): void {
 
     // ── Açılış ekranı ──
     // Parçalar aşağıda ayrı ayrı da yayında; bu uç üçünü bir araya getiriyor
@@ -126,28 +149,29 @@ Route::middleware('api.available')->group(function (): void {
 
     // ── Site geneli ──
 
-    Route::get('/languages', [LanguageController::class, 'index'])->name('api.v1.languages.index');
-    Route::get('/sliders', [SliderController::class, 'index'])->name('api.v1.sliders.index');
-    Route::get('/faqs', [FaqController::class, 'index'])->name('api.v1.faqs.index');
-    Route::get('/settings', [SettingController::class, 'index'])->name('api.v1.settings.index');
-    Route::get('/translations', [TranslationController::class, 'index'])->name('api.v1.translations.index');
+    Route::get('/languages', [LanguageController::class, 'index'])->middleware($cacheable)->name('api.v1.languages.index');
+    Route::get('/sliders', [SliderController::class, 'index'])->middleware($cacheable)->name('api.v1.sliders.index');
+    Route::get('/faqs', [FaqController::class, 'index'])->middleware($cacheable)->name('api.v1.faqs.index');
+    Route::get('/settings', [SettingController::class, 'index'])->middleware($cacheable)->name('api.v1.settings.index');
+    Route::get('/translations', [TranslationController::class, 'index'])->middleware($cacheable)->name('api.v1.translations.index');
 
     // Statik sayfalar — Hakkımızda ve mağazaların şart koştuğu yasal metinler
     // (gizlilik politikası, KVKK, kullanım koşulları).
-    Route::get('/pages', [PageController::class, 'index'])->name('api.v1.pages.index');
-    Route::get('/pages/{slug}', [PageController::class, 'show'])->name('api.v1.pages.show');
+    Route::get('/pages', [PageController::class, 'index'])->middleware($cacheable)->name('api.v1.pages.index');
+    Route::get('/pages/{slug}', [PageController::class, 'show'])->middleware($cacheable)->name('api.v1.pages.show');
 
-    Route::get('/menus', [MenuController::class, 'index'])->name('api.v1.menus.index');
+    Route::get('/menus', [MenuController::class, 'index'])->middleware($cacheable)->name('api.v1.menus.index');
     Route::get('/menus/{location}', [MenuController::class, 'show'])
         ->where('location', '[a-z0-9_-]+')
+        ->middleware($cacheable)
         ->name('api.v1.menus.show');
 
     // ── Blog ──
     // 'categories' yolu '{slug}' kalıbından önce tanımlı olmak zorunda değil
     // (ayrı segmentte duruyorlar) ama okunurluk için birlikte durmaları iyi.
 
-    Route::prefix('blog')->name('api.v1.blog.')->group(function (): void {
-        Route::get('/categories', [BlogCategoryController::class, 'index'])->name('categories.index');
+    Route::prefix('blog')->name('api.v1.blog.')->group(function () use ($cacheable): void {
+        Route::get('/categories', [BlogCategoryController::class, 'index'])->middleware($cacheable)->name('categories.index');
         Route::get('/posts', [BlogPostController::class, 'index'])->name('posts.index');
         Route::get('/posts/{slug}', [BlogPostController::class, 'show'])->name('posts.show');
 
@@ -165,8 +189,8 @@ Route::middleware('api.available')->group(function (): void {
 
     // ── Galeri ──
 
-    Route::prefix('gallery')->name('api.v1.gallery.')->group(function (): void {
-        Route::get('/categories', [GalleryCategoryController::class, 'index'])->name('categories.index');
+    Route::prefix('gallery')->name('api.v1.gallery.')->group(function () use ($cacheable): void {
+        Route::get('/categories', [GalleryCategoryController::class, 'index'])->middleware($cacheable)->name('categories.index');
         Route::get('/', [GalleryController::class, 'index'])->name('index');
     });
 

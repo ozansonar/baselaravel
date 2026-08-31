@@ -47,6 +47,12 @@ final class SetApiLocale
 
         $response->headers->set('Content-Language', $locale);
 
+        // Aynı adres dile göre farklı içerik döndürüyor. Vary olmadan araya
+        // giren her önbellek (CDN, vekil, istemci) ilk gelenin dilini
+        // ötekilere de servis ederdi — ve ETag'lerle birlikte bu, yanlış dilin
+        // kalıcı olarak saklanması demek olurdu.
+        $response->headers->set('Vary', 'Accept-Language, X-Locale', false);
+
         return $response;
     }
 

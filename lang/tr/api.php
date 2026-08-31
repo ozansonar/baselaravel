@@ -35,6 +35,7 @@ return [
         'verification_sent'     => 'Doğrulama bağlantısı e-posta adresinize gönderildi.',
         'already_verified'      => 'E-posta adresiniz zaten doğrulanmış.',
         'email_unverified'      => 'Bu işlem için önce e-posta adresinizi doğrulamanız gerekiyor.',
+        'missing_ability'       => 'Bu jetonun bu işlem için yetkisi yok.',
     ],
 
     'password' => [

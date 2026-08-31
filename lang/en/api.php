@@ -34,6 +34,7 @@ return [
         'verification_sent'     => 'A verification link has been sent to your e-mail address.',
         'already_verified'      => 'Your e-mail address is already verified.',
         'email_unverified'      => 'Verify your e-mail address before doing that.',
+        'missing_ability'       => 'This token is not allowed to do that.',
     ],
 
     'password' => [

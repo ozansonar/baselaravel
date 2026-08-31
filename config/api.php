@@ -88,6 +88,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Önbellek
+    |--------------------------------------------------------------------------
+    |
+    | Seyrek değişen uçlar (ayarlar, çeviriler, menüler, diller, SSS, slider)
+    | ETag ile dönüyor. İstemci `If-None-Match` gönderdiğinde içerik değişmemişse
+    | 304 alıyor — gövde hiç inmiyor. Çeviri sözlüğü yüz kilobayta yaklaşabildiği
+    | için mobil veri açısından en ucuz kazanç bu.
+    |
+    | `max_age` saniye: bu süre boyunca istemci sormadan kendi kopyasını
+    | kullanıyor. Kısa tutuluyor çünkü panelden yapılan bir düzeltmenin
+    | uygulamaya yansıması dakikalar değil saniyeler almalı.
+    |
+    */
+
+    'cache' => [
+        'max_age' => (int) env('API_CACHE_MAX_AGE', 60),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Açılış ekranı
     |--------------------------------------------------------------------------
     |

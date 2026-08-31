@@ -53,6 +53,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.available' => \App\Http\Middleware\EnsureApiIsAvailable::class,
             // E-postası doğrulanmamış kullanıcıyı hesap uçlarından çevirir.
             'api.verified' => \App\Http\Middleware\EnsureApiEmailIsVerified::class,
+            // Jeton yetkileri (Sanctum). 'abilities' hepsini birden ister,
+            // 'ability' herhangi birini. Tam yetkili jeton (`*`) ikisini de
+            // geçer, yani varsayılan jetonlar için görünmezler.
+            'abilities' => \Laravel\Sanctum\Http\Middleware\CheckAbilities::class,
+            'ability' => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
         ]);
 
         // Kendi alan adımızdaki ön yüz API'yi oturum çereziyle de

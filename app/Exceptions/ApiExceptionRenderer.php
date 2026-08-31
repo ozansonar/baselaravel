@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -53,34 +54,59 @@ final class ApiExceptionRenderer
             return null;
         }
 
+        // Çerçeve, kapanışlarımız çalışmadan ÖNCE bazı istisnaları HTTP
+        // istisnasına çeviriyor (Handler::prepareException): yetkilendirme
+        // hatası AccessDeniedHttpException oluyor, model bulunamadı
+        // NotFoundHttpException. Aslını `getPrevious()` içinde taşıyor.
+        //
+        // Sınıflandırma bu yüzden asıl istisna üzerinden yapılıyor; yalnız
+        // sarmalayana bakılsaydı bütün bu durumlar aşağıdaki genel dala düşer
+        // ve çerçevenin İngilizce sabit metni ("Invalid ability provided.")
+        // ziyaretçiye olduğu gibi giderdi.
+        $original = $e instanceof HttpExceptionInterface && $e->getPrevious() !== null
+            ? $e->getPrevious()
+            : $e;
+
         $response = match (true) {
-            $e instanceof ValidationException => ApiResponse::error(
+            $original instanceof ValidationException => ApiResponse::error(
                 // Zarfın `message` alanı kullanıcıya gösterilebilecek metin:
                 // ilk hatayı oraya koymak, istemcinin `errors` içine hiç
                 // bakmadan bir uyarı gösterebilmesini sağlıyor.
-                (string) (collect($e->errors())->flatten()->first() ?? __('api.common.validation_failed')),
-                $e->errors(),
-                $e->status,
+                (string) (collect($original->errors())->flatten()->first() ?? __('api.common.validation_failed')),
+                $original->errors(),
+                $original->status,
             ),
 
-            $e instanceof AuthenticationException => ApiResponse::error(
+            $original instanceof AuthenticationException => ApiResponse::error(
                 __('api.auth.unauthenticated'),
                 status: 401,
             ),
 
-            $e instanceof AccountDeactivatedException => ApiResponse::error(
+            $original instanceof AccountDeactivatedException => ApiResponse::error(
                 __('site.login.deactivated'),
                 status: 403,
             ),
 
-            $e instanceof AuthorizationException => ApiResponse::error(
+            // AuthorizationException'ın alt türü, o yüzden ondan ÖNCE.
+            // Genel 403'ten ayrılıyor çünkü istemcinin yapması gereken şey
+            // farklı: yetkisi olan bir jetonla yeniden giriş yapmak.
+            $original instanceof MissingAbilityException => ApiResponse::error(
+                __('api.auth.missing_ability'),
+                [
+                    'code'      => ['missing_ability'],
+                    'abilities' => $original->abilities(),
+                ],
+                403,
+            ),
+
+            $original instanceof AuthorizationException => ApiResponse::error(
                 __('api.common.forbidden'),
                 status: 403,
             ),
 
             // Rota model bağlama ile bulunamadığında bu tür geliyor; dışarıya
             // hangi modelin aranmadığını söylemenin bir anlamı yok.
-            $e instanceof ModelNotFoundException,
+            $original instanceof ModelNotFoundException,
             $e instanceof NotFoundHttpException => ApiResponse::error(
                 __('api.common.not_found'),
                 status: 404,
@@ -124,17 +150,26 @@ final class ApiExceptionRenderer
     }
 
     /**
-     * HTTP istisnasının kendi metni yoksa duruma göre bir karşılık.
+     * Genel bir HTTP istisnasının dışarı çıkacak metni.
+     *
+     * Kendi metni yalnız istisna BİLEREK fırlatıldıysa yansıtılıyor — yani
+     * `abort(403, 'Şu yüzden olmaz')` gibi, bir insanın ziyaretçi için yazdığı
+     * cümle. Sarmalanmış bir istisnada (`getPrevious()` dolu) metin çerçevenin
+     * ya da bir kütüphanenin iç metnidir: İngilizce sabit, çoğu zaman anlamsız,
+     * bazen sınıf adı ya da sorgu taşır. Onun yerine duruma göre bizim
+     * metnimiz gidiyor.
      */
     private static function httpMessage(HttpExceptionInterface&Throwable $e): string
     {
         $message = trim($e->getMessage());
 
-        if ($message !== '') {
+        if ($message !== '' && $e->getPrevious() === null) {
             return $message;
         }
 
         return match ($e->getStatusCode()) {
+            403 => __('api.common.forbidden'),
+            404 => __('api.common.not_found'),
             429 => __('api.common.too_many_requests'),
             503 => __('api.common.unavailable'),
             default => __('api.common.error'),

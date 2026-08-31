@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1;
 
 use App\Rules\UserEmail;
+use App\Enums\TokenAbility;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class LoginRequest extends FormRequest
 {
@@ -23,6 +25,11 @@ final class LoginRequest extends FormRequest
             'email'    => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH],
             'password' => ['required', 'string', 'min:8'],
             'device_name' => ['nullable', 'string', 'max:100'],
+            // Yetki istemek yalnızca DARALTIR: gönderilmezse jeton tam yetkili
+            // olur, gönderilirse yalnız listedekiler verilir. Bu yol hiçbir
+            // koşulda `*` üretemez.
+            'abilities'   => ['nullable', 'array'],
+            'abilities.*' => ['string', Rule::enum(TokenAbility::class)],
         ];
     }
 

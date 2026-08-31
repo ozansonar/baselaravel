@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\TokenAbility;
 use App\Exceptions\AccountDeactivatedException;
 use App\Models\User;
 use Illuminate\Auth\Events\Failed;
@@ -48,7 +49,7 @@ final class ApiAuthService
      * @param array{first_name: string, last_name: string, email: string, password: string, phone?: string|null} $data
      * @return array{user: User, token: string, expires_at: string|null}
      */
-    public function register(array $data, ?string $deviceName = null): array
+    public function register(array $data, ?string $deviceName = null, array $abilities = []): array
     {
         $user = $this->authService->register($data);
 
@@ -57,7 +58,7 @@ final class ApiAuthService
         // bunu engellemiyor — ön yüzde de engellemiyor, doğrulama ayrı bir adım.
         event(new Login(self::GUARD, $user, false));
 
-        return $this->issueToken($user, $deviceName);
+        return $this->issueToken($user, $deviceName, $abilities);
     }
 
     /**
@@ -68,7 +69,7 @@ final class ApiAuthService
      *
      * @throws AccountDeactivatedException Şifre doğru ama hesap pasifse.
      */
-    public function login(string $email, string $password, ?string $deviceName = null): ?array
+    public function login(string $email, string $password, ?string $deviceName = null, array $abilities = []): ?array
     {
         $provider = $this->userProvider();
         $credentials = ['email' => $email, 'password' => $password];
@@ -91,7 +92,7 @@ final class ApiAuthService
 
         event(new Login(self::GUARD, $user, false));
 
-        return $this->issueToken($user, $deviceName);
+        return $this->issueToken($user, $deviceName, $abilities);
     }
 
     /**
@@ -181,9 +182,10 @@ final class ApiAuthService
     }
 
     /**
-     * @return array{user: User, token: string, expires_at: string|null}
+     * @param  array<int, string> $abilities Boşsa jeton tam yetkili (`*`).
+     * @return array{user: User, token: string, expires_at: string|null, abilities: array<int, string>}
      */
-    private function issueToken(User $user, ?string $deviceName): array
+    private function issueToken(User $user, ?string $deviceName, array $abilities = []): array
     {
         $name = $this->tokenName($deviceName);
 
@@ -193,15 +195,39 @@ final class ApiAuthService
         $user->tokens()->where('name', $name)->delete();
 
         $expiresAt = $this->expiresAt();
+        $granted = $this->resolveAbilities($abilities);
 
         /** @var NewAccessToken $token */
-        $token = $user->createToken($name, ['*'], $expiresAt);
+        $token = $user->createToken($name, $granted, $expiresAt);
 
         return [
             'user'       => $user,
             'token'      => $token->plainTextToken,
             'expires_at' => $expiresAt?->toIso8601String(),
+            // İstemci ne yapabileceğini yanıttan öğreniyor: ekranları buna göre
+            // çizip yapamayacağı bir isteği hiç atmıyor.
+            'abilities' => $granted,
         ];
+    }
+
+    /**
+     * İstenen yetkiler — yalnızca daraltabilir.
+     *
+     * Boş liste "hepsi" demek. Doluysa yalnız tanınan yetkiler alınıyor:
+     * uydurma bir dize sessizce jetona yazılmıyor, ve bu yol hiçbir koşulda
+     * `*` üretemiyor. Yani parametre bir yetki yükseltme yüzeyi değil.
+     *
+     * @param  array<int, string> $requested
+     * @return array<int, string>
+     */
+    private function resolveAbilities(array $requested): array
+    {
+        $allowed = array_values(array_intersect(
+            array_map(strval(...), $requested),
+            TokenAbility::values(),
+        ));
+
+        return $allowed === [] ? ['*'] : $allowed;
     }
 
     private function tokenName(?string $deviceName): string

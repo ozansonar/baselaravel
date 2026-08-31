@@ -704,6 +704,13 @@ composer test
   adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
   posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
   (ön yüz formu, API ucu, panel) geçerli olması
+- `Api/ApiTokenAbilityTest` — dar yetkili jetonun yalnız istediğini
+  yapabilmesi, tanınmayan yetkinin (`*` dahil) reddedilmesi — parametre
+  yükseltme yüzeyi olmamalı —, dar jetonun her zaman kendini iptal
+  edebilmesi ve çerçevenin İngilizce iç metninin ziyaretçiye ulaşmaması
+- `Api/ApiCachingTest` — ETag ile 304 dönmesi ve gövdenin hiç inmemesi, içerik
+  değişince etiketin değişmesi, `Vary` ile iki dilin aynı önbelleği
+  paylaşmaması, içerik listelerinin ve hata yanıtlarının önbelleklenmemesi
 - `Api/ApiDeviceTest` — açık oturumların listelenmesi, "bu cihaz"ın tam olarak
   bir satır olması, jetonun hiçbir koşulda sızmaması, başkasının oturumuna
   dokunulamaması (404, 403 değil), "diğerlerinden çık"ın mevcut oturumu
