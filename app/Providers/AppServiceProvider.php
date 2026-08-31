@@ -106,6 +106,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->configureAuthorization();
 
+        // API yanıtlarının zarfı ApiResponse'ta kuruluyor: success / message /
+        // data. JsonResource'un kendi "data" sarmalayıcısı açık kalsaydı üst
+        // düzey kaynak yanıtları data.data olurdu.
+        \Illuminate\Http\Resources\Json\JsonResource::withoutWrapping();
+
         Campaign::observe(CampaignObserver::class);
 
         User::observe(UserObserver::class);
@@ -262,6 +267,44 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             });
         });
+
+        $this->configureApiRateLimiting();
+    }
+
+    /**
+     * API tarafının sınırlayıcıları.
+     *
+     * Ön yüzdekilerden ayrı isimler taşıyorlar çünkü ön yüzdekiler `back()`
+     * döndürüyor — bir mobil istemciye yönlendirme göndermek, ona HTML bir
+     * oturum açma sayfası göndermekle aynı kapıya çıkardı.
+     *
+     * Burada `response()` kapanışı bilerek yok: sınıra takılan istek
+     * ThrottleRequestsException fırlatıyor ve onu
+     * {@see \App\Exceptions\ApiExceptionRenderer} zarfa çeviriyor — hem
+     * ziyaretçinin dilinde, hem `Retry-After` başlığı korunarak. İki yerde iki
+     * ayrı 429 gövdesi olmasın diye.
+     */
+    private function configureApiRateLimiting(): void
+    {
+        /** @var array<string, int> $limits */
+        $limits = (array) config('api.rate_limits', []);
+
+        // Taban sınır kimliği doğrulanmış kullanıcıda kullanıcı başına: aynı
+        // ofisten (aynı IP) giren on kişi birbirinin kotasını yemesin.
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute($limits['default'] ?? 60)
+            ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+
+        // Giriş denemesi hem denenen adrese hem de kaynağa göre sayılıyor: tek
+        // bir IP'den kırk hesabı denemek de, kırk IP'den tek hesabı denemek de
+        // aynı sınıra takılsın.
+        RateLimiter::for('api-login', fn (Request $request): Limit => Limit::perMinute($limits['login'] ?? 5)
+            ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()));
+
+        RateLimiter::for('api-register', fn (Request $request): Limit => Limit::perMinute($limits['register'] ?? 3)
+            ->by((string) $request->ip()));
+
+        RateLimiter::for('api-contact', fn (Request $request): Limit => Limit::perMinute($limits['contact'] ?? 3)
+            ->by((string) $request->ip()));
     }
 
     /**

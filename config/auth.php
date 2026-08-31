@@ -40,6 +40,18 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Mobil uygulamalar ve harici istemciler buradan geliyor. Oturum
+        // yerine Sanctum'un kişisel erişim jetonu okunuyor: istek durumsuz,
+        // yani CSRF de oturum çerezi de gerekmiyor.
+        //
+        // Aynı guard, Sanctum'un stateful listesindeki alan adlarından gelen
+        // isteklerde oturum çerezini de kabul eder — böylece kendi web ön
+        // yüzümüz jeton saklamak zorunda kalmaz.
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
     ],
 
     /*

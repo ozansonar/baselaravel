@@ -75,5 +75,10 @@ class Setting extends Model
     {
         static::$cachedSettings = null;
         Cache::forget('settings.all');
+
+        // API'nin dışarı açtığı süzülmüş liste ayrı bir anahtarda duruyor
+        // (grup ve tip bilgisi gerektiği için). Burada düşürülmezse panelden
+        // değişen bir ayar mobil tarafta bir saat daha eskisiyle görünürdü.
+        Cache::forget(\App\Services\SettingService::PUBLIC_CACHE_KEY);
     }
 }

@@ -279,9 +279,11 @@ app/
 ├── Enums/              Sabit seçenek listeleri — hardcoded liste yasak
 ├── Helpers/            Global fonksiyonlar (upload_url, site_initials, ...)
 ├── Http/
-│   ├── Controllers/    İnce; iş mantığı yok
+│   ├── Controllers/    İnce; iş mantığı yok (Api/V1/ altında API uçları)
 │   ├── Middleware/     Admin, yönlendirme, bakım modu, güvenlik başlıkları
-│   └── Requests/       FormRequest doğrulama
+│   ├── Requests/       FormRequest doğrulama
+│   ├── Resources/      API'nin dışarı açtığı alanlar (beyaz liste)
+│   └── Responses/      API yanıt zarfı (success / message / data)
 ├── Models/             Eloquent — hepsinde SoftDeletes
 ├── Observers/          Model olayları + cascade soft delete
 ├── Policies/           Yetkilendirme
@@ -662,6 +664,17 @@ composer test
 - `CookieConsentTest` — rıza alınmadan hiçbir izleme betiğinin basılmaması ve
   izleme uç noktasının kayıt tutmaması, kararın (kabul, ret, seçmeli)
   kaydedilmesi ve metin sürümü değişince yeniden sorulması
+- `Api/ApiAuthTest` — jetonla kayıt/giriş/çıkış, silinmiş hesabın adresinin
+  yeniden kullanılabilmesi, pasife alınan hesabın jetonunun bir sonraki istekte
+  ölmesi, çıkışın yalnız o cihazı düşürmesi ve kaba kuvvetin sınıra takılması
+- `Api/ApiPublicEndpointsTest` — menü ağacı, sayfalama tavanı, taslak yazının
+  görünmemesi, listede N+1 olmaması, iletişim formunun yönetim alanlarını
+  sızdırmaması ve **`/settings` ucunun SMTP parolasını, reCAPTCHA gizli
+  anahtarını, Telegram jetonunu hiçbir koşulda yayınlamaması**
+- `Api/ApiContractTest` — yanıt zarfının sabitliği (boş `errors` bile nesne),
+  bilinmeyen API adresinin HTML yönlendirme değil JSON 404 dönmesi, dilin
+  `Accept-Language` / `?lang=` / `X-Locale` ile çözülmesi, desteklenmeyen dilin
+  hata değil varsayılana düşüş olması ve CORS ön uçuşunun yanıtlanması
 
 ---
 
@@ -698,9 +711,55 @@ vermek yeter; `phpunit.xml` içindeki değerler var olan ortam değişkenini ezm
 
 ---
 
+## API (mobil ve harici istemciler)
+
+Site, Blade ile üretilen web arayüzünün yanında **Laravel Sanctum** jetonuyla
+konuşan istemcilere de (Flutter uygulaması, harici bir SPA) hizmet verir. İki
+taraf aynı Service katmanını kullanır: panelden değiştirilen bir menü, ayar veya
+yazı ikisinde birden değişir.
+
+```
+GET  /api/v1/languages          Yayındaki diller
+GET  /api/v1/settings           Dışarı açılan ayarlar (gruplara göre)
+GET  /api/v1/translations       Arayüz metinleri
+GET  /api/v1/menus              Menüler, ağaç hâlinde, adresleri çözülmüş
+GET  /api/v1/blog/posts         Yazılar (sayfalı) — ?category, ?per_page
+GET  /api/v1/blog/posts/{slug}  Yazı detayı
+GET  /api/v1/blog/categories    Kategoriler
+GET  /api/v1/gallery            Galeri — ?category, ?type=photo|video
+GET  /api/v1/gallery/categories Galeri kategorileri
+POST /api/v1/contact            İletişim formu
+
+POST /api/v1/auth/register      Kayıt (jeton döner)
+POST /api/v1/auth/login         Giriş (jeton döner)
+POST /api/v1/auth/logout        Bu cihazın jetonunu siler   [jeton gerekli]
+GET  /api/v1/auth/me            Giriş yapmış kullanıcı      [jeton gerekli]
+```
+
+Her yanıt aynı zarfı taşır:
+
+```json
+{ "success": true, "message": "İşlem başarılı.", "data": { } }
+{ "success": false, "message": "...", "errors": { "email": ["..."] } }
+```
+
+Dil `Accept-Language` (ya da `?lang=` / `X-Locale`) ile seçilir; sitede olmayan
+bir dil hata değil, varsayılana düşüş sebebidir. Seçilen dil `Content-Language`
+ile bildirilir.
+
+`/settings` ucu **tabloyu olduğu gibi basmaz**: yayınlanacak gruplar ve elenen
+anahtarlar `config/api.php` içinde beyaz liste olarak durur, tipi `password`
+olan ya da adında `secret` / `token` / `password` geçen hiçbir satır dışarı
+çıkmaz.
+
+Kurulum için `.env`'e eklenecekler ve tüm uçların ayrıntısı: **`docs/API.md`**.
+
+---
+
 ## Ek dokümanlar
 
 - `CLAUDE.md` — proje kuralları (zorunlu)
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
+- `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
 - `resources/views/admin-theme/README.md` — tema referansı
