@@ -20,8 +20,8 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 
 | | Adet | | Adet |
 |---|---|---|---|
-| Model | 23 | Route | 164 |
-| Service | 34 | Migration | 65 |
+| Model | 23 | Route | 170 |
+| Service | 37 | Migration | 66 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
 | Policy | 20 | Enum | 9 |
@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1223 test / 4449 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1243 test / 4504 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1249,6 +1249,92 @@ düşüyor.
 
 ---
 
+## 5s. Kuyruk İzleyici — ✅ Kuruldu
+
+`failed_jobs` tablosu projede **tek bir yerde** okunuyordu:
+`HealthCheckService.php:162`, o da yalnızca son 24 saatin *sayısını* alıyordu.
+Listeleme, hatayı görme, yeniden deneme ve silme yoktu.
+
+Bu proje için özellikle önemli: tüm mail gönderimi `MailService::queue()`
+üzerinden kuyruğa giriyor. "Doğrulama maili gelmedi" şikâyetinin cevabı
+`failed_jobs.exception` alanında duruyor ve o alana panelden bakmanın yolu
+yoktu — kayıt tabloda sessizce birikiyordu.
+
+### Ekran
+
+`Admin → Kuyruk` (`admin/kuyruk`). Üstte dört sayı, altta başarısız iş listesi.
+
+| Sayı | Ne söylüyor |
+|---|---|
+| Bekleyen iş | Kuyrukta duran iş sayısı |
+| **En eski işin yaşı** | "Cron çalışıyor mu" sorusunun en net cevabı |
+| Son 24 saatte başarısız | Yeni çıkmış sorun |
+| Toplam başarısız | Birikmiş kuyruk çöplüğü |
+
+Bekleyen iş sayısı tek başına normal; birikip **yaşlanması** cron'un
+çalışmadığı demek. 10 dakikayı geçtiğinde ekranın en üstünde kırmızı bir uyarı
+çıkıyor ve nereye bakılacağını söylüyor.
+
+Liste her iş için zaman, iş adı, kuyruk, deneme sayısı ve hatanın ilk satırını
+gösteriyor; göz düğmesi tam yığın izini ayrı bir pencerede çekiyor. Yığın izi
+her satırda taşınsaydı liste gereksiz şişerdi.
+
+İşlemler: **yeniden dene**, **sil**, **listeyi temizle** ve **kuyruğu şimdi
+işle** (cron dakikasını beklemeden). Hepsi `AdminModal` onayından geçiyor ve
+denetim izine düşüyor — bir işin neden kaybolduğu sonradan sorulacak ilk şey.
+
+### Tasarım kararları
+
+**Eloquent modeli yok.** `jobs` ve `failed_jobs` çerçevenin kendi tabloları;
+projenin model kurallarına (SoftDeletes, `$fillable`) tabi değiller ve
+`QueueRunner` ile `HealthCheckService` de aynı biçimde, sorgu kurucusuyla
+okuyor. Model açmak `failed_jobs`'a `deleted_at` eklemeyi gerektirirdi —
+`queue:flush` gibi çerçeve komutlarının beklemediği bir kolon.
+
+Modeli olmadığı için yetkilendirme de Policy değil **Gate**: `view-queue` ve
+`manage-queue`, `manage-backups` ile aynı desen. Görüntülemek ile silmek ayrı
+izinler.
+
+**İş adı yükten çıkarılıyor.** Kuyruğa giren her mail
+`Illuminate\Mail\SendQueuedMailable` olarak görünüyor, yani `displayName` tek
+başına "hangi mail patladı" sorusunu cevaplamıyor. Asıl sınıf yükün
+serileştirilmiş gövdesinde; oradan okunabiliyorsa o gösteriliyor,
+okunamıyorsa çerçevenin adı kalıyor — tahmin edilip yanlış ad basılmıyor.
+
+**Yeniden deneme iki katmanlı.** Önce çerçevenin `queue:retry` komutu
+(`Artisan::call` ile, aynı süreçte — alt süreç açılmıyor). O komut yükün
+içindeki nesneyi açıp `retryUntil` damgasını tazeliyor; **iş sınıfı bir
+deploy'da kaldırılmışsa ya da yük bozuksa bu adım patlıyor** ve ekran 500
+veriyordu. O durumda deneme sayacı sıfırlanıp yük olduğu gibi kuyruğa
+yazılıyor: işin geri konması damganın tazelenmesinden önemli. Testi var.
+
+### Yeni izinler mevcut kurulumlara nasıl gidiyor
+
+İzinlerin tek kaynağı `PermissionKey` enum'u ama `PermissionSeeder` yalnızca
+kurulumda çalışıyor. Deploy `git pull` + `migrate` ile yapıldığı için yeni bir
+enum case'i satır karşılığı bulamaz ve **yönetici bile ekranı göremezdi**.
+`2026_08_31_100000_seed_queue_permissions` migration'ı satırları ekliyor ve
+yönetici rolüne veriyor.
+
+### Testler
+
+`QueueMonitorTest` (20): yetki ayrımı (editör ve moderatör giremiyor,
+kenar çubuğunda link görünmüyor, yeniden deneme/silme reddediliyor), sayılar,
+boş kuyruk, yaşlanan kuyruğun tıkanmış sayılması, taze kuyruğun sayılmaması,
+iş adının yükten çıkarılması ve çıkarılamayınca geri düşmesi, listenin
+hatanın yalnızca ilk satırını taşıması, ayrıntı ucunun tam yığın izini
+vermesi ve olmayan kayıtta 404, arama ve kuyruk süzgeci, yeniden deneme,
+**okunamayan yükün yine de kuyruğa geri konması**, tekil silme, listeyi
+temizleme, her yıkıcı işlemin denetim izine düşmesi ve kuyruğun elle
+işlenmesi.
+
+Tarayıcıda da doğrulandı: ekran render ediliyor, sayaç animasyonu çalışıyor,
+ayrıntı penceresi yığın izini çekiyor ve yeniden deneme sonrası bekleyen iş
+1→2, toplam başarısız 2→1 oluyor.
+
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1288,8 +1374,7 @@ Sıradakiler:
 4. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
    blog listesi/detayı ve galeri sorguları da `localeWithFallback` kullanmalı.
 5. ~~**Denetim izini yay**~~ — kapatıldı (bkz. bölüm 5r)
-6. **Kuyruk izleyici ekranı** — `failed_jobs` yalnızca `HealthCheckService`
-   içinde sayılıyor; listeleme, yeniden deneme ve silme yok.
+6. ~~**Kuyruk izleyici ekranı**~~ — kapatıldı (bkz. bölüm 5s)
 7. ~~**İşlenmeyen hata kimseye ulaşmıyor**~~ — kapatıldı (bkz. bölüm 5p)
 8. ~~**`robots.txt` route'a taşınsın**~~ — kapatıldı (bkz. bölüm 5o)
 9. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı

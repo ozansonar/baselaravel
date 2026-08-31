@@ -167,6 +167,25 @@ Disallow: /
 
 ---
 
+## Kuyruk
+
+**Admin → Kuyruk** bekleyen ve başarısız işleri gösterir. Mail gönderimi
+kuyruktan geçtiği için "doğrulama maili gelmedi" tipi şikâyetlerin cevabı
+genelde buradadır: her başarısız işin tam hata metni saklanır.
+
+Ekrandaki en önemli sayı **en eski işin yaşı**. Bekleyen iş sayısı tek başına
+normaldir; birikip yaşlanması kuyruğu boşaltan cron'un çalışmadığını söyler.
+10 dakikayı geçtiğinde ekran bunu kırmızı bir uyarıyla bildirir.
+
+Başarısız bir iş yeniden denenebilir, tek tek ya da toplu silinebilir; kuyruk
+cron'u beklemeden elle de işlenebilir. Her işlem denetim izine düşer.
+
+İzinler `queue.view` (görüntüleme) ve `queue.manage` (yeniden deneme ve silme);
+ikisi de kurulumla yalnızca yöneticide olur, matristen başka rollere
+verilebilir.
+
+---
+
 ## Hata bildirimi ve loglar
 
 İşlenmeyen bir hata (500) iki yere birden düşer: **Telegram** (Ayarlar → Telegram
@@ -579,6 +598,9 @@ composer test
 - `AuditTrailCoverageTest` — izlenen her modelin denetim izine düşmesi, içerik
   modellerinin bilinçli olarak dışarıda kalması, giriş/çıkış/başarısız
   denemenin kaydı ve denenen şifrenin ize hiç girmemesi
+- `QueueMonitorTest` — kuyruk ekranının yetki ayrımı, tıkanan kuyruğun
+  bildirilmesi, iş adının yükten çıkarılması, yeniden deneme (okunamayan yük
+  dahil), silme ve her işlemin denetim izine düşmesi
 
 ---
 

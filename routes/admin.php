@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\GalleryCategoryController;
 use App\Http\Controllers\Admin\GalleryItemController;
 use App\Http\Controllers\Admin\HealthController;
 use App\Http\Controllers\Admin\MailLogController;
+use App\Http\Controllers\Admin\QueueController;
 use App\Http\Controllers\Admin\MailTemplateController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
@@ -347,6 +348,17 @@ Route::get('mail-logs/{mailLog}', [MailLogController::class, 'show'])->name('mai
 Route::get('mail-logs/{mailLog}/body', [MailLogController::class, 'body'])->name('mail-logs.body');
 Route::post('mail-logs/{mailLog}/resend', [MailLogController::class, 'resend'])->name('mail-logs.resend');
 Route::post('mail-logs/{mailLog}/send-now', [MailLogController::class, 'sendNow'])->name('mail-logs.send-now');
+
+// Kuyruk izleyici — bekleyen ve başarısız işler.
+// {uuid} kalıbı daraltıldı: failed_jobs.uuid bir UUID, serbest metin değil.
+Route::prefix('kuyruk')->name('queue.')->group(function () {
+    Route::get('/',                 [QueueController::class, 'index'])->name('index');
+    Route::post('calistir',         [QueueController::class, 'run'])->name('run');
+    Route::delete('temizle',        [QueueController::class, 'flush'])->name('flush');
+    Route::get('{uuid}',            [QueueController::class, 'show'])->whereUuid('uuid')->name('show');
+    Route::post('{uuid}/yeniden-dene', [QueueController::class, 'retry'])->whereUuid('uuid')->name('retry');
+    Route::delete('{uuid}',         [QueueController::class, 'destroy'])->whereUuid('uuid')->name('destroy');
+});
 
 // File Manager (general-purpose uploads: PDF/Word/Excel/image)
 Route::prefix('files')->name('files.')->group(function () {

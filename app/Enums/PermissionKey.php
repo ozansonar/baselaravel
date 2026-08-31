@@ -83,6 +83,8 @@ enum PermissionKey: string
     case BackupsManage = 'backups.manage';
     case BackupsDelete = 'backups.delete';
     case SystemHealthView = 'system-health.view';
+    case QueueView = 'queue.view';
+    case QueueManage = 'queue.manage';
     case AnalyticsView = 'analytics.view';
 
     public function label(): string
@@ -158,6 +160,8 @@ enum PermissionKey: string
             self::BackupsManage => 'Yedek oluştur ve indir',
             self::BackupsDelete => 'Yedek sil',
             self::SystemHealthView => 'Sistem sağlığını görüntüle',
+            self::QueueView => 'Kuyruğu görüntüle',
+            self::QueueManage => 'Kuyruk işini yeniden dene ve sil',
             self::AnalyticsView => 'Analitiği görüntüle',
         };
     }
@@ -235,6 +239,8 @@ enum PermissionKey: string
             self::BackupsManage => PermissionGroup::System,
             self::BackupsDelete => PermissionGroup::System,
             self::SystemHealthView => PermissionGroup::System,
+            self::QueueView => PermissionGroup::System,
+            self::QueueManage => PermissionGroup::System,
             self::AnalyticsView => PermissionGroup::System,
         };
     }
