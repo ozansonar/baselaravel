@@ -48,6 +48,10 @@ final class AccountController extends Controller
 
         $data = $request->validated();
 
+        // Adresin değişip değişmediği kaydetmeden önce sorulmalı: kaydedildikten
+        // sonra eski değer elde kalmıyor.
+        $emailChanged = $data['email'] !== $user->email;
+
         if ($request->hasFile('avatar')) {
             $this->accountService->handleAvatarUpload(
                 $user,
@@ -61,6 +65,14 @@ final class AccountController extends Controller
         }
 
         $this->accountService->updateProfile($user, $data);
+
+        // Adres değiştiyse doğrulama damgası düştü (UserObserver) ve /hesabim
+        // artık kapalı. Oraya yönlendirmek kullanıcıyı sebebini görmeden
+        // doğrulama ekranına savurur; doğrudan oraya, açıklamasıyla gidiyor.
+        if ($emailChanged) {
+            return redirect()->route('verification.notice')
+                ->with('success', __('site.account.email_changed'));
+        }
 
         return redirect()->route('account.profile')
             ->with('success', __('site.account.profile_updated'));

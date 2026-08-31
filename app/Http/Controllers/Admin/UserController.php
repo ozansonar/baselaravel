@@ -85,6 +85,11 @@ final class UserController extends Controller
     {
         $this->authorize('update', $user);
 
+        // Adres değişirse doğrulama damgası düşüyor ve yeni adrese doğrulama
+        // maili gidiyor (UserObserver). Yöneticinin bunu bilmesi gerekiyor:
+        // kullanıcı kendisine sorulmadan doğrulanmamış duruma geçiyor.
+        $emailChanged = $request->validated('email') !== $user->email;
+
         DB::transaction(function () use ($request, $user): void {
             $data = $request->safe()->except(['roles', 'avatar', 'password', 'password_confirmation', 'remove_avatar']);
 
@@ -102,7 +107,9 @@ final class UserController extends Controller
 
         return redirect()
             ->route('admin.users.index')
-            ->with('success', 'Kullanıcı başarıyla güncellendi.');
+            ->with('success', $emailChanged
+                ? 'Kullanıcı güncellendi. E-posta adresi değiştiği için doğrulama durumu sıfırlandı ve yeni adrese doğrulama bağlantısı gönderildi.'
+                : 'Kullanıcı başarıyla güncellendi.');
     }
 
     public function destroy(User $user): RedirectResponse

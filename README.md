@@ -585,6 +585,19 @@ Mail, Laravel'in kendi bildirimini değil projenin mail altyapısını kullanır
 şablon **Mail Şablonları** ekranından düzenlenebilir (`verify_email`) ve gönderim
 mail loglarına düşer.
 
+**E-posta adresi değişirse doğrulama sıfırlanır.** Damga adrese aittir, hesaba
+değil: adres değişip damga yerinde kalsaydı kullanıcı sahibi olmadığı bir adrese
+geçip "doğrulanmış" kalabilirdi ve doğrulamaya bakan her yer kanıtlanmamış bir
+adrese güvenirdi. Kural `UserObserver` içinde, yani adresi değiştiren her yol
+için geçerli — ön yüzdeki profil formu, API'nin profil ucu ve panelden kullanıcı
+düzenleme. Yeni adrese kendiliğinden taze bir doğrulama bağlantısı gider; buna
+mecbur, çünkü bağlantının imzası e-postanın kendisinden türüyor ve adres
+değiştiği anda eski bağlantı zaten çalışmaz hâle geliyor.
+
+Yönetici bir kullanıcının adresini değiştirdiğinde de aynısı olur ve ekranda
+bunu söyleyen bir uyarı çıkar — kullanıcı kendisine sorulmadan doğrulanmamış
+duruma geçtiği için.
+
 Doğrulamayı zorunlu tutmak istemiyorsan `routes/web.php` içindeki hesap grubundan
 `verified` middleware'ini çıkarman yeterli:
 
@@ -674,6 +687,10 @@ composer test
 - `EmailValidationTest` — ziyaretçiden alınan e-posta kuralının tek yerde
   durması, üretimde alan adı denetiminin (`dns`) yerinde kalması ve suite'in
   hiçbir sınamada canlı DNS sorgusuna bağımlı olmaması
+- `EmailChangeRevokesVerificationTest` — adres değişince doğrulama damgasının
+  düşmesi, yeni adrese taze bağlantı gitmesi, adres değişmeden yapılan
+  kaydetmenin damgaya dokunmaması ve kuralın üç yoldan da (ön yüz formu, API
+  ucu, panel) geçerli olması
 - `Api/ApiPasswordResetTest` — kodun hash'li saklanması, tek kullanımlık olması,
   süresi dolduğunda reddedilmesi, sıfırlamanın bütün jetonları düşürmesi,
   kayıtlı olmayan adresin ayırt edilememesi ve **kodu kıramaz kılan hız

@@ -159,6 +159,7 @@ return [
         'avatar_mimes'                => 'Avatar JPEG, PNG veya WebP formatında olmalıdır.',
         'avatar_max'                  => 'Avatar dosyası en fazla :max KB olabilir.',
         'profile_updated' => 'Profiliniz başarıyla güncellendi.',
+        'email_changed'   => 'Profiliniz güncellendi. E-posta adresiniz değiştiği için yeni adresinize bir doğrulama bağlantısı gönderdik; hesabınızı kullanmaya devam etmek için adresi doğrulayın.',
         'dashboard_desc' => 'Hesap bilgilerinizi görüntüleyin ve yönetin.',
         'welcome' => 'Hoş geldiniz, :name',
         'dashboard_lead' => 'Hesap bilgilerinizin özetini aşağıda görebilir, profilinizi güncelleyebilirsiniz.',

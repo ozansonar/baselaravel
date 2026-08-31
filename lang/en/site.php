@@ -156,6 +156,7 @@ return [
         'avatar_mimes'                => 'The avatar must be a JPEG, PNG or WebP file.',
         'avatar_max'                  => 'The avatar file may be at most :max KB.',
         'profile_updated' => 'Your profile has been updated.',
+        'email_changed'   => 'Your profile has been updated. Because your e-mail address changed, we sent a verification link to the new address; verify it to keep using your account.',
         'dashboard_desc' => 'View and manage your account details.',
         'welcome' => 'Welcome, :name',
         'dashboard_lead' => 'Below is a summary of your account; you can update your profile at any time.',

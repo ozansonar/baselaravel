@@ -47,6 +47,9 @@ final class AccountController extends Controller
 
         $data = $request->validated();
 
+        // Kaydetmeden önce sorulmalı: sonrasında eski değer elde kalmıyor.
+        $emailChanged = $data['email'] !== $user->email;
+
         if ($request->hasFile('avatar')) {
             $this->account->handleAvatarUpload(
                 $user,
@@ -61,9 +64,14 @@ final class AccountController extends Controller
 
         $user = $this->account->updateProfile($user, $data);
 
+        // Adres değiştiyse doğrulama damgası düştü (UserObserver) ve bu uç bir
+        // sonraki istekte 403 verecek. İstemcinin bunu yanıttan öğrenmesi
+        // gerekiyor: `data.email_verified` false döner, mesaj da sebebi söyler.
         return ApiResponse::success(
             UserResource::make($user->loadMissing('roles')),
-            __('site.account.profile_updated'),
+            $emailChanged
+                ? __('site.account.email_changed')
+                : __('site.account.profile_updated'),
         );
     }
 }

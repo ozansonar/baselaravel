@@ -32,6 +32,9 @@ final class ProfileController extends Controller
         $user = Auth::user();
         $data = $request->safe()->only(['first_name', 'last_name', 'email', 'phone', 'bio', 'location']);
 
+        // Kaydetmeden önce sorulmalı: sonrasında eski değer elde kalmıyor.
+        $emailChanged = ($data['email'] ?? $user->email) !== $user->email;
+
         $removeAvatar = $request->boolean('remove_avatar');
 
         $this->userService->update(
@@ -44,6 +47,8 @@ final class ProfileController extends Controller
 
         return redirect()
             ->route('admin.profile.edit')
-            ->with('success', 'Profil bilgileriniz başarıyla güncellendi.');
+            ->with('success', $emailChanged
+                ? 'Profil bilgileriniz güncellendi. E-posta adresiniz değiştiği için yeni adresinize bir doğrulama bağlantısı gönderildi.'
+                : 'Profil bilgileriniz başarıyla güncellendi.');
     }
 }

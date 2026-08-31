@@ -11,6 +11,30 @@ use App\Services\SessionRevoker;
 final class UserObserver
 {
     /**
+     * Değişen bir e-posta adresi kanıtlanmamış bir adrestir.
+     *
+     * Doğrulama damgası adrese ait, hesaba değil. Adres değişip damga yerinde
+     * kalırsa kullanıcı sahibi olmadığı bir adrese geçip "doğrulanmış"
+     * kalabiliyordu — ve doğrulamaya bakan her yer (ön yüzdeki /hesabim, API'nin
+     * hesap uçları, kampanya alıcı süzgeci) artık kanıtlanmamış bir adrese
+     * güveniyordu.
+     *
+     * Kural gözlemcide çünkü adres üç ayrı yerden değişebiliyor: ön yüzdeki
+     * profil formu, API'nin profil ucu ve panelden kullanıcı düzenleme. Üçüne
+     * ayrı ayrı yazılsaydı dördüncüsü eklendiğinde unutulurdu.
+     *
+     * Kaydetmeden önce: damganın düşmesi ile adresin yazılması aynı sorguda
+     * olmalı, yoksa ikisi arasında hesap bir an için yanlış adresle doğrulanmış
+     * görünür.
+     */
+    public function updating(User $user): void
+    {
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+    }
+
+    /**
      * Deactivating an account closes the sessions it already has.
      *
      * Without this the flag would only decide who may start a session, and the
@@ -22,6 +46,17 @@ final class UserObserver
     {
         if ($user->wasChanged('is_active') && ! $user->is_active) {
             app(SessionRevoker::class)->revoke($user);
+        }
+
+        // Yeni adres yeni bir bağlantı istiyor. Doğrulama adresinin imzası
+        // e-postanın kendisinden türüyor (sha1), yani adres değiştiği anda
+        // eskiden gönderilmiş bağlantı zaten çalışmaz hâle geliyor: bağlantı
+        // yenilenmezse kullanıcının doğrulanmasının hiçbir yolu kalmıyor.
+        //
+        // Panelden yapılan değişiklikte de gönderiliyor — mail yeni adrese
+        // gidiyor, yani onu kanıtlaması gereken kişiye.
+        if ($user->wasChanged('email')) {
+            $user->sendEmailVerificationNotification();
         }
     }
 

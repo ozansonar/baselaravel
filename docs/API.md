@@ -307,6 +307,16 @@ güncelleme tamdır, parçalı değil — ad, soyad ve e-posta her istekte gönd
 Şifre değiştirmek `current_password` ister: ele geçirilmiş bir jeton, gerçek
 sahibi hesabından kilitleyememeli.
 
+> **E-posta adresi değişirse doğrulama sıfırlanır.** Damga adrese aittir, hesaba
+> değil. Yanıt bunu iki yerden söyler: `data.email_verified` `false` döner ve
+> `message` sebebi anlatır. Yeni adrese kendiliğinden taze bir doğrulama
+> bağlantısı gider.
+>
+> Pratikte bunun anlamı şu: **adresi değiştiren istek başarılı olur, bir
+> sonraki istek 403 verir** (`errors.code = "email_unverified"`). İstemci bu
+> yanıttan sonra kullanıcıyı doğrulama ekranına almalı; `POST /auth/email/resend`
+> oradan çağrılır.
+
 **Avatar aynı istekte** gider. PHP çok parçalı gövdeyi yalnız POST'ta
 ayrıştırdığı için istemci dosyayla birlikte `POST` + `_method=PUT` kullanmalıdır:
 
@@ -545,5 +555,5 @@ app/Http/Middleware/EnsureApiUserIsActive.php
 app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     76 sınama
+tests/Feature/Api/                     77 sınama
 ```
