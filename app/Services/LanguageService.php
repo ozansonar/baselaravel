@@ -85,6 +85,15 @@ final class LanguageService
                 ?? Language::active()->sorted()->first(),
         );
 
+        // Yokluk hatırlanmıyor: "henüz dil yok" cevabı istek boyunca
+        // saklandığında, aynı istekte dil eklendikten sonra bile hiçbir şey
+        // görünmüyordu. Sonuç, varsayılan dilin config'e düşmesi ve bütün
+        // sorguların yanlış dile bakması — MySQL'e karşı koşulan suite bunu
+        // yorum ucunda 404 olarak gösterdi.
+        if ($language === null) {
+            return null;
+        }
+
         $this->defaultResolved = true;
 
         return $this->defaultMemo = $language;
