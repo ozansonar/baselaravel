@@ -119,6 +119,27 @@ final class ExportService
     }
 
     /**
+     * Dosyayı diske yazar ve yolunu döndürür — indirmeden.
+     *
+     * Zamanlanmış raporlar için var: dosya bir yanıta değil, e-posta ekine
+     * gidiyor. Yazma yolu indirmeyle aynı, yani ekranda inen dosya ile
+     * postayla gelen dosya aynı kodun ürünü.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function store(ListExport $export, ExportFormat $format, array $filters): string
+    {
+        $path = $this->temporaryPath($format);
+
+        match ($format) {
+            ExportFormat::Excel => $this->excel->write($export, $filters, $path),
+            ExportFormat::Pdf   => $this->pdf->write($export, $filters, $path),
+        };
+
+        return $path;
+    }
+
+    /**
      * Dosya adı: proje adı, belge adı ve üretim anı. Aynı listeden farklı
      * zamanlarda alınan dosyalar indirme klasöründe birbirini ezmez.
      */

@@ -38,6 +38,7 @@ final class SessionRevoker
     {
         $this->deleteSessions([$user->getKey()]);
         $this->deleteApiTokens([$user->getKey()]);
+        $this->deletePushTokens([$user->getKey()]);
 
         // A force delete has already taken the row away and left exists at
         // false; saving now would insert the user straight back.
@@ -66,6 +67,7 @@ final class SessionRevoker
 
         $this->deleteSessions($userIds);
         $this->deleteApiTokens($userIds);
+        $this->deletePushTokens($userIds);
 
         // withTrashed: the rows this is called for have usually just been soft
         // deleted, and the default scope would skip every one of them.
@@ -87,6 +89,20 @@ final class SessionRevoker
             ->table((string) config('session.table', 'sessions'))
             ->whereIn('user_id', $userIds)
             ->delete();
+    }
+
+    /**
+     * Bildirim adresleri.
+     *
+     * Erişimi kapatılan hesabın telefonuna bildirim gitmeye devam etmemeli:
+     * jetonlar oturumla birlikte düşüyor. Cihaz yeniden giriş yaptığında
+     * adresini zaten yeniden bırakıyor.
+     *
+     * @param list<int> $userIds
+     */
+    private function deletePushTokens(array $userIds): void
+    {
+        DB::table('push_tokens')->whereIn('user_id', $userIds)->delete();
     }
 
     /**

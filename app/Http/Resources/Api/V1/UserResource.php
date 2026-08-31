@@ -48,6 +48,10 @@ final class UserResource extends JsonResource
                 'label' => $this->department->label(),
             ],
             'is_active'         => $this->is_active,
+            // Uygulama güvenlik ekranını buna bakarak çiziyor. Anahtarın
+            // kendisi asla çıkmıyor (modelde $hidden), yalnız açık mı kapalı
+            // mı bilgisi.
+            'two_factor_enabled' => $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null,
             'email_verified'    => $this->email_verified_at !== null,
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
             // Rol listesi yalnızca çağıran onu yükleyerek istediğinde çıkar;

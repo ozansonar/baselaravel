@@ -5,6 +5,12 @@ Yeni bir proje bu depoyu klonlayıp üstüne kendi modüllerini ekleyerek başla
 galeri, menü, ayarlar, mail şablonu/logu, yedekleme, analitik ve yetkilendirme gibi
 her projede tekrar eden işler hazır gelir.
 
+Üç yüzü birden kapsar: **web sitesi**, telefona kurulabilen **mobil web** (PWA)
+ve mobil uygulamanın beslendiği **API**. Hesap alanında iki adımlı doğrulama,
+cihaz yönetimi, KVKK hakları (veri indirme, hesap kapatma) ve bildirim
+tercihleri; panelde rapor merkezi, genel içerik listesi ve modül modül yardım
+ekranı hazır gelir.
+
 **Stack:** PHP 8.4 · Laravel 13 · Blade · MySQL 8 · Bootstrap 5.3.8 · Vanilla JS
 
 > **Build tool yok.** Vite, npm, Node.js, Webpack kullanılmaz. Tüm vendor
@@ -213,6 +219,24 @@ gerçekten bir yedek olduğu, arşiv açılıp içeriğine bakılarak doğrulan�
 
 > Yedek arşivi veritabanının tamamını taşır. `storage/` altında durur ve web
 > sunucusu tarafından servis edilmez; oraya taşımayın.
+
+### Dış kopya
+
+Yedek, yedeklediği veriyle aynı diskte durursa diski kaybeden yedeği de
+kaybeder. `.env`'de bir hedef tanımlayın:
+
+```env
+BACKUP_OFFSITE_DRIVER=local      # ya da ftp
+BACKUP_OFFSITE_PATH=/mnt/yedek   # local için: bağlanan disk ya da ağ klasörü
+BACKUP_OFFSITE_RETENTION_DAYS=30
+```
+
+FTP için `BACKUP_OFFSITE_FTP_*` değişkenleri var; PHP'nin kendi `ftp`
+eklentisiyle çalışır, ek kütüphane gerektirmez.
+
+Kopya alındıktan sonra boyutu karşılaştırılır — yarım yazılmış bir dosya "var"
+diye görünüp geri yükleme gününde işe yaramaz. Kopya alınamazsa panele bildirim
+düşer; yedeğin kendisi yine de başarılı sayılır, çünkü yerel kopya alınmıştır.
 
 ---
 
@@ -873,7 +897,7 @@ olan ya da adında `secret` / `token` / `password` geçen hiçbir satır dışar
 
 Kurulum için `.env`'e eklenecekler ve tüm uçların ayrıntısı: **`docs/API.md`**.
 
-**Makine okunur şema: `docs/openapi.json`** (OpenAPI 3.1, 30 uç). Mobil ekip
+**Makine okunur şema: `docs/openapi.json`** (OpenAPI 3.1, 38 uç). Mobil ekip
 istemci modellerini elle yazmak yerine bundan üretir; Postman doğrudan içeri
 alır. Şema rotalarla karşılaştırılarak sınanıyor, yani bayatlayamıyor.
 
@@ -917,3 +941,78 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
 - `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)
 - `resources/views/admin-theme/README.md` — tema referansı
+
+---
+
+## Hesap alanı ve güvenlik
+
+`/{dil}/hesabim` altında: pano, profil (şifre ve e-posta değişimi dahil),
+**cihazlarım**, **güvenlik**, **bildirimler**, **yorumlarım** ve **verilerim**.
+
+**Cihazlarım** açık tarayıcı oturumlarını ve bağlı uygulamaları birlikte
+listeler; ikisi ayrı yerde durur (`sessions` tablosu ve
+`personal_access_tokens`) ve yalnız birini göstermek "başka yerde açık oturum
+yok" demenin yanlış bir yoludur.
+
+**İki adımlı doğrulama** TOTP standardıyla çalışır (Google Authenticator,
+1Password, Authy). Harici servis yoktur; QR kodu sunucuda üretilir. Kurulum
+ancak kullanıcı ilk doğru kodu girdiğinde tamamlanır — aksi hâlde QR'ı
+okutamayan kişi kendi hesabından kilitlenirdi. Sekiz tek kullanımlık kurtarma
+kodu verilir.
+
+Panelden **"yöneticiler için zorunlu"** anahtarı açılırsa, panele erişebilen
+her hesap iki adımlı doğrulamayı kurmadan panele giremez — ve zorunluluk
+açıkken kendi 2FA'sını da kapatamaz.
+
+**Verilerim** ekranı KVKK/GDPR karşılığıdır: veriyi JSON olarak indirme ve
+hesabı kapatma. İndirilen dosya kişinin bütün kaydını taşır ama şifre, 2FA
+anahtarı ve jetonları **taşımaz**. Hesap kapatıldığında oturumlar, jetonlar ve
+bildirim adresleri düşer, e-posta adresi yeniden kullanılabilir hâle gelir.
+Mağazaların uygulama içi hesap silme şartı bu ekranla karşılanır.
+
+---
+
+## Telefona kurulabilirlik (PWA)
+
+Site telefona kurulabilir ve bağlantı kesildiğinde kendi çevrimdışı sayfasını
+gösterir. Üç adres de rotadan üretilir: `/site.webmanifest`, `/sw.js`,
+`/offline`.
+
+Uygulamanın adı, kısa adı, renkleri ve ikonu **Ayarlar → Uygulama Görünümü**
+bölümünden gelir; 192 ve 512 piksellik ikonlar yüklenen görselden otomatik
+üretilir. Özellik aynı ekrandan kapatılabilir — kapalıyken üç adres de 404
+döner, yoksa tarayıcı eski servis çalışanını çalıştırmaya devam ederdi.
+
+Servis çalışanının önbellek sürümü varlıkların `mtime` değerinden üretilir:
+yeni sürüm yayınlandığında dosyanın içeriği değişir, tarayıcı farkı görür ve
+eski önbellek silinir. Sayfalar "önce ağ" ile gelir (içerik sitesinde
+önbellekten gelen sayfa bayat sayfadır); panel, hesap alanı ve API hiç
+önbelleğe girmez.
+
+---
+
+## Rapor merkezi
+
+**Admin → Raporlar** altı raporu tek ekranda toplar: trafik, içerik, kullanıcı,
+e-posta, kampanya ve abone. Her rapor seçilen tarih aralığında üretilir, Excel
+ya da PDF olarak indirilir.
+
+**Zamanlanmış raporlar** aynı raporu düzenli aralıklarla e-postayla gönderir
+(günlük, haftalık, aylık). Üretim cron'dan geçer (`reports:dispatch`) ve
+ekranda indirilen dosya ile postayla gelen dosya aynı kodun ürünüdür.
+
+Rapor okuma ile zamanlama ayrı izinlerdir: editör raporu görebilir ama düzenli
+gönderim tanımlayamaz — dışarıya sürekli veri gönderen bir iş yöneticinin
+kararıdır.
+
+---
+
+## Panel içi yardım
+
+**Admin → Yardım** panelin 33 modülünü tek tek anlatır, kategorili sık sorulan
+soruları ve sistem bilgisini gösterir. İçerik `config/help.php` içindedir:
+metni değiştirmek için dağıtım gerekmez.
+
+`AdminHelpTest` bir bekçidir — sidebar'a yeni bir modül eklenip kılavuzu
+yazılmazsa suite kırılır. Bu kit başkalarına teslim edilmek için var; teslim
+edilen şeyin kendi kılavuzu da olmalı.

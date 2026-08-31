@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\TokenAbility;
 use App\Exceptions\AccountDeactivatedException;
+use App\Exceptions\TwoFactorRequiredException;
 use App\Models\User;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -41,6 +42,7 @@ final class ApiAuthService
 
     public function __construct(
         private readonly AuthService $authService,
+        private readonly TwoFactorService $twoFactor,
     ) {}
 
     /**
@@ -69,7 +71,7 @@ final class ApiAuthService
      *
      * @throws AccountDeactivatedException Şifre doğru ama hesap pasifse.
      */
-    public function login(string $email, string $password, ?string $deviceName = null, array $abilities = []): ?array
+    public function login(string $email, string $password, ?string $deviceName = null, array $abilities = [], ?string $twoFactorCode = null): ?array
     {
         $provider = $this->userProvider();
         $credentials = ['email' => $email, 'password' => $password];
@@ -88,6 +90,20 @@ final class ApiAuthService
             event(new Failed(self::GUARD, $user, $credentials));
 
             throw new AccountDeactivatedException();
+        }
+
+        // İkinci adım. Jeton, kod doğrulanana kadar üretilmiyor: üretilip
+        // "ama kullanma" denseydi kapı zaten açılmış olurdu.
+        if ($user->hasTwoFactorEnabled()) {
+            if ($twoFactorCode === null || $twoFactorCode === '') {
+                throw new TwoFactorRequiredException();
+            }
+
+            if (! $this->twoFactor->challenge($user, $twoFactorCode)) {
+                event(new Failed(self::GUARD, $user, $credentials));
+
+                throw new TwoFactorRequiredException(invalidCode: true);
+            }
         }
 
         event(new Login(self::GUARD, $user, false));

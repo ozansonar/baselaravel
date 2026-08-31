@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\AccountCommentController;
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlogCategoryController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\GalleryCategoryController;
 use App\Http\Controllers\Api\V1\GalleryController;
+use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\LanguageController;
 use App\Http\Controllers\Api\V1\MenuController;
@@ -46,6 +48,15 @@ use Illuminate\Support\Facades\Route;
 | Bakım modu bu gruba uygulanmıyor: ön yüzde de /giris kapalı sitede açık
 | kalıyor, yöneticinin kendi uygulamasından giriş yapabilmesi gerekiyor.
 */
+
+/*
+|--------------------------------------------------------------------------
+| Sağlık ve sürüm
+|--------------------------------------------------------------------------
+| Bakım modunda da açık: uygulamanın bakımı öğrenebileceği tek yer burası,
+| kapalı olsaydı bakım penceresinde her istek gibi bu da hata dönerdi.
+*/
+Route::get('/health', HealthController::class)->name('api.v1.health');
 
 Route::prefix('auth')->name('api.v1.auth.')->group(function (): void {
     // Kaba kuvvete karşı iki ayrı kova: giriş e-posta+IP başına sayılıyor
@@ -116,6 +127,54 @@ Route::prefix('account')
         Route::put('/profile', [AccountController::class, 'updateProfile'])
             ->middleware('abilities:profile:write')
             ->name('profile.update');
+
+        // Şifre değiştirme. Ayrı uç, çünkü profil güncelleme tam bir
+        // güncelleme: yalnız şifresini değiştirecek istemcinin bütün profili
+        // taşıması gerekirdi.
+        Route::put('/password', [AccountController::class, 'updatePassword'])
+            ->middleware(['abilities:profile:write', 'throttle:api-password'])
+            ->name('password.update');
+
+        // Yorumlarım. Onay bekleyenler de listede: kişi, yorumunun neden
+        // henüz görünmediğini ancak böyle öğreniyor.
+        Route::get('/comments', [AccountCommentController::class, 'index'])
+            ->middleware('abilities:profile:read')
+            ->name('comments.index');
+        Route::delete('/comments/{comment}', [AccountCommentController::class, 'destroy'])
+            ->whereNumber('comment')
+            ->middleware('abilities:profile:write')
+            ->name('comments.destroy');
+
+        // Bildirim adresleri. Uygulama jetonu her açılışta gönderiyor:
+        // işletim sistemi jetonu yenileyebiliyor ve yenilenen jetonu
+        // sunucunun bilmemesi, bildirimlerin sessizce kesilmesi demek.
+        Route::post('/push-tokens', [AccountController::class, 'storePushToken'])
+            ->middleware('abilities:profile:write')
+            ->name('push-tokens.store');
+        Route::delete('/push-tokens', [AccountController::class, 'destroyPushToken'])
+            ->middleware('abilities:profile:write')
+            ->name('push-tokens.destroy');
+
+        // Bildirim tercihleri. Güvenlik postaları listede yok ve
+        // kapatılamıyor; gerekçe NotificationPreference enum'unda.
+        Route::get('/notification-preferences', [AccountController::class, 'notificationPreferences'])
+            ->middleware('abilities:profile:read')
+            ->name('notification-preferences.index');
+        Route::put('/notification-preferences', [AccountController::class, 'updateNotificationPreferences'])
+            ->middleware('abilities:profile:write')
+            ->name('notification-preferences.update');
+
+        // Kişinin kendi verisinin kopyası. Okuma yetkisi yetiyor: dosya
+        // yalnızca zaten görebildiği kayıtları topluyor.
+        Route::get('/export', [AccountController::class, 'export'])
+            ->middleware(['abilities:profile:read', 'throttle:api-password'])
+            ->name('export');
+
+        // Hesabı kapatma. Mağazaların uygulama içi hesap silme şartı bu uçla
+        // karşılanıyor; şifre onayı isteğin gövdesinde.
+        Route::delete('/', [AccountController::class, 'destroy'])
+            ->middleware(['abilities:profile:write', 'throttle:api-password'])
+            ->name('destroy');
     });
 
 /*

@@ -32,6 +32,7 @@ return [
     ],
 
     'actions' => [
+        'save'        => 'Save',
         'yes' => 'Yes',
         'ok' => 'OK',
         'sure' => 'Are you sure?',
@@ -188,6 +189,7 @@ return [
         'avatar_mimes'                => 'The avatar must be a JPEG, PNG or WebP file.',
         'avatar_max'                  => 'The avatar file may be at most :max KB.',
         'profile_updated' => 'Your profile has been updated.',
+        'password_updated' => 'Your password has been updated.',
         'email_changed'   => 'Your profile has been updated. Because your e-mail address changed, we sent a verification link to the new address; verify it to keep using your account.',
         'dashboard_desc' => 'View and manage your account details.',
         'welcome' => 'Welcome, :name',
@@ -250,6 +252,115 @@ return [
         'revoke_all_btn'  => 'Close them all',
         'confirm_all'     => 'Every session other than this browser will be closed. Continue?',
         'others_revoked'  => ':count sessions were closed.',
+    ],
+
+    'two_factor' => [
+        'title' => 'Security',
+        'desc'  => 'Manage two-factor authentication.',
+        'lead'  => 'With two-factor authentication on, your password alone is not enough: signing in also needs the code from the app on your phone.',
+
+        'status_on'       => 'Two-factor authentication is on',
+        'status_off'      => 'Two-factor authentication is off',
+        'status_off_hint' => 'Right now your password is the only thing protecting your account.',
+        'active'          => 'Active',
+        'enabled_since'   => 'Enabled on :date',
+
+        'setup'       => 'Set-up',
+        'setup_hint'  => 'Scan the square below with your authenticator app (Google Authenticator, 1Password, Authy), then enter the six-digit code it shows.',
+        'manual_key'  => 'If you cannot scan it, enter this key by hand',
+        'code_label'  => 'Verification code',
+        'confirm_btn' => 'Verify and turn on',
+        'enable_btn'  => 'Turn on two-factor authentication',
+        'enabled'     => 'Two-factor authentication is now on.',
+
+        'recovery_codes'      => 'Recovery codes',
+        'recovery_codes_hint' => 'Use these to sign in when you cannot reach your phone. Each code works once; save them somewhere safe — this list is shown only now.',
+        'regenerate'        => 'Regenerate recovery codes',
+        'regenerate_hint'   => 'A new list is produced and the old one stops working.',
+        'regenerate_btn'    => 'Regenerate',
+        'codes_regenerated' => 'Your recovery codes have been regenerated.',
+
+        'disable'         => 'Turn off two-factor authentication',
+        'disable_hint'    => 'Once it is off, your password is again the only thing protecting your account.',
+        'disable_btn'     => 'Turn off',
+        'confirm_disable' => 'Two-factor authentication will be turned off. Continue?',
+        'disabled'        => 'Two-factor authentication is now off.',
+
+        'required_notice'   => 'Two-factor authentication is required for administrator accounts, so it cannot be turned off.',
+        'required_by_admin' => 'Two-factor authentication is required for administrator accounts and cannot be turned off.',
+        'setup_required'    => 'Set up two-factor authentication before you can reach the admin panel.',
+
+        'challenge_title' => 'Two-factor authentication',
+        'challenge_lead'  => 'Your password checked out. Enter the code from your authenticator app to finish signing in.',
+        'challenge_hint'  => 'If you cannot reach your phone, enter one of your recovery codes instead.',
+        'challenge_btn'   => 'Finish signing in',
+        'back_to_login'   => 'Back to sign-in',
+
+        'invalid_code'  => 'That code could not be verified. Enter the current code from your app, or a recovery code.',
+        'expired'       => 'The verification window expired. Please sign in again.',
+        'code_required' => 'The verification code is required.',
+        'code_digits'   => 'The verification code must be six digits.',
+        'code_max'      => 'The verification code may be at most :max characters.',
+    ],
+
+    'data' => [
+        'title' => 'My data',
+        'desc'  => 'Download your data or close your account.',
+        'lead'  => 'You can download a copy of the data held about you here, and close your account if you want to.',
+
+        'download'      => 'Download my data',
+        'download_hint' => 'Your profile, comments, form submissions, newsletter record and cookie choices come down as a single JSON file. Your password, two-factor secret and session tokens are never included.',
+        'download_btn'  => 'Download as JSON',
+        'export_note'   => 'This file is a copy of the personal data held in your account. The password, two-factor secret and session tokens are deliberately left out.',
+
+        'close'      => 'Close my account',
+        'close_hint' => 'Once your account is closed you can no longer sign in. Comments you already published stay in the content; write to us before closing if you want them removed.',
+        'close_effect_login'    => 'You will no longer be able to sign in.',
+        'close_effect_sessions' => 'Every open session and connected application is closed.',
+        'close_effect_email'    => 'Your e-mail address is released; you can open a new account with it later.',
+        'close_btn'     => 'Close my account',
+        'confirm_close' => 'Your account will be closed and you will be signed out. Continue?',
+        'closed'        => 'Your account has been closed. Thank you for your time with us.',
+        'close_blocked_for_staff' => 'Accounts with administrator rights cannot be closed here; please contact an administrator.',
+    ],
+
+    'notifications' => [
+        'title' => 'Notifications',
+        'desc'  => 'Choose which e-mails you receive.',
+        'lead'  => 'Turn the e-mails we send you on or off here.',
+
+        'newsletter'      => 'Newsletter and announcements',
+        'newsletter_hint' => 'Bulk e-mails about new content and campaigns.',
+
+        'comment_updates'      => 'Comment notifications',
+        'comment_updates_hint' => 'We let you know when your comment is published.',
+
+        'always_on' => 'Password resets, e-mail verification and account security warnings are always sent; those cannot be turned off.',
+        'saved'     => 'Your notification preferences have been saved.',
+    ],
+
+    'offline' => [
+        'title' => 'No connection',
+        'desc'  => 'We could not reach the internet.',
+        'lead'  => 'This page needs a connection. Try again once you are back online.',
+        'retry' => 'Try again',
+    ],
+
+    'comments' => [
+        'title' => 'My comments',
+        'desc'  => 'See and manage the comments you left.',
+        'lead'  => 'The comments you left on posts. Ones awaiting approval are listed too; they are not visible on the site until approved.',
+
+        'approved' => 'Published',
+        'pending'  => 'Awaiting approval',
+        'rejected' => 'Not published',
+        'view'     => 'View on site',
+        'delete'   => 'Delete',
+        'confirm_delete' => 'This comment will be deleted. Continue?',
+        'deleted'   => 'Your comment has been deleted.',
+        'not_found' => 'Comment not found.',
+        'empty'     => 'You have not commented yet.',
+        'deleted_post' => 'Deleted post',
     ],
 
     'login' => [
@@ -421,6 +532,7 @@ return [
     ],
 
     'newsletter' => [
+        'submit_aria' => 'Subscribe to the newsletter',
         'unsubscribe_title'  => 'Unsubscribe',
         'unsubscribed'       => 'You have been unsubscribed',
         'unsubscribed_lead'  => 'We will no longer send our newsletter to :email.',

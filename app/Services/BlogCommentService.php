@@ -7,7 +7,9 @@ namespace App\Services;
 use App\Support\LikeSearch;
 use App\Enums\CommentStatus;
 use App\Mail\BlogCommentAdminNotification;
+use App\Enums\NotificationPreference;
 use App\Mail\BlogCommentApprovedMail;
+use App\Models\User;
 use App\Mail\BlogCommentReceivedMail;
 use App\Models\BlogComment;
 use App\Models\BlogPost;
@@ -22,6 +24,7 @@ final class BlogCommentService
 {
     public function __construct(
         private readonly MailService $mailService,
+        private readonly NotificationPreferenceService $preferences,
     ) {}
 
     // ── Frontend ──
@@ -70,6 +73,36 @@ final class BlogCommentService
      *
      * @return list<string>
      */
+    /**
+     * Kişinin kendi yorumları.
+     *
+     * Eşleşme e-postayla: yorum girişsiz de bırakılabiliyor ve tabloda
+     * user_id yok. Onay bekleyenler de listede — kişi, yorumunun neden henüz
+     * görünmediğini ancak böyle öğreniyor.
+     *
+     * @return LengthAwarePaginator<int, BlogComment>
+     */
+    public function paginateForUser(User $user, int $perPage = 15): LengthAwarePaginator
+    {
+        return BlogComment::with('post:id,title,slug,blog_category_id', 'post.category:id,slug')
+            ->where('email', $user->email)
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Kişinin kendi yorumunu silmesi.
+     *
+     * Yalnız kendi adresine ait olanı: kimlik numarasını deneyen biri
+     * başkasının yorumunu silememeli.
+     */
+    public function deleteOwn(User $user, int $commentId): bool
+    {
+        return BlogComment::where('id', $commentId)
+            ->where('email', $user->email)
+            ->delete() > 0;
+    }
+
     public function filterKeys(): array
     {
         return ['status', 'search', 'post_id', 'date_from', 'date_to'];
@@ -374,6 +407,15 @@ final class BlogCommentService
     private function notifyApproved(BlogComment $comment): void
     {
         if (! $comment->email) {
+            return;
+        }
+
+        // Kullanıcı bu türü kapattıysa gönderilmiyor. Yorum girişsiz de
+        // bırakılabildiği için eşleşme adresle: kaydı olmayan ziyaretçinin
+        // tercihi de yok, o yüzden ona her zaman gidiyor.
+        $user = User::where('email', $comment->email)->first();
+
+        if ($user instanceof User && ! $this->preferences->allows($user, NotificationPreference::CommentUpdates)) {
             return;
         }
 

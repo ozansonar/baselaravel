@@ -55,6 +55,26 @@ Schedule::call(fn () => app(\App\Services\QueueRunner::class)->drain())
 // Bulk mail — every 5 minutes, sending only what the hourly limit allows.
 // The interval must match CampaignDispatcher::RUN_INTERVAL_MINUTES, which is
 // what the per-run quota is derived from.
+/*
+ * Zamanlanmış raporlar. Günde bir kez gönderilmeleri gerekiyor ama komut her
+ * saat uğruyor: "bugün gönderildi mi" kontrolü tanımın kendisinde, böylece
+ * sunucu bir saat kapalı kalsa da rapor o gün içinde yine gidiyor.
+ */
+Schedule::call($run('reports:dispatch'))
+    ->name('reports-dispatch')
+    ->hourly()
+    ->withoutOverlapping();
+
+/*
+ * Üretilen rapor dosyaları. Gönderimin hemen ardından silinemiyorlar: mail
+ * kuyruğa giriyor ve ek dosya gönderim anında okunuyor. Bir gün beklemek,
+ * kuyruğun en yavaş hâlinde bile yeterli.
+ */
+Schedule::call(fn () => app(\App\Services\ReportScheduleService::class)->purgeGeneratedFiles())
+    ->name('reports-purge')
+    ->dailyAt('04:35')
+    ->withoutOverlapping();
+
 Schedule::call($run('campaigns:dispatch'))
     ->name('campaigns-dispatch')
     ->everyFiveMinutes()

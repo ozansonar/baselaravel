@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Jenssegers\Agent\Agent;
-
 /**
  * Tarayıcı kimliğini (User-Agent) okunur parçalara ayırır.
  *
  * Bu mantık AnalyticsService'in içinde iki özel metot olarak duruyordu ve
  * oradan çağrılabilen tek yer analitik kaydıydı. "Cihazlarım" ekranı da aynı
- * ayrıştırmaya ihtiyaç duyunca ya kopyalanacaktı ya da buraya çıkacaktı.
+ * ayrıştırmaya ihtiyaç duyunca buraya çıktı.
  *
- * Ayrıca yol açıyor: jenssegers/agent 2020'den beri güncellenmiyor ve bir gün
- * düşecek. Paket zaten isteğe bağlı kullanılıyordu (yoksa regex'e düşülüyor);
- * artık o kararın tek bir yeri var, paketten çıkış tek dosyayı ilgilendiriyor.
+ * Eskiden jenssegers/agent paketi vardı, yoksa buradaki regex'e düşülüyordu.
+ * Paket 2020'den beri güncellenmiyordu ve ikisi sekiz gerçek User-Agent
+ * üzerinde karşılaştırıldığında aynı sonucu verdi — iki yerde de daha
+ * okunur olan buydu ("macOS 10.15.7" / "OS X 10_15_7", "Android 14" /
+ * "AndroidOS 14"). Bağımlılık düşürüldü; ayrıştırma artık tamamen bizim.
  *
  * @phpstan-type ParsedAgent array{is_bot: bool, bot_name: ?string, device_type: string, browser: ?string, browser_version: ?string, os: ?string}
  */
@@ -26,11 +26,7 @@ final class UserAgentParser
      */
     public function parse(string $userAgent): array
     {
-        // Paket kuruluysa onun tablosu regex'ten geniş; yoksa aşağıdaki
-        // yedek çalışıyor ve sonuç aynı biçimde dönüyor.
-        return class_exists(Agent::class)
-            ? $this->parseWithAgent($userAgent)
-            : $this->parseWithFallback($userAgent);
+        return $this->parseWithFallback($userAgent);
     }
 
     /**
@@ -75,46 +71,8 @@ final class UserAgentParser
     }
 
     /**
-     * @return ParsedAgent
-     */
-    private function parseWithAgent(string $ua): array
-    {
-        $agent = new Agent();
-        $agent->setUserAgent($ua);
-
-        $isBot = $agent->isRobot();
-        $botName = $isBot ? ($agent->robot() ?: 'Unknown Bot') : null;
-
-        if ($isBot) {
-            $deviceType = 'bot';
-        } elseif ($agent->isTablet()) {
-            $deviceType = 'tablet';
-        } elseif ($agent->isMobile()) {
-            $deviceType = 'mobile';
-        } elseif ($agent->isDesktop()) {
-            $deviceType = 'desktop';
-        } else {
-            $deviceType = 'other';
-        }
-
-        $browser = $agent->browser() ?: null;
-        $browserVersion = $browser ? ($agent->version($browser) ?: null) : null;
-        $platform = $agent->platform() ?: null;
-        $platformVersion = $platform ? ($agent->version($platform) ?: null) : null;
-        $os = $platform ? trim($platform . ($platformVersion ? ' ' . $platformVersion : '')) : null;
-
-        return [
-            'is_bot'          => $isBot,
-            'bot_name'        => $botName,
-            'device_type'     => $deviceType,
-            'browser'         => $browser,
-            'browser_version' => $browserVersion ? (string) $browserVersion : null,
-            'os'              => $os,
-        ];
-    }
-
-    /**
-     * Jenssegers/agent paketi yoksa basit regex ile UA parse eder.
+     * Ayrıştırmanın kendisi: tanınan tarayıcılar, işletim sistemleri ve
+     * arama motoru robotları için desenler.
      *
      * @return ParsedAgent
      */

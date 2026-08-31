@@ -83,6 +83,9 @@ return [
         'menu-items'         => App\Exports\MenuItemExport::class,
         'translations'       => App\Exports\TranslationExport::class,
         'system-health'      => App\Exports\HealthCheckExport::class,
+        // Rapor merkezi: tek anahtar, altı rapor türü. Hangi rapor olduğu
+        // adres satırındaki `type` parametresinden geliyor.
+        'reports'            => App\Exports\ReportExport::class,
         'campaign-recipients' => App\Exports\CampaignRecipientExport::class,
     ],
 

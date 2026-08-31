@@ -86,6 +86,8 @@ enum PermissionKey: string
     case QueueView = 'queue.view';
     case QueueManage = 'queue.manage';
     case AnalyticsView = 'analytics.view';
+    case ReportsView = 'reports.view';
+    case ReportsManage = 'reports.manage';
 
     public function label(): string
     {
@@ -163,6 +165,8 @@ enum PermissionKey: string
             self::QueueView => 'Kuyruğu görüntüle',
             self::QueueManage => 'Kuyruk işini yeniden dene ve sil',
             self::AnalyticsView => 'Analitiği görüntüle',
+            self::ReportsView => 'Raporları görüntüle ve indir',
+            self::ReportsManage => 'Zamanlanmış rapor tanımla',
         };
     }
 
@@ -242,6 +246,8 @@ enum PermissionKey: string
             self::QueueView => PermissionGroup::System,
             self::QueueManage => PermissionGroup::System,
             self::AnalyticsView => PermissionGroup::System,
+            self::ReportsView => PermissionGroup::System,
+            self::ReportsManage => PermissionGroup::System,
         };
     }
 

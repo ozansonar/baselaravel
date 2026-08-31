@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Account\PasswordConfirmationRequest;
 use App\Http\Requests\Account\ProfileUpdateRequest;
 use App\Models\User;
+use App\Enums\NotificationPreference;
+use App\Services\AccountDataService;
 use App\Services\AccountDeviceService;
 use App\Services\AccountService;
+use App\Services\BlogCommentService;
+use App\Services\NotificationPreferenceService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,6 +23,9 @@ final class AccountController extends Controller
     public function __construct(
         private readonly AccountService $accountService,
         private readonly AccountDeviceService $devices,
+        private readonly AccountDataService $data,
+        private readonly NotificationPreferenceService $preferences,
+        private readonly BlogCommentService $comments,
     ) {}
 
     /**
@@ -141,5 +150,142 @@ final class AccountController extends Controller
 
         return redirect()->route('account.devices')
             ->with('success', __('site.devices.others_revoked', ['count' => $count]));
+    }
+
+    /**
+     * Verilerim: indirme ve hesabı kapatma.
+     */
+    public function data(): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return view('account.data', ['user' => $user]);
+    }
+
+    /**
+     * Kişinin bütün verisi tek dosyada.
+     *
+     * Akış olarak değil doğrudan gövdeyle dönüyor: veri bir kişinin kendi
+     * kayıtları, yani birkaç yüz kilobayt. Dosyaya yazıp indirtmek, sunucuda
+     * kişisel veri taşıyan geçici dosyalar bırakırdı.
+     */
+    public function downloadData(): Response
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $json = json_encode(
+            $this->data->export($user),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        );
+
+        return response((string) $json, 200, [
+            'Content-Type'        => 'application/json; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $this->data->exportFileName($user) . '"',
+            // İndirilen dosya kişisel veri taşıyor; ara önbelleklerde
+            // durmaması gerekiyor.
+            'Cache-Control' => 'no-store, max-age=0',
+        ]);
+    }
+
+    /**
+     * Hesabı kapatır. Şifre onayı zorunlu.
+     */
+    public function closeAccount(PasswordConfirmationRequest $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        // Panele erişebilen hesap buradan kapanmıyor: son yöneticinin kendi
+        // hesabını kapatması siteyi yönetilemez hâle getirirdi. Onların
+        // hesabını başka bir yönetici paneldeki kullanıcılar ekranından siler.
+        if ($user->hasAnyRole(['admin', 'editor', 'moderator'])) {
+            return back()->withErrors(['password' => __('site.data.close_blocked_for_staff')]);
+        }
+
+        $this->data->closeAccount($user);
+
+        // Oturum zaten düşürüldü; çerezi de temizlemek gerekiyor, yoksa
+        // tarayıcı kapalı bir hesabın kimliğini taşımaya devam eder.
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home')->with('success', __('site.data.closed'));
+    }
+
+    /**
+     * Bildirim tercihleri.
+     */
+    public function notifications(): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return view('account.notifications', [
+            'user'        => $user,
+            'preferences' => $this->preferences->all($user),
+            'newsletter'  => $this->preferences->newsletterEnabled($user),
+        ]);
+    }
+
+    /**
+     * Tercihleri kaydeder.
+     *
+     * Form bütün anahtarları her seferinde gönderiyor (işaretsiz kutu hiç
+     * gönderilmediği için her anahtarın önünde gizli bir 0 var), yani gelen
+     * gövde kararın tamamı: eksik anahtar "değiştirme" değil "kapat" demek
+     * değil — hiç gelmeyen tür zaten ekranda yoktur.
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        foreach (NotificationPreference::cases() as $type) {
+            if ($request->has('preferences.' . $type->value)) {
+                $this->preferences->set($user, $type, $request->boolean('preferences.' . $type->value));
+            }
+        }
+
+        if ($request->has('newsletter')) {
+            $this->preferences->setNewsletter($user, $request->boolean('newsletter'));
+        }
+
+        return redirect()->route('account.notifications')
+            ->with('success', __('site.notifications.saved'));
+    }
+
+    /**
+     * Yorumlarım.
+     *
+     * Onay bekleyenler de listede: kişi, yorumunun neden henüz görünmediğini
+     * ancak böyle öğreniyor.
+     */
+    public function comments(): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return view('account.comments', [
+            'user'     => $user,
+            'comments' => $this->comments->paginateForUser($user, 10),
+        ]);
+    }
+
+    /**
+     * Kendi yorumunu siler.
+     */
+    public function destroyComment(int $comment): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $deleted = $this->comments->deleteOwn($user, $comment);
+
+        return redirect()->route('account.comments')->with(
+            $deleted ? 'success' : 'error',
+            $deleted ? __('site.comments.deleted') : __('site.comments.not_found'),
+        );
     }
 }

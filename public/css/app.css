@@ -1955,3 +1955,126 @@ hr { border-color: var(--line); opacity: 1; }
         width: 100%;
     }
 }
+
+/* ---------- İki adımlı doğrulama --------------------------------------------
+   QR karesi her zaman beyaz zeminde duruyor: koyu kipte zemin devralınsaydı
+   kamera kareyi ters kontrastta göremezdi. */
+.qr-frame {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: .75rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.qr-frame svg {
+    display: block;
+    width: 220px;
+    height: 220px;
+    max-width: 100%;
+}
+
+/* Anahtar ve kurtarma kodları eşaralıklı: elle yazan kişi 0 ile O'yu
+   ayırabilmeli. */
+.two-factor-secret {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    letter-spacing: .08em;
+    word-break: break-all;
+    color: var(--ink);
+}
+
+.recovery-codes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .5rem;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+.recovery-codes__item {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: .55rem .75rem;
+    text-align: center;
+    letter-spacing: .04em;
+}
+
+/* Hesabı kapatma gibi geri dönüşü zor işlemler kendi kartında: kırmızı kenar,
+   düğmeye basmadan önce bakılan yeri işaretliyor. */
+.field-card--danger {
+    border-color: rgba(220, 38, 38, .35);
+}
+
+/* Bildirim tercihi anahtarları: başlık ve açıklama etiketin içinde, tıklama
+   alanı bütün satır. */
+.pref-switch {
+    padding: .85rem 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+}
+
+.pref-switch:last-of-type {
+    border-bottom: 0;
+}
+
+.pref-switch .form-check-input {
+    flex-shrink: 0;
+    margin-top: .15rem;
+}
+
+.pref-switch__title {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.pref-switch__hint {
+    display: block;
+    font-size: .875rem;
+    color: var(--muted);
+}
+
+/* Çevrimdışı sayfasının ikonu — satır içi SVG, ikon fontuna bağlı değil. */
+.offline-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+/* ---------- Dokunma hedefleri ------------------------------------------------
+   Parmakla kullanılan ekranda kontrolün en küçük kenarı 44 piksel olmalı;
+   Bootstrap'in varsayılanları bunun altında kalan iki yer bırakıyor. Kural
+   yalnız kaba işaretçilerde (parmak) uygulanıyor — farede küçük hedef sorun
+   değil ve düzeni gereksiz yere şişirmenin anlamı yok. */
+@media (pointer: coarse) {
+    /* Slayt göstergeleri 4 piksel yüksekliğinde: çizginin kendisi görünür
+       kalıyor, dokunma alanı saydam dolguyla büyütülüyor. */
+    .carousel-indicators [data-bs-target] {
+        position: relative;
+        height: 4px;
+    }
+
+    .carousel-indicators [data-bs-target]::after {
+        content: '';
+        position: absolute;
+        inset: -20px 0;
+    }
+
+    /* Offcanvas ve modal kapatma düğmesi. */
+    .btn-close {
+        width: 44px;
+        height: 44px;
+        background-size: 1rem;
+    }
+}

@@ -55,6 +55,12 @@ final class ValidationLimitsMatchTheSchemaTest extends TestCase
      */
     private const TABLES = [
         'ProfileUpdateRequest'         => 'users',
+        // İki adımlı doğrulama formları sütuna yazmıyor ama hesap ekranında
+        // duruyorlar ve o ekran users tablosuna eşleniyor; buraya
+        // yazılmasalardı sunucu kuralları hiç okunmaz, formdaki maxSize
+        // karşılaştırılacak bir sayı bulamazdı.
+        'ConfirmTwoFactorRequest'      => 'users',
+        'TwoFactorChallengeRequest'    => 'users',
         'UpdateProfileRequest'         => 'users',
         'RegisterRequest'              => 'users',
         'LoginRequest'                 => 'users',

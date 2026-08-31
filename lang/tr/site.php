@@ -35,6 +35,7 @@ return [
     ],
 
     'actions' => [
+        'save'        => 'Kaydet',
         'yes' => 'Evet',
         'ok' => 'Tamam',
         'sure' => 'Emin misiniz?',
@@ -191,6 +192,7 @@ return [
         'avatar_mimes'                => 'Avatar JPEG, PNG veya WebP formatında olmalıdır.',
         'avatar_max'                  => 'Avatar dosyası en fazla :max KB olabilir.',
         'profile_updated' => 'Profiliniz başarıyla güncellendi.',
+        'password_updated' => 'Şifreniz güncellendi.',
         'email_changed'   => 'Profiliniz güncellendi. E-posta adresiniz değiştiği için yeni adresinize bir doğrulama bağlantısı gönderdik; hesabınızı kullanmaya devam etmek için adresi doğrulayın.',
         'dashboard_desc' => 'Hesap bilgilerinizi görüntüleyin ve yönetin.',
         'welcome' => 'Hoş geldiniz, :name',
@@ -253,6 +255,115 @@ return [
         'revoke_all_btn'  => 'Hepsini kapat',
         'confirm_all'     => 'Bu tarayıcı dışındaki bütün oturumlar kapatılacak. Devam edilsin mi?',
         'others_revoked'  => ':count oturum kapatıldı.',
+    ],
+
+    'two_factor' => [
+        'title' => 'Güvenlik',
+        'desc'  => 'İki adımlı doğrulamayı yönetin.',
+        'lead'  => 'İki adımlı doğrulama açıkken, şifreniz ele geçse bile telefonunuzdaki uygulamadan gelen kod olmadan hesabınıza girilemez.',
+
+        'status_on'      => 'İki adımlı doğrulama açık',
+        'status_off'     => 'İki adımlı doğrulama kapalı',
+        'status_off_hint' => 'Hesabınızın tek koruması şu anda şifreniz.',
+        'active'         => 'Aktif',
+        'enabled_since'  => ':date tarihinde açıldı',
+
+        'setup'      => 'Kurulum',
+        'setup_hint' => 'Kimlik doğrulayıcı uygulamanızla (Google Authenticator, 1Password, Authy) aşağıdaki kareyi okutun, sonra uygulamanın verdiği altı haneli kodu girin.',
+        'manual_key' => 'Kareyi okutamıyorsanız bu anahtarı elle girin',
+        'code_label' => 'Doğrulama kodu',
+        'confirm_btn' => 'Doğrula ve aç',
+        'enable_btn'  => 'İki adımlı doğrulamayı aç',
+        'enabled'     => 'İki adımlı doğrulama açıldı.',
+
+        'recovery_codes'      => 'Kurtarma kodları',
+        'recovery_codes_hint' => 'Telefonunuza erişemediğinizde bu kodlarla giriş yapabilirsiniz. Her kod bir kez çalışır; güvenli bir yere kaydedin — bu liste bir daha gösterilmeyecek.',
+        'regenerate'      => 'Kurtarma kodlarını yenile',
+        'regenerate_hint' => 'Yeni bir liste üretilir ve eskisi geçersiz olur.',
+        'regenerate_btn'  => 'Yenile',
+        'codes_regenerated' => 'Kurtarma kodlarınız yenilendi.',
+
+        'disable'      => 'İki adımlı doğrulamayı kapat',
+        'disable_hint' => 'Kapattığınızda hesabınızın tek koruması yeniden şifreniz olur.',
+        'disable_btn'  => 'Kapat',
+        'confirm_disable' => 'İki adımlı doğrulama kapatılacak. Devam edilsin mi?',
+        'disabled'     => 'İki adımlı doğrulama kapatıldı.',
+
+        'required_notice'    => 'Yönetici hesapları için iki adımlı doğrulama zorunlu tutuluyor; bu yüzden kapatılamıyor.',
+        'required_by_admin'  => 'Yönetici hesaplarında iki adımlı doğrulama zorunlu; kapatılamaz.',
+        'setup_required'     => 'Yönetici paneline girebilmek için önce iki adımlı doğrulamayı kurmanız gerekiyor.',
+
+        'challenge_title' => 'İki adımlı doğrulama',
+        'challenge_lead'  => 'Şifreniz doğrulandı. Girişi tamamlamak için kimlik doğrulayıcı uygulamanızdaki kodu girin.',
+        'challenge_hint'  => 'Telefonunuza erişemiyorsanız kurtarma kodlarınızdan birini girebilirsiniz.',
+        'challenge_btn'   => 'Girişi tamamla',
+        'back_to_login'   => 'Giriş ekranına dön',
+
+        'invalid_code'  => 'Kod doğrulanamadı. Uygulamanızdaki güncel kodu ya da bir kurtarma kodunu girin.',
+        'expired'       => 'Doğrulama süresi doldu. Lütfen tekrar giriş yapın.',
+        'code_required' => 'Doğrulama kodu zorunludur.',
+        'code_digits'   => 'Doğrulama kodu altı haneli olmalıdır.',
+        'code_max'      => 'Doğrulama kodu en fazla :max karakter olabilir.',
+    ],
+
+    'data' => [
+        'title' => 'Verilerim',
+        'desc'  => 'Verilerinizi indirin ya da hesabınızı kapatın.',
+        'lead'  => 'Sitede sizin adınıza tutulan verilerin kopyasını indirebilir, isterseniz hesabınızı kapatabilirsiniz.',
+
+        'download'      => 'Verilerimi indir',
+        'download_hint' => 'Profiliniz, yorumlarınız, form gönderimleriniz, bülten kaydınız ve çerez tercihleriniz tek bir JSON dosyasında iner. Şifreniz, iki adımlı doğrulama anahtarınız ve oturum jetonlarınız dosyaya girmez.',
+        'download_btn'  => 'JSON olarak indir',
+        'export_note'   => 'Bu dosya hesabınızda tutulan kişisel verilerin kopyasıdır. Şifre, iki adımlı doğrulama anahtarı ve oturum jetonları güvenlik gereği dahil edilmez.',
+
+        'close'      => 'Hesabımı kapat',
+        'close_hint' => 'Hesabınız kapatıldığında giriş yapamazsınız. Yayınlanmış yorumlarınız içerikte kalır; kaldırılmasını istiyorsanız kapatmadan önce bize yazın.',
+        'close_effect_login'    => 'Bir daha giriş yapamazsınız.',
+        'close_effect_sessions' => 'Açık bütün oturumlarınız ve bağlı uygulamalarınız kapatılır.',
+        'close_effect_email'    => 'E-posta adresiniz serbest kalır; ileride aynı adresle yeni bir hesap açabilirsiniz.',
+        'close_btn'     => 'Hesabımı kapat',
+        'confirm_close' => 'Hesabınız kapatılacak ve oturumunuz sonlanacak. Devam edilsin mi?',
+        'closed'        => 'Hesabınız kapatıldı. İlginiz için teşekkür ederiz.',
+        'close_blocked_for_staff' => 'Yönetici yetkisi olan hesaplar buradan kapatılamaz; bir yöneticiyle iletişime geçin.',
+    ],
+
+    'notifications' => [
+        'title' => 'Bildirimler',
+        'desc'  => 'Hangi e-postaları alacağınızı seçin.',
+        'lead'  => 'Size gönderilen e-postaları buradan açıp kapatabilirsiniz.',
+
+        'newsletter'      => 'Bülten ve duyurular',
+        'newsletter_hint' => 'Yeni içerikler ve kampanyalar için gönderilen toplu e-postalar.',
+
+        'comment_updates'      => 'Yorum bildirimleri',
+        'comment_updates_hint' => 'Yorumunuz yayınlandığında haber verilir.',
+
+        'always_on' => 'Şifre sıfırlama, e-posta doğrulama ve hesap güvenliğiyle ilgili uyarılar her zaman gönderilir; bunlar kapatılamaz.',
+        'saved'     => 'Bildirim tercihleriniz kaydedildi.',
+    ],
+
+    'offline' => [
+        'title' => 'Bağlantı yok',
+        'desc'  => 'İnternet bağlantısı kurulamadı.',
+        'lead'  => 'Bu sayfayı gösterebilmek için internete ihtiyacımız var. Bağlantınız geri geldiğinde tekrar deneyin.',
+        'retry' => 'Yeniden dene',
+    ],
+
+    'comments' => [
+        'title' => 'Yorumlarım',
+        'desc'  => 'Yaptığınız yorumları görün ve yönetin.',
+        'lead'  => 'Yazılara yaptığınız yorumlar burada. Onay bekleyenler de listede; onaylanana kadar sitede görünmezler.',
+
+        'approved' => 'Yayında',
+        'pending'  => 'Onay bekliyor',
+        'rejected' => 'Yayınlanmadı',
+        'view'     => 'Sitede gör',
+        'delete'   => 'Sil',
+        'confirm_delete' => 'Bu yorum silinecek. Devam edilsin mi?',
+        'deleted'   => 'Yorumunuz silindi.',
+        'not_found' => 'Yorum bulunamadı.',
+        'empty'     => 'Henüz yorum yapmamışsınız.',
+        'deleted_post' => 'Silinmiş yazı',
     ],
 
     'login' => [
@@ -424,6 +535,7 @@ return [
     ],
 
     'newsletter' => [
+        'submit_aria' => 'Bültene abone ol',
         'unsubscribe_title'  => 'Abonelikten Çık',
         'unsubscribed'       => 'Abonelikten çıkarıldınız',
         'unsubscribed_lead'  => ':email adresine artık bülten göndermeyeceğiz.',

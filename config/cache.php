@@ -114,4 +114,57 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-cache-'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Önbellekten geri açılabilecek sınıflar
+    |--------------------------------------------------------------------------
+    |
+    | Laravel 13 ile gelen sertleştirme: önbellekten okunan veri
+    | unserialize edilirken yalnız burada listelenen sınıflar canlandırılıyor.
+    | null bırakılırsa her sınıf serbest — önbellek deposunu ele geçiren biri
+    | (paylaşımlı bir Redis, yazılabilir bir cache dizini) uygulamaya kendi
+    | nesnesini enjekte edebilir.
+    |
+    | Liste dar tutuldu: yalnız bu kit'in gerçekten önbelleğe koyduğu şeyler.
+    | Eloquent koleksiyonu saklayan yedi servis var (slider, sayfa, SSS,
+    | popup, blog kategorisi, menü, dil) ve hepsi kendi modelini saklıyor;
+    | biri listede olmasaydı ilgili ekran önbellek dolduktan sonra patlardı,
+    | o yüzden testler yedi yolun hepsini de geziyor.
+    |
+    | Yeni bir modeli önbelleğe koyan herkes onu buraya da eklemek zorunda.
+    | Bunun bir maliyeti var ama alternatifi, "her sınıf serbest" demenin
+    | maliyetinden küçük.
+    |
+    */
+
+    'serializable_classes' => [
+        \Illuminate\Database\Eloquent\Collection::class,
+        \Illuminate\Support\Collection::class,
+        \Carbon\Carbon::class,
+        \Illuminate\Support\Carbon::class,
+
+        \App\Models\BlogCategory::class,
+        \App\Models\BlogPost::class,
+        \App\Models\Faq::class,
+        \App\Models\GalleryCategory::class,
+        \App\Models\GalleryItem::class,
+        \App\Models\Language::class,
+        \App\Models\Menu::class,
+        \App\Models\MenuItem::class,
+        \App\Models\Page::class,
+        \App\Models\Popup::class,
+        \App\Models\Setting::class,
+        \App\Models\Slider::class,
+
+        // Model nitelikleri enum taşıyor; koleksiyonla birlikte onlar da
+        // geri açılıyor.
+        \App\Enums\ContentStatus::class,
+        \App\Enums\GalleryType::class,
+        \App\Enums\PopupDisplayMode::class,
+        \App\Enums\PopupPage::class,
+        \App\Enums\PopupSize::class,
+        \App\Enums\SettingGroup::class,
+        \App\Enums\SettingType::class,
+    ],
+
 ];

@@ -56,6 +56,14 @@ class SettingSeeder extends Seeder
 
             // Appearance
             ['key' => 'registration_enabled', 'value' => '1', 'group' => 'appearance', 'type' => 'boolean'],
+            ['key' => 'two_factor_required_admins', 'value' => '0', 'group' => 'appearance', 'type' => 'boolean'],
+
+            // Uygulama (PWA) — telefona kurulabilirlik.
+            ['key' => 'pwa_enabled',          'value' => '1',       'group' => 'appearance', 'type' => 'boolean'],
+            ['key' => 'pwa_short_name',       'value' => null,      'group' => 'appearance', 'type' => 'text'],
+            ['key' => 'pwa_theme_color',      'value' => '#4f46e5', 'group' => 'appearance', 'type' => 'text'],
+            ['key' => 'pwa_background_color', 'value' => '#ffffff', 'group' => 'appearance', 'type' => 'text'],
+            ['key' => 'pwa_icon',             'value' => null,      'group' => 'appearance', 'type' => 'image'],
             ['key' => 'maintenance_mode',     'value' => '0', 'group' => 'appearance', 'type' => 'boolean'],
         ];
 

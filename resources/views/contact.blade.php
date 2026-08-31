@@ -17,7 +17,10 @@
     {{-- ══════════ CONTACT ══════════ --}}
     <section class="section">
         <div class="container">
-            <div class="row g-5">
+            {{-- Boşluk mobilde daraltılıyor: g-5'in negatif kenar boşluğu
+                 (2×1.5rem) kabın 375 pikseldeki iç boşluğundan büyük ve sayfayı
+                 yatay olarak taşırıyordu. Masaüstünde tasarım aynı. --}}
+            <div class="row g-4 g-lg-5">
 
                 {{-- Contact info --}}
                 <div class="col-lg-5">

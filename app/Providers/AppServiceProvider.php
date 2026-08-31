@@ -217,6 +217,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view-queue', fn (User $user): bool => $user->hasPermission(PermissionKey::QueueView));
         Gate::define('manage-queue', fn (User $user): bool => $user->hasPermission(PermissionKey::QueueManage));
         Gate::define('view-analytics', fn (User $user): bool => $user->hasPermission(PermissionKey::AnalyticsView));
+        Gate::define('view-reports', fn (User $user): bool => $user->hasPermission(PermissionKey::ReportsView));
+        Gate::define('manage-reports', fn (User $user): bool => $user->hasPermission(PermissionKey::ReportsManage));
         Gate::define('upload-editor-media', fn (User $user): bool => $user->hasPermission(PermissionKey::EditorUpload));
     }
 

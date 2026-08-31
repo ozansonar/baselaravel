@@ -22,6 +22,8 @@
         $gaId  = \App\Models\Setting::getValue('google_analytics_id');
         $gtmId = \App\Models\Setting::getValue('google_tag_manager_id');
 
+        $pwaEnabled = app(\App\Services\PwaService::class)->isEnabled();
+
         $siteLogo = \App\Models\Setting::getValue('site_logo');
         $logoUrl = $siteLogo ? upload_url($siteLogo) : asset('images/logo.png');
     @endphp
@@ -91,6 +93,15 @@
          koyu kipte açık bir şerit kalıyordu. --}}
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+
+    {{-- Uygulama bildirimi: siteyi telefona kurulabilir yapan dosya. Adresi
+         dilden bağımsız, içeriği panelden geliyor. --}}
+    @if($pwaEnabled)
+    <link rel="manifest" href="{{ route('pwa.manifest', absolute: false) }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="{{ $siteName }}">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    @endif
 
     {{-- Preload critical --}}
     @if($siteLogo)
@@ -238,6 +249,13 @@
 
     @include('partials.cookie-consent')
     <script src="{{ versioned_asset('js/cookie-consent.js') }}" defer></script>
+
+    {{-- Servis çalışanı: çevrimdışı sayfası ve kabuk önbelleği. Rıza
+         gerektirmiyor — kişisel veri taşımıyor, iz sürmüyor, yalnız sitenin
+         kendi dosyalarını saklıyor. --}}
+    @if($pwaEnabled)
+    <script src="{{ versioned_asset('js/pwa.js') }}" defer></script>
+    @endif
 
     @stack('scripts')
 </body>

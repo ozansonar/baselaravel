@@ -576,6 +576,31 @@
                         </div>
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info">
+                                <span>Yöneticiler İçin İki Adımlı Doğrulama</span>
+                                <small>Panele erişebilen hesaplar iki adımlı doğrulamayı kurmadan panele giremez ({{ app(\App\Services\TwoFactorService::class)->enabledAdminCount() }} hesapta kurulu)</small>
+                            </div>
+                            <label class="stg-switch">
+                                <input type="hidden" name="settings[two_factor_required_admins]" value="0">
+                                <input type="checkbox" name="settings[two_factor_required_admins]" value="1"
+                                       {{ $s('two_factor_required_admins') === '1' ? 'checked' : '' }} data-fv-ignore>
+                                <span class="stg-switch-slider"></span>
+                            </label>
+                        </div>
+                        <div class="stg-toggle-item">
+                            <div class="stg-toggle-info">
+                                <span>Telefona Kurulabilirlik (PWA)</span>
+                                <small>Ziyaretçi siteyi ana ekrana ekleyebilir; bağlantı kesildiğinde çevrimdışı sayfası gösterilir</small>
+                            </div>
+                            <label class="stg-switch">
+                                <input type="hidden" name="settings[pwa_enabled]" value="0">
+                                <input type="checkbox" name="settings[pwa_enabled]" value="1"
+                                       {{ $s('pwa_enabled', '1') === '1' ? 'checked' : '' }}
+                                       onchange="document.getElementById('pwaDetails').classList.toggle('d-none', !this.checked)" data-fv-ignore>
+                                <span class="stg-switch-slider"></span>
+                            </label>
+                        </div>
+                        <div class="stg-toggle-item">
+                            <div class="stg-toggle-info">
                                 <span>Bakım Modu</span>
                                 <small>Siteyi bakım moduna al (admin paneli ve giriş sayfası her zaman erişilebilir)</small>
                             </div>
@@ -586,6 +611,50 @@
                                        onchange="document.getElementById('maintenanceDetails').classList.toggle('d-none', !this.checked)" data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pwaDetails" class="{{ $s('pwa_enabled', '1') === '1' ? '' : 'd-none' }}">
+                    <div class="stg-section">
+                        <div class="stg-section-title">
+                            <h6>Uygulama Görünümü</h6>
+                            <p>Ana ekrana eklendiğinde kullanılacak ad, renkler ve ikon</p>
+                        </div>
+
+                        <div class="stg-field">
+                            <label class="stg-label" for="pwaShortName">Kısa Ad</label>
+                            <input type="text" class="stg-input" id="pwaShortName" name="settings[pwa_short_name]"
+                                   value="{{ $s('pwa_short_name') }}" maxlength="12"
+                                   placeholder="{{ $s('site_name') }}"
+                                   data-validation-engine="validate[maxSize[12]]">
+                            <small class="text-muted">Ana ekrandaki ikonun altında görünür; boş bırakılırsa site adı kullanılır. En fazla 12 karakter.</small>
+                        </div>
+
+                        <div class="stg-row">
+                            <div class="stg-field">
+                                <label class="stg-label" for="pwaThemeColor">Tema Rengi</label>
+                                <input type="color" class="stg-color-picker" id="pwaThemeColor"
+                                       name="settings[pwa_theme_color]"
+                                       value="{{ $s('pwa_theme_color', '#4f46e5') }}" data-fv-ignore>
+                                <small class="text-muted">Uygulamanın başlık çubuğu</small>
+                            </div>
+                            <div class="stg-field">
+                                <label class="stg-label" for="pwaBackgroundColor">Açılış Ekranı Rengi</label>
+                                <input type="color" class="stg-color-picker" id="pwaBackgroundColor"
+                                       name="settings[pwa_background_color]"
+                                       value="{{ $s('pwa_background_color', '#ffffff') }}" data-fv-ignore>
+                                <small class="text-muted">Uygulama açılırken görünen zemin</small>
+                            </div>
+                        </div>
+
+                        <div class="stg-field">
+                            <label class="stg-label" for="pwaIconInput">Uygulama İkonu</label>
+                            <input type="file" class="stg-input" id="pwaIconInput" name="files[pwa_icon]"
+                                   accept="image/png,image/jpeg,image/webp"
+                                   data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
+                                   data-max-size="1" data-accept="image/png,image/jpeg,image/webp">
+                            <small class="text-muted">Kare ve en az 512x512 piksel olmalı; boş bırakılırsa site logosu kullanılır. 192 ve 512 piksellik sürümler otomatik üretilir.</small>
                         </div>
                     </div>
                 </div>

@@ -66,6 +66,7 @@ final class AuthController extends Controller
             $request->string('password')->value(),
             $request->string('device_name')->value(),
             (array) $request->input('abilities', []),
+            $request->string('code')->value() ?: null,
         );
 
         if ($result === null) {

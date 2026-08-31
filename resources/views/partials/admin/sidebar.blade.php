@@ -233,6 +233,33 @@
 
         @endif
 
+        @if(Route::has('admin.content-list.index'))
+        @can('viewAny', \App\Models\BlogPost::class)
+        <a href="{{ route('admin.content-list.index') }}"
+           class="nav-link {{ Route::is('admin.content-list.*') ? 'active' : '' }}">
+            <i class="bi bi-collection"></i> Genel İçerik Listesi
+        </a>
+        @endcan
+
+        @endif
+
+        @if(Route::has('admin.help.index'))
+        <a href="{{ route('admin.help.index') }}"
+           class="nav-link {{ Route::is('admin.help.*') ? 'active' : '' }}">
+            <i class="bi bi-question-circle"></i> Yardım
+        </a>
+        @endif
+
+        @if(Route::has('admin.reports.index'))
+        @can('view-reports')
+        <a href="{{ route('admin.reports.index') }}"
+           class="nav-link {{ Route::is('admin.reports.*') ? 'active' : '' }}">
+            <i class="bi bi-file-earmark-bar-graph"></i> Raporlar
+        </a>
+        @endcan
+
+        @endif
+
         @if(Route::has('admin.system-health.index'))
         @can('view-system-health')
         <a href="{{ route('admin.system-health.index') }}"

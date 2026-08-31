@@ -25,6 +25,10 @@ final class LoginRequest extends FormRequest
             'email'    => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH],
             'password' => ['required', 'string', 'min:8'],
             'device_name' => ['nullable', 'string', 'max:100'],
+            // İki adımlı doğrulama açıksa ikinci istekte geliyor: altı haneli
+            // kod ya da kurtarma kodu. İlk istekte yok — sunucu "gerekiyor"
+            // diye cevap verene kadar istemci sormuyor bile.
+            'code' => ['nullable', 'string', 'max:32'],
             // Yetki istemek yalnızca DARALTIR: gönderilmezse jeton tam yetkili
             // olur, gönderilirse yalnız listedekiler verilir. Bu yol hiçbir
             // koşulda `*` üretemez.

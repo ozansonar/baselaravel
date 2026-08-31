@@ -183,6 +183,34 @@ maili ve e-posta doğrulama bağlantısı gönderilir.
 Yanıt gövdesi kayıtla aynıdır. Kimlik bilgileri tutmuyorsa **401** (hangi alanın
 yanlış olduğu bilerek söylenmez), hesap pasifse **403**.
 
+**İki adımlı doğrulama açıksa** giriş iki isteğe bölünür. İlk istek şifreyi
+doğrular ama jeton üretmez:
+
+```json
+{
+  "success": false,
+  "message": "Girişi tamamlamak için iki adımlı doğrulama kodu gerekiyor.",
+  "errors": { "code": ["two_factor_required"], "two_factor_required": [true] }
+}
+```
+
+Durum **403**. İstemci kod ekranını açıp aynı isteği `code` alanıyla tekrarlar:
+
+```json
+{ "email": "ozan@ornek.com", "password": "Gizli*12345", "code": "123456" }
+```
+
+`code` altı haneli kimlik doğrulayıcı kodunu ya da kurtarma kodunu
+(`3xf6s-jplhw`) kabul eder; kurtarma kodu bir kez çalışır ve listeden düşer.
+Kod yanlışsa yine **403** döner, gövdedeki mesaj değişir.
+
+Jeton yalnız ikinci adım geçildiğinde üretilir: "al ama kullanma" diye bir kapı
+olamaz. `GET /auth/me` yanıtındaki `two_factor_enabled` alanı uygulamanın
+güvenlik ekranını çizmesi için var; anahtarın kendisi hiçbir yanıtta geçmez.
+
+İki adımlı doğrulamanın **kurulumu** şimdilik yalnız web'de
+(`/hesabim/guvenlik`): QR okutma, kurtarma kodları ve kapatma oradan yapılıyor.
+
 ### `POST /auth/logout` *(jeton gerekli)*
 
 Yalnız isteği yapan cihazın jetonunu siler; kullanıcının öteki cihazları ayakta
@@ -197,6 +225,33 @@ Hesap panelden pasife alınırsa jetonları **o anda** silinir (`SessionRevoker`
 web oturumlarıyla birlikte) ve sonraki istek 401 döner. Bayrak gözlemciyi
 uyandırmadan değişmişse (toplu işlem, elle sorgu) `EnsureApiUserIsActive` ikinci
 savunma hattı olarak 403 döner ve jetonu siler.
+
+---
+
+## Sağlık ve sürüm
+
+### `GET /health`
+
+Jeton istemez ve **bakım modunda da açıktır**: uygulamanın bakımı
+öğrenebileceği tek yer burasıdır, kapalı olsaydı bakım penceresinde her istek
+gibi bu da hata dönerdi.
+
+```json
+{
+  "status": "ok",
+  "api_version": "v1",
+  "maintenance": false,
+  "minimum_client_version": "2.0.0",
+  "update_required": false,
+  "server_time": "2026-08-31T23:11:35+03:00"
+}
+```
+
+İstemci sürümünü `X-Client-Version` başlığıyla bildirir. Panelde tanımlı asgari
+sürümün altındaysa `update_required` true döner ve uygulama kullanıcıyı mağazaya
+yönlendirir. Sürüm bildirmeyen istemci **engellenmez**: onu geri çevirmek,
+yapması gereken tek şey güncellenmek olan bir uygulamayı tamamen kullanılamaz
+hâle getirirdi.
 
 ---
 
@@ -380,6 +435,91 @@ Content-Type: multipart/form-data
 
 _method=PUT&first_name=Ozan&last_name=Sonar&email=...&avatar=@ben.jpg
 ```
+
+---
+
+### `PUT /account/password` *(jeton gerekli — `profile:write`)*
+
+```json
+{
+  "current_password": "Gizli*12345",
+  "password": "YeniGizli*123",
+  "password_confirmation": "YeniGizli*123",
+  "logout_other_devices": false
+}
+```
+
+Ayrı bir uç, çünkü profil güncelleme **tam** bir güncelleme: yalnız şifresini
+değiştirecek istemcinin ad, soyad ve e-postayı da taşıması gerekirdi.
+`logout_other_devices` açılırsa bu isteği yapan jeton dışındaki bütün jetonlar
+düşer.
+
+### `POST|DELETE /account/push-tokens` *(jeton gerekli — `profile:write`)*
+
+```json
+{ "token": "fcm-cihaz-jetonu", "platform": "ios", "device_name": "iPhone 15" }
+```
+
+Uygulama bunu **her açılışta** göndermeli: jetonu işletim sistemi
+yenileyebiliyor ve yenilenen jetonu sunucunun bilmemesi, bildirimlerin sessizce
+kesilmesi demek. Aynı jeton başka bir hesapta kayıtlıysa o hesaptan alınır —
+telefon el değiştirmiş demektir. Hesap pasife alındığında ya da kapatıldığında
+jetonlar düşer; cihaz yeniden giriş yaptığında adresini zaten yeniden bırakır.
+
+Gönderim tarafı sağlayıcıdan bağımsız: `PUSH_DRIVER` tanımlı değilse jetonlar
+kaydedilir ama bildirim gönderilmez ve bu log'a düşer — sessizce kaybolmaz.
+
+### `GET /account/comments` · `DELETE /account/comments/{id}` *(jeton gerekli)*
+
+Kişinin kendi yorumları, **onay bekleyenler dahil**: yorumunun neden henüz
+görünmediğini ancak böyle öğreniyor. Eşleşme e-postayla, çünkü yorum girişsiz
+de bırakılabiliyor.
+
+`status` alanı yalnız bu uçta var. Herkese açık yorum listesinde onay bekleyen
+yorumların varlığı bile söylenmez: sitede görünmeyen içeriği duyurmak olurdu.
+
+Başkasının yorumunu silmeye çalışmak **404** döner — "yetkin yok" cevabı o
+yorumun var olduğunu söylerdi.
+
+### `GET|PUT /account/notification-preferences` *(jeton gerekli)*
+
+```json
+{ "newsletter": true, "preferences": { "comment_updates": false } }
+```
+
+Yanıt aynı gövdeyi, bir de `types` listesini taşır: her türün anahtarı,
+etiketi ve açıklaması. Etiketler sunucudan geliyor — uygulamanın kendi metin
+listesini tutması, yeni bir tür eklendiğinde mağaza güncellemesi beklemek
+demekti. Gönderilmeyen tür değişmez; tanınmayan anahtar **422** döner.
+
+Güvenlik postaları (şifre sıfırlama, e-posta doğrulama, adres değişikliği
+uyarısı) listede yok ve kapatılamaz: kapatılabilseydi hesabı ele geçiren biri
+ilk iş onları susturur, sahibi olan bitenden habersiz kalırdı.
+
+Bülten ayrı bir alan çünkü kaynağı `subscribers` tablosu; iki yerde iki bayrak
+tutmak, birinin ötekiyle çelişmesi demekti.
+
+### `GET /account/export` *(jeton gerekli — `profile:read`)*
+
+Kişinin kendi verisinin kopyası: profil, yorumlar, iletişim mesajları, bülten
+kaydı, çerez rızaları ve bağlı cihazların adları. Şifre, iki adımlı doğrulama
+anahtarı ve jetonlar **hiçbir koşulda** dönmez. Yanıt `Cache-Control: no-store`
+taşır.
+
+### `DELETE /account` *(jeton gerekli — `profile:write`)*
+
+```json
+{ "password": "Gizli*12345" }
+```
+
+Hesabı kapatır: kişi bir daha giriş yapamaz, bütün oturumları ve jetonları
+düşer, e-posta adresi serbest kalır (silinen satırlar benzersizlik kısıtının
+dışında). Mağazaların uygulama içi hesap silme şartının karşılığı bu uç.
+
+Şifre onayı zorunlu — jeton tek başına yetmiyor: telefonu birkaç dakika eline
+geçiren biri hesabı kapatabilseydi bu, geri alınması en zor işlem olurdu.
+Panele erişebilen hesaplar buradan kapanmaz (**403**): son yöneticinin kendini
+kapatması siteyi yönetilemez bırakırdı.
 
 ---
 

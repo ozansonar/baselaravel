@@ -41,8 +41,14 @@ final class SqlStatementReader
      */
     public function fromFile(string $path): Generator
     {
-        // @: dosyanın yokluğu bu sınıf için hata değil, boş sonuç.
-        $handle = @fopen($path, 'rb');
+        // Dosyanın yokluğu bu sınıf için hata değil, boş sonuç. Önce
+        // sorulmasının sebebi: @fopen uyarıyı gizliyor ama PHPUnit kendi hata
+        // yakalayıcısıyla onu yine de görüyor ve sınav "uyarı" ile geçiyordu.
+        if (! is_file($path) || ! is_readable($path)) {
+            return;
+        }
+
+        $handle = fopen($path, 'rb');
 
         if ($handle === false) {
             return;

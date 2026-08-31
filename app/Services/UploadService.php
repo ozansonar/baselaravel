@@ -443,6 +443,70 @@ final class UploadService
         return "https://placehold.co/{$width}x{$width}/e8f5e9/2e7d32?text=Görsel+Yok";
     }
 
+    /**
+     * Kaynak görselden tam ölçüde, kare bir PNG üretir.
+     *
+     * PWA ikonları için var ve üç şartı birden karşılaması gerekiyor:
+     * PNG (manifest'te WebP her platformda güvenli değil), kare, ve
+     * manifest'te bildirilen ölçüyle birebir aynı — ölçü tutmazsa Chrome
+     * kurulumu reddediyor.
+     *
+     * Görsel kareye sığdırılıyor, kırpılmıyor: logo bir kenarından kesilmiş
+     * hâlde ana ekranda durmasın. Artan yer saydam bırakılıyor.
+     */
+    public function writeSquarePng(string $sourcePath, string $targetPath, int $size): bool
+    {
+        $info = @getimagesize($sourcePath);
+
+        if ($info === false) {
+            return false;
+        }
+
+        $source = match ($info['mime'] ?? '') {
+            'image/jpeg' => @imagecreatefromjpeg($sourcePath),
+            'image/png'  => @imagecreatefrompng($sourcePath),
+            'image/gif'  => @imagecreatefromgif($sourcePath),
+            'image/webp' => @imagecreatefromwebp($sourcePath),
+            default      => false,
+        };
+
+        if ($source === false) {
+            return false;
+        }
+
+        $canvas = imagecreatetruecolor($size, $size);
+        imagealphablending($canvas, false);
+        imagesavealpha($canvas, true);
+        imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 0, 0, 0, 127));
+        imagealphablending($canvas, true);
+
+        $sourceWidth = imagesx($source);
+        $sourceHeight = imagesy($source);
+        $scale = min($size / $sourceWidth, $size / $sourceHeight);
+        $width = (int) round($sourceWidth * $scale);
+        $height = (int) round($sourceHeight * $scale);
+
+        imagecopyresampled(
+            $canvas,
+            $source,
+            (int) (($size - $width) / 2),
+            (int) (($size - $height) / 2),
+            0,
+            0,
+            $width,
+            $height,
+            $sourceWidth,
+            $sourceHeight,
+        );
+
+        $written = imagepng($canvas, $targetPath);
+
+        imagedestroy($canvas);
+        imagedestroy($source);
+
+        return $written;
+    }
+
     // ──────────────────────────────────────────────
     //  PRIVATE: IMAGE PROCESSING
     // ──────────────────────────────────────────────

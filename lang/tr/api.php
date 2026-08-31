@@ -14,7 +14,17 @@ declare(strict_types=1);
 
 return [
 
+    'push' => [
+        'registered' => 'Cihazınız bildirimler için kaydedildi.',
+        'forgotten'  => 'Cihazınız bildirim listesinden çıkarıldı.',
+    ],
+
+    'comments' => [
+        'deleted' => 'Yorumunuz silindi.',
+    ],
+
     'common' => [
+        'invalid_field' => 'Tanınmayan alan.',
         'ok'                 => 'İşlem başarılı.',
         'error'              => 'İstek işlenemedi.',
         'not_found'          => 'Kayıt bulunamadı.',
@@ -36,6 +46,7 @@ return [
         'already_verified'      => 'E-posta adresiniz zaten doğrulanmış.',
         'email_unverified'      => 'Bu işlem için önce e-posta adresinizi doğrulamanız gerekiyor.',
         'missing_ability'       => 'Bu jetonun bu işlem için yetkisi yok.',
+        'two_factor_required'   => 'Girişi tamamlamak için iki adımlı doğrulama kodu gerekiyor.',
     ],
 
     'password' => [
