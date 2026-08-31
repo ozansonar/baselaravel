@@ -8,8 +8,6 @@ use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkFaqRequest;
 use App\Http\Requests\Admin\StoreTranslatedFaqRequest;
-use App\Http\Requests\StoreFaqRequest;
-use App\Http\Requests\UpdateFaqRequest;
 use App\Models\Faq;
 use App\Services\FaqService;
 use Illuminate\Http\JsonResponse;

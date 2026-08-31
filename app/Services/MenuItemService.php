@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Services\CustomRouteService;
-use App\Services\LocalizedUrlService;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Services\Concerns\ResolvesLocalizedSlugs;
@@ -133,7 +131,6 @@ final class MenuItemService
 
         return $params;
     }
-
 
     public function isActive(MenuItem $item): bool
     {

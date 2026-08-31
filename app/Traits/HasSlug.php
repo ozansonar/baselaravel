@@ -18,7 +18,7 @@ trait HasSlug
 
         static::updating(function ($model): void {
             $source = static::slugSource();
-            if ($model->isDirty($source) && !$model->isDirty('slug')) {
+            if ($model->isDirty($source) && ! $model->isDirty('slug')) {
                 $model->slug = static::generateUniqueSlug($model->{$source}, $model->id, static::slugLocale($model));
             }
         });

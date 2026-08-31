@@ -59,7 +59,7 @@ final class PopupService
     {
         $query = $this->onlyGroupRepresentatives(Popup::withTrashed(), Popup::class)->sorted();
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
                 $query->onlyTrashed();
             } elseif ($filters['status'] === 'active') {
@@ -71,7 +71,7 @@ final class PopupService
             $query->whereNull('deleted_at');
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, Popup::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")

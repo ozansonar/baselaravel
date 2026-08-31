@@ -86,7 +86,9 @@ final class AuditLog extends Model
 
     public function modelLabel(): string
     {
-        if (! $this->auditable_type) return '—';
+        if (! $this->auditable_type) {
+            return '—';
+        }
         return class_basename($this->auditable_type);
     }
 

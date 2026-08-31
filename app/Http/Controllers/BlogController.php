@@ -34,7 +34,7 @@ final class BlogController extends Controller
     {
         $category = $this->blogCategoryService->findBySlug($categorySlug);
 
-        if (!$category) {
+        if (! $category) {
             abort(404);
         }
 
@@ -49,7 +49,7 @@ final class BlogController extends Controller
     {
         $post = $this->blogService->findBySlug($slug);
 
-        if (!$post) {
+        if (! $post) {
             abort(404);
         }
 

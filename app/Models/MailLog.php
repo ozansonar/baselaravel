@@ -87,7 +87,7 @@ class MailLog extends Model
 
     public function getShortMailableAttribute(): string
     {
-        if (!$this->mailable_class) {
+        if (! $this->mailable_class) {
             return 'Raw Mail';
         }
 
@@ -103,7 +103,7 @@ class MailLog extends Model
      */
     public static function labelForClass(?string $mailableClass): string
     {
-        if (!$mailableClass) {
+        if (! $mailableClass) {
             return 'Raw Mail';
         }
 

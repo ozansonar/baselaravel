@@ -183,13 +183,13 @@ class DemoMediaSeeder extends Seeder
         $relative = "{$folder}/{$name}.webp";
         $directory = public_path(self::UPLOADS . '/' . $folder);
 
-        if (!is_dir($directory)) {
+        if (! is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
 
         $original = public_path(self::UPLOADS . '/' . $relative);
 
-        if (!file_exists($original)) {
+        if (! file_exists($original)) {
             $canvas = $this->drawGradient($width, $height, self::PALETTE[$paletteIndex % count(self::PALETTE)]);
             imagewebp($canvas, $original, 85);
 

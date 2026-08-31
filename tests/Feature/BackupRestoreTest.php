@@ -317,6 +317,12 @@ class BackupRestoreTest extends TestCase
      */
     public function test_a_driver_without_dump_support_says_so_instead_of_failing(): void
     {
+        // Suite hem SQLite hem MySQL üzerinde koşuyor; bu dal yalnızca dökümü
+        // desteklemeyen sürücüyü anlatıyor.
+        if (in_array(\Illuminate\Support\Facades\DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->markTestSkipped('Bu sürücüde döküm destekleniyor.');
+        }
+
         $result = app(\App\Services\BackupService::class)->create();
 
         $this->assertTrue($result['success']);

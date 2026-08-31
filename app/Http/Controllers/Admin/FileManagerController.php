@@ -63,10 +63,10 @@ final class FileManagerController extends Controller
         $this->authorize('create', UploadedFile::class);
 
         $result = $this->files->upload(
-            file:    $request->file('file'),
-            title:   $request->filled('title') ? (string) $request->input('title') : null,
+            file: $request->file('file'),
+            title: $request->filled('title') ? (string) $request->input('title') : null,
             altText: $request->filled('alt_text') ? (string) $request->input('alt_text') : null,
-            userId:  $request->user()?->id,
+            userId: $request->user()?->id,
         );
 
         $file = $result['file'];

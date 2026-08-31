@@ -314,7 +314,6 @@ return [
         'no_translation'   => 'çeviri yok',
     ],
 
-
     'home' => [
         'blog_eyebrow' => 'Blog',
         'slide_aria' => 'Slayt :number',
@@ -402,7 +401,6 @@ return [
         'dark'  => 'Koyu tema',
         'light' => 'Açık tema',
     ],
-
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [

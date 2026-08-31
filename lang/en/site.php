@@ -311,7 +311,6 @@ return [
         'no_translation'   => 'not translated',
     ],
 
-
     'home' => [
         'blog_eyebrow' => 'Blog',
         'slide_aria' => 'Slide :number',
@@ -398,7 +397,6 @@ return [
         'dark'  => 'Dark theme',
         'light' => 'Light theme',
     ],
-
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [

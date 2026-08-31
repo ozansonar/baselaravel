@@ -21,7 +21,7 @@ final class ExportRegistry
 
         $class = $lists[$key] ?? null;
 
-        if ($class === null || !class_exists($class) || !is_subclass_of($class, ListExport::class)) {
+        if ($class === null || ! class_exists($class) || ! is_subclass_of($class, ListExport::class)) {
             throw new NotFoundHttpException("Tanımsız dışa aktarma anahtarı: {$key}");
         }
 

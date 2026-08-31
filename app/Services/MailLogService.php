@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Support\LikeSearch;
 
 final class MailLogService
 {
@@ -295,7 +296,7 @@ final class MailLogService
      */
     private function likeTerm(string $value): string
     {
-        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
+        return LikeSearch::term($value);
     }
 
     /**
@@ -365,12 +366,12 @@ final class MailLogService
             $term = $this->likeTerm((string) $filters['search']);
 
             $query->where(function (Builder $sub) use ($term): void {
-                $sub->whereRaw("`to` LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("cc LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("bcc LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("subject LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("mailable_class LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("error_message LIKE ? ESCAPE '!'", [$term]);
+                $sub->whereRaw(LikeSearch::clause('`to`'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('cc'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('bcc'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('subject'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('mailable_class'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('error_message'), [$term]);
             });
         }
 

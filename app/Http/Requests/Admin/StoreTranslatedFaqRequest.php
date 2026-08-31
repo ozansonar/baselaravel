@@ -52,13 +52,9 @@ final class StoreTranslatedFaqRequest extends FormRequest
         return ['question', 'answer'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

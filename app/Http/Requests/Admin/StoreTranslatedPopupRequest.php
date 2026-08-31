@@ -67,13 +67,9 @@ final class StoreTranslatedPopupRequest extends FormRequest
         return ['title', 'description', 'button_text', 'button_url'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

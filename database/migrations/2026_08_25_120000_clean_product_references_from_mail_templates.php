@@ -39,7 +39,7 @@ return new class extends Migration
     {
         $template = DB::table('mail_templates')->where('key', 'welcome')->first();
 
-        if ($template === null || !str_contains((string) $template->body, $search)) {
+        if ($template === null || ! str_contains((string) $template->body, $search)) {
             return;
         }
 

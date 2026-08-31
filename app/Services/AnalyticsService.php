@@ -9,9 +9,9 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Jenssegers\Agent\Agent;
+use App\Support\LikeSearch;
 
 class AnalyticsService
 {
@@ -475,13 +475,13 @@ class AnalyticsService
             // yaptığını sanarak tüm listeye bakar. Kaçış karakteri ESCAPE ile
             // açıkça bildiriliyor: MySQL ters bölüyü kendiliğinden kaçış sayar,
             // SQLite saymaz — belirtilmezse kaçırılan "%" hiçbir şey bulmaz.
-            $term = '%' . addcslashes((string) $filters['url'], '%_\\') . '%';
+            $term = LikeSearch::term((string) $filters['url']);
 
             $query->where(function ($inner) use ($term): void {
                 foreach (['url_path', 'ip_address', 'session_id'] as $index => $column) {
                     $index === 0
-                        ? $inner->whereRaw($column . " LIKE ? ESCAPE '\\'", [$term])
-                        : $inner->orWhereRaw($column . " LIKE ? ESCAPE '\\'", [$term]);
+                        ? $inner->whereRaw(LikeSearch::clause($column), [$term])
+                        : $inner->orWhereRaw(LikeSearch::clause($column), [$term]);
                 }
             });
         }

@@ -8,8 +8,6 @@ use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkSliderRequest;
 use App\Http\Requests\Admin\StoreTranslatedSliderRequest;
-use App\Http\Requests\StoreSliderRequest;
-use App\Http\Requests\UpdateSliderRequest;
 use App\Models\Slider;
 use App\Services\SliderService;
 use Illuminate\Http\RedirectResponse;

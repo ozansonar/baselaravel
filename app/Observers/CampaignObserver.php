@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Models\Campaign;
-use App\Models\CampaignAttachment;
-use App\Models\CampaignRecipient;
 
 /**
  * Cascade lives here rather than in the foreign key, so soft deleting a

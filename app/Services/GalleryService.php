@@ -141,21 +141,21 @@ final class GalleryService
     {
         $query = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)->sorted()->with('galleryCategory');
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $type = GalleryType::tryFrom($filters['type']);
             if ($type) {
                 $query->where('type', $type);
             }
         }
 
-        if (!empty($filters['category'])) {
+        if (! empty($filters['category'])) {
             $categoryId = (int) $filters['category'];
             if ($categoryId > 0) {
                 $query->where('gallery_category_id', $categoryId);
             }
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
                 $query->onlyTrashed();
             } elseif ($filters['status'] === 'active') {
@@ -167,7 +167,7 @@ final class GalleryService
             $query->whereNull('deleted_at');
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, GalleryItem::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")

@@ -62,13 +62,9 @@ final class StoreTranslatedSliderRequest extends FormRequest
         return ['title', 'subtitle', 'button_text', 'button_url'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

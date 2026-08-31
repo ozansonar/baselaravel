@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Schedule;
  * Because every task shares one PHP process, each closure is wrapped so a
  * failing task cannot take the rest of the schedule down with it.
  */
-
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');

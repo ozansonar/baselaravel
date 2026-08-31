@@ -9,8 +9,6 @@ use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkGalleryItemRequest;
 use App\Http\Requests\Admin\StoreTranslatedGalleryItemRequest;
-use App\Http\Requests\StoreGalleryItemRequest;
-use App\Http\Requests\UpdateGalleryItemRequest;
 use App\Models\GalleryCategory;
 use App\Models\GalleryItem;
 use App\Services\GalleryService;

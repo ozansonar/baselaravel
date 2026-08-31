@@ -57,13 +57,9 @@ final class StoreTranslatedGalleryCategoryRequest extends FormRequest
         return ['name'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

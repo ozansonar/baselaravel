@@ -117,7 +117,7 @@ class AdminSelect2Test extends TestCase
         );
 
         foreach ($iterator as $file) {
-            if (!$file->isFile() || !str_ends_with($file->getFilename(), '.blade.php')) {
+            if (! $file->isFile() || ! str_ends_with($file->getFilename(), '.blade.php')) {
                 continue;
             }
 

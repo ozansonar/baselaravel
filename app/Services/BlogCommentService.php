@@ -84,7 +84,7 @@ final class BlogCommentService
     {
         $query = BlogComment::with(['post'])->withTrashed()->recent();
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
                 $query->onlyTrashed();
             } else {
@@ -97,7 +97,7 @@ final class BlogCommentService
             $query->whereNull('deleted_at');
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search): void {
                 $q->where('name', 'like', "%{$search}%")
@@ -106,7 +106,7 @@ final class BlogCommentService
             });
         }
 
-        if (!empty($filters['post_id'])) {
+        if (! empty($filters['post_id'])) {
             $query->where('blog_post_id', $filters['post_id']);
         }
 
@@ -114,7 +114,7 @@ final class BlogCommentService
         // sabahından, biten süzgeç o günün gece yarısına kadar sürüyor.
         // whereDate yerine sınırlar açıkça yazılıyor: sütun üzerinde işlev
         // çağrısı indeksi kullanılamaz hâle getiriyordu.
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $baslangic = $this->parseDate($filters['date_from']);
 
             if ($baslangic !== null) {
@@ -122,7 +122,7 @@ final class BlogCommentService
             }
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $bitis = $this->parseDate($filters['date_to']);
 
             if ($bitis !== null) {

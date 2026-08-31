@@ -634,14 +634,42 @@ composer test
 - `BackupRestoreTest` — arşiv doğrulama, Zip Slip koruması, güvenlik yedeğinin
   önce alınması, dosyaların geri yazılması ve **veritabanı dökümü alınamayan
   bir yedeğin başarılı sayılmaması**
+- `LikeSearchIsPortableTest` — serbest metin aramasının iki veritabanında da
+  aynı davranması: joker karakterin harf sayılması ve MySQL'de sözdizimi hatası
+  veren kaçış biçiminin geri gelmemesi
 
 ---
 
-## Kod stili
+## Kod kalitesi
 
-`laravel/pint` bağımlılık olarak gelir ancak **`pint` fix modunda çalıştırılmaz.**
-Kod tabanı dizi ve atamalarda hizalama kullanır, Pint'in varsayılan Laravel
-preset'i bu hizalamayı bozar. Stil kontrolü için yalnızca `pint --test`.
+Üç kontrol var ve üçü de her push'ta GitHub Actions'ta koşar:
+
+```bash
+composer check      # üçünü sırayla
+composer lint       # kod stili  (pint --test)
+composer analyse    # statik analiz (phpstan)
+composer test       # testler
+```
+
+**Kod stili.** `pint.json` projenin kendi biçimini tanımlar: dizi ve atamalardaki
+hizalama korunur, birleştirmede boşluk kullanılır, `!` sonrası boşluk bırakılır.
+Laravel'in varsayılan preset'i bunların tersini dayattığı için 459 dosya sapıyor
+görünüyordu ve çıktı hiçbir işe yaramıyordu; artık **sapma sıfır** ve
+`./vendor/bin/pint` (fix modu) güvenle çalıştırılabilir — yapılandırma
+hizalamaya dokunan kuralları kapalı tutar.
+
+**Statik analiz.** `phpstan.neon`, Larastan ile seviye 1. Seviye seçiminin
+gerekçesi ve yukarı çıkmanın yolu dosyanın kendi yorumlarında.
+
+> Bağımlılıklar değiştikten sonra PHPStan "Undefined constant
+> `Larastan\Larastan\LARAVEL_VERSION`" diyorsa sonuç önbelleği bayatlamıştır:
+> `./vendor/bin/phpstan clear-result-cache`.
+
+**Testler CI'da MySQL 8'e karşı koşar**, yerelde SQLite'a karşı. İkisi aynı şeyi
+kabul etmiyor — bu iş akışı kurulduğu gün SQLite'ın sakladığı altı hata çıktı,
+biri arama yapan her ekranı üretimde 500'e düşürüyordu. Yerelde de MySQL'e karşı
+koşmak için `DB_CONNECTION` ve `DB_DATABASE` değişkenlerini komut satırında
+vermek yeter; `phpunit.xml` içindeki değerler var olan ortam değişkenini ezmez.
 
 ---
 

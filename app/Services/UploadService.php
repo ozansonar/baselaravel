@@ -124,7 +124,7 @@ final class UploadService
 
         // Create responsive variants
         foreach ($sizes as $sizeName) {
-            if (!isset(self::SIZES[$sizeName])) {
+            if (! isset(self::SIZES[$sizeName])) {
                 continue;
             }
 
@@ -394,7 +394,7 @@ final class UploadService
         $parts = [];
 
         foreach ($sizes as $sizeName) {
-            if (!isset(self::SIZES[$sizeName])) {
+            if (! isset(self::SIZES[$sizeName])) {
                 continue;
             }
 
@@ -631,12 +631,12 @@ final class UploadService
      */
     private function saveAsWebp(\GdImage $image, string $path): void
     {
-        if (!function_exists('imagewebp')) {
+        if (! function_exists('imagewebp')) {
             throw new RuntimeException('GD kütüphanesinde WebP desteği bulunamadı.');
         }
 
         // Convert palette images to true color (required for WebP)
-        if (!imageistruecolor($image)) {
+        if (! imageistruecolor($image)) {
             $width  = imagesx($image);
             $height = imagesy($image);
             $trueColor = imagecreatetruecolor($width, $height);
@@ -667,13 +667,13 @@ final class UploadService
      */
     private function validateImage(UploadedFile $file): void
     {
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             throw new RuntimeException('Dosya yükleme hatası: ' . $file->getErrorMessage());
         }
 
         $mime = $file->getMimeType();
 
-        if (!in_array($mime, self::ALLOWED_IMAGE_MIMES, true)) {
+        if (! in_array($mime, self::ALLOWED_IMAGE_MIMES, true)) {
             throw new RuntimeException(
                 "Desteklenmeyen görsel formatı: {$mime}. " .
                 'Kabul edilen formatlar: JPEG, PNG, GIF, WebP, BMP'
@@ -711,7 +711,7 @@ final class UploadService
      */
     private function ensureDirectoryExists(string $path): void
     {
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             mkdir($path, 0755, true);
         }
     }
@@ -733,7 +733,7 @@ final class UploadService
     {
         $fullPath = self::basePath($path);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             return 1920;
         }
 
@@ -765,10 +765,29 @@ final class UploadService
         $iniFiles = (int) ini_get('max_file_uploads');
 
         return [
-            'per_file'  => min(...array_filter([$appMaxPerFile, $uploadMax, $postMax])),
+            'per_file'  => self::lowestPositive([$appMaxPerFile, $uploadMax, $postMax], $appMaxPerFile),
             'post_max'  => $postMax > 0 ? $postMax : $appMaxPerFile,
-            'max_files' => min(...array_filter([$appMaxFiles, $iniFiles > 0 ? $iniFiles : $appMaxFiles])),
+            'max_files' => self::lowestPositive([$appMaxFiles, $iniFiles], $appMaxFiles),
         ];
+    }
+
+    /**
+     * Adaylardan pozitif olanların en küçüğü; hiçbiri pozitif değilse yedek
+     * değer.
+     *
+     * Öncesinde `min(...array_filter([...]))` yazıyordu. `array_filter`
+     * sıfırları atıyor, yani tüm adaylar sıfır olduğunda `min()` hiç
+     * argümansız çağrılıyor ve **ölümcül hata** veriyordu. Bugünkü çağıranlar
+     * pozitif sabitler geçiyor, ama sıfır geçen ilk çağrı yükleme yolunu
+     * çökertirdi. Sıfırın "sınır yok" demek olduğu niyeti de artık okunuyor.
+     *
+     * @param list<int> $candidates
+     */
+    private static function lowestPositive(array $candidates, int $fallback): int
+    {
+        $positive = array_values(array_filter($candidates, static fn (int $value): bool => $value > 0));
+
+        return $positive === [] ? $fallback : min($positive);
     }
 
     /**

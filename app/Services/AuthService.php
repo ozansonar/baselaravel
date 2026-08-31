@@ -22,13 +22,13 @@ final class AuthService
      */
     public function login(array $credentials, bool $remember = false): bool
     {
-        if (!Auth::attempt($credentials, $remember)) {
+        if (! Auth::attempt($credentials, $remember)) {
             return false;
         }
 
         $user = Auth::user();
 
-        if ($user instanceof User && !$user->is_active) {
+        if ($user instanceof User && ! $user->is_active) {
             Auth::logout();
             return false;
         }

@@ -165,7 +165,7 @@ final class BlogService
             };
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, BlogPost::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")
@@ -173,7 +173,7 @@ final class BlogService
             });
         }
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             // The chosen category belongs to one language, so a post counts as
             // a match when any of its translations sits in that group.
             $this->whereGroupMatches($query, BlogPost::class, function ($q) use ($filters): void {

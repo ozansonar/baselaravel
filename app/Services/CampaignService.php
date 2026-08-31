@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Mail\CampaignMail;
 use App\Enums\MailLogStatus;
 use Illuminate\Support\Facades\Mail;
+use App\Support\LikeSearch;
 
 final class CampaignService
 {
@@ -60,12 +61,12 @@ final class CampaignService
             )
             ->when($search !== '', static function (Builder $query) use ($search): void {
                 // Joker karakterler düz metin sayılıyor, yoksa "%" tüm listeyi getirir.
-                $term = '%' . addcslashes($search, '%_\\') . '%';
+                $term = LikeSearch::term($search);
 
                 $query->where(static function (Builder $inner) use ($term): void {
-                    $inner->where('email', 'like', $term)
-                        ->orWhere('first_name', 'like', $term)
-                        ->orWhere('last_name', 'like', $term);
+                    $inner->whereRaw(LikeSearch::clause('email'), [$term])
+                        ->orWhereRaw(LikeSearch::clause('first_name'), [$term])
+                        ->orWhereRaw(LikeSearch::clause('last_name'), [$term]);
                 });
             })
             ->orderBy('id');
@@ -105,10 +106,11 @@ final class CampaignService
         if (($filters['search'] ?? '') !== '') {
             // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
             // getirmemeli.
-            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+            $term = LikeSearch::term((string) $filters['search']);
 
             $query->where(function (Builder $sub) use ($term): void {
-                $sub->where('name', 'like', $term)->orWhere('subject', 'like', $term);
+                $sub->whereRaw(LikeSearch::clause('name'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('subject'), [$term]);
             });
         }
 

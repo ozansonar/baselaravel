@@ -57,11 +57,11 @@ final class RecaptchaService
 
         if ($dbEnabled !== null) {
             return $dbEnabled === '1'
-                && !empty($this->siteKey())
-                && !empty($this->secretKey());
+                && ! empty($this->siteKey())
+                && ! empty($this->secretKey());
         }
 
-        return !empty(config('services.recaptcha.site_key'))
-            && !empty(config('services.recaptcha.secret_key'));
+        return ! empty(config('services.recaptcha.site_key'))
+            && ! empty(config('services.recaptcha.secret_key'));
     }
 }

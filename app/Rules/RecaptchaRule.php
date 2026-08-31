@@ -14,11 +14,11 @@ final class RecaptchaRule implements ValidationRule
     {
         $service = app(RecaptchaService::class);
 
-        if (!$service->isEnabled()) {
+        if (! $service->isEnabled()) {
             return;
         }
 
-        if (!$service->verify($value, request()->ip())) {
+        if (! $service->verify($value, request()->ip())) {
             $fail('Lütfen robot olmadığınızı doğrulayın.');
         }
     }

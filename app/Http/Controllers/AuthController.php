@@ -36,7 +36,7 @@ final class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        if (!$this->authService->login(
+        if (! $this->authService->login(
             ['email' => $validated['email'], 'password' => $validated['password']],
             $request->boolean('remember'),
         )) {

@@ -135,7 +135,7 @@ final class ExportService
     {
         $directory = (string) config('export.temp_path');
 
-        if (!File::isDirectory($directory)) {
+        if (! File::isDirectory($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
 

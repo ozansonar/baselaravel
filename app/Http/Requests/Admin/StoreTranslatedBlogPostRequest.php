@@ -28,7 +28,6 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
 {
     use ValidatesTranslationBlocks;
 
-
     public function authorize(): bool
     {
         return true;

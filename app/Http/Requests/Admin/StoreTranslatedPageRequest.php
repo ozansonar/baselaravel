@@ -80,13 +80,9 @@ final class StoreTranslatedPageRequest extends FormRequest
         return ['title', 'slug', 'excerpt', 'content', 'meta_title', 'meta_description'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

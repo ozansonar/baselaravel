@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Services\UploadService;
 
-if (!function_exists('versioned_asset')) {
+if (! function_exists('versioned_asset')) {
     /**
      * Generate an asset URL with cache-busting version query string.
      *
@@ -20,7 +20,7 @@ if (!function_exists('versioned_asset')) {
     }
 }
 
-if (!function_exists('upload_url')) {
+if (! function_exists('upload_url')) {
     /**
      * Get the public URL for an uploaded file.
      *
@@ -34,7 +34,7 @@ if (!function_exists('upload_url')) {
     }
 }
 
-if (!function_exists('whatsapp_url')) {
+if (! function_exists('whatsapp_url')) {
     /**
      * Convert a phone number or wa.me URL to a proper WhatsApp link.
      *
@@ -62,7 +62,7 @@ if (!function_exists('whatsapp_url')) {
     }
 }
 
-if (!function_exists('format_phone')) {
+if (! function_exists('format_phone')) {
     /**
      * Format a phone number for display: +90 505 942 41 24
      *
@@ -89,7 +89,7 @@ if (!function_exists('format_phone')) {
     }
 }
 
-if (!function_exists('upload_srcset')) {
+if (! function_exists('upload_srcset')) {
     /**
      * Generate srcset attribute for responsive images.
      *
@@ -103,7 +103,7 @@ if (!function_exists('upload_srcset')) {
     }
 }
 
-if (!function_exists('site_initials')) {
+if (! function_exists('site_initials')) {
     /**
      * Build a short monogram from the site name, used as a logo placeholder
      * until a real logo is uploaded.
@@ -128,7 +128,7 @@ if (!function_exists('site_initials')) {
     }
 }
 
-if (!function_exists('page_url')) {
+if (! function_exists('page_url')) {
     /**
      * A dynamic page's address in the language being read.
      *
@@ -142,7 +142,7 @@ if (!function_exists('page_url')) {
     }
 }
 
-if (!function_exists('image_alt')) {
+if (! function_exists('image_alt')) {
     /**
      * Bir görselin alt metni: ilk dolu aday, hiçbiri yoksa sitenin genel metni.
      *
@@ -157,7 +157,7 @@ if (!function_exists('image_alt')) {
     }
 }
 
-if (!function_exists('local_url')) {
+if (! function_exists('local_url')) {
     /**
      * Panelden girilen bağlantıyı ziyaretçinin diline taşır.
      *
@@ -172,7 +172,7 @@ if (!function_exists('local_url')) {
     }
 }
 
-if (!function_exists('validation_engine_script')) {
+if (! function_exists('validation_engine_script')) {
     /**
      * Doğrulama motorunun aktif dildeki dosya yolu.
      *
@@ -184,7 +184,7 @@ if (!function_exists('validation_engine_script')) {
     }
 }
 
-if (!function_exists('localized_route')) {
+if (! function_exists('localized_route')) {
     /**
      * Bir rotanın bu dildeki tercih edilen adresi.
      *

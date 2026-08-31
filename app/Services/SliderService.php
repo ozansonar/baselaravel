@@ -57,7 +57,7 @@ final class SliderService
     {
         $query = $this->onlyGroupRepresentatives(Slider::withTrashed(), Slider::class)->sorted();
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
                 $query->onlyTrashed();
             } elseif ($filters['status'] === 'active') {
@@ -69,7 +69,7 @@ final class SliderService
             $query->whereNull('deleted_at');
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, Slider::class, function ($q) use ($search): void {
                 $q->where('title', 'like', "%{$search}%")

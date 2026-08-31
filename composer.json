@@ -3,7 +3,12 @@
     "name": "ozansonar/laravel-base",
     "type": "project",
     "description": "Kurumsal site ve admin panel base kit — Laravel 13, Blade, Bootstrap 5, build tool yok.",
-    "keywords": ["laravel", "base-kit", "starter", "admin-panel"],
+    "keywords": [
+        "laravel",
+        "base-kit",
+        "starter",
+        "admin-panel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.4",
@@ -16,6 +21,7 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.1",
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.10",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "mockery/mockery": "^1.6",
@@ -70,6 +76,17 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "lint": [
+            "./vendor/bin/pint --test"
+        ],
+        "analyse": [
+            "./vendor/bin/phpstan analyse --memory-limit=1G --no-progress"
+        ],
+        "check": [
+            "@lint",
+            "@analyse",
+            "@test"
         ]
     },
     "extra": {

@@ -65,13 +65,9 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
         return ['title', 'description', 'video_url'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

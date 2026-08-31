@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1282 test / 4640 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1286 test / 4646 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1552,6 +1552,116 @@ durması da anlamlı hâle geldi — sonraki tur.
 
 ---
 
+## 5v. CI ve Statik Analiz — ✅ Kuruldu, Altı Gizli Hata Çıkardı
+
+1282 test vardı ve **hiçbiri otomatik koşmuyordu**. Kırılmadığını doğrulamak
+birinin elle `composer test` yazmasına bağlıydı; bu base kit'ten türeyen
+projelerde ilk terk edilen alışkanlık.
+
+### Üç kontrol, iki iş
+
+`.github/workflows/ci.yml`: push ve pull request'te koşuyor.
+
+| İş | Ne yapıyor |
+|---|---|
+| **Testler** | MySQL 8 servisine karşı migration + tüm suite |
+| **Kalite** | `pint --test` ve `phpstan analyse` |
+
+`composer check` (lint + analyse + test) aynı üçünü yerelde koşuyor.
+
+### Testler neden MySQL'e karşı
+
+Yerelde SQLite hızlı ama üretim MySQL 8 ve ikisi aynı şeyi kabul etmiyor. Bu iş
+akışı kurulduğu gün **SQLite'ın sakladığı altı hata** çıktı:
+
+**① Arama yapan her ekran MySQL'de 500 veriyordu.** İki servis LIKE koşulunu
+`ESCAPE '\'` ile yazıyordu. MySQL ters bölüyü dizge içinde de kaçış saydığı
+için kapanış tırnağı kaçırılmış oluyor ve sorgu **sözdizimi hatası** veriyordu.
+Yönlendirmeler ve ziyaret kayıtları ekranlarında arama kutusuna bir şey yazan
+herkes hata sayfası görüyordu — üretimdeki veritabanında, her seferinde.
+
+**② İki servis de tersini yapıyordu:** kaçırılmış terimi `ESCAPE` bildirmeden
+kullanıyorlardı; SQLite kaçışı hiç uygulamadığı için `%` arayan biri sessizce
+tüm listeyi görüyordu.
+
+**③ Bir test üretim şemasının kabul etmediği değeri yazıyordu:**
+`sort_order` kolonu `unsignedInteger`, test ise sıralamayı denemek için `-1`
+yazıyordu. SQLite kabul ediyor, MySQL reddediyor.
+
+İlk ikisi aynı kökten: aynı mantık **altı serviste kopyalanmıştı** ve ikisinde
+yanlış yazılmıştı. `App\Support\LikeSearch` ile tek yere toplandı; kaçış
+karakteri ünlem, çünkü ters bölünün anlamı iki veritabanında farklı, ünlem
+ikisinde de düz karakter. `LikeSearchIsPortableTest` hem kuralı hem
+uygulanışını bekçilik ediyor ve sorguyu **gerçek veritabanına** atıyor, yani CI
+onu iki sürücüde birden sınıyor.
+
+### Kod stili: gürültüden sinyale
+
+`pint --test` **459 dosyada** sapma bildiriyordu ve bu yüzden çıktısı hiçbir işe
+yaramıyordu — gerçek bir stil hatası o gürültüde görünmezdi. Sapmaların büyük
+kısmı kod tabanının bilinçli tercihleriydi (dizi hizalaması, `. ` ile
+birleştirme, `! ` boşluğu).
+
+`pint.json` bu tercihleri tanımlıyor. Kalan 75 dosya artık üslup değil gerçek
+tutarsızlıktı ve düzeltildi: **15 dosyada kullanılmayan import**, 34 dosyada
+karışık `!` boşluğu, 8 dosyada karışık birleştirme, gövdesiz `if`'ler ve
+yanlış girintilenmiş bir dizi.
+
+Sonuç: **sapma sıfır.** Ve `pint` fix modu artık güvenle çalıştırılabilir —
+yapılandırma hizalamaya dokunan kuralları kapalı tutuyor. (Bu, projenin eski
+"pint --fix çalıştırma" kuralını geçersiz kılıyor; kural varsayılan preset
+içindi.)
+
+Uygulanan diff hizalamaya dokunmadığı satır satır doğrulandı: `=>` sütunu kayan
+tek satır bile yok, değişen yalnızca `!$x` → `! $x`.
+
+### Statik analiz: seviye 1, sıfır tolerans
+
+Larastan eklendi. Seviye 5'te 552 hata çıkıyor ama ezici çoğunluğu gerçek kusur
+değil, Eloquent çıkarım sınırı (`selectRaw('count(*) as count')` sütunları,
+jenerik `Model` üzerinden görünmeyen SoftDeletes). Seviye 2'de bile 279.
+
+**Seviye 1 seçildi: temiz geçen en yüksek seviye.** Yükseltip taban dosyasıyla
+susturmak borcu kapatmak değil gizlemek olurdu; sıfır toleranslı düşük bir
+seviye, gürültülü yüksek bir seviyeden çok iş görüyor. Yukarı çıkmanın yolu
+modellere `@property` blokları eklemek — ayrı ve büyük bir iş, `phpstan.neon`
+içinde not düşüldü.
+
+### Seviye 0'ın çıkardığı üç şey
+
+Seviye 0 hataları neredeyse her zaman gerçektir ve üçü de öyleydi:
+
+**`LogOutgoingMail::handleFailed`** `Illuminate\Mail\Events\MessageFailed`
+olayını dinliyordu — **o sınıf Laravel'de yok.** Olay hiç doğmadığı için
+dinleyici hiç çalışmıyordu, üstelik çalışsaydı sürücünün gerçek hatası yerine
+genel bir cümle yazacaktı. Başarısız gönderim zaten iki yerde kayda geçiyor
+(senkron yolda `MailService`, kuyruk yolunda `UpdateMailLogOnFailed`), yani ölü
+kod kaldırıldı.
+
+**`SyncsTranslations` bildirmediği bir özelliğe dayanıyordu.** Trait
+`$this->uploadService` okuyor ama onu kullanan sekiz servisin **üçünde** böyle
+bir özellik yok. Bugün o üçü görselli yolu çağırmadığı için sorun çıkmıyor;
+çağırdıkları gün ölümcül hata alırlardı. Trait artık kendi bağımlılığını kendi
+çözüyor.
+
+**`UploadService::limits()` çökebilirdi.** `min(...array_filter([...]))`
+yazıyordu; `array_filter` sıfırları attığı için tüm adaylar sıfır olduğunda
+`min()` argümansız çağrılıyor ve ölümcül hata veriyordu. Bugünkü çağıranlar
+pozitif sabit geçiyor ama sıfır geçen ilk çağrı yükleme yolunu çökertirdi.
+
+### Testler
+
+`LikeSearchIsPortableTest` (4): ters bölü kaçışının hiçbir serviste geri
+gelmemesi, yardımcıyı kullanan her servisin koşulu da ondan alması, joker
+karakterin harf sayılması ve kaçış karakterinin kendisinin de kaçırılması.
+Son ikisi sorguyu gerçek veritabanına atıyor.
+
+Bekçinin gerçekten yakaladığı mutasyonla doğrulandı — ilk yazımı kaynak metin
+yerine çalışma zamanı değerini aradığı için yakalamıyordu, düzeltildi.
+
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1565,10 +1675,9 @@ varsayılanda bırakıldı**:
 
 ### Kod stili uyarısı
 
-`./vendor/bin/pint --test` ~180 dosyada sapma bildiriyor. **Bu normal** — kod
-tabanı `=>` hizalamasını bilinçli kullanıyor, Pint'in varsayılan Laravel preset'i
-bunu bozuyor. `pint --fix` **çalıştırılmamalı**, yoksa tüm kod tabanı yeniden
-formatlanır.
+~~`pint --test` ~180 dosyada sapma bildiriyor~~ — kapatıldı (bkz. bölüm 5v).
+`pint.json` projenin kendi biçimini tanımlıyor, sapma sıfır ve fix modu artık
+güvenle çalıştırılabiliyor.
 
 ---
 
@@ -1593,6 +1702,7 @@ Sıradakiler:
 5. ~~**Denetim izini yay**~~ — kapatıldı (bkz. bölüm 5r)
 6. ~~**Kuyruk izleyici ekranı**~~ — kapatıldı (bkz. bölüm 5s)
 7. ~~**İşlenmeyen hata kimseye ulaşmıyor**~~ — kapatıldı (bkz. bölüm 5p)
+8. ~~**CI ve statik analiz yok**~~ — kapatıldı (bkz. bölüm 5v)
 8. ~~**`robots.txt` route'a taşınsın**~~ — kapatıldı (bkz. bölüm 5o)
 9. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı
 10. ~~Kalan ölü kodu temizle~~ — tamamlandı

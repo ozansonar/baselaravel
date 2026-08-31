@@ -50,7 +50,8 @@ final class MailService
 
     /**
      * Queue a mailable for async delivery.
-     * Logs as "pending" – actual status is updated via MessageSent/Failed listeners.
+     * Logs as "pending" – actual status is updated by the MessageSent listener
+     * on success, and by this class or UpdateMailLogOnFailed on failure.
      */
     public function queue(string|array $to, Mailable $mailable): bool
     {
@@ -348,7 +349,7 @@ final class MailService
 
             $emails = array_filter($emails);
 
-            return !empty($emails) ? implode(', ', $emails) : null;
+            return ! empty($emails) ? implode(', ', $emails) : null;
         } catch (\Throwable) {
             return null;
         }

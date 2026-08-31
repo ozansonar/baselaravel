@@ -10,14 +10,11 @@ use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkBlogPostRequest;
 use App\Http\Requests\Admin\StoreTranslatedBlogPostRequest;
-use App\Http\Requests\StoreBlogPostRequest;
-use App\Http\Requests\UpdateBlogPostRequest;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Services\BlogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 final class BlogPostController extends Controller

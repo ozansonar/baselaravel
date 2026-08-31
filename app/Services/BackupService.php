@@ -462,7 +462,9 @@ final class BackupService
 
         foreach ($this->list() as $b) {
             if ($b['created_at']->lessThan($cutoff)) {
-                if (@unlink($b['path'])) $deleted++;
+                if (@unlink($b['path'])) {
+                    $deleted++;
+                }
             }
         }
 
@@ -485,7 +487,9 @@ final class BackupService
         }
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'db_dump_');
-        if ($tmpFile === false) return null;
+        if ($tmpFile === false) {
+            return null;
+        }
 
         // mysqldump var mı?
         $mysqldump = $this->findMysqldump();
@@ -541,7 +545,9 @@ final class BackupService
     {
         // Yaygın yollar
         foreach (['/usr/bin/mysqldump', '/usr/local/bin/mysqldump', '/opt/lampp/bin/mysqldump'] as $path) {
-            if (is_executable($path)) return $path;
+            if (is_executable($path)) {
+                return $path;
+            }
         }
 
         // PATH'te ara — ShellExec helper 3 katmanlı kontrol (function_exists +
@@ -568,10 +574,14 @@ final class BackupService
             $pdo = DB::connection()->getPdo();
 
             $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
-            if ($tables === false) return null;
+            if ($tables === false) {
+                return null;
+            }
 
             $fp = fopen($tmpFile, 'w');
-            if ($fp === false) return null;
+            if ($fp === false) {
+                return null;
+            }
 
             fwrite($fp, "-- PHP-side DB dump (mysqldump bulunamadı)\n");
             fwrite($fp, "-- " . now()->toIso8601String() . "\n\n");
@@ -615,7 +625,9 @@ final class BackupService
         );
 
         foreach ($iter as $file) {
-            if (! $file->isFile()) continue;
+            if (! $file->isFile()) {
+                continue;
+            }
             $absPath = $file->getPathname();
             $relPath = $zipPrefix . '/' . substr($absPath, strlen($dir) + 1);
             $relPath = str_replace('\\', '/', $relPath);
@@ -657,9 +669,15 @@ final class BackupService
 
     private function humanBytes(int $bytes): string
     {
-        if ($bytes < 1024) return $bytes . ' B';
-        if ($bytes < 1_048_576) return round($bytes / 1024, 1) . ' KB';
-        if ($bytes < 1_073_741_824) return round($bytes / 1_048_576, 1) . ' MB';
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+        if ($bytes < 1_048_576) {
+            return round($bytes / 1024, 1) . ' KB';
+        }
+        if ($bytes < 1_073_741_824) {
+            return round($bytes / 1_048_576, 1) . ' MB';
+        }
         return round($bytes / 1_073_741_824, 2) . ' GB';
     }
 }

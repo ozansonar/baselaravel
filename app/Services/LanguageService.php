@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\File;
+use App\Support\LikeSearch;
 
 /**
  * Owns the language list and the "exactly one default" rule.
@@ -277,12 +278,12 @@ final class LanguageService
         if (($filters['search'] ?? '') !== '') {
             // Joker karakterler düz metin sayılıyor: "%" yazan biri tüm listeyi
             // getirmemeli.
-            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+            $term = LikeSearch::term((string) $filters['search']);
 
             $query->where(function (Builder $sub) use ($term): void {
-                $sub->where('name', 'like', $term)
-                    ->orWhere('native_name', 'like', $term)
-                    ->orWhere('code', 'like', $term);
+                $sub->whereRaw(LikeSearch::clause('name'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('native_name'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('code'), [$term]);
             });
         }
 

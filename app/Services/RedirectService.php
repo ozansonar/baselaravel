@@ -10,6 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\LikeSearch;
 
 final class RedirectService
 {
@@ -96,12 +97,12 @@ final class RedirectService
         if (isset($filters['search']) && $filters['search'] !== '') {
             // Joker karakterler düz metin sayılıyor; ESCAPE açıkça bildiriliyor
             // çünkü ters bölüyü kaçış sayan tek veritabanı MySQL.
-            $term = '%' . addcslashes((string) $filters['search'], '%_\\') . '%';
+            $term = LikeSearch::term((string) $filters['search']);
 
             $query->where(function ($q) use ($term): void {
-                $q->whereRaw("old_url LIKE ? ESCAPE '\\'", [$term])
-                    ->orWhereRaw("new_url LIKE ? ESCAPE '\\'", [$term])
-                    ->orWhereRaw("note LIKE ? ESCAPE '\\'", [$term]);
+                $q->whereRaw(LikeSearch::clause('old_url'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('new_url'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('note'), [$term]);
             });
         }
 
@@ -196,7 +197,7 @@ final class RedirectService
 
     public function toggleActive(Redirect $redirect): Redirect
     {
-        $redirect->update(['is_active' => !$redirect->is_active]);
+        $redirect->update(['is_active' => ! $redirect->is_active]);
         $this->clearCache();
 
         return $redirect;

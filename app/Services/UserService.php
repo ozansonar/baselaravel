@@ -102,7 +102,7 @@ final class UserService
             };
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search): void {
                 $q->where('first_name', 'like', "%{$search}%")
@@ -111,7 +111,7 @@ final class UserService
             });
         }
 
-        if (!empty($filters['role'])) {
+        if (! empty($filters['role'])) {
             $query->whereHas('roles', function ($q) use ($filters): void {
                 $q->where('slug', $filters['role']);
             });
@@ -165,7 +165,7 @@ final class UserService
      */
     public function update(User $user, array $data, $avatar = null, ?array $roles = null, ?string $password = null, bool $removeAvatar = false): User
     {
-        if ($removeAvatar && !$avatar && $user->avatar) {
+        if ($removeAvatar && ! $avatar && $user->avatar) {
             $this->uploadService->deleteImage($user->avatar);
             $data['avatar'] = null;
         } elseif ($avatar) {
