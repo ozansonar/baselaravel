@@ -37,6 +37,11 @@
         <i class="fa-solid fa-shield-halved"></i> {{ __('site.two_factor.title') }}
     </a>
 
+    <a href="{{ route('account.comments') }}"
+       class="account-nav__link @if(request()->routeIs('account.comments')) active @endif">
+        <i class="fa-solid fa-comments"></i> {{ __('site.comments.title') }}
+    </a>
+
     <a href="{{ route('account.notifications') }}"
        class="account-nav__link @if(request()->routeIs('account.notifications')) active @endif">
         <i class="fa-solid fa-bell"></i> {{ __('site.notifications.title') }}

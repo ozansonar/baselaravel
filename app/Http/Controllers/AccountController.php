@@ -11,6 +11,7 @@ use App\Enums\NotificationPreference;
 use App\Services\AccountDataService;
 use App\Services\AccountDeviceService;
 use App\Services\AccountService;
+use App\Services\BlogCommentService;
 use App\Services\NotificationPreferenceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -24,6 +25,7 @@ final class AccountController extends Controller
         private readonly AccountDeviceService $devices,
         private readonly AccountDataService $data,
         private readonly NotificationPreferenceService $preferences,
+        private readonly BlogCommentService $comments,
     ) {}
 
     /**
@@ -252,5 +254,38 @@ final class AccountController extends Controller
 
         return redirect()->route('account.notifications')
             ->with('success', __('site.notifications.saved'));
+    }
+
+    /**
+     * Yorumlarım.
+     *
+     * Onay bekleyenler de listede: kişi, yorumunun neden henüz görünmediğini
+     * ancak böyle öğreniyor.
+     */
+    public function comments(): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return view('account.comments', [
+            'user'     => $user,
+            'comments' => $this->comments->paginateForUser($user, 10),
+        ]);
+    }
+
+    /**
+     * Kendi yorumunu siler.
+     */
+    public function destroyComment(int $comment): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $deleted = $this->comments->deleteOwn($user, $comment);
+
+        return redirect()->route('account.comments')->with(
+            $deleted ? 'success' : 'error',
+            $deleted ? __('site.comments.deleted') : __('site.comments.not_found'),
+        );
     }
 }

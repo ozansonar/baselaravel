@@ -170,6 +170,14 @@ Route::middleware(['auth', 'verified'])->prefix('hesabim')->name('account.')->gr
     Route::get('/bildirimler', [AccountController::class, 'notifications'])->name('notifications');
     Route::put('/bildirimler', [AccountController::class, 'updateNotifications'])->name('notifications.update');
 
+    /*
+     * Yorumlarım — onay bekleyenler dahil.
+     */
+    Route::get('/yorumlarim', [AccountController::class, 'comments'])->name('comments');
+    Route::delete('/yorumlarim/{comment}', [AccountController::class, 'destroyComment'])
+        ->whereNumber('comment')
+        ->name('comments.destroy');
+
     Route::get('/veriler', [AccountController::class, 'data'])->name('data');
     Route::get('/veriler/indir', [AccountController::class, 'downloadData'])
         ->middleware('throttle:6,1')

@@ -163,16 +163,23 @@ değiştirilebilir.
 
 ## Faz 4 — API Olgunluğu
 
-### 4.1 Push bildirim altyapısı
+### 4.1 Push bildirim altyapısı — 🟡 sunucu tarafı bitti, panel ekranı bekliyor
 **Neden:** Mobil uygulamanın ilk isteyeceği şey; sunucu tarafı hazır değilse
 uygulama ekibi bekliyor. Sağlayıcıdan bağımsız kurgulanabilir: jeton kaydı ve
 gönderim kancası bizde, taşıyıcı (FCM/APNs) yapılandırmada.
 **Kapsam:** `POST/DELETE /account/push-tokens`, cihaz eşleştirmesi, panelden
 "bildirim gönder" ekranı, gönderim kuyruğa düşüyor.
+**Yapılan:** Jeton kaydı, cihaz eşleştirme, sağlayıcıdan bağımsız gönderim
+servisi (FCM sürücüsü + yapılandırılmamışken log), ölü jetonun düşmesi ve
+oturum kapanınca jetonların silinmesi.
+**Kalan:** Panelden bildirim yazıp gönderme ekranı. Admin temada bu ekranın
+tasarımı yok (`notifications.html` yalnız tercih anahtarları içeriyor) ve
+tasarımda olmayan ekranı uydurmak proje kuralına aykırı — tasarım geldiğinde
+ya da onay verildiğinde yapılacak.
 **Kabul:** Jeton kaydı cihazla eşleşiyor, oturum kapanınca jeton düşüyor.
 Test: `Api/ApiPushTokenTest`.
 
-### 4.2 Sürüm ve sağlık ucu
+### 4.2 Sürüm ve sağlık ucu — ✅ bitti
 **Neden:** Mağazadaki eski sürümü zorla güncellemenin yolu yok; bakım
 penceresini uygulama önceden bilmiyor.
 **Kapsam:** `GET /api/v1/health` — sürüm, asgari desteklenen istemci sürümü,
@@ -180,7 +187,7 @@ bakım durumu.
 **Kabul:** Asgari sürüm ayarı yükseltilince eski istemci "güncelle" yanıtı
 alıyor. Test: `Api/ApiHealthTest`.
 
-### 4.3 Kullanıcının kendi yorumları
+### 4.3 Kullanıcının kendi yorumları — ✅ bitti
 **Neden:** Yorum gönderilebiliyor ama kişi kendi yorumlarını göremiyor,
 silemiyor. Web'de de yok — ikisi birlikte yapılmalı.
 **Kapsam:** `GET /account/comments`, `DELETE /account/comments/{id}`; web'de
@@ -188,7 +195,7 @@ hesap ekranında aynı liste.
 **Kabul:** Sadece kendi yorumları, onay bekleyenler dahil.
 Test: `Api/ApiAccountCommentsTest`.
 
-### 4.4 Şemanın hizada kalması
+### 4.4 Şemanın hizada kalması — ✅ sürüyor (38 uç şemada)
 **Neden:** `openapi.json` kendi kendini denetliyor (`OpenApiSpecTest`); yeni
 uçlar eklendikçe bu bekçi güncel kalmalı, yoksa sessizce bayatlar.
 **Kapsam:** Faz 1–4'te eklenen her uç için şema girdisi ve `API.md` bölümü.

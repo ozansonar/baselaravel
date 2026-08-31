@@ -346,6 +346,23 @@ return [
         'retry' => 'Try again',
     ],
 
+    'comments' => [
+        'title' => 'My comments',
+        'desc'  => 'See and manage the comments you left.',
+        'lead'  => 'The comments you left on posts. Ones awaiting approval are listed too; they are not visible on the site until approved.',
+
+        'approved' => 'Published',
+        'pending'  => 'Awaiting approval',
+        'rejected' => 'Not published',
+        'view'     => 'View on site',
+        'delete'   => 'Delete',
+        'confirm_delete' => 'This comment will be deleted. Continue?',
+        'deleted'   => 'Your comment has been deleted.',
+        'not_found' => 'Comment not found.',
+        'empty'     => 'You have not commented yet.',
+        'deleted_post' => 'Deleted post',
+    ],
+
     'login' => [
         'failed'                => 'The e-mail address or password is incorrect.',
         'deactivated'           => 'Your account has been deactivated, so you have been signed out.',

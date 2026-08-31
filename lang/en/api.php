@@ -13,6 +13,15 @@ declare(strict_types=1);
 
 return [
 
+    'push' => [
+        'registered' => 'Your device is registered for notifications.',
+        'forgotten'  => 'Your device no longer receives notifications.',
+    ],
+
+    'comments' => [
+        'deleted' => 'Your comment has been deleted.',
+    ],
+
     'common' => [
         'invalid_field' => 'Unknown field.',
         'ok'                 => 'Request completed.',

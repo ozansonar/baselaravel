@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\ProfileUpdateRequest;
 use App\Enums\NotificationPreference;
+use App\Enums\PushPlatform;
 use App\Http\Requests\Api\V1\ChangePasswordRequest;
 use App\Http\Requests\Api\V1\CloseAccountRequest;
+use App\Http\Requests\Api\V1\StorePushTokenRequest;
 use App\Http\Requests\Api\V1\UpdateNotificationPreferencesRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Responses\ApiResponse;
@@ -16,6 +18,7 @@ use App\Models\User;
 use App\Services\AccountDataService;
 use App\Services\AccountService;
 use App\Services\NotificationPreferenceService;
+use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -37,6 +40,7 @@ final class AccountController extends Controller
         private readonly AccountService $account,
         private readonly AccountDataService $data,
         private readonly NotificationPreferenceService $preferences,
+        private readonly PushNotificationService $push,
     ) {}
 
     /**
@@ -175,6 +179,50 @@ final class AccountController extends Controller
                 'description' => $type->description(),
             ], NotificationPreference::cases()),
         ];
+    }
+
+    /**
+     * POST /api/v1/account/push-tokens
+     *
+     * Cihaz bildirim adresini bırakıyor. Uygulama bunu her açılışta
+     * gönderiyor: jeton işletim sistemi tarafından yenilenebiliyor ve
+     * yenilenen jetonu sunucunun bilmemesi, bildirimlerin sessizce kesilmesi
+     * demek.
+     */
+    public function storePushToken(StorePushTokenRequest $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->push->register(
+            $user,
+            $request->string('token')->value(),
+            PushPlatform::from($request->string('platform')->value()),
+            $request->string('device_name')->value() ?: null,
+        );
+
+        return ApiResponse::success(null, __('api.push.registered'));
+    }
+
+    /**
+     * DELETE /api/v1/account/push-tokens
+     *
+     * Bildirimleri kapatan ya da çıkış yapan cihaz adresini geri alıyor.
+     */
+    public function destroyPushToken(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $token = (string) $request->input('token', '');
+
+        if ($token === '') {
+            return ApiResponse::error(__('api.common.invalid_field'), ['token' => [__('api.common.invalid_field')]], 422);
+        }
+
+        $this->push->forget($user, $token);
+
+        return ApiResponse::success(null, __('api.push.forgotten'));
     }
 
     /**

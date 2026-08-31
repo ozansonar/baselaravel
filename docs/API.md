@@ -228,6 +228,33 @@ savunma hattı olarak 403 döner ve jetonu siler.
 
 ---
 
+## Sağlık ve sürüm
+
+### `GET /health`
+
+Jeton istemez ve **bakım modunda da açıktır**: uygulamanın bakımı
+öğrenebileceği tek yer burasıdır, kapalı olsaydı bakım penceresinde her istek
+gibi bu da hata dönerdi.
+
+```json
+{
+  "status": "ok",
+  "api_version": "v1",
+  "maintenance": false,
+  "minimum_client_version": "2.0.0",
+  "update_required": false,
+  "server_time": "2026-08-31T23:11:35+03:00"
+}
+```
+
+İstemci sürümünü `X-Client-Version` başlığıyla bildirir. Panelde tanımlı asgari
+sürümün altındaysa `update_required` true döner ve uygulama kullanıcıyı mağazaya
+yönlendirir. Sürüm bildirmeyen istemci **engellenmez**: onu geri çevirmek,
+yapması gereken tek şey güncellenmek olan bir uygulamayı tamamen kullanılamaz
+hâle getirirdi.
+
+---
+
 ## Şifre sıfırlama
 
 Web'de sıfırlama bağlantısı maille gelir ve şifre tarayıcıda değiştirilir.
@@ -426,6 +453,33 @@ Ayrı bir uç, çünkü profil güncelleme **tam** bir güncelleme: yalnız şif
 değiştirecek istemcinin ad, soyad ve e-postayı da taşıması gerekirdi.
 `logout_other_devices` açılırsa bu isteği yapan jeton dışındaki bütün jetonlar
 düşer.
+
+### `POST|DELETE /account/push-tokens` *(jeton gerekli — `profile:write`)*
+
+```json
+{ "token": "fcm-cihaz-jetonu", "platform": "ios", "device_name": "iPhone 15" }
+```
+
+Uygulama bunu **her açılışta** göndermeli: jetonu işletim sistemi
+yenileyebiliyor ve yenilenen jetonu sunucunun bilmemesi, bildirimlerin sessizce
+kesilmesi demek. Aynı jeton başka bir hesapta kayıtlıysa o hesaptan alınır —
+telefon el değiştirmiş demektir. Hesap pasife alındığında ya da kapatıldığında
+jetonlar düşer; cihaz yeniden giriş yaptığında adresini zaten yeniden bırakır.
+
+Gönderim tarafı sağlayıcıdan bağımsız: `PUSH_DRIVER` tanımlı değilse jetonlar
+kaydedilir ama bildirim gönderilmez ve bu log'a düşer — sessizce kaybolmaz.
+
+### `GET /account/comments` · `DELETE /account/comments/{id}` *(jeton gerekli)*
+
+Kişinin kendi yorumları, **onay bekleyenler dahil**: yorumunun neden henüz
+görünmediğini ancak böyle öğreniyor. Eşleşme e-postayla, çünkü yorum girişsiz
+de bırakılabiliyor.
+
+`status` alanı yalnız bu uçta var. Herkese açık yorum listesinde onay bekleyen
+yorumların varlığı bile söylenmez: sitede görünmeyen içeriği duyurmak olurdu.
+
+Başkasının yorumunu silmeye çalışmak **404** döner — "yetkin yok" cevabı o
+yorumun var olduğunu söylerdi.
 
 ### `GET|PUT /account/notification-preferences` *(jeton gerekli)*
 

@@ -349,6 +349,23 @@ return [
         'retry' => 'Yeniden dene',
     ],
 
+    'comments' => [
+        'title' => 'Yorumlarım',
+        'desc'  => 'Yaptığınız yorumları görün ve yönetin.',
+        'lead'  => 'Yazılara yaptığınız yorumlar burada. Onay bekleyenler de listede; onaylanana kadar sitede görünmezler.',
+
+        'approved' => 'Yayında',
+        'pending'  => 'Onay bekliyor',
+        'rejected' => 'Yayınlanmadı',
+        'view'     => 'Sitede gör',
+        'delete'   => 'Sil',
+        'confirm_delete' => 'Bu yorum silinecek. Devam edilsin mi?',
+        'deleted'   => 'Yorumunuz silindi.',
+        'not_found' => 'Yorum bulunamadı.',
+        'empty'     => 'Henüz yorum yapmamışsınız.',
+        'deleted_post' => 'Silinmiş yazı',
+    ],
+
     'login' => [
         'failed'                => 'E-posta veya şifre hatalı.',
         'deactivated'           => 'Hesabınız pasife alındığı için oturumunuz kapatıldı.',

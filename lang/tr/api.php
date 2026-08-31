@@ -14,6 +14,15 @@ declare(strict_types=1);
 
 return [
 
+    'push' => [
+        'registered' => 'Cihazınız bildirimler için kaydedildi.',
+        'forgotten'  => 'Cihazınız bildirim listesinden çıkarıldı.',
+    ],
+
+    'comments' => [
+        'deleted' => 'Yorumunuz silindi.',
+    ],
+
     'common' => [
         'invalid_field' => 'Tanınmayan alan.',
         'ok'                 => 'İşlem başarılı.',
