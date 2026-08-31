@@ -120,4 +120,7 @@ jobs:
         run: ./vendor/bin/pint --test
 
       - name: Statik analiz
-        run: ./vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+        # -a phpstan-bootstrap.php: Larastan'ın stub süzgeci LARAVEL_VERSION
+        # sabitini okuyor ama sabiti tanımlayan bootstrap her zaman ondan önce
+        # çalışmıyor. Dosyanın kendi yorumunda ayrıntısı var.
+        run: ./vendor/bin/phpstan analyse -a phpstan-bootstrap.php --memory-limit=1G --no-progress

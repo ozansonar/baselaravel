@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\ForgotPasswordRequest;
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Requests\Api\V1\RegisterRequest;
+use App\Http\Requests\Api\V1\ResetPasswordRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\ApiAuthService;
+use App\Services\PasswordResetCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,6 +29,7 @@ final class AuthController extends Controller
 {
     public function __construct(
         private readonly ApiAuthService $apiAuth,
+        private readonly PasswordResetCodeService $passwordReset,
     ) {}
 
     /**
@@ -101,6 +105,73 @@ final class AuthController extends Controller
         $user->loadMissing('roles');
 
         return ApiResponse::success(UserResource::make($user));
+    }
+
+    /**
+     * POST /api/v1/auth/password/forgot
+     *
+     * Altı haneli kod maille gidiyor. Web'deki bağlantılı akıştan farkı
+     * {@see PasswordResetCodeService} içinde anlatılı.
+     */
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $this->passwordReset->sendCode($request->string('email')->value());
+
+        // Adres kayıtlı olsa da olmasa da aynı yanıt. Ayırt edilebilseydi bu
+        // uç, hangi adreslerin sistemde olduğunu öğrenmenin en kolay yolu
+        // olurdu — üstelik giriş denemesi gerektirmeden.
+        return ApiResponse::success(
+            ['expires_in_minutes' => $this->passwordReset->expiresInMinutes()],
+            __('api.password.code_sent'),
+        );
+    }
+
+    /**
+     * POST /api/v1/auth/password/reset
+     */
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $done = $this->passwordReset->reset(
+            $request->string('email')->value(),
+            $request->string('code')->value(),
+            $request->string('password')->value(),
+        );
+
+        if (! $done) {
+            // Kodun yanlış mı yoksa süresi dolmuş mu olduğu söylenmiyor:
+            // ikisini ayırmak, geçerli bir kodun varlığını doğrulamaya yarar.
+            return ApiResponse::error(
+                __('api.password.code_invalid'),
+                ['code' => [__('api.password.code_invalid')]],
+                422,
+            );
+        }
+
+        // Jeton dönülmüyor: şifresini sıfırlayan kullanıcı yeni şifresiyle
+        // giriş yapmalı. Sıfırlama, o ana kadarki bütün oturum ve jetonları
+        // düşürüyor — biri hesabı ele geçirdiyse elindekini de kaybetsin diye.
+        return ApiResponse::success(null, __('api.password.reset'));
+    }
+
+    /**
+     * POST /api/v1/auth/email/resend
+     *
+     * Doğrulama bağlantısını yeniden gönderir. Bağlantı tarayıcıda açılıyor ve
+     * doğrulamayı orada tamamlıyor — mobil tarafta ek bir kurulum gerektirmeyen
+     * tek adım bu.
+     */
+    public function resendVerification(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return ApiResponse::success(null, __('api.auth.already_verified'));
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return ApiResponse::success(null, __('api.auth.verification_sent'));
     }
 
     /**

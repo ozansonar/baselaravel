@@ -76,6 +76,10 @@ return [
         'login'    => (int) env('API_RATE_LIMIT_LOGIN', 5),
         'register' => (int) env('API_RATE_LIMIT_REGISTER', 3),
         'contact'  => (int) env('API_RATE_LIMIT_CONTACT', 3),
+        // Şifre sıfırlama kodunu kıramaz kılan sınır bu. Yükseltmeden önce
+        // App\Services\PasswordResetCodeService'teki gerekçeyi okuyun.
+        'password'     => (int) env('API_RATE_LIMIT_PASSWORD', 5),
+        'verification' => (int) env('API_RATE_LIMIT_VERIFICATION', 3),
     ],
 
     /*

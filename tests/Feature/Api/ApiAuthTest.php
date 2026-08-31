@@ -190,13 +190,14 @@ class ApiAuthTest extends TestCase
     }
 
     /**
-     * Hesap kapatıldığında elde kalan jeton da ölmeli.
+     * Hesap kapatıldığı anda jetonlar da düşüyor.
      *
      * Oturum kendiliğinden sona eriyor, jeton ermiyor: kontrol edilmezse
      * yönetici hesabı kapattıktan sonra mobil uygulama aylarca erişmeye devam
-     * ederdi.
+     * ederdi. Silmeyi UserObserver üzerinden SessionRevoker yapıyor — web
+     * oturumlarıyla aynı yerden, aynı anda.
      */
-    public function test_a_token_stops_working_once_the_account_is_deactivated(): void
+    public function test_deactivating_an_account_revokes_its_tokens_at_once(): void
     {
         $user = User::factory()->create(['password' => 'Gizli*12345']);
 
@@ -207,11 +208,40 @@ class ApiAuthTest extends TestCase
 
         $user->update(['is_active' => false]);
 
+        $this->assertSame(0, $user->tokens()->count());
+
+        // Jeton artık hiç tanınmıyor: istek kimliksiz sayılıyor.
+        $this->asToken($token)
+            ->getJson('/api/v1/auth/me')
+            ->assertUnauthorized();
+    }
+
+    /**
+     * İkinci savunma hattı: bayrak gözlemciyi uyandırmadan değişirse.
+     *
+     * Toplu işlemler ve elle atılan sorgular model olayı doğurmuyor, yani
+     * jetonlar yerinde kalıyor. EnsureApiUserIsActive o boşluğu kapatıyor —
+     * ön yüzde EnsureUserIsActive'in yaptığının aynısı.
+     */
+    public function test_a_token_is_refused_when_the_flag_changed_without_the_observer(): void
+    {
+        $user = User::factory()->create(['password' => 'Gizli*12345']);
+
+        $token = $this->postJson('/api/v1/auth/login', [
+            'email'    => $user->email,
+            'password' => 'Gizli*12345',
+        ])->json('data.token');
+
+        // Sorgu oluşturucu üzerinden: model olayı doğmuyor, jeton duruyor.
+        User::where('id', $user->id)->update(['is_active' => false]);
+
+        $this->assertSame(1, $user->tokens()->count());
+
         $this->asToken($token)
             ->getJson('/api/v1/auth/me')
             ->assertForbidden();
 
-        // Sadece reddedilmiyor, jeton da siliniyor.
+        // Ara katman reddetmekle kalmıyor, jetonu da siliyor.
         $this->assertSame(0, $user->tokens()->count());
     }
 

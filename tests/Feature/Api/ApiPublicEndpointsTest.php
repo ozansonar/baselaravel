@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api;
 
+use App\Enums\ContentStatus;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\GalleryCategory;
 use App\Models\GalleryItem;
 use App\Models\Menu;
+use App\Models\Page;
 use App\Models\MenuItem;
 use App\Models\Setting;
 use App\Services\LanguageService;
@@ -78,6 +80,60 @@ class ApiPublicEndpointsTest extends TestCase
     public function test_an_unknown_settings_group_returns_404(): void
     {
         $this->getJson('/api/v1/settings?group=mail')
+            ->assertNotFound()
+            ->assertJsonPath('success', false);
+    }
+
+    // ── Sayfalar ──
+
+    public function test_pages_list_only_the_published_ones(): void
+    {
+        Page::factory()->create(['title' => 'Hakkımızda', 'slug' => 'hakkimizda', 'status' => ContentStatus::Published]);
+        Page::factory()->create(['title' => 'Taslak', 'slug' => 'taslak-sayfa', 'status' => ContentStatus::Draft]);
+
+        $slugs = collect(
+            $this->getJson('/api/v1/pages')->assertOk()->json('data'),
+        )->pluck('slug');
+
+        $this->assertContains('hakkimizda', $slugs);
+        $this->assertNotContains('taslak-sayfa', $slugs);
+    }
+
+    /**
+     * Liste bir menü çizmek için; bütün yasal metinleri indirmek için değil.
+     */
+    public function test_the_page_list_does_not_carry_the_body(): void
+    {
+        Page::factory()->create(['slug' => 'gizlilik', 'status' => ContentStatus::Published]);
+
+        $first = $this->getJson('/api/v1/pages')->assertOk()->json('data.0');
+
+        $this->assertArrayNotHasKey('content', $first);
+        $this->assertArrayHasKey('slug', $first);
+    }
+
+    public function test_a_page_detail_carries_the_html_content(): void
+    {
+        Page::factory()->create([
+            'title'   => 'Gizlilik Politikası',
+            'slug'    => 'gizlilik',
+            'content' => '<h2>Kişisel veriler</h2><p>Metin.</p>',
+            'status'  => ContentStatus::Published,
+        ]);
+
+        $this->getJson('/api/v1/pages/gizlilik')
+            ->assertOk()
+            ->assertJsonPath('data.slug', 'gizlilik')
+            ->assertJsonPath('data.content_format', 'html')
+            ->assertJsonPath('data.content', '<h2>Kişisel veriler</h2><p>Metin.</p>')
+            ->assertJsonStructure(['data' => ['meta' => ['title', 'description'], 'sections']]);
+    }
+
+    public function test_an_unpublished_page_is_not_reachable(): void
+    {
+        Page::factory()->create(['slug' => 'taslak-sayfa', 'status' => ContentStatus::Draft]);
+
+        $this->getJson('/api/v1/pages/taslak-sayfa')
             ->assertNotFound()
             ->assertJsonPath('success', false);
     }

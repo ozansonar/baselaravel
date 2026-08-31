@@ -31,6 +31,21 @@ return [
         'logged_out'            => 'Signed out.',
         'unauthenticated'       => 'You must be signed in to do that.',
         'registration_disabled' => 'New registrations are currently closed.',
+        'verification_sent'     => 'A verification link has been sent to your e-mail address.',
+        'already_verified'      => 'Your e-mail address is already verified.',
+        'email_unverified'      => 'Verify your e-mail address before doing that.',
+    ],
+
+    'password' => [
+        'code_sent'     => 'If the address is registered, a reset code has been sent.',
+        'code_invalid'  => 'That code is invalid or has expired. Request a new one.',
+        'code_required' => 'The reset code is required.',
+        'code_digits'   => 'The reset code must be 6 digits.',
+        'reset'         => 'Your password has been changed. You can sign in with it now.',
+    ],
+
+    'pages' => [
+        'not_found' => 'Page not found.',
     ],
 
     'menus' => [

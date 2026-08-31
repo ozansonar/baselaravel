@@ -305,6 +305,24 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api-contact', fn (Request $request): Limit => Limit::perMinute($limits['contact'] ?? 3)
             ->by((string) $request->ip()));
+
+        // Şifre sıfırlama — hem kod isteme hem kod deneme aynı kovada.
+        //
+        // Bu sınır bir kolaylık değil, altı haneli kodun güvenliğinin taşıyıcı
+        // direği: bir milyon olasılık sınırsız denemeye açık bırakılsaydı
+        // dakikalar içinde tükenirdi. Gerekçenin tamamı
+        // {@see \App\Services\PasswordResetCodeService}.
+        //
+        // Anahtar e-posta + IP: bir adrese karşı yapılan deneme, saldırgan IP
+        // değiştirse de aynı kovaya düşsün.
+        RateLimiter::for('api-password', fn (Request $request): Limit => Limit::perMinute($limits['password'] ?? 5)
+            ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()));
+
+        // Doğrulama maili — kullanıcı başına. Kotayı IP'ye bağlamak, aynı
+        // ofisten giren ikinci kullanıcıyı ilkinin denemeleri yüzünden
+        // kilitlerdi.
+        RateLimiter::for('api-verification', fn (Request $request): Limit => Limit::perMinute($limits['verification'] ?? 3)
+            ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
     }
 
     /**

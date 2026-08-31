@@ -82,7 +82,7 @@
             "./vendor/bin/pint --test"
         ],
         "analyse": [
-            "./vendor/bin/phpstan analyse --memory-limit=1G --no-progress"
+            "./vendor/bin/phpstan analyse -a phpstan-bootstrap.php --memory-limit=1G --no-progress"
         ],
         "check": [
             "@lint",

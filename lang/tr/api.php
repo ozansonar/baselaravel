@@ -32,6 +32,21 @@ return [
         'logged_out'            => 'Çıkış yapıldı.',
         'unauthenticated'       => 'Bu işlem için giriş yapmalısınız.',
         'registration_disabled' => 'Yeni kayıtlar şu anda kapalı.',
+        'verification_sent'     => 'Doğrulama bağlantısı e-posta adresinize gönderildi.',
+        'already_verified'      => 'E-posta adresiniz zaten doğrulanmış.',
+        'email_unverified'      => 'Bu işlem için önce e-posta adresinizi doğrulamanız gerekiyor.',
+    ],
+
+    'password' => [
+        'code_sent'     => 'Adres kayıtlıysa şifre sıfırlama kodu gönderildi.',
+        'code_invalid'  => 'Kod geçersiz ya da süresi dolmuş. Yeni bir kod isteyin.',
+        'code_required' => 'Sıfırlama kodu zorunludur.',
+        'code_digits'   => 'Sıfırlama kodu 6 haneli olmalıdır.',
+        'reset'         => 'Şifreniz değiştirildi. Yeni şifrenizle giriş yapabilirsiniz.',
+    ],
+
+    'pages' => [
+        'not_found' => 'Sayfa bulunamadı.',
     ],
 
     'menus' => [

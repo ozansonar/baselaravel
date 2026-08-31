@@ -26,12 +26,18 @@ use Illuminate\Support\Facades\DB;
  * Sessions can only be found by user when they live in the database. With any
  * other driver this half is a no-op and the middleware carries the whole job,
  * which is why the check exists in both places rather than only here.
+ *
+ * API jetonları da buradan düşüyor. Oturum çerezi bir gün sona eriyor, jeton
+ * ermiyor: yalnızca oturumlar silinseydi kapatılan bir hesap mobil uygulamadan
+ * aylarca erişmeye devam ederdi. Jetonun sürücüsü yok, her kurulumda
+ * veritabanında — yani bu yarısı her zaman çalışıyor.
  */
 final class SessionRevoker
 {
     public function revoke(User $user): void
     {
         $this->deleteSessions([$user->getKey()]);
+        $this->deleteApiTokens([$user->getKey()]);
 
         // A force delete has already taken the row away and left exists at
         // false; saving now would insert the user straight back.
@@ -59,6 +65,7 @@ final class SessionRevoker
         }
 
         $this->deleteSessions($userIds);
+        $this->deleteApiTokens($userIds);
 
         // withTrashed: the rows this is called for have usually just been soft
         // deleted, and the default scope would skip every one of them.
@@ -79,6 +86,22 @@ final class SessionRevoker
         DB::connection(config('session.connection'))
             ->table((string) config('session.table', 'sessions'))
             ->whereIn('user_id', $userIds)
+            ->delete();
+    }
+
+    /**
+     * Kullanıcının bütün cihazlarındaki API jetonları.
+     *
+     * Model üzerinden değil doğrudan tablo üzerinden siliniyor: bu metot toplu
+     * işlemlerden de çağrılıyor ve orada elde model yok, yalnızca kimlikler var.
+     *
+     * @param list<int> $userIds
+     */
+    private function deleteApiTokens(array $userIds): void
+    {
+        DB::table('personal_access_tokens')
+            ->where('tokenable_type', User::class)
+            ->whereIn('tokenable_id', $userIds)
             ->delete();
     }
 }

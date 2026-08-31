@@ -51,6 +51,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.active' => \App\Http\Middleware\EnsureApiUserIsActive::class,
             // Bakım modunda genel API uçlarını kapatır.
             'api.available' => \App\Http\Middleware\EnsureApiIsAvailable::class,
+            // E-postası doğrulanmamış kullanıcıyı hesap uçlarından çevirir.
+            'api.verified' => \App\Http\Middleware\EnsureApiEmailIsVerified::class,
         ]);
 
         // Kendi alan adımızdaki ön yüz API'yi oturum çereziyle de

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlogCategoryController;
 use App\Http\Controllers\Api\V1\BlogPostController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\V1\GalleryCategoryController;
 use App\Http\Controllers\Api\V1\GalleryController;
 use App\Http\Controllers\Api\V1\LanguageController;
 use App\Http\Controllers\Api\V1\MenuController;
+use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TranslationController;
 use App\Http\Responses\ApiResponse;
@@ -49,11 +51,47 @@ Route::prefix('auth')->name('api.v1.auth.')->group(function (): void {
         ->middleware('throttle:api-login')
         ->name('login');
 
+    // Şifre sıfırlama — altı haneli kod. Kodun kırılmaması hız sınırına
+    // bağlı: bir milyon olasılık, sınırsız denemeye açık bırakılsaydı dakikalar
+    // içinde tükenirdi. Gerekçenin tamamı PasswordResetCodeService'te.
+    Route::post('/password/forgot', [AuthController::class, 'forgotPassword'])
+        ->middleware('throttle:api-password')
+        ->name('password.forgot');
+
+    Route::post('/password/reset', [AuthController::class, 'resetPassword'])
+        ->middleware('throttle:api-password')
+        ->name('password.reset');
+
     Route::middleware(['auth:sanctum', 'api.active'])->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+        // Doğrulanmamış kullanıcı da kendi durumunu görebilmeli: uygulama
+        // "e-postanı doğrula" ekranını buna bakarak çiziyor.
         Route::get('/me', [AuthController::class, 'me'])->name('me');
+
+        Route::post('/email/resend', [AuthController::class, 'resendVerification'])
+            ->middleware('throttle:api-verification')
+            ->name('email.resend');
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Hesap
+|--------------------------------------------------------------------------
+| Ön yüzdeki /hesabim ile aynı kapı: giriş yapmış, hesabı açık ve e-postası
+| doğrulanmış kullanıcı. Üçünden biri eksikse web'de de girilemiyor.
+*/
+
+Route::prefix('account')
+    ->name('api.v1.account.')
+    ->middleware(['auth:sanctum', 'api.active', 'api.verified'])
+    ->group(function (): void {
+        // Avatar aynı istekte gidiyor. PHP çok parçalı gövdeyi yalnız POST'ta
+        // ayrıştırdığı için istemci dosyayla birlikte POST + _method=PUT
+        // kullanmalı; Laravel bunu bu rotaya eşliyor.
+        Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +108,11 @@ Route::middleware('api.available')->group(function (): void {
     Route::get('/languages', [LanguageController::class, 'index'])->name('api.v1.languages.index');
     Route::get('/settings', [SettingController::class, 'index'])->name('api.v1.settings.index');
     Route::get('/translations', [TranslationController::class, 'index'])->name('api.v1.translations.index');
+
+    // Statik sayfalar — Hakkımızda ve mağazaların şart koştuğu yasal metinler
+    // (gizlilik politikası, KVKK, kullanım koşulları).
+    Route::get('/pages', [PageController::class, 'index'])->name('api.v1.pages.index');
+    Route::get('/pages/{slug}', [PageController::class, 'show'])->name('api.v1.pages.show');
 
     Route::get('/menus', [MenuController::class, 'index'])->name('api.v1.menus.index');
     Route::get('/menus/{location}', [MenuController::class, 'show'])

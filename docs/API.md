@@ -14,6 +14,9 @@ Taban adres: `https://site-adresi/api/v1`
 - [Yanıt biçimi](#yanıt-biçimi)
 - [Dil](#dil)
 - [Kimlik doğrulama](#kimlik-doğrulama)
+- [Şifre sıfırlama](#şifre-sıfırlama)
+- [E-posta doğrulama](#e-posta-doğrulama)
+- [Hesap](#hesap)
 - [Uçlar](#uçlar)
 - [Hız sınırları](#hız-sınırları)
 - [CORS](#cors)
@@ -187,8 +190,132 @@ kalır.
 Giriş yapmış kullanıcı, rolleriyle birlikte. Parola ve `remember_token` hiçbir
 koşulda dönmez.
 
-Hesap panelden pasife alınırsa elindeki jeton **bir sonraki istekte** silinir ve
-403 döner (`App\Http\Middleware\EnsureApiUserIsActive`).
+Hesap panelden pasife alınırsa jetonları **o anda** silinir (`SessionRevoker`,
+web oturumlarıyla birlikte) ve sonraki istek 401 döner. Bayrak gözlemciyi
+uyandırmadan değişmişse (toplu işlem, elle sorgu) `EnsureApiUserIsActive` ikinci
+savunma hattı olarak 403 döner ve jetonu siler.
+
+---
+
+## Şifre sıfırlama
+
+Web'de sıfırlama bağlantısı maille gelir ve şifre tarayıcıda değiştirilir.
+Mobilde bu akış kopuk olurdu — kullanıcı uygulamadan çıkıp tarayıcıda işini
+bitirip geri dönmek zorunda kalırdı. API'de bunun yerine **altı haneli kod**
+gider.
+
+### `POST /auth/password/forgot`
+
+```json
+{ "email": "ozan@ornek.com" }
+```
+
+```json
+{
+  "success": true,
+  "message": "Adres kayıtlıysa şifre sıfırlama kodu gönderildi.",
+  "data": { "expires_in_minutes": 60 }
+}
+```
+
+**Adres kayıtlı olsun ya da olmasın yanıt aynıdır.** Ayırt edilebilseydi bu uç,
+hangi adreslerin sistemde olduğunu öğrenmenin en kolay yolu olurdu. Pasif
+hesaplara da kod gitmez.
+
+### `POST /auth/password/reset`
+
+```json
+{
+  "email": "ozan@ornek.com",
+  "code": "482915",
+  "password": "Yeni*12345",
+  "password_confirmation": "Yeni*12345"
+}
+```
+
+Kod yanlış ya da süresi dolmuşsa **422** döner; hangisi olduğu söylenmez.
+Başarıda jeton dönmez — kullanıcı yeni şifresiyle giriş yapar.
+
+**Sıfırlama, o kullanıcının bütün oturumlarını ve bütün cihazlardaki jetonlarını
+düşürür.** Sıfırlamanın varlık sebebi çoğu zaman hesabın elden çıkmış olmasıdır;
+eski erişim ayakta kalsaydı sıfırlama, erişimi geri almak yerine yalnızca bir
+parola değişikliği olurdu.
+
+> **Altı hane neden yeterli.** Tek başına değil. Bir milyon olasılık sınırsız
+> denemeye açık bırakılsaydı dakikalar içinde tükenirdi. Üç şey bir arada
+> tutuyor: kod 60 dakikada ölüyor, uç e-posta+IP başına dakikada 5 isteğe sınırlı
+> (`api-password` kovası — kod isteme ve kod deneme **aynı** kovayı paylaşır, yani
+> yeni kod isteyerek deneme kotası tazelenemez), ve başarılı sıfırlama satırı
+> hemen siliyor. Hız sınırı bu tasarımın süsü değil taşıyıcı direğidir:
+> `API_RATE_LIMIT_PASSWORD` yükseltilirse kod zayıflar.
+
+Kod, web'in bağlantı jetonuyla **aynı tabloda** (`password_reset_tokens`) ve
+hash'lenmiş olarak durur. Yani bir kullanıcı için aynı anda tek bir sıfırlama
+isteği yaşar: kod istenirse web'den alınmış bağlantı, bağlantı istenirse kod
+geçersiz olur.
+
+---
+
+## E-posta doğrulama
+
+Kayıt sırasında doğrulama bağlantısı gönderilir. Bağlantı tarayıcıda açılır ve
+doğrulamayı orada tamamlar — mobil tarafta deep link kurulumu gerektirmeyen tek
+adım budur.
+
+| Yöntem | Adres | Açıklama |
+|---|---|---|
+| POST | `/auth/email/resend` | Bağlantıyı yeniden gönderir *(jeton gerekli)* |
+
+`GET /auth/me` yanıtındaki `email_verified` alanı uygulamanın "e-postanı doğrula"
+ekranını çizmesi için vardır; bu yüzden `/auth/me` doğrulama şartının **dışında**
+tutulur. Hesap uçları ise doğrulama ister — ön yüzdeki `/hesabim` da öyle.
+
+Doğrulanmamış kullanıcı hesap ucuna giderse **403** ve şu gövde döner:
+
+```json
+{ "success": false, "message": "...", "errors": { "code": ["email_unverified"] } }
+```
+
+`errors.code` bilerek makine tarafından okunabilir: istemci metni ayrıştırmadan
+doğrulama ekranına yönlendirebilsin.
+
+---
+
+## Hesap
+
+*(jeton + açık hesap + doğrulanmış e-posta gerekli)*
+
+### `PUT /account/profile`
+
+```json
+{
+  "first_name": "Ozan",
+  "last_name": "Sonar",
+  "email": "ozan@ornek.com",
+  "phone": "0505 000 00 00",
+  "current_password": "Eski*12345",
+  "password": "Yeni*12345",
+  "password_confirmation": "Yeni*12345",
+  "remove_avatar": false
+}
+```
+
+Doğrulama kuralları ön yüzle **aynı sınıftan** gelir
+(`App\Http\Requests\Account\ProfileUpdateRequest`). Bunun bir sonucu var:
+güncelleme tamdır, parçalı değil — ad, soyad ve e-posta her istekte gönderilir.
+
+Şifre değiştirmek `current_password` ister: ele geçirilmiş bir jeton, gerçek
+sahibi hesabından kilitleyememeli.
+
+**Avatar aynı istekte** gider. PHP çok parçalı gövdeyi yalnız POST'ta
+ayrıştırdığı için istemci dosyayla birlikte `POST` + `_method=PUT` kullanmalıdır:
+
+```
+POST /api/v1/account/profile
+Content-Type: multipart/form-data
+
+_method=PUT&first_name=Ozan&last_name=Sonar&email=...&avatar=@ben.jpg
+```
 
 ---
 
@@ -208,6 +335,8 @@ modunda da açık kalır (ön yüzde `/giris` de öyle).
 | GET | `/translations?group=site` | Tek grup |
 | GET | `/menus` | Bütün konumların menüleri, ağaç hâlinde |
 | GET | `/menus/{location}` | Tek konum (`header`, `footer`, `custom`) |
+| GET | `/pages` | Yayındaki sayfalar (menü için; içerik taşımaz) |
+| GET | `/pages/{slug}` | Sayfa içeriği — HTML |
 
 **`/settings` her ayarı yayınlamaz.** settings tablosu SMTP parolasını, reCAPTCHA
 gizli anahtarını ve Telegram jetonunu da tutar. Yayınlanacak gruplar ve elenen
@@ -215,6 +344,13 @@ anahtarlar `config/api.php` → `public_settings` içinde tanımlıdır; tipi
 `password` olan ya da adında `secret`, `token`, `password`, `api_key`, `private`
 geçen hiçbir satır — grubu ne olursa olsun — çıkmaz. Görsel tipindeki ayarlar
 mutlak adres olarak döner.
+
+**Sayfalar mağaza onayı için kritiktir.** Gizlilik politikası, KVKK ve kullanım
+koşulları panelden yayınlanıp buradan okunur; metinler uygulamaya gömülseydi her
+düzeltme bir mağaza güncellemesi beklerdi. `content` zengin metin editöründen
+gelir, yani HTML (`content_format: "html"`) — istemci onu bir HTML
+görüntüleyicide basmalıdır; düz metne çevirmek yasal metinlerde biçim değil
+içerik kaybıdır.
 
 **Menü bağlantıları çözülmüş gelir.** Kayıt bir rota adı da tutabilir
 (`blog.index`), site içi bir yol da, harici bir adres de; `url` alanı bunların
@@ -303,9 +439,12 @@ tamamlanır).
 | `api-login` | 5/dk | e-posta + IP |
 | `api-register` | 3/dk | IP |
 | `api-contact` | 3/dk | IP |
+| `api-password` | 5/dk | e-posta + IP — kod isteme ve kod deneme ortak |
+| `api-verification` | 3/dk | kullanıcı |
 
 Değerler `.env` üzerinden değiştirilir (`API_RATE_LIMIT`,
-`API_RATE_LIMIT_LOGIN`, `API_RATE_LIMIT_REGISTER`, `API_RATE_LIMIT_CONTACT`).
+`API_RATE_LIMIT_LOGIN`, `API_RATE_LIMIT_REGISTER`, `API_RATE_LIMIT_CONTACT`,
+`API_RATE_LIMIT_PASSWORD`, `API_RATE_LIMIT_VERIFICATION`).
 
 Sınıra takılan istek **429** ve `Retry-After` başlığıyla döner. Giriş kovasının
 e-posta+IP ile sayılması, tek IP'den kırk hesabı denemeyi de kırk IP'den tek
@@ -355,6 +494,8 @@ API_RATE_LIMIT=60
 API_RATE_LIMIT_LOGIN=5
 API_RATE_LIMIT_REGISTER=3
 API_RATE_LIMIT_CONTACT=3
+API_RATE_LIMIT_PASSWORD=5
+API_RATE_LIMIT_VERIFICATION=3
 ```
 
 `config/api.php`: sayfalama tavanı, dışarı açılan ayar grupları ve çeviri
@@ -397,10 +538,12 @@ app/Http/Resources/Api/V1/             Dışarı açılan alanlar (beyaz liste)
 app/Http/Responses/ApiResponse.php     Yanıt zarfı
 app/Exceptions/ApiExceptionRenderer.php Hata zarfı
 app/Services/ApiAuthService.php        Oturumsuz kimlik doğrulama
+app/Services/PasswordResetCodeService.php  Altı haneli sıfırlama kodu
 app/Http/Middleware/SetApiLocale.php   Dil çözümü
 app/Http/Middleware/ForceJsonResponse.php
 app/Http/Middleware/EnsureApiUserIsActive.php
+app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     52 sınama
+tests/Feature/Api/                     76 sınama
 ```

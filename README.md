@@ -674,6 +674,13 @@ composer test
 - `EmailValidationTest` — ziyaretçiden alınan e-posta kuralının tek yerde
   durması, üretimde alan adı denetiminin (`dns`) yerinde kalması ve suite'in
   hiçbir sınamada canlı DNS sorgusuna bağımlı olmaması
+- `Api/ApiPasswordResetTest` — kodun hash'li saklanması, tek kullanımlık olması,
+  süresi dolduğunda reddedilmesi, sıfırlamanın bütün jetonları düşürmesi,
+  kayıtlı olmayan adresin ayırt edilememesi ve **kodu kıramaz kılan hız
+  sınırının yerinde durması**
+- `Api/ApiAccountTest` — profil güncelleme, şifre değiştirmenin mevcut şifreyi
+  istemesi, avatarın aynı istekte yüklenmesi ve hesap uçlarının doğrulanmamış
+  e-postaya kapalı olması (ön yüzdeki `/hesabim` ile aynı kapı)
 - `Api/ApiContractTest` — yanıt zarfının sabitliği (boş `errors` bile nesne),
   bilinmeyen API adresinin HTML yönlendirme değil JSON 404 dönmesi, dilin
   `Accept-Language` / `?lang=` / `X-Locale` ile çözülmesi, desteklenmeyen dilin
@@ -702,23 +709,28 @@ hizalamaya dokunan kuralları kapalı tutar.
 **Statik analiz.** `phpstan.neon`, Larastan ile seviye 1. Seviye seçiminin
 gerekçesi ve yukarı çıkmanın yolu dosyanın kendi yorumlarında.
 
-> **"Undefined constant `Larastan\Larastan\LARAVEL_VERSION`" hatası bir belirti,
-> sebep değil.** Larastan analiz için Laravel'i ayağa kaldırıyor; uygulama
-> açılamazsa bu sabit hiç tanımlanmıyor ve çıktının **sonunda** bu satır
-> görünüyor. Asıl hata (`Error: ...` ve yığın izi) çıktının **başında** basılıyor
-> — `tail` ile bakılırsa tam olarak açıklayıcı olan kısım kaçırılır.
+Komut `-a phpstan-bootstrap.php` ile çalışır ve bu bayrak isteğe bağlı değildir.
+Larastan stub dosyalarını Laravel sürümüne göre süzerken `LARAVEL_VERSION`
+sabitini okuyor; sabiti tanımlayansa Larastan'ın kendi bootstrap dosyası. PHPStan
+bu ikisini her zaman aynı sırada çalıştırmıyor — sonuç önbelleği belirli bir
+durumdayken stub listesi bootstrap'tan önce isteniyor ve analiz
+
+```
+Undefined constant "Larastan\Larastan\LARAVEL_VERSION"
+```
+
+diyerek düşüyor. `phpstan-bootstrap.php` sabiti PHPStan'ın kabı kurulmadan
+tanımlayarak yarışı ortadan kaldırıyor; gerekçenin tamamı dosyanın kendi
+yorumunda.
+
+> Bu hatayı yine de görürseniz (`-a` bayrağı olmadan çalıştırıldığında),
+> `./vendor/bin/phpstan clear-result-cache` geçici olarak kurtarır.
 >
-> Yani önce çıktının başına bakın. En sık sebebi, bir paket eklendikten sonra
-> otomatik yükleyicinin ya da paket keşif önbelleğinin geride kalması:
->
-> ```bash
-> composer dump-autoload
-> ```
->
-> Uygulamanın gerçekten açıldığını `php artisan about` doğrular; açılmıyorsa
-> PHPStan da açamaz. Sonuç önbelleğini temizlemek
-> (`./vendor/bin/phpstan clear-result-cache`) bu hatayı çözmez — yalnızca
-> analizin hangi dosyaları yeniden okuyacağını etkiler.
+> Hatanın **uygulamanın açılamamasından** kaynaklandığı ayrı bir durum daha var
+> ve o zaman gerçek sebep çıktının **başında** basılır (`Error: ...` ve yığın
+> izi) — `tail` ile bakılırsa kaçırılır. O durumda `php artisan about`
+> uygulamanın açılıp açılmadığını söyler; en sık sebebi paket eklendikten sonra
+> geride kalan otomatik yükleyicidir (`composer dump-autoload`).
 
 **Testler CI'da MySQL 8'e karşı koşar**, yerelde SQLite'a karşı. İkisi aynı şeyi
 kabul etmiyor — bu iş akışı kurulduğu gün SQLite'ın sakladığı altı hata çıktı,
@@ -736,21 +748,27 @@ taraf aynı Service katmanını kullanır: panelden değiştirilen bir menü, ay
 yazı ikisinde birden değişir.
 
 ```
-GET  /api/v1/languages          Yayındaki diller
-GET  /api/v1/settings           Dışarı açılan ayarlar (gruplara göre)
-GET  /api/v1/translations       Arayüz metinleri
-GET  /api/v1/menus              Menüler, ağaç hâlinde, adresleri çözülmüş
-GET  /api/v1/blog/posts         Yazılar (sayfalı) — ?category, ?per_page
-GET  /api/v1/blog/posts/{slug}  Yazı detayı
-GET  /api/v1/blog/categories    Kategoriler
-GET  /api/v1/gallery            Galeri — ?category, ?type=photo|video
-GET  /api/v1/gallery/categories Galeri kategorileri
-POST /api/v1/contact            İletişim formu
+GET  /api/v1/languages            Yayındaki diller
+GET  /api/v1/settings             Dışarı açılan ayarlar (gruplara göre)
+GET  /api/v1/translations         Arayüz metinleri
+GET  /api/v1/menus                Menüler, ağaç hâlinde, adresleri çözülmüş
+GET  /api/v1/pages                Yayındaki sayfalar (menü için)
+GET  /api/v1/pages/{slug}         Sayfa içeriği — gizlilik, KVKK, hakkımızda
+GET  /api/v1/blog/posts           Yazılar (sayfalı) — ?category, ?per_page
+GET  /api/v1/blog/posts/{slug}    Yazı detayı
+GET  /api/v1/blog/categories      Kategoriler
+GET  /api/v1/gallery              Galeri — ?category, ?type=photo|video
+GET  /api/v1/gallery/categories   Galeri kategorileri
+POST /api/v1/contact              İletişim formu
 
-POST /api/v1/auth/register      Kayıt (jeton döner)
-POST /api/v1/auth/login         Giriş (jeton döner)
-POST /api/v1/auth/logout        Bu cihazın jetonunu siler   [jeton gerekli]
-GET  /api/v1/auth/me            Giriş yapmış kullanıcı      [jeton gerekli]
+POST /api/v1/auth/register        Kayıt (jeton döner)
+POST /api/v1/auth/login           Giriş (jeton döner)
+POST /api/v1/auth/password/forgot Altı haneli sıfırlama kodu gönderir
+POST /api/v1/auth/password/reset  Kodla şifreyi değiştirir
+POST /api/v1/auth/logout          Bu cihazın jetonunu siler    [jeton gerekli]
+GET  /api/v1/auth/me              Giriş yapmış kullanıcı       [jeton gerekli]
+POST /api/v1/auth/email/resend    Doğrulama bağlantısı         [jeton gerekli]
+PUT  /api/v1/account/profile      Profil + avatar + şifre      [jeton + doğrulanmış]
 ```
 
 Her yanıt aynı zarfı taşır:
@@ -763,6 +781,11 @@ Her yanıt aynı zarfı taşır:
 Dil `Accept-Language` (ya da `?lang=` / `X-Locale`) ile seçilir; sitede olmayan
 bir dil hata değil, varsayılana düşüş sebebidir. Seçilen dil `Content-Language`
 ile bildirilir.
+
+Şifre sıfırlama mobilde **bağlantı değil altı haneli kod** ile çalışır —
+uygulama tarayıcıya hiç çıkmaz. Kodun güvenliği hız sınırına bağlıdır
+(`API_RATE_LIMIT_PASSWORD`); gerekçesi `App\Services\PasswordResetCodeService`
+içinde yazılı.
 
 `/settings` ucu **tabloyu olduğu gibi basmaz**: yayınlanacak gruplar ve elenen
 anahtarlar `config/api.php` içinde beyaz liste olarak durur, tipi `password`
