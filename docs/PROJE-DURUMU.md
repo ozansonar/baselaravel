@@ -1,6 +1,6 @@
 # Proje Durumu
 
-**Son güncelleme:** 2026-08-31 (API katmanı ve arama turundan sonra)
+**Son güncelleme:** 2026-08-31 (yol haritasının beş fazı tamamlandıktan sonra)
 **Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
 **Kalan iş listesi:** [`YOL-HARITASI.md`](YOL-HARITASI.md)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
@@ -21,19 +21,22 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 
 | | Adet | | Adet |
 |---|---|---|---|
-| Model | 34 | Route | 317 (33'ü API) |
-| Service | 69 | Migration | 70 |
-| Controller | 79 (38 admin, 19 API) | Seeder | 11 |
-| FormRequest | 78 | Blade view | 185 |
-| Policy | 26 | Enum | 30 |
-| Observer | 11 | Artisan command | 8 |
-| API Resource | 19 | Factory | 34 |
-| Test dosyası | 110 | Test / assertion | 1516 / 5563 |
+| Model | 37 | Route | 356 (43'ü API) |
+| Service | 82 | Migration | 79 |
+| Controller | 86 (41 admin, 21 API) | Seeder | 11 |
+| FormRequest | 86 | Blade view | 196 |
+| Policy | 26 | Enum | 34 |
+| Observer | 11 | Artisan command | 9 |
+| Factory | 37 | Test dosyası | 126 |
+| Test | 1711 | Assertion | 6303 |
 
-**Suite durumu (2026-08-31):** `vendor/bin/phpunit` → 1516 test, 5563 assertion,
-hepsi yeşil, 44 saniye. Tek uyarı: suite'in tepe belleği **131 MB**, yani stok
-`memory_limit=128M` ile `composer test` yarıda düşüyor. Tek başına en ağır test
-sınıfı 83 MB'de kalıyor — sorun ekranlarda değil, suite boyunca biriken bellek.
+**Suite durumu:** hepsi yeşil, ~50 saniye, PHP'nin stok 128 MB sınırıyla da
+koşuyor (gereken sınır `phpunit.xml`'de bildiriliyor). Pint sapması sıfır,
+PHPStan temiz.
+
+**Composer bağımlılıkları (7):** `php`, `laravel/framework`, `laravel/sanctum`,
+`laravel/tinker`, `mpdf/mpdf`, `openspout/openspout`, `bacon/bacon-qr-code`.
+`jenssegers/agent` kaldırıldı (bkz. 5x).
 
 ---
 
@@ -509,10 +512,10 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ---
 
-## 6. ⚠️ Kalan Yapılacak İşler
+## 6. Kalan Yapılacak İşler
 
-Ayrıntılı gerekçe, kapsam ve kabul ölçütleri ayrı belgede:
-**[`YOL-HARITASI.md`](YOL-HARITASI.md)**. Buradaki liste onun özeti.
+[`YOL-HARITASI.md`](YOL-HARITASI.md)'nin beş fazı da tamamlandı. Geriye
+bilerek ertelenmiş iki madde ve bir gözlem kaldı.
 
 ### Üç yüzün karşılaştırması
 
@@ -521,70 +524,39 @@ Ayrıntılı gerekçe, kapsam ve kabul ölçütleri ayrı belgede:
 | İçerik (blog, sayfa, galeri, SSS) | ✅ | ✅ | ✅ |
 | Çok dillilik | ✅ | ✅ | ✅ |
 | SEO (sitemap, hreflang, JSON-LD, RSS) | ✅ | ✅ | — |
-| Kimlik (kayıt, giriş, şifre sıfırlama, e-posta doğrulama) | ✅ | ✅ | ✅ |
-| Profil + şifre değiştirme | ✅ | ✅ | kısmi (şifre yok) |
-| Cihaz / oturum yönetimi | ❌ | ❌ | ✅ |
-| İki adımlı doğrulama | ❌ | ❌ | ❌ |
-| Hesap kapatma + veri indirme (KVKK) | ❌ | ❌ | ❌ |
-| Bildirim tercihleri | ❌ | ❌ | ❌ |
-| Kurulabilirlik (PWA, çevrimdışı) | — | ❌ | — |
-| Push bildirim | — | — | ❌ |
-| Sürüm / sağlık ucu | — | — | ❌ |
+| Kimlik (kayıt, giriş, şifre sıfırlama, doğrulama) | ✅ | ✅ | ✅ |
+| Profil ve şifre değiştirme | ✅ | ✅ | ✅ |
+| Cihaz / oturum yönetimi | ✅ | ✅ | ✅ |
+| İki adımlı doğrulama (TOTP) | ✅ | ✅ | ✅ giriş |
+| Hesap kapatma + veri indirme (KVKK) | ✅ | ✅ | ✅ |
+| Bildirim tercihleri | ✅ | ✅ | ✅ |
+| Yorumlarım | ✅ | ✅ | ✅ |
+| Kurulabilirlik (PWA, çevrimdışı) | — | ✅ | — |
+| Push bildirim | — | — | ✅ jeton kaydı + gönderim servisi |
+| Sürüm / sağlık ucu | — | — | ✅ |
 
-### 🔴 Öncelikli — hesap ve kimlik (Faz 1)
+### ⬜ Bilerek ertelenenler
 
-- **Web'de cihaz/oturum yönetimi yok.** API'de var; aynı kullanıcı telefonda
-  oturum kapatabiliyor, tarayıcıda kapatamıyor.
-- **İki adımlı doğrulama yok.** Panel yöneticisinin tek koruması şifre.
-- **Hesap kapatma ve veri indirme yok.** KVKK/GDPR karşılığı eksik; ayrıca
-  mağazalar uygulama içi hesap silme yolunu şart koşuyor.
-- **API'de şifre değiştirme ucu yok.**
-- **Bildirim tercihleri tablosu yok.** Kullanıcının e-postaları kapatabildiği
-  tek yer bülten çıkış bağlantısı.
+- **Panelden push bildirim gönderme ekranı.** Sunucu tarafı hazır (jeton
+  kaydı, sağlayıcıdan bağımsız gönderim, ölü jetonun düşmesi). Admin temada bu
+  ekranın tasarımı yok — `notifications.html` yalnız tercih anahtarları
+  içeriyor — ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
+  Tasarım geldiğinde ya da onay verildiğinde yapılacak.
+- **`session.serialization = json`.** Çevirmek o anda açık olan bütün
+  oturumları düşürüyor; çalışan bir kurulumda bu bakım penceresi gerektiren
+  bir karar, kod değil zamanlama meselesi. `cache.serializable_classes` ise
+  yapıldı (bkz. 5z).
 
-### 🟠 Mobil web (Faz 2)
+### 👀 İzlemede
 
-- **PWA yok:** `manifest.json`, servis çalışanı, çevrimdışı sayfa hiç yok.
-- **Mobil denetim yapılmadı:** 70 KB ön yüz CSS'inde 10 medya sorgusu var,
-  düzen Bootstrap ızgarasına bırakılmış. Izgara taşmayı ve dokunma hedefini
-  çözmez.
-- **Erişilebilirlik taban çizgisi yok:** içeriğe atlama bağlantısı yok.
+- Bir koşuda `ModelFactoriesTest`'te tek seferlik bir hata görüldü; ardından
+  dört ayrı koşuda tekrarlanmadı. Sebebi bulunamadı, kayda geçirildi.
 
-### 🟡 Panelin eksik ekranları (Faz 3)
+### ✅ Bu turda kapananlar
 
-Temada tasarımı hazır, kodu yok:
-
-- **`reports.html`** — Raporlar
-- **`content-list.html`** — Genel içerik listesi
-- **`help.html`** — Panel içi yardım
-
-(`orders.html`, `products.html`, `product-add.html` bilerek boş: e-ticaret
-modülleri `ab57deb`'de sökülmüştü.)
-
-### 🟡 API olgunluğu (Faz 4)
-
-- Push bildirim altyapısı (jeton kaydı + gönderim kancası) yok
-- Sürüm/sağlık ucu yok — eski istemciyi güncellemeye zorlamanın yolu yok
-- Kullanıcı kendi yorumlarını göremiyor/silemiyor (web'de de yok)
-
-### 🟢 Dayanıklılık ve bakım (Faz 5)
-
-- **Yedeğin dış kopyası yok** — arşiv, yedeklediği veriyle aynı diskte.
-- **`jenssegers/agent` 2020'den beri güncellenmiyor.** Tek kullanım yeri
-  `AnalyticsService`; etki alanı dar.
-- **Suite tepe belleği 131 MB** — stok `memory_limit=128M` ile `composer test`
-  yarıda düşüyor. Tek başına en ağır sınıf 83 MB; sorun birikim.
-- **İki config sertleştirmesi bekliyor:** `session.serialization` ve
-  `cache.serializable_classes` (gerekçeleri bölüm 7'de).
-
-### ✅ Bu turda kapandığı doğrulananlar
-
-- ~~Ön yüzdeki sabit metinler~~ — arayüz çevirisi tamamlandı (bkz. 5f).
-- ~~Blog ve galeri sorguları dil farkında değil~~ — `localeWithFallback` blog,
-  galeri, SSS, sayfa, slider, popup ve arama servislerinin hepsinde.
-- ~~`roles-permissions.html` ekranı~~ — yapıldı, tam CRUD + izin senkronizasyonu.
-- ~~README tek satır~~, ~~`composer.json` adı~~, ~~ölü iskele girdileri~~,
-  ~~ölü kod~~ — hepsi temizlendi.
+Faz 1 (hesap ve kimlik), Faz 2 (mobil web), Faz 3 (panel ekranları),
+Faz 4 (API olgunluğu), Faz 5 (dayanıklılık) — ayrıntılar bölüm 5t–5z ve
+yol haritasında.
 
 ---
 
@@ -1889,6 +1861,120 @@ site geneli arama (`de77f5e`).
 
 ---
 
+## 6a. Hesap ve Kimlik — ✅ Faz 1
+
+Hesap alanı iki ekrandı (pano, profil). Bir base kit'in en çok kopyalanan
+parçası burasıdır; eksik kalırsa her projede yeniden yazılır.
+
+- **Cihazlarım** (`/hesabim/cihazlar`): açık tarayıcı oturumları **ve** bağlı
+  uygulamalar. API'de yalnız jetonlar listeleniyordu; tek kaynağı göstermek
+  "başka yerde açık oturum yok" demenin yanlış bir yolu. Toplu kapatma
+  beni-hatırla damgasını da düşürüyor, yoksa kapatılan tarayıcı bir sonraki
+  istekte kendini yeniden doğrulayıp geri dönerdi.
+- **İki adımlı doğrulama** (TOTP, RFC 6238): harici servis yok, kod paylaşılan
+  bir anahtardan ve saatten üretiliyor. QR sunucuda (bacon/bacon-qr-code, saf
+  PHP, satır içi SVG) — anahtarı bir QR servisine göndermek onu üçüncü tarafa
+  vermek olurdu. Kurulum iki adımda: kullanıcı ilk doğru kodu girene kadar
+  açılmıyor, yoksa QR'ı okutamayan kişi kendi hesabından kilitlenirdi. Sekiz
+  tek kullanımlık kurtarma kodu. Panelden "yöneticiler için zorunlu" ayarı ve
+  onu uygulayan ara katman.
+- **Verilerim** (KVKK/GDPR): veri indirme (JSON) ve hesap kapatma. Dosya
+  kişinin bütün kaydını topluyor ama hiçbir anahtarını taşımıyor. Kapatma
+  yumuşak silme; oturumlar, jetonlar ve 2FA anahtarı aynı anda düşüyor,
+  e-posta serbest kalıyor. Mağazaların uygulama içi hesap silme şartının
+  karşılığı.
+- **Bildirim tercihleri**: kapatılabilir türler enum'da, gönderim öncesi tek
+  kapı. Güvenlik postaları listede yok ve kapatılamıyor — kapatılabilseydi
+  hesabı ele geçiren ilk iş onları susturur, sahibi habersiz kalırdı. Bülten
+  anahtarı abone tablosunu okuyup yazıyor, kendi bayrağını tutmuyor.
+- **API tarafı**: şifre değiştirme ayrı uç (profil güncelleme tam bir
+  güncelleme; yalnız şifre değiştirecek istemcinin bütün profili taşıması
+  gerekirdi), veri indirme, hesap kapatma, bildirim tercihleri, iki adımlı
+  girişin ikinci isteği.
+
+---
+
+## 6b. Mobil Web — ✅ Faz 2
+
+Site duyarlıydı ama mobil değildi: telefona kurulamıyor, bağlantı kesildiğinde
+tarayıcının kendi hata sayfası çıkıyordu.
+
+- **PWA**: `/site.webmanifest`, `/sw.js` ve `/offline` — üçü de rotadan
+  üretiliyor. Manifest panelden besleniyor; sabit dosya olsaydı her proje onu
+  elle düzenlerdi. İkonlar kaynaktan 192 ve 512 piksellik kare PNG olarak
+  üretiliyor: bildirilen ölçü ile dosyanın gerçek ölçüsü tutmazsa Chrome
+  kurulumu sessizce reddediyor.
+- Servis çalışanının önbellek sürümü varlıkların son değişme zamanından
+  geliyor; elle yazılan sürüm numarası unutulur. Sayfalar "önce ağ" (içerik
+  sitesinde önbellekten gelen sayfa bayat sayfadır), varlıklar önbellekten
+  verilip arkada tazeleniyor. Panel, hesap alanı ve API hiç önbelleğe girmiyor.
+- **Yol üzerinde çıkan kusur**: ön önbelleğe alınan adresler sayfanın istediği
+  adreslerle aynı değildi (kendi dosyalarımız sürüm damgalı, vendor dosyaları
+  damgasız) ve çevrimdışı sayfa stilsiz açılıyordu. Liste düzenin yazdığı
+  biçime hizalandı; çevrimdışı sayfasının ikonu satır içi SVG'ye çevrildi —
+  bağlantı yokken gereken sayfanın inmesi gereken bir fonta bağlı olması
+  çelişkiydi.
+- **Mobil denetim** (375 piksel, ön yüzde 7 + panelde 18 ekran): üç yatay
+  taşma bulundu ve düzeltildi (iletişim sayfasının boşluğu, kullanıcılar
+  ekranının araç çubuğu, analitik ekranının tarih düğmeleri). Slayt
+  göstergeleri ve kapatma düğmesi kaba işaretçilerde 44 piksele çıkarıldı.
+- **Erişilebilirlik**: denetimde ön yüzde adsız tek kontrol çıktı (bültenin
+  gönder düğmesi). `AccessibilityBaselineTest` bunu bekçiliyor.
+
+---
+
+## 6c. Panelin Eksik Ekranları — ✅ Faz 3
+
+- **Rapor merkezi** (`/admin/raporlar`): altı rapor (trafik, içerik, kullanıcı,
+  e-posta, kampanya, abone), her biri aynı yapıda (metrics + series + rows).
+  Ekran, Excel/PDF çıktısı ve zamanlanmış gönderim tek kod yolunu paylaşıyor.
+  Zamanlanmış raporlar cron'da üretilip e-postayla gidiyor; "bugün çalıştı mı"
+  kontrolü tanımın kendisinde, yoksa dakikada bir uğrayan cron günlük raporu
+  bin kez gönderirdi. Tasarımdaki dört e-ticaret kartının konusu kit'in
+  ölçtüğü şeylerle değiştirildi (düzen ve sınıflar aynı).
+- **Genel içerik listesi** (`/admin/icerikler`): dört tür tek sorguda
+  birleşiyor (UNION). Durum iki değere indirgeniyor — blog/sayfada enum,
+  galeri/SSS'de bayrak; indirgenmeseydi "yayında" demek türden türe farklı bir
+  şey olurdu.
+- **Yardım merkezi** (`/admin/yardim`): 33 modülün kılavuzu, kategorili SSS,
+  sistem bilgisi ve destek iletişimi. İçerik `config/help.php`'de. Sidebar'a
+  yeni bir modül eklenip kılavuzu yazılmazsa `AdminHelpTest` düşüyor.
+
+---
+
+## 6d. API Olgunluğu — ✅ Faz 4
+
+- **`GET /api/v1/health`**: jeton istemiyor ve bakım modunda da açık —
+  uygulamanın bakımı öğrenebileceği tek yer burası. Asgari istemci sürümü
+  panelden; eski sürüm "güncelle" cevabı alıyor. Sürümünü bildirmeyen istemci
+  engellenmiyor.
+- **Push altyapısı**: jeton kaydı yapılandırma istemiyor, gönderim
+  sağlayıcıdan bağımsız. Taşıyıcı tanımsızken bildirim gönderilmiyor ama bu
+  log'a düşüyor — sessizce kaybolmuyor. Jeton cihaza ait, hesaba değil: aynı
+  telefondan başka bir hesaba girildiğinde kayıt o hesaba geçiyor.
+- **Yorumlarım**: web ve API'de, onay bekleyenler dahil. Durum alanı yalnız bu
+  uçlarda — herkese açık listede onay bekleyenin varlığı bile söylenmiyor.
+- `docs/openapi.json` 38 uç; `OpenApiSpecTest` şemayı rotalarla karşılaştırıyor.
+
+---
+
+## 6e. Dayanıklılık — ✅ Faz 5
+
+- **Yedeğin dış kopyası**: `local` (ikinci disk, ağ klasörü) ve `ftp`. Kopya
+  sonrası boyut karşılaştırılıyor; dış kopyanın saklama süresi var;
+  başarısızlık panele bildirim düşürüyor. Dış kopya düşse bile yedek başarılı
+  sayılıyor — yerel kopya alındıysa iş görülmüştür.
+- **`jenssegers/agent` kaldırıldı**: paket ile kendi ayrıştırıcımız sekiz
+  gerçek User-Agent'ta karşılaştırıldı, sonuçlar aynı ve iki yerde bizimki
+  daha okunur. Eski analitik kayıtları yeni biçime taşındı.
+- **Bellek bütçesi**: suite 141 MB tepe yapıyor; gereken sınır artık
+  `phpunit.xml`'de bildiriliyor ve `composer test` stok 128 MB'lık PHP ile de
+  koşuyor.
+- **`cache.serializable_classes`** izin listesi kuruldu; yedi önbellekli yol
+  iki geçişli testle (yaz + geri oku) kapsandı.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1908,31 +1994,27 @@ güvenle çalıştırılabiliyor.
 
 ---
 
-## 8. Tamamlananlar ve Sıradaki Sıra
+## 8. Tamamlananlar
 
 ### Kapanan turlar
 
-- [x] SoftDeletes'i her modele yay (5d)
-- [x] Yetkilendirme boşluğunu kapat (5)
-- [x] Açık yönlendirmeyi kapat (5c)
-- [x] Moderatör rolünü işler hâle getir
-- [x] Hoş geldin e-postasını düzelt (4)
-- [x] Ürün/sipariş kalıntılarını temizle — 15 kalem
+- [x] SoftDeletes, yetkilendirme, açık yönlendirme, moderatör rolü (5, 5c, 5d)
+- [x] Ürün/sipariş kalıntılarının temizliği — 15 kalem (4)
 - [x] Çok dilli yapı, arayüz çevirisi, çok dilli navigasyon (5e, 5f, 5g)
 - [x] Mail ve upload yolları (5h) · Toplu mail (5i) · Shared hosting uyumu (5j)
-- [x] Diller ve dil yazıları ekranları (5k, 5l) · Bölgesel ayarlar (5m)
-- [x] Pasif kullanıcı oturumu ve güvenilen proxy (5n) · robots.txt (5o)
-- [x] Hata bildirimi ve log rotasyonu (5p) · Denetim izi (5r)
-- [x] Kuyruk izleyici (5s) · Ölü telegram ayarı ve başarısız işler (5t)
-- [x] Yedek geri yükleme (5u) · CI ve statik analiz (5v) · Çerez rızası (5y)
-- [x] **API katmanı v1** (5z) · **Arama** (5ab)
+- [x] Diller, dil yazıları, bölgesel ayarlar (5k, 5l, 5m)
+- [x] Pasif kullanıcı oturumu, güvenilen proxy, robots.txt (5n, 5o)
+- [x] Hata bildirimi, log rotasyonu, denetim izi (5p, 5r)
+- [x] Kuyruk izleyici, başarısız işler, yedek geri yükleme (5s, 5t, 5u)
+- [x] CI ve statik analiz (5v) · Çerez rızası (5y)
+- [x] API katmanı v1 (5z) · Arama (5ab)
+- [x] **Faz 1 — Hesap ve kimlik** (6a)
+- [x] **Faz 2 — Mobil web** (6b)
+- [x] **Faz 3 — Panelin eksik ekranları** (6c)
+- [x] **Faz 4 — API olgunluğu** (6d)
+- [x] **Faz 5 — Dayanıklılık** (6e)
 
-### Sıradaki — [`YOL-HARITASI.md`](YOL-HARITASI.md)
+### Açık kalan iki madde
 
-| Faz | İçerik | Durum |
-|---|---|---|
-| 1 | Hesap ve kimlik: cihazlar, 2FA, KVKK hakları, API şifre ucu, bildirim tercihleri | ⬜ |
-| 2 | Mobil web: PWA, çevrimdışı, mobil denetim, erişilebilirlik | ⬜ |
-| 3 | Panel: Raporlar, Genel içerik listesi, Yardım | ⬜ |
-| 4 | API olgunluğu: push, sağlık/sürüm ucu, kendi yorumlarım, şema hizası | ⬜ |
-| 5 | Dayanıklılık: dış yedek, `jenssegers/agent` çıkışı, bellek bütçesi, sertleştirme | ⬜ |
+Bölüm 6'da: panelden push gönderme ekranı (tasarım bekliyor) ve
+`session.serialization = json` (bakım penceresi bekliyor).
