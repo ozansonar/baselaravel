@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\NewAccessToken;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -108,6 +109,75 @@ final class ApiAuthService
         }
 
         event(new Logout(self::GUARD, $user));
+    }
+
+    /**
+     * Kullanıcının açık oturumları — en son kullanılan başta.
+     *
+     * Süresi dolmuş jetonlar listeye girmiyor: Sanctum onları zaten kabul
+     * etmiyor, listede görünmeleri kullanıcıya kapatabileceği bir oturum varmış
+     * gibi gösterirdi. Temizlikleri haftalık göreve bırakılmış.
+     *
+     * @return Collection<int, PersonalAccessToken>
+     */
+    public function devices(User $user): Collection
+    {
+        /** @var Collection<int, PersonalAccessToken> $tokens */
+        $tokens = $user->tokens()
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->orderByDesc('last_used_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $tokens;
+    }
+
+    /**
+     * Tek bir cihazın oturumunu kapatır.
+     *
+     * Sorgu kullanıcıya bağlı: başkasının jeton kimliğini yazan biri "yetkin
+     * yok" değil "yok" cevabı alıyor. Ayrımı söylemek, kimlik numaralarını tek
+     * tek deneyerek başka hesapların oturum sayısını öğrenmeye yarardı.
+     */
+    public function revokeDevice(User $user, int $tokenId): bool
+    {
+        return $user->tokens()->whereKey($tokenId)->delete() > 0;
+    }
+
+    /**
+     * Bu cihaz hariç bütün oturumları kapatır.
+     *
+     * Mevcut jeton bilerek korunuyor: "diğer cihazlardan çık" diyen kullanıcı
+     * kendi uygulamasından da atılmayı beklemiyor. Kendi oturumunu kapatmak
+     * istiyorsa zaten çıkış var.
+     *
+     * @return int Kapatılan oturum sayısı
+     */
+    public function revokeOtherDevices(User $user): int
+    {
+        $current = $user->currentAccessToken();
+
+        $query = $user->tokens();
+
+        if ($current instanceof PersonalAccessToken) {
+            $query->whereKeyNot($current->getKey());
+        }
+
+        return $query->delete();
+    }
+
+    /**
+     * İsteği yapan jetonun kimliği — "bu cihaz" etiketi için.
+     *
+     * Oturum çerezi ile gelen bir istekte (stateful ön yüz) ortada bir kişisel
+     * erişim jetonu yok; o durumda null dönüyor ve hiçbir satır "bu cihaz"
+     * olarak işaretlenmiyor.
+     */
+    public function currentTokenId(User $user): ?int
+    {
+        $token = $user->currentAccessToken();
+
+        return $token instanceof PersonalAccessToken ? (int) $token->getKey() : null;
     }
 
     /**

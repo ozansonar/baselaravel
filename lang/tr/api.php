@@ -49,6 +49,12 @@ return [
         'not_found' => 'Sayfa bulunamadı.',
     ],
 
+    'devices' => [
+        'not_found'       => 'Böyle bir oturum yok.',
+        'revoked'         => 'Oturum kapatıldı.',
+        'others_revoked'  => 'Diğer cihazlardaki :count oturum kapatıldı.',
+    ],
+
     'menus' => [
         'not_found' => 'Bu konumda yayında bir menü yok.',
     ],

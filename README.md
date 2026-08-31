@@ -704,6 +704,10 @@ composer test
   adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
   posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
   (ön yüz formu, API ucu, panel) geçerli olması
+- `Api/ApiDeviceTest` — açık oturumların listelenmesi, "bu cihaz"ın tam olarak
+  bir satır olması, jetonun hiçbir koşulda sızmaması, başkasının oturumuna
+  dokunulamaması (404, 403 değil), "diğerlerinden çık"ın mevcut oturumu
+  koruması ve süresi dolmuş jetonların listelenmemesi
 - `Api/ApiContentEndpointsTest` — açılış ekranının tek istekte gelmesi, slider
   buton adresinin isteğin diline göre çözülmesi, yalnız onaylı yorumların ağaç
   olarak listelenmesi, yorumun e-posta ve IP'sinin dışarı çıkmaması, yayında
@@ -809,6 +813,9 @@ POST /api/v1/auth/password/reset  Kodla şifreyi değiştirir
 POST /api/v1/auth/logout          Bu cihazın jetonunu siler    [jeton gerekli]
 GET  /api/v1/auth/me              Giriş yapmış kullanıcı       [jeton gerekli]
 POST /api/v1/auth/email/resend    Doğrulama bağlantısı         [jeton gerekli]
+GET  /api/v1/auth/devices         Açık oturumlar               [jeton gerekli]
+DEL  /api/v1/auth/devices/{id}    Tek oturumu kapatır          [jeton gerekli]
+DEL  /api/v1/auth/devices         Bu cihaz hariç hepsi         [jeton gerekli]
 PUT  /api/v1/account/profile      Profil + avatar + şifre      [jeton + doğrulanmış]
 ```
 

@@ -16,6 +16,7 @@ Taban adres: `https://site-adresi/api/v1`
 - [Kimlik doğrulama](#kimlik-doğrulama)
 - [Şifre sıfırlama](#şifre-sıfırlama)
 - [E-posta doğrulama](#e-posta-doğrulama)
+- [Cihazlar](#cihazlar)
 - [Hesap](#hesap)
 - [Uçlar](#uçlar)
 - [Hız sınırları](#hız-sınırları)
@@ -278,6 +279,52 @@ Doğrulanmamış kullanıcı hesap ucuna giderse **403** ve şu gövde döner:
 
 `errors.code` bilerek makine tarafından okunabilir: istemci metni ayrıştırmadan
 doğrulama ekranına yönlendirebilsin.
+
+---
+
+## Cihazlar
+
+*(jeton gerekli)*
+
+Jeton, oturum çerezinden farklı olarak kendiliğinden sona ermiyor ve sahibi
+hangi cihazlarda açık olduğunu göremiyordu: telefonunu kaybeden kişinin elinde
+tek seçenek şifresini değiştirmekti.
+
+| Yöntem | Adres | Açıklama |
+|---|---|---|
+| GET | `/auth/devices` | Açık oturumlar, en son kullanılan başta |
+| DELETE | `/auth/devices/{id}` | Tek bir oturumu kapatır |
+| DELETE | `/auth/devices` | **Bu cihaz hariç** hepsini kapatır |
+
+```json
+{
+  "id": 12,
+  "name": "iPhone 15",
+  "current": true,
+  "last_used_at": "2026-08-31T16:04:11+03:00",
+  "created_at": "2026-08-20T09:12:00+03:00",
+  "expires_at": "2026-09-19T09:12:00+03:00"
+}
+```
+
+Jetonun kendisi hiçbir koşulda listelenmez — Sanctum onu hash'li tutar ve düz
+metni yalnız üretildiği anda görülür. `current` alanı istemcinin "bu cihaz"
+etiketini basması ve kullanıcının yanlışlıkla kendi oturumunu kapatmaması için
+var.
+
+`DELETE /auth/devices` mevcut oturumu **korur**: düğmeye basan kişi kendi
+uygulamasından atılmayı beklemiyor. Kendi oturumunu kapatmak isteyen `logout`
+kullanır.
+
+Başkasının oturum kimliği yazılırsa **404** döner, 403 değil. Ayrımı söylemek,
+kimlikleri tek tek deneyerek başka hesapların oturumlarını haritalamaya yarardı.
+
+Süresi dolmuş jetonlar listelenmez: Sanctum onları zaten kabul etmiyor, listede
+durmaları kapatılabilecek bir oturum varmış gibi gösterirdi.
+
+> Bu uçlar **doğrulanmış e-posta istemez.** Hesabına şüpheli bir erişim olduğunu
+> düşünen kişi, doğrulama adımını tamamlayamamış olsa bile oturumları
+> kapatabilmeli.
 
 ---
 
@@ -612,5 +659,5 @@ app/Http/Middleware/EnsureApiUserIsActive.php
 app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     94 sınama
+tests/Feature/Api/                     102 sınama
 ```

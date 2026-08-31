@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\BlogCategoryController;
 use App\Http\Controllers\Api\V1\BlogCommentController;
 use App\Http\Controllers\Api\V1\BlogPostController;
 use App\Http\Controllers\Api\V1\ContactController;
+use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FaqController;
 use App\Http\Controllers\Api\V1\GalleryCategoryController;
 use App\Http\Controllers\Api\V1\GalleryController;
@@ -77,6 +78,15 @@ Route::prefix('auth')->name('api.v1.auth.')->group(function (): void {
         Route::post('/email/resend', [AuthController::class, 'resendVerification'])
             ->middleware('throttle:api-verification')
             ->name('email.resend');
+
+        // "Cihazlarım". Doğrulanmış e-posta şartı bilerek yok: hesabına
+        // şüpheli bir erişim olduğunu düşünen kişi, doğrulama adımını
+        // tamamlayamamış olsa bile oturumları kapatabilmeli.
+        Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+        Route::delete('/devices', [DeviceController::class, 'destroyOthers'])->name('devices.destroy-others');
+        Route::delete('/devices/{device}', [DeviceController::class, 'destroy'])
+            ->whereNumber('device')
+            ->name('devices.destroy');
     });
 });
 

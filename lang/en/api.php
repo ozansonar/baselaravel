@@ -48,6 +48,12 @@ return [
         'not_found' => 'Page not found.',
     ],
 
+    'devices' => [
+        'not_found'      => 'No such session.',
+        'revoked'        => 'The session has been signed out.',
+        'others_revoked' => ':count session(s) on other devices were signed out.',
+    ],
+
     'menus' => [
         'not_found' => 'No published menu for that location.',
     ],
