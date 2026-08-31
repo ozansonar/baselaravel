@@ -547,6 +547,18 @@ bilerek ertelenmiş iki madde ve bir gözlem kaldı.
   bir karar, kod değil zamanlama meselesi. `cache.serializable_classes` ise
   yapıldı (bkz. 5z).
 
+### 🔍 MySQL doğrulaması
+
+Bu turun dokuz migration'ı ve bütün suite MySQL 8'e karşı da koşuldu (yerel
+`lb_migtest`). Dört senaryo geçildi: sıfırdan kurulum, mevcut veriyle göç,
+`down()` gidiş-dönüşü ve tohumlama.
+
+Yol üzerinde **SQLite'ın sakladığı bir kusur** çıktı: `LanguageService`
+varsayılan dilin yokluğunu istek boyunca hatırlıyordu; bir kez null çözülünce
+varsayılan dil `config('app.locale')` değerine düşüyor ve dile duyarlı bütün
+sorgular yanlış dile bakıyordu. API'de yayında olan bir yazının yorum ucu 404
+dönüyordu. Düzeltildi — yalnız gerçekten bulunan dil hatırlanıyor.
+
 ### 👀 İzlemede
 
 - Bir koşuda `ModelFactoriesTest`'te tek seferlik bir hata görüldü; ardından
