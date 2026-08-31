@@ -168,9 +168,9 @@
                                         <img src="{{ upload_url($popup->image, 'thumb') }}"
                                              alt="{{ $popup->title }}"
                                              class="rounded" width="60" height="60" loading="lazy"
-                                             style="object-fit: cover;">
+                                             object-fit-cover">
                                     @else
-                                        <div class="d-flex align-items-center justify-content-center rounded bg-dark" style="width:60px;height:60px;">
+                                        <div class="d-flex align-items-center justify-content-center rounded bg-dark pp-thumb-placeholder">
                                             <i class="bi bi-image text-muted"></i>
                                         </div>
                                     @endif

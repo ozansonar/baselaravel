@@ -14,7 +14,16 @@ function initAvatarUpload() {
         if (!file) return;
 
         if (file.size > 2 * 1024 * 1024) {
-            alert('Dosya boyutu 2MB\'dan büyük olamaz.');
+            // Tarayıcının kendi kutusu yerine panelin kutusu; AdminModal
+            // yüklenmemişse işlem yine durduruluyor, sadece sessizce.
+            if (typeof AdminModal !== 'undefined') {
+                AdminModal.status({
+                    title: 'Dosya çok büyük',
+                    message: 'Dosya boyutu 2 MB\'dan büyük olamaz.',
+                    type: 'warning'
+                });
+            }
+
             this.value = '';
             return;
         }

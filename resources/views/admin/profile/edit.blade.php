@@ -205,7 +205,7 @@
                                 </label>
                             @endif
                             @error('avatar')
-                                <div class="text-danger mt-2" style="font-size: 13px;">{{ $message }}</div>
+                                <div class="text-danger mt-2 fld-error-text">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="stg-hint mt-2">JPG, PNG veya WebP. Maksimum 1 MB.</div>

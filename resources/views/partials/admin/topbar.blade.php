@@ -33,7 +33,7 @@
                         </span>
                     @endif
                 </button>
-                <div class="dropdown-menu dropdown-menu-end nt-dropdown" style="width: 380px; max-height: 500px; overflow-y: auto;">
+                <div class="dropdown-menu dropdown-menu-end nt-dropdown">
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <strong><i class="bi bi-bell me-1"></i> Bildirimler</strong>
                         <a href="{{ route('admin.notifications.index') }}" class="small text-teal">Tümünü Gör</a>

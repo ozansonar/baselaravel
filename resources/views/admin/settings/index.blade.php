@@ -1236,7 +1236,7 @@
                         <h6>Nasıl Bot Oluşturup Chat ID Alırım?</h6>
                         <p>Adım adım Telegram Bot kurulumu</p>
                     </div>
-                    <div class="stg-hint" style="line-height:1.9">
+                    <div class="stg-hint stg-hint--roomy">
                         <strong>1.</strong> Telegram'da <a href="https://t.me/BotFather" target="_blank" rel="noopener" class="text-teal">@BotFather</a> ile sohbet başlat.<br>
                         <strong>2.</strong> <code>/newbot</code> komutu gönder, bot ismi ve username belirle.<br>
                         <strong>3.</strong> BotFather'ın verdiği <em>HTTP API token</em>'ı yukarıdaki <strong>Bot Token</strong> alanına yapıştır.<br>

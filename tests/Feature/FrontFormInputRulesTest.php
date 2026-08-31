@@ -152,41 +152,12 @@ final class FrontFormInputRulesTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors('name');
     }
 
-    /**
-     * Bir alan doldurulabiliyorsa ya kuralı olmalı ya da bilerek dışarıda
-     * bırakıldığını söyleyen işareti.
+    /*
+     * Kuralsız alan bekçisi buradaydı; ön yüzün elle yazılmış on görünümüne
+     * bakıyordu ve panelin doksana yakın formunu hiç görmüyordu. Aynı sınav
+     * artık görünüm ağacının tamamı üzerinde koşuyor:
+     * FormFieldsCarryRulesTest.
      */
-    public function test_no_visible_field_is_left_without_a_rule(): void
-    {
-        $kuralsiz = [];
-
-        foreach ($this->frontFormViews() as $view) {
-            $source = (string) file_get_contents(resource_path('views/' . $view));
-
-            foreach ($this->inputTags($source) as [$line, $tag]) {
-                if (preg_match('/name="([^"]+)"/', $tag, $m) !== 1) {
-                    continue;
-                }
-
-                // Gizli alanlar ve çerçevenin kendi alanları kullanıcı girdisi değil.
-                if (str_contains($tag, 'type="hidden"') || in_array($m[1], ['_token', '_method'], true)) {
-                    continue;
-                }
-
-                if (! str_contains($tag, 'data-validation-engine') && ! str_contains($tag, 'data-fv-ignore')) {
-                    $kuralsiz[] = "{$view}:{$line}  {$m[1]}";
-                }
-            }
-        }
-
-        sort($kuralsiz);
-
-        $this->assertSame(
-            [],
-            $kuralsiz,
-            "Kuralsız alan — data-validation-engine ya da data-fv-ignore ekleyin:\n  " . implode("\n  ", $kuralsiz),
-        );
-    }
 
     // ── Yardımcılar ──
 

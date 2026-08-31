@@ -43,7 +43,7 @@
                     </div>
                     <div class="usr-stat-info">
                         <span class="usr-stat-label">Arayüz Çevirisi</span>
-                        <h3 class="usr-stat-value" style="font-size:1.1rem">
+                        <h3 class="usr-stat-value usr-stat-value--sm">
                             {{ $hasFiles ? 'lang/' . $language->code . '/ var' : 'lang/' . $language->code . '/ yok' }}
                         </h3>
                     </div>

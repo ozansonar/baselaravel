@@ -224,7 +224,7 @@
             <div class="col-12" data-aos="fade-up">
                 <div class="admin-card">
                     <div class="admin-card-body text-center py-5">
-                        <i class="bi bi-list-nested" style="font-size: 3rem; opacity: 0.4;"></i>
+                        <i class="bi bi-list-nested mn-empty-icon"></i>
                         <h5 class="mt-3">Henüz menü yok</h5>
                         <p class="text-clr-secondary mb-0">Site menüleri migration üzerinden otomatik oluşturulur.</p>
                     </div>

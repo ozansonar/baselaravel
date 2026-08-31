@@ -137,7 +137,7 @@
                     <table class="cl-table mb-0">
                         <thead>
                             <tr>
-                                <th style="width:2.5rem"><input type="checkbox" data-bulk-all aria-label="Tümünü seç"></th>
+                                <th class="cl-th-check"><input type="checkbox" data-bulk-all aria-label="Tümünü seç"></th>
                                 <th>Adres</th>
                                 <th>Dil</th>
                                 <th>Hedef</th>

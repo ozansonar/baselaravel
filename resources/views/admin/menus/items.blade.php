@@ -47,7 +47,7 @@
 
             @if($menu->rootItems->isEmpty())
                 <div class="text-center py-5">
-                    <i class="bi bi-list-nested" style="font-size: 3rem; opacity: 0.4;"></i>
+                    <i class="bi bi-list-nested mn-empty-icon"></i>
                     <p class="mt-3 text-clr-secondary mb-0">Henüz menü öğesi yok. Yeni bir öğe ekleyerek başlayın.</p>
                 </div>
             @else

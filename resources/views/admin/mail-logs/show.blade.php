@@ -114,7 +114,7 @@
                     </div>
 
                     @if($mailLog->error_message)
-                        <div class="mt-3 p-3 rounded" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2)">
+                        <div class="mt-3 p-3 rounded ml-error-box">
                             <small class="text-danger fw-semibold d-block mb-1"><i class="bi bi-exclamation-triangle me-1"></i> Hata Mesajı</small>
                             <span class="text-danger">{{ $mailLog->error_message }}</span>
                         </div>
@@ -195,6 +195,8 @@
         .then(function(data) {
             var doc = frame.contentDocument || frame.contentWindow.document;
             doc.open();
+            // Bu HTML iframe'in kendi belgesine yazılıyor; panelin stil sayfası
+            // orada geçerli değil, bu yüzden biçim satır içinde kalmak zorunda.
             doc.write(data.body || '<p style="padding:20px;color:#666;">İçerik bulunamadı.</p>');
             doc.close();
 
