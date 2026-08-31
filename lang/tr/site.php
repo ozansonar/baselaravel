@@ -402,6 +402,26 @@ return [
         'light' => 'Açık tema',
     ],
 
+    // Çerez rızası — bandın ve tercih penceresinin metinleri.
+    'consent' => [
+        'title'            => 'Çerez tercihiniz',
+        'intro'            => 'Sitenin çalışması için gereken çerezler her zaman açıktır. Ziyaret istatistikleri ve pazarlama etiketleri ise yalnızca izin verirseniz çalışır.',
+        'accept_all'       => 'Tümünü kabul et',
+        'necessary_only'   => 'Yalnızca zorunlu',
+        'customise'        => 'Ayarla',
+        'save'             => 'Seçimi kaydet',
+        'always_on'        => 'Her zaman açık',
+        'manage'           => 'Çerez tercihleri',
+        'policy'           => 'Gizlilik politikası',
+        'invalid'          => 'Geçersiz çerez tercihi.',
+        'necessary_label'  => 'Zorunlu',
+        'necessary_text'   => 'Oturumun açık kalması, form güvenliği, dil ve tema tercihi. Bunlar olmadan site çalışmaz.',
+        'analytics_label'  => 'Analitik',
+        'analytics_text'   => 'Hangi sayfaların ne kadar okunduğunu ölçer. Ziyaret kaydı ve Google Analytics bu izne bağlıdır.',
+        'marketing_label'  => 'Pazarlama',
+        'marketing_text'   => 'Google Tag Manager ve onun yüklediği etiketler. Reklam ölçümü bu izne bağlıdır.',
+    ],
+
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
         'name_letters'          => 'Ad soyad yalnızca harf ve boşluk içerebilir.',

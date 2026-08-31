@@ -398,6 +398,26 @@ return [
         'light' => 'Light theme',
     ],
 
+    // Çerez rızası — bandın ve tercih penceresinin metinleri.
+    'consent' => [
+        'title'            => 'Your cookie choice',
+        'intro'            => 'Cookies the site needs to work are always on. Visit statistics and marketing tags run only if you allow them.',
+        'accept_all'       => 'Accept all',
+        'necessary_only'   => 'Necessary only',
+        'customise'        => 'Customise',
+        'save'             => 'Save choice',
+        'always_on'        => 'Always on',
+        'manage'           => 'Cookie preferences',
+        'policy'           => 'Privacy policy',
+        'invalid'          => 'Invalid cookie choice.',
+        'necessary_label'  => 'Necessary',
+        'necessary_text'   => 'Keeping you signed in, form security, language and theme preference. The site does not work without these.',
+        'analytics_label'  => 'Analytics',
+        'analytics_text'   => 'Measures which pages are read and how much. Visit logging and Google Analytics depend on this.',
+        'marketing_label'  => 'Marketing',
+        'marketing_text'   => 'Google Tag Manager and the tags it loads. Advertising measurement depends on this.',
+    ],
+
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
         'name_letters'          => 'The name may contain only letters and spaces.',

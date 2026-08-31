@@ -1633,3 +1633,187 @@ hr { border-color: var(--line); opacity: 1; }
     padding-right: calc(2.35rem + 1.5em + 0.75rem);
     background-position: right calc(2.35rem + 0.375em + 0.1875rem) center;
 }
+
+/* ==========================================================================
+   Çerez rıza bandı (cc-)
+
+   Karar verilene kadar sayfanın altında duruyor. Karar verilince gizleniyor
+   ama DOM'da kalıyor: alt bilgideki bağlantı `#cookieConsent` adresine
+   gidiyor ve `:target` bandı yeniden açıyor — tercihi değiştirmek için
+   JavaScript gerekmiyor.
+   ========================================================================== */
+
+.cc-banner {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1080;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 32px rgba(15, 23, 42, .12);
+    padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
+}
+
+.cc-banner--hidden {
+    display: none;
+}
+
+.cc-banner--hidden:target {
+    display: block;
+}
+
+.cc-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem 1.5rem;
+}
+
+.cc-text {
+    flex: 1 1 22rem;
+    min-width: 0;
+}
+
+.cc-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 .25rem;
+}
+
+.cc-intro {
+    font-size: .875rem;
+    line-height: 1.55;
+    color: var(--body);
+    margin: 0;
+}
+
+.cc-link {
+    color: var(--brand);
+    text-decoration: underline;
+}
+
+.cc-details {
+    display: grid;
+    gap: .5rem;
+    margin-top: .875rem;
+}
+
+.cc-option {
+    display: flex;
+    gap: .625rem;
+    align-items: flex-start;
+    padding: .625rem .75rem;
+    border: 1px solid var(--line);
+    border-radius: .5rem;
+    background: var(--surface-2);
+    cursor: pointer;
+}
+
+/* Zorunlu kategori kapatılamıyor; imleç de bunu söylüyor. */
+.cc-option:has(.cc-check:disabled) {
+    cursor: default;
+}
+
+.cc-check {
+    margin-top: .2rem;
+    flex: none;
+}
+
+.cc-option-body {
+    display: grid;
+    gap: .125rem;
+    min-width: 0;
+}
+
+.cc-option-label {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.cc-always {
+    font-style: normal;
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-inline-start: .375rem;
+}
+
+.cc-option-text {
+    font-size: .8125rem;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.cc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    margin-inline-start: auto;
+}
+
+.cc-btn {
+    font-size: .875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: .5625rem 1rem;
+    border-radius: .5rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.cc-btn:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+/* Reddetmek kabul etmek kadar kolay olmalı; iki düğme de aynı boyutta ve
+   aynı yerde. Yalnızca ana eylem dolgulu. */
+.cc-btn--solid {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--on-brand);
+}
+
+.cc-btn--solid:hover {
+    background: var(--brand-strong);
+    border-color: var(--brand-strong);
+    color: var(--on-brand);
+}
+
+.cc-btn:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
+@media (max-width: 575.98px) {
+    .cc-actions {
+        width: 100%;
+    }
+
+    .cc-actions .cc-btn {
+        flex: 1 1 auto;
+    }
+}
+
+[data-bs-theme="dark"] .cc-banner {
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, .4);
+}
+
+/* Alt bilgideki çerez tercihi bağlantısı — footer'ın soluk metin rengiyle. */
+.footer-consent-link {
+    color: var(--footer-text);
+    font-size: .875rem;
+    text-decoration: underline;
+}
+
+.footer-consent-link:hover,
+.footer-consent-link:focus-visible {
+    color: var(--footer-title);
+}

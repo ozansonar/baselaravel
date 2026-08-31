@@ -148,6 +148,28 @@ Siteye doğrudan erişiliyorsa değer **boş bırakılır** — varsayılan budu
 
 ---
 
+## Çerez rızası
+
+Ziyaretçi karar vermeden **hiçbir izleme çalışmaz**: Google Analytics, Google
+Tag Manager ve projenin kendi ziyaret kaydı rızaya bağlıdır. Betikler sayfaya
+konup susturulmaz, hiç basılmaz — bir etiket yüklendiği anda istek atar ve
+çerezini kurar.
+
+Üç kategori var: **zorunlu** (oturum, güvenlik, dil ve tema — kapatılamaz),
+**analitik** (ziyaret kaydı + Google Analytics), **pazarlama** (Tag Manager).
+
+Band JavaScript olmadan da çalışır ve tercihi değiştirmek için de betik
+gerekmez: alt bilgideki "Çerez tercihleri" bağlantısı bandı yeniden açar.
+
+Karar `consents` tablosuna da yazılır — çerez tercihi hatırlamak için, tablo
+ispat için. KVKK'da açık rıza ispat yükü veri sorumlusundadır ve ziyaretçinin
+silebildiği bir çerez bunu kanıtlamaz. Ret de kaydedilir.
+
+Metin değişirse `App\Services\ConsentService::VERSION` artırılır; eski rıza
+yeni metne verilmiş sayılmaz ve ziyaretçiye bir kez daha sorulur.
+
+---
+
 ## Arama motorları
 
 `robots.txt` ve `sitemap.xml` ikisi de **rota**, `public/` altında dosya değil.
@@ -637,6 +659,9 @@ composer test
 - `LikeSearchIsPortableTest` — serbest metin aramasının iki veritabanında da
   aynı davranması: joker karakterin harf sayılması ve MySQL'de sözdizimi hatası
   veren kaçış biçiminin geri gelmemesi
+- `CookieConsentTest` — rıza alınmadan hiçbir izleme betiğinin basılmaması ve
+  izleme uç noktasının kayıt tutmaması, kararın (kabul, ret, seçmeli)
+  kaydedilmesi ve metin sürümü değişince yeniden sorulması
 
 ---
 

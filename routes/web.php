@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AnalyticsTrackController;
+use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\LegacyUrlController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsletterController;
@@ -39,6 +40,11 @@ Route::post('/bulten/abone-ol', [NewsletterController::class, 'subscribe'])
     ->name('newsletter.subscribe');
 Route::get('/bulten/cikis/{token}', [NewsletterController::class, 'unsubscribe'])
     ->name('newsletter.unsubscribe');
+
+// Çerez tercihi — dilden bağımsız: karar bir kez veriliyor ve her dilde geçerli.
+Route::post('/cerez-tercihi', [ConsentController::class, 'store'])
+    ->middleware('throttle:20,1')
+    ->name('consent.store');
 
 // Analytics tracking endpoint (async, does not affect page speed)
 Route::post('/api/analytics/track', [AnalyticsTrackController::class, 'store'])

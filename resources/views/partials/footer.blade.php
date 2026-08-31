@@ -78,9 +78,15 @@
 
         <div class="footer-bottom d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
             <span>{{ $fFooter }}</span>
-            @if($fCredit)
-            <span class="text-white-50">{{ $fCredit }}</span>
-            @endif
+            <span class="d-flex align-items-center gap-3">
+                {{-- Tercihi değiştirmenin kalıcı yolu. Adres bandın kimliğine
+                     gidiyor ve `:target` kuralı onu yeniden açıyor — bağlantı
+                     JavaScript kapalıyken de çalışıyor. --}}
+                <a href="#cookieConsent" class="footer-consent-link">{{ __('site.consent.manage') }}</a>
+                @if($fCredit)
+                <span class="text-white-50">{{ $fCredit }}</span>
+                @endif
+            </span>
         </div>
     </div>
 </footer>

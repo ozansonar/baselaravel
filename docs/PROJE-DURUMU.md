@@ -20,8 +20,8 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 
 | | Adet | | Adet |
 |---|---|---|---|
-| Model | 23 | Route | 173 |
-| Service | 38 | Migration | 67 |
+| Model | 24 | Route | 174 |
+| Service | 39 | Migration | 68 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
 | Policy | 20 | Enum | 9 |
@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1286 test / 4646 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1309 test / 4736 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1658,6 +1658,103 @@ Son ikisi sorguyu gerçek veritabanına atıyor.
 
 Bekçinin gerçekten yakaladığı mutasyonla doğrulandı — ilk yazımı kaynak metin
 yerine çalışma zamanı değerini aradığı için yakalamıyordu, düzeltildi.
+
+
+---
+
+## 5y. Çerez Rızası — ✅ Kuruldu
+
+Hiçbir rıza mekanizması yoktu. Google Analytics ve Tag Manager ayar doluysa
+**koşulsuz** yükleniyor, projenin kendi ziyaret kaydı da ilk istekten itibaren
+IP ve oturum kimliği yazıyordu. IP maskeleme vardı ama 90 gün *sonra* devreye
+giriyor — yani veri önce toplanıp sonra anonimleştiriliyordu. KVKK'da açık rıza
+ispat yükü veri sorumlusunda; GDPR kapsamındaki bir ziyaretçi için de analitik
+çerezler rızadan önce çalışamaz.
+
+### Üç kategori
+
+`ConsentCategory` enum'u: **zorunlu** (oturum, güvenlik jetonu, dil ve tema —
+kapatılamaz), **analitik** (kendi ziyaret kaydımız + Google Analytics),
+**pazarlama** (Google Tag Manager).
+
+Tag Manager'ın pazarlama sayılması bilinçli: bir kap içine ne konduğu koddan
+görünmez, her etiketi yükleyebilir. Belirsiz olanı en dar kategoriye koymak
+doğru varsayılan.
+
+### Karar verilmeden hiçbir şey yüklenmiyor
+
+Betikler sayfaya konup "çalışmasın" denmiyor — **hiç basılmıyor**. Bir etiket
+yüklendiği anda istek atıyor ve çerezini kuruyor; sonradan susturmak geç kalır.
+
+Dört yol da kapalı: başlıktaki GA betiği, GTM betiği, `<noscript>` GTM
+çerçevesi ve izleme betiği. Üstüne izleme uç noktası da rızayı **kendisi**
+denetliyor: betik rıza olmadan yüklenmiyor ama uç nokta herkese açık, doğrudan
+istek atan biri kaydı yine de oluşturabilirdi.
+
+### Betiksiz de çalışıyor
+
+Band düz bir form, düğmeler gerçek submit. Hangi kategorilere izin verildiğini
+sunucu `choice` alanından çözüyor (`all` / `necessary` / `custom`) — kutulardan
+değil. Betiksiz durumda "Tümünü kabul et" yalnızca o an işaretli kutuları
+gönderirdi, yani hiçbirini, ve düğme yazdığının tersini yapardı.
+
+Tercihi sonradan değiştirmek de betik istemiyor: band karar verildikten sonra
+DOM'da kalıyor, alt bilgideki bağlantı `#cookieConsent` adresine gidiyor ve
+`:target` kuralı onu yeniden açıyor.
+
+JavaScript'in tek işi "Ayarla" düğmesinin ayrıntıları açması. Yüklenmezse
+ziyaretçi yine "tümünü kabul et" ile "yalnızca zorunlu" arasında seçim
+yapabiliyor — hak kaybı yok.
+
+**Reddetmek kabul etmek kadar kolay:** iki düğme aynı boyutta, aynı yerde ve
+aynı sayıda tıkla ulaşılıyor.
+
+### İspat kaydı
+
+Tercih iki yerde duruyor ve ikisi farklı işe yarıyor. **Çerez** kararı
+hatırlamak için — ziyaretçi silebilir, silerse yeniden sorulur. **`consents`
+tablosu** ispat için: zaman damgası, IP, tarayıcı ve metin sürümüyle,
+ziyaretçinin silemeyeceği yerde.
+
+Tercih değiştiğinde eski satır güncellenmiyor, yenisi yazılıyor — rızanın
+geçmişi de kayıttır. Reddetmek de kaydediliyor: ispat yükü "izin verdi" kadar
+"vermedi" için de geçerli.
+
+Çerez `httpOnly` ve şifreli kalıyor. Kutuların durumunu sunucu bastığı için
+JavaScript'in onu okumasına gerek yok; okuyabilseydi hem şifrelemeyi kapatmak
+hem değeri betiklere açmak gerekirdi.
+
+**Denetim izine yazılmıyor:** kayıt zaten `consents` tablosunda ve orası ispat
+için doğru yer. Her ziyaretçinin tıklaması denetim izine düşseydi iz kendi
+gürültüsünde boğulurdu — içerik modellerini izlemeye almama gerekçesinin
+aynısı.
+
+### Metin sürümü
+
+`ConsentService::VERSION`. Kategoriler ya da açıklamaları değişirse artırılıyor;
+eski rıza yeni metne verilmiş sayılmıyor ve ziyaretçiye bir kez daha soruluyor.
+
+### Yol üzerinde bulunan sızıntı
+
+Başlıktaki iki betik kapatıldıktan sonra test hâlâ GTM kimliğini buluyordu:
+gövdedeki **`<noscript>` GTM çerçevesi** gözden kaçmıştı. Betiği kapatıp
+çerçeveyi açık bırakmak, JavaScript'i kapalı ziyaretçiyi — tam da korunması
+gereken kişiyi — rızasız izlemek olurdu.
+
+### Testler
+
+`CookieConsentTest` (20): rıza öncesi bandın görünmesi ve hiçbir izleme
+betiğinin basılmaması, uç noktanın kayıt tutmaması; analitik izninin GA ile
+izleyiciyi açıp GTM'i açmaması ve tersi; kararın kaydedilmesi (kabul, ret ve
+seçmeli), `choice` alanının kutuları geçersiz kılması, bilinmeyen kategorinin
+ve eksik seçimin reddi, zorunlu kategorinin karar olarak saklanmaması, ispat
+alanlarının dolu olması, tercih değişince yeni satır yazılması, sürüm
+değişince yeniden sorulması ve bozuk çerezin karar sayılmaması.
+
+Tarayıcıda uçtan uca doğrulandı: rıza öncesi `dataLayer` tanımsız ve hiçbir
+Google betiği yok; "tümünü kabul et" sonrası GA, GTM ve izleyici yükleniyor,
+band gizleniyor, kayıt yazılıyor; alt bilgi bağlantısı bandı JavaScript'siz
+yeniden açıyor; mobilde taşma yok.
 
 
 ---

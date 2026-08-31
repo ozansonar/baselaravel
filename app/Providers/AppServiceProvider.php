@@ -155,6 +155,12 @@ class AppServiceProvider extends ServiceProvider
         // bağlanıyor (LogOutgoingMail, UpdateMailLogOnFailed). Elle bir kez daha
         // bağlanırlarsa her mail iki kez kaydedilir.
 
+        // Çerez tercihi ön yüz düzeninin her yerinde gerekiyor: izleme
+        // betikleri buna bakarak basılıyor, band da buradan durumunu alıyor.
+        View::composer(['layouts.app', 'partials.cookie-consent'], function (\Illuminate\View\View $view): void {
+            $view->with('consent', app(\App\Services\ConsentService::class));
+        });
+
         // Share dynamic header menu with navbar partial
         View::composer('partials.navbar', function (\Illuminate\View\View $view): void {
             $view->with('headerMenu', app(\App\Services\MenuService::class)->getByLocation('header'));

@@ -4,18 +4,31 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\ConsentCategory;
 use App\Http\Requests\TrackPageViewRequest;
 use App\Services\AnalyticsService;
+use App\Services\ConsentService;
 use Illuminate\Http\JsonResponse;
 
 class AnalyticsTrackController extends Controller
 {
     public function __construct(
         private readonly AnalyticsService $analyticsService,
+        private readonly ConsentService $consent,
     ) {}
 
     public function store(TrackPageViewRequest $request): JsonResponse
     {
+        // Analitik rızası yoksa hiçbir şey kaydedilmiyor.
+        //
+        // Betik zaten rıza olmadan yüklenmiyor, ama bu uç nokta herkese açık:
+        // doğrudan istek atan biri kaydı yine de oluşturabilirdi. Rıza kontrolü
+        // verinin yazıldığı yerde de olmalı, yalnızca onu tetikleyen yerde
+        // değil.
+        if (! $this->consent->allows(ConsentCategory::Analytics, $request)) {
+            return response()->json(['ok' => true, 'skipped' => 'consent'], 202);
+        }
+
         // Admin/editor/moderator kullanıcıları istatistik bozmasın diye atla.
         $user = $request->user();
         if ($user && method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'editor', 'moderator'])) {
