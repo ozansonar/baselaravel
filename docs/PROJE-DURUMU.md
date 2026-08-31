@@ -1,7 +1,8 @@
 # Proje Durumu
 
-**Son güncelleme:** 2026-08-31
-**Branch:** `feat/laravel-13-upgrade` (= `refactor/extract-base-kit`, aynı commit)
+**Son güncelleme:** 2026-08-31 (API katmanı ve arama turundan sonra)
+**Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
+**Kalan iş listesi:** [`YOL-HARITASI.md`](YOL-HARITASI.md)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
 
 ---
@@ -20,13 +21,19 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 
 | | Adet | | Adet |
 |---|---|---|---|
-| Model | 24 | Route | 174 |
-| Service | 39 | Migration | 68 |
-| Controller | 39 (26'sı admin) | Seeder | 9 |
-| FormRequest | 36 | Blade view | 109 |
-| Policy | 20 | Enum | 9 |
-| Observer | 9 | Artisan command | 5 |
-| Test | 27 | Assertion | 179 |
+| Model | 34 | Route | 317 (33'ü API) |
+| Service | 69 | Migration | 70 |
+| Controller | 79 (38 admin, 19 API) | Seeder | 11 |
+| FormRequest | 78 | Blade view | 185 |
+| Policy | 26 | Enum | 30 |
+| Observer | 11 | Artisan command | 8 |
+| API Resource | 19 | Factory | 34 |
+| Test dosyası | 110 | Test / assertion | 1516 / 5563 |
+
+**Suite durumu (2026-08-31):** `vendor/bin/phpunit` → 1516 test, 5563 assertion,
+hepsi yeşil, 44 saniye. Tek uyarı: suite'in tepe belleği **131 MB**, yani stok
+`memory_limit=128M` ile `composer test` yarıda düşüyor. Tek başına en ağır test
+sınıfı 83 MB'de kalıyor — sorun ekranlarda değil, suite boyunca biriken bellek.
 
 ---
 
@@ -504,49 +511,80 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ## 6. ⚠️ Kalan Yapılacak İşler
 
-### 🟡 Test kapsamı
+Ayrıntılı gerekçe, kapsam ve kabul ölçütleri ayrı belgede:
+**[`YOL-HARITASI.md`](YOL-HARITASI.md)**. Buradaki liste onun özeti.
 
-Suite artık **1309 test / 4736 assertion**. Yetkilendirme, açık yönlendirme,
-SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
-tool yasağı kapsandı.
+### Üç yüzün karşılaştırması
 
-Mail ve upload yolları da kapsandı (`ImageUploadTest` 23, `MailDeliveryTest` 25);
-bunlar diske ve SMTP'ye dokunduğu için kodu okuyarak doğrulanamayan tek yerdi.
+| Yetenek | Web | Mobil web | API |
+|---|---|---|---|
+| İçerik (blog, sayfa, galeri, SSS) | ✅ | ✅ | ✅ |
+| Çok dillilik | ✅ | ✅ | ✅ |
+| SEO (sitemap, hreflang, JSON-LD, RSS) | ✅ | ✅ | — |
+| Kimlik (kayıt, giriş, şifre sıfırlama, e-posta doğrulama) | ✅ | ✅ | ✅ |
+| Profil + şifre değiştirme | ✅ | ✅ | kısmi (şifre yok) |
+| Cihaz / oturum yönetimi | ❌ | ❌ | ✅ |
+| İki adımlı doğrulama | ❌ | ❌ | ❌ |
+| Hesap kapatma + veri indirme (KVKK) | ❌ | ❌ | ❌ |
+| Bildirim tercihleri | ❌ | ❌ | ❌ |
+| Kurulabilirlik (PWA, çevrimdışı) | — | ❌ | — |
+| Push bildirim | — | — | ❌ |
+| Sürüm / sağlık ucu | — | — | ❌ |
 
-Bu testler yazılırken üç gerçek kusur çıktı — bkz. 5h.
+### 🔴 Öncelikli — hesap ve kimlik (Faz 1)
 
-`NoBuildToolchainTest` (24) build tool yasağını bekçilik ediyor: kök dizinde
-`package.json` / `vite.config.*` / `webpack.mix.js` / `tailwind.config.*` yok,
-`node_modules` / `public/build` / `resources/js` / `resources/css` dizinleri
-oluşmamış, hiçbir view `@vite` veya `mix()` kullanmıyor, `composer.json`
-Node tabanlı araç istemiyor ve vendor kütüphaneleri commit'li dosya olarak
-duruyor. Bu base kit'ten türeyen her proje için önemli — bir artisan iskele
-komutu veya stok Laravel dosyası zinciri sessizce geri getirebilir.
+- **Web'de cihaz/oturum yönetimi yok.** API'de var; aynı kullanıcı telefonda
+  oturum kapatabiliyor, tarayıcıda kapatamıyor.
+- **İki adımlı doğrulama yok.** Panel yöneticisinin tek koruması şifre.
+- **Hesap kapatma ve veri indirme yok.** KVKK/GDPR karşılığı eksik; ayrıca
+  mağazalar uygulama içi hesap silme yolunu şart koşuyor.
+- **API'de şifre değiştirme ucu yok.**
+- **Bildirim tercihleri tablosu yok.** Kullanıcının e-postaları kapatabildiği
+  tek yer bülten çıkış bağlantısı.
 
-### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
+### 🟠 Mobil web (Faz 2)
 
-- **`reports.html`** — Raporlama ekranı
+- **PWA yok:** `manifest.json`, servis çalışanı, çevrimdışı sayfa hiç yok.
+- **Mobil denetim yapılmadı:** 70 KB ön yüz CSS'inde 10 medya sorgusu var,
+  düzen Bootstrap ızgarasına bırakılmış. Izgara taşmayı ve dokunma hedefini
+  çözmez.
+- **Erişilebilirlik taban çizgisi yok:** içeriğe atlama bağlantısı yok.
+
+### 🟡 Panelin eksik ekranları (Faz 3)
+
+Temada tasarımı hazır, kodu yok:
+
+- **`reports.html`** — Raporlar
 - **`content-list.html`** — Genel içerik listesi
+- **`help.html`** — Panel içi yardım
 
-~~`roles-permissions.html`~~ — yapıldı (`4b49a5a`): `admin/roles/index.blade.php`
-ve tam CRUD + izin senkronizasyonu route'ları mevcut.
+(`orders.html`, `products.html`, `product-add.html` bilerek boş: e-ticaret
+modülleri `ab57deb`'de sökülmüştü.)
 
-### 🟢 Diğer
+### 🟡 API olgunluğu (Faz 4)
 
-- ~~`README.md` tek satır~~ — yazıldı: kurulum, roller, çok dilli yapı, testler.
-- ~~`composer.json` adı hâlâ `laravel/laravel`~~ — `ozansonar/laravel-base` oldu.
-- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13 /
-  PHP 8.4 ile çalışıyor ama uzun vadede risk. Tek kullanım yeri
-  `AnalyticsService` (tarayıcı/cihaz tespiti); değiştirilmesi gerekirse etki
-  alanı dar.
-- ~~Ölü iskele girdileri~~ — temizlendi: `.gitignore`'daki `Homestead.*`
-  satırları ve `composer.json`'daki `allow-plugins → pestphp/pest-plugin`.
-- ~~Hesabım alanı zayıf~~ — şifre değiştirme (mevcut şifre doğrulamalı) ve
-  e-posta doğrulama eklendi.
-- ~~Ölü kod~~ — temizlendi: `vendor/pagination/custom.blade.php` ve
-  `.gitignore`'daki google kuralı kaldırıldı. `UserRole` enum'u silinmedi,
-  aksine bağlandı: `AdminMiddleware` ve `RoleSeeder` artık rol slug'larını
-  ondan okuyor.
+- Push bildirim altyapısı (jeton kaydı + gönderim kancası) yok
+- Sürüm/sağlık ucu yok — eski istemciyi güncellemeye zorlamanın yolu yok
+- Kullanıcı kendi yorumlarını göremiyor/silemiyor (web'de de yok)
+
+### 🟢 Dayanıklılık ve bakım (Faz 5)
+
+- **Yedeğin dış kopyası yok** — arşiv, yedeklediği veriyle aynı diskte.
+- **`jenssegers/agent` 2020'den beri güncellenmiyor.** Tek kullanım yeri
+  `AnalyticsService`; etki alanı dar.
+- **Suite tepe belleği 131 MB** — stok `memory_limit=128M` ile `composer test`
+  yarıda düşüyor. Tek başına en ağır sınıf 83 MB; sorun birikim.
+- **İki config sertleştirmesi bekliyor:** `session.serialization` ve
+  `cache.serializable_classes` (gerekçeleri bölüm 7'de).
+
+### ✅ Bu turda kapandığı doğrulananlar
+
+- ~~Ön yüzdeki sabit metinler~~ — arayüz çevirisi tamamlandı (bkz. 5f).
+- ~~Blog ve galeri sorguları dil farkında değil~~ — `localeWithFallback` blog,
+  galeri, SSS, sayfa, slider, popup ve arama servislerinin hepsinde.
+- ~~`roles-permissions.html` ekranı~~ — yapıldı, tam CRUD + izin senkronizasyonu.
+- ~~README tek satır~~, ~~`composer.json` adı~~, ~~ölü iskele girdileri~~,
+  ~~ölü kod~~ — hepsi temizlendi.
 
 ---
 
@@ -1759,6 +1797,98 @@ yeniden açıyor; mobilde taşma yok.
 
 ---
 
+## 5z. API Katmanı (v1) — ✅ Kuruldu
+
+Mobil uygulamanın ve harici istemcilerin **aynı iş mantığından** beslendiği
+katman. Kural şu: bir uç, ön yüzün kullandığı Service'i çağırır; kendi
+sorgusunu yazmaz. Yazsaydı iki taraf zamanla farklı şeyler döndürürdü.
+
+- **33 rota**, `/api/v1` önekinde (önek `bootstrap/app.php`'de). Sürüm önekte
+  duruyor ki kırıcı bir değişiklikte v2 açılıp v1 bir süre ayakta kalabilsin —
+  mağazadaki eski uygulama sözleşmeyi konuşmaya devam eder.
+- **19 controller / 19 API Resource.** Zarf tek: `App\Http\Responses\ApiResponse`.
+- **Dil** `Accept-Language` ya da `?lang=` ile çözülüyor (`SetApiLocale`),
+  yanıtta `Content-Language` ile geri bildiriliyor, `Vary` ile araya giren
+  önbelleklere duyuruluyor — olmasaydı ilk gelenin dili ötekilere servis
+  edilirdi.
+- **Kimlik** Sanctum kişisel erişim jetonu. Jeton ömrü ve hız sınırlarının
+  hepsi `config/api.php` üzerinden, `.env`'den ayarlanabilir.
+- **Dört kapı middleware'i:** `api.available` (bakım modu), `api.active`
+  (pasife alınan kullanıcı), `api.verified` (e-posta doğrulaması),
+  `abilities` (jeton yetkisi).
+- **Bilinmeyen adres** JSON 404 dönüyor: `Route::fallback` olmadan
+  `/api/v1/yanlis-adres` web tarafındaki fallback'e düşüp HTML sayfa
+  döndürüyordu.
+
+### Kapsam
+
+| Alan | Uçlar |
+|---|---|
+| Kimlik | kayıt, giriş, çıkış, `me`, e-posta doğrulama tekrarı |
+| Şifre sıfırlama | altı haneli kod ile iste/doğrula (mobilde bağlantı tıklatmak zor) |
+| Hesap | profil güncelleme (avatar aynı istekte, `multipart`) |
+| Cihazlar | listele, tekini kapat, ötekilerin hepsini kapat |
+| İçerik | açılış ekranı, slider, SSS, sayfalar, menüler, diller, ayarlar, çeviriler |
+| Blog | kategoriler, yazılar, yazı detayı, yorumlar (oku + gönder) |
+| Galeri | kategoriler, öğeler |
+| Arama | site geneli tek uç |
+| Formlar | iletişim, bülten aboneliği |
+
+### Jeton yetkileri ve önbellek başlıkları (`26fa4fd`)
+
+Yetkiler enum'da: `profile:read`, `profile:write`, `devices:manage`. Çıkış
+bilerek yetkisiz — bir jeton her zaman kendini iptal edebilmeli, yoksa dar
+yetkili bir jeton ele geçtiğinde sahibi onu kapatamaz.
+
+Seyrek değişen uçlar `ETag` ile dönüyor; istemci `If-None-Match` gönderince
+içerik değişmemişse 304 alıyor ve gövde hiç inmiyor. En büyük kazanç çeviri
+sözlüğünde (yüz kilobayta yaklaşabiliyor). İçerik listeleri bilerek dışarıda:
+orada tazelik önbellekten değerli ve sayfalama ETag'i sürekli değiştiriyor.
+
+### Cihaz yönetimi (`471ea76`)
+
+Kullanıcı kendi oturumlarını görüp kapatabiliyor. Doğrulanmış e-posta şartı
+bilerek yok: hesabına şüpheli erişim olduğunu düşünen kişi, doğrulama adımını
+tamamlayamamış olsa bile oturumları kapatabilmeli.
+
+### E-posta değişimi (`7873d89`, `fbabbaf`)
+
+Adres değişince doğrulama sıfırlanıyor ve **eski adrese** güvenlik uyarısı
+gidiyor — hesabı ele geçiren biri adresi değiştirse bile sahibi haberdar olur.
+
+### Makine okunur sözleşme (`782cea2`)
+
+`docs/openapi.json` — OpenAPI 3.1. Kendi kendini denetliyor:
+`Api/OpenApiSpecTest` şemayı rotalarla karşılaştırıyor, yeni bir uç şemaya
+yazılmadan eklenirse test düşüyor. İkinci bir Postman koleksiyonu bilerek
+tutulmuyor: ikinci dosya ikinci bayatlama kaynağı.
+
+### Testler
+
+`tests/Feature/Api/` altında 11 sınıf: kimlik, şifre sıfırlama, hesap, cihaz,
+jeton yetkileri, önbellek başlıkları, içerik uçları, herkese açık uçlar, blog
+araması, site araması ve sözleşme denetimi.
+
+---
+
+## 5ab. Arama — ✅ Kuruldu (blog + site geneli)
+
+Üç commit'te büyüdü: önce blog araması (`08dcf33`), sonra blog sayfasındaki
+kutu (`5013668`), sonunda blog + sayfa + SSS + galeriyi tek kutudan tarayan
+site geneli arama (`de77f5e`).
+
+- Tek servis: `SearchService`. Ön yüzdeki `/arama` ile API'deki
+  `/api/v1/search` aynı sorguyu kullanıyor.
+- Jokerler harf sayılarak eşleşiyor; `LIKE` deseni veri tabanından bağımsız
+  (`LikeSearchIsPortableTest` bekçilik ediyor — SQLite'ta geçip MySQL'de
+  düşen desenler bu kit'te bir kez yaşandı).
+- Rota sırası önemli: `/arama`, `/{slug}` yakalayıcısından **önce** tanımlı;
+  sonra gelseydi "arama" adlı bir sayfa varmış gibi aranırdı.
+- Sonuçlar dile duyarlı (`localeWithFallback`) ve yalnız yayında olan içeriği
+  gösteriyor.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1778,30 +1908,31 @@ güvenle çalıştırılabiliyor.
 
 ---
 
-## 8. Önerilen Sıra
+## 8. Tamamlananlar ve Sıradaki Sıra
 
-- [x] ~~**SoftDeletes'i her modele yay**~~ — tamamlandı (bkz. bölüm 5d)
-- [x] ~~**Yetkilendirme boşluğunu kapat**~~ — tamamlandı (bkz. bölüm 5)
-- [x] ~~**Açık yönlendirmeyi kapat**~~ — tamamlandı (bkz. bölüm 5c)
-- [x] ~~**Moderatör rolünü işler hâle getir**~~ — policy rol tanımına uyduruldu
-- [x] ~~**Hoş geldin e-postasını düzelt**~~ — tamamlandı (bkz. bölüm 4)
-- [x] ~~**Ürün/sipariş kalıntılarını temizle**~~ — tamamlandı, 15 kalem
+### Kapanan turlar
 
-Sıradakiler:
+- [x] SoftDeletes'i her modele yay (5d)
+- [x] Yetkilendirme boşluğunu kapat (5)
+- [x] Açık yönlendirmeyi kapat (5c)
+- [x] Moderatör rolünü işler hâle getir
+- [x] Hoş geldin e-postasını düzelt (4)
+- [x] Ürün/sipariş kalıntılarını temizle — 15 kalem
+- [x] Çok dilli yapı, arayüz çevirisi, çok dilli navigasyon (5e, 5f, 5g)
+- [x] Mail ve upload yolları (5h) · Toplu mail (5i) · Shared hosting uyumu (5j)
+- [x] Diller ve dil yazıları ekranları (5k, 5l) · Bölgesel ayarlar (5m)
+- [x] Pasif kullanıcı oturumu ve güvenilen proxy (5n) · robots.txt (5o)
+- [x] Hata bildirimi ve log rotasyonu (5p) · Denetim izi (5r)
+- [x] Kuyruk izleyici (5s) · Ölü telegram ayarı ve başarısız işler (5t)
+- [x] Yedek geri yükleme (5u) · CI ve statik analiz (5v) · Çerez rızası (5y)
+- [x] **API katmanı v1** (5z) · **Arama** (5ab)
 
-1. ~~**Pasif kullanıcı oturumdan düşmüyor**~~ — kapatıldı (bkz. bölüm 5n)
-2. ~~**Güvenilen proxy tanımsız**~~ — kapatıldı (bkz. bölüm 5n)
-3. **Ön yüzdeki sabit metinler** — arayüz metinleri (buton, başlık, form
-   etiketleri) hâlâ Blade içinde Türkçe sabit. İçerik çok dilli ama arayüz
-   değil; `lang/` çeviri dosyalarına taşınması gerekiyor.
-4. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
-   blog listesi/detayı ve galeri sorguları da `localeWithFallback` kullanmalı.
-5. ~~**Denetim izini yay**~~ — kapatıldı (bkz. bölüm 5r)
-6. ~~**Kuyruk izleyici ekranı**~~ — kapatıldı (bkz. bölüm 5s)
-7. ~~**İşlenmeyen hata kimseye ulaşmıyor**~~ — kapatıldı (bkz. bölüm 5p)
-8. ~~**CI ve statik analiz yok**~~ — kapatıldı (bkz. bölüm 5v)
-8. ~~**`robots.txt` route'a taşınsın**~~ — kapatıldı (bkz. bölüm 5o)
-9. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı
-10. ~~Kalan ölü kodu temizle~~ — tamamlandı
-11. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
-    doğrulama akışı eklendi
+### Sıradaki — [`YOL-HARITASI.md`](YOL-HARITASI.md)
+
+| Faz | İçerik | Durum |
+|---|---|---|
+| 1 | Hesap ve kimlik: cihazlar, 2FA, KVKK hakları, API şifre ucu, bildirim tercihleri | ⬜ |
+| 2 | Mobil web: PWA, çevrimdışı, mobil denetim, erişilebilirlik | ⬜ |
+| 3 | Panel: Raporlar, Genel içerik listesi, Yardım | ⬜ |
+| 4 | API olgunluğu: push, sağlık/sürüm ucu, kendi yorumlarım, şema hizası | ⬜ |
+| 5 | Dayanıklılık: dış yedek, `jenssegers/agent` çıkışı, bellek bütçesi, sertleştirme | ⬜ |
