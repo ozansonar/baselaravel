@@ -721,6 +721,32 @@ Süresi dolmuş jetonlar haftalık `sanctum:prune-expired` göreviyle temizlenir
 
 ---
 
+## Makine okunur şema
+
+`docs/openapi.json` — OpenAPI 3.1, otuz ucun tamamı ve yirmi altı şema.
+
+**İstemci modellerini elle yazmayın, üretin.** Şemadan Dart/Kotlin/Swift/TS
+istemcisi çıkaran araçlar bunu okur; böylece sözleşme değiştiğinde hata
+çalışma zamanında kullanıcıda değil, derlemede görünür.
+
+```bash
+# Postman: Import → File → docs/openapi.json
+# (koleksiyon ayrıca tutulmuyor — ikinci bir dosya ikinci bir bayatlama kaynağı)
+
+# Dart istemcisi
+openapi-generator generate -i docs/openapi.json -g dart-dio -o build/api-client
+```
+
+> **Şema kendi kendini denetliyor.** `tests/Feature/Api/OpenApiSpecTest.php`
+> her koşuda rotalarla şemayı karşılaştırıyor: şemada olmayan bir uç
+> eklenemiyor, uygulamada olmayan bir uç şemada duramıyor, kimlik gerektiren
+> uçların şemada da öyle işaretli olması ve önbelleklenen uçların 304'ü
+> bildirmesi zorunlu. Elle yazılan bir şema yazıldığı gün doğru olup ertesi
+> hafta yalan söylemeye başlar; mobil ekip modellerini ondan ürettiği için
+> yalanı kullanıcıda öğrenir.
+
+---
+
 ## Sürümleme
 
 Sürüm adreste taşınır (`/api/v1`). Kırıcı bir değişiklik geldiğinde `/api/v2`
@@ -758,5 +784,7 @@ app/Http/Middleware/EnsureApiUserIsActive.php
 app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     128 sınama
+docs/openapi.json                      OpenAPI 3.1 şeması (30 uç)
+
+tests/Feature/Api/                     137 sınama
 ```

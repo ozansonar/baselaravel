@@ -708,6 +708,10 @@ composer test
   sınırla aynı olması, terimin kutuda kalması ve ekrana kaçırılarak basılması,
   kategori içinde aramanın o kategoride kalması, sayfalamanın terimi koruması
   ve **arama sonucunun dizine girmemesi** (noindex, kanonik basılmıyor)
+- `Api/OpenApiSpecTest` — `docs/openapi.json` ile gerçek rotaların aynı şeyi
+  söylemesi: şemada olmayan uç eklenemez, olmayan uç şemada duramaz, kimlik ve
+  304 bildirimleri gerçekle uyuşur, her `$ref` çözülür. Elle yazılan bir şema
+  yazıldığı gün doğru olup ertesi hafta yalan söyler
 - `Api/ApiBlogSearchTest` — başlık ve özette arama, gövdedeki HTML'in
   eşleşmemesi, ziyaretçinin yazdığı jokerin harf sayılması, aramanın kategoriyle
   birlikte çalışması, sayfalama bağlantılarının terimi koruması ve sonuçsuz
@@ -857,6 +861,10 @@ olan ya da adında `secret` / `token` / `password` geçen hiçbir satır dışar
 
 Kurulum için `.env`'e eklenecekler ve tüm uçların ayrıntısı: **`docs/API.md`**.
 
+**Makine okunur şema: `docs/openapi.json`** (OpenAPI 3.1, 30 uç). Mobil ekip
+istemci modellerini elle yazmak yerine bundan üretir; Postman doğrudan içeri
+alır. Şema rotalarla karşılaştırılarak sınanıyor, yani bayatlayamıyor.
+
 ---
 
 ## Ek dokümanlar
@@ -865,4 +873,5 @@ Kurulum için `.env`'e eklenecekler ve tüm uçların ayrıntısı: **`docs/API.
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
+- `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)
 - `resources/views/admin-theme/README.md` — tema referansı

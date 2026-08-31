@@ -1,0 +1,4129 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Laravel Base — API v1",
+    "version": "1.0.0",
+    "description": "Kurumsal site ve admin panel base kit'inin API katmanı.\n\nWeb arayüzü ile mobil uygulamalar aynı iş mantığından beslenir: panelden değiştirilen bir menü, ayar ya da yazı iki tarafta da aynı anda değişir — API ayrı bir kopya tutmaz, aynı Service katmanını çağırır.\n\n## Yanıt biçimi\n\nHer yanıt aynı zarfı taşır. Başarıda `data`, hatada `errors` **her zaman** bulunur (içi boş olsa bile) ve boş `errors` JSON'a `{}` olarak iner, `[]` olarak değil — istemcinin aynı alanı iki ayrı tipte görmesi tipli bir modele ayrıştırmayı imkânsız kılardı.\n\n## Dil\n\nAdres dil taşımaz ve oturum yoktur. Dil şu sırayla çözülür: `?lang=` → `X-Locale` → `Accept-Language` (q değerleri ve `de-DE` gibi bölgesel etiketler dahil) → sitenin varsayılanı. Sitede olmayan bir dil **hata değildir**: varsayılana düşülür. Seçilen dil `Content-Language` ile bildirilir.\n\n## Kimlik doğrulama\n\nSanctum kişisel erişim jetonu, `Authorization: Bearer <jeton>`. Jeton **yalnızca üretildiği anda bir kez** düz metin olarak döner; veritabanında hash'li tutulur.\n\nAyrıntılı anlatım: `docs/API.md`.",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "{origin}/api/v1",
+      "description": "Sürüm adreste taşınır; kırıcı bir değişiklikte /api/v2 açılır ve v1 bir süre yayında kalır.",
+      "variables": {
+        "origin": {
+          "default": "http://localhost:8000",
+          "description": "Sitenin adresi (APP_URL)."
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Kimlik",
+      "description": "Kayıt, giriş, şifre sıfırlama, e-posta doğrulama."
+    },
+    {
+      "name": "Cihazlar",
+      "description": "Kullanıcının açık oturumları."
+    },
+    {
+      "name": "Hesap",
+      "description": "Jeton + açık hesap + doğrulanmış e-posta gerektirir."
+    },
+    {
+      "name": "Site",
+      "description": "Menü, ayar, çeviri, dil, slider, SSS, açılış ekranı."
+    },
+    {
+      "name": "Sayfalar",
+      "description": "Panelden yayınlanan statik sayfalar."
+    },
+    {
+      "name": "Blog",
+      "description": "Yazılar, kategoriler, yorumlar."
+    },
+    {
+      "name": "Galeri",
+      "description": "Fotoğraf ve videolar."
+    },
+    {
+      "name": "Formlar",
+      "description": "İletişim ve bülten."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Sanctum kişisel erişim jetonu."
+      }
+    },
+    "parameters": {
+      "AcceptLanguage": {
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "tr"
+        },
+        "description": "Cihazın dili. q değerleri ve bölgesel etiketler (de-DE → de) dikkate alınır."
+      },
+      "XLocale": {
+        "name": "X-Locale",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "en"
+        },
+        "description": "Uygulama içi dil seçimi. Accept-Language'ı geçer."
+      },
+      "LangQuery": {
+        "name": "lang",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "en"
+        },
+        "description": "En yüksek öncelikli dil seçimi."
+      },
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "PerPage": {
+        "name": "per_page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 15
+        },
+        "description": "Tavanı aşan değer hata vermez, kırpılır: bir liste için istemciyi iki gidiş dönüşe zorlamamak gerekiyor."
+      },
+      "IfNoneMatch": {
+        "name": "If-None-Match",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Önceki yanıtın ETag'i. İçerik değişmemişse 304 döner ve gövde hiç inmez."
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Jeton yok, geçersiz ya da süresi dolmuş.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "İşleme izin yok.\n\nSebebe göre `errors.code` makine tarafından okunabilir bir değer taşır: `email_unverified` (e-posta doğrulanmamış) ya da `missing_ability` (jetonun yetkisi yok, eksik yetkiler `errors.abilities` içinde). Hesap pasifse kod bulunmaz.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Kayıt ya da uç bulunamadı.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Doğrulama hatası.\n\n`errors` alan adından hata listesine eşlenir. `message` ilk hatayı taşır, yani istemci `errors` içine hiç bakmadan bir uyarı gösterebilir.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Hız sınırı aşıldı.\n\n`Retry-After` başlığı ne kadar beklenmesi gerektiğini söyler.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unavailable": {
+        "description": "Bakım modu.\n\nKimlik uçları bakım modunda açık kalır — ön yüzde /giris de öyle.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotModified": {
+        "description": "İçerik değişmemiş; gövde yok.",
+        "headers": {
+          "ETag": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ImageSet": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Beş boyut birden. Görsel yoksa null — yer tutucu görselin nasıl görüneceği istemcinin tasarım kararı.",
+        "properties": {
+          "original": {
+            "type": "string",
+            "format": "uri"
+          },
+          "thumb": {
+            "type": "string",
+            "format": "uri"
+          },
+          "sm": {
+            "type": "string",
+            "format": "uri"
+          },
+          "md": {
+            "type": "string",
+            "format": "uri"
+          },
+          "lg": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "current_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "from": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "to": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "current_page",
+          "last_page",
+          "per_page",
+          "total",
+          "has_more"
+        ]
+      },
+      "PaginationLinks": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prev": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "next": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Alan bazlı hatalar. HER ZAMAN nesne — boşken bile {} olarak iner, [] olarak değil.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "errors"
+        ]
+      },
+      "Enum": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "avatar": {
+            "$ref": "#/components/schemas/ImageSet"
+          },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "birth_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "gender": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Enum"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "department": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Enum"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "email_verified": {
+            "type": "boolean"
+          },
+          "email_verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            },
+            "description": "Yalnız /auth/me ve profil güncelleme yanıtlarında bulunur."
+          },
+          "created_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "first_name",
+          "last_name",
+          "full_name",
+          "email",
+          "is_active",
+          "email_verified"
+        ],
+        "description": "Parola ve remember_token hiçbir koşulda dönmez."
+      },
+      "AuthResult": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "token": {
+            "type": "string",
+            "description": "Düz metin jeton. YALNIZ BURADA, bir kez görülür — Sanctum onu hash'li tutar."
+          },
+          "token_type": {
+            "type": "string",
+            "const": "Bearer"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "abilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Jetonun yapabilecekleri. Tam yetkili jetonda ['*']."
+          }
+        },
+        "required": [
+          "user",
+          "token",
+          "token_type",
+          "abilities"
+        ]
+      },
+      "Language": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "native_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "flag": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "is_default"
+        ]
+      },
+      "MenuItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "Çözülmüş, dile duyarlı adres. İstemcinin ayrıca kurmasına gerek yok."
+          },
+          "link_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "route_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "display_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "url"
+        ]
+      },
+      "Menu": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "location"
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug"
+        ]
+      },
+      "PageDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Page"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "excerpt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "content": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "HTML. Bir HTML görüntüleyicide basılmalı; düz metne çevirmek yasal metinlerde içerik kaybıdır."
+              },
+              "content_format": {
+                "type": "string",
+                "const": "html"
+              },
+              "sections": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "image": {
+                "$ref": "#/components/schemas/ImageSet"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/Meta"
+              },
+              "published_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ContentFile"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "ContentFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extension": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "mime_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "url"
+        ]
+      },
+      "BlogCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "posts_count": {
+            "type": "integer"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "BlogPost": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "excerpt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "image": {
+            "$ref": "#/components/schemas/ImageSet"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "views": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "published_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "category": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BlogCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "author": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "full_name": {
+                "type": "string"
+              },
+              "avatar": {
+                "$ref": "#/components/schemas/ImageSet"
+              }
+            }
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug"
+        ],
+        "description": "Liste görünümü — gövde taşımaz."
+      },
+      "BlogPostDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BlogPost"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "body": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "HTML."
+              },
+              "meta": {
+                "$ref": "#/components/schemas/Meta"
+              },
+              "comment_count": {
+                "type": "integer",
+                "description": "Üst düzey onaylı yorum sayısı — ön yüzdeki sayı ile aynı, yanıtları saymaz."
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ContentFile"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "BlogComment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlogComment"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "body"
+        ],
+        "description": "E-posta ve IP hiçbir koşulda dönmez."
+      },
+      "GalleryCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "items_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "GalleryItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/Enum"
+          },
+          "image": {
+            "$ref": "#/components/schemas/ImageSet"
+          },
+          "video_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "view_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "category": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GalleryCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Slider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subtitle": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "image": {
+            "$ref": "#/components/schemas/ImageSet"
+          },
+          "button_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "button_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Çözülmüş, dile duyarlı adres. Buton yoksa null."
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Faq": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "answer"
+        ]
+      },
+      "Device": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "current": {
+            "type": "boolean",
+            "description": "İsteği yapan oturum. Kullanıcı yanlışlıkla kendi oturumunu kapatmasın diye."
+          },
+          "last_used_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "current"
+        ],
+        "description": "Jetonun kendisi listelenmez ve listelenemez — hash'li tutulur."
+      },
+      "ContactMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subject": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "description": "Gönderenin kendi yazdıkları. ip_address, is_read, reply_text yönetim tarafına ait ve dönmez."
+      },
+      "Settings": {
+        "type": "object",
+        "description": "Gruba göre kümelenmiş ayarlar. Yalnız config/api.php'de yayınlanması onaylananlar; parola/sır taşıyan hiçbir anahtar çıkmaz.",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/account/profile": {
+      "put": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "updateProfile",
+        "summary": "Profili güncelle",
+        "description": "Güncelleme TAMDIR, parçalı değil — ad, soyad ve e-posta her istekte gönderilir. Şifre değiştirmek current_password ister. Avatar aynı istekte, çok parçalı gövdeyle gider; PHP onu yalnız POST'ta ayrıştırdığı için istemci POST + _method=PUT kullanmalı. E-POSTA DEĞİŞİRSE doğrulama sıfırlanır: yanıt başarılıdır ama bir sonraki istek 403 verir.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "phone": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 20
+                  },
+                  "current_password": {
+                    "type": "string",
+                    "description": "password gönderilirse zorunlu."
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "password_confirmation": {
+                    "type": "string"
+                  },
+                  "remove_avatar": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "first_name",
+                  "last_name",
+                  "email"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_method": {
+                    "type": "string",
+                    "const": "PUT"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "jpeg/png/webp, en fazla 1 MB."
+                  }
+                },
+                "required": [
+                  "_method",
+                  "first_name",
+                  "last_name",
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Güncellendi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/devices": {
+      "get": {
+        "tags": [
+          "Cihazlar"
+        ],
+        "operationId": "devices",
+        "summary": "Açık oturumlar",
+        "description": "En son kullanılan başta. Süresi dolmuş jetonlar listelenmez. Doğrulanmış e-posta istemez: hesabına şüpheli erişim olduğunu düşünen kişi oturumları kapatabilmeli.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Oturumlar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Device"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cihazlar"
+        ],
+        "operationId": "revokeOtherDevices",
+        "summary": "Bu cihaz hariç hepsinden çık",
+        "description": "Mevcut oturum KORUNUR: düğmeye basan kişi kendi uygulamasından atılmayı beklemiyor.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kapatıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "revoked": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/devices/{device}": {
+      "delete": {
+        "tags": [
+          "Cihazlar"
+        ],
+        "operationId": "revokeDevice",
+        "summary": "Tek oturumu kapat",
+        "description": "Başkasının oturum kimliği yazılırsa 404 döner, 403 değil: ayrımı söylemek kimlikleri deneyerek başka hesapların oturumlarını haritalamaya yarardı.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "device",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kapatıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/email/resend": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "resendVerification",
+        "summary": "Doğrulama bağlantısını yeniden gönder",
+        "description": "Bağlantı tarayıcıda açılır. Zaten doğrulanmış hesapta hiçbir şey yapmaz ve yine 200 döner.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gönderildi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "login",
+        "summary": "Giriş yap",
+        "description": "Kimlik bilgileri tutmuyorsa 401 — hangi alanın yanlış olduğu bilerek söylenmez. Hesap pasifse 403.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "device_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Jetonun etiketi. Aynı adla yeniden giriş eskisini geçersiz kılar."
+                  },
+                  "abilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "profile:read",
+                        "profile:write",
+                        "devices:manage"
+                      ]
+                    },
+                    "description": "İsteğe bağlı. YALNIZCA daraltır: tanınmayan değer ('*' dahil) 422 ile reddedilir."
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Giriş yapıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AuthResult"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "logout",
+        "summary": "Bu cihazdan çık",
+        "description": "Yalnız isteği yapan jetonu siler. Yetki istemez: bir jeton her zaman kendini iptal edebilmeli.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Çıkış yapıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "me",
+        "summary": "Giriş yapmış kullanıcı",
+        "description": "Doğrulanmamış e-posta buradan çevirmez: uygulama 'e-postanı doğrula' ekranını data.email_verified alanına bakarak çizer.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kullanıcı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "abilities": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/password/forgot": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "passwordForgot",
+        "summary": "Şifre sıfırlama kodu iste",
+        "description": "Altı haneli kod maille gider. Adres kayıtlı olsun ya da olmasın YANIT AYNIDIR — ayırt edilebilseydi bu uç, hangi adreslerin sistemde olduğunu öğrenmenin en kolay yolu olurdu.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "İstek alındı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "expires_in_minutes": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/password/reset": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "passwordReset",
+        "summary": "Kodla şifreyi değiştir",
+        "description": "Kod yanlış ya da süresi dolmuşsa 422; hangisi olduğu söylenmez. Başarıda jeton dönmez ve kullanıcının BÜTÜN oturumları ile jetonları düşer.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[0-9]{6}$"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "password_confirmation": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "code",
+                  "password",
+                  "password_confirmation"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Şifre değiştirildi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "register",
+        "summary": "Kayıt ol",
+        "description": "Kayıt panelden kapatılmışsa 403 döner. E-posta benzersizliği yalnız yaşayan satırlar arasında bakılır: silinmiş bir hesabın adresi yeniden kullanılabilir.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 50
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 50
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "phone": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 20
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "password_confirmation": {
+                    "type": "string"
+                  },
+                  "device_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Jetonun etiketi. Aynı adla yeniden giriş eskisini geçersiz kılar."
+                  },
+                  "abilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "profile:read",
+                        "profile:write",
+                        "devices:manage"
+                      ]
+                    },
+                    "description": "İsteğe bağlı. YALNIZCA daraltır: tanınmayan değer ('*' dahil) 422 ile reddedilir."
+                  }
+                },
+                "required": [
+                  "first_name",
+                  "last_name",
+                  "email",
+                  "password",
+                  "password_confirmation"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hesap oluşturuldu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AuthResult"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/blog/categories": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "operationId": "blogCategories",
+        "summary": "Blog kategorileri",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategoriler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BlogCategory"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/blog/comments": {
+      "post": {
+        "tags": [
+          "Blog"
+        ],
+        "operationId": "storeComment",
+        "summary": "Yorum gönder",
+        "description": "Yorum ONAY BEKLEYEREK kaydedilir ve listede görünmez. Yayında olmayan yazıya yorum yazılamaz. reCAPTCHA mobilde yok; frenler hız sınırı ve moderasyon.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "blog_post_id": {
+                    "type": "integer"
+                  },
+                  "parent_id": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "description": "Yanıtlanan yorum."
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191,
+                    "description": "Yayınlanmaz."
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "blog_post_id",
+                  "name",
+                  "email",
+                  "body"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alındı, onay bekliyor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/blog/posts": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "operationId": "posts",
+        "summary": "Yazılar",
+        "description": "Sayfalı. Kategori ve arama birlikte çalışır. Liste GÖVDE TAŞIMAZ; tam metin detay ucundan gelir. Olmayan kategori slug'ı 404 döner, sonuçsuz arama ise boş liste — biri yanlış yazımdır, öteki geçerli bir cevap.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PerPage"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 191
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Başlık ve özette arar, gövdede değil. Yazılan % ve _ joker değil harf sayılır."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Yazılar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta",
+                    "links"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BlogPost"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/PaginationLinks"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/blog/posts/{slug}": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "operationId": "post",
+        "summary": "Yazı detayı",
+        "description": "Okunma sayacını artırır — ön yüzdekiyle aynı yerden.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Yazı adresi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Yazı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BlogPostDetail"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/blog/posts/{slug}/comments": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "operationId": "comments",
+        "summary": "Yazının yorumları",
+        "description": "Yalnız onaylı yorumlar, yanıtlarıyla ağaç olarak. Detaydan ayrı: kırk yorumlu bir yazının detayı, yorumları hiç açmayan bir ekran için bile kırk yorum taşımasın.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Yazı adresi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Yorumlar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BlogComment"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/contact": {
+      "post": {
+        "tags": [
+          "Formlar"
+        ],
+        "operationId": "contact",
+        "summary": "İletişim formu",
+        "description": "Ön yüzle aynı servisten geçer. Yanıt yalnız gönderenin kendi yazdıklarını verir; ip_address, is_read, reply_text dışarı çıkmaz (IP yine de kaydedilir).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 191
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "phone": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 20
+                  },
+                  "subject": {
+                    "type": "string",
+                    "maxLength": 191
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 5000
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "subject",
+                  "message"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mesaj alındı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ContactMessage"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/faqs": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "faqs",
+        "summary": "Sıkça sorulan sorular",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sorular.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Faq"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/gallery": {
+      "get": {
+        "tags": [
+          "Galeri"
+        ],
+        "operationId": "gallery",
+        "summary": "Galeri öğeleri",
+        "description": "Kategori süzgeci slug ile çalışır (kimlikle değil): kategorinin her dilde ayrı satırı var ve kimliğe göre süzülseydi varsayılan dilden düşen öğeler süzgecin dışında kalırdı.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PerPage"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "photo",
+                "video"
+              ]
+            },
+            "description": "Başka bir değer 422."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Öğeler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta",
+                    "links"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GalleryItem"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/PaginationLinks"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/gallery/categories": {
+      "get": {
+        "tags": [
+          "Galeri"
+        ],
+        "operationId": "galleryCategories",
+        "summary": "Galeri kategorileri",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategoriler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GalleryCategory"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/home": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "home",
+        "summary": "Açılış ekranı",
+        "description": "Slider + son yazılar + galeri şeridi tek istekte. Parçalar ayrı ayrı da yayında; bu uç açılıştaki üç gidiş dönüşü bire indiriyor. Bölüm başına adetler config/api.php'de.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Açılış verisi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sliders": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Slider"
+                          }
+                        },
+                        "posts": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BlogPost"
+                          }
+                        },
+                        "gallery": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/GalleryItem"
+                          }
+                        }
+                      },
+                      "required": [
+                        "sliders",
+                        "posts",
+                        "gallery"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/languages": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "languages",
+        "summary": "Yayındaki diller",
+        "description": "Mobil uygulamanın dil menüsü buradan dolar: hangi kodları gönderebileceğini başka türlü bilemez.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Diller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Language"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": "string"
+                        },
+                        "default": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/menus": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "menus",
+        "summary": "Bütün menüler",
+        "description": "Konumların hepsi tek istekte, ağaç hâlinde. Bağlantı adresleri çözülmüş gelir: panelden bir sayfanın adresi değişince mobil uygulamanın güncellenmesi gerekmez.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menüler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Menu"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/menus/{location}": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "menu",
+        "summary": "Tek konumun menüsü",
+        "description": "O dilde menüsü olmayan konum varsayılan dile düşer.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "location",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "header, footer, custom"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menü.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Menu"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/newsletter/subscribe": {
+      "post": {
+        "tags": [
+          "Formlar"
+        ],
+        "operationId": "newsletter",
+        "summary": "Bülten aboneliği",
+        "description": "Varsayılan işaretli listeye düşer. Aynı adresle yeniden abone olmak yeni satır açmaz, mevcut kaydı canlandırır. Abonelikten çıkma bilerek yok: çıkış bağlantısı her kampanya mailinin altında, imzalı ve girişsiz.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "first_name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 191
+                  },
+                  "last_name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 191
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Abone olundu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/pages": {
+      "get": {
+        "tags": [
+          "Sayfalar"
+        ],
+        "operationId": "pages",
+        "summary": "Yayındaki sayfalar",
+        "description": "Menü çizmek için; içerik taşımaz.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sayfalar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Page"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/pages/{slug}": {
+      "get": {
+        "tags": [
+          "Sayfalar"
+        ],
+        "operationId": "page",
+        "summary": "Sayfa içeriği",
+        "description": "Gizlilik politikası, KVKK ve kullanım koşulları buradan okunur — mağazalar bunlar olmadan uygulamayı yayınlamıyor.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Sayfa adresi"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sayfa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PageDetail"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/settings": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "settings",
+        "summary": "Site ayarları",
+        "description": "TABLONUN TAMAMI DEĞİL. Yayınlanacak gruplar ve elenen anahtarlar config/api.php'de beyaz liste; tipi password olan ya da adında secret/token/password/api_key/private geçen hiçbir satır — grubu ne olursa olsun — çıkmaz. Görsel ayarları mutlak adres olarak döner.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Tek grup. Yayınlanmayan grup 404."
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ayarlar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Settings"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/sliders": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "sliders",
+        "summary": "Ana sayfa görsel şeridi",
+        "description": "button_url çözülmüş ve dile duyarlı gelir; butonu olmayan slider'da null.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Slider'lar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Slider"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/translations": {
+      "get": {
+        "tags": [
+          "Site"
+        ],
+        "operationId": "translations",
+        "summary": "Arayüz metinleri",
+        "description": "Dosya varsayılanının üstüne panel düzenlemeleri serilmiş hâli — ekranda ne görünüyorsa o. Anahtarlar düz: 'nav.home'.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Tek grup. Beyaz liste dışındaki grup 404."
+          },
+          {
+            "$ref": "#/components/parameters/IfNoneMatch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metinler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "locale": {
+                          "type": "string"
+                        },
+                        "groups": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "locale",
+                        "groups"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "If-None-Match ile geri gönderilir; içerik değişmemişse 304 döner."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Accept-Language, X-Locale"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    }
+  }
+}
