@@ -123,6 +123,31 @@ php artisan schedule:list
 > görev hata vermeden hiç çalışmaz. Ayrıntı ve kurallar:
 > [docs/SHARED-HOSTING.md](docs/SHARED-HOSTING.md)
 
+## Ters vekil / CDN arkasında
+
+Site Cloudflare, nginx reverse proxy veya bir yük dengeleyici arkasındaysa
+`.env` içindeki `TRUSTED_PROXIES` **mutlaka** doldurulmalı:
+
+```env
+TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
+```
+
+Doldurulmazsa bağlantı proxy'den geldiği için her ziyaretçi aynı IP'den
+görünür. Bunun üç sonucu var ve hiçbiri hata vermez:
+
+- Giriş, iletişim ve kayıt formlarındaki hız sınırları tek kovaya düşer — bir
+  kişinin başarısız denemeleri herkesi kilitler, gerçek saldırgan yavaşlamaz
+- Ziyaretçi istatistikleri ve denetim kayıtları proxy'nin adresini yazar
+- TLS proxy'de sonlandığı için istek HTTP görünür ve HSTS başlığı hiç çıkmaz
+
+Sunucuya yalnızca proxy üzerinden erişilebiliyorsa `TRUSTED_PROXIES=*`
+kullanılabilir. Sunucu kendi IP'sinden de cevap veriyorsa kullanılmamalı:
+saldırgan proxy'yi atlayıp başlığı kendisi yazar.
+
+Siteye doğrudan erişiliyorsa değer **boş bırakılır** — varsayılan budur.
+
+---
+
 ## Yazma izinleri
 
 ```bash
@@ -473,6 +498,13 @@ composer test
   kuralının her değişiklikten sonra korunması, yetki ayrımı
 - `TranslationOverrideTest` — arayüz metinlerinin panelden düzenlenmesi,
   varsayılana eşit değerin saklanmaması, ısınmış sayfanın sıfır sorgu atması
+- `InactiveUserSessionTest` — pasife alınan kullanıcının bir sonraki istekte
+  oturumdan düşmesi, açık oturum satırlarının ve `remember_token`'ın silinmesi,
+  toplu silmenin de aynı işi yapması
+- `TrustedProxyTest` — varsayılanda hiçbir proxy'ye güvenilmemesi, güvenilen
+  proxy arkasında gerçek ziyaretçi adresinin geçmesi, HSTS'in iletilen şemayla
+  çıkması, aynı proxy arkasındaki iki ziyaretçinin ayrı hız sınırı kovasına
+  düşmesi
 
 ---
 

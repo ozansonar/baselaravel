@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -21,6 +22,17 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Hangi başlıkların ziyaretçi adına konuşabileceği. Hangi proxy'ye
+        // güvenildiği istek anında config/trustedproxy.php'den okunuyor —
+        // burası uygulama ayağa kalkmadan çalıştığı için config() henüz yok.
+        // AWS_ELB ve PREFIX bilinçli olarak dışarıda: bu proje o iki başlığı
+        // üreten hiçbir katmanın arkasında çalışmıyor, güvenilen yüzey de
+        // gereğinden geniş olmamalı.
+        $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_FOR
+            | Request::HEADER_X_FORWARDED_HOST
+            | Request::HEADER_X_FORWARDED_PORT
+            | Request::HEADER_X_FORWARDED_PROTO);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'admin.locale' => \App\Http\Middleware\SetAdminLocale::class,
@@ -31,6 +43,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\HandleRedirects::class,
             \App\Http\Middleware\SetLocale::class,
+            // Pasife alınan kullanıcı buradan geri çevriliyor. SetLocale'den
+            // sonra: uyarının ziyaretçinin dilinde çıkması gerekiyor.
+            \App\Http\Middleware\EnsureUserIsActive::class,
             // Panelden açılmış adresler burada karşılanıyor. SetLocale'den
             // sonra: hangi dilin adresi olduğunu bilmesi gerekiyor. Eşleşme
             // yoksa hiçbir şey yapmadan çekiliyor.

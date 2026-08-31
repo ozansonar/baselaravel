@@ -186,6 +186,7 @@ return [
 
     'login' => [
         'failed'                => 'The e-mail address or password is incorrect.',
+        'deactivated'           => 'Your account has been deactivated, so you have been signed out.',
         'email_ph' => 'name@example.com',
         'welcome_back' => 'Welcome back',
         'title'      => 'Sign in',

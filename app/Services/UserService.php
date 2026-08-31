@@ -19,6 +19,7 @@ final class UserService
     public function __construct(
         private readonly RoleService $roleService,
         private readonly UploadService $uploadService,
+        private readonly SessionRevoker $sessionRevoker,
     ) {}
 
     // ── Admin Stats ──
@@ -222,7 +223,12 @@ final class UserService
 
         if ($silinen > 0) {
             // Toplu silme sorgu kurucusundan gidiyor, model olayı doğmuyor:
-            // panonun önbelleğini gözlemci değil bu satır düşürüyor.
+            // panonun önbelleğini gözlemci değil bu satır düşürüyor. Açık
+            // oturumları kapatan gözlemci de aynı sebeple devre dışı, o iş de
+            // buradan çağrılıyor — yoksa toplu silinen kullanıcı panelde
+            // kalmaya devam ederdi.
+            $this->sessionRevoker->revokeMany($ids);
+
             Cache::forget('admin_user_stats');
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }

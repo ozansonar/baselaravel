@@ -189,6 +189,7 @@ return [
 
     'login' => [
         'failed'                => 'E-posta veya şifre hatalı.',
+        'deactivated'           => 'Hesabınız pasife alındığı için oturumunuz kapatıldı.',
         'email_ph' => 'ornek@mail.com',
         'welcome_back' => 'Tekrar hoş geldiniz',
         'title'      => 'Giriş Yap',

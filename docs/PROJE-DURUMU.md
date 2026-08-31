@@ -1,6 +1,6 @@
 # Proje Durumu
 
-**Son güncelleme:** 2026-08-25
+**Son güncelleme:** 2026-08-31
 **Branch:** `feat/laravel-13-upgrade` (= `refactor/extract-base-kit`, aynı commit)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
 
@@ -21,7 +21,7 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 | | Adet | | Adet |
 |---|---|---|---|
 | Model | 23 | Route | 164 |
-| Service | 33 | Migration | 40 |
+| Service | 34 | Migration | 65 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
 | Policy | 20 | Enum | 9 |
@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **297 test / 1416 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1172 test / 4286 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -873,6 +873,118 @@ bulunmaması ve yönlendirmenin yetkiye göre link/düz metin olması.
 
 ---
 
+## 5n. Pasif Kullanıcı Oturumu ve Güvenilen Proxy — ✅ İki Sessiz Açık Kapatıldı
+
+Base kit'in production'a hazırlık denetiminde çıkan iki bulgu. İkisinin de ortak
+özelliği **hata vermeden yanlış davranmaları**: kod çalışıyor, test yeşil, ekran
+doğru sonucu gösteriyor — ama iş yapılmıyor.
+
+### 1. Pasife alınan kullanıcı oturumundan düşmüyordu
+
+`is_active` kod tabanında **tek bir yerde** okunuyordu: `AuthService::login()`.
+Yani bayrak yalnızca "kim oturum **açabilir**" sorusunu cevaplıyordu. Zaten açık
+bir oturum hiç sorgulanmıyordu.
+
+Sonuç: panelden bir hesabı pasife almak, o kişi o an oturumdaysa **hiçbir şey
+yapmıyordu**. Oturum ömrü kadar (varsayılan 120 dakika), "beni hatırla"
+işaretliyse `remember_token` geçerli olduğu sürece panelde kalmaya devam
+ediyordu. Düğmeye basan yöneticinin hesabın kapandığına inanmak için her
+sebebi vardı.
+
+İzinlerde bu sorun hiç olmadı: `AdminMiddleware` her istekte veritabanına
+soruyor, rol kaldırmak anında etkili oluyor. `is_active` hiçbir şeyin yeniden
+kontrol etmediği tek bayraktı.
+
+**İki katman eklendi, ikisi de gerekli:**
+
+| Katman | Ne yapıyor | Neden tek başına yetmiyor |
+|---|---|---|
+| `EnsureUserIsActive` middleware | Pasif kullanıcıyı bir sonraki istekte çıkarıyor: `Auth::logout()` + oturum geçersizleştirme, JSON isteğinde 403 | Oturum satırı ve `remember_token` yerinde kalır |
+| `SessionRevoker` servisi | Kullanıcının açık oturum satırlarını siliyor ve `remember_token`'ı boşaltıyor | Oturum sürücüsü `database` değilse satır bulunamaz |
+
+Middleware `web` grubuna `SetLocale`'den **sonra** eklendi — uyarının
+ziyaretçinin dilinde çıkması gerekiyor. Admin rotaları `web` grubunun üstüne
+kurulduğu için panel ve ön yüz aynı kontrolden geçiyor.
+
+`SessionRevoker` üç yerden çağrılıyor:
+
+- `UserObserver::updated()` — `is_active` false'a döndüğünde
+- `UserObserver::deleted()` — hesap silindiğinde
+- `UserService::deleteMany()` — toplu silme sorgu kurucusundan gittiği için
+  model olayı doğmuyor, servis işi kendisi yapıyor
+
+### Yol üzerinde bulunan iki kusur
+
+**Force delete kullanıcıyı geri getiriyordu.** `revoke()` içindeki
+`saveQuietly()` çağrısı, `forceDelete()` sonrası `exists = false` olan bir model
+üzerinde çalıştığında UPDATE değil **INSERT** üretiyor ve silinen kullanıcıyı
+geri yazıyordu. `exists` kontrolü eklendi; testi var.
+
+**`UserFactory` `is_active` üretmiyordu.** Kolon varsayılanına bırakılmıştı, yani
+satır aktif oluyordu ama `create()`'in döndürdüğü **modelde alan hiç yoktu** ve
+`null` okunuyordu. Middleware modele sorduğu için suite'te 294 test birden
+düştü. Fabrikaya `'is_active' => true` ve bir `inactive()` state'i eklendi.
+
+### 2. Güvenilen proxy tanımsızdı
+
+`bootstrap/app.php` içinde `trustProxies()` çağrısı yoktu. Laravel'in
+`TrustProxies` middleware'i global yığında zaten duruyor, ama güvenilecek proxy
+listesi boş olduğu için iletilen başlıkların hiçbirine bakmıyordu.
+
+Cloudflare, nginx reverse proxy veya yük dengeleyici arkasında bunun üç sonucu
+var ve **üçü de sessiz**:
+
+| Ne bozuluyor | Sonuç |
+|---|---|
+| `throttle:login`, `throttle:contact`, `throttle:register` | Hepsi IP'ye göre kova açıyor. Tek IP görüldüğü için tüm ziyaretçiler aynı kovayı paylaşır — bir kişinin başarısız girişleri **herkesi** kilitler, gerçek saldırgan ise hiç yavaşlamaz |
+| `page_views.ip_address`, audit log IP'leri | Ziyaretçi değil proxy kaydedilir |
+| `$request->secure()` | False döner, `SecurityHeaders` **HSTS başlığını hiç basmaz** |
+
+`config/trustedproxy.php` eklendi — Laravel'in `TrustProxies` sınıfı bu anahtarı
+kendiliğinden okuyor, `.env` → `TRUSTED_PROXIES`. Virgülle ayrılmış adres/CIDR
+listesi ya da `'*'` kabul ediyor. **Varsayılan boş**: siteye doğrudan
+erişiliyorsa doğrusu budur, çünkü bir proxy'ye güvenmek onun gönderdiği
+`X-Forwarded-For` değerine güvenmek demektir.
+
+Güvenilen başlık kümesi `bootstrap/app.php` içinde bilinçli olarak Laravel'in
+varsayılanından **dar** tutuldu: `FOR | HOST | PORT | PROTO`. `AWS_ELB` ve
+`PREFIX` dışarıda — bu proje o başlıkları üreten hiçbir katmanın arkasında
+çalışmıyor.
+
+> Ayar `config()` üzerinden okunuyor, `bootstrap/app.php` içinde `env()` ile
+> değil: middleware yapılandırması uygulama önyüklenmeden çalışıyor ve orada
+> `config()` henüz yok. Liste istek anında çözülüyor.
+
+### Testler
+
+`InactiveUserSessionTest` (11): aktif kullanıcının oturumunun korunması, pasife
+alınan kullanıcının panelde ve ön yüzde bir sonraki istekte çıkarılması, JSON
+isteğinde 403, misafirin etkilenmemesi, `remember_token`'ın düşmesi, aktif kalan
+kullanıcının token'ının korunması, oturum satırlarının silinmesi (yalnızca o
+kullanıcınınki), silme ve toplu silme yollarının ikisi de, force delete'in
+kullanıcıyı geri getirmemesi.
+
+`TrustedProxyTest` (12): varsayılanda hiçbir proxy'ye güvenilmemesi, başlık
+kümesinin dar tutulduğunun reflection ile doğrulanması, `TRUSTED_PROXIES`
+ayrıştırması (liste / `'*'` / boş), güvenilmeyen kaynağın adresi ve şemayı
+sahteleyememesi, güvenilen proxy arkasında gerçek adresin geçmesi, HSTS'in
+yalnızca iletilen şema güvenildiğinde çıkması ve **aynı proxy arkasındaki iki
+ziyaretçinin ayrı rate limit kovasına düşmesi**.
+
+Her iki düzeltme de geri alınıp testlerin gerçekten kırıldığı doğrulandı:
+middleware kaldırılınca 3, observer kaldırılınca 4, `exists` kontrolü ve toplu
+silme çağrısı kaldırılınca 2, config dosyası kaldırılınca 4 test düşüyor.
+
+### Bilinen ortam kaynaklı hata
+
+Suite'te 5 test ağ erişimi olmayan ortamda düşüyor:
+`CampaignPanelTest` (3), `FrontFormInputRulesTest` (1), `SubscriberListTest` (1).
+Sebep `email:rfc,dns` kuralının DNS sorgusu; bu değişikliklerden önce de aynı
+şekilde düşüyorlardı, kodla ilgisi yok.
+
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -904,14 +1016,21 @@ formatlanır.
 
 Sıradakiler:
 
-1. **Ön yüzdeki sabit metinler** — arayüz metinleri (buton, başlık, form
+1. ~~**Pasif kullanıcı oturumdan düşmüyor**~~ — kapatıldı (bkz. bölüm 5n)
+2. ~~**Güvenilen proxy tanımsız**~~ — kapatıldı (bkz. bölüm 5n)
+3. **Ön yüzdeki sabit metinler** — arayüz metinleri (buton, başlık, form
    etiketleri) hâlâ Blade içinde Türkçe sabit. İçerik çok dilli ama arayüz
    değil; `lang/` çeviri dosyalarına taşınması gerekiyor.
-2. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
+4. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
    blog listesi/detayı ve galeri sorguları da `localeWithFallback` kullanmalı.
-3. **Rol/yetki yönetimi ekranı** — `roles-permissions.html` temada hazır. Roller
-   şu an yalnızca seeder'dan geliyor; rol matrisi netleştiği için bu ekran
-   artık daha anlamlı.
-4. ~~Kalan ölü kodu temizle~~ — tamamlandı
-5. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
-   doğrulama akışı eklendi
+5. **Denetim izini yay** — `AuditObserver` yalnızca `Setting` modeline bağlı;
+   giriş/çıkış olayları ve `User`, `Role`, `Redirect`, `MailTemplate`
+   değişiklikleri kayıt dışı.
+6. **Kuyruk izleyici ekranı** — `failed_jobs` yalnızca `HealthCheckService`
+   içinde sayılıyor; listeleme, yeniden deneme ve silme yok.
+7. **`robots.txt` route'a taşınsın** — statik dosya eski projenin alan adını
+   `Sitemap:` satırında taşıyor ve staging kopyası da `Allow: /` diyor.
+8. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı
+9. ~~Kalan ölü kodu temizle~~ — tamamlandı
+10. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
+    doğrulama akışı eklendi

@@ -31,8 +31,23 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            // Left to the column default before, which meant the model handed
+            // back by create() had no is_active attribute at all — the row was
+            // active but the object in memory read as null. EnsureUserIsActive
+            // asks the model, so the factory has to produce a complete one.
+            'is_active' => true,
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * An account that has been switched off in the panel.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
     }
 
     /**

@@ -6,9 +6,34 @@ namespace App\Observers;
 
 use App\Models\AdminNotification;
 use App\Models\User;
+use App\Services\SessionRevoker;
 
 final class UserObserver
 {
+    /**
+     * Deactivating an account closes the sessions it already has.
+     *
+     * Without this the flag would only decide who may start a session, and the
+     * ones already open would run until they expired. EnsureUserIsActive turns
+     * such a session away on the next request; this makes sure there is no
+     * session left to turn away.
+     */
+    public function updated(User $user): void
+    {
+        if ($user->wasChanged('is_active') && ! $user->is_active) {
+            app(SessionRevoker::class)->revoke($user);
+        }
+    }
+
+    /**
+     * Same for a deleted account — soft deleted users cannot be resolved by
+     * the auth guard any more, but their session rows would linger.
+     */
+    public function deleted(User $user): void
+    {
+        app(SessionRevoker::class)->revoke($user);
+    }
+
     /**
      * Cascade is handled here rather than by foreign keys.
      *
