@@ -155,6 +155,17 @@ Route::middleware(['auth', 'verified'])->prefix('hesabim')->name('account.')->gr
         ->name('security.two-factor.confirm');
     Route::delete('/guvenlik/iki-adim', [TwoFactorController::class, 'disable'])->name('security.two-factor.disable');
     Route::post('/guvenlik/kurtarma-kodlari', [TwoFactorController::class, 'recoveryCodes'])->name('security.recovery-codes');
+
+    /*
+     * Verilerim: taşınabilirlik ve silinme hakkı. İkisi de kişinin kendi
+     * kaydına dokunuyor, ikisi de şifreyle korunuyor — indirme dosyası
+     * kişisel veri taşıyor, kapatma geri dönüşü zor bir işlem.
+     */
+    Route::get('/veriler', [AccountController::class, 'data'])->name('data');
+    Route::get('/veriler/indir', [AccountController::class, 'downloadData'])
+        ->middleware('throttle:6,1')
+        ->name('data.download');
+    Route::delete('/veriler/hesabi-kapat', [AccountController::class, 'closeAccount'])->name('data.close');
 });
 
 /*

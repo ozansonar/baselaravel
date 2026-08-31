@@ -1763,7 +1763,7 @@
         ],
         "operationId": "login",
         "summary": "Giriş yap",
-        "description": "Kimlik bilgileri tutmuyorsa 401 — hangi alanın yanlış olduğu bilerek söylenmez. Hesap pasifse 403.",
+        "description": "Kimlik bilgileri tutmuyorsa 401 — hangi alanın yanlış olduğu bilerek söylenmez. Hesap pasifse 403. İKİ ADIMLI DOĞRULAMA açıksa ilk istek jeton üretmez: 403 döner ve errors.code = ['two_factor_required'] taşır. İstemci aynı isteği `code` alanıyla tekrarlar; alan altı haneli kimlik doğrulayıcı kodunu ya da kurtarma kodunu kabul eder.",
         "parameters": [
           {
             "$ref": "#/components/parameters/AcceptLanguage"
@@ -1806,6 +1806,11 @@
                       ]
                     },
                     "description": "İsteğe bağlı. YALNIZCA daraltır: tanınmayan değer ('*' dahil) 422 ile reddedilir."
+                  },
+                  "code": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "description": "İki adımlı doğrulama açıksa ikinci istekte gönderilir: altı haneli kod ya da kurtarma kodu (3xf6s-jplhw)."
                   }
                 },
                 "required": [
@@ -4298,6 +4303,256 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/account/export": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "exportAccountData",
+        "summary": "Verilerimi indir",
+        "description": "Kişinin kendi verisinin kopyası: profil, yorumlar, iletişim mesajları, bülten kaydı, çerez rızaları ve bağlı cihazların adları. Şifre, iki adımlı doğrulama anahtarı ve jetonlar hiçbir koşulda dönmez. Yanıt no-store ile işaretlidir.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kişinin verisi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account": {
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "closeAccount",
+        "summary": "Hesabımı kapat",
+        "description": "Hesabı yumuşak siler: kişi bir daha giriş yapamaz, bütün oturumları ve jetonları düşer, e-posta adresi serbest kalır. Şifre onayı zorunlu — jeton tek başına yetmiyor. Panele erişebilen hesaplar buradan kapanmaz (403).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "Mevcut şifre."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hesap kapatıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/password": {
+      "put": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "changePassword",
+        "summary": "Şifremi değiştir",
+        "description": "Mevcut şifreyi kanıtlamak zorunlu. logout_other_devices true gönderilirse bu isteği yapan jeton dışındaki bütün jetonlar düşer; varsayılan false, çünkü şifresini rutin olarak yenileyen biri bütün cihazlarından atılmayı beklemiyor. Ayrı bir uç: profil güncelleme TAM bir güncelleme olduğu için yalnız şifre değiştirecek istemcinin bütün profili taşıması gerekirdi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "current_password",
+                  "password",
+                  "password_confirmation"
+                ],
+                "properties": {
+                  "current_password": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "password_confirmation": {
+                    "type": "string"
+                  },
+                  "logout_other_devices": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Şifre güncellendi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }

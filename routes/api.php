@@ -116,6 +116,25 @@ Route::prefix('account')
         Route::put('/profile', [AccountController::class, 'updateProfile'])
             ->middleware('abilities:profile:write')
             ->name('profile.update');
+
+        // Şifre değiştirme. Ayrı uç, çünkü profil güncelleme tam bir
+        // güncelleme: yalnız şifresini değiştirecek istemcinin bütün profili
+        // taşıması gerekirdi.
+        Route::put('/password', [AccountController::class, 'updatePassword'])
+            ->middleware(['abilities:profile:write', 'throttle:api-password'])
+            ->name('password.update');
+
+        // Kişinin kendi verisinin kopyası. Okuma yetkisi yetiyor: dosya
+        // yalnızca zaten görebildiği kayıtları topluyor.
+        Route::get('/export', [AccountController::class, 'export'])
+            ->middleware(['abilities:profile:read', 'throttle:api-password'])
+            ->name('export');
+
+        // Hesabı kapatma. Mağazaların uygulama içi hesap silme şartı bu uçla
+        // karşılanıyor; şifre onayı isteğin gövdesinde.
+        Route::delete('/', [AccountController::class, 'destroy'])
+            ->middleware(['abilities:profile:write', 'throttle:api-password'])
+            ->name('destroy');
     });
 
 /*

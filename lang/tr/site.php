@@ -191,6 +191,7 @@ return [
         'avatar_mimes'                => 'Avatar JPEG, PNG veya WebP formatında olmalıdır.',
         'avatar_max'                  => 'Avatar dosyası en fazla :max KB olabilir.',
         'profile_updated' => 'Profiliniz başarıyla güncellendi.',
+        'password_updated' => 'Şifreniz güncellendi.',
         'email_changed'   => 'Profiliniz güncellendi. E-posta adresiniz değiştiği için yeni adresinize bir doğrulama bağlantısı gönderdik; hesabınızı kullanmaya devam etmek için adresi doğrulayın.',
         'dashboard_desc' => 'Hesap bilgilerinizi görüntüleyin ve yönetin.',
         'welcome' => 'Hoş geldiniz, :name',
@@ -302,6 +303,27 @@ return [
         'code_required' => 'Doğrulama kodu zorunludur.',
         'code_digits'   => 'Doğrulama kodu altı haneli olmalıdır.',
         'code_max'      => 'Doğrulama kodu en fazla :max karakter olabilir.',
+    ],
+
+    'data' => [
+        'title' => 'Verilerim',
+        'desc'  => 'Verilerinizi indirin ya da hesabınızı kapatın.',
+        'lead'  => 'Sitede sizin adınıza tutulan verilerin kopyasını indirebilir, isterseniz hesabınızı kapatabilirsiniz.',
+
+        'download'      => 'Verilerimi indir',
+        'download_hint' => 'Profiliniz, yorumlarınız, form gönderimleriniz, bülten kaydınız ve çerez tercihleriniz tek bir JSON dosyasında iner. Şifreniz, iki adımlı doğrulama anahtarınız ve oturum jetonlarınız dosyaya girmez.',
+        'download_btn'  => 'JSON olarak indir',
+        'export_note'   => 'Bu dosya hesabınızda tutulan kişisel verilerin kopyasıdır. Şifre, iki adımlı doğrulama anahtarı ve oturum jetonları güvenlik gereği dahil edilmez.',
+
+        'close'      => 'Hesabımı kapat',
+        'close_hint' => 'Hesabınız kapatıldığında giriş yapamazsınız. Yayınlanmış yorumlarınız içerikte kalır; kaldırılmasını istiyorsanız kapatmadan önce bize yazın.',
+        'close_effect_login'    => 'Bir daha giriş yapamazsınız.',
+        'close_effect_sessions' => 'Açık bütün oturumlarınız ve bağlı uygulamalarınız kapatılır.',
+        'close_effect_email'    => 'E-posta adresiniz serbest kalır; ileride aynı adresle yeni bir hesap açabilirsiniz.',
+        'close_btn'     => 'Hesabımı kapat',
+        'confirm_close' => 'Hesabınız kapatılacak ve oturumunuz sonlanacak. Devam edilsin mi?',
+        'closed'        => 'Hesabınız kapatıldı. İlginiz için teşekkür ederiz.',
+        'close_blocked_for_staff' => 'Yönetici yetkisi olan hesaplar buradan kapatılamaz; bir yöneticiyle iletişime geçin.',
     ],
 
     'login' => [

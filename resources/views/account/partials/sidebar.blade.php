@@ -37,6 +37,11 @@
         <i class="fa-solid fa-shield-halved"></i> {{ __('site.two_factor.title') }}
     </a>
 
+    <a href="{{ route('account.data') }}"
+       class="account-nav__link @if(request()->routeIs('account.data')) active @endif">
+        <i class="fa-solid fa-file-shield"></i> {{ __('site.data.title') }}
+    </a>
+
     <form method="POST" action="{{ route('logout') }}" class="mt-1">
         @csrf
         <button type="submit" class="account-nav__link account-nav__link--danger w-100 border-0 bg-transparent text-start">

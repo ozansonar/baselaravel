@@ -411,6 +411,46 @@ _method=PUT&first_name=Ozan&last_name=Sonar&email=...&avatar=@ben.jpg
 
 ---
 
+### `PUT /account/password` *(jeton gerekli — `profile:write`)*
+
+```json
+{
+  "current_password": "Gizli*12345",
+  "password": "YeniGizli*123",
+  "password_confirmation": "YeniGizli*123",
+  "logout_other_devices": false
+}
+```
+
+Ayrı bir uç, çünkü profil güncelleme **tam** bir güncelleme: yalnız şifresini
+değiştirecek istemcinin ad, soyad ve e-postayı da taşıması gerekirdi.
+`logout_other_devices` açılırsa bu isteği yapan jeton dışındaki bütün jetonlar
+düşer.
+
+### `GET /account/export` *(jeton gerekli — `profile:read`)*
+
+Kişinin kendi verisinin kopyası: profil, yorumlar, iletişim mesajları, bülten
+kaydı, çerez rızaları ve bağlı cihazların adları. Şifre, iki adımlı doğrulama
+anahtarı ve jetonlar **hiçbir koşulda** dönmez. Yanıt `Cache-Control: no-store`
+taşır.
+
+### `DELETE /account` *(jeton gerekli — `profile:write`)*
+
+```json
+{ "password": "Gizli*12345" }
+```
+
+Hesabı kapatır: kişi bir daha giriş yapamaz, bütün oturumları ve jetonları
+düşer, e-posta adresi serbest kalır (silinen satırlar benzersizlik kısıtının
+dışında). Mağazaların uygulama içi hesap silme şartının karşılığı bu uç.
+
+Şifre onayı zorunlu — jeton tek başına yetmiyor: telefonu birkaç dakika eline
+geçiren biri hesabı kapatabilseydi bu, geri alınması en zor işlem olurdu.
+Panele erişebilen hesaplar buradan kapanmaz (**403**): son yöneticinin kendini
+kapatması siteyi yönetilemez bırakırdı.
+
+---
+
 ## Uçlar
 
 Jeton gerektirmeyen uçlar bakım modunda **503** döner; kimlik uçları bakım

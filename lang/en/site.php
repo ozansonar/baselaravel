@@ -188,6 +188,7 @@ return [
         'avatar_mimes'                => 'The avatar must be a JPEG, PNG or WebP file.',
         'avatar_max'                  => 'The avatar file may be at most :max KB.',
         'profile_updated' => 'Your profile has been updated.',
+        'password_updated' => 'Your password has been updated.',
         'email_changed'   => 'Your profile has been updated. Because your e-mail address changed, we sent a verification link to the new address; verify it to keep using your account.',
         'dashboard_desc' => 'View and manage your account details.',
         'welcome' => 'Welcome, :name',
@@ -299,6 +300,27 @@ return [
         'code_required' => 'The verification code is required.',
         'code_digits'   => 'The verification code must be six digits.',
         'code_max'      => 'The verification code may be at most :max characters.',
+    ],
+
+    'data' => [
+        'title' => 'My data',
+        'desc'  => 'Download your data or close your account.',
+        'lead'  => 'You can download a copy of the data held about you here, and close your account if you want to.',
+
+        'download'      => 'Download my data',
+        'download_hint' => 'Your profile, comments, form submissions, newsletter record and cookie choices come down as a single JSON file. Your password, two-factor secret and session tokens are never included.',
+        'download_btn'  => 'Download as JSON',
+        'export_note'   => 'This file is a copy of the personal data held in your account. The password, two-factor secret and session tokens are deliberately left out.',
+
+        'close'      => 'Close my account',
+        'close_hint' => 'Once your account is closed you can no longer sign in. Comments you already published stay in the content; write to us before closing if you want them removed.',
+        'close_effect_login'    => 'You will no longer be able to sign in.',
+        'close_effect_sessions' => 'Every open session and connected application is closed.',
+        'close_effect_email'    => 'Your e-mail address is released; you can open a new account with it later.',
+        'close_btn'     => 'Close my account',
+        'confirm_close' => 'Your account will be closed and you will be signed out. Continue?',
+        'closed'        => 'Your account has been closed. Thank you for your time with us.',
+        'close_blocked_for_staff' => 'Accounts with administrator rights cannot be closed here; please contact an administrator.',
     ],
 
     'login' => [

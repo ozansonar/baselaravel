@@ -2003,3 +2003,9 @@ hr { border-color: var(--line); opacity: 1; }
     text-align: center;
     letter-spacing: .04em;
 }
+
+/* Hesabı kapatma gibi geri dönüşü zor işlemler kendi kartında: kırmızı kenar,
+   düğmeye basmadan önce bakılan yeri işaretliyor. */
+.field-card--danger {
+    border-color: rgba(220, 38, 38, .35);
+}

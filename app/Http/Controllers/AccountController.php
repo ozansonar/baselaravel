@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Account\PasswordConfirmationRequest;
 use App\Http\Requests\Account\ProfileUpdateRequest;
 use App\Models\User;
+use App\Services\AccountDataService;
 use App\Services\AccountDeviceService;
 use App\Services\AccountService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,6 +20,7 @@ final class AccountController extends Controller
     public function __construct(
         private readonly AccountService $accountService,
         private readonly AccountDeviceService $devices,
+        private readonly AccountDataService $data,
     ) {}
 
     /**
@@ -141,5 +145,67 @@ final class AccountController extends Controller
 
         return redirect()->route('account.devices')
             ->with('success', __('site.devices.others_revoked', ['count' => $count]));
+    }
+
+    /**
+     * Verilerim: indirme ve hesabı kapatma.
+     */
+    public function data(): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return view('account.data', ['user' => $user]);
+    }
+
+    /**
+     * Kişinin bütün verisi tek dosyada.
+     *
+     * Akış olarak değil doğrudan gövdeyle dönüyor: veri bir kişinin kendi
+     * kayıtları, yani birkaç yüz kilobayt. Dosyaya yazıp indirtmek, sunucuda
+     * kişisel veri taşıyan geçici dosyalar bırakırdı.
+     */
+    public function downloadData(): Response
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $json = json_encode(
+            $this->data->export($user),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        );
+
+        return response((string) $json, 200, [
+            'Content-Type'        => 'application/json; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $this->data->exportFileName($user) . '"',
+            // İndirilen dosya kişisel veri taşıyor; ara önbelleklerde
+            // durmaması gerekiyor.
+            'Cache-Control' => 'no-store, max-age=0',
+        ]);
+    }
+
+    /**
+     * Hesabı kapatır. Şifre onayı zorunlu.
+     */
+    public function closeAccount(PasswordConfirmationRequest $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        // Panele erişebilen hesap buradan kapanmıyor: son yöneticinin kendi
+        // hesabını kapatması siteyi yönetilemez hâle getirirdi. Onların
+        // hesabını başka bir yönetici paneldeki kullanıcılar ekranından siler.
+        if ($user->hasAnyRole(['admin', 'editor', 'moderator'])) {
+            return back()->withErrors(['password' => __('site.data.close_blocked_for_staff')]);
+        }
+
+        $this->data->closeAccount($user);
+
+        // Oturum zaten düşürüldü; çerezi de temizlemek gerekiyor, yoksa
+        // tarayıcı kapalı bir hesabın kimliğini taşımaya devam eder.
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home')->with('success', __('site.data.closed'));
     }
 }

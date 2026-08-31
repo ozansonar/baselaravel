@@ -51,7 +51,7 @@ akışı + API `POST /auth/login` iki aşamalı yanıt (`two_factor_required`).
 kurtarma kodu bir kez çalışıp tükeniyor. Test: `TwoFactorTest`,
 `Api/ApiTwoFactorTest`.
 
-### 1.3 Hesabı kapatma ve veri indirme (KVKK/GDPR)
+### 1.3 Hesabı kapatma ve veri indirme (KVKK/GDPR) — ✅ bitti
 **Neden:** Rıza kaydı var (`Consent`), ama kişinin *silme* ve *taşınabilirlik*
 hakkının karşılığı yok. Mağazalar (App Store / Play) uygulama içi hesap silme
 yolunu artık şart koşuyor — mobil uygulama bu olmadan yayınlanamıyor.
@@ -62,7 +62,7 @@ kapat (şifre onaylı, gecikmeli kalıcı silme). API: `GET /account/export`,
 serbest kalıyor; dışa aktarma kişinin bütün kayıtlarını içeriyor.
 Test: `AccountDataRightsTest`, `Api/ApiAccountDeletionTest`.
 
-### 1.4 API hesap uçlarının tamamlanması
+### 1.4 API hesap uçlarının tamamlanması — ✅ bitti
 **Neden:** Web'de olup API'de olmayan üç akış var: şifre değiştirme, e-posta
 değiştirme doğrulaması, avatar kaldırma. Mobil uygulama bunlar için tarayıcı
 açmak zorunda kalıyor.
