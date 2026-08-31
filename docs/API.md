@@ -316,6 +316,11 @@ sahibi hesabından kilitleyememeli.
 > sonraki istek 403 verir** (`errors.code = "email_unverified"`). İstemci bu
 > yanıttan sonra kullanıcıyı doğrulama ekranına almalı; `POST /auth/email/resend`
 > oradan çağrılır.
+>
+> Ayrıca **eski adrese bir güvenlik uyarısı gider**. Hesabı ele geçiren kişinin
+> ilk yaptığı şey çoğu zaman adresi değiştirmektir; yeni adrese giden doğrulama
+> maili o senaryoda saldırganın kutusuna düşer, yani kimseyi uyarmaz. Eski adres
+> sahibin durumu öğrenebileceği tek yerdir.
 
 **Avatar aynı istekte** gider. PHP çok parçalı gövdeyi yalnız POST'ta
 ayrıştırdığı için istemci dosyayla birlikte `POST` + `_method=PUT` kullanmalıdır:

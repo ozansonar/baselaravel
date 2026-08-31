@@ -6,6 +6,7 @@ namespace App\Observers;
 
 use App\Models\AdminNotification;
 use App\Models\User;
+use App\Services\EmailChangeNotifier;
 use App\Services\SessionRevoker;
 
 final class UserObserver
@@ -48,14 +49,25 @@ final class UserObserver
             app(SessionRevoker::class)->revoke($user);
         }
 
-        // Yeni adres yeni bir bağlantı istiyor. Doğrulama adresinin imzası
-        // e-postanın kendisinden türüyor (sha1), yani adres değiştiği anda
-        // eskiden gönderilmiş bağlantı zaten çalışmaz hâle geliyor: bağlantı
-        // yenilenmezse kullanıcının doğrulanmasının hiçbir yolu kalmıyor.
-        //
-        // Panelden yapılan değişiklikte de gönderiliyor — mail yeni adrese
-        // gidiyor, yani onu kanıtlaması gereken kişiye.
         if ($user->wasChanged('email')) {
+            // Eski adrese uyarı. Hesabı ele geçiren biri adresi değiştirdiğinde
+            // gerçek sahibin durumu öğrenebileceği tek an bu — ve gönderilebilecek
+            // son an, çünkü adres artık hesapta kayıtlı değil.
+            //
+            // getOriginal() burada hâlâ kaydetmeden önceki değeri veriyor:
+            // Eloquent orijinalleri `saved` olayından sonra eşitliyor.
+            app(EmailChangeNotifier::class)->notifyPreviousAddress(
+                $user,
+                $user->getOriginal('email'),
+            );
+
+            // Yeni adrese doğrulama. Doğrulama adresinin imzası e-postanın
+            // kendisinden türüyor (sha1), yani adres değiştiği anda eskiden
+            // gönderilmiş bağlantı zaten çalışmaz hâle geliyor: yenilenmezse
+            // kullanıcının doğrulanmasının hiçbir yolu kalmıyor.
+            //
+            // Panelden yapılan değişiklikte de gönderiliyor — mail yeni adrese
+            // gidiyor, yani onu kanıtlaması gereken kişiye.
             $user->sendEmailVerificationNotification();
         }
     }

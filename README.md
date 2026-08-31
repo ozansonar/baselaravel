@@ -598,6 +598,18 @@ Yönetici bir kullanıcının adresini değiştirdiğinde de aynısı olur ve ek
 bunu söyleyen bir uyarı çıkar — kullanıcı kendisine sorulmadan doğrulanmamış
 duruma geçtiği için.
 
+**Aynı anda eski adrese bir güvenlik uyarısı gider** (`email_changed` şablonu).
+Hesabı ele geçiren kişinin ilk yaptığı şey çoğu zaman adresi değiştirmektir: o
+andan sonra şifre sıfırlama bağlantısı da bildirimler de saldırgana gider ve
+gerçek sahibin hesaptan haberi tamamen kesilir. Yeni adrese giden doğrulama
+maili bu senaryoda saldırganın kendi kutusuna düşer, yani kimseyi uyarmaz — eski
+adrese giden uyarı sahibin durumu öğrenebileceği tek şeydir ve gönderilebileceği
+son an değişiklik anıdır.
+
+Uyarıda yeni adres maskeli yazılır (`s***n@baska.com`): tamamen gizlenseydi
+sahibi neyin olduğunu anlatamaz, olduğu gibi yazılsaydı bu mail bir adresi
+başkasına sızdırmanın yolu olurdu.
+
 Doğrulamayı zorunlu tutmak istemiyorsan `routes/web.php` içindeki hesap grubundan
 `verified` middleware'ini çıkarman yeterli:
 
@@ -687,10 +699,11 @@ composer test
 - `EmailValidationTest` — ziyaretçiden alınan e-posta kuralının tek yerde
   durması, üretimde alan adı denetiminin (`dns`) yerinde kalması ve suite'in
   hiçbir sınamada canlı DNS sorgusuna bağımlı olmaması
-- `EmailChangeRevokesVerificationTest` — adres değişince doğrulama damgasının
-  düşmesi, yeni adrese taze bağlantı gitmesi, adres değişmeden yapılan
-  kaydetmenin damgaya dokunmaması ve kuralın üç yoldan da (ön yüz formu, API
-  ucu, panel) geçerli olması
+- `EmailChangeSecurityTest` — adres değişince doğrulama damgasının düşmesi,
+  **eski adrese uyarı gitmesi** (yeni adres maskeli), iki mailin iki ayrı
+  adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
+  posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
+  (ön yüz formu, API ucu, panel) geçerli olması
 - `Api/ApiPasswordResetTest` — kodun hash'li saklanması, tek kullanımlık olması,
   süresi dolduğunda reddedilmesi, sıfırlamanın bütün jetonları düşürmesi,
   kayıtlı olmayan adresin ayırt edilememesi ve **kodu kıramaz kılan hız
