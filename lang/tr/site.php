@@ -255,6 +255,55 @@ return [
         'others_revoked'  => ':count oturum kapatıldı.',
     ],
 
+    'two_factor' => [
+        'title' => 'Güvenlik',
+        'desc'  => 'İki adımlı doğrulamayı yönetin.',
+        'lead'  => 'İki adımlı doğrulama açıkken, şifreniz ele geçse bile telefonunuzdaki uygulamadan gelen kod olmadan hesabınıza girilemez.',
+
+        'status_on'      => 'İki adımlı doğrulama açık',
+        'status_off'     => 'İki adımlı doğrulama kapalı',
+        'status_off_hint' => 'Hesabınızın tek koruması şu anda şifreniz.',
+        'active'         => 'Aktif',
+        'enabled_since'  => ':date tarihinde açıldı',
+
+        'setup'      => 'Kurulum',
+        'setup_hint' => 'Kimlik doğrulayıcı uygulamanızla (Google Authenticator, 1Password, Authy) aşağıdaki kareyi okutun, sonra uygulamanın verdiği altı haneli kodu girin.',
+        'manual_key' => 'Kareyi okutamıyorsanız bu anahtarı elle girin',
+        'code_label' => 'Doğrulama kodu',
+        'confirm_btn' => 'Doğrula ve aç',
+        'enable_btn'  => 'İki adımlı doğrulamayı aç',
+        'enabled'     => 'İki adımlı doğrulama açıldı.',
+
+        'recovery_codes'      => 'Kurtarma kodları',
+        'recovery_codes_hint' => 'Telefonunuza erişemediğinizde bu kodlarla giriş yapabilirsiniz. Her kod bir kez çalışır; güvenli bir yere kaydedin — bu liste bir daha gösterilmeyecek.',
+        'regenerate'      => 'Kurtarma kodlarını yenile',
+        'regenerate_hint' => 'Yeni bir liste üretilir ve eskisi geçersiz olur.',
+        'regenerate_btn'  => 'Yenile',
+        'codes_regenerated' => 'Kurtarma kodlarınız yenilendi.',
+
+        'disable'      => 'İki adımlı doğrulamayı kapat',
+        'disable_hint' => 'Kapattığınızda hesabınızın tek koruması yeniden şifreniz olur.',
+        'disable_btn'  => 'Kapat',
+        'confirm_disable' => 'İki adımlı doğrulama kapatılacak. Devam edilsin mi?',
+        'disabled'     => 'İki adımlı doğrulama kapatıldı.',
+
+        'required_notice'    => 'Yönetici hesapları için iki adımlı doğrulama zorunlu tutuluyor; bu yüzden kapatılamıyor.',
+        'required_by_admin'  => 'Yönetici hesaplarında iki adımlı doğrulama zorunlu; kapatılamaz.',
+        'setup_required'     => 'Yönetici paneline girebilmek için önce iki adımlı doğrulamayı kurmanız gerekiyor.',
+
+        'challenge_title' => 'İki adımlı doğrulama',
+        'challenge_lead'  => 'Şifreniz doğrulandı. Girişi tamamlamak için kimlik doğrulayıcı uygulamanızdaki kodu girin.',
+        'challenge_hint'  => 'Telefonunuza erişemiyorsanız kurtarma kodlarınızdan birini girebilirsiniz.',
+        'challenge_btn'   => 'Girişi tamamla',
+        'back_to_login'   => 'Giriş ekranına dön',
+
+        'invalid_code'  => 'Kod doğrulanamadı. Uygulamanızdaki güncel kodu ya da bir kurtarma kodunu girin.',
+        'expired'       => 'Doğrulama süresi doldu. Lütfen tekrar giriş yapın.',
+        'code_required' => 'Doğrulama kodu zorunludur.',
+        'code_digits'   => 'Doğrulama kodu altı haneli olmalıdır.',
+        'code_max'      => 'Doğrulama kodu en fazla :max karakter olabilir.',
+    ],
+
     'login' => [
         'failed'                => 'E-posta veya şifre hatalı.',
         'deactivated'           => 'Hesabınız pasife alındığı için oturumunuz kapatıldı.',

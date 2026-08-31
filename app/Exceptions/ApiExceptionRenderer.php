@@ -87,6 +87,21 @@ final class ApiExceptionRenderer
                 status: 403,
             ),
 
+            // Şifre doğru, ikinci adım eksik. 401'den ayrı bir kod taşıyor
+            // çünkü istemcinin yapacağı şey farklı: kişiyi giriş ekranına
+            // geri göndermek değil, kod ekranını açıp aynı isteği `code` ile
+            // tekrarlamak.
+            $original instanceof TwoFactorRequiredException => ApiResponse::error(
+                $original->invalidCode
+                    ? __('site.two_factor.invalid_code')
+                    : __('api.auth.two_factor_required'),
+                [
+                    'code' => ['two_factor_required'],
+                    'two_factor_required' => [true],
+                ],
+                403,
+            ),
+
             // AuthorizationException'ın alt türü, o yüzden ondan ÖNCE.
             // Genel 403'ten ayrılıyor çünkü istemcinin yapması gereken şey
             // farklı: yetkisi olan bir jetonla yeniden giriş yapmak.

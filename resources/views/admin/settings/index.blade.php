@@ -576,6 +576,18 @@
                         </div>
                         <div class="stg-toggle-item">
                             <div class="stg-toggle-info">
+                                <span>Yöneticiler İçin İki Adımlı Doğrulama</span>
+                                <small>Panele erişebilen hesaplar iki adımlı doğrulamayı kurmadan panele giremez ({{ app(\App\Services\TwoFactorService::class)->enabledAdminCount() }} hesapta kurulu)</small>
+                            </div>
+                            <label class="stg-switch">
+                                <input type="hidden" name="settings[two_factor_required_admins]" value="0">
+                                <input type="checkbox" name="settings[two_factor_required_admins]" value="1"
+                                       {{ $s('two_factor_required_admins') === '1' ? 'checked' : '' }} data-fv-ignore>
+                                <span class="stg-switch-slider"></span>
+                            </label>
+                        </div>
+                        <div class="stg-toggle-item">
+                            <div class="stg-toggle-info">
                                 <span>Bakım Modu</span>
                                 <small>Siteyi bakım moduna al (admin paneli ve giriş sayfası her zaman erişilebilir)</small>
                             </div>

@@ -15,6 +15,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -79,6 +80,18 @@ Route::middleware('guest')->group(function (): void {
 
     Route::get('/sifre-sifirla/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
     Route::post('/sifre-sifirla', [AuthController::class, 'resetPassword'])->name('password.update');
+
+    /*
+     * Girişin ikinci adımı. Misafir grubunda: buraya gelen kişinin oturumu
+     * henüz açılmadı, yalnız şifresi doğrulandı.
+     *
+     * Hız sınırı girişinkiyle aynı kovadan: altı haneli bir kod, sınırsız
+     * denemeye açık bırakılsaydı dakikalar içinde tükenirdi.
+     */
+    Route::get('/giris/iki-adim', [AuthController::class, 'showTwoFactorChallenge'])->name('login.two-factor');
+    Route::post('/giris/iki-adim', [AuthController::class, 'twoFactorChallenge'])
+        ->middleware('throttle:login')
+        ->name('login.two-factor.verify');
 });
 
 Route::post('/cikis', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -130,6 +143,18 @@ Route::middleware(['auth', 'verified'])->prefix('hesabim')->name('account.')->gr
     Route::delete('/cihazlar/uygulama/{token}', [AccountController::class, 'destroyToken'])
         ->whereNumber('token')
         ->name('devices.tokens.destroy');
+
+    /*
+     * Güvenlik: iki adımlı doğrulamanın kurulumu, kapatılması ve kurtarma
+     * kodları. Kapatma ile kod yenileme şifre onayı istiyor.
+     */
+    Route::get('/guvenlik', [TwoFactorController::class, 'show'])->name('security');
+    Route::post('/guvenlik/iki-adim', [TwoFactorController::class, 'enable'])->name('security.two-factor.enable');
+    Route::post('/guvenlik/iki-adim/onayla', [TwoFactorController::class, 'confirm'])
+        ->middleware('throttle:6,1')
+        ->name('security.two-factor.confirm');
+    Route::delete('/guvenlik/iki-adim', [TwoFactorController::class, 'disable'])->name('security.two-factor.disable');
+    Route::post('/guvenlik/kurtarma-kodlari', [TwoFactorController::class, 'recoveryCodes'])->name('security.recovery-codes');
 });
 
 /*

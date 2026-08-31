@@ -32,6 +32,11 @@
         <i class="fa-solid fa-laptop-mobile"></i> {{ __('site.devices.title') }}
     </a>
 
+    <a href="{{ route('account.security') }}"
+       class="account-nav__link @if(request()->routeIs('account.security')) active @endif">
+        <i class="fa-solid fa-shield-halved"></i> {{ __('site.two_factor.title') }}
+    </a>
+
     <form method="POST" action="{{ route('logout') }}" class="mt-1">
         @csrf
         <button type="submit" class="account-nav__link account-nav__link--danger w-100 border-0 bg-transparent text-start">

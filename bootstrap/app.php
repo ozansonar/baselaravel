@@ -25,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Panelin dili ziyaretçinin ön yüz tercihine bağlı olmamalı;
             // admin.locale, web grubundaki SetLocale'den sonra çalışıp
             // Türkçe'ye sabitliyor.
-            Route::middleware(['web', 'admin.locale', 'admin'])
+            Route::middleware(['web', 'admin.locale', 'admin', 'admin.2fa'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
@@ -45,6 +45,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            // Zorunluluk açıkken 2FA kurmamış yöneticiyi panele almıyor.
+            'admin.2fa' => \App\Http\Middleware\EnsureTwoFactorIsConfigured::class,
             'admin.locale' => \App\Http\Middleware\SetAdminLocale::class,
             'locale' => \App\Http\Middleware\SetLocale::class,
             // Jetonu geçerli ama hesabı kapatılmış kullanıcıyı durdurur.

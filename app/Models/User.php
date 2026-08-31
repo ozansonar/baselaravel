@@ -48,6 +48,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     protected function casts(): array
@@ -59,6 +61,11 @@ class User extends Authenticatable implements MustVerifyEmail
             'department' => Department::class,
             'password' => 'hashed',
             'is_active' => 'boolean',
+            // Şifreli sütunlar: veritabanı dökümü ele geçse bile anahtar da
+            // kurtarma kodları da uygulama anahtarı olmadan okunamıyor.
+            'two_factor_secret'         => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'two_factor_confirmed_at'   => 'datetime',
         ];
     }
 
@@ -91,6 +98,18 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // ── Helpers ──
+
+    /**
+     * İki adımlı doğrulama kurulmuş ve doğrulanmış mı?
+     *
+     * Yalnız anahtarın varlığına bakmak yetmiyor: kurulumu yarıda bırakan
+     * kişide anahtar var ama çalışan bir kimlik doğrulayıcı yok, ve ondan kod
+     * istemek onu hesabından kilitlerdi.
+     */
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+    }
 
     /**
      * Reads through the roles relation so repeated authorization checks within

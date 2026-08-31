@@ -6,12 +6,15 @@ namespace App\Services;
 
 use App\Mail\WelcomeMail;
 use App\Models\User;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 
 final class AuthService
 {
+    private const GUARD = 'web';
+
     public function __construct(
         private readonly MailService $mailService,
     ) {}
@@ -22,20 +25,60 @@ final class AuthService
      */
     public function login(array $credentials, bool $remember = false): bool
     {
-        if (! Auth::attempt($credentials, $remember)) {
+        $user = $this->verifyCredentials($credentials);
+
+        if (! $user instanceof User) {
             return false;
         }
 
-        $user = Auth::user();
-
-        if ($user instanceof User && ! $user->is_active) {
-            Auth::logout();
-            return false;
-        }
-
-        session()->regenerate();
+        $this->loginUser($user, $remember);
 
         return true;
+    }
+
+    /**
+     * Kimlik bilgilerini oturum açmadan doğrular.
+     *
+     * İki adımlı doğrulama bu ayrımı zorunlu kıldı: şifre doğru olduğu anda
+     * oturum açılsaydı ikinci adım bir güvenlik kapısı değil, geçilmesi
+     * isteğe bağlı bir ekran olurdu — kullanıcı adresi elle yazarak atlardı.
+     *
+     * @param array{email: string, password: string} $credentials
+     */
+    public function verifyCredentials(array $credentials): ?User
+    {
+        // Auth::attempt yerine validate: doğrulama oturum açmadan yapılıyor.
+        // Bunun bir bedeli var — attempt'in kendiliğinden fırlattığı Failed
+        // olayı burada doğmuyor ve denetim izi başarısız denemeleri görmezdi.
+        // Bu yüzden elle fırlatılıyor; ApiAuthService de aynı sebeple böyle.
+        if (! Auth::validate($credentials)) {
+            event(new Failed(self::GUARD, Auth::getLastAttempted(), $credentials));
+
+            return null;
+        }
+
+        $user = Auth::getLastAttempted();
+
+        if (! $user instanceof User || ! $user->is_active) {
+            event(new Failed(self::GUARD, $user, $credentials));
+
+            return null;
+        }
+
+        return $user;
+    }
+
+    /**
+     * Doğrulanmış kullanıcının oturumunu açar.
+     *
+     * Oturum kimliği bilerek yenileniyor: giriş öncesi verilen kimlikle devam
+     * etmek oturum sabitleme saldırısına açık kapı bırakır.
+     */
+    public function loginUser(User $user, bool $remember = false): void
+    {
+        Auth::login($user, $remember);
+
+        session()->regenerate();
     }
 
     /**

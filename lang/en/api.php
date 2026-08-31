@@ -35,6 +35,7 @@ return [
         'already_verified'      => 'Your e-mail address is already verified.',
         'email_unverified'      => 'Verify your e-mail address before doing that.',
         'missing_ability'       => 'This token is not allowed to do that.',
+        'two_factor_required'   => 'A two-factor authentication code is needed to finish signing in.',
     ],
 
     'password' => [

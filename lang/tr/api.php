@@ -36,6 +36,7 @@ return [
         'already_verified'      => 'E-posta adresiniz zaten doğrulanmış.',
         'email_unverified'      => 'Bu işlem için önce e-posta adresinizi doğrulamanız gerekiyor.',
         'missing_ability'       => 'Bu jetonun bu işlem için yetkisi yok.',
+        'two_factor_required'   => 'Girişi tamamlamak için iki adımlı doğrulama kodu gerekiyor.',
     ],
 
     'password' => [

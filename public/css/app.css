@@ -1955,3 +1955,51 @@ hr { border-color: var(--line); opacity: 1; }
         width: 100%;
     }
 }
+
+/* ---------- İki adımlı doğrulama --------------------------------------------
+   QR karesi her zaman beyaz zeminde duruyor: koyu kipte zemin devralınsaydı
+   kamera kareyi ters kontrastta göremezdi. */
+.qr-frame {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: .75rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.qr-frame svg {
+    display: block;
+    width: 220px;
+    height: 220px;
+    max-width: 100%;
+}
+
+/* Anahtar ve kurtarma kodları eşaralıklı: elle yazan kişi 0 ile O'yu
+   ayırabilmeli. */
+.two-factor-secret {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    letter-spacing: .08em;
+    word-break: break-all;
+    color: var(--ink);
+}
+
+.recovery-codes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .5rem;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+.recovery-codes__item {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: .55rem .75rem;
+    text-align: center;
+    letter-spacing: .04em;
+}

@@ -183,6 +183,34 @@ maili ve e-posta doğrulama bağlantısı gönderilir.
 Yanıt gövdesi kayıtla aynıdır. Kimlik bilgileri tutmuyorsa **401** (hangi alanın
 yanlış olduğu bilerek söylenmez), hesap pasifse **403**.
 
+**İki adımlı doğrulama açıksa** giriş iki isteğe bölünür. İlk istek şifreyi
+doğrular ama jeton üretmez:
+
+```json
+{
+  "success": false,
+  "message": "Girişi tamamlamak için iki adımlı doğrulama kodu gerekiyor.",
+  "errors": { "code": ["two_factor_required"], "two_factor_required": [true] }
+}
+```
+
+Durum **403**. İstemci kod ekranını açıp aynı isteği `code` alanıyla tekrarlar:
+
+```json
+{ "email": "ozan@ornek.com", "password": "Gizli*12345", "code": "123456" }
+```
+
+`code` altı haneli kimlik doğrulayıcı kodunu ya da kurtarma kodunu
+(`3xf6s-jplhw`) kabul eder; kurtarma kodu bir kez çalışır ve listeden düşer.
+Kod yanlışsa yine **403** döner, gövdedeki mesaj değişir.
+
+Jeton yalnız ikinci adım geçildiğinde üretilir: "al ama kullanma" diye bir kapı
+olamaz. `GET /auth/me` yanıtındaki `two_factor_enabled` alanı uygulamanın
+güvenlik ekranını çizmesi için var; anahtarın kendisi hiçbir yanıtta geçmez.
+
+İki adımlı doğrulamanın **kurulumu** şimdilik yalnız web'de
+(`/hesabim/guvenlik`): QR okutma, kurtarma kodları ve kapatma oradan yapılıyor.
+
 ### `POST /auth/logout` *(jeton gerekli)*
 
 Yalnız isteği yapan cihazın jetonunu siler; kullanıcının öteki cihazları ayakta

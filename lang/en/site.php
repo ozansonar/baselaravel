@@ -252,6 +252,55 @@ return [
         'others_revoked'  => ':count sessions were closed.',
     ],
 
+    'two_factor' => [
+        'title' => 'Security',
+        'desc'  => 'Manage two-factor authentication.',
+        'lead'  => 'With two-factor authentication on, your password alone is not enough: signing in also needs the code from the app on your phone.',
+
+        'status_on'       => 'Two-factor authentication is on',
+        'status_off'      => 'Two-factor authentication is off',
+        'status_off_hint' => 'Right now your password is the only thing protecting your account.',
+        'active'          => 'Active',
+        'enabled_since'   => 'Enabled on :date',
+
+        'setup'       => 'Set-up',
+        'setup_hint'  => 'Scan the square below with your authenticator app (Google Authenticator, 1Password, Authy), then enter the six-digit code it shows.',
+        'manual_key'  => 'If you cannot scan it, enter this key by hand',
+        'code_label'  => 'Verification code',
+        'confirm_btn' => 'Verify and turn on',
+        'enable_btn'  => 'Turn on two-factor authentication',
+        'enabled'     => 'Two-factor authentication is now on.',
+
+        'recovery_codes'      => 'Recovery codes',
+        'recovery_codes_hint' => 'Use these to sign in when you cannot reach your phone. Each code works once; save them somewhere safe — this list is shown only now.',
+        'regenerate'        => 'Regenerate recovery codes',
+        'regenerate_hint'   => 'A new list is produced and the old one stops working.',
+        'regenerate_btn'    => 'Regenerate',
+        'codes_regenerated' => 'Your recovery codes have been regenerated.',
+
+        'disable'         => 'Turn off two-factor authentication',
+        'disable_hint'    => 'Once it is off, your password is again the only thing protecting your account.',
+        'disable_btn'     => 'Turn off',
+        'confirm_disable' => 'Two-factor authentication will be turned off. Continue?',
+        'disabled'        => 'Two-factor authentication is now off.',
+
+        'required_notice'   => 'Two-factor authentication is required for administrator accounts, so it cannot be turned off.',
+        'required_by_admin' => 'Two-factor authentication is required for administrator accounts and cannot be turned off.',
+        'setup_required'    => 'Set up two-factor authentication before you can reach the admin panel.',
+
+        'challenge_title' => 'Two-factor authentication',
+        'challenge_lead'  => 'Your password checked out. Enter the code from your authenticator app to finish signing in.',
+        'challenge_hint'  => 'If you cannot reach your phone, enter one of your recovery codes instead.',
+        'challenge_btn'   => 'Finish signing in',
+        'back_to_login'   => 'Back to sign-in',
+
+        'invalid_code'  => 'That code could not be verified. Enter the current code from your app, or a recovery code.',
+        'expired'       => 'The verification window expired. Please sign in again.',
+        'code_required' => 'The verification code is required.',
+        'code_digits'   => 'The verification code must be six digits.',
+        'code_max'      => 'The verification code may be at most :max characters.',
+    ],
+
     'login' => [
         'failed'                => 'The e-mail address or password is incorrect.',
         'deactivated'           => 'Your account has been deactivated, so you have been signed out.',

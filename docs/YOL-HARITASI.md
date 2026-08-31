@@ -32,7 +32,7 @@ Bugün hesap alanı iki ekran: pano ve profil. API tarafı ondan bir adım önde
 (cihaz yönetimi var), web tarafı geride. Bir base kit'in en çok kopyalanan
 parçası burası; eksik kalırsa her projede yeniden yazılıyor.
 
-### 1.1 Web'de cihaz ve oturum yönetimi
+### 1.1 Web'de cihaz ve oturum yönetimi — ✅ bitti (`de77f5e` sonrası)
 **Neden:** API'de var (`GET/DELETE /auth/devices`), web'de yok. Aynı kullanıcı
 telefonda oturumunu kapatabiliyor, tarayıcıda kapatamıyor.
 **Kapsam:** `/hesabim/cihazlar` — açık oturumlar (IP, tarayıcı, son görülme),
@@ -40,7 +40,7 @@ tek tek ve toplu kapatma. `SessionRevoker` zaten duruyor.
 **Kabul:** Başka bir tarayıcıdaki oturum listede görünüyor, kapatıldığında o
 tarayıcı bir sonraki istekte girişe düşüyor. Test: `AccountDeviceTest`.
 
-### 1.2 İki adımlı doğrulama (TOTP)
+### 1.2 İki adımlı doğrulama (TOTP) — ✅ bitti
 **Neden:** Panel yöneticisinin tek koruması şifre. Kurumsal müşterinin ilk
 sorduğu şey; sonradan eklemek oturum ve API akışlarının ikisini birden
 değiştiriyor, şimdi eklemek ucuz.
@@ -204,11 +204,14 @@ doğrulama, başarısızlıkta yöneticiye bildirim, dış kopyada saklama süre
 **Kabul:** Yedek alındıktan sonra dış hedefte aynı boyutta dosya bulunuyor;
 hedef erişilemezse iş "başarılı" sayılmıyor. Test: `BackupOffsiteTest`.
 
-### 5.2 `jenssegers/agent` bağımlılığından çıkış
+### 5.2 `jenssegers/agent` bağımlılığından çıkış — 🟡 yarısı yapıldı
 **Neden:** 2020'den beri güncellenmiyor. Tek kullanım yeri `AnalyticsService`;
 etki alanı dar olduğu için şimdi çıkmak ucuz, PHP 9'da mecbur kalmak pahalı.
 **Kapsam:** Tarayıcı/işletim sistemi/cihaz türü tespiti için küçük bir iç
 servis + kendi test kümesi (gerçek `User-Agent` örnekleriyle).
+**Yapılan:** Ayrıştırma `UserAgentParser` servisine çıkarıldı (Faz 1.1 yolunda);
+paket kararı artık tek dosyada. Kalan: paketin yerine geçecek tabloyu
+zenginleştirip bağımlılığı `composer.json`'dan düşürmek.
 **Kabul:** Analitik ekranındaki dağılımlar değişmiyor; bağımlılık
 `composer.json`'dan düşüyor. Test: `UserAgentParserTest`.
 

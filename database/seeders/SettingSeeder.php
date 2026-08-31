@@ -56,6 +56,7 @@ class SettingSeeder extends Seeder
 
             // Appearance
             ['key' => 'registration_enabled', 'value' => '1', 'group' => 'appearance', 'type' => 'boolean'],
+            ['key' => 'two_factor_required_admins', 'value' => '0', 'group' => 'appearance', 'type' => 'boolean'],
             ['key' => 'maintenance_mode',     'value' => '0', 'group' => 'appearance', 'type' => 'boolean'],
         ];
 
