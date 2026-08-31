@@ -28,6 +28,44 @@ class LikeSearchIsPortableTest extends TestCase
     use RefreshDatabase;
 
     /**
+     * Hiçbir yer LIKE kalıbını elle kurmamalı.
+     *
+     * Ters bölü yasağı tek başına yetmiyordu: kaçışı hiç yapmayan çağrılar da
+     * vardı ve onlar yasağa takılmıyordu. Sonuç, süzgeç kutusuna "%" yazan
+     * ziyaretçinin süzgeç yaptığını sanarak bütün listeyi görmesiydi — on üç
+     * dosyada birden.
+     *
+     * Kural artık daha basit: LIKE kalıbı yalnız LikeSearch'ten çıkar.
+     */
+    public function test_no_service_builds_a_like_pattern_by_hand(): void
+    {
+        $offenders = [];
+
+        foreach ($this->phpFilesIn(app_path()) as $file) {
+            if (str_ends_with($file, 'Support/LikeSearch.php')) {
+                continue;
+            }
+
+            foreach (file($file) ?: [] as $number => $line) {
+                // ->where('x', 'like', ...) ya da 'LIKE' — büyük/küçük fark etmez.
+                if (preg_match("/->(or)?[wW]here\s*\(\s*'[^']+'\s*,\s*'like'/i", $line) !== 1) {
+                    continue;
+                }
+
+                $offenders[] = str_replace(base_path() . '/', '', $file) . ':' . ($number + 1);
+            }
+        }
+
+        sort($offenders);
+
+        $this->assertSame(
+            [],
+            $offenders,
+            "Elle kurulmuş LIKE — App\\Support\\LikeSearch kullanın:\n  " . implode("\n  ", $offenders),
+        );
+    }
+
+    /**
      * Ters bölü kaçışı MySQL'de kırılıyor; hiçbir yerde geri gelmemeli.
      */
     public function test_no_service_escapes_a_like_with_a_backslash(): void

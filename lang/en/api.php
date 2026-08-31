@@ -45,6 +45,12 @@ return [
         'reset'         => 'Your password has been changed. You can sign in with it now.',
     ],
 
+    'search' => [
+        'term_required' => 'A search term is required.',
+        'term_min'      => 'The search term must be at least :min characters.',
+        'term_max'      => 'The search term may be at most :max characters.',
+    ],
+
     'pages' => [
         'not_found' => 'Page not found.',
     ],

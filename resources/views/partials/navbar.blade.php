@@ -58,12 +58,25 @@
 
                 @include('partials.language-switcher')
 
+                {{-- Site araması — yazılar, sayfalar, SSS ve galeri --}}
+                <a href="{{ localized_route('search') }}" class="nav-icon"
+                   aria-label="{{ __('site.search.nav') }}" title="{{ __('site.search.nav') }}">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </a>
+
                 {{-- Koyu/açık kip --}}
                 @include('partials.theme-toggle')
             </div>
 
             {{-- Mobile toggle --}}
             <div class="d-flex align-items-center gap-2 d-lg-none">
+                {{-- Dar ekranda da tek dokunuşla ulaşılsın: menüyü açmak
+                     zorunda kalmak arama için bir adım fazla. --}}
+                <a href="{{ localized_route('search') }}" class="nav-icon"
+                   aria-label="{{ __('site.search.nav') }}" title="{{ __('site.search.nav') }}">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </a>
+
                 @include('partials.theme-toggle')
 
                 <button class="nav-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"

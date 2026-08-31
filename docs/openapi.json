@@ -52,6 +52,10 @@
     {
       "name": "Formlar",
       "description": "İletişim ve bülten."
+    },
+    {
+      "name": "Arama",
+      "description": "Blog, sayfa, SSS ve galeriyi tek sorguda tarayan site geneli arama."
     }
   ],
   "components": {
@@ -1215,6 +1219,63 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "SearchResult": {
+        "type": "object",
+        "description": "Dört ayrı türden gelen kayıtlar tek şekle indirgenmiş: istemci sonuç listesini çizerken türe göre dallanmak zorunda kalmasın.",
+        "required": [
+          "type",
+          "id",
+          "title",
+          "url"
+        ],
+        "properties": {
+          "type": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "blog",
+                  "page",
+                  "faq",
+                  "gallery"
+                ]
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          },
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Etiketlerinden arındırılmış ve kırpılmış özet."
+          },
+          "image": {
+            "$ref": "#/components/schemas/ImageSet"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Çözülmüş adres. SSS'nin kendi sayfası olmadığı için o tür SSS sayfasına gider."
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         }
       }
@@ -3811,6 +3872,122 @@
           },
           "304": {
             "$ref": "#/components/responses/NotModified"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "tags": [
+          "Arama"
+        ],
+        "operationId": "search",
+        "summary": "Site geneli arama",
+        "description": "Blog yazıları, sayfalar, sıkça sorulan sorular ve galeri tek birleşik (UNION) sorguda taranır; sayfalama ve toplam sayı veritabanından gelir.\n\nSıralama üç kademeli bir alaka puanıyla: başlığı terimle **başlayan** 3, başlığında **geçen** 2, yalnız gövdesinde geçen 1. Eşit puanlılar tarihe göre.\n\nZiyaretçinin yazdığı `%` ve `_` joker değil **harf** sayılır. Eşleşme bulunmaması hata değil, boş listedir.\n\n`counts` alanı tür başına eşleşme sayısını verir — istemci süzgeç çubuğunu ikinci bir istek atmadan çizebilsin diye.\n\nÖnbelleklenmez: her terim ayrı bir sonuç ve ETag'ler hiç tekrarlanmadan birikirdi.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PerPage"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "description": "Arama terimi. Kısası ve uzunu 422 döner."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "blog",
+                "page",
+                "faq",
+                "gallery"
+              ]
+            },
+            "description": "Tek türle sınırlar. Tanınmayan değer 422."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sonuçlar.",
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "counts",
+                    "meta",
+                    "links"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SearchResult"
+                      }
+                    },
+                    "counts": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "description": "Tür başına eşleşme sayısı."
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/PaginationLinks"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
           },
           "429": {
             "$ref": "#/components/responses/TooManyRequests"

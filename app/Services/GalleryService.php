@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Enums\GalleryType;
 use App\Models\GalleryItem;
 use Illuminate\Database\Eloquent\Collection;
@@ -170,8 +171,8 @@ final class GalleryService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, GalleryItem::class, function ($q) use ($search): void {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('title'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('description'), [LikeSearch::term($search)]);
             });
         }
 

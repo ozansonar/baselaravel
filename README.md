@@ -684,8 +684,9 @@ composer test
   önce alınması, dosyaların geri yazılması ve **veritabanı dökümü alınamayan
   bir yedeğin başarılı sayılmaması**
 - `LikeSearchIsPortableTest` — serbest metin aramasının iki veritabanında da
-  aynı davranması: joker karakterin harf sayılması ve MySQL'de sözdizimi hatası
-  veren kaçış biçiminin geri gelmemesi
+  aynı davranması: joker karakterin harf sayılması, MySQL'de sözdizimi hatası
+  veren kaçış biçiminin geri gelmemesi ve **hiçbir yerin LIKE kalıbını elle
+  kurmaması** — kaçışı hiç yapmayan çağrılar eski yasağa takılmıyordu
 - `CookieConsentTest` — rıza alınmadan hiçbir izleme betiğinin basılmaması ve
   izleme uç noktasının kayıt tutmaması, kararın (kabul, ret, seçmeli)
   kaydedilmesi ve metin sürümü değişince yeniden sorulması
@@ -708,6 +709,16 @@ composer test
   sınırla aynı olması, terimin kutuda kalması ve ekrana kaçırılarak basılması,
   kategori içinde aramanın o kategoride kalması, sayfalamanın terimi koruması
   ve **arama sonucunun dizine girmemesi** (noindex, kanonik basılmıyor)
+- `SiteSearchTest` — dört türü tek birleşik sorguda tarayan arama: yayında
+  olmayan ve silinmiş içeriğin dışarıda kalması, başlık eşleşmesinin gövde
+  eşleşmesini geçmesi, dil düşüşü, ziyaretçinin yazdığı jokerin harf sayılması,
+  sayfalamanın PHP'den değil sorgudan gelmesi ve **aynı kaydın iki sayfada
+  birden görünmemesi**
+- `SearchPageTest` — arama sayfası: tür süzgeci, çok kısa terim uyarısı, boş
+  sonuç, terimin kaçırılarak basılması, sayfalamanın terim ve türü koruması,
+  arama sonucunun dizine girmemesi ve her sayfanın aramaya bağlantı vermesi
+- `Api/ApiSearchTest` — API araması: tür sayaçları, süzgeç, sayfalama, dil,
+  önbelleklenmemesi ve özetin düz metin olması
 - `Api/OpenApiSpecTest` — `docs/openapi.json` ile gerçek rotaların aynı şeyi
   söylemesi: şemada olmayan uç eklenemez, olmayan uç şemada duramaz, kimlik ve
   304 bildirimleri gerçekle uyuşur, her `$ref` çözülür. Elle yazılan bir şema
@@ -813,6 +824,7 @@ GET  /api/v1/translations         Arayüz metinleri
 GET  /api/v1/menus                Menüler, ağaç hâlinde, adresleri çözülmüş
 GET  /api/v1/pages                Yayındaki sayfalar (menü için)
 GET  /api/v1/pages/{slug}         Sayfa içeriği — gizlilik, KVKK, hakkımızda
+GET  /api/v1/search               Site geneli arama — ?q, ?type, ?per_page
 GET  /api/v1/blog/posts           Yazılar — ?category, ?search, ?per_page
 GET  /api/v1/blog/posts/{slug}    Yazı detayı
 GET  /api/v1/blog/categories      Kategoriler
@@ -864,6 +876,36 @@ Kurulum için `.env`'e eklenecekler ve tüm uçların ayrıntısı: **`docs/API.
 **Makine okunur şema: `docs/openapi.json`** (OpenAPI 3.1, 30 uç). Mobil ekip
 istemci modellerini elle yazmak yerine bundan üretir; Postman doğrudan içeri
 alır. Şema rotalarla karşılaştırılarak sınanıyor, yani bayatlayamıyor.
+
+---
+
+## Site araması
+
+Ziyaretçi tek kutudan **blog yazıları, sayfalar, sıkça sorulan sorular ve
+galeri** içinde arama yapar (`/{dil}/arama`, başlıktaki büyüteç ikonu). Kapsam
+`config/search.php` içinde; bir türü kapatmak tek satır.
+
+Dört tür tek bir **birleşik (UNION) sorguda** taranır. Ayrı ayrı sorgulayıp
+PHP'de birleştirmek daha kolay olurdu ama sayfalama bozulurdu: doğru toplam ve
+doğru sayfa dilimi için her türden bütün eşleşmeleri belleğe çekmek gerekirdi.
+
+Sıralama üç kademeli bir alaka puanıyla: başlığı terimle **başlayan** 3,
+başlığında **geçen** 2, yalnız gövdesinde geçen 1. Puansız sıralamada
+"hakkımızda" araması, kelimeyi metninin ortasında geçiren bir yazıyı
+"Hakkımızda" sayfasının üstüne koyabiliyordu.
+
+Sonuçlar ziyaretçinin dilinde gelir, çevirisi olmayan içerik varsayılan dilden
+düşer — aynı içerik iki dilde iki sonuç olarak görünmez. Arama sonucu sayfası
+`noindex` taşır: sonsuz sayıda terim sonsuz sayıda adres demek.
+
+Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
+çağırır, yani aynı terim aynı sonucu ve aynı sırayı verir.
+
+> **Serbest metin araması yalnız `App\Support\LikeSearch` üzerinden yapılır.**
+> Ziyaretçinin yazdığı `%` ve `_` joker değil harf sayılır ve kaçış biçimi hem
+> MySQL'de hem SQLite'ta çalışır. Kural bir üretim hatasından doğdu;
+> `LikeSearchIsPortableTest` elle kurulmuş bir LIKE kalıbının geri gelmesini
+> engelliyor.
 
 ---
 

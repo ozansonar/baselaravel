@@ -46,6 +46,12 @@ return [
         'reset'         => 'Şifreniz değiştirildi. Yeni şifrenizle giriş yapabilirsiniz.',
     ],
 
+    'search' => [
+        'term_required' => 'Arama terimi zorunludur.',
+        'term_min'      => 'Arama terimi en az :min karakter olmalıdır.',
+        'term_max'      => 'Arama terimi en fazla :max karakter olabilir.',
+    ],
+
     'pages' => [
         'not_found' => 'Sayfa bulunamadı.',
     ],

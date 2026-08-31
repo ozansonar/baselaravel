@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -218,14 +219,14 @@ final class QueueMonitorService
         }
 
         if (($filters['search'] ?? '') !== '') {
-            $term = '%' . $filters['search'] . '%';
+            $term = LikeSearch::term((string) $filters['search']);
 
             // Yük ve hata metni birlikte aranıyor: kullanıcı genelde ya iş
             // adını ya da hata mesajının bir parçasını hatırlıyor.
             $query->where(function (Builder $inner) use ($term): void {
-                $inner->where('payload', 'like', $term)
-                    ->orWhere('exception', 'like', $term)
-                    ->orWhere('uuid', 'like', $term);
+                $inner->whereRaw(LikeSearch::clause('payload'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('exception'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('uuid'), [$term]);
             });
         }
 

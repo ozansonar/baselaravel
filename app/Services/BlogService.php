@@ -202,8 +202,8 @@ final class BlogService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, BlogPost::class, function ($q) use ($search): void {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('excerpt', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('title'), [LikeSearch::term($search)])
+                  ->orWhereRaw(LikeSearch::clause('excerpt'), [LikeSearch::term($search)]);
             });
         }
 

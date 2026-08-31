@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\LikeSearch;
 use App\Enums\MailLogStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,9 +64,9 @@ class MailLog extends Model
     public function scopeSearch(Builder $query, string $term): Builder
     {
         return $query->where(function (Builder $q) use ($term): void {
-            $q->where('to', 'like', "%{$term}%")
-              ->orWhere('subject', 'like', "%{$term}%")
-              ->orWhere('mailable_class', 'like', "%{$term}%");
+            $q->whereRaw(LikeSearch::clause('to'), [LikeSearch::term($term)])
+              ->orWhereRaw(LikeSearch::clause('subject'), [LikeSearch::term($term)])
+              ->orWhereRaw(LikeSearch::clause('mailable_class'), [LikeSearch::term($term)]);
         });
     }
 

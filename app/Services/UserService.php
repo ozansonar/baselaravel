@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Exceptions\EmailAlreadyTakenException;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -105,9 +106,9 @@ final class UserService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search): void {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('first_name'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('last_name'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('email'), [LikeSearch::term($search)]);
             });
         }
 

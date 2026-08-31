@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Enums\NotificationLevel;
 use App\Models\AdminNotification;
 use Illuminate\Database\Eloquent\Builder;
@@ -117,10 +118,11 @@ final class NotificationCenter
         }
 
         if (($filters['q'] ?? '') !== '') {
-            $search = '%' . $filters['q'] . '%';
+            $search = LikeSearch::term((string) $filters['q']);
 
             $query->where(function (Builder $sub) use ($search): void {
-                $sub->where('title', 'like', $search)->orWhere('message', 'like', $search);
+                $sub->whereRaw(LikeSearch::clause('title'), [$search])
+                    ->orWhereRaw(LikeSearch::clause('message'), [$search]);
             });
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Enums\CommentStatus;
 use App\Mail\BlogCommentAdminNotification;
 use App\Mail\BlogCommentApprovedMail;
@@ -100,9 +101,9 @@ final class BlogCommentService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search): void {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('body', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('name'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('email'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('body'), [LikeSearch::term($search)]);
             });
         }
 

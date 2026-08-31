@@ -74,17 +74,21 @@ final class ApiResponse
      *
      * @param LengthAwarePaginator<int, covariant mixed> $paginator
      * @param class-string<JsonResource> $resource
+     * @param array<string, mixed> $extra Zarfa eklenecek üst düzey anahtarlar
+     *                                    (arama ucunun tür sayaçları gibi).
      */
     public static function paginated(
         LengthAwarePaginator $paginator,
         string $resource,
         ?string $message = null,
+        array $extra = [],
     ): JsonResponse {
         return self::success(
             $resource::collection($paginator->getCollection()),
             $message,
             200,
             [
+                ...$extra,
                 'meta' => [
                     'current_page' => $paginator->currentPage(),
                     'last_page'    => $paginator->lastPage(),

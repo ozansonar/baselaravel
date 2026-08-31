@@ -404,12 +404,20 @@ modunda da açık kalır (ön yüzde `/giris` de öyle).
 | GET | `/sliders` | Ana sayfa görsel şeridi |
 | GET | `/faqs` | Sıkça sorulan sorular |
 | GET | `/home` | Açılış ekranının tamamı tek istekte |
+| GET | `/search` | Site geneli arama — blog, sayfa, SSS, galeri |
 
 **`/home` üç bölümü bir arada verir**: `sliders`, `posts` (son yazılar) ve
 `gallery` (fotoğraf şeridi). Parçalar ayrı ayrı da yayında; bu uç uygulama
 açılışındaki üç gidiş dönüşü bire indirmek için var — mobil bağlantıda ekranın
 gecikmesinin büyük kısmı o. Bölüm başına kaç kayıt döneceği `config/api.php` →
 `home` içinde ve ön yüzdeki ana sayfayla aynı sayılarla başlar.
+
+**`/search` dört türü tek birleşik sorguda tarar** ve `counts` alanıyla tür
+başına eşleşme sayısını da verir — istemci süzgeç çubuğunu ikinci bir istek
+atmadan çizebilsin diye. Sıralama üç kademeli bir alaka puanıyla: başlığı
+terimle başlayan önce. Ziyaretçinin yazdığı `%` ve `_` joker değil harftir.
+Önbelleklenmez: her terim ayrı bir sonuç ve ETag'ler hiç tekrarlanmadan
+birikirdi.
 
 **Slider buton adresi çözülmüş ve dile duyarlı gelir.** Panelde `/iletisim`
 yazılı olsa bile İngilizce isteyen istemci İngilizce adresi alır; ham yol
@@ -778,6 +786,7 @@ app/Http/Responses/ApiResponse.php     Yanıt zarfı
 app/Exceptions/ApiExceptionRenderer.php Hata zarfı
 app/Services/ApiAuthService.php        Oturumsuz kimlik doğrulama
 app/Services/PasswordResetCodeService.php  Altı haneli sıfırlama kodu
+app/Services/SearchService.php         Site geneli arama (UNION sorgusu)
 app/Http/Middleware/SetApiLocale.php   Dil çözümü
 app/Http/Middleware/ForceJsonResponse.php
 app/Http/Middleware/EnsureApiUserIsActive.php
@@ -786,5 +795,5 @@ app/Http/Middleware/EnsureApiIsAvailable.php
 
 docs/openapi.json                      OpenAPI 3.1 şeması (30 uç)
 
-tests/Feature/Api/                     137 sınama
+tests/Feature/Api/                     146 sınama
 ```

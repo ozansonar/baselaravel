@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\LikeSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -288,12 +289,16 @@ final class UploadedFile extends Model
      */
     public function scopeSearch(Builder $query, string $term): Builder
     {
-        $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $term) . '%';
+        // Kaçış ters bölüyle yapılıp ESCAPE hiç bildirilmiyordu: MySQL ters
+        // bölüyü varsayılan kaçış saydığı için orada çalışıyor, SQLite hiçbir
+        // özel anlam vermediği için orada kaçış hiç uygulanmıyordu — aynı
+        // arama iki veritabanında iki farklı sonuç veriyordu.
+        $like = LikeSearch::term($term);
 
         return $query->where(static function (Builder $q) use ($like): void {
-            $q->where('original_name', 'like', $like)
-              ->orWhere('title', 'like', $like)
-              ->orWhere('alt_text', 'like', $like);
+            $q->whereRaw(LikeSearch::clause('original_name'), [$like])
+              ->orWhereRaw(LikeSearch::clause('title'), [$like])
+              ->orWhereRaw(LikeSearch::clause('alt_text'), [$like]);
         });
     }
 }

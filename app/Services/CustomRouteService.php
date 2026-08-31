@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Enums\CustomRouteType;
 use App\Models\CustomRoute;
 use Illuminate\Database\Eloquent\Builder;
@@ -227,8 +228,8 @@ final class CustomRouteService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function (Builder $inner) use ($search): void {
-                $inner->where('slug', 'like', "%{$search}%")
-                    ->orWhere('note', 'like', "%{$search}%");
+                $inner->whereRaw(LikeSearch::clause('slug'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('note'), [LikeSearch::term($search)]);
             });
         }
 

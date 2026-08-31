@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Models\Faq;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -68,8 +69,8 @@ final class FaqService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, Faq::class, function ($q) use ($search): void {
-                $q->where('question', 'like', "%{$search}%")
-                    ->orWhere('answer', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('question'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('answer'), [LikeSearch::term($search)]);
             });
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Models\Slider;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -72,8 +73,8 @@ final class SliderService
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, Slider::class, function ($q) use ($search): void {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('subtitle', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('title'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('subtitle'), [LikeSearch::term($search)]);
             });
         }
 

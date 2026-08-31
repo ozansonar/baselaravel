@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\LanguageController;
 use App\Http\Controllers\Api\V1\MenuController;
 use App\Http\Controllers\Api\V1\NewsletterController;
 use App\Http\Controllers\Api\V1\PageController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\SliderController;
 use App\Http\Controllers\Api\V1\TranslationController;
@@ -152,6 +153,11 @@ Route::middleware('api.available')->group(function () use ($cacheable): void {
     Route::get('/languages', [LanguageController::class, 'index'])->middleware($cacheable)->name('api.v1.languages.index');
     Route::get('/sliders', [SliderController::class, 'index'])->middleware($cacheable)->name('api.v1.sliders.index');
     Route::get('/faqs', [FaqController::class, 'index'])->middleware($cacheable)->name('api.v1.faqs.index');
+
+    // Site geneli arama — blog, sayfa, SSS ve galeriyi tek sorguda tarar.
+    // Önbelleklenmiyor: her terim ayrı bir sonuç ve ETag'ler hiç
+    // tekrarlanmadan birikirdi.
+    Route::get('/search', SearchController::class)->name('api.v1.search');
     Route::get('/settings', [SettingController::class, 'index'])->middleware($cacheable)->name('api.v1.settings.index');
     Route::get('/translations', [TranslationController::class, 'index'])->middleware($cacheable)->name('api.v1.translations.index');
 

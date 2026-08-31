@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Models\GalleryCategory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -81,8 +82,8 @@ final class GalleryCategoryService
 
             if (isset($filters['search']) && $filters['search'] !== '') {
                 $this->whereGroupMatches($query, GalleryCategory::class, function ($q) use ($filters): void {
-                    $q->where('name', 'like', "%{$filters['search']}%")
-                      ->orWhere('slug', 'like', "%{$filters['search']}%");
+                    $q->whereRaw(LikeSearch::clause('name'), [LikeSearch::term($filters['search'])])
+                      ->orWhereRaw(LikeSearch::clause('slug'), [LikeSearch::term($filters['search'])]);
                 });
             }
         } else {

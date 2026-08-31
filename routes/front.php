@@ -14,6 +14,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\RssFeedController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +49,11 @@ Route::post('/blog/yorum', [BlogCommentController::class, 'store'])->middleware(
 
 // Gallery
 Route::get('/galeri', GalleryController::class)->name('gallery');
+
+// Site geneli arama — blog, sayfa, SSS ve galeriyi tek kutudan tarar.
+// Yakalayıcı /{slug} kalıbından önce tanımlı olmak zorunda; sonra gelseydi
+// "arama" adında bir sayfa varmış gibi aranırdı.
+Route::get('/arama', SearchController::class)->name('search');
 
 // FAQ
 Route::get('/sikca-sorulan-sorular', FaqController::class)->name('faq');

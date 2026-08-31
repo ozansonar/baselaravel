@@ -34,13 +34,30 @@ final class LikeSearch
      */
     public static function term(string $value): string
     {
-        $escaped = str_replace(
+        return '%' . self::escape($value) . '%';
+    }
+
+    /**
+     * Terimle BAŞLAYAN kayıtlar için kalıp.
+     *
+     * Alaka sıralamasında kullanılıyor: başlığı aranan kelimeyle başlayan bir
+     * sonuç, kelimeyi ortasında geçiren bir sonuçtan önce gelmeli.
+     */
+    public static function prefix(string $value): string
+    {
+        return self::escape($value) . '%';
+    }
+
+    /**
+     * Jokerleri kaçırılmış hâli — kalıba dönüştürülmemiş.
+     */
+    private static function escape(string $value): string
+    {
+        return str_replace(
             [self::ESCAPE_CHAR, '%', '_'],
             [self::ESCAPE_CHAR . self::ESCAPE_CHAR, self::ESCAPE_CHAR . '%', self::ESCAPE_CHAR . '_'],
             $value,
         );
-
-        return '%' . $escaped . '%';
     }
 
     /**
