@@ -204,6 +204,7 @@ final class FrontFormInputRulesTest extends TestCase
             'account/profile.blade.php',
             'partials/blog-comments.blade.php',
             'partials/newsletter-form.blade.php',
+            'blog/index.blade.php',
         ];
     }
 

@@ -704,6 +704,10 @@ composer test
   adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
   posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
   (ön yüz formu, API ucu, panel) geçerli olması
+- `BlogSearchPageTest` — blog sayfasındaki arama kutusu: kuralın sunucudaki
+  sınırla aynı olması, terimin kutuda kalması ve ekrana kaçırılarak basılması,
+  kategori içinde aramanın o kategoride kalması, sayfalamanın terimi koruması
+  ve **arama sonucunun dizine girmemesi** (noindex, kanonik basılmıyor)
 - `Api/ApiBlogSearchTest` — başlık ve özette arama, gövdedeki HTML'in
   eşleşmemesi, ziyaretçinin yazdığı jokerin harf sayılması, aramanın kategoriyle
   birlikte çalışması, sayfalama bağlantılarının terimi koruması ve sonuçsuz

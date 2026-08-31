@@ -9,10 +9,20 @@ use App\Services\BlogCommentService;
 use App\Services\BlogService;
 use App\Services\ContentFileService;
 use App\Services\LocalizedUrlService;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class BlogController extends Controller
 {
+    /**
+     * Arama teriminin azami uzunluğu.
+     *
+     * Formdaki `maxSize[100]` ile birebir aynı olmak zorunda: istemci kuralı
+     * sunucudan gevşek olamaz. Sınırsız bir LIKE kalıbı her istekte bütün
+     * tabloyu tarayan bir sorguya dönüşebilir.
+     */
+    private const SEARCH_MAX = 100;
+
     public function __construct(
         private readonly BlogService $blogService,
         private readonly BlogCategoryService $blogCategoryService,
@@ -21,16 +31,19 @@ final class BlogController extends Controller
         private readonly LocalizedUrlService $localizedUrls,
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
+        $search = $this->searchTerm($request);
+
         return view('blog.index', [
-            'posts'           => $this->blogService->paginatePublished(9),
+            'posts'           => $this->blogService->paginatePublished(9, $search),
             'categories'      => $this->blogCategoryService->allActive(),
             'activeCategory'  => null,
+            'search'          => $search,
         ]);
     }
 
-    public function category(string $categorySlug): View
+    public function category(Request $request, string $categorySlug): View
     {
         $category = $this->blogCategoryService->findBySlug($categorySlug);
 
@@ -38,11 +51,29 @@ final class BlogController extends Controller
             abort(404);
         }
 
+        $search = $this->searchTerm($request);
+
         return view('blog.index', [
-            'posts'          => $this->blogService->paginateByCategory($category->id, 9),
+            'posts'          => $this->blogService->paginateByCategory($category->id, 9, $search),
             'categories'     => $this->blogCategoryService->allActive(),
             'activeCategory' => $category,
+            'search'         => $search,
         ]);
+    }
+
+    /**
+     * Adres çubuğundan gelen arama terimi.
+     *
+     * Uzun terim reddedilmiyor, kırpılıyor: bir sayfa isteğinde ziyaretçiye
+     * doğrulama hatası göstermek onu boş bir ekranla baş başa bırakırdı.
+     * Sunucu yine son sözü söylüyor — sınırı o uyguluyor.
+     */
+    private function searchTerm(Request $request): ?string
+    {
+        $term = trim((string) $request->query('arama', ''));
+        $term = mb_substr($term, 0, self::SEARCH_MAX);
+
+        return $term === '' ? null : $term;
     }
 
     public function show(string $categorySlug, string $slug): View

@@ -470,6 +470,11 @@ yazmıştır, burada aramanın karşılığı yoktur.
 Ziyaretçinin yazdığı `%` ve `_` joker değil **harf** sayılır: "%" yazan biri
 süzgeç yaptığını sanarak bütün listeye bakmamalı.
 
+> Aynı arama ön yüzde de var: `/{dil}/blog?arama=...`. İki taraf aynı servisi
+> (`BlogService::publishedQuery()`) çağırıyor, yani aynı terim ikisinde de aynı
+> sonucu veriyor. Ön yüzdeki arama sonucu sayfası `noindex` taşır — sonsuz
+> sayıda terim sonsuz sayıda adres demek.
+
 **Yorumlar detaya gömülü değil.** Detay yanıtı yalnız `comment_count` taşır
 (ön yüzdeki sayı gibi üst düzey yorumları sayar, yanıtları değil — aynı yazı
 web'de ve uygulamada farklı sayı göstermemeli); yorumların kendisi ayrı uçtan
