@@ -671,6 +671,9 @@ composer test
   görünmemesi, listede N+1 olmaması, iletişim formunun yönetim alanlarını
   sızdırmaması ve **`/settings` ucunun SMTP parolasını, reCAPTCHA gizli
   anahtarını, Telegram jetonunu hiçbir koşulda yayınlamaması**
+- `EmailValidationTest` — ziyaretçiden alınan e-posta kuralının tek yerde
+  durması, üretimde alan adı denetiminin (`dns`) yerinde kalması ve suite'in
+  hiçbir sınamada canlı DNS sorgusuna bağımlı olmaması
 - `Api/ApiContractTest` — yanıt zarfının sabitliği (boş `errors` bile nesne),
   bilinmeyen API adresinin HTML yönlendirme değil JSON 404 dönmesi, dilin
   `Accept-Language` / `?lang=` / `X-Locale` ile çözülmesi, desteklenmeyen dilin
@@ -699,9 +702,23 @@ hizalamaya dokunan kuralları kapalı tutar.
 **Statik analiz.** `phpstan.neon`, Larastan ile seviye 1. Seviye seçiminin
 gerekçesi ve yukarı çıkmanın yolu dosyanın kendi yorumlarında.
 
-> Bağımlılıklar değiştikten sonra PHPStan "Undefined constant
-> `Larastan\Larastan\LARAVEL_VERSION`" diyorsa sonuç önbelleği bayatlamıştır:
-> `./vendor/bin/phpstan clear-result-cache`.
+> **"Undefined constant `Larastan\Larastan\LARAVEL_VERSION`" hatası bir belirti,
+> sebep değil.** Larastan analiz için Laravel'i ayağa kaldırıyor; uygulama
+> açılamazsa bu sabit hiç tanımlanmıyor ve çıktının **sonunda** bu satır
+> görünüyor. Asıl hata (`Error: ...` ve yığın izi) çıktının **başında** basılıyor
+> — `tail` ile bakılırsa tam olarak açıklayıcı olan kısım kaçırılır.
+>
+> Yani önce çıktının başına bakın. En sık sebebi, bir paket eklendikten sonra
+> otomatik yükleyicinin ya da paket keşif önbelleğinin geride kalması:
+>
+> ```bash
+> composer dump-autoload
+> ```
+>
+> Uygulamanın gerçekten açıldığını `php artisan about` doğrular; açılmıyorsa
+> PHPStan da açamaz. Sonuç önbelleğini temizlemek
+> (`./vendor/bin/phpstan clear-result-cache`) bu hatayı çözmez — yalnızca
+> analizin hangi dosyaları yeniden okuyacağını etkiler.
 
 **Testler CI'da MySQL 8'e karşı koşar**, yerelde SQLite'a karşı. İkisi aynı şeyi
 kabul etmiyor — bu iş akışı kurulduğu gün SQLite'ın sakladığı altı hata çıktı,

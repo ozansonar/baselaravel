@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Rules\EmailAddress;
 use App\Services\SubscriberListService;
 use App\Services\SubscriberService;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +20,7 @@ final class NewsletterController extends Controller
     public function subscribe(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email'      => ['required', 'email:rfc,dns', 'max:191'],
+            'email'      => ['required', EmailAddress::rule(), 'max:191'],
             'first_name' => ['nullable', 'string', 'max:191'],
             'last_name'  => ['nullable', 'string', 'max:191'],
         ]);
