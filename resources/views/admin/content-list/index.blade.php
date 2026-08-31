@@ -88,6 +88,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="content-list" :total="$items->total()" />
                 </div>
             </form>
         </div>

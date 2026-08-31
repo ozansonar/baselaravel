@@ -103,10 +103,11 @@
                     <div class="rpr-quick-header">
                         <div class="rpr-quick-icon"><i class="bi {{ $reportType->icon() }}"></i></div>
                         {{-- Biçim rozetleri gerçekten üretilebilen biçimleri
-                             gösteriyor: kit Excel ve PDF yazıyor. --}}
+                             gösteriyor: kit Excel, CSV ve PDF yazıyor. --}}
                         <div class="rpr-quick-badges">
                             <span class="rpr-format-badge pdf">PDF</span>
                             <span class="rpr-format-badge excel">Excel</span>
+                            <span class="rpr-format-badge csv">CSV</span>
                         </div>
                     </div>
                     <h4 class="rpr-quick-title">{{ $reportType->label() }}</h4>
@@ -148,6 +149,9 @@
                         <div class="d-flex gap-2">
                             <a class="btn-glass btn-sm" href="{{ route('admin.export', ['key' => 'reports', 'format' => 'excel']) }}?type={{ $type->value }}&range={{ $range }}&search={{ urlencode($search) }}">
                                 <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                            </a>
+                            <a class="btn-glass btn-sm" href="{{ route('admin.export', ['key' => 'reports', 'format' => 'csv']) }}?type={{ $type->value }}&range={{ $range }}&search={{ urlencode($search) }}">
+                                <i class="bi bi-filetype-csv me-1"></i> CSV
                             </a>
                             <a class="btn-glass btn-sm" href="{{ route('admin.export', ['key' => 'reports', 'format' => 'pdf']) }}?type={{ $type->value }}&range={{ $range }}&search={{ urlencode($search) }}">
                                 <i class="bi bi-file-earmark-pdf me-1"></i> PDF
@@ -419,6 +423,7 @@
                                 <label class="stg-label" for="schedFormat">Dosya Biçimi</label>
                                 <select class="stg-select" name="format" id="schedFormat" data-validation-engine="validate[required]">
                                     <option value="excel">Excel</option>
+                                    <option value="csv">CSV</option>
                                     <option value="pdf">PDF</option>
                                 </select>
                             </div>

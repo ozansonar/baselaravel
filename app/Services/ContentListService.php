@@ -56,18 +56,40 @@ final class ContentListService
     }
 
     /**
+     * Sıralanmış, sayfalanmamış satırlar.
+     *
+     * Ekran da dışa aktarma da buradan okuyor: dosyaya inen liste ile ekranda
+     * duran liste aynı sorgunun ürünü, yoksa süzgeç ya da sıralama zamanla
+     * ikisinde ayrışırdı.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function rows(array $filters = []): Builder
+    {
+        return DB::query()
+            ->fromSub($this->query($filters), 'icerik')
+            ->orderBy('created_at', ($filters['sort'] ?? 'desc') === 'asc' ? 'asc' : 'desc');
+    }
+
+    /**
+     * Süzgeçlere uyan kayıt sayısı.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function count(array $filters = []): int
+    {
+        return DB::query()->fromSub($this->query($filters), 'icerik')->count();
+    }
+
+    /**
      * @param array<string, mixed> $filters
      */
     public function paginate(int $perPage = 25, array $filters = []): LengthAwarePaginator
     {
-        $query = $this->query($filters);
-
         $page = Paginator::resolveCurrentPage();
-        $total = DB::query()->fromSub($query, 'icerik')->count();
+        $total = $this->count($filters);
 
-        $rows = DB::query()
-            ->fromSub($query, 'icerik')
-            ->orderBy('created_at', ($filters['sort'] ?? 'desc') === 'asc' ? 'asc' : 'desc')
+        $rows = $this->rows($filters)
             ->forPage($page, $perPage)
             ->get();
 

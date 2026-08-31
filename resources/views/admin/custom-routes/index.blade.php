@@ -99,6 +99,7 @@
             @if($aktifSuzgecler->isNotEmpty())
                 <a href="{{ route('admin.custom-routes.index') }}" class="btn-glass"><i class="bi bi-x-lg"></i> Temizle</a>
             @endif
+            <x-export-menu export="custom-routes" :total="$routes->total()" />
         </div>
     </form>
 

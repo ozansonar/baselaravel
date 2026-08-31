@@ -28,6 +28,12 @@
             </a>
         </li>
         <li>
+            <a class="dropdown-item"
+               href="{{ route('admin.export', array_merge(['key' => $export, 'format' => 'csv'], $exportQuery)) }}">
+                <i class="bi bi-filetype-csv me-2"></i> CSV
+            </a>
+        </li>
+        <li>
             <a class="dropdown-item js-export-pdf"
                href="{{ route('admin.export', array_merge(['key' => $export, 'format' => 'pdf'], $exportQuery)) }}"
                @if($total !== null) data-row-count="{{ $total }}" @endif

@@ -50,7 +50,7 @@ final class StoreReportScheduleRequest extends FormRequest
             'type'      => ['required', Rule::enum(ReportType::class)],
             'frequency' => ['required', Rule::enum(ReportFrequency::class)],
             'range'     => ['required', Rule::in(array_keys(ReportService::RANGES))],
-            'format'    => ['required', Rule::in(['excel', 'pdf'])],
+            'format'    => ['required', Rule::in(['excel', 'csv', 'pdf'])],
             // En az bir alıcı: kimseye gitmeyen bir zamanlanmış rapor,
             // sunucuda boşuna dönen bir iş.
             'recipients'   => ['required', 'array', 'min:1', 'max:10'],

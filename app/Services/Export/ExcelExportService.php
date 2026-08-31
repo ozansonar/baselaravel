@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Export;
 
+use App\Services\Export\Concerns\GuardsSpreadsheetFormulas;
 use App\Support\Export\ExportColumn;
 use App\Support\Export\ExportValueType;
 use App\Support\Export\ListExport;
@@ -35,6 +36,8 @@ use OpenSpout\Writer\XLSX\Writer;
  */
 final class ExcelExportService
 {
+    use GuardsSpreadsheetFormulas;
+
     /**
      * Dosyayı yazar ve yazılan veri satırı sayısını döndürür.
      *
@@ -169,20 +172,6 @@ final class ExcelExportService
         }
 
         return $this->neutralizeFormula((string) $value);
-    }
-
-    /**
-     * Formül enjeksiyonuna karşı koruma.
-     *
-     * "=CMD(...)" gibi bir metin, dosya CSV'ye çevrildiğinde ya da hücre elle
-     * onaylandığında formüle döner. Öndeki tek tırnak Excel'e "bu metindir"
-     * der; sayısal hücreler zaten sayı tipiyle yazıldığı için buraya düşmez.
-     */
-    private function neutralizeFormula(string $value): string
-    {
-        return Str::startsWith($value, ['=', '+', '-', '@', "\t", "\r"])
-            ? "'" . $value
-            : $value;
     }
 
     /**

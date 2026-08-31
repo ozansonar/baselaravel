@@ -145,6 +145,8 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <x-export-menu export="failed-jobs" :total="$jobs->total()" />
                     </div>
                 </div>
             </form>

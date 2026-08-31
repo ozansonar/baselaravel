@@ -93,6 +93,34 @@ final class QueueMonitorService
     }
 
     /**
+     * Süzgeçlere uyan başarısız iş sayısı.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function countFailed(array $filters = []): int
+    {
+        return $this->query($filters)->count();
+    }
+
+    /**
+     * Başarısız işleri parçalar hâlinde gezer — dışa aktarma için.
+     *
+     * Satırlar ekrandakiyle aynı sunumdan geçiyor: dosyada "SendQueuedMailable"
+     * değil, gerçekte patlayan işin adı duruyor.
+     *
+     * @param array<string, mixed> $filters
+     * @param callable(list<array<string, mixed>>): void $handler
+     */
+    public function eachFailedChunk(array $filters, int $size, callable $handler): void
+    {
+        $this->query($filters)
+            ->orderByDesc('failed_at')
+            ->chunk($size, function ($rows) use ($handler): void {
+                $handler($rows->map(fn (object $row): array => $this->present($row))->all());
+            });
+    }
+
+    /**
      * Tek bir başarısız iş — ayrıntı penceresi için.
      *
      * @return array<string, mixed>|null
