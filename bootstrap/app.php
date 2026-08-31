@@ -54,5 +54,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // İşlenmeyen hata yöneticiye ulaşsın. Buraya yalnızca beklenmedik
+        // olanlar geliyor: 404, 403, 419, 429, doğrulama ve kimlik hataları
+        // Laravel tarafından raporlanmadan eleniyor.
         //
+        // Kapanış hiçbir şey döndürmüyor — `false` dönseydi hatanın loga
+        // yazılmasını da durdururdu; bildirim logun yerine değil yanına
+        // ekleniyor.
+        $exceptions->report(function (\Throwable $e): void {
+            app(\App\Services\ExceptionNotifier::class)->notify($e);
+        });
     })->create();

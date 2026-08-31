@@ -167,6 +167,30 @@ Disallow: /
 
 ---
 
+## Hata bildirimi ve loglar
+
+İşlenmeyen bir hata (500) iki yere birden düşer: **Telegram** (Ayarlar → Telegram
+açıksa) ve panelin **bildirim merkezi**. Beklenen hatalar — 404, 403, 419, 429,
+doğrulama, kimlik — bildirime hiç girmez. Aynı hata için 10 dakikada bir mesaj
+gelir, yani döngüye giren bir sayfa telefonu kilitlemez.
+
+Loglar günlük döner ve `LOG_DAILY_DAYS` gün sonra silinir:
+
+```env
+LOG_STACK=daily
+LOG_DAILY_DAYS=14
+LOG_LEVEL=error
+```
+
+`LOG_STACK=single` kullanılırsa `laravel.log` hiç dönmez ve zamanla diski
+doldurur; dolduğunda yükleme, yedekleme ve oturum yazımı da durur. **Sistem
+Sağlık** ekranı bu durumu log dizini büyümeye başlar başlamaz bildirir.
+
+> Telegram ayarları veritabanından okunduğu için veritabanının kendisi
+> düştüğünde bildirim gönderilemez; o senaryoda geriye dosya logu kalır.
+
+---
+
 ## Yazma izinleri
 
 ```bash
@@ -527,6 +551,11 @@ composer test
 - `RobotsTest` — yasak listesinin rota tanımlarından üretilmesi, yeni dil
   yayına alınınca genişlemesi, sitemap satırının bu siteyi göstermesi, canlı
   olmayan kopyanın kapalı gelmesi ve `public/robots.txt`'in geri gelmemesi
+- `ExceptionNotificationTest` — işlenmeyen hatanın bildirime düşmesi, beklenen
+  HTTP hatalarının düşmemesi, aynı hatanın pencerede bir kez bildirilmesi ve
+  bildirim kanalı patlasa bile hatanın loga yazılmaya devam etmesi
+- `LogHealthCheckTest` — log dizini boyutu ve günlük dönüşün açık olup
+  olmadığının Sistem Sağlık ekranında bildirilmesi
 
 ---
 

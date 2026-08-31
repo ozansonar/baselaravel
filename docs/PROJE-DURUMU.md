@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1186 test / 4355 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1206 test / 4412 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1066,6 +1066,109 @@ sabitlenip ortam kontrolü kaldırılınca 3 test düşüyor.
 
 ---
 
+## 5p. Hata Bildirimi ve Log Rotasyonu — ✅ Kapatıldı
+
+Canlıda 500 veren bir sayfa **kimseye haber vermiyordu**. `bootstrap/app.php`
+içindeki `withExceptions()` bloğu boştu; hata yalnızca `storage/logs` altına
+düşüyordu ve oraya kimse bakmıyordu. Bir kullanıcı şikâyet edene kadar sitenin
+bir bölümü günlerce kırık kalabilirdi.
+
+Acı olan tarafı: projede çalışan bir bildirim kanalı **zaten vardı**.
+`TelegramNotifier` ve `NotificationCenter` yazılmış, throttle'ı kurulmuş, panel
+zilinde gösterimi hazırdı — yalnızca yedekleme komutu ve birkaç servis onu
+çağırıyordu.
+
+### 1. İşlenmeyen hata artık yöneticiye ulaşıyor
+
+`ExceptionNotifier` iki kanala birden düşürüyor: Telegram (açıksa) ve panel
+bildirim merkezi (`type: exception`, kritik seviye).
+
+Kapanış `report()` ile bağlandı ve **hiçbir şey döndürmüyor** — `false` dönseydi
+hatanın loga yazılmasını da durdururdu. Bildirim logun yerine değil yanına
+geçiyor; testi var.
+
+**Gürültü yok.** Laravel 404, 403, 419, 429, doğrulama ve kimlik hatalarını
+raporlamadan önce eliyor (`Handler::$internalDontReport`), yani buraya yalnızca
+gerçekten beklenmedik olanlar geliyor. Ayrıca aynı hata için 10 dakikada bir
+bildirim: parmak izi türü + dosya + satır, yani sıcak bir sayfadaki döngüsel
+hata tek mesaj üretiyor ama farklı bir hata beklemeden haber veriyor. Sayaç
+`Cache::add` ile atılıyor — okuma ve yazma tek işlemde, aynı anda gelen iki
+istek iki bildirim üretemiyor.
+
+**Bildirim yolu asıl hatayı gizleyemez.** `notify()` baştan sona `try/catch`
+içinde: Telegram'a ulaşılamazsa ya da bildirim satırı yazılamazsa sessizce
+dönüyor, yoksa loglanan şey asıl hata değil bildirim hatası olurdu.
+
+Mesajda ne var: hatanın türü, mesajı, **proje köküne göre** dosya:satır (mutlak
+yol satıra sığmıyor ve hosting kullanıcı adını mesaja taşıyor), istek adresi ve
+metodu, varsa kullanıcı kimliği. Konsoldan gelen hatalar "zamanlanmış görev"
+olarak işaretleniyor.
+
+> **Bilinen sınır:** Telegram ayarları `settings` tablosundan okunuyor, yani
+> veritabanının kendisi düştüğünde bildirim gönderilemez. O senaryoda geriye
+> dosya logu ve Sistem Sağlık ekranı kalıyor. Ayarları veritabanı düşse de
+> okunabilir tutmak isteyen kurulum `CACHE_STORE=file` kullanabilir. Bunun
+> alternatifi Telegram token'ını `.env`'e taşımaktı; ayarın sahibi panel olduğu
+> için ikinci bir doğruluk kaynağı açılmadı.
+
+### 2. Log dosyası artık dönüyor
+
+`.env.example` `LOG_STACK=single` diyordu: tek dosya, rotasyon yok. Paylaşımlı
+hostingde `laravel.log` zamanla gigabaytlara çıkar ve **disk dolduğunda yalnız
+log yazımı değil yükleme, yedekleme ve oturum yazımı da durur.**
+
+`LOG_STACK=daily` + `LOG_DAILY_DAYS=14` oldu (`config/logging.php` bu değişkeni
+zaten okuyordu). `LOG_LEVEL` için de canlıda `error` önerisi yorum olarak
+eklendi.
+
+### 3. Sistem Sağlık ekranına log kontrolü
+
+Disk kontrolü sorunu ancak disk dolduğunda görüyor; yeni kontrol **sebebe**
+bakıyor:
+
+| Durum | Eşik |
+|---|---|
+| Kritik | Log dizini ≥ 1 GB |
+| Uyarı | ≥ 250 MB |
+| Uyarı | Dönüş kapalı **ve** ≥ 20 MB birikmiş |
+| Sağlıklı | Diğer |
+
+Dönüş kapalıyken sıfırdan uyarmak gürültü olurdu; 20 MB eşiği uyarının fark
+edilmesi için bol zaman bırakıyor ama dosya büyümeden önce çalıyor. Ekrandaki
+ipucu doğrudan çözümü söylüyor: `LOG_STACK=daily` ve `LOG_DAILY_DAYS=14`.
+
+Kontrol dizini `storage/logs` **varsaymıyor**, kanalın kendi `path` değerinden
+çözüyor — log başka bir yere yönlendirilmişse oraya bakıyor.
+
+### Testler
+
+`ExceptionNotificationTest` (10): bildirimin merkeze düşmesi, konumun proje
+köküne göre yazılması, Telegram açıkken gönderilmesi ve kapalıyken hiç
+gönderilmemesi, aynı hatanın pencerede bir kez bildirilmesi, farklı hatanın
+yutulmaması, bildirim kanalı patlarsa asıl hatanın yerini almaması, beklenen
+HTTP hatalarının hiç raporlanmaması, gerçek bir isteğin patlamasında uçtan uca
+bildirim ve **hatanın loga yazılmaya devam etmesi**.
+
+`LogHealthCheckTest` (10): kontrolün ekranda görünmesi, sağlıklı hâl, dönüşün
+kapalı olduğunun bildirilmesi, büyümüş dönmeyen logun uyarması, küçük dosyanın
+uyarmaması, dönüş açıkken de boyut eşiklerinin çalışması, ipucunun çözümü
+söylemesi, kontrolün yapılandırılmış log yolunu izlemesi ve eşiklerin sıralı
+olması. Boyut eşikleri `ftruncate` ile üretilen seyrek dosyalarla sınanıyor:
+`filesize()` istenen boyutu bildiriyor, diskte yer kaplamıyor.
+
+Mutasyonla doğrulandı: `report()` kancası kaldırılınca 1, kapanış `false`
+döndürülünce log testi, rotasyon tespiti sabitlenince 3, log dizini sabit
+`storage/logs` yapılınca 5 test düşüyor.
+
+### Yol üzerinde görülen
+
+`telegram_notify_level` ayarı panelde kaydediliyor ama **kodda hiçbir yerde
+okunmuyor** — temizlenen `app_locale` ile aynı durumda. Bu turda dokunulmadı;
+anlamı (iş yeniden deneme verbosity'si) hata bildirimiyle ilgisiz.
+
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -1109,8 +1212,9 @@ Sıradakiler:
    değişiklikleri kayıt dışı.
 6. **Kuyruk izleyici ekranı** — `failed_jobs` yalnızca `HealthCheckService`
    içinde sayılıyor; listeleme, yeniden deneme ve silme yok.
-7. ~~**`robots.txt` route'a taşınsın**~~ — kapatıldı (bkz. bölüm 5o)
-8. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı
-9. ~~Kalan ölü kodu temizle~~ — tamamlandı
-10. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
+7. ~~**İşlenmeyen hata kimseye ulaşmıyor**~~ — kapatıldı (bkz. bölüm 5p)
+8. ~~**`robots.txt` route'a taşınsın**~~ — kapatıldı (bkz. bölüm 5o)
+9. ~~Rol/yetki yönetimi ekranı~~ — tamamlandı
+10. ~~Kalan ölü kodu temizle~~ — tamamlandı
+11. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
     doğrulama akışı eklendi
