@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkDeleteBackupsRequest;
+use App\Http\Requests\Admin\UploadBackupRequest;
+use App\Services\BackupRestoreService;
 use App\Services\BackupService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +22,7 @@ final class BackupController extends Controller
 {
     public function __construct(
         private readonly BackupService $service,
+        private readonly BackupRestoreService $restore,
     ) {}
 
     public function index(Request $request): View
@@ -58,6 +61,48 @@ final class BackupController extends Controller
         }
 
         return response()->download($path);
+    }
+
+    /**
+     * Yedeğin ne içerdiğini geri yüklemeden önce gösterir.
+     */
+    public function inspect(string $filename): JsonResponse
+    {
+        $this->authorize('manage-backups');
+
+        return response()->json($this->restore->inspect($filename));
+    }
+
+    /**
+     * Yedeği uygula.
+     *
+     * Uzun sürebildiği ve veritabanını değiştirdiği için ayrı bir yetki
+     * altında değil `manage-backups` altında: yedek alabilen kişi geri de
+     * yükleyebilmeli, aksi hâlde kurtarma anında kimse yetkili olmaz.
+     */
+    public function restore(string $filename): JsonResponse
+    {
+        $this->authorize('manage-backups');
+
+        $result = $this->restore->restore($filename);
+
+        return response()->json($result, $result['success'] ? 200 : 422);
+    }
+
+    /**
+     * Dışarıdan getirilen bir yedek dosyasını listeye alır.
+     *
+     * Diski gitmiş bir sunucuda kurtarma ancak böyle mümkün: dosya önce
+     * listeye giriyor, geri yükleme sonra aynı doğrulanmış yoldan geçiyor.
+     */
+    public function upload(UploadBackupRequest $request): RedirectResponse
+    {
+        $this->authorize('manage-backups');
+
+        $result = $this->service->store($request->file('backup'));
+
+        return redirect()->route('admin.backups.index')
+            ->with($result['success'] ? 'success' : 'error', $result['message']);
     }
 
     public function destroy(Request $request, string $filename): RedirectResponse

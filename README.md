@@ -167,6 +167,33 @@ Disallow: /
 
 ---
 
+## Yedekler
+
+**Admin → Yedekler** veritabanını ve `public/uploads` klasörünü tek ZIP
+dosyasında toplar; gecelik cron da aynı işi yapar.
+
+**Geri yükleme** listedeki her yedeğin satırındadır. Sırasıyla: arşiv
+doğrulanır, **mevcut durumun yedeği alınır**, site bakım moduna geçer,
+veritabanı ve dosyalar uygulanır, bakım modundan çıkılır. Güvenlik yedeği
+alınamazsa geri yükleme hiç başlamaz.
+
+Bilmeniz gerekenler:
+
+- Veritabanı yedekteki hâline döner — **kullanıcı hesapları ve şifreler de**.
+  Kendi oturumunuz kapanabilir; yedekteki bilgilerle yeniden girersiniz.
+- Yedekten sonra eklenen dosyalar **silinmez**, arşivdekiler üzerlerine yazılır.
+- Geri alınamaz: MySQL şema değişikliklerini işlem içine alamaz. Geriye dönüş
+  yolu, işlemden önce otomatik alınan güvenlik yedeğidir.
+
+**Yedek Yükle** düğmesi başka bir sunucudan indirilmiş bir arşivi listeye
+ekler; sunucusu gitmiş bir kurulumu ayağa kaldırmanın yolu budur. Dosyanın
+gerçekten bir yedek olduğu, arşiv açılıp içeriğine bakılarak doğrulanır.
+
+> Yedek arşivi veritabanının tamamını taşır. `storage/` altında durur ve web
+> sunucusu tarafından servis edilmez; oraya taşımayın.
+
+---
+
 ## Kuyruk
 
 **Admin → Kuyruk** bekleyen ve başarısız işleri gösterir. Mail gönderimi
@@ -601,6 +628,12 @@ composer test
 - `QueueMonitorTest` — kuyruk ekranının yetki ayrımı, tıkanan kuyruğun
   bildirilmesi, iş adının yükten çıkarılması, yeniden deneme (okunamayan yük
   dahil), silme ve her işlemin denetim izine düşmesi
+- `SqlStatementReaderTest` — SQL dökümünün ifadelere ayrılması: metin içindeki
+  noktalı virgül, kaçırılmış tırnak, yorumlar ve parça sınırına denk gelen
+  kalıplar
+- `BackupRestoreTest` — arşiv doğrulama, Zip Slip koruması, güvenlik yedeğinin
+  önce alınması, dosyaların geri yazılması ve **veritabanı dökümü alınamayan
+  bir yedeğin başarılı sayılmaması**
 
 ---
 

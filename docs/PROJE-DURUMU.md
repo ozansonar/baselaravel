@@ -20,8 +20,8 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 
 | | Adet | | Adet |
 |---|---|---|---|
-| Model | 23 | Route | 170 |
-| Service | 37 | Migration | 67 |
+| Model | 23 | Route | 173 |
+| Service | 38 | Migration | 67 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
 | Policy | 20 | Enum | 9 |
@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1248 test / 4518 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1282 test / 4640 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1415,6 +1415,139 @@ Kuyruk ekranında görünüyor. Diğer testler satırı doğrudan yazıyordu, ya
 zincirin kopuk halkasını göremezlerdi.
 
 Dinleyici kaldırılıp doğrulandı: 3 test düşüyor.
+
+
+---
+
+## 5u. Yedek Geri Yükleme — ✅ Kuruldu, Yol Üzerinde Sessiz Bir Kusur Çıktı
+
+Yedek alınıyordu ama **geri dönüş yolu yoktu**: dosya indirilebiliyor, ama
+uygulanabilmesi için sunucuda elle SQL çalıştırmak gerekiyordu. Hiç denenmemiş
+bir yedek, olmayan bir yedektir.
+
+### Yol üzerinde bulunan asıl kusur: gövdesiz yedekler
+
+Geri yüklemeyi gerçek bir MySQL veritabanında sınarken alınan yedek **133 KB
+değil 398 bayt** çıktı. Arşivde `database.sql` **hiç yoktu** — ama `create()`
+yine "Yedek alındı" diyordu.
+
+Sebep: `phpSideDump` bağlantıyı elle kurulan bir DSN ile açıyordu ve o DSN
+yalnız host ile portu biliyordu. Soket üzerinden kimlik doğrulayan bir sunucuda
+(`unix_socket`) bağlantı reddediliyor, döküm `null` dönüyor ve `create()` bunu
+sessizce geçip yalnız dosyaları arşivliyordu. Aynı sessiz sonuç yanlış kimlik
+bilgisi, kapalı `mysqldump` ya da yetki sorunu için de geçerliydi.
+
+Yani yönetici gövdesiz bir yedeğe güveniyor, bunu ancak geri yüklemeye
+çalıştığı gün öğreniyordu. **Geri yükleme yokluğunun asıl bedeli buydu:
+yedeklerin çalışıp çalışmadığını kimse denemiyordu.**
+
+Üç düzeltme:
+
+| Ne | Nasıl |
+|---|---|
+| Döküm alınamazsa yedek alınmıyor | MySQL'de `create()` artık hata dönüyor; SQLite gibi dökümü desteklenmeyen sürücüde sonuç bunu mesajında **açıkça söylüyor** |
+| Bağlantı tek kaynaktan | `phpSideDump` elle DSN kurmuyor, uygulamanın kendi bağlantısını (`DB::connection()->getPdo()`) kullanıyor |
+| Soket desteği | `mysqldump` ve `mysql` çağrıları `unix_socket` tanımlıysa `--socket` ile bağlanıyor |
+
+### Geri yükleme
+
+`BackupRestoreService`. Sıra bilinçli:
+
+1. **Arşivi doğrula** — açılabiliyor mu, yedek imzası (`backup-meta.json`) var
+   mı, dizin dışına çıkan girdi var mı.
+2. **Önce mevcut durumun yedeğini al.** Geri yükleme yanlış dosyayla da
+   başlatılabilir. Bu adım başarısız olursa geri yükleme **hiç başlamıyor**.
+3. **Bakım moduna geç** — yarı geri yüklenmiş siteyi ziyaretçi görmesin.
+4. Veritabanını uygula, 5. yüklenen dosyaları aç, 6. bakım modundan çık.
+
+**İşlem (transaction) yok, olamaz:** MySQL'de `DROP TABLE` / `CREATE TABLE`
+örtük commit üretir, şema geri yüklemesi geri alınamaz. Güvenlik yedeğinin
+varlık sebebi tam olarak budur.
+
+**Yüklenen dosyalar silinmiyor, üzerine yazılıyor.** Gerçek bir aynalama
+yedekten sonra eklenen dosyaları silerdi; kurtarma işleminin yan etkisi olarak
+veri silmek, kurtarmanın kendisinden büyük risk.
+
+Onay penceresi neyin uygulanacağını sayıyla yazıyor ve kullanıcı hesaplarının
+da yedekteki hâline döneceğini — yani oturumun kapanabileceğini — söylüyor.
+"Emin misiniz?" bu kararı verdirmeye yetmez.
+
+### SQL dökümünü ifadelere ayırma
+
+Geri yüklemenin en sessiz kırılma noktası. Paylaşımlı hostingde `mysql`
+istemcisi yok, yani döküm PHP tarafında ifadelere ayrılıp tek tek
+çalıştırılıyor. Naif "noktalı virgülden böl" çözümü **yanlıştır**: bir metin
+alanının içindeki noktalı virgül (`'Merhaba; dünya'`) ifadeyi ortasından keser
+ve veri yarım döner, üstelik hata da vermez.
+
+`App\Support\SqlStatementReader` karakter karakter ilerleyen bir durum
+makinesi: tırnak içinde miyiz, ters bölü ile kaçırılmış mı, ikilenmiş tırnak
+mı, yorumun içinde miyiz. `/*! ... */` çalıştırılabilir yorumu **atılmıyor** —
+mysqldump karakter kümesi ve kısıt ayarlarını böyle yazıyor.
+
+Dosya 64 KB'lık parçalar hâlinde okunuyor (yüz megabaytlık döküm belleğe
+sığmayabilir) ve ileri-bakış gerektiren kalıplar parça sınırına denk geldiğinde
+kaçmasın diye üç karakterlik pay bırakılıyor. Testi bu sınırı bilerek kalıbın
+ortasına getiriyor.
+
+### Dışarıdan yedek yükleme
+
+Sunucusu gitmiş bir kurulumu ayağa kaldırmanın tek yolu. Dosya önce **listeye
+giriyor**, geri yükleme sonra aynı doğrulanmış yoldan yapılıyor — yükleyip
+doğrudan uygulamak yerine iki adım, her biri ayrı doğrulanıyor.
+
+Uzantı ve MIME doğrulaması ilk kapı ama dosyanın içeriği hakkında hiçbir şey
+söylemiyor: arşiv gerçekten açılıp yedek imzası aranıyor. Diskteki ad da
+sunucu tarafından belirleniyor, yüklenen dosyanın kendi adı hiç kullanılmıyor.
+
+**Zip Slip** iki yerde birden eleniyor: `uploads/../../../.env` adlı bir girdi
+açılırken hedef dizinin dışına yazar. Tek bir kötü girdi bulunduğunda arşivin
+tamamı reddediliyor — kötü girdiyi atlayıp gerisini açmak saldırganın neyi
+hedeflediğini gizler.
+
+### Yedek dizini artık yapılandırmadan geliyor
+
+`config/backups.php` eklendi ve sınama takımı burayı geçici bir dizine
+çeviriyor (`phpunit.xml`, yükleme dizini için zaten yapılan şey). Öncesinde
+testler geliştiricinin **gerçek yedek dizinine** yazıyordu ve `create()` →
+`rotate()` zinciri oradaki eski yedekleri silebilirdi.
+
+### Testler
+
+`SqlStatementReaderTest` (15, birim): metin içindeki noktalı virgül,
+kaçırılmış ve ikilenmiş tırnak, çift tırnak, geri tırnak içinde ters bölü,
+satır ve blok yorumları, metin içindeki yorum işareti, çalıştırılabilir
+yorumun korunması, parça sınırına denk gelen kalıplar ve gerçek bir döküm
+biçimi.
+
+`BackupRestoreTest` (19): arşiv doğrulama, yedek imzası olmayan zip, Zip Slip
+(üç vektör), dizin dışına çıkan dosya adı, dosyaların geri yazılması, güvenlik
+yedeğinin önce alınması, sonradan eklenen dosyalara dokunulmaması, bakım
+modundan çıkılması, boş arşivin güvenlik yedeği alınmadan reddedilmesi,
+denetim izi, yetki ayrımı, dışarıdan yükleme ve **gövdesiz yedeğin başarılı
+sayılmaması**.
+
+### Gerçek MySQL'de doğrulama
+
+Suite SQLite üzerinde koşuyor, veritabanı geri yüklemesi ise MySQL'e özgü.
+Tam tur ayrı bir MySQL veritabanında elle yapıldı:
+
+1. Migrate + seed → 3 sayfa, 3 kullanıcı, 49 ayar
+2. Yedek al → `database.sql` 133 KB
+3. Veriyi boz: tüm sayfaları sil, yeni kullanıcı ekle, bir görseli sil
+4. Geri yükle → **563 SQL ifadesi, 1 dosya**
+5. Doğrula: sayfa 3'e döndü, sonradan eklenen kullanıcı gitti, görsel geri
+   geldi, bakım modu kapandı
+
+**Aynı tur PDO yolu için de tekrarlandı** (`mysql` istemcisi bulunamıyormuş
+gibi davranılarak): paylaşımlı hostingde çalışacak olan yol bu ve aynı 563
+ifadeyi doğru uyguladı.
+
+### Kalan yarı
+
+Yedeğin **dış kopyası** hâlâ yok: arşiv yedeklediği veriyle aynı diskte
+duruyor. Geri yükleme artık mümkün olduğu için dosyanın başka bir yerde
+durması da anlamlı hâle geldi — sonraki tur.
 
 
 ---

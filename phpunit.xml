@@ -35,5 +35,8 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <!-- Uploads go to a throwaway folder so tests never touch public/uploads -->
         <env name="UPLOADS_PATH" value="./storage/framework/testing/uploads"/>
+        <!-- Same for backups: create() rotates old archives away, so a test
+             run must never see a developer's real backup directory -->
+        <env name="BACKUPS_PATH" value="./storage/framework/testing/backups"/>
     </php>
 </phpunit>
