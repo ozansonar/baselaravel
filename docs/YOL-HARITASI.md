@@ -128,7 +128,7 @@ Test: `AccessibilityBaselineTest` (etiketsiz girdi ve adsız ikon düğmesi yok)
 
 ---
 
-## Faz 3 — Panelin Eksik Ekranları
+## Faz 3 — Panelin Eksik Ekranları — ✅ TAMAMLANDI
 
 Temada tasarımı hazır olup kodu olmayan üç ekran. Tasarım dosyaları
 `resources/views/admin-theme/` altında duruyor, birebir uyarlanacak.
@@ -142,7 +142,7 @@ gönderimi, kullanıcı büyümesi, kampanya başarımı; her rapor Excel/PDF ç
 **Kabul:** Seçilen aralık bütün kartlara ve dışa aktarmaya aynı şekilde
 uygulanıyor. Test: `AdminReportsTest`.
 
-### 3.2 Genel içerik listesi (`content-list.html`)
+### 3.2 Genel içerik listesi (`content-list.html`) — ✅ bitti
 **Neden:** Blog, sayfa, galeri ve SSS ayrı listelerde; "geçen ay ne yayınlandı"
 sorusunun tek ekranlık cevabı yok. Site geneli arama servisi
 (`SearchService`) bu birleşik görünümün sorgu tarafını zaten kuruyor.
@@ -151,7 +151,7 @@ değiştirme, kayda gitme.
 **Kabul:** Dört tür de tek listede, süzgeçler birleşik çalışıyor, yetkisi
 olmayan türü göremiyor. Test: `AdminContentListTest`.
 
-### 3.3 Yardım (`help.html`)
+### 3.3 Yardım (`help.html`) — ✅ bitti
 **Neden:** Panelde 30'dan fazla ekran var; devralan kişi için panel içi rehber
 yok. Bu kit başkalarına teslim edilmek için var.
 **Kapsam:** Modül modül kısa rehber, sık sorulanlar, sürüm ve ortam bilgisi,

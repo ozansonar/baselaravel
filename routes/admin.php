@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\GalleryBulkUploadController;
 use App\Http\Controllers\Admin\GalleryCategoryController;
 use App\Http\Controllers\Admin\GalleryItemController;
 use App\Http\Controllers\Admin\HealthController;
+use App\Http\Controllers\Admin\ContentListController;
+use App\Http\Controllers\Admin\HelpController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\MailLogController;
 use App\Http\Controllers\Admin\QueueController;
@@ -110,6 +112,24 @@ Route::resource('faqs', FaqController::class)->except('show');
 Route::patch('faqs/{faq}/restore', [FaqController::class, 'restore'])->name('faqs.restore')->withTrashed();
 
 // System Health
+/*
+|--------------------------------------------------------------------------
+| Yardım merkezi
+|--------------------------------------------------------------------------
+| Yetki istemiyor: panele girebilen herkes panelin nasıl çalıştığını
+| okuyabilmeli.
+*/
+Route::get('yardim', [HelpController::class, 'index'])->name('help.index');
+
+/*
+|--------------------------------------------------------------------------
+| Genel içerik listesi
+|--------------------------------------------------------------------------
+| Blog, sayfa, galeri ve SSS tek listede. Düzenleme buradan yapılmıyor; her
+| kayıt kendi ekranına bağlanıyor.
+*/
+Route::get('icerikler', [ContentListController::class, 'index'])->name('content-list.index');
+
 /*
 |--------------------------------------------------------------------------
 | Rapor merkezi
