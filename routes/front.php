@@ -114,6 +114,22 @@ Route::middleware(['auth', 'verified'])->prefix('hesabim')->name('account.')->gr
     // Profile
     Route::get('/profil', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profil', [AccountController::class, 'updateProfile'])->name('profile.update');
+
+    /*
+     * Cihazlarım. API'deki /auth/devices ile aynı işi görüyor ama iki kaynağı
+     * birden listeliyor: tarayıcı oturumları ve uygulama jetonları.
+     *
+     * Oturum kimliği 40 haneli; kalıp onu bağlıyor ki adres çubuğuna yazılan
+     * herhangi bir şey sorguya inmesin.
+     */
+    Route::get('/cihazlar', [AccountController::class, 'devices'])->name('devices');
+    Route::delete('/cihazlar', [AccountController::class, 'destroyOtherDevices'])->name('devices.destroy-others');
+    Route::delete('/cihazlar/oturum/{session}', [AccountController::class, 'destroySession'])
+        ->where('session', '[A-Za-z0-9]{1,100}')
+        ->name('devices.sessions.destroy');
+    Route::delete('/cihazlar/uygulama/{token}', [AccountController::class, 'destroyToken'])
+        ->whereNumber('token')
+        ->name('devices.tokens.destroy');
 });
 
 /*

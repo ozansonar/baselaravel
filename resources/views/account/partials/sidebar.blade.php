@@ -27,6 +27,11 @@
         <i class="fa-solid fa-user-pen"></i> {{ __('site.auth.profile') }}
     </a>
 
+    <a href="{{ route('account.devices') }}"
+       class="account-nav__link @if(request()->routeIs('account.devices')) active @endif">
+        <i class="fa-solid fa-laptop-mobile"></i> {{ __('site.devices.title') }}
+    </a>
+
     <form method="POST" action="{{ route('logout') }}" class="mt-1">
         @csrf
         <button type="submit" class="account-nav__link account-nav__link--danger w-100 border-0 bg-transparent text-start">

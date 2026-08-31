@@ -10,11 +10,14 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Jenssegers\Agent\Agent;
 use App\Support\LikeSearch;
 
 class AnalyticsService
 {
+    public function __construct(
+        private readonly UserAgentParser $userAgents,
+    ) {}
+
     /**
      * @return array{success: bool, error?: string, id?: int}
      */
@@ -23,12 +26,9 @@ class AnalyticsService
         try {
             $ua = (string) ($data['user_agent'] ?? '');
 
-            // jenssegers/agent yüklü değilse regex tabanlı fallback kullan.
-            if (class_exists(Agent::class)) {
-                $parsed = $this->parseWithAgent($ua);
-            } else {
-                $parsed = $this->parseWithFallback($ua);
-            }
+            // Ayrıştırma UserAgentParser'da: aynı okuma "Cihazlarım" ekranında
+            // da gerekiyor ve iki kopya zamanla iki farklı sonuç verirdi.
+            $parsed = $this->userAgents->parse($ua);
 
             $isBot = $parsed['is_bot'];
             $botName = $parsed['bot_name'];
@@ -551,151 +551,5 @@ class AnalyticsService
     {
         // Redis tag desteği olmadığı için key'ler kendiliğinden 5 dakika içinde expire olur.
         // Manuel temizlik gerekirse cache:clear kullanılabilir.
-    }
-
-    /**
-     * @return array{is_bot: bool, bot_name: ?string, device_type: string, browser: ?string, browser_version: ?string, os: ?string}
-     */
-    private function parseWithAgent(string $ua): array
-    {
-        $agent = new Agent();
-        $agent->setUserAgent($ua);
-
-        $isBot = $agent->isRobot();
-        $botName = $isBot ? ($agent->robot() ?: 'Unknown Bot') : null;
-
-        if ($isBot) {
-            $deviceType = 'bot';
-        } elseif ($agent->isTablet()) {
-            $deviceType = 'tablet';
-        } elseif ($agent->isMobile()) {
-            $deviceType = 'mobile';
-        } elseif ($agent->isDesktop()) {
-            $deviceType = 'desktop';
-        } else {
-            $deviceType = 'other';
-        }
-
-        $browser = $agent->browser() ?: null;
-        $browserVersion = $browser ? ($agent->version($browser) ?: null) : null;
-        $platform = $agent->platform() ?: null;
-        $platformVersion = $platform ? ($agent->version($platform) ?: null) : null;
-        $os = $platform ? trim($platform . ($platformVersion ? ' ' . $platformVersion : '')) : null;
-
-        return [
-            'is_bot'          => $isBot,
-            'bot_name'        => $botName,
-            'device_type'     => $deviceType,
-            'browser'         => $browser,
-            'browser_version' => $browserVersion ? (string) $browserVersion : null,
-            'os'              => $os,
-        ];
-    }
-
-    /**
-     * Jenssegers/agent paketi yoksa basit regex ile UA parse eder.
-     *
-     * @return array{is_bot: bool, bot_name: ?string, device_type: string, browser: ?string, browser_version: ?string, os: ?string}
-     */
-    private function parseWithFallback(string $ua): array
-    {
-        $uaLower = strtolower($ua);
-
-        $botPatterns = [
-            'googlebot'    => 'Googlebot',
-            'bingbot'      => 'Bingbot',
-            'yandexbot'    => 'YandexBot',
-            'baiduspider'  => 'Baiduspider',
-            'duckduckbot'  => 'DuckDuckBot',
-            'applebot'     => 'Applebot',
-            'facebookexternalhit' => 'FacebookBot',
-            'twitterbot'   => 'Twitterbot',
-            'linkedinbot'  => 'LinkedInBot',
-            'whatsapp'     => 'WhatsApp',
-            'telegrambot'  => 'TelegramBot',
-            'ahrefsbot'    => 'AhrefsBot',
-            'semrushbot'   => 'SemrushBot',
-            'mj12bot'      => 'MJ12bot',
-            'dotbot'       => 'DotBot',
-            'petalbot'     => 'PetalBot',
-            'gptbot'       => 'GPTBot',
-            'claudebot'    => 'ClaudeBot',
-            'anthropic'    => 'AnthropicBot',
-            'ccbot'        => 'CCBot',
-            'perplexitybot' => 'PerplexityBot',
-        ];
-
-        $isBot = false;
-        $botName = null;
-
-        foreach ($botPatterns as $needle => $name) {
-            if (str_contains($uaLower, $needle)) {
-                $isBot = true;
-                $botName = $name;
-                break;
-            }
-        }
-
-        // Generic bot/crawler/spider kelimeleri — yukarıdaki listede yoksa yakala.
-        if (! $isBot && preg_match('/(bot|crawler|spider|crawl)/i', $ua)) {
-            $isBot = true;
-            $botName = 'Unknown Bot';
-        }
-
-        if ($isBot) {
-            $deviceType = 'bot';
-        } elseif (str_contains($uaLower, 'ipad') || (str_contains($uaLower, 'tablet') && ! str_contains($uaLower, 'mobile'))) {
-            $deviceType = 'tablet';
-        } elseif (preg_match('/(mobile|iphone|ipod|android.*mobile|blackberry|windows phone)/i', $ua)) {
-            $deviceType = 'mobile';
-        } elseif ($ua !== '') {
-            $deviceType = 'desktop';
-        } else {
-            $deviceType = 'other';
-        }
-
-        $browser = null;
-        $browserVersion = null;
-
-        $browserRules = [
-            'Edge'    => '/Edg(?:e|A|iOS)?\/([0-9.]+)/i',
-            'Opera'   => '/(?:Opera|OPR)\/([0-9.]+)/i',
-            'Firefox' => '/Firefox\/([0-9.]+)/i',
-            'Chrome'  => '/Chrome\/([0-9.]+)/i',
-            'Safari'  => '/Version\/([0-9.]+).*Safari/i',
-            'IE'      => '/MSIE ([0-9.]+)|Trident.*rv:([0-9.]+)/i',
-        ];
-
-        foreach ($browserRules as $name => $pattern) {
-            if (preg_match($pattern, $ua, $m)) {
-                $browser = $name;
-                $browserVersion = $m[1] ?? ($m[2] ?? null);
-                break;
-            }
-        }
-
-        $os = null;
-
-        if (preg_match('/Windows NT ([0-9.]+)/i', $ua, $m)) {
-            $winMap = ['10.0' => '10', '6.3' => '8.1', '6.2' => '8', '6.1' => '7', '6.0' => 'Vista', '5.1' => 'XP'];
-            $os = 'Windows ' . ($winMap[$m[1]] ?? $m[1]);
-        } elseif (preg_match('/Mac OS X ([0-9_\.]+)/i', $ua, $m)) {
-            $os = 'macOS ' . str_replace('_', '.', $m[1]);
-        } elseif (preg_match('/Android ([0-9.]+)/i', $ua, $m)) {
-            $os = 'Android ' . $m[1];
-        } elseif (preg_match('/(?:iPhone OS|CPU OS) ([0-9_]+)/i', $ua, $m)) {
-            $os = 'iOS ' . str_replace('_', '.', $m[1]);
-        } elseif (str_contains($uaLower, 'linux')) {
-            $os = 'Linux';
-        }
-
-        return [
-            'is_bot'          => $isBot,
-            'bot_name'        => $botName,
-            'device_type'     => $deviceType,
-            'browser'         => $browser,
-            'browser_version' => $browserVersion,
-            'os'              => $os,
-        ];
     }
 }

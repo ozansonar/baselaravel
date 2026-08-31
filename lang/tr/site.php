@@ -220,6 +220,41 @@ return [
         'save_changes'     => 'Değişiklikleri Kaydet',
     ],
 
+    'devices' => [
+        'title'  => 'Cihazlarım',
+        'desc'   => 'Hesabınıza erişimi olan cihazları görün ve kapatın.',
+        'lead'   => 'Hesabınıza şu anda nereden erişildiğini burada görebilir, tanımadığınız bir satır varsa erişimi tek tıkla kapatabilirsiniz.',
+
+        'browsers'             => 'Tarayıcı oturumları',
+        'browsers_hint'        => 'Bu sitede açık olan oturumlar.',
+        'browsers_unavailable' => 'Tarayıcı oturumları bu kurulumda listelenemiyor; oturumlar veritabanında tutulmuyor.',
+        'no_sessions'          => 'Açık tarayıcı oturumu yok.',
+
+        'apps'      => 'Uygulamalar',
+        'apps_hint' => 'Mobil uygulama ve hesabınıza jetonla bağlanan diğer istemciler.',
+        'no_tokens' => 'Bağlı uygulama yok.',
+
+        'this_device'   => 'Bu cihaz',
+        'unknown_agent' => 'Bilinmeyen cihaz',
+        'last_active'   => 'Son erişim :time',
+        'never_used'    => 'Hiç kullanılmadı',
+        'created'       => 'Bağlandı :date',
+        'expires'       => 'Bitiş :date',
+
+        'revoke'         => 'Kapat',
+        'confirm_session' => 'Bu tarayıcı oturumu kapatılacak. Devam edilsin mi?',
+        'confirm_token'   => 'Bu uygulamanın erişimi kapatılacak. Uygulama yeniden giriş isteyecek.',
+        'session_revoked' => 'Oturum kapatıldı.',
+        'token_revoked'   => 'Uygulamanın erişimi kapatıldı.',
+        'not_found'       => 'Bu oturum bulunamadı; büyük ihtimalle zaten kapanmış.',
+
+        'revoke_all'      => 'Her yerden çıkış yap',
+        'revoke_all_hint' => 'Bu tarayıcı dışındaki bütün oturumlar ve bağlı uygulamalar kapatılır. Bu tarayıcıda açık kalırsınız; yalnız "beni hatırla" hakkı hesap genelinde düştüğü için oturum süresi dolduğunda yeniden giriş istenir.',
+        'revoke_all_btn'  => 'Hepsini kapat',
+        'confirm_all'     => 'Bu tarayıcı dışındaki bütün oturumlar kapatılacak. Devam edilsin mi?',
+        'others_revoked'  => ':count oturum kapatıldı.',
+    ],
+
     'login' => [
         'failed'                => 'E-posta veya şifre hatalı.',
         'deactivated'           => 'Hesabınız pasife alındığı için oturumunuz kapatıldı.',

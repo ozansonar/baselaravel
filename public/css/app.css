@@ -1870,3 +1870,88 @@ hr { border-color: var(--line); opacity: 1; }
 .footer-consent-link:focus-visible {
     color: var(--footer-title);
 }
+
+/* ---------- Cihazlarım ---------------------------------------------------
+   Açık oturumların listesi. Satır mobilde alt alta diziliyor: ikon + metin +
+   düğme tek satıra sığmıyor ve düğmeyi taşırmak yerine altına almak, dokunma
+   hedefini de büyütüyor. */
+.device-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.device-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.device-list__item:first-child {
+    padding-top: 0;
+}
+
+.device-list__item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.device-list__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.device-list__body {
+    flex: 1 1 14rem;
+    min-width: 0;
+}
+
+.device-list__name {
+    font-weight: 600;
+    color: var(--ink);
+    word-break: break-word;
+}
+
+.device-list__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    margin-top: .3rem;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+.device-list__meta i {
+    margin-right: .3rem;
+}
+
+.device-list__action {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.device-list__empty {
+    color: var(--muted);
+    padding: .5rem 0;
+}
+
+@media (max-width: 575.98px) {
+    .device-list__action {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .device-list__action .btn {
+        width: 100%;
+    }
+}

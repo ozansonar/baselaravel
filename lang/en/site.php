@@ -217,6 +217,41 @@ return [
         'save_changes'     => 'Save Changes',
     ],
 
+    'devices' => [
+        'title'  => 'My devices',
+        'desc'   => 'See and revoke the devices that can reach your account.',
+        'lead'   => 'This is where your account is being used from right now. If you do not recognise a row, close it with one click.',
+
+        'browsers'             => 'Browser sessions',
+        'browsers_hint'        => 'Sessions currently open on this site.',
+        'browsers_unavailable' => 'Browser sessions cannot be listed on this installation; sessions are not stored in the database.',
+        'no_sessions'          => 'No open browser sessions.',
+
+        'apps'      => 'Applications',
+        'apps_hint' => 'The mobile app and other clients connected to your account with a token.',
+        'no_tokens' => 'No connected applications.',
+
+        'this_device'   => 'This device',
+        'unknown_agent' => 'Unknown device',
+        'last_active'   => 'Last used :time',
+        'never_used'    => 'Never used',
+        'created'       => 'Connected :date',
+        'expires'       => 'Expires :date',
+
+        'revoke'          => 'Revoke',
+        'confirm_session' => 'This browser session will be closed. Continue?',
+        'confirm_token'   => 'This application will lose access and will have to sign in again.',
+        'session_revoked' => 'The session was closed.',
+        'token_revoked'   => 'The application lost access.',
+        'not_found'       => 'That session could not be found; it has most likely been closed already.',
+
+        'revoke_all'      => 'Sign out everywhere',
+        'revoke_all_hint' => 'Every session and connected application other than this browser is closed. You stay signed in here; only the account-wide "remember me" is dropped, so you will be asked to sign in again once this session expires.',
+        'revoke_all_btn'  => 'Close them all',
+        'confirm_all'     => 'Every session other than this browser will be closed. Continue?',
+        'others_revoked'  => ':count sessions were closed.',
+    ],
+
     'login' => [
         'failed'                => 'The e-mail address or password is incorrect.',
         'deactivated'           => 'Your account has been deactivated, so you have been signed out.',
