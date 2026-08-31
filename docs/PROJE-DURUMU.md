@@ -21,7 +21,7 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 | | Adet | | Adet |
 |---|---|---|---|
 | Model | 23 | Route | 170 |
-| Service | 37 | Migration | 66 |
+| Service | 37 | Migration | 67 |
 | Controller | 39 (26'sı admin) | Seeder | 9 |
 | FormRequest | 36 | Blade view | 109 |
 | Policy | 20 | Enum | 9 |
@@ -506,7 +506,7 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ### 🟡 Test kapsamı
 
-Suite artık **1243 test / 4504 assertion**. Yetkilendirme, açık yönlendirme,
+Suite artık **1248 test / 4518 assertion**. Yetkilendirme, açık yönlendirme,
 SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
 tool yasağı kapsandı.
 
@@ -1331,6 +1331,90 @@ işlenmesi.
 Tarayıcıda da doğrulandı: ekran render ediliyor, sayaç animasyonu çalışıyor,
 ayrıntı penceresi yığın izini çekiyor ve yeniden deneme sonrası bekleyen iş
 1→2, toplam başarısız 2→1 oluyor.
+
+
+---
+
+## 5t. Ölü Telegram Ayarı ve Kaydedilmeyen Başarısız İşler — ✅ İkisi de Kapatıldı
+
+`telegram_notify_level` ayarı panelde kaydediliyordu ama **kodda hiçbir yerde
+okunmuyordu** — 5m'de temizlenen `app_locale` ile birebir aynı durum. Kararı
+verirken çok daha büyük bir şey çıktı.
+
+### Ayar neden kaldırıldı, bağlanmadı
+
+Enum'un sunduğu seçim şuydu: bildirim *her başarısızlıkta* mı gelsin, yoksa
+*yalnız 3/3 deneme sonunda* mı? İki gerekçeyle bağlanmadı:
+
+**1. Anlattığı mekanizma yok.** `QueueRunner::drain()` bir işi bir kez
+çalıştırıyor; patlarsa doğrudan `$job->fail()` çağırıyor. Yeniden deneme
+yok, `maxTries` kontrolü yok. "1., 2., 3. deneme" bu projede hiç yaşanmıyor —
+ayarı bağlamak önce olmayan bir yeniden deneme mekanizması yazmayı
+gerektirirdi. Testi var: patlayan iş kuyruğa geri konmuyor.
+
+**2. Bildirim zaten gidiyor.** `QueueRunner` başarısızlıkta `report($e)`
+çağırıyor ve bu, 5p'de kurulan `ExceptionNotifier`'a düşüyor: Telegram + panel
+zili, parmak izine göre 10 dakikalık throttle ile. İkinci bir bildirim düğmesi
+hangisinin kazandığını belirsizleştirmekten başka bir şey yapmazdı. Bunun da
+testi var.
+
+Kaldırılanlar: `TelegramNotifyLevel` enum'u, ayar ekranındaki açılır kutu,
+`SettingController`'ın kaydettikleri listesindeki anahtar, `TelegramNotifier`
+docblock'undaki satır ve `EnumDrivenOptionsTest` beklentisi. Kaydedilmiş satır
+migration ile siliniyor — alan ekrandan kalktığı için bırakılsaydı kimsenin
+okumadığı **ve kimsenin silemeyeceği** bir kayıt olarak kalırdı. `up()` ve
+`down()` ayrı ayrı çalıştırılıp doğrulandı.
+
+Alanın yerine ne olduğunu söyleyen bir bilgi kutusu kondu (`app_locale` için
+yapılanla aynı desen): Telegram'a neyin gittiği, neyin gitmediği ve patlayan
+işlerin listesinin Kuyruk ekranında olduğu.
+
+### Yol üzerinde bulunan asıl kusur: başarısız işler hiç kaydedilmiyordu
+
+Kararı doğrulamak için patlayan bir işi kuyruğa koyup `QueueRunner`'ı
+çalıştırdığımızda `failed_jobs` **boş kaldı.**
+
+Sebep: tabloya yazma işini çerçevede `queue:work` yapıyor. `WorkCommand`
+açılışta `JobFailed` olayına abone oluyor ve olayı `queue.failer`
+sağlayıcısına aktarıyor. Bu proje `queue:work` çalıştıramıyor — pcntl yok,
+`QueueRunner`'ın var olma sebebi bu — yani **o abone hiç kurulmuyordu.**
+`Job::fail()` işi siliyor, işin kendi `failed()` metodunu çağırıyor ve
+`JobFailed` olayını fırlatıyor; tabloya yazmıyor.
+
+Sonuç: patlayan her iş sessizce yok oluyordu. `failed_jobs` her zaman boştu,
+Sistem Sağlık ekranındaki "son 24 saatte başarısız" sayısı her zaman sıfırdı
+ve **bir gün önce kurulan Kuyruk ekranı (5s) üretimde hiçbir zaman
+dolmayacaktı.**
+
+`LogFailedQueueJob` dinleyicisi eklendi: `JobFailed` olayını `queue.failer`'a
+aktarıyor. `app/Listeners` altındaki dinleyiciler kendiliğinden bağlandığı için
+kayıt gerekmiyor — `UpdateMailLogOnFailed` de aynı olayı zaten dinliyor.
+Kayıt tutamamak işin kendisinden küçük bir sorun olduğu için `try/catch`
+içinde: buradan fırlayan bir hata kuyruğun kalanını da durdururdu.
+
+> `queue:work` bir gün çalıştırılabilir hâle gelirse bu dinleyici ile o komutun
+> kendi abonesi aynı işi iki kez yazar. Projenin tüm kuyruk kurgusu
+> `queue:work`'ün olmadığı varsayımına dayanıyor (`docs/SHARED-HOSTING.md`); o
+> varsayım değişirse buranın da gözden geçirilmesi gerekir.
+
+### Ayrıca
+
+Telegram bölümünün alt başlığı hâlâ **"Instagram paylaşımları başarısız
+olduğunda..."** diyordu — sökülmüş modülden kalan ve artık düpedüz yanlış olan
+bir metin. Tam da neyin bildirim ürettiğini anlatan kutunun üstünde durduğu
+için düzeltildi.
+
+### Testler
+
+`FailedJobRecordingTest` (5): patlayan işin `failed_jobs`'a düşmesi, kaydın
+hata metnini ve yükü taşıması, işin yeniden denenmemesi, yöneticinin zaten
+haberdar edilmesi ve başarılı işin geride kayıt bırakmaması.
+
+`QueueMonitorTest`'e uçtan uca bir test eklendi: gerçek bir başarısızlık
+Kuyruk ekranında görünüyor. Diğer testler satırı doğrudan yazıyordu, yani
+zincirin kopuk halkasını göremezlerdi.
+
+Dinleyici kaldırılıp doğrulandı: 3 test düşüyor.
 
 
 ---

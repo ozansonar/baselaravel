@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Log;
  *  - telegram_enabled       : '1' = aktif
  *  - telegram_bot_token     : @BotFather'dan alınan bot token
  *  - telegram_chat_id       : Mesajın gönderileceği chat ID (kullanıcı veya grup)
- *  - telegram_notify_level  : App\Enums\TelegramNotifyLevel değeri
  *
  * Mesaj formatı: HTML parse mode (sadece <b>, <i>, <code>, <a> tag'leri).
  */

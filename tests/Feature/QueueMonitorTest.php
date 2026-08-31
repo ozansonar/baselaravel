@@ -329,6 +329,25 @@ class QueueMonitorTest extends TestCase
         $this->assertContains('Başarısız kuyruk listesi temizlendi', $labels);
     }
 
+    /**
+     * Ekran gerçek bir başarısızlıkla da dolmalı. Testlerin geri kalanı satırı
+     * doğrudan yazıyor; bu, zincirin tamamının çalıştığını doğruluyor —
+     * `failed_jobs` kaydı olmasaydı ekran üretimde hep boş kalırdı.
+     */
+    public function test_a_real_failure_shows_up_on_the_screen(): void
+    {
+        \Illuminate\Support\Facades\Queue::connection('database')
+            ->push(new \Tests\Feature\PatlayanSinamaIsi());
+
+        app(\App\Services\QueueRunner::class)->drain();
+
+        $this->actingAs($this->userWithRole('admin'))
+            ->get('/admin/kuyruk')
+            ->assertOk()
+            ->assertSee('PatlayanSinamaIsi')
+            ->assertSee('sinama isi patladi');
+    }
+
     public function test_the_screen_can_drain_the_queue_on_demand(): void
     {
         $this->actingAs($this->userWithRole('admin'))

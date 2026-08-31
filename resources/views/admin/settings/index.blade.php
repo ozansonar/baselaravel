@@ -1064,7 +1064,7 @@
                 <div class="stg-panel-header">
                     <div>
                         <h5><i class="bi bi-telegram"></i> Telegram Bildirimleri</h5>
-                        <p>Instagram paylaşımları başarısız olduğunda Telegram'a anında bildirim gönder</p>
+                        <p>Sistemde bir şey ters gittiğinde Telegram'a anında bildirim gönder</p>
                     </div>
                     <button type="submit" class="stg-save-btn"><i class="bi bi-check-lg"></i> Kaydet</button>
                 </div>
@@ -1120,25 +1120,29 @@
                     </div>
                 </div>
 
-                {{-- Bildirim Seviyesi --}}
+                {{-- Burada bir "bildirim seviyesi" açılır kutusu vardı ve hiçbir
+                     yerde okunmuyordu. Sunduğu seçim (her denemede / son
+                     denemede) bu projede karşılığı olmayan bir yeniden deneme
+                     mekanizmasını anlatıyordu: QueueRunner bir işi bir kez
+                     çalıştırır, patlarsa doğrudan başarısız sayar. --}}
                 <div class="stg-section">
                     <div class="stg-section-title">
-                        <h6>Bildirim Seviyesi</h6>
-                        <p>Hangi durumlarda Telegram'a mesaj gitsin?</p>
+                        <h6>Ne Zaman Mesaj Gelir?</h6>
+                        <p>Bildirimlerin tetikleyicileri ayarla değil kodla belirlenir</p>
                     </div>
 
-                    <div class="stg-field">
-                        @php $tgLevel = $s('telegram_notify_level', \App\Enums\TelegramNotifyLevel::default()->value); @endphp
-                        <select class="stg-input" name="settings[telegram_notify_level]" data-fv-ignore>
-                            @foreach(\App\Enums\TelegramNotifyLevel::cases() as $level)
-                                <option value="{{ $level->value }}" @selected($tgLevel === $level->value)>{{ $level->label() }}</option>
-                            @endforeach
-                        </select>
-                        <small class="stg-hint">
-                            @foreach(\App\Enums\TelegramNotifyLevel::cases() as $level)
-                                <strong>{{ $level->label() }}:</strong> {{ $level->description() }}@if(!$loop->last)<br>@endif
-                            @endforeach
-                        </small>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Telegram'a <strong>beklenmedik hatalar</strong> gider: işlenmeyen bir
+                        sunucu hatası, patlayan bir kuyruk işi ve başarısız yedekleme.
+                        Beklenen durumlar (404, yetkisiz erişim, form doğrulama) bildirime
+                        girmez. Aynı hata için 10 dakikada bir mesaj gelir, yani döngüye
+                        giren bir sayfa telefonu kilitlemez.
+                        @can('view-queue')
+                            Patlayan işlerin tam listesi
+                            <a href="{{ route('admin.queue.index') }}" class="alert-link">Kuyruk</a>
+                            ekranındadır.
+                        @endcan
                     </div>
                 </div>
 
