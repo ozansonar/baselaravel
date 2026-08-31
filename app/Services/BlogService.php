@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\ContentStatus;
 use App\Models\BlogPost;
+use App\Support\LikeSearch;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
@@ -84,23 +85,56 @@ final class BlogService
         return $related;
     }
 
-    public function paginatePublished(int $perPage = 9): LengthAwarePaginator
+    public function paginatePublished(int $perPage = 9, ?string $search = null): LengthAwarePaginator
     {
-        return BlogPost::with(['category', 'author'])
-            ->published()
-            ->localeWithFallback()
-            ->recent()
-            ->paginate($perPage);
+        return $this->publishedQuery(null, $search)->paginate($perPage)->withQueryString();
     }
 
-    public function paginateByCategory(int $categoryId, int $perPage = 9): LengthAwarePaginator
+    public function paginateByCategory(int $categoryId, int $perPage = 9, ?string $search = null): LengthAwarePaginator
     {
-        return BlogPost::with(['category', 'author'])
+        return $this->publishedQuery($categoryId, $search)->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Yayındaki yazıların sorgusu — kategori ve arama süzgeçleriyle.
+     *
+     * Üç ayrı yerde tekrarlanan sorgu tek yerde toplandı: kategori süzgeci
+     * eklenirken ilişkilerin eager yüklenmesi ya da dil düşüşü birinde
+     * unutulursa o sayfa N+1 atmaya ya da yanlış dilde içerik göstermeye başlar.
+     *
+     * Arama başlık ve özette yapılıyor, gövdede değil. Gövde zengin metin
+     * editöründen geliyor, yani HTML: "div", "strong" gibi etiket adları
+     * arandığında her yazı eşleşirdi. Yönetim ekranındaki arama da aynı iki
+     * sütuna bakıyor.
+     */
+    private function publishedQuery(?int $categoryId, ?string $search): Builder
+    {
+        $query = BlogPost::with(['category', 'author'])
             ->published()
             ->localeWithFallback()
-            ->where('blog_category_id', $categoryId)
-            ->recent()
-            ->paginate($perPage);
+            ->recent();
+
+        if ($categoryId !== null) {
+            $query->where('blog_category_id', $categoryId);
+        }
+
+        $search = trim((string) $search);
+
+        if ($search === '') {
+            return $query;
+        }
+
+        // Ziyaretçinin yazdığı % ve _ joker değil harf sayılıyor: "%" yazan
+        // biri süzgeç yaptığını sanarak bütün listeye bakmamalı. Kaçış biçimi
+        // iki veritabanında da çalışan tek biçim — gerekçesi LikeSearch'te.
+        $term = LikeSearch::term($search);
+
+        $query->where(function (Builder $inner) use ($term): void {
+            $inner->whereRaw(LikeSearch::clause('title'), [$term])
+                ->orWhereRaw(LikeSearch::clause('excerpt'), [$term]);
+        });
+
+        return $query;
     }
 
     public function findBySlug(string $slug): ?BlogPost

@@ -704,6 +704,10 @@ composer test
   adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
   posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
   (ön yüz formu, API ucu, panel) geçerli olması
+- `Api/ApiBlogSearchTest` — başlık ve özette arama, gövdedeki HTML'in
+  eşleşmemesi, ziyaretçinin yazdığı jokerin harf sayılması, aramanın kategoriyle
+  birlikte çalışması, sayfalama bağlantılarının terimi koruması ve sonuçsuz
+  aramanın hata değil boş liste olması
 - `Api/ApiTokenAbilityTest` — dar yetkili jetonun yalnız istediğini
   yapabilmesi, tanınmayan yetkinin (`*` dahil) reddedilmesi — parametre
   yükseltme yüzeyi olmamalı —, dar jetonun her zaman kendini iptal
@@ -801,7 +805,7 @@ GET  /api/v1/translations         Arayüz metinleri
 GET  /api/v1/menus                Menüler, ağaç hâlinde, adresleri çözülmüş
 GET  /api/v1/pages                Yayındaki sayfalar (menü için)
 GET  /api/v1/pages/{slug}         Sayfa içeriği — gizlilik, KVKK, hakkımızda
-GET  /api/v1/blog/posts           Yazılar (sayfalı) — ?category, ?per_page
+GET  /api/v1/blog/posts           Yazılar — ?category, ?search, ?per_page
 GET  /api/v1/blog/posts/{slug}    Yazı detayı
 GET  /api/v1/blog/categories      Kategoriler
 GET  /api/v1/blog/posts/{slug}/comments  Onaylı yorumlar (ağaç)

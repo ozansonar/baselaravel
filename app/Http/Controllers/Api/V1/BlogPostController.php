@@ -6,13 +6,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\V1\Concerns\ResolvesPagination;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\BlogPostIndexRequest;
 use App\Http\Resources\Api\V1\BlogPostDetailResource;
 use App\Http\Resources\Api\V1\BlogPostResource;
 use App\Http\Responses\ApiResponse;
 use App\Services\BlogCategoryService;
 use App\Services\BlogService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 /**
  * Yayındaki blog yazıları.
@@ -33,16 +33,20 @@ final class BlogPostController extends Controller
 
     /**
      * GET /api/v1/blog/posts
-     * GET /api/v1/blog/posts?category=haberler&per_page=20
+     * GET /api/v1/blog/posts?category=haberler&search=laravel&per_page=20
+     *
+     * Kategori ve arama birlikte çalışıyor: "şu kategoride şunu ara" tek
+     * istekte cevaplanıyor.
      */
-    public function index(Request $request): JsonResponse
+    public function index(BlogPostIndexRequest $request): JsonResponse
     {
         $perPage = $this->perPage($request);
-        $categorySlug = $request->query('category');
+        $search = $request->filter('search');
+        $categorySlug = $request->filter('category');
 
-        if (! is_string($categorySlug) || $categorySlug === '') {
+        if ($categorySlug === null) {
             return ApiResponse::paginated(
-                $this->posts->paginatePublished($perPage),
+                $this->posts->paginatePublished($perPage, $search),
                 BlogPostResource::class,
             );
         }
@@ -51,12 +55,15 @@ final class BlogPostController extends Controller
 
         // Olmayan bir kategori boş liste değil 404 dönüyor: istemci yazdığı
         // slug'ın yanlış olduğunu "bu kategoride yazı yok" sanmamalı.
+        //
+        // Arama için aynısı geçerli değil: eşleşme bulunmaması hata değil,
+        // geçerli bir cevap. Boş liste dönüyor.
         if ($category === null) {
             return ApiResponse::error(__('api.blog.category_not_found'), status: 404);
         }
 
         return ApiResponse::paginated(
-            $this->posts->paginateByCategory($category->id, $perPage),
+            $this->posts->paginateByCategory($category->id, $perPage, $search),
             BlogPostResource::class,
         );
     }

@@ -441,6 +441,7 @@ uygulamanın güncellenmesi gerekmez.
 |---|---|---|
 | GET | `/blog/posts` | Yayındaki yazılar, sayfalı |
 | GET | `/blog/posts?category={slug}&per_page=20` | Kategoriye göre |
+| GET | `/blog/posts?search=laravel` | Başlık ve özette arama |
 | GET | `/blog/posts/{slug}` | Yazı detayı — gövde, SEO alanları, ekler, yorum sayısı |
 | GET | `/blog/posts/{slug}/comments` | Onaylı yorumlar, yanıtlarıyla ağaç olarak |
 | POST | `/blog/comments` | Yorum gönderir — onay bekler |
@@ -452,6 +453,22 @@ yirmi tam metin demek olurdu. Kategori ve yazar ilişkileri baştan yüklenir
 
 Olmayan bir kategori slug'ı boş liste değil **404** döner: istemci yanlış
 yazdığını "bu kategoride yazı yok" sanmamalı.
+
+**Arama başlık ve özette yapılır, gövdede değil.** Gövde zengin metin
+editöründen geliyor, yani HTML: "div" ya da "strong" arandığında her yazı
+eşleşirdi. Yönetim ekranındaki arama da aynı iki sütuna bakıyor.
+
+Arama kategoriyle **birlikte** çalışır (`?category=haberler&search=laravel`) ve
+sayfalama bağlantıları terimi korur. Terim en fazla 100 karakter; uzunu **422**
+döner — sınırsız bir LIKE kalıbı her istekte bütün tabloyu tarayan bir sorguya
+dönüşebilir.
+
+Eşleşme bulunmaması **hata değil**: boş liste ve `meta.total: 0` döner. Olmayan
+bir kategori slug'ının 404 dönmesinden farkı bu — orada istemci bir şeyi yanlış
+yazmıştır, burada aramanın karşılığı yoktur.
+
+Ziyaretçinin yazdığı `%` ve `_` joker değil **harf** sayılır: "%" yazan biri
+süzgeç yaptığını sanarak bütün listeye bakmamalı.
 
 **Yorumlar detaya gömülü değil.** Detay yanıtı yalnız `comment_count` taşır
 (ön yüzdeki sayı gibi üst düzey yorumları sayar, yanıtları değil — aynı yazı
@@ -736,5 +753,5 @@ app/Http/Middleware/EnsureApiUserIsActive.php
 app/Http/Middleware/EnsureApiEmailIsVerified.php
 app/Http/Middleware/EnsureApiIsAvailable.php
 
-tests/Feature/Api/                     117 sınama
+tests/Feature/Api/                     128 sınama
 ```

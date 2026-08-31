@@ -71,6 +71,8 @@ return [
     'blog' => [
         'category_not_found' => 'Böyle bir kategori yok.',
         'post_not_found'     => 'Yazı bulunamadı.',
+        'search_max'         => 'Arama terimi en fazla :max karakter olabilir.',
+        'category_max'       => 'Kategori adresi en fazla :max karakter olabilir.',
     ],
 
     'gallery' => [

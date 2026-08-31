@@ -70,6 +70,8 @@ return [
     'blog' => [
         'category_not_found' => 'No such category.',
         'post_not_found'     => 'Post not found.',
+        'search_max'         => 'The search term may be at most :max characters.',
+        'category_max'       => 'The category slug may be at most :max characters.',
     ],
 
     'gallery' => [
