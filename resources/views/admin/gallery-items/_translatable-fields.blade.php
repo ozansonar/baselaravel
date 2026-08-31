@@ -63,7 +63,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                        id="title_{{ $language->code }}" name="translations[{{ $language->code }}][title]"
-                                       data-validation-engine="validate[required,maxSize[255]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
+                                       data-validation-engine="validate[required,maxSize[191]]" value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                        placeholder="Galeri öğesi başlığını girin...">
                                 @error("translations.{$language->code}.title")
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -90,7 +90,7 @@
                                 <select class="form-select @error("translations.{$language->code}.type") is-invalid @enderror"
                                         id="type_{{ $language->code }}" name="translations[{{ $language->code }}][type]" data-fv-ignore>
                                     @foreach($types as $type)
-                                        <option value="{{ $type->value }}" {{ old("translations.{$language->code}.type", 'photo') === $type->value ? 'selected' : '' }}>
+                                        <option value="{{ $type->value }}" {{ old("translations.{$language->code}.type", $translation?->type?->value ?? 'photo') === $type->value ? 'selected' : '' }}>
                                             {{ $type->label() }}
                                         </option>
                                     @endforeach
@@ -195,7 +195,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.video_url") is-invalid @enderror"
                                        id="video_url_{{ $language->code }}" name="translations[{{ $language->code }}][video_url]"
-                                       data-validation-engine="validate[custom[url],maxSize[500]]"
+                                       data-validation-engine="validate[custom[url],maxSize[191]]"
                                        value="{{ old("translations.{$language->code}.video_url", $translation?->video_url) }}"
                                        placeholder="https://www.youtube.com/watch?v=...">
                                 @error("translations.{$language->code}.video_url")

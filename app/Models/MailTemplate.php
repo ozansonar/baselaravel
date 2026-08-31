@@ -83,7 +83,7 @@ final class MailTemplate extends Model
             ->where('is_active', true)
             ->first();
 
-        if (!$template) {
+        if (! $template) {
             return null;
         }
 

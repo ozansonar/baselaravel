@@ -1,0 +1,126 @@
+name: CI
+
+# Dal ve pull request'lerde koşar. Kurulum betiği (composer setup) yerine
+# adımlar tek tek yazıldı: hangi adımın düştüğü doğrudan görünsün.
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**', 'refactor/**']
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Testler (MySQL 8)
+    runs-on: ubuntu-latest
+
+    # Suite MySQL'e karşı koşuyor, SQLite'a değil.
+    #
+    # Yerelde SQLite kullanmak hızlı ama üretim MySQL 8 ve ikisi aynı şeyi
+    # kabul etmiyor: unsigned kolona eksi değer, LIKE'ın ESCAPE söz dizimi ve
+    # kesin karşılaştırmalar farklı davranıyor. Bu iş akışı kurulduğu gün
+    # SQLite'ın sakladığı altı hata çıktı — biri arama yapan her ekranı
+    # üretimde 500'e düşürüyordu.
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravelbase_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          # gd görsel işleme, zip yedekleme, intl ve pdo_mysql uygulamanın
+          # kendisi için gerekli.
+          extensions: pdo_mysql, gd, zip, intl, mbstring, curl
+          coverage: none
+
+      - name: Composer önbelleği
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-php8.4-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php8.4-
+
+      - name: Bağımlılıklar
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Ortam dosyası
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Migration'lar (MySQL)
+        # Ayrı adım: bir migration yalnız MySQL'de düşerse bunu testlerin
+        # gürültüsü içinde değil burada görmek gerekir.
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravelbase_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+
+      - name: Testler
+        # phpunit.xml içindeki <env> değerleri var olan ortam değişkenini
+        # ezmiyor, yani buradaki DB_* ayarları geçerli oluyor ve suite
+        # SQLite yerine MySQL'e karşı koşuyor.
+        run: php artisan test
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravelbase_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+
+  quality:
+    name: Kod stili ve statik analiz
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, gd, zip, intl, mbstring, curl
+          coverage: none
+
+      - name: Composer önbelleği
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-php8.4-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php8.4-
+
+      - name: Bağımlılıklar
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Kod stili
+        # pint.json projenin kendi biçimini tanımlıyor (dizi hizalaması
+        # korunuyor). Sapma sıfır olmalı; aksi hâlde çıktı anlamını yitirir.
+        run: ./vendor/bin/pint --test
+
+      - name: Statik analiz
+        # -a phpstan-bootstrap.php: Larastan'ın stub süzgeci LARAVEL_VERSION
+        # sabitini okuyor ama sabiti tanımlayan bootstrap her zaman ondan önce
+        # çalışmıyor. Dosyanın kendi yorumunda ayrıntısı var.
+        run: ./vendor/bin/phpstan analyse -a phpstan-bootstrap.php --memory-limit=1G --no-progress

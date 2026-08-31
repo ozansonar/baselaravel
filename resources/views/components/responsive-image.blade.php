@@ -22,6 +22,9 @@
 ])
 
 @php
+    // Çağıran alt vermediyse zincir devreye giriyor: boş alt, ekran okuyucu
+    // için görselin hiç olmaması demek.
+    $alt = image_alt($alt);
     $src = upload_url($path, $size);
     $srcsetValue = $responsive ? upload_srcset($path, $srcsetSizes) : '';
     $decodingAttr = $loading === 'eager' ? 'sync' : 'async';

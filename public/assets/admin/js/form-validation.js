@@ -14,7 +14,7 @@
  * makes the browser block the submit with a message nobody can see. The engine
  * validates hidden fields too and we bring the offending tab forward instead.
  *
- * Fields may also carry an input mask — data-fv-mask="letters|digits|decimal" —
+ * Fields may also carry an input mask — data-fv-mask="letters|digits|decimal|phone" —
  * which strips characters the field cannot accept while they are being typed.
  * The mask and the rule are two halves of one guarantee, not alternatives.
  *
@@ -148,7 +148,7 @@
     // ==================== INPUT MASKS ====================
 
     /**
-     * data-fv-mask="letters|digits|decimal"
+     * data-fv-mask="letters|digits|decimal|phone"
      *
      * Kurallar gönderimde denetler; maske yanlış karakterin yazılmasını en
      * baştan engeller. İkisi birlikte çalışır: maske olmadan kullanıcı hatayı
@@ -165,6 +165,18 @@
         },
         digits: function (value) {
             return value.replace(/\D/g, '');
+        },
+        /**
+         * Telefon: kuralın (custom[phone]) kabul ettiği her karakter geçiyor,
+         * harf geçmiyor.
+         *
+         * "digits" olsaydı maske kuraldan katı olurdu: kural "+90 555 111 22 33"
+         * biçimini kabul ediyor, maske ise artı işaretini ve boşlukları
+         * silerdi — kullanıcı geçerli bir numarayı yazamazdı. Maske kuralın
+         * kapısı, daha dar bir kapı değil.
+         */
+        phone: function (value) {
+            return value.replace(/[^0-9+()\-.\s]/g, '');
         },
         decimal: function (value) {
             // Türkçe klavyede ondalık ayırıcı virgül; nokta bekleyen sunucuya

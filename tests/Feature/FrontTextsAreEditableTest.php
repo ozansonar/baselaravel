@@ -19,6 +19,11 @@ use Tests\TestCase;
  *
  * Bu yüzden denetim tek tek metin saymak yerine görünümleri tarıyor: sonradan
  * eklenen bir yazı da aynı kuralı karşılamak zorunda.
+ *
+ * Aynı sözleşmenin öteki yönü de burada: panelde görünen her satırın sitede bir
+ * karşılığı olmalı. Kullanılmayan anahtar hata vermiyor ama sessizce yanlış
+ * yönlendiriyor — yönetici metni değiştiriyor, kaydediyor, sitede hiçbir şey
+ * olmuyor.
  */
 final class FrontTextsAreEditableTest extends TestCase
 {
@@ -38,6 +43,9 @@ final class FrontTextsAreEditableTest extends TestCase
      * @var list<string>
      */
     private const NOT_PROSE = ['breadcrumb', 'button', 'true', 'false', 'null'];
+
+    /** Panelin düzenlettiği tek çeviri grubu. */
+    private const GROUP = 'site';
 
     public function test_no_front_view_writes_a_visitor_facing_string_by_hand(): void
     {
@@ -250,5 +258,315 @@ final class FrontTextsAreEditableTest extends TestCase
 
         // İçinde harf olmayan (rakam, simge, madde imi) değerler yazı değil.
         return preg_match('/\p{L}/u', $text) === 1;
+    }
+
+    /**
+     * Panelde görünen her anahtarın kodda bir çağrısı olmalı.
+     *
+     * Ölü anahtar hata vermiyor: ekranda satır olarak duruyor, yönetici metni
+     * değiştirip kaydediyor ve sitede hiçbir şey değişmiyor. Çoğu, canlı bir
+     * anahtarın biraz farklı yazılmış ikizi olarak birikiyordu
+     * (comment_form ↔ comment_title, no_comments ↔ comment_empty).
+     *
+     * Testler taramanın dışında. Anahtarı ayakta tutan tek şey bir test
+     * fikstürüyse o anahtar uygulamada ölüdür; bir kez öyle oldu.
+     */
+    public function test_every_key_the_panel_offers_is_actually_used(): void
+    {
+        $used = $this->calledKeys();
+
+        // Tarayıcı bozulursa küme boşalır ve denetim hiçbir şey bulmadan
+        // yeşil geçerdi. Ölçtüğünden emin olunmadan sonucuna güvenilmez.
+        $this->assertGreaterThan(
+            200,
+            count($used),
+            'Çeviri çağrıları okunamıyor; denetim ölçmüyor',
+        );
+
+        $olu = array_values(array_diff(
+            array_keys(app(TranslationService::class)->fileLines('tr', self::GROUP)),
+            $used,
+        ));
+
+        sort($olu);
+
+        $this->assertSame(
+            [],
+            $olu,
+            "Panelde görünen ama hiçbir yerde çağrılmayan anahtar:\n  " . implode("\n  ", $olu),
+        );
+    }
+
+    /**
+     * Çağrılan her anahtar tanımlı da olmalı.
+     *
+     * Tanımsız anahtar hata vermiyor, Laravel anahtarın kendisini basıyor:
+     * ekranda "site.blog.eyebrow" yazıyor. Yukarıdaki denetim yalnız ön yüze
+     * bakıyor, bu bütün projeye.
+     */
+    public function test_no_call_points_at_a_key_that_does_not_exist(): void
+    {
+        $tanimli = app(TranslationService::class)->fileLines('tr', self::GROUP);
+
+        $eksik = array_values(array_diff($this->calledKeys(), array_keys($tanimli)));
+
+        sort($eksik);
+
+        $this->assertSame([], $eksik, "Tanımsız anahtar çağrısı:\n  " . implode("\n  ", $eksik));
+    }
+
+    /**
+     * Kodun çağırdığı site.* anahtarları.
+     *
+     * Yalnız çeviri çağrısının içindekiler sayılıyor. Düz "site." aramak
+     * yetmiyordu: metinde geçen "site.com" ve "site.php" de anahtar sanılıyordu.
+     *
+     * @return list<string>
+     */
+    private function calledKeys(): array
+    {
+        $pattern = '/(?:__|@lang|trans|trans_choice|Lang::get)\(\s*[\'"]'
+            . preg_quote(self::GROUP, '/') . '\.([a-z0-9_.]+)[\'"]/i';
+
+        $keys = [];
+
+        foreach ($this->projectSources() as $file) {
+            preg_match_all($pattern, (string) file_get_contents($file), $matches);
+
+            foreach ($matches[1] as $key) {
+                $keys[$key] = true;
+            }
+        }
+
+        $keys = array_keys($keys);
+        sort($keys);
+
+        return $keys;
+    }
+
+    /**
+     * Anahtarın çağrılabileceği her yer.
+     *
+     * Yönetim görünümleri de dahil: ölü anahtar denetimi ön yüzle sınırlı
+     * olsaydı, yalnız panelde kullanılan bir anahtar ölü sanılırdı.
+     *
+     * @return list<string>
+     */
+    private function projectSources(): array
+    {
+        $files = [];
+
+        foreach (['app', 'resources', 'routes', 'database', 'config', 'public'] as $directory) {
+            $path = base_path($directory);
+
+            if (! is_dir($path)) {
+                continue;
+            }
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+            );
+
+            foreach ($iterator as $file) {
+                if (! $file->isFile()) {
+                    continue;
+                }
+
+                $name = $file->getFilename();
+
+                // admin-theme hazır HTML tasarım referansı; vendor kütüphaneleri
+                // bizim anahtarlarımızı tanımıyor.
+                if ((! str_ends_with($name, '.php') && ! str_ends_with($name, '.js'))
+                    || str_contains($file->getPathname(), '/admin-theme/')
+                    || str_contains($file->getPathname(), '/vendor/')) {
+                    continue;
+                }
+
+                $files[] = $file->getPathname();
+            }
+        }
+
+        sort($files);
+
+        return $files;
+    }
+
+    /**
+     * Ziyaretçinin gördüğü formların uyarıları da panelden yönetilmeli.
+     *
+     * FormRequest::messages() koda gömülü metin taşıdığında iki şey birden
+     * oluyor: İngilizce ziyaretçi Türkçe uyarı görüyor ve yönetici metni
+     * değiştiremiyor. Görünüm taraması bunu göremiyor, çünkü metin Blade'de
+     * değil PHP'de duruyor.
+     *
+     * Hangi isteklerin ziyaretçiye açık olduğu elle listelenmiyor: yönetim
+     * dışındaki bir kontrolcünün kullandığı her istek ziyaretçiye açıktır.
+     * Yeni bir ön yüz formu kendiliğinden kapsama giriyor.
+     */
+    public function test_no_visitor_facing_form_writes_its_warnings_by_hand(): void
+    {
+        $siniflar = $this->visitorFacingRequests();
+
+        $this->assertGreaterThan(
+            4,
+            count($siniflar),
+            'Ön yüz istek sınıfları bulunamıyor; denetim ölçmüyor',
+        );
+
+        $bulgular = [];
+
+        // Hız sınırı uyarıları da aynı formlarda görünüyor ama FormRequest'te
+        // değil, sınırlayıcının yanıt kapanışında duruyorlar.
+        $kaynaklar = array_merge(
+            array_map(static fn (string $f): array => [$f, 'messages'], $siniflar),
+            [[app_path('Providers/AppServiceProvider.php'), 'configureRateLimiting']],
+        );
+
+        foreach ($kaynaklar as [$file, $method]) {
+            $source = (string) file_get_contents($file);
+            $body = $this->methodBody($source, $method);
+
+            if ($body === '') {
+                continue;
+            }
+
+            // Çeviri çağrıları maskeleniyor; geriye kalan her metin elle
+            // yazılmış demektir. Anahtarlar da metin olduğu için yalnız
+            // "=>" sağındaki değerlere bakılıyor.
+            $masked = $this->maskTranslationCalls($body);
+            $relative = str_replace(base_path() . '/', '', $file);
+            $offset = strpos($source, $body);
+
+            preg_match_all(
+                '/=>\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
+                $masked,
+                $matches,
+                PREG_OFFSET_CAPTURE,
+            );
+
+            foreach ($matches[1] as [$literal, $at]) {
+                $line = substr_count(substr($source, 0, (int) $offset + (int) $at), "\n") + 1;
+                $bulgular[] = "{$relative}:{$line}  {$literal}";
+            }
+        }
+
+        sort($bulgular);
+
+        $this->assertSame(
+            [],
+            $bulgular,
+            "Panelden değiştirilemeyen form uyarısı — lang/*/site.php'ye anahtar açıp __() ile çağırın:\n  "
+                . implode("\n  ", $bulgular),
+        );
+    }
+
+    /**
+     * Ziyaretçiye açık FormRequest dosyaları.
+     *
+     * Yönetim paneli kapsam dışı: tek dilde ve yalnız yöneticinin gördüğü
+     * arayüz. Ayrım kontrolcünün yerinden geliyor — Admin dizini dışındaki bir
+     * kontrolcünün kullandığı istek, ziyaretçinin doldurduğu bir formdur.
+     *
+     * @return list<string>
+     */
+    private function visitorFacingRequests(): array
+    {
+        $files = [];
+
+        foreach ((array) glob(app_path('Http/Controllers/*.php')) as $controller) {
+            preg_match_all(
+                '/use\s+App\\\\Http\\\\Requests\\\\([A-Za-z0-9_\\\\]+);/',
+                (string) file_get_contents((string) $controller),
+                $matches,
+            );
+
+            foreach ($matches[1] as $class) {
+                $path = app_path('Http/Requests/' . str_replace('\\', '/', $class) . '.php');
+
+                if (is_file($path)) {
+                    $files[$path] = true;
+                }
+            }
+        }
+
+        $files = array_keys($files);
+        sort($files);
+
+        return $files;
+    }
+
+    /**
+     * __('...') çağrılarını, parantezleri sayarak boşlukla değiştirir.
+     *
+     * Düzenli ifadeyle yapılamıyor: çağrının içinde yer değiştirme dizisi
+     * (__('site.x', ['count' => 3])) olabiliyor ve kalıp yanlış yerde
+     * kapanınca geride kalan parça elle yazılmış metin sanılıyor.
+     */
+    private function maskTranslationCalls(string $source): string
+    {
+        $result = '';
+        $length = strlen($source);
+        $i = 0;
+
+        while ($i < $length) {
+            if (preg_match('/\G(?:__|trans|trans_choice)\s*\(/', $source, $m, 0, $i) !== 1) {
+                $result .= $source[$i];
+                $i++;
+
+                continue;
+            }
+
+            $start = $i;
+            $i += strlen($m[0]);
+            $depth = 1;
+
+            while ($i < $length && $depth > 0) {
+                $depth += match ($source[$i]) {
+                    '(' => 1,
+                    ')' => -1,
+                    default => 0,
+                };
+                $i++;
+            }
+
+            $result .= (string) preg_replace('/[^\n]/', ' ', substr($source, $start, $i - $start));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Bir metodun gövdesi, süslü parantezler sayılarak.
+     *
+     * @return string metot yoksa boş
+     */
+    private function methodBody(string $source, string $method): string
+    {
+        // Görünürlük serbest: aranan metot private de olabiliyor (hız
+        // sınırlayıcısının kurulumu böyle) ve parametre alabilir.
+        $pattern = '/(?:public|protected|private)\s+function\s+'
+            . preg_quote($method, '/') . '\s*\([^)]*\)[^{;]*\{/';
+
+        if (preg_match($pattern, $source, $m, PREG_OFFSET_CAPTURE) !== 1) {
+            return '';
+        }
+
+        $open = (int) $m[0][1] + strlen($m[0][0]) - 1;
+        $depth = 0;
+        $length = strlen($source);
+
+        for ($i = $open; $i < $length; $i++) {
+            $depth += match ($source[$i]) {
+                '{' => 1,
+                '}' => -1,
+                default => 0,
+            };
+
+            if ($depth === 0) {
+                return substr($source, $open + 1, $i - $open - 1);
+            }
+        }
+
+        return '';
     }
 }

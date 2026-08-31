@@ -80,12 +80,36 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    /* ---- Site popups (once per browser session) ---- */
+    /* ---- Site popups ----
+
+       Kaç kez görüneceği yöneticinin kararı; her duyuru kendi kuralını
+       data- niteliklerinde taşıyor:
+
+         data-popup-store    'session' | 'local' | ''  → görüldüğü nerede tutulacak
+         data-popup-remember 'show' | 'close'          → işaret ne zaman konacak
+
+       Boş depo "her zaman göster" demek: hiçbir yere yazılmıyor. 'show'
+       görüldüğü an biter (bir kez göster), 'close' ise ziyaretçi kapatana
+       kadar her açılışta çıkar. */
     var popupEls = document.querySelectorAll('[data-popup-id]');
     if (popupEls.length && typeof bootstrap !== 'undefined') {
-        var store = window.sessionStorage;
+        var storeOf = function (el) {
+            try {
+                if (el.dataset.popupStore === 'session') return window.sessionStorage;
+                if (el.dataset.popupStore === 'local') return window.localStorage;
+            } catch (e) {}
+            return null;
+        };
+        var seenKey = function (el) { return 'popup_seen_' + el.dataset.popupId; };
+        var markSeen = function (el) {
+            var store = storeOf(el);
+            try { if (store) store.setItem(seenKey(el), '1'); } catch (e) {}
+        };
+
         var queue = Array.prototype.filter.call(popupEls, function (el) {
-            try { return !store || store.getItem('popup_seen_' + el.dataset.popupId) !== '1'; }
+            var store = storeOf(el);
+            // Deposu olmayan duyuru her zaman gösterilir.
+            try { return !store || store.getItem(seenKey(el)) !== '1'; }
             catch (e) { return true; }
         });
         var pi = 0;
@@ -93,9 +117,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (pi >= queue.length) return;
             var el = queue[pi];
             var modal = bootstrap.Modal.getOrCreateInstance(el);
+
+            // "Bir kez göster" görüldüğü an biter: ziyaretçi kapatmaya
+            // fırsat bulmadan sayfayı yenilese bile duyuru tekrarlanmaz.
+            if (el.dataset.popupRemember === 'show') markSeen(el);
+
             el.addEventListener('hidden.bs.modal', function handler() {
                 el.removeEventListener('hidden.bs.modal', handler);
-                try { if (store) store.setItem('popup_seen_' + el.dataset.popupId, '1'); } catch (e) {}
+                if (el.dataset.popupRemember !== 'show') markSeen(el);
                 pi++;
                 if (pi < queue.length) setTimeout(showNextPopup, 400);
             });
@@ -128,16 +157,42 @@ window.fetchJson = async function (url, options = {}) {
     return res.json();
 };
 
+/* ---- Metni düz metne indirger ----
+
+   Kutulara metin textContent ile yazılıyor: içindeki etiket ekranda etiket
+   olarak görünüyor. Etiketi yorumlatmak (innerHTML) sunucudan ve kullanıcıdan
+   gelen metni sayfaya HTML olarak sokardı; onun yerine etiketler atılıyor.
+
+   Satır sonu anlamı taşıyan etiketler önce satır sonuna çevriliyor ki çok
+   satırlı bir uyarı tek satıra yapışmasın. Varlık imleri textarea üzerinden
+   çözülüyor: textarea'nın içeriği HTML olarak ayrıştırılmaz, yani &quot;
+   çözülürken yeni bir eleman doğmaz. */
+window.plainText = function (value) {
+    var text = String(value === null || value === undefined ? '' : value)
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
+        .replace(/<[^>]*>/g, '');
+
+    if (text.indexOf('&') === -1) return text;
+
+    var holder = document.createElement('textarea');
+    holder.innerHTML = text;
+
+    return holder.value;
+};
+
 /* ---- Global result modal ----
 
    message hem dizge hem dizi olabiliyor. Sunucudan birden çok hata dönünce
    satırlar önce '<br>' ile birleştiriliyordu; kutu metni textContent ile
    bastığı için ziyaretçi etiketin kendisini okuyordu ("...zorunludur.<br>E-posta
-   ...").  Etiketi yorumlatmak (innerHTML) sunucudan gelen metni sayfaya HTML
-   olarak sokardı; onun yerine her satır kendi düğümü olarak ekleniyor. */
+   ..."). Her satır kendi düğümü olarak ekleniyor. */
 window.showResultModal = function (type, message, title) {
     const el = document.getElementById('resultModal');
-    const lines = Array.isArray(message) ? message : String(message ?? '').split('\n');
+    const lines = (Array.isArray(message) ? message : [message])
+        .map(window.plainText)
+        .join('\n')
+        .split('\n');
 
     if (!el) { alert(lines.join('\n')); return; }
 
@@ -152,7 +207,7 @@ window.showResultModal = function (type, message, title) {
     const iconWrap = document.getElementById('resultModalIcon');
     iconWrap.className = 'result-icon ' + cfg.cls;
     iconWrap.innerHTML = '<i class="fa-solid ' + cfg.icon + '"></i>';
-    document.getElementById('resultModalTitle').textContent = title || cfg.title;
+    document.getElementById('resultModalTitle').textContent = window.plainText(title) || cfg.title;
 
     const body = document.getElementById('resultModalBody');
     body.textContent = '';
@@ -169,11 +224,11 @@ window.showConfirmModal = function (options) {
     const el = document.getElementById('confirmModal');
     if (!el) { if (confirm(options.message)) options.onConfirm && options.onConfirm(); return; }
 
-    document.getElementById('confirmModalTitle').textContent = options.title || 'Emin misiniz?';
-    document.getElementById('confirmModalBody').textContent = options.message || '';
+    document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || 'Emin misiniz?';
+    document.getElementById('confirmModalBody').textContent = window.plainText(options.message);
 
     const confirmBtn = document.getElementById('confirmModalConfirmBtn');
-    confirmBtn.textContent = options.confirmText || 'Evet';
+    confirmBtn.textContent = window.plainText(options.confirmText) || 'Evet';
 
     // Reset listener by cloning
     const fresh = confirmBtn.cloneNode(true);

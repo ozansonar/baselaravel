@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Enums\SubscriberStatus;
 use App\Models\Subscriber;
-use App\Models\SubscriberList;
 use App\Services\SubscriberListService;
 use App\Services\SubscriberService;
 use Illuminate\Database\UniqueConstraintViolationException;

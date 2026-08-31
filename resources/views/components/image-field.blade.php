@@ -76,7 +76,7 @@
            data-title="{{ $title }}"
            data-cover-link>
             <img @if($hasImage) src="{{ upload_url($current, 'thumb') }}" @endif
-                 alt="{{ $title }}" loading="lazy" data-cover-img>
+                 alt="{{ image_alt($title) }}" loading="lazy" data-cover-img>
             <span class="ca-cover__zoom"><i class="bi bi-arrows-fullscreen"></i></span>
         </a>
 

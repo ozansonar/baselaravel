@@ -47,16 +47,16 @@ class AnalyticsController extends Controller
             'range'            => $request->input('range', '30d'),
             'includeBots'      => $includeBots,
             'totalRecords'     => $totalRecords,
-            'stats'            => $this->analyticsService->getStats($from, $to, !$includeBots),
-            'dailyChart'       => $this->analyticsService->getDailyChart($from, $to, !$includeBots),
+            'stats'            => $this->analyticsService->getStats($from, $to, ! $includeBots),
+            'dailyChart'       => $this->analyticsService->getDailyChart($from, $to, ! $includeBots),
             // Panelde tablolar kendi içinde süzülüp sayfalanıyor; ilk ona
             // sığmayan sayfalar da elde olsun diye liste geniş çekiliyor.
-            'topPages'         => $this->analyticsService->getTopPages($from, $to, 50, !$includeBots),
+            'topPages'         => $this->analyticsService->getTopPages($from, $to, 50, ! $includeBots),
             'deviceBreakdown'  => $this->analyticsService->getDeviceBreakdown($from, $to),
             'browserBreakdown' => $this->analyticsService->getBrowserBreakdown($from, $to),
             'referrers'        => $this->analyticsService->getReferrerBreakdown($from, $to),
             'botActivity'      => $this->analyticsService->getBotActivity($from, $to),
-            'recentVisits'     => $this->analyticsService->getRecentVisits(self::RECENT_VISIT_LIMIT, !$includeBots),
+            'recentVisits'     => $this->analyticsService->getRecentVisits(self::RECENT_VISIT_LIMIT, ! $includeBots),
         ]);
     }
 
@@ -201,8 +201,8 @@ class AnalyticsController extends Controller
         $includeBots = $request->boolean('include_bots');
 
         $data = match ($type) {
-            'daily'     => $this->analyticsService->getDailyChart($from, $to, !$includeBots),
-            'top-pages' => $this->analyticsService->getTopPages($from, $to, 10, !$includeBots),
+            'daily'     => $this->analyticsService->getDailyChart($from, $to, ! $includeBots),
+            'top-pages' => $this->analyticsService->getTopPages($from, $to, 10, ! $includeBots),
             'device'    => $this->analyticsService->getDeviceBreakdown($from, $to),
             'browser'   => $this->analyticsService->getBrowserBreakdown($from, $to),
             'referrer'  => $this->analyticsService->getReferrerBreakdown($from, $to),

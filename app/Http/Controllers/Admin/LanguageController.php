@@ -130,7 +130,7 @@ final class LanguageController extends Controller
             ['code' => 'fa', 'name' => 'Farsça',      'native' => 'فارسی',              'flag' => '🇮🇷'],
             ['code' => 'pl', 'name' => 'Lehçe',       'native' => 'Polski',            'flag' => '🇵🇱'],
             ['code' => 'uk', 'name' => 'Ukraynaca',   'native' => 'Українська',        'flag' => '🇺🇦'],
-            ['code' => 'az', 'name' => 'Azerbaycanca','native' => 'Azərbaycanca',      'flag' => '🇦🇿'],
+            ['code' => 'az', 'name' => 'Azerbaycanca', 'native' => 'Azərbaycanca',      'flag' => '🇦🇿'],
             ['code' => 'sv', 'name' => 'İsveççe',     'native' => 'Svenska',           'flag' => '🇸🇪'],
             ['code' => 'el', 'name' => 'Yunanca',     'native' => 'Ελληνικά',          'flag' => '🇬🇷'],
             ['code' => 'ro', 'name' => 'Romence',     'native' => 'Română',            'flag' => '🇷🇴'],

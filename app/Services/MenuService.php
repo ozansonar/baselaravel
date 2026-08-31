@@ -107,6 +107,29 @@ final class MenuService
         return $copy;
     }
 
+    /**
+     * Yayında menüsü olan konumlar.
+     *
+     * Konum serbest bir metin: panelden 'header' ve 'footer' dışında bir ad da
+     * verilebiliyor. API'nin listesi bu yüzden sabit bir diziden değil
+     * veritabanından geliyor — yeni bir konum açıldığında uç onu kendiliğinden
+     * yayınlıyor.
+     *
+     * @return array<int, string>
+     */
+    public function activeLocations(): array
+    {
+        return Cache::remember(
+            $this->localeCacheKey('menus.locations'),
+            self::CACHE_TTL,
+            fn (): array => Menu::active()
+                ->distinct()
+                ->orderBy('location')
+                ->pluck('location')
+                ->all(),
+        );
+    }
+
     public function clearCache(string $location): void
     {
         $this->forgetLocalized($this->cacheKey($location));
@@ -117,6 +140,8 @@ final class MenuService
         foreach (['header', 'footer', 'custom'] as $location) {
             $this->clearCache($location);
         }
+
+        $this->forgetLocalized('menus.locations');
     }
 
     private function queryLocation(string $location, string $locale): ?Menu

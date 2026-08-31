@@ -131,7 +131,12 @@ final class FooterMenuTest extends TestCase
     {
         $column = $this->column('Kurumsal');
 
-        $column->activeChildren->firstWhere('label', 'Kullanım Koşulları')->update(['sort_order' => -1]);
+        // Sıra sütunu `unsignedInteger`: eksi bir değer SQLite'ta sessizce
+        // kabul edilir ama üretimdeki MySQL onu reddeder. Öne almak için
+        // sıralama baştan, geçerli değerlerle yazılıyor.
+        foreach (['Kullanım Koşulları' => 1, 'Hakkımızda' => 2, 'Gizlilik Politikası' => 3] as $label => $position) {
+            $column->activeChildren->firstWhere('label', $label)?->update(['sort_order' => $position]);
+        }
 
         app(MenuService::class)->clearAllCaches();
 

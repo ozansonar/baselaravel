@@ -11,7 +11,7 @@ final class NotDisposableEmail implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value) || !str_contains($value, '@')) {
+        if (! is_string($value) || ! str_contains($value, '@')) {
             return;
         }
 

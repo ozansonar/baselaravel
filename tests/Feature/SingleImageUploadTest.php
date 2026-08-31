@@ -122,11 +122,11 @@ final class SingleImageUploadTest extends TestCase
 
             foreach ($inputs[0] as $input) {
                 // Yalnız görsel alanları: kuralını imageFile ile veren girdiler.
-                if (!str_contains($input, 'FormValidation.rules.imageFile')) {
+                if (! str_contains($input, 'FormValidation.rules.imageFile')) {
                     continue;
                 }
 
-                if (!preg_match('/data-max-size="([^"]*)"/', $input, $match) || $match[1] !== self::MAX_MB) {
+                if (! preg_match('/data-max-size="([^"]*)"/', $input, $match) || $match[1] !== self::MAX_MB) {
                     $sorunlu[] = str_replace(base_path() . '/', '', $file)
                         . ' → data-max-size="' . ($match[1] ?? 'yok') . '" (beklenen "' . self::MAX_MB . '")';
                 }

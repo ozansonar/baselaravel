@@ -13,9 +13,9 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('site.nav.home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ localized_route('home') }}">{{ __('site.nav.home') }}</a></li>
                     @if($activeCategory)
-                        <li class="breadcrumb-item"><a href="{{ route('gallery') }}">{{ __('site.nav.gallery') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ localized_route('gallery') }}">{{ __('site.nav.gallery') }}</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $activeCategory->name }}</li>
                     @else
                         <li class="breadcrumb-item active" aria-current="page">{{ __('site.nav.gallery') }}</li>

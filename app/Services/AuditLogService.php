@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use App\Support\LikeSearch;
 
 /**
  * Aktivite kayıtlarının okunması: süzme, sayfalama ve özetler.
@@ -218,7 +219,7 @@ final class AuditLogService
      */
     private function likeTerm(string $value): string
     {
-        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
+        return LikeSearch::term($value);
     }
 
     /**
@@ -265,9 +266,9 @@ final class AuditLogService
             $search = $this->likeTerm((string) $filters['q']);
 
             $query->where(function (Builder $sub) use ($search): void {
-                $sub->whereRaw("label LIKE ? ESCAPE '!'", [$search])
-                    ->orWhereRaw("ip_address LIKE ? ESCAPE '!'", [$search])
-                    ->orWhereRaw("url LIKE ? ESCAPE '!'", [$search]);
+                $sub->whereRaw(LikeSearch::clause('label'), [$search])
+                    ->orWhereRaw(LikeSearch::clause('ip_address'), [$search])
+                    ->orWhereRaw(LikeSearch::clause('url'), [$search]);
             });
         }
 

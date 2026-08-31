@@ -34,7 +34,10 @@ class BackupListTest extends TestCase
 
     private function makeBackup(string $name, int $daysAgo, int $dbSize = 1024, int $filesSize = 2048, int $totalFiles = 12): string
     {
-        $dir = storage_path('app/backups');
+        // Dizin yapılandırmadan geliyor; sınamada geçici bir yere
+        // çevriliyor (bkz. phpunit.xml), yoksa testler geliştiricinin gerçek
+        // yedeklerinin arasına yazar ve rotate() onları silebilirdi.
+        $dir = \App\Services\BackupService::basePath();
         @mkdir($dir, 0775, true);
 
         $path = $dir . '/' . $name;

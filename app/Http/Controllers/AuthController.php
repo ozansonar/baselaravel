@@ -36,13 +36,13 @@ final class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        if (!$this->authService->login(
+        if (! $this->authService->login(
             ['email' => $validated['email'], 'password' => $validated['password']],
             $request->boolean('remember'),
         )) {
             return back()
                 ->withInput($request->only('email', 'remember'))
-                ->withErrors(['email' => 'E-posta veya şifre hatalı.']);
+                ->withErrors(['email' => __('site.login.failed')]);
         }
 
         $user = $request->user();
@@ -80,7 +80,7 @@ final class AuthController extends Controller
         auth()->login($user);
 
         return redirect()->route('verification.notice')
-            ->with('success', 'Hesabınız oluşturuldu. Son adım: e-posta adresinizi doğrulayın.');
+            ->with('success', __('site.register.created'));
     }
 
     /**
@@ -109,12 +109,12 @@ final class AuthController extends Controller
         $status = $this->authService->sendResetLink($request->string('email')->value());
 
         if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('success', 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.');
+            return back()->with('success', __('site.password.link_sent'));
         }
 
         return back()
             ->withInput()
-            ->withErrors(['email' => 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.']);
+            ->withErrors(['email' => __('site.password.no_account')]);
     }
 
     /**
@@ -145,9 +145,9 @@ final class AuthController extends Controller
 
         if ($status === Password::PASSWORD_RESET) {
             return redirect()->route('login')
-                ->with('success', 'Şifreniz başarıyla sıfırlandı. Giriş yapabilirsiniz.');
+                ->with('success', __('site.password.reset_done'));
         }
 
-        return back()->withErrors(['email' => 'Şifre sıfırlama başarısız. Lütfen tekrar deneyin.']);
+        return back()->withErrors(['email' => __('site.password.reset_failed')]);
     }
 }

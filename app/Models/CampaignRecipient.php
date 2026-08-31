@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string|null $first_name
+ * @property string|null $last_name
+ */
 class CampaignRecipient extends Model
 {
     use HasFactory, SoftDeletes;

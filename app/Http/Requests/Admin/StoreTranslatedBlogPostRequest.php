@@ -28,7 +28,6 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
 {
     use ValidatesTranslationBlocks;
 
-
     public function authorize(): bool
     {
         return true;
@@ -58,7 +57,7 @@ final class StoreTranslatedBlogPostRequest extends FormRequest
             $rules["{$prefix}.body"]             = [$required, 'string'];
             $rules["{$prefix}.blog_category_id"] = [$required, 'integer', 'exists:blog_categories,id'];
             $rules["{$prefix}.slug"]             = [
-                'nullable', 'string', 'max:255',
+                'nullable', 'string', 'max:191',
                 // Slugs only clash within their own language.
                 Rule::unique('blog_posts', 'slug')
                     ->where(fn ($query) => $query->where('locale', $locale))

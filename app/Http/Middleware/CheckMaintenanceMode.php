@@ -38,11 +38,14 @@ final class CheckMaintenanceMode
             return $next($request);
         }
 
-        $message = Setting::getValue('maintenance_message')
-            ?? 'Sitemiz şu anda planlı bakım çalışması nedeniyle geçici olarak kullanım dışıdır. Kısa süre içinde tekrar hizmetinizde olacağız.';
-
+        // Sayfanın ihtiyacı olan her şey buradan gidiyor. Görünüm ayar
+        // okumuyor: Laravel aynı sayfayı "php artisan down" için de basıyor
+        // ve orada veritabanı düşmüş olabilir. Burada ise ayarın okunabildiği
+        // kesin — bakım modunda olduğumuzu zaten ondan öğrendik.
         return response()->view('errors.503', [
-            'maintenanceMessage' => $message,
+            'maintenanceMessage' => Setting::getValue('maintenance_message') ?: __('site.errors.503_message'),
+            'siteName'           => Setting::getValue('site_name', config('app.name')),
+            'siteLogo'           => Setting::getValue('site_logo'),
         ], 503);
     }
 

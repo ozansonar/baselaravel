@@ -34,7 +34,7 @@
                                 class="form-control @error("translations.{$language->code}.title") is-invalid @enderror"
                                 id="title_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][title]"
-                                       data-validation-engine="validate[required,maxSize[255]]"
+                                       data-validation-engine="validate[required,maxSize[191]]"
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
                                 data-slug-source data-slug-target="slug_{{ $language->code }}"
@@ -58,7 +58,7 @@
                                     class="form-control @error("translations.{$language->code}.slug") is-invalid @enderror"
                                     id="slug_{{ $language->code }}"
                                     name="translations[{{ $language->code }}][slug]"
-                                       data-validation-engine="validate[custom[slug],maxSize[255]]"
+                                       data-validation-engine="validate[custom[slug],maxSize[191]]"
                                     value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                                     placeholder="otomatik-olusturulur"
                                     data-slug-field

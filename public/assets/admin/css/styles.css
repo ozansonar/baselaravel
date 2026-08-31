@@ -32768,3 +32768,22 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
   font-size: .85rem;
   text-align: right;
 }
+
+/* ==================== KUYRUK (qs-) ==================== */
+
+/* Yığın izi uzun ve satır sonları anlam taşıyor: kırpılmadan, kendi
+   kaydırma alanında gösteriliyor. */
+.qs-exception {
+  margin: 0;
+  padding: 14px;
+  max-height: 420px;
+  overflow: auto;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

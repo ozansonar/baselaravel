@@ -22,7 +22,8 @@
     </button>
 
     <figure class="lightbox__figure">
-        <img src="" alt="" class="lightbox__img" data-lightbox-img>
+        <img src="" alt="{{ image_alt() }}" class="lightbox__img" data-lightbox-img
+             loading="lazy" decoding="async">
         <figcaption class="lightbox__caption" data-lightbox-caption></figcaption>
     </figure>
 </div>

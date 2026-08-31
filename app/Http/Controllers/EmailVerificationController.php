@@ -31,13 +31,13 @@ final class EmailVerificationController extends Controller
     {
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->route('account.dashboard')
-                ->with('info', 'E-posta adresiniz zaten doğrulanmış.');
+                ->with('info', __('site.verify.already'));
         }
 
         $request->fulfill();
 
         return redirect()->route('account.dashboard')
-            ->with('success', 'E-posta adresiniz doğrulandı.');
+            ->with('success', __('site.verify.verified'));
     }
 
     public function resend(Request $request): RedirectResponse
@@ -48,6 +48,6 @@ final class EmailVerificationController extends Controller
 
         $request->user()->sendEmailVerificationNotification();
 
-        return back()->with('success', 'Doğrulama bağlantısı e-posta adresinize gönderildi.');
+        return back()->with('success', __('site.verify.link_sent'));
     }
 }

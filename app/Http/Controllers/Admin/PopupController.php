@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTranslatedPopupRequest;
-use App\Http\Requests\StorePopupRequest;
-use App\Http\Requests\UpdatePopupRequest;
 use App\Models\Popup;
 use App\Services\PopupService;
 use Illuminate\Http\RedirectResponse;

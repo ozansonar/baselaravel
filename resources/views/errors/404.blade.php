@@ -16,10 +16,10 @@
                     {{ __('site.errors.404_lead') }}
                 </p>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="{{ route('home') }}" class="btn btn-primary btn-lg">
+                    <a href="{{ localized_route('home') }}" class="btn btn-primary btn-lg">
                         <i class="fa-solid fa-house"></i> {{ __('site.nav.home') }}
                     </a>
-                    <a href="{{ route('blog.index') }}" class="btn btn-light btn-lg">
+                    <a href="{{ localized_route('blog.index') }}" class="btn btn-light btn-lg">
                         <i class="fa-solid fa-book-open"></i> {{ __('site.blog.title') }}
                     </a>
                 </div>

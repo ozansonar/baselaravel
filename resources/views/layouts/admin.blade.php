@@ -72,7 +72,9 @@
 <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 {{-- jQuery is here for one reason only: the Validation Engine plugin below. --}}
 <script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
-<script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine-tr.js') }}"></script>
+{{-- Panel dili SetAdminLocale'de sabitleniyor; yardımcı ona uyan dosyayı
+     veriyor. Sabit yazılsaydı o sabit değiştiğinde geride kalırdı. --}}
+<script src="{{ asset(validation_engine_script()) }}"></script>
 <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
 <script src="{{ asset('assets/vendor/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('assets/vendor/select2/js/i18n/tr.js') }}"></script>

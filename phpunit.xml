@@ -28,10 +28,15 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Forwarded headers are only trusted when a test says so -->
+        <env name="TRUSTED_PROXIES" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <!-- Uploads go to a throwaway folder so tests never touch public/uploads -->
         <env name="UPLOADS_PATH" value="./storage/framework/testing/uploads"/>
+        <!-- Same for backups: create() rotates old archives away, so a test
+             run must never see a developer's real backup directory -->
+        <env name="BACKUPS_PATH" value="./storage/framework/testing/backups"/>
     </php>
 </phpunit>

@@ -19,9 +19,9 @@ final class StoreRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:100'],
-            'slug'        => ['required', 'string', 'max:100', 'alpha_dash', 'unique:roles,slug'],
-            'description' => ['nullable', 'string', 'max:255'],
+            'name'        => ['required', 'string', 'max:50'],
+            'slug'        => ['required', 'string', 'max:50', 'alpha_dash', 'unique:roles,slug'],
+            'description' => ['nullable', 'string', 'max:191'],
         ];
     }
 

@@ -34,7 +34,7 @@ class StoreLanguageRequest extends FormRequest
             ],
             'name'        => ['required', 'string', 'max:60'],
             'native_name' => ['nullable', 'string', 'max:60'],
-            'flag'        => ['nullable', 'string', 'max:16'],
+            'flag'        => ['nullable', 'string', 'max:8'],
             'sort_order'  => ['nullable', 'integer', 'min:0', 'max:255'],
             'is_active'   => ['nullable', 'boolean'],
         ];

@@ -27,7 +27,7 @@ final class AccountService
             'phone' => $data['phone'] ?? $user->phone,
         ];
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $updateData['password'] = $data['password'];
         }
 

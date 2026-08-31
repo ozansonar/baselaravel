@@ -6,9 +6,81 @@ namespace App\Observers;
 
 use App\Models\AdminNotification;
 use App\Models\User;
+use App\Services\EmailChangeNotifier;
+use App\Services\SessionRevoker;
 
 final class UserObserver
 {
+    /**
+     * Değişen bir e-posta adresi kanıtlanmamış bir adrestir.
+     *
+     * Doğrulama damgası adrese ait, hesaba değil. Adres değişip damga yerinde
+     * kalırsa kullanıcı sahibi olmadığı bir adrese geçip "doğrulanmış"
+     * kalabiliyordu — ve doğrulamaya bakan her yer (ön yüzdeki /hesabim, API'nin
+     * hesap uçları, kampanya alıcı süzgeci) artık kanıtlanmamış bir adrese
+     * güveniyordu.
+     *
+     * Kural gözlemcide çünkü adres üç ayrı yerden değişebiliyor: ön yüzdeki
+     * profil formu, API'nin profil ucu ve panelden kullanıcı düzenleme. Üçüne
+     * ayrı ayrı yazılsaydı dördüncüsü eklendiğinde unutulurdu.
+     *
+     * Kaydetmeden önce: damganın düşmesi ile adresin yazılması aynı sorguda
+     * olmalı, yoksa ikisi arasında hesap bir an için yanlış adresle doğrulanmış
+     * görünür.
+     */
+    public function updating(User $user): void
+    {
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+    }
+
+    /**
+     * Deactivating an account closes the sessions it already has.
+     *
+     * Without this the flag would only decide who may start a session, and the
+     * ones already open would run until they expired. EnsureUserIsActive turns
+     * such a session away on the next request; this makes sure there is no
+     * session left to turn away.
+     */
+    public function updated(User $user): void
+    {
+        if ($user->wasChanged('is_active') && ! $user->is_active) {
+            app(SessionRevoker::class)->revoke($user);
+        }
+
+        if ($user->wasChanged('email')) {
+            // Eski adrese uyarı. Hesabı ele geçiren biri adresi değiştirdiğinde
+            // gerçek sahibin durumu öğrenebileceği tek an bu — ve gönderilebilecek
+            // son an, çünkü adres artık hesapta kayıtlı değil.
+            //
+            // getOriginal() burada hâlâ kaydetmeden önceki değeri veriyor:
+            // Eloquent orijinalleri `saved` olayından sonra eşitliyor.
+            app(EmailChangeNotifier::class)->notifyPreviousAddress(
+                $user,
+                $user->getOriginal('email'),
+            );
+
+            // Yeni adrese doğrulama. Doğrulama adresinin imzası e-postanın
+            // kendisinden türüyor (sha1), yani adres değiştiği anda eskiden
+            // gönderilmiş bağlantı zaten çalışmaz hâle geliyor: yenilenmezse
+            // kullanıcının doğrulanmasının hiçbir yolu kalmıyor.
+            //
+            // Panelden yapılan değişiklikte de gönderiliyor — mail yeni adrese
+            // gidiyor, yani onu kanıtlaması gereken kişiye.
+            $user->sendEmailVerificationNotification();
+        }
+    }
+
+    /**
+     * Same for a deleted account — soft deleted users cannot be resolved by
+     * the auth guard any more, but their session rows would linger.
+     */
+    public function deleted(User $user): void
+    {
+        app(SessionRevoker::class)->revoke($user);
+    }
+
     /**
      * Cascade is handled here rather than by foreign keys.
      *

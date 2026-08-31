@@ -51,7 +51,10 @@ class BackupBulkDeleteTest extends TestCase
 
     private function makeBackup(string $name): string
     {
-        $dir = storage_path('app/backups');
+        // Dizin yapılandırmadan geliyor; sınamada geçici bir yere
+        // çevriliyor (bkz. phpunit.xml), yoksa testler geliştiricinin gerçek
+        // yedeklerinin arasına yazar ve rotate() onları silebilirdi.
+        $dir = \App\Services\BackupService::basePath();
         @mkdir($dir, 0775, true);
 
         $path = $dir . '/' . $name;
@@ -112,7 +115,7 @@ class BackupBulkDeleteTest extends TestCase
      */
     public function test_a_name_that_climbs_out_of_the_folder_is_rejected(): void
     {
-        $outside = storage_path('app/backups/../outside-target.txt');
+        $outside = \App\Services\BackupService::basePath() . '/../outside-target.txt';
         file_put_contents($outside, 'silinmemeli');
         $this->created[] = $outside;
 

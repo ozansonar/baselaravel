@@ -507,7 +507,7 @@ class ContentFileTest extends TestCase
             $this->postJson(route('admin.content-files.upload'), [
                 'file'         => $this->upload($name),
                 'attachable_type' => AttachableContent::BlogPost->value,
-            'attachable_id'   => $post->id,
+                'attachable_id'   => $post->id,
             ])->assertOk();
         }
 

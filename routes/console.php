@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Schedule;
  * Because every task shares one PHP process, each closure is wrapped so a
  * failing task cannot take the rest of the schedule down with it.
  */
-
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
@@ -113,3 +112,17 @@ Schedule::call($run('backup:run'))
     ->name('backup-daily')
     ->dailyAt('05:00')
     ->withoutOverlapping(60);
+
+// Süresi dolmuş API jetonları. Sanctum jetonu doğrularken zaten
+// `expires_at`e bakıyor, yani ölü satırlar bir açık değil; ama silinmezlerse
+// personal_access_tokens tablosu her girişte bir satır daha büyüyor ve
+// zamanla tek başına yedeğin boyutunu belirler hâle geliyor.
+//
+// Eşik jetonun kendi ömründen uzun tutuluyor (config/sanctum.php varsayılanı
+// 30 gün): kullanıcı "cihazlarım" listesinde geçmişini bir süre görebilsin.
+Schedule::call($run('sanctum:prune-expired', ['--hours' => 24 * 45]))
+    ->name('sanctum-prune-expired')
+    ->weekly()
+    ->sundays()
+    ->at('04:45')
+    ->withoutOverlapping();

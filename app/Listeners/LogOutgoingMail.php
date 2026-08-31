@@ -7,7 +7,6 @@ namespace App\Listeners;
 use App\Enums\MailLogStatus;
 use App\Models\MailLog;
 use App\Services\MailLogService;
-use Illuminate\Mail\Events\MessageFailed;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +22,14 @@ use Symfony\Component\Mime\Email;
  * yol da — kampanya test maili gibi — panelde görünür.
  *
  * Mesajın kendisinden okunur: gövde, gerçekten gönderilen HTML'dir.
+ *
+ * Burada yalnızca **başarılı** gönderim dinleniyor. Eskiden bir de
+ * `Illuminate\Mail\Events\MessageFailed` dinleyicisi vardı ama o olay
+ * çerçevede yok: sınıf hiç var olmadığı için olay hiç doğmuyor, dinleyici de
+ * hiç çalışmıyordu — üstelik çalışsaydı sürücünün gerçek hatasını değil genel
+ * bir cümle yazacaktı. Başarısız gönderim iki yerde zaten kayda geçiyor:
+ * senkron yolda `MailService` istisnayı yakalayıp gerçek mesajıyla yazıyor,
+ * kuyruk yolunda `UpdateMailLogOnFailed` `JobFailed` olayını dinliyor.
  */
 final class LogOutgoingMail
 {
@@ -42,22 +49,6 @@ final class LogOutgoingMail
             $this->record($message, $event->data, success: true, error: null);
         } catch (\Throwable $e) {
             $this->reportFailure($e, 'sent');
-        }
-    }
-
-    public function handleFailed(MessageFailed $event): void
-    {
-        try {
-            $this->record(
-                $event->message,
-                $event->data,
-                success: false,
-                // Sürücünün fırlattığı hata olayla gelmiyor; kaydın boş
-                // kalmaması için genel bir açıklama yazılıyor.
-                error: 'Mail sunucusu gönderimi kabul etmedi.',
-            );
-        } catch (\Throwable $e) {
-            $this->reportFailure($e, 'failed');
         }
     }
 

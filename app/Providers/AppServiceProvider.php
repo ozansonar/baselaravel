@@ -32,6 +32,7 @@ use App\Services\TranslationService;
 use App\Translation\DatabaseOverrideLoader;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
@@ -63,6 +64,13 @@ class AppServiceProvider extends ServiceProvider
         // olmasalardı her app() çağrısı yeni bir örnek doğurur ve saklama
         // hiç işe yaramazdı.
         $this->app->singleton(\App\Services\TranslationGroupResolver::class);
+        // Sitenin yedek alt metni istek başına bir kez seçilsin.
+        $this->app->singleton(\App\Services\ImageAltResolver::class);
+        // Dil dosyasının varlığı istek başına bir kez bakılsın.
+        $this->app->singleton(\App\Services\ValidationEngineLocale::class);
+        // Adres haritası istek başına bir kez okunsun: her çağrıda yeni bir
+        // örnek doğarsa önbellek sürücüsüne tekrar tekrar gidilir.
+        $this->app->singleton(\App\Services\CustomRouteService::class);
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 
@@ -98,6 +106,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->configureAuthorization();
 
+        // API yanıtlarının zarfı ApiResponse'ta kuruluyor: success / message /
+        // data. JsonResource'un kendi "data" sarmalayıcısı açık kalsaydı üst
+        // düzey kaynak yanıtları data.data olurdu.
+        \Illuminate\Http\Resources\Json\JsonResource::withoutWrapping();
+
         Campaign::observe(CampaignObserver::class);
 
         User::observe(UserObserver::class);
@@ -116,12 +129,42 @@ class AppServiceProvider extends ServiceProvider
             $model::observe(\App\Observers\DashboardStatsObserver::class);
         }
 
-        // Audit Trail — automatic activity log on critical models
-        \App\Models\Setting::observe(\App\Observers\AuditObserver::class);
+        // Denetim izi — kim ne zaman ne değiştirdi.
+        //
+        // Liste dizi üzerinden geçiyor: yeni bir kritik model eklendiğinde tek
+        // satır yetiyor ve gözden kaçmıyor.
+        //
+        // Kapsam bilinçli olarak dar: içerik modelleri (sayfa, blog, galeri)
+        // her kaydetmede satır üretir ve denetim izini kendi gürültüsünde
+        // boğar — 90 günlük saklama süresiyle asıl aranan kayıt bulunamaz
+        // hâle gelir. Buradakiler erişimi, yetkiyi, gönderilen mailleri ve
+        // ziyaretçinin nereye gideceğini belirleyenler. İçeriğin geçmişi
+        // denetim izinin değil sürümlemenin işi.
+        foreach ([
+            \App\Models\Setting::class,
+            \App\Models\User::class,
+            \App\Models\Role::class,
+            \App\Models\Redirect::class,
+            \App\Models\CustomRoute::class,
+            \App\Models\MailTemplate::class,
+            \App\Models\Language::class,
+        ] as $audited) {
+            $audited::observe(\App\Observers\AuditObserver::class);
+        }
+
+        // Giriş, çıkış ve başarısız deneme hiçbir satırı değiştirmiyor, yani
+        // gözlemci onları göremez. Denetimin ilk sorduğu şeyler de bunlar.
+        Event::subscribe(\App\Listeners\AuditAuthenticationEvents::class);
 
         // Mail olaylarının dinleyicileri app/Listeners dizininden kendiliğinden
         // bağlanıyor (LogOutgoingMail, UpdateMailLogOnFailed). Elle bir kez daha
         // bağlanırlarsa her mail iki kez kaydedilir.
+
+        // Çerez tercihi ön yüz düzeninin her yerinde gerekiyor: izleme
+        // betikleri buna bakarak basılıyor, band da buradan durumunu alıyor.
+        View::composer(['layouts.app', 'partials.cookie-consent'], function (\Illuminate\View\View $view): void {
+            $view->with('consent', app(\App\Services\ConsentService::class));
+        });
 
         // Share dynamic header menu with navbar partial
         View::composer('partials.navbar', function (\Illuminate\View\View $view): void {
@@ -171,37 +214,123 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsView));
         Gate::define('delete-backups', fn (User $user): bool => $user->hasPermission(PermissionKey::BackupsDelete));
         Gate::define('view-system-health', fn (User $user): bool => $user->hasPermission(PermissionKey::SystemHealthView));
+        Gate::define('view-queue', fn (User $user): bool => $user->hasPermission(PermissionKey::QueueView));
+        Gate::define('manage-queue', fn (User $user): bool => $user->hasPermission(PermissionKey::QueueManage));
         Gate::define('view-analytics', fn (User $user): bool => $user->hasPermission(PermissionKey::AnalyticsView));
         Gate::define('upload-editor-media', fn (User $user): bool => $user->hasPermission(PermissionKey::EditorUpload));
     }
 
+    /**
+     * İsteğin dili — uygulamanınki değil.
+     *
+     * Sınırlayıcının yanıtı SetLocale'den önce üretiliyor (ThrottleRequests
+     * çerçevenin öncelik listesinde, SetLocale değil), yani o anda
+     * app()->getLocale() hâlâ varsayılan dili söylüyor: İngilizce ziyaretçi
+     * Türkçe uyarı alıyordu.
+     */
+    private function localeOf(Request $request): string
+    {
+        return app(\App\Services\LocaleResolver::class)->forRequest($request);
+    }
+
+    /**
+     * Uyarı metinleri panelden yönetiliyor.
+     *
+     * __() burada değil, yanıt kapanışının içinde: kapanış istek anında
+     * çalışıyor, yani metin ziyaretçinin dilinde çözülüyor. Sınırlayıcı ise
+     * bir kez, açılışta kuruluyor.
+     */
     private function configureRateLimiting(): void
     {
         RateLimiter::for('login', function (Request $request): Limit {
             $key = $request->input('email', '') . '|' . $request->ip();
 
-            return Limit::perMinute(5)->by($key)->response(function () {
+            return Limit::perMinute(5)->by($key)->response(function () use ($request) {
                 return back()->withErrors([
-                    'email' => 'Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika bekleyin.',
+                    'email' => __('site.forms.throttle_login', [], $this->localeOf($request)),
                 ]);
             });
         });
 
         RateLimiter::for('contact', function (Request $request): Limit {
-            return Limit::perMinute(3)->by($request->ip())->response(function () {
+            return Limit::perMinute(3)->by($request->ip())->response(function () use ($request) {
                 return back()->withErrors([
-                    'message' => 'Çok fazla mesaj gönderdiniz. Lütfen birkaç dakika bekleyin.',
+                    'message' => __('site.forms.throttle_contact', [], $this->localeOf($request)),
                 ]);
             });
         });
 
         RateLimiter::for('register', function (Request $request): Limit {
-            return Limit::perMinute(3)->by($request->ip())->response(function () {
+            return Limit::perMinute(3)->by($request->ip())->response(function () use ($request) {
                 return back()->withErrors([
-                    'email' => 'Çok fazla kayıt denemesi yaptınız. Lütfen birkaç dakika bekleyin.',
+                    'email' => __('site.forms.throttle_register', [], $this->localeOf($request)),
                 ]);
             });
         });
+
+        $this->configureApiRateLimiting();
+    }
+
+    /**
+     * API tarafının sınırlayıcıları.
+     *
+     * Ön yüzdekilerden ayrı isimler taşıyorlar çünkü ön yüzdekiler `back()`
+     * döndürüyor — bir mobil istemciye yönlendirme göndermek, ona HTML bir
+     * oturum açma sayfası göndermekle aynı kapıya çıkardı.
+     *
+     * Burada `response()` kapanışı bilerek yok: sınıra takılan istek
+     * ThrottleRequestsException fırlatıyor ve onu
+     * {@see \App\Exceptions\ApiExceptionRenderer} zarfa çeviriyor — hem
+     * ziyaretçinin dilinde, hem `Retry-After` başlığı korunarak. İki yerde iki
+     * ayrı 429 gövdesi olmasın diye.
+     */
+    private function configureApiRateLimiting(): void
+    {
+        /** @var array<string, int> $limits */
+        $limits = (array) config('api.rate_limits', []);
+
+        // Taban sınır kimliği doğrulanmış kullanıcıda kullanıcı başına: aynı
+        // ofisten (aynı IP) giren on kişi birbirinin kotasını yemesin.
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute($limits['default'] ?? 60)
+            ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+
+        // Giriş denemesi hem denenen adrese hem de kaynağa göre sayılıyor: tek
+        // bir IP'den kırk hesabı denemek de, kırk IP'den tek hesabı denemek de
+        // aynı sınıra takılsın.
+        RateLimiter::for('api-login', fn (Request $request): Limit => Limit::perMinute($limits['login'] ?? 5)
+            ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()));
+
+        RateLimiter::for('api-register', fn (Request $request): Limit => Limit::perMinute($limits['register'] ?? 3)
+            ->by((string) $request->ip()));
+
+        RateLimiter::for('api-contact', fn (Request $request): Limit => Limit::perMinute($limits['contact'] ?? 3)
+            ->by((string) $request->ip()));
+
+        // Şifre sıfırlama — hem kod isteme hem kod deneme aynı kovada.
+        //
+        // Bu sınır bir kolaylık değil, altı haneli kodun güvenliğinin taşıyıcı
+        // direği: bir milyon olasılık sınırsız denemeye açık bırakılsaydı
+        // dakikalar içinde tükenirdi. Gerekçenin tamamı
+        // {@see \App\Services\PasswordResetCodeService}.
+        //
+        // Anahtar e-posta + IP: bir adrese karşı yapılan deneme, saldırgan IP
+        // değiştirse de aynı kovaya düşsün.
+        RateLimiter::for('api-password', fn (Request $request): Limit => Limit::perMinute($limits['password'] ?? 5)
+            ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()));
+
+        // Doğrulama maili — kullanıcı başına. Kotayı IP'ye bağlamak, aynı
+        // ofisten giren ikinci kullanıcıyı ilkinin denemeleri yüzünden
+        // kilitlerdi.
+        RateLimiter::for('api-verification', fn (Request $request): Limit => Limit::perMinute($limits['verification'] ?? 3)
+            ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        // Yorum ve bülten: ikisi de kimliksiz, ikisi de spam hedefi. API'de
+        // reCAPTCHA olmadığı için tek fren burası.
+        RateLimiter::for('api-comment', fn (Request $request): Limit => Limit::perMinute($limits['comment'] ?? 3)
+            ->by((string) $request->ip()));
+
+        RateLimiter::for('api-newsletter', fn (Request $request): Limit => Limit::perMinute($limits['newsletter'] ?? 5)
+            ->by((string) $request->ip()));
     }
 
     /**

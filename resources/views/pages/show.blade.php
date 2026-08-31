@@ -22,7 +22,7 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-3">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('site.nav.home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ localized_route('home') }}">{{ __('site.nav.home') }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ $page->title }}</li>
                 </ol>
             </nav>

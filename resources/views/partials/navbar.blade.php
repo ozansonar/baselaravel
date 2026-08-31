@@ -8,9 +8,10 @@
         <div class="container">
 
             {{-- Brand --}}
-            <a class="brand" href="{{ route('home') }}">
+            <a class="brand" href="{{ localized_route('home') }}">
                 @if($siteLogo)
-                    <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ $siteName }}" width="140" height="38">
+                    <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName) }}"
+                         width="140" height="38" loading="eager" fetchpriority="high" decoding="sync">
                 @else
                     <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                     <span class="brand__text">{{ $siteName }}</span>
@@ -57,12 +58,25 @@
 
                 @include('partials.language-switcher')
 
+                {{-- Site araması — yazılar, sayfalar, SSS ve galeri --}}
+                <a href="{{ localized_route('search') }}" class="nav-icon"
+                   aria-label="{{ __('site.search.nav') }}" title="{{ __('site.search.nav') }}">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </a>
+
                 {{-- Koyu/açık kip --}}
                 @include('partials.theme-toggle')
             </div>
 
             {{-- Mobile toggle --}}
             <div class="d-flex align-items-center gap-2 d-lg-none">
+                {{-- Dar ekranda da tek dokunuşla ulaşılsın: menüyü açmak
+                     zorunda kalmak arama için bir adım fazla. --}}
+                <a href="{{ localized_route('search') }}" class="nav-icon"
+                   aria-label="{{ __('site.search.nav') }}" title="{{ __('site.search.nav') }}">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </a>
+
                 @include('partials.theme-toggle')
 
                 <button class="nav-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"
@@ -77,9 +91,10 @@
 {{-- Mobile offcanvas --}}
 <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header border-bottom">
-        <a class="brand" href="{{ route('home') }}" id="mobileNavLabel">
+        <a class="brand" href="{{ localized_route('home') }}" id="mobileNavLabel">
             @if($siteLogo)
-                <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ $siteName }}" width="130" height="34">
+                <img class="brand__logo" src="{{ upload_url($siteLogo) }}" alt="{{ image_alt($siteName) }}"
+                     width="130" height="34" loading="lazy" decoding="async">
             @else
                 <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                 <span class="brand__text">{{ $siteName }}</span>

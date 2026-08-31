@@ -44,10 +44,10 @@ final class StoreTranslatedPageRequest extends FormRequest
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                     = ['array'];
-            $rules["{$prefix}.title"]           = [$required, 'string', 'max:255'];
+            $rules["{$prefix}.title"]           = [$required, 'string', 'max:191'];
             $rules["{$prefix}.content"]         = [$required, 'string'];
             $rules["{$prefix}.slug"]            = [
-                'nullable', 'string', 'max:255',
+                'nullable', 'string', 'max:191',
                 // Slugs only clash within their own language.
                 Rule::unique('pages', 'slug')
                     ->where(fn ($query) => $query->where('locale', $locale))
@@ -80,13 +80,9 @@ final class StoreTranslatedPageRequest extends FormRequest
         return ['title', 'slug', 'excerpt', 'content', 'meta_title', 'meta_description'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

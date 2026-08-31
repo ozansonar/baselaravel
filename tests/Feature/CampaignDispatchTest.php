@@ -7,7 +7,6 @@ namespace Tests\Feature;
 use App\Enums\CampaignAudience;
 use App\Enums\CampaignRecipientStatus;
 use App\Enums\CampaignStatus;
-use App\Enums\SubscriberStatus;
 use App\Mail\CampaignMail;
 use App\Models\Campaign;
 use App\Models\CampaignRecipient;

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use App\Support\LikeSearch;
 
 final class MailTemplateService
 {
@@ -67,10 +68,10 @@ final class MailTemplateService
             $term = $this->likeTerm((string) $filters['search']);
 
             $query->where(function (Builder $sub) use ($term): void {
-                $sub->whereRaw("name LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("`key` LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("description LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("subject LIKE ? ESCAPE '!'", [$term]);
+                $sub->whereRaw(LikeSearch::clause('name'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('`key`'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('description'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('subject'), [$term]);
             });
         }
 
@@ -183,7 +184,7 @@ final class MailTemplateService
      */
     private function likeTerm(string $value): string
     {
-        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
+        return LikeSearch::term($value);
     }
 
     /**

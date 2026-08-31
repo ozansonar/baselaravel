@@ -26,6 +26,11 @@
                     aria-expanded="false" aria-controls="bkGuide">
                 <i class="bi bi-question-circle"></i> Nasıl çalışır?
             </button>
+            @can('manage-backups')
+                <button type="button" class="btn-glass" data-bs-toggle="modal" data-bs-target="#bkUploadModal">
+                    <i class="bi bi-upload"></i> Yedek Yükle
+                </button>
+            @endcan
             <button type="button" class="btn-teal" id="bkRunBtn" data-create-url="{{ route('admin.backups.create') }}">
                 <i class="bi bi-play-fill"></i>
                 <span data-default>Şimdi Yedek Al</span>
@@ -286,6 +291,14 @@
                                            href="{{ route('admin.backups.download', $backup['name']) }}">
                                             <i class="bi bi-download"></i>
                                         </a>
+                                        @can('manage-backups')
+                                            <button type="button" class="usr-action-btn bk-restore" title="Geri Yükle"
+                                                    data-filename="{{ $backup['name'] }}"
+                                                    data-inspect-url="{{ route('admin.backups.inspect', $backup['name']) }}"
+                                                    data-restore-url="{{ route('admin.backups.restore', $backup['name']) }}">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            </button>
+                                        @endcan
                                         <form method="POST" action="{{ route('admin.backups.destroy', $backup['name']) }}"
                                               class="bk-delete-form" data-filename="{{ $backup['name'] }}">
                                             @csrf
@@ -335,6 +348,49 @@
             @endif
         </div>
     </div>
+    {{-- Dışarıdan yedek yükleme --}}
+    @can('manage-backups')
+        <div class="modal fade modal-custom" id="bkUploadModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="POST" action="{{ route('admin.backups.upload') }}" enctype="multipart/form-data" data-validate novalidate>
+                        @csrf
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Yedek Yükle</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <p class="text-clr-muted">
+                                Başka bir sunucudan indirilmiş bir yedek dosyasını listeye ekler.
+                                Sunucusu gitmiş bir kurulumu ayağa kaldırmanın yolu budur: dosya
+                                önce listeye girer, geri yükleme sonra listeden yapılır.
+                            </p>
+
+                            <div class="mb-2">
+                                <label class="form-label text-clr-secondary" for="bkUploadFile">Yedek dosyası (.zip)</label>
+                                <input type="file" class="form-control form-control-theme @error('backup') is-invalid @enderror"
+                                       id="bkUploadFile" name="backup" accept=".zip"
+                                       data-validation-engine="validate[required]">
+                                @error('backup')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <small class="form-text text-clr-muted">
+                                Dosyanın gerçekten bir yedek olduğu, arşiv açılıp
+                                <code>backup-meta.json</code> aranarak doğrulanır.
+                            </small>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn-glass" data-bs-dismiss="modal">Vazgeç</button>
+                            <button type="submit" class="btn-teal"><i class="bi bi-upload"></i> Yükle</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endcan
 @endsection
 
 @push('scripts')

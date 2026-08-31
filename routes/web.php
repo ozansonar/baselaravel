@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AnalyticsTrackController;
+use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\LegacyUrlController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\RootRedirectController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +24,12 @@ use Illuminate\Support\Facades\Route;
 // Sitemap (XML — machine-readable for search engines)
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
+// robots.txt — a route rather than a file in public/. The disallow list is
+// built from the routes themselves and from the addresses opened in the panel,
+// so it cannot fall behind them, and the Sitemap line names this site rather
+// than whichever one the file was first written for.
+Route::get('/robots.txt', RobotsController::class)->name('robots');
+
 // Language switcher — forwards to the same page in the requested language.
 Route::get('/dil/{code}', LocaleController::class)->name('locale.switch');
 
@@ -32,6 +40,11 @@ Route::post('/bulten/abone-ol', [NewsletterController::class, 'subscribe'])
     ->name('newsletter.subscribe');
 Route::get('/bulten/cikis/{token}', [NewsletterController::class, 'unsubscribe'])
     ->name('newsletter.unsubscribe');
+
+// Çerez tercihi — dilden bağımsız: karar bir kez veriliyor ve her dilde geçerli.
+Route::post('/cerez-tercihi', [ConsentController::class, 'store'])
+    ->middleware('throttle:20,1')
+    ->name('consent.store');
 
 // Analytics tracking endpoint (async, does not affect page speed)
 Route::post('/api/analytics/track', [AnalyticsTrackController::class, 'store'])

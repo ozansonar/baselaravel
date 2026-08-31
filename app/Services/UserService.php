@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Exceptions\EmailAlreadyTakenException;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +20,7 @@ final class UserService
     public function __construct(
         private readonly RoleService $roleService,
         private readonly UploadService $uploadService,
+        private readonly SessionRevoker $sessionRevoker,
     ) {}
 
     // ── Admin Stats ──
@@ -101,16 +103,16 @@ final class UserService
             };
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search): void {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('first_name'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('last_name'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('email'), [LikeSearch::term($search)]);
             });
         }
 
-        if (!empty($filters['role'])) {
+        if (! empty($filters['role'])) {
             $query->whereHas('roles', function ($q) use ($filters): void {
                 $q->where('slug', $filters['role']);
             });
@@ -164,7 +166,7 @@ final class UserService
      */
     public function update(User $user, array $data, $avatar = null, ?array $roles = null, ?string $password = null, bool $removeAvatar = false): User
     {
-        if ($removeAvatar && !$avatar && $user->avatar) {
+        if ($removeAvatar && ! $avatar && $user->avatar) {
             $this->uploadService->deleteImage($user->avatar);
             $data['avatar'] = null;
         } elseif ($avatar) {
@@ -222,7 +224,20 @@ final class UserService
 
         if ($silinen > 0) {
             // Toplu silme sorgu kurucusundan gidiyor, model olayı doğmuyor:
-            // panonun önbelleğini gözlemci değil bu satır düşürüyor.
+            // panonun önbelleğini gözlemci değil bu satır düşürüyor. Açık
+            // oturumları kapatan gözlemci de aynı sebeple devre dışı, o iş de
+            // buradan çağrılıyor — yoksa toplu silinen kullanıcı panelde
+            // kalmaya devam ederdi.
+            $this->sessionRevoker->revokeMany($ids);
+
+            // Denetim izi de gözlemciye bakıyor; toplu silme onu doğurmadığı
+            // için kayıt buradan düşüyor. Aksi hâlde elli kullanıcının
+            // silindiği tek işlem izde hiç görünmezdi.
+            AuditLogger::custom('Kullanıcılar toplu silindi', [
+                'adet'   => $silinen,
+                'id' => $ids,
+            ]);
+
             Cache::forget('admin_user_stats');
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }
@@ -254,6 +269,11 @@ final class UserService
         $geriYuklenen = DB::transaction(fn (): int => User::onlyTrashed()->whereIn('id', $ids)->restore());
 
         if ($geriYuklenen > 0) {
+            AuditLogger::custom('Kullanıcılar toplu geri yüklendi', [
+                'adet' => $geriYuklenen,
+                'id'   => $ids,
+            ]);
+
             Cache::forget('admin_user_stats');
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }

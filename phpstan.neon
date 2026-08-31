@@ -1,0 +1,27 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - config
+        - database
+        - routes
+        - tests
+
+    # Seviye 1: temiz geçen en yüksek seviye. Seviye 2'de 279 hata çıkıyor ve
+    # bunların ezici çoğunluğu gerçek kusur değil, Larastan'ın Eloquent
+    # çıkarım sınırı — `selectRaw('count(*) as count')` ile üretilen sütunlar,
+    # SoftDeletes'i jenerik `Model` üzerinden göremeyen trait'ler gibi.
+    #
+    # Yukarı çıkmanın yolu modellere `@property` bloklarıyla sütunları
+    # bildirmekten geçiyor. Bu ayrı ve büyük bir iş; yapılana kadar seviyeyi
+    # yükseltip taban dosyasıyla susturmak, borcu kapatmak değil gizlemek
+    # olurdu. Sıfır toleranslı düşük bir seviye, gürültülü yüksek bir
+    # seviyeden daha çok iş görüyor.
+    level: 1
+
+    # Sınama takımının geçici dizinleri ve yüklenen dosyalar taranmaz.
+    excludePaths:
+        - storage
+        - bootstrap/cache

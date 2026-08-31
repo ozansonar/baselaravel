@@ -36,7 +36,7 @@ class SoftDeleteRetentionTest extends TestCase
         foreach (Finder::create()->files()->in(app_path('Models'))->name('*.php') as $file) {
             $class = 'App\\Models\\' . $file->getBasename('.php');
 
-            if (!class_exists($class)) {
+            if (! class_exists($class)) {
                 continue;
             }
 
@@ -48,7 +48,7 @@ class SoftDeleteRetentionTest extends TestCase
                 $reflection = $reflection->getParentClass();
             }
 
-            if (!in_array(SoftDeletes::class, $traits, true)) {
+            if (! in_array(SoftDeletes::class, $traits, true)) {
                 $missing[] = $class;
             }
         }

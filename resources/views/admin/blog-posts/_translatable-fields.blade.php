@@ -105,7 +105,7 @@
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Dikkat çekici ve SEO uyumlu bir başlık girin</div>
-                    <div class="form-text"><span id="title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.title", '')) }}</span>/120</div>
+                    <div class="form-text"><span id="title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.title", $translation?->title ?? '')) }}</span>/120</div>
                   </div>
                 </div>
 
@@ -121,7 +121,7 @@
                       name="translations[{{ $language->code }}][slug]"
                       value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                       placeholder="otomatik-oluşturulur"
-                      data-validation-engine="validate[custom[slug],maxSize[255]]"
+                      data-validation-engine="validate[custom[slug],maxSize[191]]"
                       data-prompt-target="slug_error_{{ $language->code }}"
                       data-slug-field>
                   </div>
@@ -191,7 +191,7 @@
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Arama sonuçlarında ve listelerde gösterilecek kısa açıklama</div>
-                    <div class="form-text"><span id="excerpt_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.excerpt", '')) }}</span>/300</div>
+                    <div class="form-text"><span id="excerpt_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.excerpt", $translation?->excerpt ?? '')) }}</span>/300</div>
                   </div>
                 </div>
 
@@ -305,7 +305,7 @@
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Önerilen: 50-60 karakter</div>
-                    <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_title", '')) }}</span>/60</div>
+                    <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_title", $translation?->meta_title ?? '')) }}</span>/60</div>
                   </div>
                 </div>
 
@@ -327,7 +327,7 @@
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
                     <div class="form-text">Önerilen: 120-160 karakter</div>
-                    <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_description", '')) }}</span>/160</div>
+                    <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_description", $translation?->meta_description ?? '')) }}</span>/160</div>
                   </div>
                 </div>
 

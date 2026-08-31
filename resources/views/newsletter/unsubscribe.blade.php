@@ -20,7 +20,7 @@
                         {{ __('site.newsletter.not_found_lead') }}
                     @endif
                 </p>
-                <a href="{{ route('home') }}" class="btn btn-primary btn-lg">
+                <a href="{{ localized_route('home') }}" class="btn btn-primary btn-lg">
                     <i class="fa-solid fa-house"></i> {{ __('site.nav.home') }}
                 </a>
             </div>

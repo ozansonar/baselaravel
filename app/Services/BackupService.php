@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Support\ShellExec;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -25,7 +26,17 @@ use ZipArchive;
  */
 final class BackupService
 {
-    private const BACKUP_DIR = 'backups';
+    /**
+     * Arşivlerin yazıldığı dizin.
+     *
+     * Yol yapılandırmadan geliyor, koda gömülü değil: sınama takımı burayı
+     * geçici bir dizine çeviriyor, yoksa testler geliştiricinin gerçek
+     * yedeklerinin arasına yazar ve `rotate()` onları silebilirdi.
+     */
+    public static function basePath(): string
+    {
+        return rtrim((string) config('backups.path', storage_path('app/backups')), '/');
+    }
 
     public const STATUS_OK    = 'ok';
     public const STATUS_FAIL  = 'fail';
@@ -42,11 +53,25 @@ final class BackupService
 
             $timestamp = now()->format('Y-m-d-His');
             $zipName = "backup-{$timestamp}.zip";
-            $zipPath = storage_path('app/' . self::BACKUP_DIR . '/' . $zipName);
+            $zipPath = self::basePath() . '/' . $zipName;
 
             // 1. DB dump
+            //
+            // Döküm alınamadığında eskiden sessizce devam ediliyordu: arşiv
+            // yalnızca yüklenen dosyaları taşıyor, sonuç yine "başarılı"
+            // diyordu. Yani yönetici gövdesiz bir yedeğe güveniyordu ve bunu
+            // ancak geri yüklemeye çalıştığı gün öğrenirdi. Artık MySQL'de bu
+            // bir hata; SQLite gibi dökümü desteklenmeyen sürücülerde ise
+            // arşiv yalnız dosyaları taşır ve sonuç bunu açıkça söyler.
             $dbDumpPath = $this->dumpDatabase();
             $dbSize = $dbDumpPath !== null ? (int) @filesize($dbDumpPath) : 0;
+
+            if ($dbDumpPath === null && $this->databaseIsDumpable()) {
+                return $this->failResult(
+                    'Veritabanı dökümü alınamadı, yedek oluşturulmadı. '
+                    . 'Veritabanı bağlantı bilgilerini ve mysqldump erişimini kontrol edin.',
+                );
+            }
 
             // 2. ZIP oluştur
             $zip = new ZipArchive();
@@ -111,7 +136,9 @@ final class BackupService
                 'size_human' => $this->humanBytes($totalSize),
                 'db_size'    => $dbSize,
                 'files_size' => $filesSize,
-                'message'    => "Yedek alındı: {$zipName}",
+                'message'    => $dbDumpPath === null
+                    ? "Yedek alındı: {$zipName} — bu sürücüde veritabanı dökümü desteklenmiyor, arşiv yalnız dosyaları taşıyor."
+                    : "Yedek alındı: {$zipName}",
                 'hash'       => $hash,
             ];
         } catch (\Throwable $e) {
@@ -132,7 +159,7 @@ final class BackupService
     public function list(array $filters = []): array
     {
         $this->ensureBackupDir();
-        $dir = storage_path('app/' . self::BACKUP_DIR);
+        $dir = self::basePath();
         $files = glob($dir . '/backup-*.zip') ?: [];
 
         $retention = $this->retentionDays();
@@ -221,7 +248,7 @@ final class BackupService
             "backup.contents.{$filename}.{$size}.{$mtime}",
             86400,
             function () use ($filename): ?array {
-                $path = storage_path('app/' . self::BACKUP_DIR . '/' . $filename);
+                $path = self::basePath() . '/' . $filename;
 
                 if (! is_file($path)) {
                     return null;
@@ -333,13 +360,83 @@ final class BackupService
             return false;
         }
 
-        $path = storage_path('app/' . self::BACKUP_DIR . '/' . $filename);
+        $path = self::basePath() . '/' . $filename;
 
         if (! is_file($path)) {
             return false;
         }
 
         return (bool) @unlink($path);
+    }
+
+    /**
+     * Dışarıdan getirilen bir yedek dosyasını listeye alır.
+     *
+     * Uzantı ve MIME doğrulaması FormRequest'te yapıldı ama ikisi de dosyanın
+     * içeriği hakkında hiçbir şey söylemiyor. Burada arşiv gerçekten açılıyor
+     * ve içinde yedek imzası (`backup-meta.json`) aranıyor; yoksa dosya
+     * listeye hiç girmiyor.
+     *
+     * Ad sunucu tarafından belirleniyor: yüklenen dosyanın kendi adı diske
+     * hiç yazılmıyor, yani yol kaçırma ya da mevcut bir yedeğin üzerine yazma
+     * ihtimali kalmıyor.
+     *
+     * @return array{success: bool, message: string, file: ?string}
+     */
+    public function store(\Illuminate\Http\UploadedFile $file): array
+    {
+        if (! $this->looksLikeBackup($file->getRealPath())) {
+            return [
+                'success' => false,
+                'message' => 'Bu dosya bir yedek arşivi değil: backup-meta.json bulunamadı.',
+                'file'    => null,
+            ];
+        }
+
+        $this->ensureBackupDir();
+
+        $name = 'backup-yuklenen-' . now()->format('Y-m-d-His') . '.zip';
+        $target = self::basePath() . '/' . $name;
+
+        try {
+            $file->move(dirname($target), basename($target));
+        } catch (\Throwable $e) {
+            Log::warning('Yedek dosyası taşınamadı', ['error' => $e->getMessage()]);
+
+            return ['success' => false, 'message' => 'Dosya kaydedilemedi.', 'file' => null];
+        }
+
+        AuditLogger::custom('Dışarıdan yedek dosyası yüklendi', [
+            'dosya'   => $name,
+            'boyut_mb' => round((int) @filesize($target) / 1_048_576, 2),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Yedek listeye alındı: {$name}",
+            'file'    => $name,
+        ];
+    }
+
+    /**
+     * Dosya gerçekten bir yedek arşivi mi?
+     */
+    private function looksLikeBackup(string|false $path): bool
+    {
+        if ($path === false || ! is_file($path)) {
+            return false;
+        }
+
+        $zip = new ZipArchive();
+
+        if ($zip->open($path, ZipArchive::RDONLY) !== true) {
+            return false;
+        }
+
+        $found = $zip->locateName('backup-meta.json') !== false;
+        $zip->close();
+
+        return $found;
     }
 
     /**
@@ -350,7 +447,7 @@ final class BackupService
         if (str_contains($filename, '..') || str_contains($filename, '/')) {
             return null;
         }
-        $path = storage_path('app/' . self::BACKUP_DIR . '/' . $filename);
+        $path = self::basePath() . '/' . $filename;
         return is_file($path) ? $path : null;
     }
 
@@ -365,7 +462,9 @@ final class BackupService
 
         foreach ($this->list() as $b) {
             if ($b['created_at']->lessThan($cutoff)) {
-                if (@unlink($b['path'])) $deleted++;
+                if (@unlink($b['path'])) {
+                    $deleted++;
+                }
             }
         }
 
@@ -388,7 +487,9 @@ final class BackupService
         }
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'db_dump_');
-        if ($tmpFile === false) return null;
+        if ($tmpFile === false) {
+            return null;
+        }
 
         // mysqldump var mı?
         $mysqldump = $this->findMysqldump();
@@ -398,13 +499,22 @@ final class BackupService
         // disable_functions parse + try/catch. Disabled ise null döner,
         // sessizce phpSideDump fallback'ine düşeriz.
         if ($mysqldump !== null && ShellExec::isAvailable()) {
+            // Soket tanımlıysa bağlantı onun üzerinden kurulmalı: soketle
+            // kimlik doğrulayan sunucularda host/port ile bağlanmak reddedilir.
+            $socket = (string) ($cfg['unix_socket'] ?? '');
+
             $cmd = sprintf(
-                '%s --user=%s --password=%s --host=%s --port=%s --single-transaction --quick --no-tablespaces %s 2>/dev/null',
+                '%s --user=%s --password=%s %s --single-transaction --quick --no-tablespaces %s 2>/dev/null',
                 escapeshellarg($mysqldump),
                 escapeshellarg((string) ($cfg['username'] ?? '')),
                 escapeshellarg((string) ($cfg['password'] ?? '')),
-                escapeshellarg((string) ($cfg['host'] ?? 'localhost')),
-                escapeshellarg((string) ($cfg['port'] ?? '3306')),
+                $socket !== ''
+                    ? '--socket=' . escapeshellarg($socket)
+                    : sprintf(
+                        '--host=%s --port=%s',
+                        escapeshellarg((string) ($cfg['host'] ?? 'localhost')),
+                        escapeshellarg((string) ($cfg['port'] ?? '3306')),
+                    ),
                 escapeshellarg((string) ($cfg['database'] ?? '')),
             );
 
@@ -419,11 +529,25 @@ final class BackupService
         return $this->phpSideDump($tmpFile, $cfg);
     }
 
+    /**
+     * Bu sürücüden veritabanı dökümü alınabiliyor mu?
+     *
+     * Döküm MySQL'e özgü (`SHOW TABLES`, ters tırnak). Başka bir sürücüde
+     * dökümün olmaması bir arıza değil, o kurulumun doğal hâli — geliştirmede
+     * SQLite kullanılabiliyor.
+     */
+    private function databaseIsDumpable(): bool
+    {
+        return in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true);
+    }
+
     private function findMysqldump(): ?string
     {
         // Yaygın yollar
         foreach (['/usr/bin/mysqldump', '/usr/local/bin/mysqldump', '/opt/lampp/bin/mysqldump'] as $path) {
-            if (is_executable($path)) return $path;
+            if (is_executable($path)) {
+                return $path;
+            }
         }
 
         // PATH'te ara — ShellExec helper 3 katmanlı kontrol (function_exists +
@@ -442,22 +566,22 @@ final class BackupService
     private function phpSideDump(string $tmpFile, array $cfg): ?string
     {
         try {
-            $pdo = new \PDO(
-                sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
-                    $cfg['host'] ?? 'localhost',
-                    $cfg['port'] ?? '3306',
-                    $cfg['database'] ?? ''
-                ),
-                (string) ($cfg['username'] ?? ''),
-                (string) ($cfg['password'] ?? ''),
-                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
-            );
+            // Uygulamanın kendi bağlantısı kullanılıyor, elle DSN kurulmuyor.
+            // Kurulan DSN yalnız host ve portu biliyordu; soket üzerinden
+            // kimlik doğrulayan bir sunucuda (unix_socket) bağlantı reddediliyor
+            // ve döküm sessizce boş dönüyordu. Bağlantı zaten ayakta, ikinci
+            // bir yapılandırma kaynağına gerek yok.
+            $pdo = DB::connection()->getPdo();
 
             $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
-            if ($tables === false) return null;
+            if ($tables === false) {
+                return null;
+            }
 
             $fp = fopen($tmpFile, 'w');
-            if ($fp === false) return null;
+            if ($fp === false) {
+                return null;
+            }
 
             fwrite($fp, "-- PHP-side DB dump (mysqldump bulunamadı)\n");
             fwrite($fp, "-- " . now()->toIso8601String() . "\n\n");
@@ -501,7 +625,9 @@ final class BackupService
         );
 
         foreach ($iter as $file) {
-            if (! $file->isFile()) continue;
+            if (! $file->isFile()) {
+                continue;
+            }
             $absPath = $file->getPathname();
             $relPath = $zipPrefix . '/' . substr($absPath, strlen($dir) + 1);
             $relPath = str_replace('\\', '/', $relPath);
@@ -514,7 +640,7 @@ final class BackupService
 
     private function ensureBackupDir(): void
     {
-        $dir = storage_path('app/' . self::BACKUP_DIR);
+        $dir = self::basePath();
         if (! is_dir($dir)) {
             @mkdir($dir, 0775, true);
         }
@@ -543,9 +669,15 @@ final class BackupService
 
     private function humanBytes(int $bytes): string
     {
-        if ($bytes < 1024) return $bytes . ' B';
-        if ($bytes < 1_048_576) return round($bytes / 1024, 1) . ' KB';
-        if ($bytes < 1_073_741_824) return round($bytes / 1_048_576, 1) . ' MB';
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+        if ($bytes < 1_048_576) {
+            return round($bytes / 1024, 1) . ' KB';
+        }
+        if ($bytes < 1_073_741_824) {
+            return round($bytes / 1_048_576, 1) . ' MB';
+        }
         return round($bytes / 1_073_741_824, 2) . ' GB';
     }
 }

@@ -29,7 +29,7 @@
                             {{-- Avatar --}}
                             <div class="d-flex align-items-center gap-3 flex-wrap mb-4">
                                 @if($user->avatar)
-                                    <img src="{{ upload_url($user->avatar) }}" alt="{{ $user->full_name }}"
+                                    <img src="{{ upload_url($user->avatar) }}" alt="{{ image_alt($user->full_name) }}"
                                          class="avatar-lg" width="96" height="96" loading="lazy" decoding="async">
                                 @else
                                     <div class="avatar-ph">{{ mb_strtoupper(mb_substr($user->first_name, 0, 1)) }}</div>
@@ -100,7 +100,7 @@
                                     <input type="text"
                                            class="form-control @error('phone') is-invalid @enderror"
                                            id="phone" name="phone"
-                                           data-validation-engine="validate[maxSize[20]]"
+                                           data-validation-engine="validate[custom[phone],maxSize[20]]" data-fv-mask="phone"
                                            value="{{ old('phone', $user->phone) }}" placeholder="{{ __('site.account.phone_ph') }}">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>

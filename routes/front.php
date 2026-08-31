@@ -14,6 +14,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\RssFeedController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +49,11 @@ Route::post('/blog/yorum', [BlogCommentController::class, 'store'])->middleware(
 
 // Gallery
 Route::get('/galeri', GalleryController::class)->name('gallery');
+
+// Site geneli arama — blog, sayfa, SSS ve galeriyi tek kutudan tarar.
+// Yakalayıcı /{slug} kalıbından önce tanımlı olmak zorunda; sonra gelseydi
+// "arama" adında bir sayfa varmış gibi aranırdı.
+Route::get('/arama', SearchController::class)->name('search');
 
 // FAQ
 Route::get('/sikca-sorulan-sorular', FaqController::class)->name('faq');
@@ -108,6 +114,22 @@ Route::middleware(['auth', 'verified'])->prefix('hesabim')->name('account.')->gr
     // Profile
     Route::get('/profil', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profil', [AccountController::class, 'updateProfile'])->name('profile.update');
+
+    /*
+     * Cihazlarım. API'deki /auth/devices ile aynı işi görüyor ama iki kaynağı
+     * birden listeliyor: tarayıcı oturumları ve uygulama jetonları.
+     *
+     * Oturum kimliği 40 haneli; kalıp onu bağlıyor ki adres çubuğuna yazılan
+     * herhangi bir şey sorguya inmesin.
+     */
+    Route::get('/cihazlar', [AccountController::class, 'devices'])->name('devices');
+    Route::delete('/cihazlar', [AccountController::class, 'destroyOtherDevices'])->name('devices.destroy-others');
+    Route::delete('/cihazlar/oturum/{session}', [AccountController::class, 'destroySession'])
+        ->where('session', '[A-Za-z0-9]{1,100}')
+        ->name('devices.sessions.destroy');
+    Route::delete('/cihazlar/uygulama/{token}', [AccountController::class, 'destroyToken'])
+        ->whereNumber('token')
+        ->name('devices.tokens.destroy');
 });
 
 /*

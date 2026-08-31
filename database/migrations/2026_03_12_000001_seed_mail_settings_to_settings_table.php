@@ -23,7 +23,7 @@ return new class extends Migration
             ['key' => 'mail_from_name',     'value' => null,       'group' => 'mail', 'type' => 'text'],
             ['key' => 'mail_logo',          'value' => null,       'group' => 'mail', 'type' => 'image'],
             ['key' => 'mail_mode',          'value' => 'normal',   'group' => 'mail', 'type' => 'text'],
-            ['key' => 'mail_test_addresses','value' => null,       'group' => 'mail', 'type' => 'text'],
+            ['key' => 'mail_test_addresses', 'value' => null,       'group' => 'mail', 'type' => 'text'],
         ];
 
         $now = now();

@@ -14,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -88,7 +87,6 @@ final class SettingController extends Controller
             $recaptchaKeys = ['recaptcha_enabled', 'recaptcha_site_key', 'recaptcha_secret_key'];
             $telegramKeys = [
                 'telegram_enabled', 'telegram_bot_token', 'telegram_chat_id',
-                'telegram_notify_level',
             ];
             $maintenanceKeys = ['maintenance_mode', 'maintenance_message', 'maintenance_allowed_ips'];
             // Language is not a setting: the default lives on the languages table.

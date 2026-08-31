@@ -41,7 +41,7 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
             $prefix = "translations.{$locale}";
 
             $rules[$prefix]                         = ['array'];
-            $rules["{$prefix}.title"]               = [$required, 'string', 'max:255'];
+            $rules["{$prefix}.title"]               = [$required, 'string', 'max:191'];
             $rules["{$prefix}.description"]         = ['nullable', 'string', 'max:2000'];
             $rules["{$prefix}.type"]                = [$required, Rule::enum(GalleryType::class)];
             $rules["{$prefix}.gallery_category_id"] = ['nullable', 'integer', 'exists:gallery_categories,id'];
@@ -49,7 +49,7 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
                 $isCreate && $this->isSubmitted($locale) ? 'required' : 'nullable',
                 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024',
             ];
-            $rules["{$prefix}.video_url"]  = ['nullable', "required_if:{$prefix}.type,video", 'string', 'max:500', 'url'];
+            $rules["{$prefix}.video_url"]  = ['nullable', "required_if:{$prefix}.type,video", 'string', 'max:191', 'url'];
             $rules["{$prefix}.duration"]   = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.sort_order"] = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.is_active"]  = ['nullable', 'boolean'];
@@ -65,13 +65,9 @@ final class StoreTranslatedGalleryItemRequest extends FormRequest
         return ['title', 'description', 'video_url'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

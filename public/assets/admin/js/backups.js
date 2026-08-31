@@ -206,3 +206,88 @@
         });
     });
 })();
+
+// ==================== GERİ YÜKLEME ====================
+//
+// Geri yükleme geri alınamaz bir işlem: veritabanı yedekteki hâline döner ve
+// aradaki her değişiklik gider. Bu yüzden önce arşive bakılıyor ve onay
+// penceresi tam olarak neyin uygulanacağını yazıyor — "emin misiniz?" tek
+// başına bu kararı vermeye yetmez.
+(function () {
+    function csrf() {
+        var meta = document.querySelector('meta[name="csrf-token"]');
+
+        return meta ? meta.getAttribute('content') : '';
+    }
+
+    function summarise(info) {
+        var parts = [];
+
+        if (info.has_database) parts.push('veritabanının tamamı');
+        if (info.has_uploads) parts.push(info.upload_count + ' yüklenen dosya');
+
+        return parts.length ? parts.join(' ve ') : 'içerik yok';
+    }
+
+    function runRestore(button) {
+        fetch(button.getAttribute('data-restore-url'), {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrf(), Accept: 'application/json' }
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                AdminModal.status({
+                    title: data.success ? 'Geri yüklendi' : 'Geri yüklenemedi',
+                    message: data.message + (data.safety_backup
+                        ? '\n\nÖnceki durumun yedeği: ' + data.safety_backup
+                        : ''),
+                    type: data.success ? 'success' : 'danger'
+                });
+
+                if (data.success) setTimeout(function () { window.location.reload(); }, 2500);
+            })
+            .catch(function (error) {
+                AdminModal.status({ title: 'Geri yüklenemedi', message: error.message, type: 'danger' });
+            });
+    }
+
+    function confirmRestore(button) {
+        fetch(button.getAttribute('data-inspect-url'), { headers: { Accept: 'application/json' } })
+            .then(function (response) { return response.json(); })
+            .then(function (info) {
+                if (!info.ok) {
+                    AdminModal.status({ title: 'Bu yedek kullanılamıyor', message: info.message, type: 'danger' });
+
+                    return;
+                }
+
+                AdminModal.confirm({
+                    title: 'Yedeği geri yükle',
+                    message: button.getAttribute('data-filename') + ' uygulanacak: ' + summarise(info) + '.\n\n'
+                        + 'Bu yedekten sonra yapılan tüm değişiklikler kaybolur ve kullanıcı '
+                        + 'hesapları da yedekteki hâline döner — oturumunuz kapanabilir.\n\n'
+                        + 'İşlemden önce mevcut durumun yedeği otomatik alınır.',
+                    type: 'danger',
+                    confirmText: 'Geri Yükle',
+                    confirmIcon: 'bi bi-arrow-counterclockwise'
+                }).then(function (confirmed) {
+                    if (confirmed) runRestore(button);
+                });
+            })
+            .catch(function (error) {
+                AdminModal.status({ title: 'Yedek okunamadı', message: error.message, type: 'danger' });
+            });
+    }
+
+    function bindRestore() {
+        document.querySelectorAll('.bk-restore').forEach(function (button) {
+            button.addEventListener('click', function () { confirmRestore(button); });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindRestore);
+    } else {
+        bindRestore();
+    }
+}());

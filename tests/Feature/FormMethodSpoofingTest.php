@@ -40,7 +40,7 @@ final class FormMethodSpoofingTest extends TestCase
 
             foreach ($this->formsIn($contents) as $form) {
                 // GET formları yöntem taklidi kullanmıyor.
-                if (!preg_match('/method\s*=\s*["\']post["\']/i', $form)) {
+                if (! preg_match('/method\s*=\s*["\']post["\']/i', $form)) {
                     continue;
                 }
 
@@ -100,7 +100,7 @@ final class FormMethodSpoofingTest extends TestCase
     /** Formun action'ındaki route('...') adını yönlendiricide arar. */
     private function routeOf(string $form): ?Route
     {
-        if (!preg_match('/action\s*=\s*["\'][^"\']*route\(\s*["\']([a-zA-Z0-9._-]+)["\']/', $form, $match)) {
+        if (! preg_match('/action\s*=\s*["\'][^"\']*route\(\s*["\']([a-zA-Z0-9._-]+)["\']/', $form, $match)) {
             return null;
         }
 

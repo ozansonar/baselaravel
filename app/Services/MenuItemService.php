@@ -71,14 +71,35 @@ final class MenuItemService
         if ($item->link_type === 'route' && $item->route_name) {
             try {
                 if (Route::has($item->route_name)) {
-                    return route($item->route_name, $this->routeParams($item));
+                    return $this->localizedRouteUrl($item->route_name, $this->routeParams($item));
                 }
             } catch (Throwable) {
                 return '#';
             }
         }
 
-        return $item->url ?: '#';
+        // Yönetici dil ön eki yazmıyor; bağlantı ziyaretçinin diline burada
+        // taşınıyor. Dış adresler ve çapalar olduğu gibi kalıyor.
+        return app(LocalizedUrlService::class)->fromInput($item->url);
+    }
+
+    /**
+     * Rotanın bu dildeki adresi.
+     *
+     * Panelden o rota için bir adres açılmışsa bağlantı onu kullanıyor:
+     * İngilizce sayfadaki "İletişim" bağlantısı /en/contact diyor,
+     * /en/iletisim değil. Açılmamışsa rotanın kendi adresi geçerli.
+     *
+     * @param array<string, mixed> $params
+     */
+    private function localizedRouteUrl(string $routeName, array $params): string
+    {
+        $locale = app()->getLocale();
+        $slug = app(CustomRouteService::class)->slugFor($routeName, $locale, $params);
+
+        return $slug === null
+            ? route($routeName, $params)
+            : url($locale . '/' . $slug);
     }
 
     /**
@@ -110,7 +131,6 @@ final class MenuItemService
 
         return $params;
     }
-
 
     public function isActive(MenuItem $item): bool
     {

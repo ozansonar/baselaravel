@@ -28,7 +28,7 @@
                          bakardı. --}}
                     <input type="text" id="comment-name" name="name" value="{{ old('name') }}"
                            class="form-control @error('name') is-invalid @enderror"
-                           data-validation-engine="validate[required,minSize[2],maxSize[100]]"
+                           data-validation-engine="validate[required,custom[letters],minSize[2],maxSize[100]]" data-fv-mask="letters"
                            placeholder="{{ __('site.blog.comment_name_ph') }}" autocomplete="name">
                     @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
@@ -39,7 +39,7 @@
                          kendi balonunun değil. --}}
                     <input type="text" id="comment-email" name="email" value="{{ old('email') }}"
                            class="form-control @error('email') is-invalid @enderror"
-                           data-validation-engine="validate[required,custom[email],maxSize[255]]"
+                           data-validation-engine="validate[required,custom[email],maxSize[191]]"
                            placeholder="{{ __('site.blog.comment_email_ph') }}" autocomplete="email">
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <small class="text-muted">{{ __('site.blog.comment_email_note') }}</small>
@@ -118,7 +118,7 @@
         data-sending="{{ __('site.misc.sending') }}"
         data-error-generic="{{ __('site.misc.error_generic') }}"
         data-error-retry="{{ __('site.misc.error_retry') }}"
-        data-recaptcha-required="{{ __('site.blog.comment_recaptcha') }}"
+        data-recaptcha-required="{{ __('site.forms.recaptcha') }}"
         data-recaptcha-enabled="{{ app(\App\Services\RecaptchaService::class)->isEnabled() ? '1' : '0' }}"
         defer></script>
 @endpush

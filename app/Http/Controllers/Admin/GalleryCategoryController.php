@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTranslatedGalleryCategoryRequest;
-use App\Http\Requests\StoreGalleryCategoryRequest;
-use App\Http\Requests\UpdateGalleryCategoryRequest;
 use App\Models\GalleryCategory;
 use App\Services\GalleryCategoryService;
 use Illuminate\Http\RedirectResponse;

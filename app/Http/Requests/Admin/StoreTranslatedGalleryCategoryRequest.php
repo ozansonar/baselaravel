@@ -37,11 +37,11 @@ final class StoreTranslatedGalleryCategoryRequest extends FormRequest
             $prefix = "translations.{$locale}";
 
             $rules[$prefix] = ['array'];
-            $rules["{$prefix}.name"]        = [$required, 'string', 'max:255'];
+            $rules["{$prefix}.name"]        = [$required, 'string', 'max:191'];
             $rules["{$prefix}.sort_order"]  = ['nullable', 'integer', 'min:0', 'max:65535'];
             $rules["{$prefix}.is_active"]   = ['nullable', 'boolean'];
             $rules["{$prefix}.slug"]        = [
-                'nullable', 'string', 'max:255',
+                'nullable', 'string', 'max:191',
                 // Slugs only clash within their own language.
                 Rule::unique('gallery_categories', 'slug')->where(fn ($query) => $query->where('locale', $locale)),
             ];
@@ -57,13 +57,9 @@ final class StoreTranslatedGalleryCategoryRequest extends FormRequest
         return ['name'];
     }
 
-
     /**
-
      * @return array<string, string>
-
      */
-
     public function messages(): array
     {
         $messages = [];

@@ -19,7 +19,7 @@ final class UpdateBlogCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'       => ['required', 'string', 'max:255'],
+            'name'       => ['required', 'string', 'max:191'],
             'icon'       => ['nullable', 'string', 'max:100'],
             'is_active'  => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],

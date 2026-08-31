@@ -8,7 +8,6 @@ use App\Enums\AppTimezone;
 use App\Enums\AuditEvent;
 use App\Enums\MailEncryption;
 use App\Enums\RedirectStatus;
-use App\Enums\TelegramNotifyLevel;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,7 +59,6 @@ class EnumDrivenOptionsTest extends TestCase
     {
         return [
             'ayarlar → mail şifreleme'    => ['/admin/settings', MailEncryption::class],
-            'ayarlar → telegram seviyesi' => ['/admin/settings', TelegramNotifyLevel::class],
             'ayarlar → saat dilimi'       => ['/admin/settings', AppTimezone::class],
             'yönlendirmeler → süzgeç kodu' => ['/admin/redirects', RedirectStatus::class],
             'yönlendirme formu → durum kodu' => ['/admin/redirects/create', RedirectStatus::class],

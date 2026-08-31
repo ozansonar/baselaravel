@@ -28,7 +28,7 @@
 <article class="post-card {{ $featured ? 'post-card--featured' : '' }}">
     <a href="{{ $postUrl }}" class="post-card__media" tabindex="-1" aria-hidden="true">
         @if($post->image)
-            <img src="{{ upload_url($post->image, $featured ? 'lg' : 'md') }}" alt="{{ $post->title }}"
+            <img src="{{ upload_url($post->image, $featured ? 'lg' : 'md') }}" alt="{{ image_alt($post->title) }}"
                  class="post-card__img" loading="lazy" decoding="async">
         @else
             <span class="post-card__ph"><i class="fa-regular fa-image"></i></span>

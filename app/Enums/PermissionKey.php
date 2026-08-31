@@ -71,6 +71,9 @@ enum PermissionKey: string
     case RedirectsView = 'redirects.view';
     case RedirectsManage = 'redirects.manage';
     case RedirectsDelete = 'redirects.delete';
+    case CustomRoutesView = 'custom-routes.view';
+    case CustomRoutesManage = 'custom-routes.manage';
+    case CustomRoutesDelete = 'custom-routes.delete';
     case MailTemplatesView = 'mail-templates.view';
     case MailTemplatesManage = 'mail-templates.manage';
     case MailLogsView = 'mail-logs.view';
@@ -80,6 +83,8 @@ enum PermissionKey: string
     case BackupsManage = 'backups.manage';
     case BackupsDelete = 'backups.delete';
     case SystemHealthView = 'system-health.view';
+    case QueueView = 'queue.view';
+    case QueueManage = 'queue.manage';
     case AnalyticsView = 'analytics.view';
 
     public function label(): string
@@ -143,6 +148,9 @@ enum PermissionKey: string
             self::RedirectsView => 'Yönlendirmeleri görüntüle',
             self::RedirectsManage => 'Yönlendirme ekle ve düzenle',
             self::RedirectsDelete => 'Yönlendirme sil',
+            self::CustomRoutesView => 'Özel adresleri görüntüle',
+            self::CustomRoutesManage => 'Özel adres ekle ve düzenle',
+            self::CustomRoutesDelete => 'Özel adres sil',
             self::MailTemplatesView => 'Mail şablonlarını görüntüle',
             self::MailTemplatesManage => 'Mail şablonlarını düzenle',
             self::MailLogsView => 'Mail loglarını görüntüle',
@@ -152,6 +160,8 @@ enum PermissionKey: string
             self::BackupsManage => 'Yedek oluştur ve indir',
             self::BackupsDelete => 'Yedek sil',
             self::SystemHealthView => 'Sistem sağlığını görüntüle',
+            self::QueueView => 'Kuyruğu görüntüle',
+            self::QueueManage => 'Kuyruk işini yeniden dene ve sil',
             self::AnalyticsView => 'Analitiği görüntüle',
         };
     }
@@ -214,6 +224,9 @@ enum PermissionKey: string
             self::RolesDelete => PermissionGroup::System,
             self::SettingsView => PermissionGroup::System,
             self::SettingsManage => PermissionGroup::System,
+            self::CustomRoutesView => PermissionGroup::System,
+            self::CustomRoutesManage => PermissionGroup::System,
+            self::CustomRoutesDelete => PermissionGroup::System,
             self::RedirectsView => PermissionGroup::System,
             self::RedirectsManage => PermissionGroup::System,
             self::RedirectsDelete => PermissionGroup::System,
@@ -226,6 +239,8 @@ enum PermissionKey: string
             self::BackupsManage => PermissionGroup::System,
             self::BackupsDelete => PermissionGroup::System,
             self::SystemHealthView => PermissionGroup::System,
+            self::QueueView => PermissionGroup::System,
+            self::QueueManage => PermissionGroup::System,
             self::AnalyticsView => PermissionGroup::System,
         };
     }

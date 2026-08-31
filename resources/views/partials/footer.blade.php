@@ -21,9 +21,10 @@
         <div class="row g-4 g-lg-5">
             {{-- Brand --}}
             <div class="col-lg-4">
-                <a class="footer-brand" href="{{ route('home') }}">
+                <a class="footer-brand" href="{{ localized_route('home') }}">
                     @if($fLogo)
-                        <img src="{{ upload_url($fLogo) }}" alt="{{ $fName }}" height="34" class="brand__logo">
+                        <img src="{{ upload_url($fLogo) }}" alt="{{ image_alt($fName) }}" height="34"
+                             class="brand__logo" loading="lazy" decoding="async">
                     @else
                         <span class="brand__mark"><i class="fa-solid fa-bolt"></i></span>
                     @endif
@@ -77,9 +78,15 @@
 
         <div class="footer-bottom d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
             <span>{{ $fFooter }}</span>
-            @if($fCredit)
-            <span class="text-white-50">{{ $fCredit }}</span>
-            @endif
+            <span class="d-flex align-items-center gap-3">
+                {{-- Tercihi değiştirmenin kalıcı yolu. Adres bandın kimliğine
+                     gidiyor ve `:target` kuralı onu yeniden açıyor — bağlantı
+                     JavaScript kapalıyken de çalışıyor. --}}
+                <a href="#cookieConsent" class="footer-consent-link">{{ __('site.consent.manage') }}</a>
+                @if($fCredit)
+                <span class="text-white-50">{{ $fCredit }}</span>
+                @endif
+            </span>
         </div>
     </div>
 </footer>

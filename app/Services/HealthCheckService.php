@@ -25,6 +25,14 @@ final class HealthCheckService
     public const STATUS_WARNING  = 'warning';
     public const STATUS_CRITICAL = 'critical';
 
+    /** Log dizini eşikleri. */
+    public const LOG_WARNING_BYTES = 250 * 1_048_576;
+
+    public const LOG_CRITICAL_BYTES = 1_073_741_824;
+
+    /** Dönüş kapalıyken uyarmaya başlanan boyut. */
+    public const LOG_UNROTATED_WARNING_BYTES = 20 * 1_048_576;
+
     /**
      * Kontrolün ekrandaki yüzü: ne işe yaradığı, sorun çıkınca ne yapılacağı
      * ve varsa ilgili panel sayfası.
@@ -71,6 +79,12 @@ final class HealthCheckService
             'hint'  => 'Eksik modülü hosting panelinden ya da php.ini üzerinden etkinleştirin.',
             'route' => null,
         ],
+        'logs' => [
+            'icon'  => 'bi-file-earmark-text-fill',
+            'what'  => 'Log dizininin boyutuna ve günlük dönüşün açık olduğuna bakar.',
+            'hint'  => '.env dosyasında LOG_STACK=daily ve LOG_DAILY_DAYS=14 kullanın; dönmeyen log dosyası diski doldurur.',
+            'route' => null,
+        ],
         'last_backup' => [
             'icon'  => 'bi-archive-fill',
             'what'  => 'En son yedeğin ne zaman alındığını söyler.',
@@ -97,6 +111,7 @@ final class HealthCheckService
             $this->checkTelegram(),
             $this->checkStorageWritable(),
             $this->checkPhpExtensions(),
+            $this->checkLogs(),
             $this->checkLastBackup(),
         ];
 
@@ -287,6 +302,119 @@ final class HealthCheckService
         return $this->result('php_ext', 'PHP Modülleri', self::STATUS_OK,
             'Tüm gerekli modüller yüklü',
             'PHP ' . PHP_VERSION . ' — ' . count($required) . ' modül OK');
+    }
+
+    /**
+     * Log dizini.
+     *
+     * Dönmeyen bir log dosyası sessizce büyüyor ve dolduğu gün yalnız log
+     * yazımını değil yüklemeyi, yedeklemeyi ve oturumu da durduruyor. Disk
+     * kontrolü bunu ancak disk tamamen dolduğunda görüyor; burada sebebe
+     * bakılıyor.
+     *
+     * @return array<string, mixed>
+     */
+    private function checkLogs(): array
+    {
+        $dir = $this->logDirectory();
+
+        if (! is_dir($dir)) {
+            return $this->result('logs', 'Log Dizini', self::STATUS_OK,
+                'Henüz log yazılmamış', null);
+        }
+
+        $files = glob($dir . '/*.log') ?: [];
+        $total = 0;
+
+        foreach ($files as $file) {
+            $total += (int) @filesize($file);
+        }
+
+        $rotating = $this->logRotationEnabled();
+        $human = $this->humanBytes($total);
+        $detail = count($files) . ' dosya · ' . ($rotating
+            ? 'günlük dönüş açık, ' . (int) config('logging.channels.daily.days', 14) . ' gün saklanıyor'
+            : 'günlük dönüş KAPALI — dosya hiç silinmiyor');
+
+        if ($total >= self::LOG_CRITICAL_BYTES) {
+            return $this->result('logs', 'Log Dizini', self::STATUS_CRITICAL,
+                "Log dizini {$human}", $detail);
+        }
+
+        if ($total >= self::LOG_WARNING_BYTES) {
+            return $this->result('logs', 'Log Dizini', self::STATUS_WARNING,
+                "Log dizini {$human}", $detail);
+        }
+
+        // Dönüş kapalıyken küçük bir dosya bile sorunun başlangıcı: büyümesi
+        // an meselesi. Sıfırdan uyarmak gereksiz gürültü olurdu, bu eşik
+        // uyarının fark edilmesi için bol zaman bırakıyor.
+        if (! $rotating && $total >= self::LOG_UNROTATED_WARNING_BYTES) {
+            return $this->result('logs', 'Log Dizini', self::STATUS_WARNING,
+                "Log dönüşü kapalı — {$human} birikmiş", $detail);
+        }
+
+        return $this->result('logs', 'Log Dizini', self::STATUS_OK,
+            $human, $detail);
+    }
+
+    /**
+     * Logların gerçekten yazıldığı dizin.
+     *
+     * `storage/logs` varsayılmıyor: kanalın kendi `path` değeri okunuyor, yani
+     * log başka bir yere yönlendirilmişse kontrol oraya bakıyor.
+     */
+    private function logDirectory(): string
+    {
+        foreach ($this->activeLogChannels() as $channel) {
+            $path = config("logging.channels.{$channel}.path");
+
+            if (is_string($path) && $path !== '') {
+                return dirname($path);
+            }
+        }
+
+        return storage_path('logs');
+    }
+
+    /**
+     * Şu an yazılan kanallar.
+     *
+     * @return list<string>
+     */
+    private function activeLogChannels(): array
+    {
+        $default = (string) config('logging.default', 'stack');
+
+        $channels = $default === 'stack'
+            ? (array) config('logging.channels.stack.channels', [])
+            : [$default];
+
+        return array_values(array_filter($channels, 'is_string'));
+    }
+
+    /**
+     * Yazılan kanallardan en az biri günlük dönüyor mu?
+     */
+    private function logRotationEnabled(): bool
+    {
+        return array_any(
+            $this->activeLogChannels(),
+            static fn (string $channel): bool => config("logging.channels.{$channel}.driver") === 'daily',
+        );
+    }
+
+    private function humanBytes(int $bytes): string
+    {
+        if ($bytes >= 1_073_741_824) {
+            return round($bytes / 1_073_741_824, 2) . ' GB';
+        }
+
+        if ($bytes >= 1_048_576) {
+            return round($bytes / 1_048_576, 1) . ' MB';
+        }
+
+        return max(1, (int) round($bytes / 1024)) . ' KB';
     }
 
     /** @return array<string, mixed> */

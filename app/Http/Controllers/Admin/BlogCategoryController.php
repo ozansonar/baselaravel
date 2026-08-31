@@ -8,8 +8,6 @@ use App\Http\Controllers\Admin\Concerns\ReturnsToList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkBlogCategoryRequest;
 use App\Http\Requests\Admin\StoreTranslatedBlogCategoryRequest;
-use App\Http\Requests\StoreBlogCategoryRequest;
-use App\Http\Requests\UpdateBlogCategoryRequest;
 use App\Models\BlogCategory;
 use App\Services\BlogCategoryService;
 use Illuminate\Http\RedirectResponse;

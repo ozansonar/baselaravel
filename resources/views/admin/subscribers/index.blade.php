@@ -494,7 +494,7 @@
                         <div class="modal-body">
                             <div class="stg-field mb-3">
                                 <label class="stg-label" for="sub_email">E-posta <span class="text-neon-red">*</span></label>
-                                <input type="text" class="stg-input" id="sub_email" name="email" data-validation-engine="validate[required,custom[email],maxSize[255]]">
+                                <input type="text" class="stg-input" id="sub_email" name="email" data-validation-engine="validate[required,custom[email],maxSize[191]]">
                             </div>
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">

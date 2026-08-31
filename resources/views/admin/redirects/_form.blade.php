@@ -16,7 +16,7 @@
                            id="old_url" name="old_url"
                            value="{{ old('old_url', $redirect?->old_url) }}"
                            placeholder="/eski-sayfa" autocomplete="off"
-                           data-validation-engine="validate[required,custom[sitePath],maxSize[500]]">
+                           data-validation-engine="validate[required,custom[sitePath],maxSize[191]]">
                     <small class="stg-hint">
                         Ziyaretçinin girdiği adres. Sitenizdeki yol olarak yazın: <code>/eski-sayfa</code>.
                         Alan adı yazmayın.
@@ -55,7 +55,7 @@
                            id="new_url" name="new_url"
                            value="{{ old('new_url', $redirect?->new_url) }}"
                            placeholder="/yeni-sayfa" autocomplete="off"
-                           data-validation-engine="validate[required,custom[redirectTarget],maxSize[500]]">
+                           data-validation-engine="validate[required,custom[redirectTarget],maxSize[191]]">
                     <small class="stg-hint">
                         Ziyaretçinin götürüleceği yer. Site içi yol (<code>/yeni-sayfa</code>) ya da
                         izin verilen bir alan adına tam adres olabilir.

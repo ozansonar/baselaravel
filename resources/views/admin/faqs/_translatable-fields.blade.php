@@ -56,7 +56,7 @@
                                 <input type="text"
                                        class="form-control @error("translations.{$language->code}.question") is-invalid @enderror"
                                        id="question_{{ $language->code }}" name="translations[{{ $language->code }}][question]"
-                                       data-validation-engine="validate[required,maxSize[500]]" value="{{ old("translations.{$language->code}.question", $translation?->question) }}"
+                                       data-validation-engine="validate[required,maxSize[191]]" value="{{ old("translations.{$language->code}.question", $translation?->question) }}"
                                        placeholder="Soruyu girin...">
                                 @error("translations.{$language->code}.question")
                                 <div class="invalid-feedback">{{ $message }}</div>

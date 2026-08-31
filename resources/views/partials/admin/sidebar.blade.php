@@ -136,6 +136,13 @@
         </a>
         @endcan
 
+        @can('viewAny', \App\Models\CustomRoute::class)
+        <a href="{{ route('admin.custom-routes.index') }}"
+           class="nav-link {{ Route::is('admin.custom-routes.*') ? 'active' : '' }}">
+            <i class="bi bi-signpost-split-fill"></i> Özel Adresler
+        </a>
+        @endcan
+
 
         {{-- ─── SİSTEM ───────────────────────────────────────── --}}
         <div class="nav-section-title">Sistem</div>
@@ -215,6 +222,16 @@
         </a>
         @endcan
 
+
+        @if(Route::has('admin.queue.index'))
+        @can('view-queue')
+        <a href="{{ route('admin.queue.index') }}"
+           class="nav-link {{ Route::is('admin.queue.*') ? 'active' : '' }}">
+            <i class="bi bi-stack"></i> Kuyruk
+        </a>
+        @endcan
+
+        @endif
 
         @if(Route::has('admin.system-health.index'))
         @can('view-system-health')

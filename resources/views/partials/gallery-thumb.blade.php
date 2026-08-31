@@ -17,7 +17,7 @@
              srcset="{{ $srcset }}"
              sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 33vw"
          @endif
-         alt="{{ $item->title }}"
+         alt="{{ image_alt($item->title, $item->galleryCategory?->name) }}"
          class="gallery-item__img"
          loading="{{ $eager ? 'eager' : 'lazy' }}"
          decoding="{{ $eager ? 'sync' : 'async' }}"

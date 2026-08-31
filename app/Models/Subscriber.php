@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * @property string|null $first_name
+ * @property string|null $last_name
+ */
 class Subscriber extends Model
 {
     use HasFactory, SoftDeletes;

@@ -6,6 +6,7 @@ namespace App\Services\Concerns;
 
 use App\Models\Language;
 use App\Services\LanguageService;
+use App\Services\UploadService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -172,6 +173,24 @@ trait SyncsTranslations
     }
 
     /**
+     * Görsel servisini çözer.
+     *
+     * Eskiden `$this->uploadService` okunuyordu — trait'in **bildirmediği**,
+     * kullanan sınıfta var olduğu varsayılan bir özellik. Trait'i kullanan
+     * sekiz servisin üçünde (blog kategorisi, SSS, galeri kategorisi) böyle
+     * bir özellik yok; bugün o üçü görselli yolu hiç çağırmadığı için sorun
+     * çıkmıyor, ama çağırdıkları gün ölümcül hata alırlardı. Trait artık
+     * kendi bağımlılığını kendi çözüyor, kullanan sınıfın içine uzanmıyor.
+     *
+     * Servis durumsuz (kurucusu yok, yolları yapılandırmadan okuyor), yani
+     * kaptan çözülen örnek enjekte edilenle aynı davranıyor.
+     */
+    private function uploads(): UploadService
+    {
+        return app(UploadService::class);
+    }
+
+    /**
      * Handle the one-image-per-language case every content form shares.
      *
      * A block with no new file keeps whatever that language already had, so
@@ -192,8 +211,8 @@ trait SyncsTranslations
 
         // Kaldırma isteği forma özel bir bayrakla geliyor ve sütun olmadığı
         // için modele ulaşmadan çıkarılıyor.
-        $kaldir = filter_var($fields['remove_'.$imageKey] ?? false, FILTER_VALIDATE_BOOL);
-        unset($fields['remove_'.$imageKey]);
+        $kaldir = filter_var($fields['remove_' . $imageKey] ?? false, FILTER_VALIDATE_BOOL);
+        unset($fields['remove_' . $imageKey]);
 
         if (! $image instanceof \Illuminate\Http\UploadedFile) {
             unset($fields[$imageKey]);
@@ -202,7 +221,7 @@ trait SyncsTranslations
                 // Dosya diskten de siliniyor; kayıt boşaltılıp dosya bırakılsa
                 // uploads dizininde sahibi olmayan görseller birikirdi.
                 if ($existing?->getAttribute($imageKey)) {
-                    $this->uploadService->deleteImage((string) $existing->getAttribute($imageKey));
+                    $this->uploads()->deleteImage((string) $existing->getAttribute($imageKey));
                 }
 
                 $fields[$imageKey] = null;
@@ -226,8 +245,8 @@ trait SyncsTranslations
         $current = $existing?->getAttribute($imageKey);
 
         $fields[$imageKey] = $current
-            ? $this->uploadService->replaceImage($image, $folder, $name, $current)
-            : $this->uploadService->uploadImage($image, $folder, $name);
+            ? $this->uploads()->replaceImage($image, $folder, $name, $current)
+            : $this->uploads()->uploadImage($image, $folder, $name);
 
         return $fields;
     }

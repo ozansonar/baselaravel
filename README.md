@@ -123,6 +123,142 @@ php artisan schedule:list
 > görev hata vermeden hiç çalışmaz. Ayrıntı ve kurallar:
 > [docs/SHARED-HOSTING.md](docs/SHARED-HOSTING.md)
 
+## Ters vekil / CDN arkasında
+
+Site Cloudflare, nginx reverse proxy veya bir yük dengeleyici arkasındaysa
+`.env` içindeki `TRUSTED_PROXIES` **mutlaka** doldurulmalı:
+
+```env
+TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
+```
+
+Doldurulmazsa bağlantı proxy'den geldiği için her ziyaretçi aynı IP'den
+görünür. Bunun üç sonucu var ve hiçbiri hata vermez:
+
+- Giriş, iletişim ve kayıt formlarındaki hız sınırları tek kovaya düşer — bir
+  kişinin başarısız denemeleri herkesi kilitler, gerçek saldırgan yavaşlamaz
+- Ziyaretçi istatistikleri ve denetim kayıtları proxy'nin adresini yazar
+- TLS proxy'de sonlandığı için istek HTTP görünür ve HSTS başlığı hiç çıkmaz
+
+Sunucuya yalnızca proxy üzerinden erişilebiliyorsa `TRUSTED_PROXIES=*`
+kullanılabilir. Sunucu kendi IP'sinden de cevap veriyorsa kullanılmamalı:
+saldırgan proxy'yi atlayıp başlığı kendisi yazar.
+
+Siteye doğrudan erişiliyorsa değer **boş bırakılır** — varsayılan budur.
+
+---
+
+## Çerez rızası
+
+Ziyaretçi karar vermeden **hiçbir izleme çalışmaz**: Google Analytics, Google
+Tag Manager ve projenin kendi ziyaret kaydı rızaya bağlıdır. Betikler sayfaya
+konup susturulmaz, hiç basılmaz — bir etiket yüklendiği anda istek atar ve
+çerezini kurar.
+
+Üç kategori var: **zorunlu** (oturum, güvenlik, dil ve tema — kapatılamaz),
+**analitik** (ziyaret kaydı + Google Analytics), **pazarlama** (Tag Manager).
+
+Band JavaScript olmadan da çalışır ve tercihi değiştirmek için de betik
+gerekmez: alt bilgideki "Çerez tercihleri" bağlantısı bandı yeniden açar.
+
+Karar `consents` tablosuna da yazılır — çerez tercihi hatırlamak için, tablo
+ispat için. KVKK'da açık rıza ispat yükü veri sorumlusundadır ve ziyaretçinin
+silebildiği bir çerez bunu kanıtlamaz. Ret de kaydedilir.
+
+Metin değişirse `App\Services\ConsentService::VERSION` artırılır; eski rıza
+yeni metne verilmiş sayılmaz ve ziyaretçiye bir kez daha sorulur.
+
+---
+
+## Arama motorları
+
+`robots.txt` ve `sitemap.xml` ikisi de **rota**, `public/` altında dosya değil.
+`robots.txt`'in yasak listesi rota tanımlarından, yayındaki dillerden ve
+panelden açılmış adreslerden üretilir; elle güncellenmesi gerekmez.
+
+`public/robots.txt` diye bir dosya oluşturulmamalı — web sunucusu var olan
+dosyayı rotadan önce basar ve liste o anda donar. `RobotsTest` bunu bekçilik
+eder.
+
+Canlı olmayan kurulumlar (`APP_ENV` production değilse) tümüyle kapalı gelir:
+
+```
+User-agent: *
+Disallow: /
+```
+
+---
+
+## Yedekler
+
+**Admin → Yedekler** veritabanını ve `public/uploads` klasörünü tek ZIP
+dosyasında toplar; gecelik cron da aynı işi yapar.
+
+**Geri yükleme** listedeki her yedeğin satırındadır. Sırasıyla: arşiv
+doğrulanır, **mevcut durumun yedeği alınır**, site bakım moduna geçer,
+veritabanı ve dosyalar uygulanır, bakım modundan çıkılır. Güvenlik yedeği
+alınamazsa geri yükleme hiç başlamaz.
+
+Bilmeniz gerekenler:
+
+- Veritabanı yedekteki hâline döner — **kullanıcı hesapları ve şifreler de**.
+  Kendi oturumunuz kapanabilir; yedekteki bilgilerle yeniden girersiniz.
+- Yedekten sonra eklenen dosyalar **silinmez**, arşivdekiler üzerlerine yazılır.
+- Geri alınamaz: MySQL şema değişikliklerini işlem içine alamaz. Geriye dönüş
+  yolu, işlemden önce otomatik alınan güvenlik yedeğidir.
+
+**Yedek Yükle** düğmesi başka bir sunucudan indirilmiş bir arşivi listeye
+ekler; sunucusu gitmiş bir kurulumu ayağa kaldırmanın yolu budur. Dosyanın
+gerçekten bir yedek olduğu, arşiv açılıp içeriğine bakılarak doğrulanır.
+
+> Yedek arşivi veritabanının tamamını taşır. `storage/` altında durur ve web
+> sunucusu tarafından servis edilmez; oraya taşımayın.
+
+---
+
+## Kuyruk
+
+**Admin → Kuyruk** bekleyen ve başarısız işleri gösterir. Mail gönderimi
+kuyruktan geçtiği için "doğrulama maili gelmedi" tipi şikâyetlerin cevabı
+genelde buradadır: her başarısız işin tam hata metni saklanır.
+
+Ekrandaki en önemli sayı **en eski işin yaşı**. Bekleyen iş sayısı tek başına
+normaldir; birikip yaşlanması kuyruğu boşaltan cron'un çalışmadığını söyler.
+10 dakikayı geçtiğinde ekran bunu kırmızı bir uyarıyla bildirir.
+
+Başarısız bir iş yeniden denenebilir, tek tek ya da toplu silinebilir; kuyruk
+cron'u beklemeden elle de işlenebilir. Her işlem denetim izine düşer.
+
+İzinler `queue.view` (görüntüleme) ve `queue.manage` (yeniden deneme ve silme);
+ikisi de kurulumla yalnızca yöneticide olur, matristen başka rollere
+verilebilir.
+
+---
+
+## Hata bildirimi ve loglar
+
+İşlenmeyen bir hata (500) iki yere birden düşer: **Telegram** (Ayarlar → Telegram
+açıksa) ve panelin **bildirim merkezi**. Beklenen hatalar — 404, 403, 419, 429,
+doğrulama, kimlik — bildirime hiç girmez. Aynı hata için 10 dakikada bir mesaj
+gelir, yani döngüye giren bir sayfa telefonu kilitlemez.
+
+Loglar günlük döner ve `LOG_DAILY_DAYS` gün sonra silinir:
+
+```env
+LOG_STACK=daily
+LOG_DAILY_DAYS=14
+LOG_LEVEL=error
+```
+
+`LOG_STACK=single` kullanılırsa `laravel.log` hiç dönmez ve zamanla diski
+doldurur; dolduğunda yükleme, yedekleme ve oturum yazımı da durur. **Sistem
+Sağlık** ekranı bu durumu log dizini büyümeye başlar başlamaz bildirir.
+
+> Telegram ayarları veritabanından okunduğu için veritabanının kendisi
+> düştüğünde bildirim gönderilemez; o senaryoda geriye dosya logu kalır.
+
+---
+
 ## Yazma izinleri
 
 ```bash
@@ -143,9 +279,11 @@ app/
 ├── Enums/              Sabit seçenek listeleri — hardcoded liste yasak
 ├── Helpers/            Global fonksiyonlar (upload_url, site_initials, ...)
 ├── Http/
-│   ├── Controllers/    İnce; iş mantığı yok
+│   ├── Controllers/    İnce; iş mantığı yok (Api/V1/ altında API uçları)
 │   ├── Middleware/     Admin, yönlendirme, bakım modu, güvenlik başlıkları
-│   └── Requests/       FormRequest doğrulama
+│   ├── Requests/       FormRequest doğrulama
+│   ├── Resources/      API'nin dışarı açtığı alanlar (beyaz liste)
+│   └── Responses/      API yanıt zarfı (success / message / data)
 ├── Models/             Eloquent — hepsinde SoftDeletes
 ├── Observers/          Model olayları + cascade soft delete
 ├── Policies/           Yetkilendirme
@@ -221,6 +359,26 @@ Kurulumla gelen roller ve varsayılan yetkileri:
 | Editör (`editor`) | İçerik, medya, analitik, mesaj yanıtlama, yorum moderasyonu. Silme yetkisi yok. |
 | Moderatör (`moderator`) | Mesaj yanıtlama ve yorum moderasyonu. |
 | Kullanıcı (`user`), İzleyici (`viewer`) | Panel yetkisi yok. |
+
+### Denetim izi
+
+**Admin → Aktivite Logları** kim ne zaman ne değiştirdi sorusunu cevaplar. Üç
+kaynaktan beslenir ve hiçbiri elle çağrı gerektirmez:
+
+- **Model değişiklikleri** — ayarlar, kullanıcılar, roller, yönlendirmeler,
+  panelden açılan adresler, mail şablonları ve diller. Yeni bir kritik model
+  eklemek `AppServiceProvider` içindeki listeye tek satır eklemektir.
+- **Kimlik doğrulama** — giriş, çıkış ve başarısız giriş denemesi. Denenen
+  şifre hiçbir biçimde kaydedilmez.
+- **Toplu ve pivot işlemleri** — izin matrisi, kullanıcı rolleri, toplu silme
+  ve geri yükleme, şifre sıfırlama. Bunlar model olayı doğurmadığı için ilgili
+  servis kaydı kendisi düşer.
+
+İçerik modelleri (sayfa, blog, galeri) bilinçli olarak **dışarıdadır**: her
+kaydetmede satır üretip 90 günlük saklama süresi içinde asıl aranan kaydı
+bulunamaz hâle getirirlerdi.
+
+Şifre, token ve API anahtarı gibi alanlar `AuditLogger` tarafından maskelenir.
 
 `UserRole` enum'undaki roller **sistem rolüdür**: yeniden adlandırılabilir ama
 silinemez ve anahtarları değiştirilemez. Panelden istediğin kadar **özel rol**
@@ -427,6 +585,31 @@ Mail, Laravel'in kendi bildirimini değil projenin mail altyapısını kullanır
 şablon **Mail Şablonları** ekranından düzenlenebilir (`verify_email`) ve gönderim
 mail loglarına düşer.
 
+**E-posta adresi değişirse doğrulama sıfırlanır.** Damga adrese aittir, hesaba
+değil: adres değişip damga yerinde kalsaydı kullanıcı sahibi olmadığı bir adrese
+geçip "doğrulanmış" kalabilirdi ve doğrulamaya bakan her yer kanıtlanmamış bir
+adrese güvenirdi. Kural `UserObserver` içinde, yani adresi değiştiren her yol
+için geçerli — ön yüzdeki profil formu, API'nin profil ucu ve panelden kullanıcı
+düzenleme. Yeni adrese kendiliğinden taze bir doğrulama bağlantısı gider; buna
+mecbur, çünkü bağlantının imzası e-postanın kendisinden türüyor ve adres
+değiştiği anda eski bağlantı zaten çalışmaz hâle geliyor.
+
+Yönetici bir kullanıcının adresini değiştirdiğinde de aynısı olur ve ekranda
+bunu söyleyen bir uyarı çıkar — kullanıcı kendisine sorulmadan doğrulanmamış
+duruma geçtiği için.
+
+**Aynı anda eski adrese bir güvenlik uyarısı gider** (`email_changed` şablonu).
+Hesabı ele geçiren kişinin ilk yaptığı şey çoğu zaman adresi değiştirmektir: o
+andan sonra şifre sıfırlama bağlantısı da bildirimler de saldırgana gider ve
+gerçek sahibin hesaptan haberi tamamen kesilir. Yeni adrese giden doğrulama
+maili bu senaryoda saldırganın kendi kutusuna düşer, yani kimseyi uyarmaz — eski
+adrese giden uyarı sahibin durumu öğrenebileceği tek şeydir ve gönderilebileceği
+son an değişiklik anıdır.
+
+Uyarıda yeni adres maskeli yazılır (`s***n@baska.com`): tamamen gizlenseydi
+sahibi neyin olduğunu anlatamaz, olduğu gibi yazılsaydı bu mail bir adresi
+başkasına sızdırmanın yolu olurdu.
+
 Doğrulamayı zorunlu tutmak istemiyorsan `routes/web.php` içindeki hesap grubundan
 `verified` middleware'ini çıkarman yeterli:
 
@@ -473,14 +656,256 @@ composer test
   kuralının her değişiklikten sonra korunması, yetki ayrımı
 - `TranslationOverrideTest` — arayüz metinlerinin panelden düzenlenmesi,
   varsayılana eşit değerin saklanmaması, ısınmış sayfanın sıfır sorgu atması
+- `InactiveUserSessionTest` — pasife alınan kullanıcının bir sonraki istekte
+  oturumdan düşmesi, açık oturum satırlarının ve `remember_token`'ın silinmesi,
+  toplu silmenin de aynı işi yapması
+- `TrustedProxyTest` — varsayılanda hiçbir proxy'ye güvenilmemesi, güvenilen
+  proxy arkasında gerçek ziyaretçi adresinin geçmesi, HSTS'in iletilen şemayla
+  çıkması, aynı proxy arkasındaki iki ziyaretçinin ayrı hız sınırı kovasına
+  düşmesi
+- `RobotsTest` — yasak listesinin rota tanımlarından üretilmesi, yeni dil
+  yayına alınınca genişlemesi, sitemap satırının bu siteyi göstermesi, canlı
+  olmayan kopyanın kapalı gelmesi ve `public/robots.txt`'in geri gelmemesi
+- `ExceptionNotificationTest` — işlenmeyen hatanın bildirime düşmesi, beklenen
+  HTTP hatalarının düşmemesi, aynı hatanın pencerede bir kez bildirilmesi ve
+  bildirim kanalı patlasa bile hatanın loga yazılmaya devam etmesi
+- `LogHealthCheckTest` — log dizini boyutu ve günlük dönüşün açık olup
+  olmadığının Sistem Sağlık ekranında bildirilmesi
+- `AuditTrailCoverageTest` — izlenen her modelin denetim izine düşmesi, içerik
+  modellerinin bilinçli olarak dışarıda kalması, giriş/çıkış/başarısız
+  denemenin kaydı ve denenen şifrenin ize hiç girmemesi
+- `QueueMonitorTest` — kuyruk ekranının yetki ayrımı, tıkanan kuyruğun
+  bildirilmesi, iş adının yükten çıkarılması, yeniden deneme (okunamayan yük
+  dahil), silme ve her işlemin denetim izine düşmesi
+- `SqlStatementReaderTest` — SQL dökümünün ifadelere ayrılması: metin içindeki
+  noktalı virgül, kaçırılmış tırnak, yorumlar ve parça sınırına denk gelen
+  kalıplar
+- `BackupRestoreTest` — arşiv doğrulama, Zip Slip koruması, güvenlik yedeğinin
+  önce alınması, dosyaların geri yazılması ve **veritabanı dökümü alınamayan
+  bir yedeğin başarılı sayılmaması**
+- `LikeSearchIsPortableTest` — serbest metin aramasının iki veritabanında da
+  aynı davranması: joker karakterin harf sayılması, MySQL'de sözdizimi hatası
+  veren kaçış biçiminin geri gelmemesi ve **hiçbir yerin LIKE kalıbını elle
+  kurmaması** — kaçışı hiç yapmayan çağrılar eski yasağa takılmıyordu
+- `CookieConsentTest` — rıza alınmadan hiçbir izleme betiğinin basılmaması ve
+  izleme uç noktasının kayıt tutmaması, kararın (kabul, ret, seçmeli)
+  kaydedilmesi ve metin sürümü değişince yeniden sorulması
+- `Api/ApiAuthTest` — jetonla kayıt/giriş/çıkış, silinmiş hesabın adresinin
+  yeniden kullanılabilmesi, pasife alınan hesabın jetonunun bir sonraki istekte
+  ölmesi, çıkışın yalnız o cihazı düşürmesi ve kaba kuvvetin sınıra takılması
+- `Api/ApiPublicEndpointsTest` — menü ağacı, sayfalama tavanı, taslak yazının
+  görünmemesi, listede N+1 olmaması, iletişim formunun yönetim alanlarını
+  sızdırmaması ve **`/settings` ucunun SMTP parolasını, reCAPTCHA gizli
+  anahtarını, Telegram jetonunu hiçbir koşulda yayınlamaması**
+- `EmailValidationTest` — ziyaretçiden alınan e-posta kuralının tek yerde
+  durması, üretimde alan adı denetiminin (`dns`) yerinde kalması ve suite'in
+  hiçbir sınamada canlı DNS sorgusuna bağımlı olmaması
+- `EmailChangeSecurityTest` — adres değişince doğrulama damgasının düşmesi,
+  **eski adrese uyarı gitmesi** (yeni adres maskeli), iki mailin iki ayrı
+  adrese gitmesi, adres değişmeden yapılan kaydetmenin hiçbirini tetiklememesi,
+  posta yolu tıkalıyken bile değişikliğin tamamlanması ve kuralın üç yoldan da
+  (ön yüz formu, API ucu, panel) geçerli olması
+- `BlogSearchPageTest` — blog sayfasındaki arama kutusu: kuralın sunucudaki
+  sınırla aynı olması, terimin kutuda kalması ve ekrana kaçırılarak basılması,
+  kategori içinde aramanın o kategoride kalması, sayfalamanın terimi koruması
+  ve **arama sonucunun dizine girmemesi** (noindex, kanonik basılmıyor)
+- `SiteSearchTest` — dört türü tek birleşik sorguda tarayan arama: yayında
+  olmayan ve silinmiş içeriğin dışarıda kalması, başlık eşleşmesinin gövde
+  eşleşmesini geçmesi, dil düşüşü, ziyaretçinin yazdığı jokerin harf sayılması,
+  sayfalamanın PHP'den değil sorgudan gelmesi ve **aynı kaydın iki sayfada
+  birden görünmemesi**
+- `SearchPageTest` — arama sayfası: tür süzgeci, çok kısa terim uyarısı, boş
+  sonuç, terimin kaçırılarak basılması, sayfalamanın terim ve türü koruması,
+  arama sonucunun dizine girmemesi ve her sayfanın aramaya bağlantı vermesi
+- `Api/ApiSearchTest` — API araması: tür sayaçları, süzgeç, sayfalama, dil,
+  önbelleklenmemesi ve özetin düz metin olması
+- `Api/OpenApiSpecTest` — `docs/openapi.json` ile gerçek rotaların aynı şeyi
+  söylemesi: şemada olmayan uç eklenemez, olmayan uç şemada duramaz, kimlik ve
+  304 bildirimleri gerçekle uyuşur, her `$ref` çözülür. Elle yazılan bir şema
+  yazıldığı gün doğru olup ertesi hafta yalan söyler
+- `Api/ApiBlogSearchTest` — başlık ve özette arama, gövdedeki HTML'in
+  eşleşmemesi, ziyaretçinin yazdığı jokerin harf sayılması, aramanın kategoriyle
+  birlikte çalışması, sayfalama bağlantılarının terimi koruması ve sonuçsuz
+  aramanın hata değil boş liste olması
+- `Api/ApiTokenAbilityTest` — dar yetkili jetonun yalnız istediğini
+  yapabilmesi, tanınmayan yetkinin (`*` dahil) reddedilmesi — parametre
+  yükseltme yüzeyi olmamalı —, dar jetonun her zaman kendini iptal
+  edebilmesi ve çerçevenin İngilizce iç metninin ziyaretçiye ulaşmaması
+- `Api/ApiCachingTest` — ETag ile 304 dönmesi ve gövdenin hiç inmemesi, içerik
+  değişince etiketin değişmesi, `Vary` ile iki dilin aynı önbelleği
+  paylaşmaması, içerik listelerinin ve hata yanıtlarının önbelleklenmemesi
+- `Api/ApiDeviceTest` — açık oturumların listelenmesi, "bu cihaz"ın tam olarak
+  bir satır olması, jetonun hiçbir koşulda sızmaması, başkasının oturumuna
+  dokunulamaması (404, 403 değil), "diğerlerinden çık"ın mevcut oturumu
+  koruması ve süresi dolmuş jetonların listelenmemesi
+- `Api/ApiContentEndpointsTest` — açılış ekranının tek istekte gelmesi, slider
+  buton adresinin isteğin diline göre çözülmesi, yalnız onaylı yorumların ağaç
+  olarak listelenmesi, yorumun e-posta ve IP'sinin dışarı çıkmaması, yayında
+  olmayan yazıya yorum yazılamaması ve tekrar abone olmanın satır
+  çoğaltmaması
+- `Api/ApiPasswordResetTest` — kodun hash'li saklanması, tek kullanımlık olması,
+  süresi dolduğunda reddedilmesi, sıfırlamanın bütün jetonları düşürmesi,
+  kayıtlı olmayan adresin ayırt edilememesi ve **kodu kıramaz kılan hız
+  sınırının yerinde durması**
+- `Api/ApiAccountTest` — profil güncelleme, şifre değiştirmenin mevcut şifreyi
+  istemesi, avatarın aynı istekte yüklenmesi ve hesap uçlarının doğrulanmamış
+  e-postaya kapalı olması (ön yüzdeki `/hesabim` ile aynı kapı)
+- `Api/ApiContractTest` — yanıt zarfının sabitliği (boş `errors` bile nesne),
+  bilinmeyen API adresinin HTML yönlendirme değil JSON 404 dönmesi, dilin
+  `Accept-Language` / `?lang=` / `X-Locale` ile çözülmesi, desteklenmeyen dilin
+  hata değil varsayılana düşüş olması ve CORS ön uçuşunun yanıtlanması
 
 ---
 
-## Kod stili
+## Kod kalitesi
 
-`laravel/pint` bağımlılık olarak gelir ancak **`pint` fix modunda çalıştırılmaz.**
-Kod tabanı dizi ve atamalarda hizalama kullanır, Pint'in varsayılan Laravel
-preset'i bu hizalamayı bozar. Stil kontrolü için yalnızca `pint --test`.
+Üç kontrol var ve üçü de her push'ta GitHub Actions'ta koşar:
+
+```bash
+composer check      # üçünü sırayla
+composer lint       # kod stili  (pint --test)
+composer analyse    # statik analiz (phpstan)
+composer test       # testler
+```
+
+**Kod stili.** `pint.json` projenin kendi biçimini tanımlar: dizi ve atamalardaki
+hizalama korunur, birleştirmede boşluk kullanılır, `!` sonrası boşluk bırakılır.
+Laravel'in varsayılan preset'i bunların tersini dayattığı için 459 dosya sapıyor
+görünüyordu ve çıktı hiçbir işe yaramıyordu; artık **sapma sıfır** ve
+`./vendor/bin/pint` (fix modu) güvenle çalıştırılabilir — yapılandırma
+hizalamaya dokunan kuralları kapalı tutar.
+
+**Statik analiz.** `phpstan.neon`, Larastan ile seviye 1. Seviye seçiminin
+gerekçesi ve yukarı çıkmanın yolu dosyanın kendi yorumlarında.
+
+Komut `-a phpstan-bootstrap.php` ile çalışır ve bu bayrak isteğe bağlı değildir.
+Larastan stub dosyalarını Laravel sürümüne göre süzerken `LARAVEL_VERSION`
+sabitini okuyor; sabiti tanımlayansa Larastan'ın kendi bootstrap dosyası. PHPStan
+bu ikisini her zaman aynı sırada çalıştırmıyor — sonuç önbelleği belirli bir
+durumdayken stub listesi bootstrap'tan önce isteniyor ve analiz
+
+```
+Undefined constant "Larastan\Larastan\LARAVEL_VERSION"
+```
+
+diyerek düşüyor. `phpstan-bootstrap.php` sabiti PHPStan'ın kabı kurulmadan
+tanımlayarak yarışı ortadan kaldırıyor; gerekçenin tamamı dosyanın kendi
+yorumunda.
+
+> Bu hatayı yine de görürseniz (`-a` bayrağı olmadan çalıştırıldığında),
+> `./vendor/bin/phpstan clear-result-cache` geçici olarak kurtarır.
+>
+> Hatanın **uygulamanın açılamamasından** kaynaklandığı ayrı bir durum daha var
+> ve o zaman gerçek sebep çıktının **başında** basılır (`Error: ...` ve yığın
+> izi) — `tail` ile bakılırsa kaçırılır. O durumda `php artisan about`
+> uygulamanın açılıp açılmadığını söyler; en sık sebebi paket eklendikten sonra
+> geride kalan otomatik yükleyicidir (`composer dump-autoload`).
+
+**Testler CI'da MySQL 8'e karşı koşar**, yerelde SQLite'a karşı. İkisi aynı şeyi
+kabul etmiyor — bu iş akışı kurulduğu gün SQLite'ın sakladığı altı hata çıktı,
+biri arama yapan her ekranı üretimde 500'e düşürüyordu. Yerelde de MySQL'e karşı
+koşmak için `DB_CONNECTION` ve `DB_DATABASE` değişkenlerini komut satırında
+vermek yeter; `phpunit.xml` içindeki değerler var olan ortam değişkenini ezmez.
+
+---
+
+## API (mobil ve harici istemciler)
+
+Site, Blade ile üretilen web arayüzünün yanında **Laravel Sanctum** jetonuyla
+konuşan istemcilere de (Flutter uygulaması, harici bir SPA) hizmet verir. İki
+taraf aynı Service katmanını kullanır: panelden değiştirilen bir menü, ayar veya
+yazı ikisinde birden değişir.
+
+```
+GET  /api/v1/home                 Açılış ekranı: slider + son yazılar + galeri
+GET  /api/v1/languages            Yayındaki diller
+GET  /api/v1/settings             Dışarı açılan ayarlar (gruplara göre)
+GET  /api/v1/translations         Arayüz metinleri
+GET  /api/v1/menus                Menüler, ağaç hâlinde, adresleri çözülmüş
+GET  /api/v1/pages                Yayındaki sayfalar (menü için)
+GET  /api/v1/pages/{slug}         Sayfa içeriği — gizlilik, KVKK, hakkımızda
+GET  /api/v1/search               Site geneli arama — ?q, ?type, ?per_page
+GET  /api/v1/blog/posts           Yazılar — ?category, ?search, ?per_page
+GET  /api/v1/blog/posts/{slug}    Yazı detayı
+GET  /api/v1/blog/categories      Kategoriler
+GET  /api/v1/blog/posts/{slug}/comments  Onaylı yorumlar (ağaç)
+POST /api/v1/blog/comments        Yorum gönder — onay bekler
+GET  /api/v1/gallery              Galeri — ?category, ?type=photo|video
+GET  /api/v1/gallery/categories   Galeri kategorileri
+GET  /api/v1/sliders              Ana sayfa görsel şeridi
+GET  /api/v1/faqs                 Sıkça sorulan sorular
+POST /api/v1/contact              İletişim formu
+POST /api/v1/newsletter/subscribe Bülten aboneliği
+
+POST /api/v1/auth/register        Kayıt (jeton döner)
+POST /api/v1/auth/login           Giriş (jeton döner)
+POST /api/v1/auth/password/forgot Altı haneli sıfırlama kodu gönderir
+POST /api/v1/auth/password/reset  Kodla şifreyi değiştirir
+POST /api/v1/auth/logout          Bu cihazın jetonunu siler    [jeton gerekli]
+GET  /api/v1/auth/me              Giriş yapmış kullanıcı       [jeton gerekli]
+POST /api/v1/auth/email/resend    Doğrulama bağlantısı         [jeton gerekli]
+GET  /api/v1/auth/devices         Açık oturumlar               [jeton gerekli]
+DEL  /api/v1/auth/devices/{id}    Tek oturumu kapatır          [jeton gerekli]
+DEL  /api/v1/auth/devices         Bu cihaz hariç hepsi         [jeton gerekli]
+PUT  /api/v1/account/profile      Profil + avatar + şifre      [jeton + doğrulanmış]
+```
+
+Her yanıt aynı zarfı taşır:
+
+```json
+{ "success": true, "message": "İşlem başarılı.", "data": { } }
+{ "success": false, "message": "...", "errors": { "email": ["..."] } }
+```
+
+Dil `Accept-Language` (ya da `?lang=` / `X-Locale`) ile seçilir; sitede olmayan
+bir dil hata değil, varsayılana düşüş sebebidir. Seçilen dil `Content-Language`
+ile bildirilir.
+
+Şifre sıfırlama mobilde **bağlantı değil altı haneli kod** ile çalışır —
+uygulama tarayıcıya hiç çıkmaz. Kodun güvenliği hız sınırına bağlıdır
+(`API_RATE_LIMIT_PASSWORD`); gerekçesi `App\Services\PasswordResetCodeService`
+içinde yazılı.
+
+`/settings` ucu **tabloyu olduğu gibi basmaz**: yayınlanacak gruplar ve elenen
+anahtarlar `config/api.php` içinde beyaz liste olarak durur, tipi `password`
+olan ya da adında `secret` / `token` / `password` geçen hiçbir satır dışarı
+çıkmaz.
+
+Kurulum için `.env`'e eklenecekler ve tüm uçların ayrıntısı: **`docs/API.md`**.
+
+**Makine okunur şema: `docs/openapi.json`** (OpenAPI 3.1, 30 uç). Mobil ekip
+istemci modellerini elle yazmak yerine bundan üretir; Postman doğrudan içeri
+alır. Şema rotalarla karşılaştırılarak sınanıyor, yani bayatlayamıyor.
+
+---
+
+## Site araması
+
+Ziyaretçi tek kutudan **blog yazıları, sayfalar, sıkça sorulan sorular ve
+galeri** içinde arama yapar (`/{dil}/arama`, başlıktaki büyüteç ikonu). Kapsam
+`config/search.php` içinde; bir türü kapatmak tek satır.
+
+Dört tür tek bir **birleşik (UNION) sorguda** taranır. Ayrı ayrı sorgulayıp
+PHP'de birleştirmek daha kolay olurdu ama sayfalama bozulurdu: doğru toplam ve
+doğru sayfa dilimi için her türden bütün eşleşmeleri belleğe çekmek gerekirdi.
+
+Sıralama üç kademeli bir alaka puanıyla: başlığı terimle **başlayan** 3,
+başlığında **geçen** 2, yalnız gövdesinde geçen 1. Puansız sıralamada
+"hakkımızda" araması, kelimeyi metninin ortasında geçiren bir yazıyı
+"Hakkımızda" sayfasının üstüne koyabiliyordu.
+
+Sonuçlar ziyaretçinin dilinde gelir, çevirisi olmayan içerik varsayılan dilden
+düşer — aynı içerik iki dilde iki sonuç olarak görünmez. Arama sonucu sayfası
+`noindex` taşır: sonsuz sayıda terim sonsuz sayıda adres demek.
+
+Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
+çağırır, yani aynı terim aynı sonucu ve aynı sırayı verir.
+
+> **Serbest metin araması yalnız `App\Support\LikeSearch` üzerinden yapılır.**
+> Ziyaretçinin yazdığı `%` ve `_` joker değil harf sayılır ve kaçış biçimi hem
+> MySQL'de hem SQLite'ta çalışır. Kural bir üretim hatasından doğdu;
+> `LikeSearchIsPortableTest` elle kurulmuş bir LIKE kalıbının geri gelmesini
+> engelliyor.
 
 ---
 
@@ -489,4 +914,6 @@ preset'i bu hizalamayı bozar. Stil kontrolü için yalnızca `pint --test`.
 - `CLAUDE.md` — proje kuralları (zorunlu)
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
+- `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
+- `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)
 - `resources/views/admin-theme/README.md` — tema referansı

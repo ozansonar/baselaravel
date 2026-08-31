@@ -18,7 +18,7 @@ final class SafeRedirectTarget implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value) || $value === '') {
+        if (! is_string($value) || $value === '') {
             return;
         }
 
@@ -59,13 +59,13 @@ final class SafeRedirectTarget implements ValidationRule
 
         $scheme = strtolower((string) parse_url($target, PHP_URL_SCHEME));
 
-        if (!in_array($scheme, ['http', 'https'], true)) {
+        if (! in_array($scheme, ['http', 'https'], true)) {
             $fail('Yeni URL yalnızca http veya https olabilir.');
 
             return;
         }
 
-        if (!in_array(strtolower($host), $this->allowedHosts(), true)) {
+        if (! in_array(strtolower($host), $this->allowedHosts(), true)) {
             $fail(sprintf(
                 'Site dışı yönlendirme yapılamaz. "%s" izin verilen adresler arasında değil.',
                 $host,

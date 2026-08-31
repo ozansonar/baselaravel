@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PopupDisplayMode;
 use App\Enums\PopupSize;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ class Popup extends Model
         'button_text',
         'button_url',
         'size',
+        'display_mode',
         'pages',
         'start_date',
         'end_date',
@@ -33,7 +35,8 @@ class Popup extends Model
     protected function casts(): array
     {
         return [
-            'size'       => PopupSize::class,
+            'size'         => PopupSize::class,
+            'display_mode' => PopupDisplayMode::class,
             'pages'      => 'array',
             'start_date' => 'date',
             'end_date'   => 'date',

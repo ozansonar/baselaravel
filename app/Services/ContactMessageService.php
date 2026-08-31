@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Mail\ContactMessageNotification;
 use App\Mail\ContactMessageReplyMail;
 use App\Models\ContactMessage;
@@ -43,7 +44,7 @@ final class ContactMessageService
     {
         $query = ContactMessage::withTrashed()->recent();
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             match ($filters['status']) {
                 'unread' => $query->whereNull('deleted_at')->where('is_read', false),
                 'read' => $query->whereNull('deleted_at')->where('is_read', true),
@@ -54,13 +55,13 @@ final class ContactMessageService
             $query->whereNull('deleted_at');
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search): void {
-                $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('subject', 'LIKE', "%{$search}%")
-                  ->orWhere('message', 'LIKE', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('name'), [LikeSearch::term($search)])
+                  ->orWhereRaw(LikeSearch::clause('email'), [LikeSearch::term($search)])
+                  ->orWhereRaw(LikeSearch::clause('subject'), [LikeSearch::term($search)])
+                  ->orWhereRaw(LikeSearch::clause('message'), [LikeSearch::term($search)]);
             });
         }
 
@@ -108,7 +109,7 @@ final class ContactMessageService
 
     public function markAsRead(ContactMessage $message): void
     {
-        if (!$message->is_read) {
+        if (! $message->is_read) {
             $message->markAsRead();
             $this->clearCache();
         }
@@ -185,7 +186,7 @@ final class ContactMessageService
                 'reply_text' => $body,
             ]);
 
-            if (!$message->is_read) {
+            if (! $message->is_read) {
                 $message->markAsRead();
             }
 

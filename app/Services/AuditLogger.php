@@ -120,10 +120,18 @@ final class AuditLogger
         $type = class_basename($model);
         $id = $model->getKey();
 
+        // Kullanıcı kaydında ad tek kolonda değil; e-posta da onu tanıtan en
+        // net alan olduğu için zincire girdi. Aksi hâlde denetim izi
+        // "User #12 güncellendi" deyip kimden söz ettiğini söylemiyordu.
+        $fullName = trim((string) $model->getAttribute('first_name') . ' ' . (string) $model->getAttribute('last_name'));
+
         $name = $model->getAttribute('name')
             ?? $model->getAttribute('title')
             ?? $model->getAttribute('topic')
             ?? $model->getAttribute('caption')
+            ?? ($fullName !== '' ? $fullName : null)
+            ?? $model->getAttribute('email')
+            ?? $model->getAttribute('slug')
             ?? null;
 
         $name = $name ? mb_strimwidth((string) $name, 0, 60, '…', 'UTF-8') : null;

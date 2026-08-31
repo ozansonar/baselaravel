@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -63,7 +63,7 @@ return [
         'uploads' => [
             'driver' => 'local',
             'root' => public_path('uploads'), // Direkt public/uploads klasörünü hedefler
-            'url' => env('APP_URL').'/uploads', // URL üzerinden erişim yolu
+            'url' => env('APP_URL') . '/uploads', // URL üzerinden erişim yolu
             'visibility' => 'public',
             'throw' => false,
         ],

@@ -26,7 +26,7 @@ final class RegisterRequest extends FormRequest
             'first_name'           => ['required', 'string', 'min:2', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'last_name'            => ['required', 'string', 'min:2', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'email'                => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique()],
-            'phone'                => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\)]+$/'],
+            'phone'                => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'password'             => ['required', 'string', Password::min(8), 'confirmed'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()
                 ? ['required', new RecaptchaRule()]
@@ -35,27 +35,34 @@ final class RegisterRequest extends FormRequest
     }
 
     /**
+     * Uyarı metinleri panelden yönetiliyor (Dil Yazıları).
+     *
+     * Koda gömülü olduklarında İngilizce ziyaretçi Türkçe uyarı görüyordu ve
+     * yönetici metni değiştiremiyordu. Sayılar :min / :max ile kuraldan
+     * geliyor: elle yazılan sayı, kural değişince yalan söylüyor — nitekim
+     * söylemişti: iletişim formu sınır 191'ken "255" diyordu.
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'first_name.required'              => 'Ad alanı zorunludur.',
-            'first_name.min'                   => 'Ad en az 2 karakter olmalıdır.',
-            'first_name.max'                   => 'Ad en fazla 50 karakter olabilir.',
-            'first_name.regex'                 => 'Ad yalnızca harf ve boşluk içerebilir.',
-            'last_name.required'               => 'Soyad alanı zorunludur.',
-            'last_name.min'                    => 'Soyad en az 2 karakter olmalıdır.',
-            'last_name.max'                    => 'Soyad en fazla 50 karakter olabilir.',
-            'last_name.regex'                  => 'Soyad yalnızca harf ve boşluk içerebilir.',
-            'email.required'                   => 'E-posta adresi zorunludur.',
-            'email.email'                      => 'Geçerli bir e-posta adresi girin.',
-            'email.unique'                     => 'Bu e-posta adresi zaten kayıtlı.',
-            'phone.regex'                      => 'Telefon numarası yalnızca rakam içerebilir.',
-            'password.required'                => 'Şifre zorunludur.',
-            'password.min'                     => 'Şifre en az 8 karakter olmalıdır.',
-            'password.confirmed'               => 'Şifre tekrarı uyuşmuyor.',
-            'g-recaptcha-response.required'    => 'Lütfen robot olmadığınızı doğrulayın.',
+            'first_name.required'           => __('site.forms.first_name_required'),
+            'first_name.min'                => __('site.register.first_name_min'),
+            'first_name.max'                => __('site.register.first_name_max'),
+            'first_name.regex'              => __('site.forms.first_name_letters'),
+            'last_name.required'            => __('site.forms.last_name_required'),
+            'last_name.min'                 => __('site.register.last_name_min'),
+            'last_name.max'                 => __('site.register.last_name_max'),
+            'last_name.regex'               => __('site.forms.last_name_letters'),
+            'email.required'                => __('site.forms.email_required'),
+            'email.email'                   => __('site.forms.email_invalid'),
+            'email.unique'                  => __('site.register.email_taken'),
+            'phone.regex'                   => __('site.register.phone_digits'),
+            'password.required'             => __('site.forms.password_required'),
+            'password.min'                  => __('site.forms.password_min'),
+            'password.confirmed'            => __('site.register.password_confirmed'),
+            'g-recaptcha-response.required' => __('site.forms.recaptcha'),
         ];
     }
 }

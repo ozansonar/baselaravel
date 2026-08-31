@@ -22,9 +22,9 @@ final class UpdateRoleRequest extends FormRequest
         $roleId = $this->route('role')?->id;
 
         return [
-            'name'        => ['required', 'string', 'max:100'],
-            'slug'        => ['nullable', 'string', 'max:100', 'alpha_dash', Rule::unique('roles', 'slug')->ignore($roleId)],
-            'description' => ['nullable', 'string', 'max:255'],
+            'name'        => ['required', 'string', 'max:50'],
+            'slug'        => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('roles', 'slug')->ignore($roleId)],
+            'description' => ['nullable', 'string', 'max:191'],
         ];
     }
 }

@@ -25,12 +25,12 @@ final class UpdateRedirectRequest extends FormRequest
         $redirectId = $this->route('redirect')?->id;
 
         return [
-            'old_url'     => 'required|string|max:500|unique:redirects,old_url,' . $redirectId . '|starts_with:/',
+            'old_url'     => 'required|string|max:191|unique:redirects,old_url,' . $redirectId . '|starts_with:/',
             'new_url'     => [
                 'nullable',
                 'required_unless:status_code,404,410',
                 'string',
-                'max:500',
+                'max:191',
                 new SafeRedirectTarget(),
                 // Kendine ya da halkaya dönen yönlendirme sayfayı hiç açtırmaz.
                 new NotACircularRedirect((string) $this->input('old_url'), $this->route('redirect')?->id),

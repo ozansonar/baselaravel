@@ -14,7 +14,7 @@ final class AdminMiddleware
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -24,7 +24,7 @@ final class AdminMiddleware
             ->whereHas('permissions')
             ->exists();
 
-        if (!$hasAccess) {
+        if (! $hasAccess) {
             abort(403, 'Bu alana erişim yetkiniz yok.');
         }
 

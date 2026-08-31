@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use App\Support\LikeSearch;
 
 final class SubscriberService
 {
@@ -346,9 +347,9 @@ final class SubscriberService
             $term = $this->likeTerm((string) $filters['search']);
 
             $query->where(function (Builder $sub) use ($term): void {
-                $sub->whereRaw("email LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("first_name LIKE ? ESCAPE '!'", [$term])
-                    ->orWhereRaw("last_name LIKE ? ESCAPE '!'", [$term]);
+                $sub->whereRaw(LikeSearch::clause('email'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('first_name'), [$term])
+                    ->orWhereRaw(LikeSearch::clause('last_name'), [$term]);
             });
         }
 
@@ -374,7 +375,7 @@ final class SubscriberService
      */
     private function likeTerm(string $value): string
     {
-        return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value) . '%';
+        return LikeSearch::term($value);
     }
 
     /**

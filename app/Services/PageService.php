@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\LikeSearch;
 use App\Enums\ContentStatus;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,7 +51,7 @@ final class PageService
     {
         $query = $this->onlyGroupRepresentatives(Page::withTrashed(), Page::class)->sorted();
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             if ($filters['status'] === 'trashed') {
                 $query->onlyTrashed();
             } else {
@@ -63,11 +64,11 @@ final class PageService
             $query->whereNull('deleted_at');
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $this->whereGroupMatches($query, Page::class, function ($q) use ($search): void {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%");
+                $q->whereRaw(LikeSearch::clause('title'), [LikeSearch::term($search)])
+                    ->orWhereRaw(LikeSearch::clause('slug'), [LikeSearch::term($search)]);
             });
         }
 

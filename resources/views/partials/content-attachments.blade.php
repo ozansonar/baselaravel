@@ -95,7 +95,7 @@
                                         data-src="{{ $file->url() }}"
                                         data-caption="{{ $file->original_name }}"
                                         aria-label="{{ __('site.attachments.preview') }}: {{ $file->original_name }}">
-                                    <img src="{{ $file->url() }}" alt="{{ $file->original_name }}" loading="lazy" decoding="async">
+                                    <img src="{{ $file->url() }}" alt="{{ image_alt($file->original_name) }}" loading="lazy" decoding="async">
                                     <span class="att-img__zoom"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
                                 </button>
                                 <figcaption class="att-img__cap">

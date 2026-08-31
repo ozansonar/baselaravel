@@ -151,10 +151,11 @@
                                        id="button_url_{{ $language->code }}" name="translations[{{ $language->code }}][button_url]"
                                        data-validation-engine="validate[maxSize[500]]"
                                        value="{{ old("translations.{$language->code}.button_url", $translation?->button_url) }}"
-                                       placeholder="/blog/...">
+                                       placeholder="hakkimizda">
                                 @error("translations.{$language->code}.button_url")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <div class="form-text">Dil ön eki yazmayın: "iletisim" yazın, ziyaretçinin diline göre /tr/ ya da /en/ eklenir. Harici adresler olduğu gibi kullanılır.</div>
                                 <div class="form-text">Dahili veya harici link girebilirsiniz</div>
                             </div>
                         </div>
@@ -180,12 +181,37 @@
                                 <select class="form-select @error("translations.{$language->code}.size") is-invalid @enderror"
                                         id="size_{{ $language->code }}" name="translations[{{ $language->code }}][size]" data-fv-ignore>
                                     @foreach(\App\Enums\PopupSize::cases() as $size)
-                                        <option value="{{ $size->value }}" {{ old("translations.{$language->code}.size", 'md') === $size->value ? 'selected' : '' }}>
+                                        <option value="{{ $size->value }}" {{ old("translations.{$language->code}.size", $translation?->size?->value ?? 'md') === $size->value ? 'selected' : '' }}>
                                             {{ $size->label() }}
                                         </option>
                                     @endforeach
                                 </select>
                                 @error("translations.{$language->code}.size")
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Gösterim sıklığı --}}
+                            <div class="col-md-6">
+                                <label class="form-label" for="display_mode_{{ $language->code }}">Gösterim Sıklığı</label>
+                                <select class="form-select @error("translations.{$language->code}.display_mode") is-invalid @enderror"
+                                        id="display_mode_{{ $language->code }}" name="translations[{{ $language->code }}][display_mode]"
+                                        data-fv-ignore
+                                        onchange="document.getElementById('display_mode_hint_{{ $language->code }}').textContent = this.selectedOptions[0].dataset.hint || ''">
+                                    @php
+                                        $seciliMod = old("translations.{$language->code}.display_mode", $translation?->display_mode?->value ?? \App\Enums\PopupDisplayMode::Session->value);
+                                    @endphp
+                                    @foreach(\App\Enums\PopupDisplayMode::cases() as $mode)
+                                        <option value="{{ $mode->value }}" data-hint="{{ $mode->description() }}"
+                                                {{ $seciliMod === $mode->value ? 'selected' : '' }}>
+                                            {{ $mode->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text" id="display_mode_hint_{{ $language->code }}">
+                                    {{ (\App\Enums\PopupDisplayMode::tryFrom($seciliMod) ?? \App\Enums\PopupDisplayMode::Session)->description() }}
+                                </div>
+                                @error("translations.{$language->code}.display_mode")
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -230,9 +256,9 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox"
                                                        name="translations[{{ $language->code }}][pages][]" value="{{ $page->value }}"
-                                                       id="page_{{ $page->value }}"
-                                                       {{ in_array($page->value, old("translations.{$language->code}.pages", ['all'])) ? 'checked' : '' }} data-fv-ignore>
-                                                <label class="form-check-label" for="page_{{ $page->value }}">
+                                                       id="page_{{ $page->value }}_{{ $language->code }}"
+                                                       {{ in_array($page->value, (array) old("translations.{$language->code}.pages", $translation?->pages ?? ['all']), true) ? 'checked' : '' }} data-fv-ignore>
+                                                <label class="form-check-label" for="page_{{ $page->value }}_{{ $language->code }}">
                                                     {{ $page->label() }}
                                                 </label>
                                             </div>

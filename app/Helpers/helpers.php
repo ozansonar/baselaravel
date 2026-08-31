@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Services\UploadService;
 
-if (!function_exists('versioned_asset')) {
+if (! function_exists('versioned_asset')) {
     /**
      * Generate an asset URL with cache-busting version query string.
      *
@@ -20,7 +20,7 @@ if (!function_exists('versioned_asset')) {
     }
 }
 
-if (!function_exists('upload_url')) {
+if (! function_exists('upload_url')) {
     /**
      * Get the public URL for an uploaded file.
      *
@@ -34,7 +34,7 @@ if (!function_exists('upload_url')) {
     }
 }
 
-if (!function_exists('whatsapp_url')) {
+if (! function_exists('whatsapp_url')) {
     /**
      * Convert a phone number or wa.me URL to a proper WhatsApp link.
      *
@@ -62,7 +62,7 @@ if (!function_exists('whatsapp_url')) {
     }
 }
 
-if (!function_exists('format_phone')) {
+if (! function_exists('format_phone')) {
     /**
      * Format a phone number for display: +90 505 942 41 24
      *
@@ -89,7 +89,7 @@ if (!function_exists('format_phone')) {
     }
 }
 
-if (!function_exists('upload_srcset')) {
+if (! function_exists('upload_srcset')) {
     /**
      * Generate srcset attribute for responsive images.
      *
@@ -103,7 +103,7 @@ if (!function_exists('upload_srcset')) {
     }
 }
 
-if (!function_exists('site_initials')) {
+if (! function_exists('site_initials')) {
     /**
      * Build a short monogram from the site name, used as a logo placeholder
      * until a real logo is uploaded.
@@ -128,7 +128,7 @@ if (!function_exists('site_initials')) {
     }
 }
 
-if (!function_exists('page_url')) {
+if (! function_exists('page_url')) {
     /**
      * A dynamic page's address in the language being read.
      *
@@ -139,5 +139,65 @@ if (!function_exists('page_url')) {
     function page_url(string $slug): string
     {
         return app(\App\Services\LocalizedUrlService::class)->page($slug);
+    }
+}
+
+if (! function_exists('image_alt')) {
+    /**
+     * Bir görselin alt metni: ilk dolu aday, hiçbiri yoksa sitenin genel metni.
+     *
+     * Görünümde `alt="{{ image_alt($item->title) }}"` diye çağrılıyor; boş
+     * kalma ihtimali olan her yerde bu zincir devreye giriyor.
+     *
+     * @see \App\Services\ImageAltResolver
+     */
+    function image_alt(?string ...$candidates): string
+    {
+        return app(\App\Services\ImageAltResolver::class)->resolve(...$candidates);
+    }
+}
+
+if (! function_exists('local_url')) {
+    /**
+     * Panelden girilen bağlantıyı ziyaretçinin diline taşır.
+     *
+     * Yönetici "iletisim" yazıyor, ziyaretçi hangi dilde geziniyorsa bağlantı
+     * oraya gidiyor. Dış adresler ve çapalar olduğu gibi kalıyor.
+     *
+     * @see \App\Services\LocalizedUrlService::fromInput()
+     */
+    function local_url(?string $input): string
+    {
+        return app(\App\Services\LocalizedUrlService::class)->fromInput($input);
+    }
+}
+
+if (! function_exists('validation_engine_script')) {
+    /**
+     * Doğrulama motorunun aktif dildeki dosya yolu.
+     *
+     * @see \App\Services\ValidationEngineLocale
+     */
+    function validation_engine_script(): string
+    {
+        return app(\App\Services\ValidationEngineLocale::class)->scriptPath();
+    }
+}
+
+if (! function_exists('localized_route')) {
+    /**
+     * Bir rotanın bu dildeki tercih edilen adresi.
+     *
+     * Panelden o rota için bir adres açılmışsa o kullanılıyor, yoksa rotanın
+     * kendi adresi. Bağlantı da canonical da aynı soruyu soruyor, o yüzden
+     * tek yardımcı: ikisi ayrışırsa sayfa kendini göstermediği bir adrese
+     * bağlantı verir.
+     *
+     * @param  array<string, mixed> $params
+     * @see \App\Services\LocalizedUrlService::canonicalFor()
+     */
+    function localized_route(string $routeName, array $params = []): string
+    {
+        return app(\App\Services\LocalizedUrlService::class)->canonicalFor($routeName, $params);
     }
 }

@@ -195,6 +195,21 @@ class LiveVisitorsTest extends TestCase
     }
 
     /**
+     * İzleme uç noktası analitik rızası olmadan hiçbir şey kaydetmiyor; bu
+     * testler rızanın kendisini değil ondan sonrasını sınıyor.
+     */
+    private function allowingAnalytics(): static
+    {
+        return $this->withCredentials()->withCookies([
+            \App\Services\ConsentService::COOKIE => (string) json_encode([
+                'version'    => \App\Services\ConsentService::VERSION,
+                'token'      => '22222222-2222-4222-8222-222222222222',
+                'categories' => [\App\Enums\ConsentCategory::Analytics->value],
+            ]),
+        ]);
+    }
+
+    /**
      * Panel hesaplarıyla gezinmek istatistiği bozmamalı: sayılar sitenin
      * ziyaretçisini anlatmalı, sitede çalışanı değil.
      */
@@ -205,6 +220,7 @@ class LiveVisitorsTest extends TestCase
         $staff->roles()->syncWithoutDetaching([$staffRole->id]);
 
         $this->actingAs($staff)
+            ->allowingAnalytics()
             ->postJson(route('analytics.track'), [
                 'url'  => 'http://localhost/tr/blog',
                 'path' => '/tr/blog',
@@ -220,7 +236,7 @@ class LiveVisitorsTest extends TestCase
      */
     public function test_an_ordinary_visit_is_recorded(): void
     {
-        $this->postJson(route('analytics.track'), [
+        $this->allowingAnalytics()->postJson(route('analytics.track'), [
             'url'  => 'http://localhost/tr/blog',
             'path' => '/tr/blog',
         ])->assertStatus(202);

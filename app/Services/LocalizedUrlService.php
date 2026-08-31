@@ -198,6 +198,107 @@ final class LocalizedUrlService
      * is the translation the visitor is reading, or the original when that
      * page has no version in their language.
      */
+    /**
+     * Panelden girilen bir bağlantıyı ziyaretçinin diline taşır.
+     *
+     * Yönetici artık dil ön eki yazmıyor: "iletisim" yazıyor, ziyaretçi hangi
+     * dilde geziniyorsa bağlantı oraya gidiyor. Eskiden her dil için ayrı
+     * kayıt gerekiyordu ve bu kaçınılmaz olarak unutuluyordu — İngilizce
+     * sayfadaki düğme Türkçe sayfaya götürüyordu.
+     *
+     * Kayıtlı adres zaten bir dil ön eki taşıyorsa (eski veri "/tr/iletisim"
+     * diye duruyor) o ön ek atılıp bugünkü dille değiştiriliyor. Böylece
+     * geçmiş kayıtlar da düzeliyor, taşıma göçü gerekmiyor.
+     *
+     * Dışarı çıkan ya da sayfaya gitmeyen adresler olduğu gibi kalıyor:
+     * http(s), protokolsüz //, mailto, tel, çapa ve sorgu dizisi.
+     */
+    public function fromInput(?string $input): string
+    {
+        $value = trim((string) $input);
+
+        if ($value === '') {
+            return '#';
+        }
+
+        if (preg_match('~^(?:[a-z][a-z0-9+.-]*:|//|[#?])~i', $value) === 1) {
+            return $value;
+        }
+
+        $path = ltrim($value, '/');
+        $locale = app()->getLocale();
+        $segments = explode('/', $path, 2);
+
+        // Baştaki parça bir dil koduysa yerine bugünkü dil geçiyor.
+        if ($this->languages->isSupported($segments[0])) {
+            $path = $segments[1] ?? '';
+        }
+
+        if ($path === '') {
+            return url($locale);
+        }
+
+        // Girilen slug bu dilde başka bir adrese açılmışsa o kullanılıyor:
+        // yönetici "iletisim" yazar, İngilizce sayfa /en/contact'a gider.
+        $custom = app(CustomRouteService::class)->resolve($locale, $path);
+
+        if ($custom === null) {
+            $ownSlug = $this->localisedSlugOfBuiltInPath($path, $locale);
+            $path = $ownSlug ?? $path;
+        }
+
+        return url($locale . '/' . $path);
+    }
+
+    /**
+     * Bir rotanın bu dildeki tercih edilen adresi.
+     *
+     * Panelden bir adres açıldığında aynı sayfaya iki yoldan gidilebiliyor:
+     * rotanın kendi adresi ve açılan adres. İkisi de kendini gösteren bir
+     * canonical basarsa arama motoru aynı içeriği iki kez görür ve hangisini
+     * dizine alacağını kendi seçer.
+     *
+     * Tercih edilen, açılmış adres: yönetici o sayfayı o adreste yayınlamayı
+     * seçmiş demektir.
+     *
+     * @param array<string, mixed> $params
+     */
+    public function canonicalFor(string $routeName, array $params = []): string
+    {
+        $locale = app()->getLocale();
+        $slug = app(CustomRouteService::class)->slugFor($routeName, $locale, $params);
+
+        return $slug === null
+            ? route($routeName, $params)
+            : url($locale . '/' . $slug);
+    }
+
+    /**
+     * Yerleşik bir rotanın bu dildeki özel adresi — varsa.
+     *
+     * Girilen yol hangi rotaya karşılık geliyorsa, o rota için bu dilde
+     * açılmış bir adres aranıyor. "iletisim" yazan bir bağlantı İngilizce
+     * sayfada /en/contact'a gidiyor.
+     */
+    private function localisedSlugOfBuiltInPath(string $path, string $locale): ?string
+    {
+        $routes = app(CustomRouteService::class);
+
+        foreach ($routes->availableTargets() as $name => $label) {
+            if ($routes->parametersFor($name) !== []) {
+                continue;
+            }
+
+            $uri = ltrim((string) preg_replace('~^\{locale\}/?~', '', (string) app('router')->getRoutes()->getByName($name)?->uri()), '/');
+
+            if ($uri !== '' && $uri === $path) {
+                return $routes->slugFor($name, $locale);
+            }
+        }
+
+        return null;
+    }
+
     public function page(string $slug): string
     {
         $locale = app()->getLocale();

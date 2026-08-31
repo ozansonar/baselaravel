@@ -30,7 +30,7 @@ final class LocationService
     public static function getCities(): array
     {
         return array_map(
-            static fn(array $city): string => $city['name'],
+            static fn (array $city): string => $city['name'],
             self::getAllData()
         );
     }

@@ -107,12 +107,18 @@
 
     @stack('styles')
 
-    @if($gaId)
+    {{-- İzleme betikleri ziyaretçi izin vermeden hiç basılmıyor.
+         Sayfaya konup sonra "çalışmasın" demek yeterli değil: etiket
+         yüklendiği anda istek atıyor ve çerezini kuruyor. --}}
+    @if($gaId && $consent->allows(\App\Enums\ConsentCategory::Analytics))
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $gaId }}');</script>
     @endif
 
-    @if($gtmId)
+    {{-- Tag Manager pazarlama sayılıyor: içine ne konduğu buradan görünmez,
+         bir kap her etiketi yükleyebilir. Belirsiz olanı en dar kategoriye
+         koymak doğru varsayılan. --}}
+    @if($gtmId && $consent->allows(\App\Enums\ConsentCategory::Marketing))
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $gtmId }}');</script>
     @endif
 
@@ -151,7 +157,7 @@
             '@context'    => 'https://schema.org',
             '@type'       => 'WebSite',
             'name'        => $siteName,
-            'url'         => route('home'),
+            'url'         => localized_route('home'),
             'description' => $siteDesc,
             'inLanguage'  => app()->getLocale(),
         ];
@@ -163,7 +169,10 @@
 <body>
     <a href="#main-content" class="skip-to-content">{{ __('site.nav.skip_to_content') }}</a>
 
-    @if($gtmId)
+    {{-- Betiksiz GTM çerçevesi de aynı izne bağlı. Başlıktaki betik
+         kapatılıp bu açık bırakılsaydı, JavaScript'i kapalı ziyaretçi tam da
+         korunması gereken kişiyken rızasız izlenirdi. --}}
+    @if($gtmId && $consent->allows(\App\Enums\ConsentCategory::Marketing))
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}" height="0" width="0" class="d-none"></iframe></noscript>
     @endif
 
@@ -201,7 +210,9 @@
     {{-- Form doğrulama motoru. jQuery yalnızca bunun için yükleniyor; kendi
          kodumuz vanilla. Front dosyası admin'inkinden ayrı: js/form-validation.js --}}
     <script src="{{ asset('assets/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine-tr.js') }}"></script>
+    {{-- Uyarı metinleri ziyaretçinin dilinde: dosya sabit yazılıydı ve
+         İngilizce sayfada Türkçe uyarı çıkıyordu. --}}
+    <script src="{{ asset(validation_engine_script()) }}"></script>
     <script src="{{ asset('assets/vendor/jquery-validation-engine/js/jquery.validationEngine.js') }}"></script>
     <script src="{{ versioned_asset('js/form-validation.js') }}"></script>
     <script src="{{ versioned_asset('js/app.js') }}"></script>
@@ -220,8 +231,13 @@
 
     {{-- Analytics tracker (async; panel kullanıcıları sayılmaz) --}}
     @unless(auth()->check() && auth()->user()->canAccessPanel())
+    @if($consent->allows(\App\Enums\ConsentCategory::Analytics))
     <script src="{{ versioned_asset('js/analytics-tracker.js') }}" defer></script>
+    @endif
     @endunless
+
+    @include('partials.cookie-consent')
+    <script src="{{ versioned_asset('js/cookie-consent.js') }}" defer></script>
 
     @stack('scripts')
 </body>

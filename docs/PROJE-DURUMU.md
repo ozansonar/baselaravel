@@ -1,7 +1,8 @@
 # Proje Durumu
 
-**Son güncelleme:** 2026-08-25
-**Branch:** `feat/laravel-13-upgrade` (= `refactor/extract-base-kit`, aynı commit)
+**Son güncelleme:** 2026-08-31 (API katmanı ve arama turundan sonra)
+**Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
+**Kalan iş listesi:** [`YOL-HARITASI.md`](YOL-HARITASI.md)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
 
 ---
@@ -20,13 +21,19 @@ Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 
 | | Adet | | Adet |
 |---|---|---|---|
-| Model | 23 | Route | 164 |
-| Service | 33 | Migration | 40 |
-| Controller | 39 (26'sı admin) | Seeder | 9 |
-| FormRequest | 36 | Blade view | 109 |
-| Policy | 20 | Enum | 9 |
-| Observer | 9 | Artisan command | 5 |
-| Test | 27 | Assertion | 179 |
+| Model | 34 | Route | 317 (33'ü API) |
+| Service | 69 | Migration | 70 |
+| Controller | 79 (38 admin, 19 API) | Seeder | 11 |
+| FormRequest | 78 | Blade view | 185 |
+| Policy | 26 | Enum | 30 |
+| Observer | 11 | Artisan command | 8 |
+| API Resource | 19 | Factory | 34 |
+| Test dosyası | 110 | Test / assertion | 1516 / 5563 |
+
+**Suite durumu (2026-08-31):** `vendor/bin/phpunit` → 1516 test, 5563 assertion,
+hepsi yeşil, 44 saniye. Tek uyarı: suite'in tepe belleği **131 MB**, yani stok
+`memory_limit=128M` ile `composer test` yarıda düşüyor. Tek başına en ağır test
+sınıfı 83 MB'de kalıyor — sorun ekranlarda değil, suite boyunca biriken bellek.
 
 ---
 
@@ -504,49 +511,80 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ## 6. ⚠️ Kalan Yapılacak İşler
 
-### 🟡 Test kapsamı
+Ayrıntılı gerekçe, kapsam ve kabul ölçütleri ayrı belgede:
+**[`YOL-HARITASI.md`](YOL-HARITASI.md)**. Buradaki liste onun özeti.
 
-Suite artık **297 test / 1416 assertion**. Yetkilendirme, açık yönlendirme,
-SoftDeletes, çok dilli içerik formları, arayüz çevirisi, navigasyon ve build
-tool yasağı kapsandı.
+### Üç yüzün karşılaştırması
 
-Mail ve upload yolları da kapsandı (`ImageUploadTest` 23, `MailDeliveryTest` 25);
-bunlar diske ve SMTP'ye dokunduğu için kodu okuyarak doğrulanamayan tek yerdi.
+| Yetenek | Web | Mobil web | API |
+|---|---|---|---|
+| İçerik (blog, sayfa, galeri, SSS) | ✅ | ✅ | ✅ |
+| Çok dillilik | ✅ | ✅ | ✅ |
+| SEO (sitemap, hreflang, JSON-LD, RSS) | ✅ | ✅ | — |
+| Kimlik (kayıt, giriş, şifre sıfırlama, e-posta doğrulama) | ✅ | ✅ | ✅ |
+| Profil + şifre değiştirme | ✅ | ✅ | kısmi (şifre yok) |
+| Cihaz / oturum yönetimi | ❌ | ❌ | ✅ |
+| İki adımlı doğrulama | ❌ | ❌ | ❌ |
+| Hesap kapatma + veri indirme (KVKK) | ❌ | ❌ | ❌ |
+| Bildirim tercihleri | ❌ | ❌ | ❌ |
+| Kurulabilirlik (PWA, çevrimdışı) | — | ❌ | — |
+| Push bildirim | — | — | ❌ |
+| Sürüm / sağlık ucu | — | — | ❌ |
 
-Bu testler yazılırken üç gerçek kusur çıktı — bkz. 5h.
+### 🔴 Öncelikli — hesap ve kimlik (Faz 1)
 
-`NoBuildToolchainTest` (24) build tool yasağını bekçilik ediyor: kök dizinde
-`package.json` / `vite.config.*` / `webpack.mix.js` / `tailwind.config.*` yok,
-`node_modules` / `public/build` / `resources/js` / `resources/css` dizinleri
-oluşmamış, hiçbir view `@vite` veya `mix()` kullanmıyor, `composer.json`
-Node tabanlı araç istemiyor ve vendor kütüphaneleri commit'li dosya olarak
-duruyor. Bu base kit'ten türeyen her proje için önemli — bir artisan iskele
-komutu veya stok Laravel dosyası zinciri sessizce geri getirebilir.
+- **Web'de cihaz/oturum yönetimi yok.** API'de var; aynı kullanıcı telefonda
+  oturum kapatabiliyor, tarayıcıda kapatamıyor.
+- **İki adımlı doğrulama yok.** Panel yöneticisinin tek koruması şifre.
+- **Hesap kapatma ve veri indirme yok.** KVKK/GDPR karşılığı eksik; ayrıca
+  mağazalar uygulama içi hesap silme yolunu şart koşuyor.
+- **API'de şifre değiştirme ucu yok.**
+- **Bildirim tercihleri tablosu yok.** Kullanıcının e-postaları kapatabildiği
+  tek yer bülten çıkış bağlantısı.
 
-### 🟢 Eksik modüller (admin temada hazır tasarım var, kod yok)
+### 🟠 Mobil web (Faz 2)
 
-- **`reports.html`** — Raporlama ekranı
+- **PWA yok:** `manifest.json`, servis çalışanı, çevrimdışı sayfa hiç yok.
+- **Mobil denetim yapılmadı:** 70 KB ön yüz CSS'inde 10 medya sorgusu var,
+  düzen Bootstrap ızgarasına bırakılmış. Izgara taşmayı ve dokunma hedefini
+  çözmez.
+- **Erişilebilirlik taban çizgisi yok:** içeriğe atlama bağlantısı yok.
+
+### 🟡 Panelin eksik ekranları (Faz 3)
+
+Temada tasarımı hazır, kodu yok:
+
+- **`reports.html`** — Raporlar
 - **`content-list.html`** — Genel içerik listesi
+- **`help.html`** — Panel içi yardım
 
-~~`roles-permissions.html`~~ — yapıldı (`4b49a5a`): `admin/roles/index.blade.php`
-ve tam CRUD + izin senkronizasyonu route'ları mevcut.
+(`orders.html`, `products.html`, `product-add.html` bilerek boş: e-ticaret
+modülleri `ab57deb`'de sökülmüştü.)
 
-### 🟢 Diğer
+### 🟡 API olgunluğu (Faz 4)
 
-- ~~`README.md` tek satır~~ — yazıldı: kurulum, roller, çok dilli yapı, testler.
-- ~~`composer.json` adı hâlâ `laravel/laravel`~~ — `ozansonar/laravel-base` oldu.
-- **`jenssegers/agent` 6 yıldır güncellenmiyor** (son sürüm 2020). Laravel 13 /
-  PHP 8.4 ile çalışıyor ama uzun vadede risk. Tek kullanım yeri
-  `AnalyticsService` (tarayıcı/cihaz tespiti); değiştirilmesi gerekirse etki
-  alanı dar.
-- ~~Ölü iskele girdileri~~ — temizlendi: `.gitignore`'daki `Homestead.*`
-  satırları ve `composer.json`'daki `allow-plugins → pestphp/pest-plugin`.
-- ~~Hesabım alanı zayıf~~ — şifre değiştirme (mevcut şifre doğrulamalı) ve
-  e-posta doğrulama eklendi.
-- ~~Ölü kod~~ — temizlendi: `vendor/pagination/custom.blade.php` ve
-  `.gitignore`'daki google kuralı kaldırıldı. `UserRole` enum'u silinmedi,
-  aksine bağlandı: `AdminMiddleware` ve `RoleSeeder` artık rol slug'larını
-  ondan okuyor.
+- Push bildirim altyapısı (jeton kaydı + gönderim kancası) yok
+- Sürüm/sağlık ucu yok — eski istemciyi güncellemeye zorlamanın yolu yok
+- Kullanıcı kendi yorumlarını göremiyor/silemiyor (web'de de yok)
+
+### 🟢 Dayanıklılık ve bakım (Faz 5)
+
+- **Yedeğin dış kopyası yok** — arşiv, yedeklediği veriyle aynı diskte.
+- **`jenssegers/agent` 2020'den beri güncellenmiyor.** Tek kullanım yeri
+  `AnalyticsService`; etki alanı dar.
+- **Suite tepe belleği 131 MB** — stok `memory_limit=128M` ile `composer test`
+  yarıda düşüyor. Tek başına en ağır sınıf 83 MB; sorun birikim.
+- **İki config sertleştirmesi bekliyor:** `session.serialization` ve
+  `cache.serializable_classes` (gerekçeleri bölüm 7'de).
+
+### ✅ Bu turda kapandığı doğrulananlar
+
+- ~~Ön yüzdeki sabit metinler~~ — arayüz çevirisi tamamlandı (bkz. 5f).
+- ~~Blog ve galeri sorguları dil farkında değil~~ — `localeWithFallback` blog,
+  galeri, SSS, sayfa, slider, popup ve arama servislerinin hepsinde.
+- ~~`roles-permissions.html` ekranı~~ — yapıldı, tam CRUD + izin senkronizasyonu.
+- ~~README tek satır~~, ~~`composer.json` adı~~, ~~ölü iskele girdileri~~,
+  ~~ölü kod~~ — hepsi temizlendi.
 
 ---
 
@@ -873,6 +911,984 @@ bulunmaması ve yönlendirmenin yetkiye göre link/düz metin olması.
 
 ---
 
+## 5n. Pasif Kullanıcı Oturumu ve Güvenilen Proxy — ✅ İki Sessiz Açık Kapatıldı
+
+Base kit'in production'a hazırlık denetiminde çıkan iki bulgu. İkisinin de ortak
+özelliği **hata vermeden yanlış davranmaları**: kod çalışıyor, test yeşil, ekran
+doğru sonucu gösteriyor — ama iş yapılmıyor.
+
+### 1. Pasife alınan kullanıcı oturumundan düşmüyordu
+
+`is_active` kod tabanında **tek bir yerde** okunuyordu: `AuthService::login()`.
+Yani bayrak yalnızca "kim oturum **açabilir**" sorusunu cevaplıyordu. Zaten açık
+bir oturum hiç sorgulanmıyordu.
+
+Sonuç: panelden bir hesabı pasife almak, o kişi o an oturumdaysa **hiçbir şey
+yapmıyordu**. Oturum ömrü kadar (varsayılan 120 dakika), "beni hatırla"
+işaretliyse `remember_token` geçerli olduğu sürece panelde kalmaya devam
+ediyordu. Düğmeye basan yöneticinin hesabın kapandığına inanmak için her
+sebebi vardı.
+
+İzinlerde bu sorun hiç olmadı: `AdminMiddleware` her istekte veritabanına
+soruyor, rol kaldırmak anında etkili oluyor. `is_active` hiçbir şeyin yeniden
+kontrol etmediği tek bayraktı.
+
+**İki katman eklendi, ikisi de gerekli:**
+
+| Katman | Ne yapıyor | Neden tek başına yetmiyor |
+|---|---|---|
+| `EnsureUserIsActive` middleware | Pasif kullanıcıyı bir sonraki istekte çıkarıyor: `Auth::logout()` + oturum geçersizleştirme, JSON isteğinde 403 | Oturum satırı ve `remember_token` yerinde kalır |
+| `SessionRevoker` servisi | Kullanıcının açık oturum satırlarını siliyor ve `remember_token`'ı boşaltıyor | Oturum sürücüsü `database` değilse satır bulunamaz |
+
+Middleware `web` grubuna `SetLocale`'den **sonra** eklendi — uyarının
+ziyaretçinin dilinde çıkması gerekiyor. Admin rotaları `web` grubunun üstüne
+kurulduğu için panel ve ön yüz aynı kontrolden geçiyor.
+
+`SessionRevoker` üç yerden çağrılıyor:
+
+- `UserObserver::updated()` — `is_active` false'a döndüğünde
+- `UserObserver::deleted()` — hesap silindiğinde
+- `UserService::deleteMany()` — toplu silme sorgu kurucusundan gittiği için
+  model olayı doğmuyor, servis işi kendisi yapıyor
+
+### Yol üzerinde bulunan iki kusur
+
+**Force delete kullanıcıyı geri getiriyordu.** `revoke()` içindeki
+`saveQuietly()` çağrısı, `forceDelete()` sonrası `exists = false` olan bir model
+üzerinde çalıştığında UPDATE değil **INSERT** üretiyor ve silinen kullanıcıyı
+geri yazıyordu. `exists` kontrolü eklendi; testi var.
+
+**`UserFactory` `is_active` üretmiyordu.** Kolon varsayılanına bırakılmıştı, yani
+satır aktif oluyordu ama `create()`'in döndürdüğü **modelde alan hiç yoktu** ve
+`null` okunuyordu. Middleware modele sorduğu için suite'te 294 test birden
+düştü. Fabrikaya `'is_active' => true` ve bir `inactive()` state'i eklendi.
+
+### 2. Güvenilen proxy tanımsızdı
+
+`bootstrap/app.php` içinde `trustProxies()` çağrısı yoktu. Laravel'in
+`TrustProxies` middleware'i global yığında zaten duruyor, ama güvenilecek proxy
+listesi boş olduğu için iletilen başlıkların hiçbirine bakmıyordu.
+
+Cloudflare, nginx reverse proxy veya yük dengeleyici arkasında bunun üç sonucu
+var ve **üçü de sessiz**:
+
+| Ne bozuluyor | Sonuç |
+|---|---|
+| `throttle:login`, `throttle:contact`, `throttle:register` | Hepsi IP'ye göre kova açıyor. Tek IP görüldüğü için tüm ziyaretçiler aynı kovayı paylaşır — bir kişinin başarısız girişleri **herkesi** kilitler, gerçek saldırgan ise hiç yavaşlamaz |
+| `page_views.ip_address`, audit log IP'leri | Ziyaretçi değil proxy kaydedilir |
+| `$request->secure()` | False döner, `SecurityHeaders` **HSTS başlığını hiç basmaz** |
+
+`config/trustedproxy.php` eklendi — Laravel'in `TrustProxies` sınıfı bu anahtarı
+kendiliğinden okuyor, `.env` → `TRUSTED_PROXIES`. Virgülle ayrılmış adres/CIDR
+listesi ya da `'*'` kabul ediyor. **Varsayılan boş**: siteye doğrudan
+erişiliyorsa doğrusu budur, çünkü bir proxy'ye güvenmek onun gönderdiği
+`X-Forwarded-For` değerine güvenmek demektir.
+
+Güvenilen başlık kümesi `bootstrap/app.php` içinde bilinçli olarak Laravel'in
+varsayılanından **dar** tutuldu: `FOR | HOST | PORT | PROTO`. `AWS_ELB` ve
+`PREFIX` dışarıda — bu proje o başlıkları üreten hiçbir katmanın arkasında
+çalışmıyor.
+
+> Ayar `config()` üzerinden okunuyor, `bootstrap/app.php` içinde `env()` ile
+> değil: middleware yapılandırması uygulama önyüklenmeden çalışıyor ve orada
+> `config()` henüz yok. Liste istek anında çözülüyor.
+
+### Testler
+
+`InactiveUserSessionTest` (11): aktif kullanıcının oturumunun korunması, pasife
+alınan kullanıcının panelde ve ön yüzde bir sonraki istekte çıkarılması, JSON
+isteğinde 403, misafirin etkilenmemesi, `remember_token`'ın düşmesi, aktif kalan
+kullanıcının token'ının korunması, oturum satırlarının silinmesi (yalnızca o
+kullanıcınınki), silme ve toplu silme yollarının ikisi de, force delete'in
+kullanıcıyı geri getirmemesi.
+
+`TrustedProxyTest` (12): varsayılanda hiçbir proxy'ye güvenilmemesi, başlık
+kümesinin dar tutulduğunun reflection ile doğrulanması, `TRUSTED_PROXIES`
+ayrıştırması (liste / `'*'` / boş), güvenilmeyen kaynağın adresi ve şemayı
+sahteleyememesi, güvenilen proxy arkasında gerçek adresin geçmesi, HSTS'in
+yalnızca iletilen şema güvenildiğinde çıkması ve **aynı proxy arkasındaki iki
+ziyaretçinin ayrı rate limit kovasına düşmesi**.
+
+Her iki düzeltme de geri alınıp testlerin gerçekten kırıldığı doğrulandı:
+middleware kaldırılınca 3, observer kaldırılınca 4, `exists` kontrolü ve toplu
+silme çağrısı kaldırılınca 2, config dosyası kaldırılınca 4 test düşüyor.
+
+### Bilinen ortam kaynaklı hata
+
+Suite'te 5 test ağ erişimi olmayan ortamda düşüyor:
+`CampaignPanelTest` (3), `FrontFormInputRulesTest` (1), `SubscriberListTest` (1).
+Sebep `email:rfc,dns` kuralının DNS sorgusu; bu değişikliklerden önce de aynı
+şekilde düşüyorlardı, kodla ilgisi yok.
+
+
+---
+
+## 5o. robots.txt — ✅ Dosyadan Rotaya Taşındı
+
+`public/robots.txt` sabit bir dosyaydı ve iki ayrı sebeple yanlıştı.
+
+**Kopyalanabilir olması.** Dosya depoyla birlikte geliyordu, yani bu base
+kit'ten türeyen **her proje** arama motorlarına şu satırı veriyordu:
+
+```
+Sitemap: https://orhanbabaninciftligi.com/sitemap.xml
+```
+
+Yani yeni projenin sitemap'i hiç bildirilmiyor, bildirilen adres başka bir siteyi
+gösteriyordu. Aynı dosyada sökülmüş modüllerden kalan `Disallow: /*/sepet` ve
+`/*/siparis` satırları da duruyordu. Hiçbiri hata vermiyordu.
+
+**Eskimesi.** Adresler artık panelden açılıyor (`custom_routes`) ve diller
+panelden yayına alınıyor. Elle yazılmış bir liste bu iki ekranın arkasından
+kaçınılmaz olarak geride kalıyordu: yeni bir dil yayına alındığında o dilin
+`/de/giris` adresi robots'ta hiç görünmüyordu.
+
+### Şimdi nasıl çalışıyor
+
+`RobotsService` listeyi **rotaların kendisinden** üretiyor:
+
+| Kaynak | Ne veriyor |
+|---|---|
+| Rota adları (`login`, `account.dashboard`, …) | Yolun gerçek hâli. Rota yolu değişirse robots kendiliğinden takip ediyor |
+| `LanguageService::activeCodes()` | Her yayındaki dil için ayrı satır — joker (`/*/`) yerine gerçek önekler |
+| `CustomRouteService::map()` | Panelden özel bir alana açılmış adresler. `/en/login` açılırsa o da yasaklanıyor — asıl adresi yasaklayıp takma adını açık bırakmak hiçbir işe yaramaz |
+| `route('sitemap')` | Sitemap satırı bu sitenin adresini gösteriyor |
+
+Ek olarak iki uç nokta listeye girdi: dil değiştirici (`/dil/`) ve **bülten
+çıkış bağlantısı** (`/bulten/cikis/`). İkincisi giriş istemeyen, durum
+değiştiren bir GET — bir tarayıcı robotunun izlemesi gereken en son bağlantı ve
+eski dosyada hiç yoktu.
+
+**Canlı olmayan kopya tümüyle kapalı.** `APP_ENV !== production` ise gövde
+yalnızca `Disallow: /`. Staging kopyası da `Allow: /` deseydi aynı içerik iki
+alan adında dizine girer ve canlı siteyle kopya içerik çakışması üretirdi.
+
+**Önbelleğe alınmıyor.** Dayandığı iki kaynak (aktif diller, özel adres
+haritası) zaten kendi önbelleklerinden geliyor; üçüncü bir önbellek yalnızca
+geçersizleştirilecek bir yüzey daha eklerdi.
+
+### Fazla satır basılmıyor
+
+Robots kuralları önek eşleştirdiği için `/tr/hesabim` yazıldıktan sonra
+`/tr/hesabim/profil` fazladan satır. Üretilen liste tekrarları atıyor ve kısa
+öneki olan uzun yolları düşürüyor.
+
+### Bakım modu
+
+`/robots.txt` `web` grubunda, yani bakım modunda `CheckMaintenanceMode` 503
+dönüyor. Bu bilinçli: arama motorları robots.txt'e gelen 5xx'i "şimdilik hiçbir
+şeyi tarama" diye okur, bakım penceresinde istenen davranış tam olarak budur.
+
+### Yol üzerinde bulunan şey
+
+Giriş/kayıt/şifre sayfalarına `@section('robots', 'noindex, nofollow')` eklemeye
+kalkıldı — gereksizdi: `layouts/auth.blade.php` `noindex` etiketini zaten sabit
+basıyor ve o layout böyle bir section yield etmiyor. Eklenen satırlar ölü kod
+olacaktı, geri alındı. (`auth/verify-email.blade.php:5` içinde aynı sebeple ölü
+duran bir section var; zararsız olduğu için dokunulmadı.)
+
+### Testler
+
+`RobotsTest` (14): statik dosyanın geri gelmemesi (gelirse web sunucusu onu
+basar ve rota ölü koda döner), canlı olmayan kopyanın kapalı olması, sitemap
+satırının bu siteyi göstermesi, başka projenin alan adının kalmaması, sökülmüş
+modül yollarının gitmiş olması, panelin yasaklı olması, her yayındaki dilin
+kendi satırlarını alması, **yeni bir dil yayına alındığında listenin
+genişlemesi**, özel adresin yasaklanması, herkese açık özel adresin
+(`/en/contact`) yasaklanmaması, dil öneki öncesi eski adresler, dil taşımayan
+uç noktalar, önek tekrarının basılmaması ve yolların rota tanımından okunduğu.
+
+Düzeltme geri alınıp doğrulandı: statik dosya geri konunca 1, sitemap satırı
+sabitlenip ortam kontrolü kaldırılınca 3 test düşüyor.
+
+
+---
+
+## 5p. Hata Bildirimi ve Log Rotasyonu — ✅ Kapatıldı
+
+Canlıda 500 veren bir sayfa **kimseye haber vermiyordu**. `bootstrap/app.php`
+içindeki `withExceptions()` bloğu boştu; hata yalnızca `storage/logs` altına
+düşüyordu ve oraya kimse bakmıyordu. Bir kullanıcı şikâyet edene kadar sitenin
+bir bölümü günlerce kırık kalabilirdi.
+
+Acı olan tarafı: projede çalışan bir bildirim kanalı **zaten vardı**.
+`TelegramNotifier` ve `NotificationCenter` yazılmış, throttle'ı kurulmuş, panel
+zilinde gösterimi hazırdı — yalnızca yedekleme komutu ve birkaç servis onu
+çağırıyordu.
+
+### 1. İşlenmeyen hata artık yöneticiye ulaşıyor
+
+`ExceptionNotifier` iki kanala birden düşürüyor: Telegram (açıksa) ve panel
+bildirim merkezi (`type: exception`, kritik seviye).
+
+Kapanış `report()` ile bağlandı ve **hiçbir şey döndürmüyor** — `false` dönseydi
+hatanın loga yazılmasını da durdururdu. Bildirim logun yerine değil yanına
+geçiyor; testi var.
+
+**Gürültü yok.** Laravel 404, 403, 419, 429, doğrulama ve kimlik hatalarını
+raporlamadan önce eliyor (`Handler::$internalDontReport`), yani buraya yalnızca
+gerçekten beklenmedik olanlar geliyor. Ayrıca aynı hata için 10 dakikada bir
+bildirim: parmak izi türü + dosya + satır, yani sıcak bir sayfadaki döngüsel
+hata tek mesaj üretiyor ama farklı bir hata beklemeden haber veriyor. Sayaç
+`Cache::add` ile atılıyor — okuma ve yazma tek işlemde, aynı anda gelen iki
+istek iki bildirim üretemiyor.
+
+**Bildirim yolu asıl hatayı gizleyemez.** `notify()` baştan sona `try/catch`
+içinde: Telegram'a ulaşılamazsa ya da bildirim satırı yazılamazsa sessizce
+dönüyor, yoksa loglanan şey asıl hata değil bildirim hatası olurdu.
+
+Mesajda ne var: hatanın türü, mesajı, **proje köküne göre** dosya:satır (mutlak
+yol satıra sığmıyor ve hosting kullanıcı adını mesaja taşıyor), istek adresi ve
+metodu, varsa kullanıcı kimliği. Konsoldan gelen hatalar "zamanlanmış görev"
+olarak işaretleniyor.
+
+> **Bilinen sınır:** Telegram ayarları `settings` tablosundan okunuyor, yani
+> veritabanının kendisi düştüğünde bildirim gönderilemez. O senaryoda geriye
+> dosya logu ve Sistem Sağlık ekranı kalıyor. Ayarları veritabanı düşse de
+> okunabilir tutmak isteyen kurulum `CACHE_STORE=file` kullanabilir. Bunun
+> alternatifi Telegram token'ını `.env`'e taşımaktı; ayarın sahibi panel olduğu
+> için ikinci bir doğruluk kaynağı açılmadı.
+
+### 2. Log dosyası artık dönüyor
+
+`.env.example` `LOG_STACK=single` diyordu: tek dosya, rotasyon yok. Paylaşımlı
+hostingde `laravel.log` zamanla gigabaytlara çıkar ve **disk dolduğunda yalnız
+log yazımı değil yükleme, yedekleme ve oturum yazımı da durur.**
+
+`LOG_STACK=daily` + `LOG_DAILY_DAYS=14` oldu (`config/logging.php` bu değişkeni
+zaten okuyordu). `LOG_LEVEL` için de canlıda `error` önerisi yorum olarak
+eklendi.
+
+### 3. Sistem Sağlık ekranına log kontrolü
+
+Disk kontrolü sorunu ancak disk dolduğunda görüyor; yeni kontrol **sebebe**
+bakıyor:
+
+| Durum | Eşik |
+|---|---|
+| Kritik | Log dizini ≥ 1 GB |
+| Uyarı | ≥ 250 MB |
+| Uyarı | Dönüş kapalı **ve** ≥ 20 MB birikmiş |
+| Sağlıklı | Diğer |
+
+Dönüş kapalıyken sıfırdan uyarmak gürültü olurdu; 20 MB eşiği uyarının fark
+edilmesi için bol zaman bırakıyor ama dosya büyümeden önce çalıyor. Ekrandaki
+ipucu doğrudan çözümü söylüyor: `LOG_STACK=daily` ve `LOG_DAILY_DAYS=14`.
+
+Kontrol dizini `storage/logs` **varsaymıyor**, kanalın kendi `path` değerinden
+çözüyor — log başka bir yere yönlendirilmişse oraya bakıyor.
+
+### Testler
+
+`ExceptionNotificationTest` (10): bildirimin merkeze düşmesi, konumun proje
+köküne göre yazılması, Telegram açıkken gönderilmesi ve kapalıyken hiç
+gönderilmemesi, aynı hatanın pencerede bir kez bildirilmesi, farklı hatanın
+yutulmaması, bildirim kanalı patlarsa asıl hatanın yerini almaması, beklenen
+HTTP hatalarının hiç raporlanmaması, gerçek bir isteğin patlamasında uçtan uca
+bildirim ve **hatanın loga yazılmaya devam etmesi**.
+
+`LogHealthCheckTest` (10): kontrolün ekranda görünmesi, sağlıklı hâl, dönüşün
+kapalı olduğunun bildirilmesi, büyümüş dönmeyen logun uyarması, küçük dosyanın
+uyarmaması, dönüş açıkken de boyut eşiklerinin çalışması, ipucunun çözümü
+söylemesi, kontrolün yapılandırılmış log yolunu izlemesi ve eşiklerin sıralı
+olması. Boyut eşikleri `ftruncate` ile üretilen seyrek dosyalarla sınanıyor:
+`filesize()` istenen boyutu bildiriyor, diskte yer kaplamıyor.
+
+Mutasyonla doğrulandı: `report()` kancası kaldırılınca 1, kapanış `false`
+döndürülünce log testi, rotasyon tespiti sabitlenince 3, log dizini sabit
+`storage/logs` yapılınca 5 test düşüyor.
+
+### Yol üzerinde görülen
+
+`telegram_notify_level` ayarı panelde kaydediliyor ama **kodda hiçbir yerde
+okunmuyor** — temizlenen `app_locale` ile aynı durumda. Bu turda dokunulmadı;
+anlamı (iş yeniden deneme verbosity'si) hata bildirimiyle ilgisiz.
+
+
+---
+
+## 5r. Denetim İzi — ✅ Tek Modelden Kritik Kümeye
+
+Altyapı baştan iyi yazılmıştı: `audit_logs` tablosu, indeksleri, saklama süresi
+temizliği, panel ekranı, süzgeçleri ve **hassas alan maskesi** hepsi yerindeydi.
+Eksik olan tek şey neyin izlendiğiydi — `AuditObserver`
+`AppServiceProvider.php:127`'de **tek bir modele** bağlıydı: `Setting`.
+
+Yani "kim giriş yaptı", "kim başarısız giriş denedi", "kim hangi rolün iznini
+değiştirdi", "kim kullanıcı sildi", "kim yönlendirme ekledi" sorularının
+hiçbirinin cevabı yoktu. Kurumsal bir denetimin ilk sorduğu şeyler de bunlar.
+
+### Üç ayrı yol, çünkü tek gözlemci hepsini göremiyor
+
+| Yol | Neyi yakalıyor | Neden ayrı |
+|---|---|---|
+| `AuditObserver` (model listesi) | `Setting`, `User`, `Role`, `Redirect`, `CustomRoute`, `MailTemplate`, `Language` | Satır değişikliklerini görür |
+| `AuditAuthenticationEvents` (abone) | Giriş, çıkış, başarısız deneme | Bu olaylar hiçbir satırı değiştirmiyor |
+| Servislerin kendi `AuditLogger::custom()` çağrıları | İzin matrisi, kullanıcı rolleri, toplu silme/geri yükleme, şifre sıfırlama | Pivot tablosunun modeli yok; toplu işlemler sorgu kurucusundan gidiyor ve model olayı doğurmuyor |
+
+Model listesi dizi üzerinden geçiyor — yeni bir kritik model eklendiğinde tek
+satır yetiyor.
+
+### Kapsam neden içerik modellerini almıyor
+
+Sayfa, blog ve galeri her kaydetmede satır üretir. 90 günlük saklama süresiyle
+denetim izi kendi gürültüsünde boğulur ve asıl aranan kayıt — bir yetkinin ne
+zaman verildiği — bulunamaz hâle gelir. Buradaki liste erişimi, yetkiyi,
+gönderilen mailleri ve ziyaretçinin nereye gideceğini belirleyenler. İçeriğin
+geçmişi denetim izinin değil **sürümlemenin** işi (bkz. modül önerileri).
+
+Testi var: `Page` oluşturmak denetim izine düşmüyor.
+
+### Ayrıntılar
+
+**Şifre hiçbir biçimde ize girmiyor.** İki katman: `Failed` dinleyicisi
+`$event->credentials`'tan yalnızca adresi alıyor (dizi şifreyi de taşıyor),
+`AuditLogger`'ın maskesi de arkada duruyor. İkisinin de testi var.
+
+**Boş kayıt yazılmıyor.** İzin matrisi ekranını açıp hiçbir şey değiştirmeden
+kaydete basmak satır üretmiyor; yalnızca gerçekten eklenen/kaldırılan izinler
+yazılıyor, rol bazında ayrı ayrı.
+
+**Geri alma ve kalıcı silme de kayıtta.** Silmenin izi varken geri almanınki
+olmasaydı denetim izi "silindi" diyen ama hâlâ yayında olan kayıtlar
+gösterirdi.
+
+**Etiket artık kimden söz ettiğini söylüyor.** `buildLabel` zinciri kullanıcıda
+`name`/`title` bulamayıp "User #12 güncellendi" diyordu; ad-soyad birleşimi,
+e-posta ve slug zincire eklendi.
+
+**`Lockout` bilinçli olarak dinlenmiyor:** onu `ThrottlesLogins` trait'i
+fırlatıyor, bu proje hız sınırını `throttle:login` ara katmanıyla kuruyor, yani
+olay hiç doğmuyor. Dinlemek ölü kod olurdu.
+
+**Ekranda değişiklik gerekmedi:** tür süzgeci `modelOptions()` ile tablodaki
+gerçek verilerden üretiliyor, yeni modeller kendiliğinden listeye giriyor.
+
+### Yol üzerinde bulunan
+
+`AuditLogPageTest` ve `AuditLogDetailTest` kendi kurdukları kayıtların sayısına
+bakıyordu; `User` izlenmeye başlayınca sayfayı açan yöneticinin kendi izi
+sonuçları kaydırdı ve 5 test düştü. Fikstür kurulumundan sonra tablo
+sıfırlanıyor — testlerin niyeti "şu N kayıt verildiğinde özet şunu der",
+kurulum gürültüsü değil.
+
+### Testler
+
+`AuditTrailCoverageTest` (17): izlenen modellerin her biri için gerçekten kayıt
+doğması, içerik modellerinin dışarıda kalması, şifrenin ize hiç girmemesi,
+etiketin kullanıcıyı adıyla anması, giriş/çıkış/başarısız denemenin kaydı,
+denenen şifrenin yazılmaması, sıfırlama bağlantısı isteği, izin matrisi
+değişikliği, **değişmeyen kaydın yazılmaması**, kullanıcı rolleri, toplu silme
+ve geri yükleme, geri alma ve kalıcı silme.
+
+Bağlantı kaldırılıp doğrulandı: gözlemci listesi ve abone çıkarılınca 9 test
+düşüyor.
+
+
+---
+
+## 5s. Kuyruk İzleyici — ✅ Kuruldu
+
+`failed_jobs` tablosu projede **tek bir yerde** okunuyordu:
+`HealthCheckService.php:162`, o da yalnızca son 24 saatin *sayısını* alıyordu.
+Listeleme, hatayı görme, yeniden deneme ve silme yoktu.
+
+Bu proje için özellikle önemli: tüm mail gönderimi `MailService::queue()`
+üzerinden kuyruğa giriyor. "Doğrulama maili gelmedi" şikâyetinin cevabı
+`failed_jobs.exception` alanında duruyor ve o alana panelden bakmanın yolu
+yoktu — kayıt tabloda sessizce birikiyordu.
+
+### Ekran
+
+`Admin → Kuyruk` (`admin/kuyruk`). Üstte dört sayı, altta başarısız iş listesi.
+
+| Sayı | Ne söylüyor |
+|---|---|
+| Bekleyen iş | Kuyrukta duran iş sayısı |
+| **En eski işin yaşı** | "Cron çalışıyor mu" sorusunun en net cevabı |
+| Son 24 saatte başarısız | Yeni çıkmış sorun |
+| Toplam başarısız | Birikmiş kuyruk çöplüğü |
+
+Bekleyen iş sayısı tek başına normal; birikip **yaşlanması** cron'un
+çalışmadığı demek. 10 dakikayı geçtiğinde ekranın en üstünde kırmızı bir uyarı
+çıkıyor ve nereye bakılacağını söylüyor.
+
+Liste her iş için zaman, iş adı, kuyruk, deneme sayısı ve hatanın ilk satırını
+gösteriyor; göz düğmesi tam yığın izini ayrı bir pencerede çekiyor. Yığın izi
+her satırda taşınsaydı liste gereksiz şişerdi.
+
+İşlemler: **yeniden dene**, **sil**, **listeyi temizle** ve **kuyruğu şimdi
+işle** (cron dakikasını beklemeden). Hepsi `AdminModal` onayından geçiyor ve
+denetim izine düşüyor — bir işin neden kaybolduğu sonradan sorulacak ilk şey.
+
+### Tasarım kararları
+
+**Eloquent modeli yok.** `jobs` ve `failed_jobs` çerçevenin kendi tabloları;
+projenin model kurallarına (SoftDeletes, `$fillable`) tabi değiller ve
+`QueueRunner` ile `HealthCheckService` de aynı biçimde, sorgu kurucusuyla
+okuyor. Model açmak `failed_jobs`'a `deleted_at` eklemeyi gerektirirdi —
+`queue:flush` gibi çerçeve komutlarının beklemediği bir kolon.
+
+Modeli olmadığı için yetkilendirme de Policy değil **Gate**: `view-queue` ve
+`manage-queue`, `manage-backups` ile aynı desen. Görüntülemek ile silmek ayrı
+izinler.
+
+**İş adı yükten çıkarılıyor.** Kuyruğa giren her mail
+`Illuminate\Mail\SendQueuedMailable` olarak görünüyor, yani `displayName` tek
+başına "hangi mail patladı" sorusunu cevaplamıyor. Asıl sınıf yükün
+serileştirilmiş gövdesinde; oradan okunabiliyorsa o gösteriliyor,
+okunamıyorsa çerçevenin adı kalıyor — tahmin edilip yanlış ad basılmıyor.
+
+**Yeniden deneme iki katmanlı.** Önce çerçevenin `queue:retry` komutu
+(`Artisan::call` ile, aynı süreçte — alt süreç açılmıyor). O komut yükün
+içindeki nesneyi açıp `retryUntil` damgasını tazeliyor; **iş sınıfı bir
+deploy'da kaldırılmışsa ya da yük bozuksa bu adım patlıyor** ve ekran 500
+veriyordu. O durumda deneme sayacı sıfırlanıp yük olduğu gibi kuyruğa
+yazılıyor: işin geri konması damganın tazelenmesinden önemli. Testi var.
+
+### Yeni izinler mevcut kurulumlara nasıl gidiyor
+
+İzinlerin tek kaynağı `PermissionKey` enum'u ama `PermissionSeeder` yalnızca
+kurulumda çalışıyor. Deploy `git pull` + `migrate` ile yapıldığı için yeni bir
+enum case'i satır karşılığı bulamaz ve **yönetici bile ekranı göremezdi**.
+`2026_08_31_100000_seed_queue_permissions` migration'ı satırları ekliyor ve
+yönetici rolüne veriyor.
+
+### Testler
+
+`QueueMonitorTest` (20): yetki ayrımı (editör ve moderatör giremiyor,
+kenar çubuğunda link görünmüyor, yeniden deneme/silme reddediliyor), sayılar,
+boş kuyruk, yaşlanan kuyruğun tıkanmış sayılması, taze kuyruğun sayılmaması,
+iş adının yükten çıkarılması ve çıkarılamayınca geri düşmesi, listenin
+hatanın yalnızca ilk satırını taşıması, ayrıntı ucunun tam yığın izini
+vermesi ve olmayan kayıtta 404, arama ve kuyruk süzgeci, yeniden deneme,
+**okunamayan yükün yine de kuyruğa geri konması**, tekil silme, listeyi
+temizleme, her yıkıcı işlemin denetim izine düşmesi ve kuyruğun elle
+işlenmesi.
+
+Tarayıcıda da doğrulandı: ekran render ediliyor, sayaç animasyonu çalışıyor,
+ayrıntı penceresi yığın izini çekiyor ve yeniden deneme sonrası bekleyen iş
+1→2, toplam başarısız 2→1 oluyor.
+
+
+---
+
+## 5t. Ölü Telegram Ayarı ve Kaydedilmeyen Başarısız İşler — ✅ İkisi de Kapatıldı
+
+`telegram_notify_level` ayarı panelde kaydediliyordu ama **kodda hiçbir yerde
+okunmuyordu** — 5m'de temizlenen `app_locale` ile birebir aynı durum. Kararı
+verirken çok daha büyük bir şey çıktı.
+
+### Ayar neden kaldırıldı, bağlanmadı
+
+Enum'un sunduğu seçim şuydu: bildirim *her başarısızlıkta* mı gelsin, yoksa
+*yalnız 3/3 deneme sonunda* mı? İki gerekçeyle bağlanmadı:
+
+**1. Anlattığı mekanizma yok.** `QueueRunner::drain()` bir işi bir kez
+çalıştırıyor; patlarsa doğrudan `$job->fail()` çağırıyor. Yeniden deneme
+yok, `maxTries` kontrolü yok. "1., 2., 3. deneme" bu projede hiç yaşanmıyor —
+ayarı bağlamak önce olmayan bir yeniden deneme mekanizması yazmayı
+gerektirirdi. Testi var: patlayan iş kuyruğa geri konmuyor.
+
+**2. Bildirim zaten gidiyor.** `QueueRunner` başarısızlıkta `report($e)`
+çağırıyor ve bu, 5p'de kurulan `ExceptionNotifier`'a düşüyor: Telegram + panel
+zili, parmak izine göre 10 dakikalık throttle ile. İkinci bir bildirim düğmesi
+hangisinin kazandığını belirsizleştirmekten başka bir şey yapmazdı. Bunun da
+testi var.
+
+Kaldırılanlar: `TelegramNotifyLevel` enum'u, ayar ekranındaki açılır kutu,
+`SettingController`'ın kaydettikleri listesindeki anahtar, `TelegramNotifier`
+docblock'undaki satır ve `EnumDrivenOptionsTest` beklentisi. Kaydedilmiş satır
+migration ile siliniyor — alan ekrandan kalktığı için bırakılsaydı kimsenin
+okumadığı **ve kimsenin silemeyeceği** bir kayıt olarak kalırdı. `up()` ve
+`down()` ayrı ayrı çalıştırılıp doğrulandı.
+
+Alanın yerine ne olduğunu söyleyen bir bilgi kutusu kondu (`app_locale` için
+yapılanla aynı desen): Telegram'a neyin gittiği, neyin gitmediği ve patlayan
+işlerin listesinin Kuyruk ekranında olduğu.
+
+### Yol üzerinde bulunan asıl kusur: başarısız işler hiç kaydedilmiyordu
+
+Kararı doğrulamak için patlayan bir işi kuyruğa koyup `QueueRunner`'ı
+çalıştırdığımızda `failed_jobs` **boş kaldı.**
+
+Sebep: tabloya yazma işini çerçevede `queue:work` yapıyor. `WorkCommand`
+açılışta `JobFailed` olayına abone oluyor ve olayı `queue.failer`
+sağlayıcısına aktarıyor. Bu proje `queue:work` çalıştıramıyor — pcntl yok,
+`QueueRunner`'ın var olma sebebi bu — yani **o abone hiç kurulmuyordu.**
+`Job::fail()` işi siliyor, işin kendi `failed()` metodunu çağırıyor ve
+`JobFailed` olayını fırlatıyor; tabloya yazmıyor.
+
+Sonuç: patlayan her iş sessizce yok oluyordu. `failed_jobs` her zaman boştu,
+Sistem Sağlık ekranındaki "son 24 saatte başarısız" sayısı her zaman sıfırdı
+ve **bir gün önce kurulan Kuyruk ekranı (5s) üretimde hiçbir zaman
+dolmayacaktı.**
+
+`LogFailedQueueJob` dinleyicisi eklendi: `JobFailed` olayını `queue.failer`'a
+aktarıyor. `app/Listeners` altındaki dinleyiciler kendiliğinden bağlandığı için
+kayıt gerekmiyor — `UpdateMailLogOnFailed` de aynı olayı zaten dinliyor.
+Kayıt tutamamak işin kendisinden küçük bir sorun olduğu için `try/catch`
+içinde: buradan fırlayan bir hata kuyruğun kalanını da durdururdu.
+
+> `queue:work` bir gün çalıştırılabilir hâle gelirse bu dinleyici ile o komutun
+> kendi abonesi aynı işi iki kez yazar. Projenin tüm kuyruk kurgusu
+> `queue:work`'ün olmadığı varsayımına dayanıyor (`docs/SHARED-HOSTING.md`); o
+> varsayım değişirse buranın da gözden geçirilmesi gerekir.
+
+### Ayrıca
+
+Telegram bölümünün alt başlığı hâlâ **"Instagram paylaşımları başarısız
+olduğunda..."** diyordu — sökülmüş modülden kalan ve artık düpedüz yanlış olan
+bir metin. Tam da neyin bildirim ürettiğini anlatan kutunun üstünde durduğu
+için düzeltildi.
+
+### Testler
+
+`FailedJobRecordingTest` (5): patlayan işin `failed_jobs`'a düşmesi, kaydın
+hata metnini ve yükü taşıması, işin yeniden denenmemesi, yöneticinin zaten
+haberdar edilmesi ve başarılı işin geride kayıt bırakmaması.
+
+`QueueMonitorTest`'e uçtan uca bir test eklendi: gerçek bir başarısızlık
+Kuyruk ekranında görünüyor. Diğer testler satırı doğrudan yazıyordu, yani
+zincirin kopuk halkasını göremezlerdi.
+
+Dinleyici kaldırılıp doğrulandı: 3 test düşüyor.
+
+
+---
+
+## 5u. Yedek Geri Yükleme — ✅ Kuruldu, Yol Üzerinde Sessiz Bir Kusur Çıktı
+
+Yedek alınıyordu ama **geri dönüş yolu yoktu**: dosya indirilebiliyor, ama
+uygulanabilmesi için sunucuda elle SQL çalıştırmak gerekiyordu. Hiç denenmemiş
+bir yedek, olmayan bir yedektir.
+
+### Yol üzerinde bulunan asıl kusur: gövdesiz yedekler
+
+Geri yüklemeyi gerçek bir MySQL veritabanında sınarken alınan yedek **133 KB
+değil 398 bayt** çıktı. Arşivde `database.sql` **hiç yoktu** — ama `create()`
+yine "Yedek alındı" diyordu.
+
+Sebep: `phpSideDump` bağlantıyı elle kurulan bir DSN ile açıyordu ve o DSN
+yalnız host ile portu biliyordu. Soket üzerinden kimlik doğrulayan bir sunucuda
+(`unix_socket`) bağlantı reddediliyor, döküm `null` dönüyor ve `create()` bunu
+sessizce geçip yalnız dosyaları arşivliyordu. Aynı sessiz sonuç yanlış kimlik
+bilgisi, kapalı `mysqldump` ya da yetki sorunu için de geçerliydi.
+
+Yani yönetici gövdesiz bir yedeğe güveniyor, bunu ancak geri yüklemeye
+çalıştığı gün öğreniyordu. **Geri yükleme yokluğunun asıl bedeli buydu:
+yedeklerin çalışıp çalışmadığını kimse denemiyordu.**
+
+Üç düzeltme:
+
+| Ne | Nasıl |
+|---|---|
+| Döküm alınamazsa yedek alınmıyor | MySQL'de `create()` artık hata dönüyor; SQLite gibi dökümü desteklenmeyen sürücüde sonuç bunu mesajında **açıkça söylüyor** |
+| Bağlantı tek kaynaktan | `phpSideDump` elle DSN kurmuyor, uygulamanın kendi bağlantısını (`DB::connection()->getPdo()`) kullanıyor |
+| Soket desteği | `mysqldump` ve `mysql` çağrıları `unix_socket` tanımlıysa `--socket` ile bağlanıyor |
+
+### Geri yükleme
+
+`BackupRestoreService`. Sıra bilinçli:
+
+1. **Arşivi doğrula** — açılabiliyor mu, yedek imzası (`backup-meta.json`) var
+   mı, dizin dışına çıkan girdi var mı.
+2. **Önce mevcut durumun yedeğini al.** Geri yükleme yanlış dosyayla da
+   başlatılabilir. Bu adım başarısız olursa geri yükleme **hiç başlamıyor**.
+3. **Bakım moduna geç** — yarı geri yüklenmiş siteyi ziyaretçi görmesin.
+4. Veritabanını uygula, 5. yüklenen dosyaları aç, 6. bakım modundan çık.
+
+**İşlem (transaction) yok, olamaz:** MySQL'de `DROP TABLE` / `CREATE TABLE`
+örtük commit üretir, şema geri yüklemesi geri alınamaz. Güvenlik yedeğinin
+varlık sebebi tam olarak budur.
+
+**Yüklenen dosyalar silinmiyor, üzerine yazılıyor.** Gerçek bir aynalama
+yedekten sonra eklenen dosyaları silerdi; kurtarma işleminin yan etkisi olarak
+veri silmek, kurtarmanın kendisinden büyük risk.
+
+Onay penceresi neyin uygulanacağını sayıyla yazıyor ve kullanıcı hesaplarının
+da yedekteki hâline döneceğini — yani oturumun kapanabileceğini — söylüyor.
+"Emin misiniz?" bu kararı verdirmeye yetmez.
+
+### SQL dökümünü ifadelere ayırma
+
+Geri yüklemenin en sessiz kırılma noktası. Paylaşımlı hostingde `mysql`
+istemcisi yok, yani döküm PHP tarafında ifadelere ayrılıp tek tek
+çalıştırılıyor. Naif "noktalı virgülden böl" çözümü **yanlıştır**: bir metin
+alanının içindeki noktalı virgül (`'Merhaba; dünya'`) ifadeyi ortasından keser
+ve veri yarım döner, üstelik hata da vermez.
+
+`App\Support\SqlStatementReader` karakter karakter ilerleyen bir durum
+makinesi: tırnak içinde miyiz, ters bölü ile kaçırılmış mı, ikilenmiş tırnak
+mı, yorumun içinde miyiz. `/*! ... */` çalıştırılabilir yorumu **atılmıyor** —
+mysqldump karakter kümesi ve kısıt ayarlarını böyle yazıyor.
+
+Dosya 64 KB'lık parçalar hâlinde okunuyor (yüz megabaytlık döküm belleğe
+sığmayabilir) ve ileri-bakış gerektiren kalıplar parça sınırına denk geldiğinde
+kaçmasın diye üç karakterlik pay bırakılıyor. Testi bu sınırı bilerek kalıbın
+ortasına getiriyor.
+
+### Dışarıdan yedek yükleme
+
+Sunucusu gitmiş bir kurulumu ayağa kaldırmanın tek yolu. Dosya önce **listeye
+giriyor**, geri yükleme sonra aynı doğrulanmış yoldan yapılıyor — yükleyip
+doğrudan uygulamak yerine iki adım, her biri ayrı doğrulanıyor.
+
+Uzantı ve MIME doğrulaması ilk kapı ama dosyanın içeriği hakkında hiçbir şey
+söylemiyor: arşiv gerçekten açılıp yedek imzası aranıyor. Diskteki ad da
+sunucu tarafından belirleniyor, yüklenen dosyanın kendi adı hiç kullanılmıyor.
+
+**Zip Slip** iki yerde birden eleniyor: `uploads/../../../.env` adlı bir girdi
+açılırken hedef dizinin dışına yazar. Tek bir kötü girdi bulunduğunda arşivin
+tamamı reddediliyor — kötü girdiyi atlayıp gerisini açmak saldırganın neyi
+hedeflediğini gizler.
+
+### Yedek dizini artık yapılandırmadan geliyor
+
+`config/backups.php` eklendi ve sınama takımı burayı geçici bir dizine
+çeviriyor (`phpunit.xml`, yükleme dizini için zaten yapılan şey). Öncesinde
+testler geliştiricinin **gerçek yedek dizinine** yazıyordu ve `create()` →
+`rotate()` zinciri oradaki eski yedekleri silebilirdi.
+
+### Testler
+
+`SqlStatementReaderTest` (15, birim): metin içindeki noktalı virgül,
+kaçırılmış ve ikilenmiş tırnak, çift tırnak, geri tırnak içinde ters bölü,
+satır ve blok yorumları, metin içindeki yorum işareti, çalıştırılabilir
+yorumun korunması, parça sınırına denk gelen kalıplar ve gerçek bir döküm
+biçimi.
+
+`BackupRestoreTest` (19): arşiv doğrulama, yedek imzası olmayan zip, Zip Slip
+(üç vektör), dizin dışına çıkan dosya adı, dosyaların geri yazılması, güvenlik
+yedeğinin önce alınması, sonradan eklenen dosyalara dokunulmaması, bakım
+modundan çıkılması, boş arşivin güvenlik yedeği alınmadan reddedilmesi,
+denetim izi, yetki ayrımı, dışarıdan yükleme ve **gövdesiz yedeğin başarılı
+sayılmaması**.
+
+### Gerçek MySQL'de doğrulama
+
+Suite SQLite üzerinde koşuyor, veritabanı geri yüklemesi ise MySQL'e özgü.
+Tam tur ayrı bir MySQL veritabanında elle yapıldı:
+
+1. Migrate + seed → 3 sayfa, 3 kullanıcı, 49 ayar
+2. Yedek al → `database.sql` 133 KB
+3. Veriyi boz: tüm sayfaları sil, yeni kullanıcı ekle, bir görseli sil
+4. Geri yükle → **563 SQL ifadesi, 1 dosya**
+5. Doğrula: sayfa 3'e döndü, sonradan eklenen kullanıcı gitti, görsel geri
+   geldi, bakım modu kapandı
+
+**Aynı tur PDO yolu için de tekrarlandı** (`mysql` istemcisi bulunamıyormuş
+gibi davranılarak): paylaşımlı hostingde çalışacak olan yol bu ve aynı 563
+ifadeyi doğru uyguladı.
+
+### Kalan yarı
+
+Yedeğin **dış kopyası** hâlâ yok: arşiv yedeklediği veriyle aynı diskte
+duruyor. Geri yükleme artık mümkün olduğu için dosyanın başka bir yerde
+durması da anlamlı hâle geldi — sonraki tur.
+
+
+---
+
+## 5v. CI ve Statik Analiz — ✅ Kuruldu, Altı Gizli Hata Çıkardı
+
+1282 test vardı ve **hiçbiri otomatik koşmuyordu**. Kırılmadığını doğrulamak
+birinin elle `composer test` yazmasına bağlıydı; bu base kit'ten türeyen
+projelerde ilk terk edilen alışkanlık.
+
+### Üç kontrol, iki iş
+
+`.github/workflows/ci.yml`: push ve pull request'te koşuyor.
+
+| İş | Ne yapıyor |
+|---|---|
+| **Testler** | MySQL 8 servisine karşı migration + tüm suite |
+| **Kalite** | `pint --test` ve `phpstan analyse` |
+
+`composer check` (lint + analyse + test) aynı üçünü yerelde koşuyor.
+
+### Testler neden MySQL'e karşı
+
+Yerelde SQLite hızlı ama üretim MySQL 8 ve ikisi aynı şeyi kabul etmiyor. Bu iş
+akışı kurulduğu gün **SQLite'ın sakladığı altı hata** çıktı:
+
+**① Arama yapan her ekran MySQL'de 500 veriyordu.** İki servis LIKE koşulunu
+`ESCAPE '\'` ile yazıyordu. MySQL ters bölüyü dizge içinde de kaçış saydığı
+için kapanış tırnağı kaçırılmış oluyor ve sorgu **sözdizimi hatası** veriyordu.
+Yönlendirmeler ve ziyaret kayıtları ekranlarında arama kutusuna bir şey yazan
+herkes hata sayfası görüyordu — üretimdeki veritabanında, her seferinde.
+
+**② İki servis de tersini yapıyordu:** kaçırılmış terimi `ESCAPE` bildirmeden
+kullanıyorlardı; SQLite kaçışı hiç uygulamadığı için `%` arayan biri sessizce
+tüm listeyi görüyordu.
+
+**③ Bir test üretim şemasının kabul etmediği değeri yazıyordu:**
+`sort_order` kolonu `unsignedInteger`, test ise sıralamayı denemek için `-1`
+yazıyordu. SQLite kabul ediyor, MySQL reddediyor.
+
+İlk ikisi aynı kökten: aynı mantık **altı serviste kopyalanmıştı** ve ikisinde
+yanlış yazılmıştı. `App\Support\LikeSearch` ile tek yere toplandı; kaçış
+karakteri ünlem, çünkü ters bölünün anlamı iki veritabanında farklı, ünlem
+ikisinde de düz karakter. `LikeSearchIsPortableTest` hem kuralı hem
+uygulanışını bekçilik ediyor ve sorguyu **gerçek veritabanına** atıyor, yani CI
+onu iki sürücüde birden sınıyor.
+
+### Kod stili: gürültüden sinyale
+
+`pint --test` **459 dosyada** sapma bildiriyordu ve bu yüzden çıktısı hiçbir işe
+yaramıyordu — gerçek bir stil hatası o gürültüde görünmezdi. Sapmaların büyük
+kısmı kod tabanının bilinçli tercihleriydi (dizi hizalaması, `. ` ile
+birleştirme, `! ` boşluğu).
+
+`pint.json` bu tercihleri tanımlıyor. Kalan 75 dosya artık üslup değil gerçek
+tutarsızlıktı ve düzeltildi: **15 dosyada kullanılmayan import**, 34 dosyada
+karışık `!` boşluğu, 8 dosyada karışık birleştirme, gövdesiz `if`'ler ve
+yanlış girintilenmiş bir dizi.
+
+Sonuç: **sapma sıfır.** Ve `pint` fix modu artık güvenle çalıştırılabilir —
+yapılandırma hizalamaya dokunan kuralları kapalı tutuyor. (Bu, projenin eski
+"pint --fix çalıştırma" kuralını geçersiz kılıyor; kural varsayılan preset
+içindi.)
+
+Uygulanan diff hizalamaya dokunmadığı satır satır doğrulandı: `=>` sütunu kayan
+tek satır bile yok, değişen yalnızca `!$x` → `! $x`.
+
+### Statik analiz: seviye 1, sıfır tolerans
+
+Larastan eklendi. Seviye 5'te 552 hata çıkıyor ama ezici çoğunluğu gerçek kusur
+değil, Eloquent çıkarım sınırı (`selectRaw('count(*) as count')` sütunları,
+jenerik `Model` üzerinden görünmeyen SoftDeletes). Seviye 2'de bile 279.
+
+**Seviye 1 seçildi: temiz geçen en yüksek seviye.** Yükseltip taban dosyasıyla
+susturmak borcu kapatmak değil gizlemek olurdu; sıfır toleranslı düşük bir
+seviye, gürültülü yüksek bir seviyeden çok iş görüyor. Yukarı çıkmanın yolu
+modellere `@property` blokları eklemek — ayrı ve büyük bir iş, `phpstan.neon`
+içinde not düşüldü.
+
+### Seviye 0'ın çıkardığı üç şey
+
+Seviye 0 hataları neredeyse her zaman gerçektir ve üçü de öyleydi:
+
+**`LogOutgoingMail::handleFailed`** `Illuminate\Mail\Events\MessageFailed`
+olayını dinliyordu — **o sınıf Laravel'de yok.** Olay hiç doğmadığı için
+dinleyici hiç çalışmıyordu, üstelik çalışsaydı sürücünün gerçek hatası yerine
+genel bir cümle yazacaktı. Başarısız gönderim zaten iki yerde kayda geçiyor
+(senkron yolda `MailService`, kuyruk yolunda `UpdateMailLogOnFailed`), yani ölü
+kod kaldırıldı.
+
+**`SyncsTranslations` bildirmediği bir özelliğe dayanıyordu.** Trait
+`$this->uploadService` okuyor ama onu kullanan sekiz servisin **üçünde** böyle
+bir özellik yok. Bugün o üçü görselli yolu çağırmadığı için sorun çıkmıyor;
+çağırdıkları gün ölümcül hata alırlardı. Trait artık kendi bağımlılığını kendi
+çözüyor.
+
+**`UploadService::limits()` çökebilirdi.** `min(...array_filter([...]))`
+yazıyordu; `array_filter` sıfırları attığı için tüm adaylar sıfır olduğunda
+`min()` argümansız çağrılıyor ve ölümcül hata veriyordu. Bugünkü çağıranlar
+pozitif sabit geçiyor ama sıfır geçen ilk çağrı yükleme yolunu çökertirdi.
+
+### Testler
+
+`LikeSearchIsPortableTest` (4): ters bölü kaçışının hiçbir serviste geri
+gelmemesi, yardımcıyı kullanan her servisin koşulu da ondan alması, joker
+karakterin harf sayılması ve kaçış karakterinin kendisinin de kaçırılması.
+Son ikisi sorguyu gerçek veritabanına atıyor.
+
+Bekçinin gerçekten yakaladığı mutasyonla doğrulandı — ilk yazımı kaynak metin
+yerine çalışma zamanı değerini aradığı için yakalamıyordu, düzeltildi.
+
+
+---
+
+## 5y. Çerez Rızası — ✅ Kuruldu
+
+Hiçbir rıza mekanizması yoktu. Google Analytics ve Tag Manager ayar doluysa
+**koşulsuz** yükleniyor, projenin kendi ziyaret kaydı da ilk istekten itibaren
+IP ve oturum kimliği yazıyordu. IP maskeleme vardı ama 90 gün *sonra* devreye
+giriyor — yani veri önce toplanıp sonra anonimleştiriliyordu. KVKK'da açık rıza
+ispat yükü veri sorumlusunda; GDPR kapsamındaki bir ziyaretçi için de analitik
+çerezler rızadan önce çalışamaz.
+
+### Üç kategori
+
+`ConsentCategory` enum'u: **zorunlu** (oturum, güvenlik jetonu, dil ve tema —
+kapatılamaz), **analitik** (kendi ziyaret kaydımız + Google Analytics),
+**pazarlama** (Google Tag Manager).
+
+Tag Manager'ın pazarlama sayılması bilinçli: bir kap içine ne konduğu koddan
+görünmez, her etiketi yükleyebilir. Belirsiz olanı en dar kategoriye koymak
+doğru varsayılan.
+
+### Karar verilmeden hiçbir şey yüklenmiyor
+
+Betikler sayfaya konup "çalışmasın" denmiyor — **hiç basılmıyor**. Bir etiket
+yüklendiği anda istek atıyor ve çerezini kuruyor; sonradan susturmak geç kalır.
+
+Dört yol da kapalı: başlıktaki GA betiği, GTM betiği, `<noscript>` GTM
+çerçevesi ve izleme betiği. Üstüne izleme uç noktası da rızayı **kendisi**
+denetliyor: betik rıza olmadan yüklenmiyor ama uç nokta herkese açık, doğrudan
+istek atan biri kaydı yine de oluşturabilirdi.
+
+### Betiksiz de çalışıyor
+
+Band düz bir form, düğmeler gerçek submit. Hangi kategorilere izin verildiğini
+sunucu `choice` alanından çözüyor (`all` / `necessary` / `custom`) — kutulardan
+değil. Betiksiz durumda "Tümünü kabul et" yalnızca o an işaretli kutuları
+gönderirdi, yani hiçbirini, ve düğme yazdığının tersini yapardı.
+
+Tercihi sonradan değiştirmek de betik istemiyor: band karar verildikten sonra
+DOM'da kalıyor, alt bilgideki bağlantı `#cookieConsent` adresine gidiyor ve
+`:target` kuralı onu yeniden açıyor.
+
+JavaScript'in tek işi "Ayarla" düğmesinin ayrıntıları açması. Yüklenmezse
+ziyaretçi yine "tümünü kabul et" ile "yalnızca zorunlu" arasında seçim
+yapabiliyor — hak kaybı yok.
+
+**Reddetmek kabul etmek kadar kolay:** iki düğme aynı boyutta, aynı yerde ve
+aynı sayıda tıkla ulaşılıyor.
+
+### İspat kaydı
+
+Tercih iki yerde duruyor ve ikisi farklı işe yarıyor. **Çerez** kararı
+hatırlamak için — ziyaretçi silebilir, silerse yeniden sorulur. **`consents`
+tablosu** ispat için: zaman damgası, IP, tarayıcı ve metin sürümüyle,
+ziyaretçinin silemeyeceği yerde.
+
+Tercih değiştiğinde eski satır güncellenmiyor, yenisi yazılıyor — rızanın
+geçmişi de kayıttır. Reddetmek de kaydediliyor: ispat yükü "izin verdi" kadar
+"vermedi" için de geçerli.
+
+Çerez `httpOnly` ve şifreli kalıyor. Kutuların durumunu sunucu bastığı için
+JavaScript'in onu okumasına gerek yok; okuyabilseydi hem şifrelemeyi kapatmak
+hem değeri betiklere açmak gerekirdi.
+
+**Denetim izine yazılmıyor:** kayıt zaten `consents` tablosunda ve orası ispat
+için doğru yer. Her ziyaretçinin tıklaması denetim izine düşseydi iz kendi
+gürültüsünde boğulurdu — içerik modellerini izlemeye almama gerekçesinin
+aynısı.
+
+### Metin sürümü
+
+`ConsentService::VERSION`. Kategoriler ya da açıklamaları değişirse artırılıyor;
+eski rıza yeni metne verilmiş sayılmıyor ve ziyaretçiye bir kez daha soruluyor.
+
+### Yol üzerinde bulunan sızıntı
+
+Başlıktaki iki betik kapatıldıktan sonra test hâlâ GTM kimliğini buluyordu:
+gövdedeki **`<noscript>` GTM çerçevesi** gözden kaçmıştı. Betiği kapatıp
+çerçeveyi açık bırakmak, JavaScript'i kapalı ziyaretçiyi — tam da korunması
+gereken kişiyi — rızasız izlemek olurdu.
+
+### Testler
+
+`CookieConsentTest` (20): rıza öncesi bandın görünmesi ve hiçbir izleme
+betiğinin basılmaması, uç noktanın kayıt tutmaması; analitik izninin GA ile
+izleyiciyi açıp GTM'i açmaması ve tersi; kararın kaydedilmesi (kabul, ret ve
+seçmeli), `choice` alanının kutuları geçersiz kılması, bilinmeyen kategorinin
+ve eksik seçimin reddi, zorunlu kategorinin karar olarak saklanmaması, ispat
+alanlarının dolu olması, tercih değişince yeni satır yazılması, sürüm
+değişince yeniden sorulması ve bozuk çerezin karar sayılmaması.
+
+Tarayıcıda uçtan uca doğrulandı: rıza öncesi `dataLayer` tanımsız ve hiçbir
+Google betiği yok; "tümünü kabul et" sonrası GA, GTM ve izleyici yükleniyor,
+band gizleniyor, kayıt yazılıyor; alt bilgi bağlantısı bandı JavaScript'siz
+yeniden açıyor; mobilde taşma yok.
+
+
+---
+
+## 5z. API Katmanı (v1) — ✅ Kuruldu
+
+Mobil uygulamanın ve harici istemcilerin **aynı iş mantığından** beslendiği
+katman. Kural şu: bir uç, ön yüzün kullandığı Service'i çağırır; kendi
+sorgusunu yazmaz. Yazsaydı iki taraf zamanla farklı şeyler döndürürdü.
+
+- **33 rota**, `/api/v1` önekinde (önek `bootstrap/app.php`'de). Sürüm önekte
+  duruyor ki kırıcı bir değişiklikte v2 açılıp v1 bir süre ayakta kalabilsin —
+  mağazadaki eski uygulama sözleşmeyi konuşmaya devam eder.
+- **19 controller / 19 API Resource.** Zarf tek: `App\Http\Responses\ApiResponse`.
+- **Dil** `Accept-Language` ya da `?lang=` ile çözülüyor (`SetApiLocale`),
+  yanıtta `Content-Language` ile geri bildiriliyor, `Vary` ile araya giren
+  önbelleklere duyuruluyor — olmasaydı ilk gelenin dili ötekilere servis
+  edilirdi.
+- **Kimlik** Sanctum kişisel erişim jetonu. Jeton ömrü ve hız sınırlarının
+  hepsi `config/api.php` üzerinden, `.env`'den ayarlanabilir.
+- **Dört kapı middleware'i:** `api.available` (bakım modu), `api.active`
+  (pasife alınan kullanıcı), `api.verified` (e-posta doğrulaması),
+  `abilities` (jeton yetkisi).
+- **Bilinmeyen adres** JSON 404 dönüyor: `Route::fallback` olmadan
+  `/api/v1/yanlis-adres` web tarafındaki fallback'e düşüp HTML sayfa
+  döndürüyordu.
+
+### Kapsam
+
+| Alan | Uçlar |
+|---|---|
+| Kimlik | kayıt, giriş, çıkış, `me`, e-posta doğrulama tekrarı |
+| Şifre sıfırlama | altı haneli kod ile iste/doğrula (mobilde bağlantı tıklatmak zor) |
+| Hesap | profil güncelleme (avatar aynı istekte, `multipart`) |
+| Cihazlar | listele, tekini kapat, ötekilerin hepsini kapat |
+| İçerik | açılış ekranı, slider, SSS, sayfalar, menüler, diller, ayarlar, çeviriler |
+| Blog | kategoriler, yazılar, yazı detayı, yorumlar (oku + gönder) |
+| Galeri | kategoriler, öğeler |
+| Arama | site geneli tek uç |
+| Formlar | iletişim, bülten aboneliği |
+
+### Jeton yetkileri ve önbellek başlıkları (`26fa4fd`)
+
+Yetkiler enum'da: `profile:read`, `profile:write`, `devices:manage`. Çıkış
+bilerek yetkisiz — bir jeton her zaman kendini iptal edebilmeli, yoksa dar
+yetkili bir jeton ele geçtiğinde sahibi onu kapatamaz.
+
+Seyrek değişen uçlar `ETag` ile dönüyor; istemci `If-None-Match` gönderince
+içerik değişmemişse 304 alıyor ve gövde hiç inmiyor. En büyük kazanç çeviri
+sözlüğünde (yüz kilobayta yaklaşabiliyor). İçerik listeleri bilerek dışarıda:
+orada tazelik önbellekten değerli ve sayfalama ETag'i sürekli değiştiriyor.
+
+### Cihaz yönetimi (`471ea76`)
+
+Kullanıcı kendi oturumlarını görüp kapatabiliyor. Doğrulanmış e-posta şartı
+bilerek yok: hesabına şüpheli erişim olduğunu düşünen kişi, doğrulama adımını
+tamamlayamamış olsa bile oturumları kapatabilmeli.
+
+### E-posta değişimi (`7873d89`, `fbabbaf`)
+
+Adres değişince doğrulama sıfırlanıyor ve **eski adrese** güvenlik uyarısı
+gidiyor — hesabı ele geçiren biri adresi değiştirse bile sahibi haberdar olur.
+
+### Makine okunur sözleşme (`782cea2`)
+
+`docs/openapi.json` — OpenAPI 3.1. Kendi kendini denetliyor:
+`Api/OpenApiSpecTest` şemayı rotalarla karşılaştırıyor, yeni bir uç şemaya
+yazılmadan eklenirse test düşüyor. İkinci bir Postman koleksiyonu bilerek
+tutulmuyor: ikinci dosya ikinci bayatlama kaynağı.
+
+### Testler
+
+`tests/Feature/Api/` altında 11 sınıf: kimlik, şifre sıfırlama, hesap, cihaz,
+jeton yetkileri, önbellek başlıkları, içerik uçları, herkese açık uçlar, blog
+araması, site araması ve sözleşme denetimi.
+
+---
+
+## 5ab. Arama — ✅ Kuruldu (blog + site geneli)
+
+Üç commit'te büyüdü: önce blog araması (`08dcf33`), sonra blog sayfasındaki
+kutu (`5013668`), sonunda blog + sayfa + SSS + galeriyi tek kutudan tarayan
+site geneli arama (`de77f5e`).
+
+- Tek servis: `SearchService`. Ön yüzdeki `/arama` ile API'deki
+  `/api/v1/search` aynı sorguyu kullanıyor.
+- Jokerler harf sayılarak eşleşiyor; `LIKE` deseni veri tabanından bağımsız
+  (`LikeSearchIsPortableTest` bekçilik ediyor — SQLite'ta geçip MySQL'de
+  düşen desenler bu kit'te bir kez yaşandı).
+- Rota sırası önemli: `/arama`, `/{slug}` yakalayıcısından **önce** tanımlı;
+  sonra gelseydi "arama" adlı bir sayfa varmış gibi aranırdı.
+- Sonuçlar dile duyarlı (`localeWithFallback`) ve yalnız yayında olan içeriği
+  gösteriyor.
+
+---
+
 ## 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
@@ -886,32 +1902,37 @@ varsayılanda bırakıldı**:
 
 ### Kod stili uyarısı
 
-`./vendor/bin/pint --test` ~180 dosyada sapma bildiriyor. **Bu normal** — kod
-tabanı `=>` hizalamasını bilinçli kullanıyor, Pint'in varsayılan Laravel preset'i
-bunu bozuyor. `pint --fix` **çalıştırılmamalı**, yoksa tüm kod tabanı yeniden
-formatlanır.
+~~`pint --test` ~180 dosyada sapma bildiriyor~~ — kapatıldı (bkz. bölüm 5v).
+`pint.json` projenin kendi biçimini tanımlıyor, sapma sıfır ve fix modu artık
+güvenle çalıştırılabiliyor.
 
 ---
 
-## 8. Önerilen Sıra
+## 8. Tamamlananlar ve Sıradaki Sıra
 
-- [x] ~~**SoftDeletes'i her modele yay**~~ — tamamlandı (bkz. bölüm 5d)
-- [x] ~~**Yetkilendirme boşluğunu kapat**~~ — tamamlandı (bkz. bölüm 5)
-- [x] ~~**Açık yönlendirmeyi kapat**~~ — tamamlandı (bkz. bölüm 5c)
-- [x] ~~**Moderatör rolünü işler hâle getir**~~ — policy rol tanımına uyduruldu
-- [x] ~~**Hoş geldin e-postasını düzelt**~~ — tamamlandı (bkz. bölüm 4)
-- [x] ~~**Ürün/sipariş kalıntılarını temizle**~~ — tamamlandı, 15 kalem
+### Kapanan turlar
 
-Sıradakiler:
+- [x] SoftDeletes'i her modele yay (5d)
+- [x] Yetkilendirme boşluğunu kapat (5)
+- [x] Açık yönlendirmeyi kapat (5c)
+- [x] Moderatör rolünü işler hâle getir
+- [x] Hoş geldin e-postasını düzelt (4)
+- [x] Ürün/sipariş kalıntılarını temizle — 15 kalem
+- [x] Çok dilli yapı, arayüz çevirisi, çok dilli navigasyon (5e, 5f, 5g)
+- [x] Mail ve upload yolları (5h) · Toplu mail (5i) · Shared hosting uyumu (5j)
+- [x] Diller ve dil yazıları ekranları (5k, 5l) · Bölgesel ayarlar (5m)
+- [x] Pasif kullanıcı oturumu ve güvenilen proxy (5n) · robots.txt (5o)
+- [x] Hata bildirimi ve log rotasyonu (5p) · Denetim izi (5r)
+- [x] Kuyruk izleyici (5s) · Ölü telegram ayarı ve başarısız işler (5t)
+- [x] Yedek geri yükleme (5u) · CI ve statik analiz (5v) · Çerez rızası (5y)
+- [x] **API katmanı v1** (5z) · **Arama** (5ab)
 
-1. **Ön yüzdeki sabit metinler** — arayüz metinleri (buton, başlık, form
-   etiketleri) hâlâ Blade içinde Türkçe sabit. İçerik çok dilli ama arayüz
-   değil; `lang/` çeviri dosyalarına taşınması gerekiyor.
-2. **Blog ve galeri ön yüz sorguları** — SSS, slider ve sayfalar dil farkında;
-   blog listesi/detayı ve galeri sorguları da `localeWithFallback` kullanmalı.
-3. **Rol/yetki yönetimi ekranı** — `roles-permissions.html` temada hazır. Roller
-   şu an yalnızca seeder'dan geliyor; rol matrisi netleştiği için bu ekran
-   artık daha anlamlı.
-4. ~~Kalan ölü kodu temizle~~ — tamamlandı
-5. ~~Hesabım alanını genişlet~~ — mevcut şifre doğrulaması ve e-posta
-   doğrulama akışı eklendi
+### Sıradaki — [`YOL-HARITASI.md`](YOL-HARITASI.md)
+
+| Faz | İçerik | Durum |
+|---|---|---|
+| 1 | Hesap ve kimlik: cihazlar, 2FA, KVKK hakları, API şifre ucu, bildirim tercihleri | ⬜ |
+| 2 | Mobil web: PWA, çevrimdışı, mobil denetim, erişilebilirlik | ⬜ |
+| 3 | Panel: Raporlar, Genel içerik listesi, Yardım | ⬜ |
+| 4 | API olgunluğu: push, sağlık/sürüm ucu, kendi yorumlarım, şema hizası | ⬜ |
+| 5 | Dayanıklılık: dış yedek, `jenssegers/agent` çıkışı, bellek bütçesi, sertleştirme | ⬜ |
