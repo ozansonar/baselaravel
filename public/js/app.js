@@ -194,7 +194,15 @@ window.showResultModal = function (type, message, title) {
         .join('\n')
         .split('\n');
 
-    if (!el) { alert(lines.join('\n')); return; }
+    /* Kutu yoksa mesaj kaybolmasın diye konsola düşüyor. Tarayıcının
+       alert()'i yedekti ama ulaşılamazdı (partial ön yüz layout'una koşulsuz
+       basılıyor) ve proje onu yasaklıyor: sayfayı kilitliyor, ekranın diliyle
+       konuşmuyor ve biçimlenmiyor. */
+    if (!el) {
+        console.error('Sonuç kutusu bulunamadı, mesaj gösterilemedi: ' + lines.join(' '));
+
+        return;
+    }
 
     const map = {
         success: { icon: 'fa-circle-check',        cls: 'result-icon--success', title: 'Başarılı' },
@@ -222,7 +230,17 @@ window.showResultModal = function (type, message, title) {
 /* ---- Global confirm modal ---- */
 window.showConfirmModal = function (options) {
     const el = document.getElementById('confirmModal');
-    if (!el) { if (confirm(options.message)) options.onConfirm && options.onConfirm(); return; }
+
+    // Kutu yoksa işlem yapılmıyor. Tarayıcının confirm()'i yedekti ama
+    // ulaşılamazdı — partial ön yüz layout'una koşulsuz basılıyor — ve proje
+    // onu yasaklıyor. Onay alamadan devam etmektense hiç devam etmemek doğru
+    // taraf; sebep konsola yazılıyor ki sessizce çalışmayan bir düğme olarak
+    // kalmasın.
+    if (!el) {
+        console.error('Onay kutusu bulunamadı: işlem çalıştırılmadı.');
+
+        return;
+    }
 
     document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || 'Emin misiniz?';
     document.getElementById('confirmModalBody').textContent = window.plainText(options.message);

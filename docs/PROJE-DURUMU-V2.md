@@ -1,9 +1,11 @@
 # Proje Durumu — v2 Denetimi
 
-> **Not.** Bu belge artık [`PROJE-KAYDI.md`](PROJE-KAYDI.md) içinde de
-> bulunuyor — dört durum belgesinin tek dosyada toplandığı, güncel durum
-> tablosunu ve kalan iş planını taşıyan kayıt. Bu dosya kaynak olarak yerinde
-> duruyor ve içeriği değişmedi.
+> **Not.** Bu bir **denetim raporu**: 1 Eylül 2026 sabahındaki durumu
+> anlatıyor ve o hâliyle duruyor. Bulguları geriye dönük düzeltilmiyor —
+> denetimin ne bulduğu, sonradan ne olduğundan ayrı bir bilgi.
+>
+> Güncel durum [`PROJE-KAYDI.md`](PROJE-KAYDI.md)'de. Raporun tek eklentisi,
+> aşağıdaki "Açık kalan iki madde" bölümüne düşülen sonradan notu.
 
 **Tarih:** 2026-09-01
 **Dal:** `feat/laravel-13-upgrade`
@@ -606,7 +608,8 @@ eski bağlantıları görmüyor.
 
 ## Açık kalan iki madde
 
-İkisi de bu denetimden önce de bilerek açıktı; durumları değişmedi.
+İkisi de bu denetimden önce de bilerek açıktı; **denetim günü** durumları
+değişmedi.
 
 - **Panelden push bildirim gönderme ekranı.** Sunucu tarafı hazır (jeton kaydı,
   sağlayıcıdan bağımsız gönderim servisi, ölü jetonun düşmesi). Admin temada bu
@@ -615,6 +618,17 @@ eski bağlantıları görmüyor.
 - **`session.serialization = json`.** Çevirmek o anda açık olan bütün oturumları
   düşürüyor; çalışan bir kurulumda bu bakım penceresi gerektiren bir karar, kod
   değil zamanlama meselesi.
+
+> **Sonradan (aynı gün).** İkisi de kapandı ve ikisinde de engel sanılan şey
+> engel değilmiş:
+>
+> - Push ekranı **uydurulmadan** yapıldı — kampanya modülünün tasarımı
+>   uyarlandı, çünkü iki ekran aynı işi yapıyor ve o tasarım temada mevcut.
+> - Oturum biçimi **bakım penceresi olmadan** çevrildi — `migrate` modu okurken
+>   iki biçimi de kabul ediyor, yazarken JSON'a dönüyor; açık oturumlar bir
+>   sonraki isteklerinde sessizce geçiyor.
+>
+> Ayrıntı: `PROJE-KAYDI.md` bölüm 3.
 
 ---
 

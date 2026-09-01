@@ -1,11 +1,13 @@
 # Proje Durumu
 
-> **Not.** Bu belge artık [`PROJE-KAYDI.md`](PROJE-KAYDI.md) içinde de
-> bulunuyor — dört durum belgesinin tek dosyada toplandığı, güncel durum
-> tablosunu ve kalan iş planını taşıyan kayıt. Bu dosya kaynak olarak yerinde
-> duruyor ve içeriği değişmedi.
+> **Not.** Güncel durum tablosu ve kalan iş planı
+> [`PROJE-KAYDI.md`](PROJE-KAYDI.md)'de — dört durum belgesinin tek dosyada
+> toplandığı kayıt. Bu dosya "ne var" belgesi olarak yerinde duruyor ve
+> **maddeler kapandıkça burada da güncelleniyor**: kapanmış bir işi açık
+> gösteren belge, hiç olmamasından kötü.
 
-**Son güncelleme:** 2026-08-31 (yol haritasının beş fazı tamamlandıktan sonra)
+**Son güncelleme:** 2026-09-01 (ertelenmiş iki madde kapandı, ölü kod notu
+düzeltildi)
 **Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
 **Kalan iş listesi:** [`YOL-HARITASI.md`](YOL-HARITASI.md)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
@@ -178,15 +180,17 @@ değiştiriyor; `down()` işlemi geri alıyor (ikisi de test edildi).
 `orders_count` ve "Sipariş" içermediği, "Kayıt Tarihi" içerdiği doğrulandı.
 Kod tabanında kalan tek eşleşme temizlik migration'ının kendi arama metni.
 
-### ⬜ Hâlâ duran ölü kod (sipariş/ürünle ilgisiz)
+### ✅ Ölü kod maddesi kapandı (1 Eylül 2026'da yeniden bakıldı)
 
-Bunlar ayrı bir temizlik turu ister:
+Buradaki üç madde de artık geçerli değil; koda karşı tek tek doğrulandı:
 
-- **`app/Enums/UserRole.php`** — kod tabanında **0 referans**. Roller `roles`
-  tablosu + `Role` modeli üzerinden yönetiliyor.
-- **`resources/views/vendor/pagination/custom.blade.php`** — hiçbir yerden
-  referans verilmiyor; sayfalama `pagination::bootstrap-5` kullanıyor.
-- **`.gitignore`** — `/storage/app/google/*.json` kuralı duruyor ama dizin yok.
+- **`app/Enums/UserRole.php`** — "0 referans" doğru değil: yedi dosyadan
+  çağrılıyor. Rol tohumlaması (`RoleSeeder`) slug'ları buradan okuyor, izin
+  matrisi (`PermissionSeeder`) rolleri buradan eşliyor, `RoleService` sistem
+  rolünü buradan tanıyor. Silinecek değil, kaynak niteliğinde bir enum.
+- **`resources/views/vendor/pagination/custom.blade.php`** — dosya yok;
+  dizinde yalnız kullanılan iki şablon duruyor.
+- **`.gitignore`** — `/storage/app/google/*.json` satırı yok.
 
 ---
 
@@ -519,8 +523,9 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ## 6. Kalan Yapılacak İşler
 
-[`YOL-HARITASI.md`](YOL-HARITASI.md)'nin beş fazı da tamamlandı. Geriye
-bilerek ertelenmiş iki madde ve bir gözlem kaldı.
+[`YOL-HARITASI.md`](YOL-HARITASI.md)'nin beş fazı da tamamlandı. Bir süre
+bilerek ertelenen iki madde de 1 Eylül 2026'da kapandı; geriye faz planından
+sonra açılmış iki yetenek maddesi ve bir gözlem kaldı.
 
 ### Üç yüzün karşılaştırması
 
@@ -537,20 +542,29 @@ bilerek ertelenmiş iki madde ve bir gözlem kaldı.
 | Bildirim tercihleri | ✅ | ✅ | ✅ |
 | Yorumlarım | ✅ | ✅ | ✅ |
 | Kurulabilirlik (PWA, çevrimdışı) | — | ✅ | — |
-| Push bildirim | — | — | ✅ jeton kaydı + gönderim servisi |
+| Push bildirim | — | ✅ tercih anahtarı | ✅ jeton + gönderim + panel ekranı |
 | Sürüm / sağlık ucu | — | — | ✅ |
 
-### ⬜ Bilerek ertelenenler
+### ✅ Ertelenmiş iki madde de kapandı (1 Eylül 2026)
 
-- **Panelden push bildirim gönderme ekranı.** Sunucu tarafı hazır (jeton
-  kaydı, sağlayıcıdan bağımsız gönderim, ölü jetonun düşmesi). Admin temada bu
-  ekranın tasarımı yok — `notifications.html` yalnız tercih anahtarları
-  içeriyor — ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
-  Tasarım geldiğinde ya da onay verildiğinde yapılacak.
-- **`session.serialization = json`.** Çevirmek o anda açık olan bütün
-  oturumları düşürüyor; çalışan bir kurulumda bu bakım penceresi gerektiren
-  bir karar, kod değil zamanlama meselesi. `cache.serializable_classes` ise
-  yapıldı (bkz. 5z).
+- **Panelden push bildirim gönderme ekranı.** Tasarım bekliyordu: admin temada
+  karşılığı yok ve tasarımda olmayan ekranı uydurmak proje kuralına aykırı.
+  Uydurmak yerine **kampanya modülünün tasarımı uyarlandı** — iki ekran aynı
+  işi yapıyor (başlık, metin, hedef, gönder, sonuç) ve o tasarım temada
+  mevcut. Üç ekran, cron tabanlı parça parça gönderim, üç ayrı yetki,
+  Excel/CSV/PDF dışa aktarma, 29 test.
+- **`session.serialization = json`.** Ertelenme sebebi çevirmenin o anda açık
+  olan bütün oturumları düşürmesiydi. `migrate` modu bu bedeli kaldırdı:
+  okuma iki biçimi de kabul ediyor, yazma JSON'a dönüyor, açık oturumlar bir
+  sonraki isteklerinde sessizce yeni biçime geçiyor. Kit varsayılanı artık
+  `json`. `cache.serializable_classes` ise daha önce yapılmıştı (bkz. 5z).
+
+### ⬜ Faz planından sonra açılan iki madde
+
+- **İçerik sürümleme (revisions).** Denetim izi neyin değiştiğini gösteriyor
+  ama geri döndüremiyor.
+- **Dinamik form oluşturucu.** Her projede en az bir form isteniyor ve her
+  seferinde elle kodlanıyor.
 
 ### 🔍 MySQL doğrulaması
 
@@ -2045,8 +2059,12 @@ güvenle çalıştırılabiliyor.
 - [x] **Faz 3 — Panelin eksik ekranları** (6c)
 - [x] **Faz 4 — API olgunluğu** (6d)
 - [x] **Faz 5 — Dayanıklılık** (6e)
+- [x] **Satır içi olay işleyicileri JS'e taşındı**, CSP tavizi kalktı (1 Eylül)
+- [x] **`session.serialization = json`** — geçiş moduyla, kimse düşmeden (1 Eylül)
+- [x] **Panelden push duyurusu gönderme ekranı** (1 Eylül)
 
 ### Açık kalan iki madde
 
-Bölüm 6'da: panelden push gönderme ekranı (tasarım bekliyor) ve
-`session.serialization = json` (bakım penceresi bekliyor).
+Bölüm 6'da: içerik sürümleme (revisions) ve dinamik form oluşturucu. İkisi de
+faz planından sonra açılmış yetenek maddesi; bir karar beklemiyorlar, kapsam
+belirlenip yazılmaları gerekiyor.

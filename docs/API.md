@@ -484,13 +484,24 @@ yorumun var olduğunu söylerdi.
 ### `GET|PUT /account/notification-preferences` *(jeton gerekli)*
 
 ```json
-{ "newsletter": true, "preferences": { "comment_updates": false } }
+{
+  "newsletter": true,
+  "preferences": {
+    "comment_updates": false,
+    "push_announcements": true
+  }
+}
 ```
 
 Yanıt aynı gövdeyi, bir de `types` listesini taşır: her türün anahtarı,
-etiketi ve açıklaması. Etiketler sunucudan geliyor — uygulamanın kendi metin
-listesini tutması, yeni bir tür eklendiğinde mağaza güncellemesi beklemek
-demekti. Gönderilmeyen tür değişmez; tanınmayan anahtar **422** döner.
+etiketi ve açıklaması. **Türler sabit değil** — yukarıdaki iki anahtar bugünkü
+hâli; uygulama listeyi `types` üzerinden çizmeli, kendi içine gömmemeli.
+`push_announcements`, panelden gönderilen duyuru bildirimlerini kapatıyor;
+hesabın güvenliğine dair bir push varsa o bu anahtarla susturulamaz.
+
+Etiketler sunucudan geliyor — uygulamanın kendi metin listesini tutması, yeni
+bir tür eklendiğinde mağaza güncellemesi beklemek demekti. Gönderilmeyen tür
+değişmez; tanınmayan anahtar **422** döner.
 
 Güvenlik postaları (şifre sıfırlama, e-posta doğrulama, adres değişikliği
 uyarısı) listede yok ve kapatılamaz: kapatılabilseydi hesabı ele geçiren biri

@@ -180,10 +180,14 @@
             var onaylanacak = formBul(el, el.dataset.confirmSubmit);
             if (!onaylanacak) return;
 
+            /* Kutu yüklenmemişse işlem yapılmıyor. Tarayıcının kendi
+               confirm()'i yedekti ama ulaşılamazdı — modal işaretlemesi ve
+               betiği admin layout'una koşulsuz basılıyor — ve proje onu
+               yasaklıyor. Onay alamadan göndermektense hiç göndermemek doğru
+               taraf; sebep konsola yazılıyor ki sessiz bir düğme kalmasın. */
             if (typeof AdminModal === 'undefined') {
-                /* Kutu yüklenmemişse işlem sessizce yapılmıyor; tarayıcının
-                   kendi sorusu son çare. */
-                if (window.confirm(el.dataset.confirmMessage || '')) onaylanacak.submit();
+                console.error('AdminModal yüklenmedi: form onay alınamadığı için gönderilmedi.');
+
                 return;
             }
 

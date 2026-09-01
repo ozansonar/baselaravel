@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **38** model | **102** servis | **27** policy | **80** migration |
-| **135** test dosyası | **1927** test | **7749** doğrulama | **34** dışa aktarma tanımı |
+| **137** test dosyası | **1933** test | **7775** doğrulama | **34** dışa aktarma tanımı |
 | **368** rota | **258** admin rotası | **43** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1927 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1933 geçiyor, 8 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -220,11 +220,15 @@ arşiv bölümünde olduğunu söylüyor.
 
 ## 3. Kalan işler ve plan
 
-Bilinen **iki büyük açık madde** var; ikisi de gerçek iş. Bunların yanında
-belge taramasından çıkan dört küçük kalem ve altı belge borcu var — hepsi
-3.1'de. Belge borcunun ikisi (B-1, B-2) 1 Eylül'de kapatıldı; kapatılırken
-haritanın kabul ölçütlerinde **var olmayan altı test dosyasına gönderme**
-olduğu bulundu ve o da düzeltilip bekçisi yazıldı.
+Bilinen **iki büyük açık madde** var; ikisi de gerçek iş: içerik sürümleme ve
+dinamik form oluşturucu.
+
+Belge taramasından çıkan dört küçük kalem ve altı belge borcunun **dokuzu 1
+Eylül'de kapatıldı**; geriye yalnız izlemedeki K-4 kaldı (bir koşuda tek
+seferlik düşen `ModelFactoriesTest`, beş koşuda tekrarlamadı). Kapatma turunda
+iki şey daha çıktı: haritanın kabul ölçütlerinde **var olmayan altı test
+dosyasına gönderme**, ve tarayıcı kutularının ikide değil **dört** yerde
+durduğu. İkisi de düzeltildi, ikisinin de bekçisi yazıldı.
 
 ### Öncelik sırası ve gerekçesi
 
@@ -344,9 +348,9 @@ iş dışında kalan her şey ya kapanmış ya da küçük kalem.
 
 | # | Bulgu | Nerede | Durum |
 |---|---|---|---|
-| K-1 | `window.confirm()` iki yerde duruyor | `assets/admin/js/bulk-actions.js:122`, `public/js/app.js:225` | ⬜ **kural ihlali** — CLAUDE.md `confirm()` kullanımını yasaklıyor. İkisi de "modal yoksa son çare" diye yazılmış ama modal işaretlemesi hem admin hem front layout'ta koşulsuz yükleniyor: dallar ulaşılamaz |
-| K-2 | `alert` / `confirm` / `prompt` yasağının bekçisi yok | — | ⬜ v2 denetiminin 14. bulgusu profil ekranındaki `alert()`'i temizledi ama yasağı sınayan bir test yazılmadı; K-1 bu yüzden görünmedi |
-| K-3 | "Her liste ekranında dışa aktarma" kuralının bekçisi yok | — | ⬜ Bugün kural tutuyor (34 liste, hepsi menülü — `analytics/index`, `dashboard`, `help`, `settings` liste değil; `reports` kendi düğmelerini taşıyor), ama yeni bir liste eklendiğinde kimse uyarmayacak |
+| ~~K-1~~ | Tarayıcı kutusu **dört** yerde duruyormuş (ikisi sonradan çıktı) | `bulk-actions.js`, `inline-actions.js`, `app.js` (×2) | ✅ **kapandı** — aşağıya bakın |
+| ~~K-2~~ | `alert` / `confirm` / `prompt` yasağının bekçisi yok | — | ✅ **kapandı** — `BrowserDialogsAreForbiddenTest` |
+| ~~K-3~~ | "Her liste ekranında dışa aktarma" kuralının bekçisi yok | — | ✅ **kapandı** — `ListScreensOfferExportTest` |
 | K-4 | `ModelFactoriesTest` bir koşuda tek seferlik düştü | — | 👀 **izlemede** — ardından beş koşuda tekrarlamadı, sebebi bulunamadı |
 
 #### Belge borcu — belgeler gerçeği anlatmıyor
@@ -359,14 +363,95 @@ işlendi ve özgün dosyalar geride kaldı.
 |---|---|---|---|---|
 | ~~B-1~~ | `YOL-HARITASI.md` | 174 | "4.1 Push — panel ekranı bekliyor" | ✅ **kapandı** — aşağıya bakın |
 | ~~B-2~~ | `YOL-HARITASI.md` | 230 | "Kalan: bağımlılığı `composer.json`'dan düşürmek" | ✅ **kapandı** — aşağıya bakın |
-| B-3 | `PROJE-DURUMU.md` | 523, 543, 2051 | "bilerek ertelenmiş iki madde" (push ekranı + session json) | İkisi de 1 Eylül'de kapandı |
-| B-4 | `PROJE-DURUMU-V2.md` | 607 | "Açık kalan iki madde" | Aynı iki madde, ikisi de kapandı |
-| B-5 | `PROJE-KAYDI.md` arşivi + `PROJE-DURUMU.md` | 680 / 181 | "Hâlâ duran ölü kod: `UserRole`, `pagination/custom.blade.php`, `.gitignore` google kuralı" | Üçü de geçersiz: `UserRole` yedi dosyadan çağrılıyor (rol tohumlama + izin matrisi), `custom.blade.php` yok, `.gitignore`'da google satırı yok |
-| B-6 | `API.md` | 487 | Örnek gövde yalnız `comment_updates` gösteriyor | `push_announcements` türü eklendi. OpenAPI şeması anahtar-bağımsız (`additionalProperties`), yani sözleşme bozulmuyor; yalnız örnek eksik kalıyor |
+| ~~B-3~~ | `PROJE-DURUMU.md` | 523, 543, 2051 | "bilerek ertelenmiş iki madde" (push ekranı + session json) | ✅ **kapandı** — aşağıya bakın |
+| ~~B-4~~ | `PROJE-DURUMU-V2.md` | 607 | "Açık kalan iki madde" | ✅ **kapandı** — rapor tarihli olduğu için bulgusu korundu, altına "sonradan" notu düşüldü |
+| ~~B-5~~ | `PROJE-KAYDI.md` arşivi + `PROJE-DURUMU.md` | 893 / 181 | "Hâlâ duran ölü kod" — üç madde de geçersiz | ✅ **kapandı** — kaynak dosyada düzeltildi, arşivde "bugün geçersiz" notu |
+| ~~B-6~~ | `API.md` | 487 | Örnek gövde yalnız `comment_updates` gösteriyor | ✅ **kapandı** — örnek genişletildi, türlerin sabit olmadığı yazıldı |
 
-**Arşiv notu.** B-5'in `PROJE-KAYDI.md` kopyası **arşiv bölümünde** (Bölüm A) ve
-arşivler bilerek birebir dondurulmuş durumda. Düzeltilmesi gerekiyorsa arşiv
-metnine dokunmak yerine yanına bir "bugün geçersiz" notu düşülmeli.
+**Arşiv notu.** B-5'in `PROJE-KAYDI.md` kopyası **arşiv bölümünde** (Bölüm A).
+Arşiv metni olduğu gibi bırakıldı, yanına "bugün geçersiz" notu düşüldü;
+düzeltme kaynak dosyada (`PROJE-DURUMU.md`) yapıldı.
+
+#### ✅ K-1 · K-2 · K-3 ve B-3…B-6 kapatıldı (1 Eylül)
+
+**K-1 — tarayıcı kutuları.** İki değil **dört** yerde duruyormuş; ikisi ilk
+taramada gözden kaçmıştı çünkü satır numarasını yorumları silerek hesaplamıştım
+ve numaralar kaymıştı. Yorumları silmek yerine **aynı uzunlukta boşlukla
+değiştirince** dördü de çıktı:
+
+| Yer | Neydi |
+|---|---|
+| `assets/admin/js/bulk-actions.js` | toplu işlem onayında `window.confirm()` |
+| `assets/admin/js/inline-actions.js` | `data-confirm-submit` yolunda `window.confirm()` |
+| `public/js/app.js` — `showConfirmModal` | `confirm()` |
+| `public/js/app.js` — `showResultModal` | `alert()` |
+
+Dördü de "modal yüklenmemişse son çare" gerekçesiyle yazılmıştı. Gerekçe
+makuldü, **dayanağı yanlıştı**: modal işaretlemesi de betiği de her iki
+layout'a koşulsuz basılıyor, yani o dallara hiç girilmiyordu. Ölü kod olarak
+durup kuralı çiğniyorlardı.
+
+Yerlerine "işlemi yapma ve sebebini konsola yaz" kondu. Yön bilinçli: **onay
+alamadan silmektense hiç silmemek** doğru taraf. Sessizce `return` etselerdi
+tıklanan ama hiçbir şey yapmayan bir düğme kalırdı, sebebi de bilinmezdi.
+
+**K-2 — bekçi.** `BrowserDialogsAreForbiddenTest` üç şeyi birden sınıyor:
+
+1. Kendi JavaScript'imizde `alert(` / `confirm(` / `prompt(` yok.
+   `AdminModal.confirm(` ve `confirmDelete(` gibi adlar dışarıda kalıyor
+   (nokta ya da harf öncesi olmayan çıplak çağrı aranıyor), `window.` öneki
+   ayrıca aranıyor çünkü o da noktayla geliyor ama kutunun ta kendisi.
+2. **Yasağın dayanağı**: kutuların yerini alan modal partial'ları her iki
+   layout'a basılıyor **ve** betiklerin `getElementById` ile aradığı kimlikler
+   (`globalConfirmModal`, `globalStatusModal`, `confirmModal`, `resultModal`)
+   o partial'larda gerçekten duruyor. Bu olmadan birinci madde, onay penceresiz
+   bir silme düğmesine dönüşebilirdi.
+3. Kutuyu bulamayan yolların sebebi yazdığı.
+
+Bekçi kendi üzerinde sınandı: yasak çağrı geri konduğunda dosya ve satır
+numarasıyla düşüyor, aynı satırdaki iki ihlalin ikisini birden raporluyor.
+
+**K-3 — dışa aktarma bekçisi.** `ListScreensOfferExportTest`. Kapsam elle
+yazılmış listeden değil görünümlerin kendisinden besleniyor: `<table` çizen her
+panel görünümü sınava giriyor (bugün 29 ekran). Kabul edilen iki işaret var —
+`<x-export-menu>` bileşeni ve `route('admin.export'` (rapor merkezi kendi
+düğmelerini basıyor, çünkü hangi raporun indirileceği adres satırındaki `type`
+ile geliyor).
+
+Üç istisna, her biri gerekçesiyle: `analytics/index` (grafik panosu, ham liste
+`visits` ekranında), `analytics/live` (saniyede değişen canlı ekran — dosyaya
+dökülen şey indirildiği anda eskimiş olur) ve `audit-logs/show` (tek kaydın
+detayı, liste değil).
+
+**İstisna listesinin bayatlaması ayrıca sınanıyor** — bekçinin kör noktası tam
+olarak orası: listedeki dosya silinmişse satır ölüdür, ekrana sonradan dışa
+aktarma eklenmişse istisna yanlış yere bakıyordur. İkisi de listeyi sessizce
+güvenilmez yapar. Üçüncü bir sınav da kapsamın boş kalmadığını doğruluyor:
+tarayıcı bir gün yanlış dizine bakarsa sessizce yeşil kalırdı.
+
+Bekçi iki yönde de kanıtlandı: dışa aktarması olmayan bir liste ekranı
+eklendiğinde düştü, bir istisnaya dışa aktarma eklendiğinde de düştü.
+
+**B-3…B-6 — belge borcu.** Her belgeye türüne göre davranıldı:
+
+- **`PROJE-DURUMU.md`** ("ne var" belgesi, yaşayan) — ertelenmiş iki madde
+  kapandı olarak yazıldı, üç yüz tablosunda push satırı güncellendi, ölü kod
+  bölümü koda karşı doğrulanmış hâliyle düzeltildi, tamamlananlar listesine
+  1 Eylül'ün üç işi eklendi, başlık notu yaşayan belge politikasına çevrildi.
+- **`PROJE-DURUMU-V2.md`** (tarihli denetim raporu) — **bulgusuna
+  dokunulmadı.** Denetimin o gün ne bulduğu, sonradan ne olduğundan ayrı bir
+  bilgi; geriye dönük düzeltmek raporu değersizleştirirdi. Altına "sonradan"
+  notu düşüldü: ikisinde de engel sanılan şey engel değilmiş — push ekranı
+  uydurulmadan (kampanya tasarımı uyarlanarak), oturum biçimi bakım penceresi
+  olmadan (`migrate` moduyla) çözüldü.
+- **`PROJE-KAYDI.md` arşivi** — arşiv metni olduğu gibi bırakıldı, yanına
+  "bugün geçersiz" notu düşüldü.
+- **`API.md`** — örnek gövdeye `push_announcements` eklendi ve **türlerin sabit
+  olmadığı** yazıldı: uygulama listeyi `types` üzerinden çizmeli, kendi içine
+  gömmemeli. OpenAPI şeması zaten anahtar-bağımsız (`additionalProperties`),
+  yani sözleşme bozulmamıştı — eksik olan örnekti.
+
+---
 
 #### ✅ B-1 ve B-2 kapatıldı — yol haritası gerçeğe getirildi
 
@@ -899,6 +984,14 @@ Bunlar ayrı bir temizlik turu ister:
 - **`resources/views/vendor/pagination/custom.blade.php`** — hiçbir yerden
   referans verilmiyor; sayfalama `pagination::bootstrap-5` kullanıyor.
 - **`.gitignore`** — `/storage/app/google/*.json` kuralı duruyor ama dizin yok.
+
+> **Bugün geçersiz (1 Eylül 2026).** Arşiv metni olduğu gibi bırakıldı ama üç
+> maddenin üçü de artık doğru değil; koda karşı tek tek doğrulandı.
+> `UserRole` "0 referans" değil, **yedi dosyadan** çağrılıyor: rol tohumlaması
+> slug'ları oradan okuyor, izin matrisi rolleri oradan eşliyor, `RoleService`
+> sistem rolünü oradan tanıyor — silinecek değil, kaynak niteliğinde bir enum.
+> `vendor/pagination/custom.blade.php` dosyası yok. `.gitignore`'da google
+> satırı yok. Kaynak dosyada (`PROJE-DURUMU.md`) bölüm düzeltildi.
 
 ---
 
