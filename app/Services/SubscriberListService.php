@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Subscriber;
 use App\Models\SubscriberList;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -150,16 +149,6 @@ final class SubscriberListService
         $ids = array_values(array_unique(array_map('intval', $subscriberIds)));
 
         return $ids === [] ? 0 : $list->subscribers()->detach($ids);
-    }
-
-    /**
-     * Bir abonenin listelerini belirtilenlerle değiştirir.
-     *
-     * @param array<int, int> $listIds
-     */
-    public function syncFor(Subscriber $subscriber, array $listIds): void
-    {
-        $subscriber->lists()->sync(array_map('intval', $listIds));
     }
 
     private function clearOtherDefaults(SubscriberList $list): void

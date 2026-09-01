@@ -21,7 +21,6 @@ class PageFactory extends Factory
             'title'            => fake()->unique()->sentence(3),
             'slug'             => fake()->unique()->slug(3),
             'content'          => '<p>' . implode('</p><p>', fake()->paragraphs(3)) . '</p>',
-            'sections'         => null,
             'excerpt'          => fake()->sentence(12),
             'image'            => null,
             'status'           => ContentStatus::Published,

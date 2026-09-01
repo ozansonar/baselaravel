@@ -142,11 +142,6 @@ final class BlogCategoryService
         return BlogCategory::active()->where('slug', $slug)->first();
     }
 
-    public function findById(int $id): BlogCategory
-    {
-        return BlogCategory::findOrFail($id);
-    }
-
     public function create(array $data): BlogCategory
     {
         return DB::transaction(function () use ($data): BlogCategory {

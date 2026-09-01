@@ -261,20 +261,6 @@ enum PermissionKey: string
     }
 
     /**
-     * @return array<string, array<int, self>>
-     */
-    public static function groupedByGroup(): array
-    {
-        $grouped = [];
-
-        foreach (self::cases() as $case) {
-            $grouped[$case->group()->value][] = $case;
-        }
-
-        return $grouped;
-    }
-
-    /**
      * @return array<int, string>
      */
     public static function values(): array

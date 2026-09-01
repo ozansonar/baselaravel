@@ -86,11 +86,6 @@ final class FaqService
         return $this->attachGroupLocales($this->query($filters)->paginate($perPage), Faq::class);
     }
 
-    public function findById(int $id): Faq
-    {
-        return Faq::findOrFail($id);
-    }
-
     public function create(array $data): Faq
     {
         return DB::transaction(function () use ($data): Faq {

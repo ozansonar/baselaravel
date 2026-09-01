@@ -90,11 +90,6 @@ final class SliderService
         return $this->attachGroupLocales($this->query($filters)->paginate($perPage), Slider::class);
     }
 
-    public function findById(int $id): Slider
-    {
-        return Slider::findOrFail($id);
-    }
-
     public function create(array $data): Slider
     {
         return DB::transaction(function () use ($data): Slider {

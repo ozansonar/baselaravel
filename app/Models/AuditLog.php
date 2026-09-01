@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Activity Log / Audit Trail kaydı.
@@ -56,12 +55,6 @@ final class AuditLog extends Model
         return $this->belongsTo(User::class);
     }
 
-    /** @return MorphTo<Model, $this> */
-    public function auditable(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
     /** @param Builder<AuditLog> $query */
     public function scopeOfEvent(Builder $query, string $event): Builder
     {
@@ -77,11 +70,6 @@ final class AuditLog extends Model
     public function eventLabel(): string
     {
         return $this->event?->label() ?? '—';
-    }
-
-    public function eventBadgeClass(): string
-    {
-        return 'bg-' . ($this->event?->color() ?? 'secondary');
     }
 
     public function modelLabel(): string

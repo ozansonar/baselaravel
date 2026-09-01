@@ -35,27 +35,6 @@ final class GalleryService
         );
     }
 
-    /**
-     * @return Collection<int, GalleryItem>
-     */
-    public function activeVideos(): Collection
-    {
-        return Cache::remember($this->localeCacheKey('gallery.videos'), 3600, fn () =>
-            GalleryItem::active()->localeWithFallback()->videos()->sorted()->with('galleryCategory')->get(),
-        );
-    }
-
-    /**
-     * @return array<string, Collection<int, GalleryItem>>
-     */
-    public function allActiveGrouped(): array
-    {
-        return [
-            'photos' => $this->activePhotos(),
-            'videos' => $this->activeVideos(),
-        ];
-    }
-
     // ── Ön yüz galerisi ──
 
     /**
@@ -186,11 +165,6 @@ final class GalleryService
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         return $this->attachGroupLocales($this->query($filters)->paginate($perPage), GalleryItem::class);
-    }
-
-    public function findById(int $id): GalleryItem
-    {
-        return GalleryItem::with('galleryCategory')->findOrFail($id);
     }
 
     /**

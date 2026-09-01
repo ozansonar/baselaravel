@@ -83,20 +83,6 @@ final class StoreContentFileRequest extends FormRequest
         'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/flac', 'audio/x-flac',
     ];
 
-    /**
-     * Bırakma kutusunun kabul ettiği uzantılar.
-     *
-     * İstemci listesi sunucununkiyle aynı olsun diye buradan okunuyor: iki
-     * yerde ayrı yazılsaydı kullanıcı dakikalarca yükleyip sonunda "bu uzantı
-     * kabul edilmiyor" cevabını alırdı.
-     *
-     * @return list<string>
-     */
-    public static function allowedExtensions(): array
-    {
-        return self::ALLOWED_EXTENSIONS;
-    }
-
     /** Dropzone'un acceptedFiles biçimi: ".jpg,.png,..." */
     public static function acceptAttribute(): string
     {

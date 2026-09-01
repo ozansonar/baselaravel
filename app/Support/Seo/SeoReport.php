@@ -56,11 +56,6 @@ final readonly class SeoReport
         return count($this->ofLevel($level));
     }
 
-    public function hasErrors(): bool
-    {
-        return $this->count(SeoLevel::Error) > 0;
-    }
-
     public function isClean(): bool
     {
         return $this->issues === [];

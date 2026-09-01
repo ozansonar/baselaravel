@@ -191,11 +191,6 @@ final class BlogCommentService
         return $this->query($filters)->paginate($perPage);
     }
 
-    public function findById(int $id): BlogComment
-    {
-        return BlogComment::with(['post', 'parent', 'replies'])->findOrFail($id);
-    }
-
     /**
      * Süzgeç listesinde gösterilecek yazılar: yalnız yorumu olanlar.
      *

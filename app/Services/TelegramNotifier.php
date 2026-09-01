@@ -84,50 +84,6 @@ final class TelegramNotifier
     }
 
     /**
-     * Bilgilendirici Telegram bildirimi — yeni kayıt, yeni mesaj,
-     * cron başarı vb. event'ler için. notifyAdminError'un info versiyonu:
-     * throttle YOK (her event ayrı, kaybedilmesin), emoji default ✅.
-     *
-     * @param  string                $title       Kısa başlık (örn. "Yeni İletişim Mesajı")
-     * @param  array<string, mixed>  $context     Key-value detaylar
-     * @param  string|null           $url         Detay paneline link
-     * @param  string                $emoji       Başlığın önünde 🛒 / ✅ / 📦 vs.
-     */
-    public static function notifyAdminInfo(
-        string $title,
-        array $context = [],
-        ?string $url = null,
-        string $emoji = '✅',
-    ): void {
-        if (! self::isEnabled()) {
-            return;
-        }
-
-        $lines = ["<b>{$emoji} " . e($title) . '</b>'];
-
-        foreach ($context as $key => $value) {
-            $valueStr = is_scalar($value) ? (string) $value : json_encode($value, JSON_UNESCAPED_UNICODE);
-            $valueStr = self::truncate((string) $valueStr, 300);
-            $keyLabel = e(ucfirst(str_replace('_', ' ', (string) $key)));
-            $lines[] = mb_strlen($valueStr) > 60
-                ? "<b>{$keyLabel}:</b> <code>" . e($valueStr) . '</code>'
-                : "<b>{$keyLabel}:</b> " . e($valueStr);
-        }
-
-        if ($url !== null && $url !== '') {
-            $lines[] = "\n<a href=\"" . e($url) . '">Detayı panelde aç →</a>';
-        }
-
-        $res = self::send(implode("\n", $lines));
-        if (! $res['ok']) {
-            Log::warning('Telegram admin info bildirimi gönderilemedi', [
-                'title'  => $title,
-                'reason' => $res['message'] ?? 'unknown',
-            ]);
-        }
-    }
-
-    /**
      * Servis hatası bildirimi — herhangi bir cron/job/servis fail olduğunda
      * admin'e Telegram'da anında bildirim atar.
      *

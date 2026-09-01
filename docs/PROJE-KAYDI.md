@@ -44,7 +44,7 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 
 | | | | |
 |---|---|---|---|
-| **39** model | **103** servis | **27** policy | **81** migration |
+| **39** model | **102** servis | **27** policy | **82** migration |
 | **139** test dosyası | **1979** test | **7900** doğrulama | **35** dışa aktarma tanımı |
 | **373** rota | **258** admin rotası | **48** API rotası | **2** dil (tr, en) |
 
@@ -219,6 +219,7 @@ arşiv bölümünde olduğunu söylüyor.
 | Sistem sağlığına OPcache + uygulama önbelleği kontrolleri | `55a54d3` | ✅ |
 | **API'de iki adımlı doğrulama kurulumu** (4 uç, 18 test) | — | ✅ |
 | **İçerik sürümleme** (sayfa + blog, 20 sürüm, dil başına, 24 test) | — | ✅ |
+| **Ölü kod temizliği** — 44 dosya, 1023 satır silindi | — | ✅ |
 | Dinamik form oluşturucu kapsam dışına alındı — **açık madde kalmadı** | — | ⛔ |
 
 ---
@@ -253,6 +254,112 @@ neden yapılmadığı.
 | 4 | API'de iki adımlı doğrulama kurulumu | Küçük | ✅ yapıldı — yalnız mobilden giren de 2FA açabiliyor |
 | 5 | İçerik sürümleme (revisions) | Orta | ✅ yapıldı — sayfa + blog, dil başına 20 sürüm |
 | 6 | Dinamik form oluşturucu | Büyük | ⛔ **bilerek kapsam dışı** — gerekçesi aşağıda |
+
+---
+
+### 3.4 Ölü kod temizliği (1 Eylül) — 1023 satır çıktı
+
+Projenin tamamı beş açıdan tarandı: rotasız denetleyici/metot, yetim görünüm,
+referanssız model/trait/servis/enum, yoruma alınmış rota, kullanılmayan varlık
+ve paket. **Her aday tek tek koda karşı doğrulandı**; tarayıcının "eşleşme yok"
+demesi tek başına silme gerekçesi sayılmadı.
+
+#### Silinenler
+
+| Ne | Nerede | Neden ölüydü |
+|---|---|---|
+| `LocationService` + `turkey_cities.json` + `CacheKeys::LOCATION_CITIES` | servis, 16 KB veri, sabit | Türkiye il/ilçe verisi; hiçbir form, rota ya da ekran okumuyordu |
+| `enum-select` Blade bileşeni | görünüm | Hiçbir yerde `<x-enum-select>` yok. Üstelik HTML5 `required` basıyordu — projenin yasakladığı doğrulama biçimi |
+| 10 × `findById()` | içerik servisleri | Rota-model bağlaması bunları gereksiz kılmış; hiçbiri çağrılmıyordu |
+| Video yükleme bloğu (`uploadVideo`, `probeVideoDuration`, `validateVideo`, 2 sabit) | `UploadService` | Galeri videoyu **URL ile** alıyor, içerik ekleri ise `uploadFile()` yolundan geçiyor. Bu blok ilk commit'ten beri hiç çağrılmamış |
+| `ShellExec::runAny()`, `runExec()`, `isExecAvailable()` | destek sınıfı | `exec()` yedeği hiçbir çağrıya bağlı değildi; shell yoksa gerçek yedek `BackupService`'in PDO ile döküm alan yolu ve o yol bağlı |
+| 13 model/enum/trait metodu | `AuditLog`, `BlogComment`, `Page`, `SubscriberList`, `UploadedFile`, `HasTranslations`, `AttachableContent`, `PermissionKey`, `SubscriberStatus`, `StoreContentFileRequest` | Özellik erişimi, dizge kullanımı ve accessor biçimleri dâhil hiçbir biçimde çağrılmıyorlardı |
+| `NotificationCenter::sendCritical()`, `SettingService::byGroup()`, `Setting::scopeByGroup()`, `SeoReport::hasErrors()` | servis/model | Sıfır çağrı; `byGroup` zinciri servis metoduyla birlikte boşa çıktı |
+| Terk edilmiş git worktree | `.claude/worktrees/upbeat-pare-4b4774` | 26 Ağustos'tan kalma, ayrık HEAD, 22 MB |
+| 16 × `.DS_Store` | tüm ağaç | Yerel gürültü (zaten `.gitignore`'daydı) |
+
+#### Ölü bir özellik: sayfa bölümleri
+
+Silinenlerin en dikkat çekeni tek bir metot değil, **görünen ama çalışmayan
+bir özellik**ti.
+
+`pages.sections` sütunu 13 Mart'ta eklenmiş. O günden beri hiçbir şey yazmamış,
+hiçbir şey okumamış: form alanı yok, denetleyici işlemiyor, ön yüz basmıyor,
+bütün satırlarda değer `null`. Geriye kalan tek iz, sayfa düzenleme ekranındaki
+gezinme bloğuydu — "Hikaye, Değerler, Tarihçe, İstatistikler, Ekip, CTA" —
+**altı bağlantı, hiçbiri var olmayan çapalara gidiyordu.** Yönetici tıklıyor,
+hiçbir şey olmuyordu.
+
+Temizlenen: on iki gezinme girdisi (mobil seçici + masaüstü yan menü),
+`Page::getSection()`, modeldeki `fillable`/cast girdileri, API kaynağındaki
+`sections` alanı, OpenAPI şeması, tohumlama ve fabrika satırları, ve sütunun
+kendisi (`2026_09_01_160000_drop_sections_from_pages_table`, `down()` geri
+koyuyor).
+
+**Testler bu temizliğin doğru yapıldığını iki kez yakaladı:** sütun düşünce
+`config/revisions.php` hâlâ `sections`'ı sürümlenen alan sayıyordu ve sürüm
+geri yükleme düştü; ardından API kaynağı ve test beklentisi de eşleşti.
+Elle bulunması zor iki bağlantıydı.
+
+#### Silinmeyenler — ve neden
+
+Tarayıcının işaretlediği her şey ölü değildi. Yanlış pozitiflerin tamamı elle
+elendi:
+
+- **Çerçeve sözleşmesi olanlar**: middleware `handle()`, FormRequest
+  `withValidator()` / `prepareForValidation()`, gözlemci olayları
+  (`deleting`, `restored`…), trait `bootXxx()` kancaları,
+  `sendPasswordResetNotification()`. Hiçbiri "çağrılmıyor" görünür ama hepsini
+  çerçeve çağırıyor.
+- **Özellik olarak erişilen ilişkiler ve accessor'lar**: `->author`,
+  `->revisionable`, `full_name`. Metot gibi aranınca bulunmuyorlar.
+- **Dizgeyle çağrılanlar**: `whereDoesntHave('user.notificationPreferences')`.
+- **`config/cors.php` ve `config/filesystems.php`**: kodumuz okumuyor ama
+  çerçeve okuyor — `HandleCors` middleware yığında olduğu çalışma anında
+  doğrulandı.
+- **Sadece kendi sınıfı içinde kullanılanlar** (21 metot): ölü değil, olsa olsa
+  `private` adayı. Silmek sınıfı bozardı.
+
+#### Sağlam çıkanlar
+
+- **Rotasız denetleyici ya da metot: sıfır.** Her public denetleyici metodu bir
+  rotaya bağlı.
+- **Yetim görünüm: sıfır.** 202 Blade dosyasının hepsi ulaşılabilir
+  (bileşenler `<x-...>` ile, hata sayfaları durum koduyla, sayfalama
+  `pagination::` adıyla).
+- **Yoruma alınmış rota: sıfır.**
+- **Referanssız public varlık (js/css/görsel/font): sıfır.**
+- **Kullanılmayan composer paketi: sıfır** — `require` altındaki altı paketin,
+  `require-dev` altındaki sekizinin hepsi kullanılıyor. `package.json` zaten
+  yok (npm yasak).
+- **Sahipsiz tablo: sıfır** — 50 tablonun hepsinin ya modeli var ya çerçeveye
+  ait ya da pivot.
+- **Kullanılmayan yardımcı fonksiyon: sıfır** (12 helper'ın hepsi çağrılıyor).
+
+#### Karar bekleyen tek kalem
+
+`app/Rules/NotDisposableEmail.php` + `config/disposable_emails.php` (302
+alan adı). Kural hiçbir istek sınıfına bağlı değil — yani bugün çalışmıyor.
+Ama bu "çöp kod" değil, **yarım kalmış bir özellik**: üretimdeki e-posta kuralı
+(`EmailAddress::RULE` = `email:rfc,dns`) uydurma alan adlarını eliyor,
+tek kullanımlık sağlayıcılar ise gerçek MX kaydı taşıdığı için o süzgeçten
+geçiyor. Liste tam bu boşluk için yazılmış.
+
+İki seçenek var ve karar kullanıcının: **bağlamak** (`EmailAddress`
+zincirine bir kural eklemek — tek satır) ya da **silmek**. Silmeden bırakıldı;
+bağlanmayan bir engelleme listesi ile silinmiş bir liste arasındaki fark bir
+ürün kararı, temizlik kararı değil.
+
+#### Doğrulama
+
+1979 test yeşil, Pint sapmasız, PHPStan temiz. Şema MySQL 8'de sıfırdan
+kuruldu, `down()` gidiş-dönüşü yapıldı (sütun geri geldi, tekrar düştü),
+tohumlama koştu. Üretim önbellekleri (`config`/`route`/`view:cache`) sorunsuz
+kuruldu ve temizlendi. Tarayıcıda **27 uç** tek tek denendi — ön yüz, panelin
+yirmi ekranı, API ve sitemap/robots; hepsi 200, konsol temiz, sayfa düzenleme
+ekranında ölü bağlantı kalmadı.
+
+Toplam: **44 dosya, 1023 satır silindi, 7 satır eklendi.**
 
 ---
 

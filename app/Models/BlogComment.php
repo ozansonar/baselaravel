@@ -120,11 +120,6 @@ class BlogComment extends Model
         return $initials;
     }
 
-    public function isApproved(): bool
-    {
-        return $this->status === CommentStatus::Approved;
-    }
-
     public function isPending(): bool
     {
         return $this->status === CommentStatus::Pending;

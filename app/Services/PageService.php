@@ -102,11 +102,6 @@ final class PageService
         return Page::where('slug', $slug)->published()->localeWithFallback()->firstOrFail();
     }
 
-    public function findById(int $id): Page
-    {
-        return Page::findOrFail($id);
-    }
-
     public function create(array $data): Page
     {
         return DB::transaction(function () use ($data): Page {

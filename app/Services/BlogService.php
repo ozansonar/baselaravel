@@ -277,11 +277,6 @@ final class BlogService
         ];
     }
 
-    public function findById(int $id): BlogPost
-    {
-        return BlogPost::with(['category', 'author'])->findOrFail($id);
-    }
-
     public function create(array $data): BlogPost
     {
         return DB::transaction(function () use ($data): BlogPost {

@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\MailTemplate;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use App\Support\LikeSearch;
@@ -15,16 +14,6 @@ final class MailTemplateService
 {
     private const CACHE_KEY = 'mail_templates.all';
     private const CACHE_TTL = 86400; // 24 hours
-
-    /**
-     * Get all templates for admin listing.
-     *
-     * @return EloquentCollection<int, MailTemplate>
-     */
-    public function getAll(): EloquentCollection
-    {
-        return MailTemplate::orderBy('name')->get();
-    }
 
     /**
      * Süzülmüş ve sıralanmış şablon listesi.

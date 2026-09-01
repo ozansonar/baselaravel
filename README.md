@@ -317,7 +317,7 @@ app/
 resources/views/
 ├── admin/              Panel ekranları
 ├── admin-theme/        Hazır HTML tema referansları
-├── components/         Blade component'leri (enum-select, responsive-image)
+├── components/         Blade component'leri (export-menu, language-tabs, responsive-image)
 ├── emails/             Mail şablonları
 ├── layouts/            app (front), admin, auth
 └── partials/           Ortak parçalar

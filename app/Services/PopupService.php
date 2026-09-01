@@ -92,11 +92,6 @@ final class PopupService
         return $this->attachGroupLocales($this->query($filters)->paginate($perPage), Popup::class);
     }
 
-    public function findById(int $id): Popup
-    {
-        return Popup::findOrFail($id);
-    }
-
     public function create(array $data): Popup
     {
         return DB::transaction(function () use ($data): Popup {

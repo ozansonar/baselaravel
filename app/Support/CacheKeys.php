@@ -59,7 +59,6 @@ final class CacheKeys
     public const LANGUAGES_DEFAULT = 'languages.default';
     public const CUSTOM_ROUTES_MAP = 'custom_routes.map';
     public const MAIL_TEMPLATES_ALL = 'mail_templates.all';
-    public const LOCATION_CITIES = 'turkey_cities_data';
 
     // ── Önekler ──
 

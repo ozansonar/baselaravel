@@ -80,16 +80,6 @@ final class UploadedFile extends Model
         return $this->category === self::CATEGORY_IMAGE;
     }
 
-    public function isDocument(): bool
-    {
-        return $this->category === self::CATEGORY_DOCUMENT;
-    }
-
-    public function isVideo(): bool
-    {
-        return $this->category === self::CATEGORY_VIDEO;
-    }
-
     /**
      * Public erişilebilir URL (relative) — `/uploads/...`.
      * Blog/sayfa içine kopyalanır. Görselse stored_path = WebP.
@@ -251,14 +241,6 @@ final class UploadedFile extends Model
             self::CATEGORY_ARCHIVE  => 'Arşiv',
             default                 => 'Diğer',
         };
-    }
-
-    /**
-     * İndirme sayacını artır — public download endpoint'inden çağrılır.
-     */
-    public function markDownloaded(): void
-    {
-        $this->increment('download_count');
     }
 
     // ── Scopes ──

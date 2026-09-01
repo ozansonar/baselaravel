@@ -42,35 +42,11 @@ final class SettingService
     }
 
     /**
-     * Get settings by group.
-     *
-     * @return Collection<int, Setting>
-     */
-    public function byGroup(string $group): Collection
-    {
-        return Setting::byGroup($group)->get();
-    }
-
-    /**
      * Set a single setting value.
      */
     public function set(string $key, ?string $value, string $group = 'general', string $type = 'text'): void
     {
         Setting::setValue($key, $value, $group, $type);
-    }
-
-    /**
-     * Bulk update settings.
-     *
-     * @param array<string, string|null> $data
-     */
-    public function bulkUpdate(array $data): void
-    {
-        foreach ($data as $key => $value) {
-            Setting::where('key', $key)->update(['value' => $value]);
-        }
-
-        Setting::clearSettingsCache();
     }
 
     /**

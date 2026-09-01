@@ -677,12 +677,6 @@
                 "type": "string",
                 "const": "html"
               },
-              "sections": {
-                "type": "array",
-                "items": {
-                  "type": "object"
-                }
-              },
               "image": {
                 "$ref": "#/components/schemas/ImageSet"
               },

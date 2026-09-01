@@ -23,15 +23,6 @@ class Setting extends Model
 
     // ── Scopes ──
 
-    /**
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
-     */
-    public function scopeByGroup(\Illuminate\Database\Eloquent\Builder $query, string $group): \Illuminate\Database\Eloquent\Builder
-    {
-        return $query->where('group', $group);
-    }
-
     // ── Static Helpers ──
 
     /** @var array<string, string|null>|null */

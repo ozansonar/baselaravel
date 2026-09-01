@@ -57,20 +57,6 @@ final class MenuService
     }
 
     /**
-     * Every language version of a location, default language first.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Menu>
-     */
-    public function allForLocation(string $location): \Illuminate\Database\Eloquent\Collection
-    {
-        return Menu::query()
-            ->byLocation($location)
-            ->withCount('items')
-            ->orderBy('locale')
-            ->get();
-    }
-
-    /**
      * Copy a menu — including its whole item tree — into another language.
      *
      * Without this, activating a language would mean rebuilding the navigation

@@ -23,7 +23,6 @@ class Page extends Model
         'title',
         'slug',
         'content',
-        'sections',
         'excerpt',
         'image',
         'status',
@@ -37,7 +36,6 @@ class Page extends Model
     {
         return [
             'status' => ContentStatus::class,
-            'sections' => 'array',
             'sort_order' => 'integer',
             'published_at' => 'datetime',
         ];
@@ -74,28 +72,5 @@ class Page extends Model
 
     // ── Accessors ──
 
-    /**
-     * @param string $key Section key (e.g. 'story', 'values', 'timeline', 'stats', 'team', 'cta')
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getSection(string $key, mixed $default = null): mixed
-    {
-        return $this->sections[$key] ?? $default;
-    }
-
     // ── Helpers ──
-
-    public function isPublished(): bool
-    {
-        if ($this->status !== ContentStatus::Published) {
-            return false;
-        }
-
-        if ($this->published_at !== null && $this->published_at->isFuture()) {
-            return false;
-        }
-
-        return true;
-    }
 }

@@ -55,15 +55,6 @@
         <option value="section-seo">SEO Ayarları</option>
         <option value="section-publish">Yayın Ayarları</option>
         <option value="section-advanced">Gelişmiş Ayarlar</option>
-        @if($page->slug === 'hakkimizda')
-        <option disabled>── Sayfa Bölümleri ──</option>
-        <option value="section-story">Hikaye</option>
-        <option value="section-values">Değerler</option>
-        <option value="section-timeline">Tarihçe</option>
-        <option value="section-stats">İstatistikler</option>
-        <option value="section-team">Ekip</option>
-        <option value="section-cta">CTA</option>
-        @endif
     </select>
 </div>
 
@@ -105,34 +96,6 @@
                     <i class="bi bi-gear"></i>
                     <div><span>Gelişmiş Ayarlar</span><small>Sıralama</small></div>
                 </a>
-                @if($page->slug === 'hakkimizda')
-                <hr class="my-2 border-secondary">
-                <small class="text-muted d-block px-3 mb-2">Sayfa Bölümleri</small>
-                <a href="#section-story" class="stg-nav-item" data-scroll-to="section-story">
-                    <i class="bi bi-book"></i>
-                    <div><span>Hikaye</span><small>Ana hikaye metni</small></div>
-                </a>
-                <a href="#section-values" class="stg-nav-item" data-scroll-to="section-values">
-                    <i class="bi bi-heart"></i>
-                    <div><span>Değerler</span><small>Temel değerler</small></div>
-                </a>
-                <a href="#section-timeline" class="stg-nav-item" data-scroll-to="section-timeline">
-                    <i class="bi bi-clock-history"></i>
-                    <div><span>Tarihçe</span><small>Zaman çizelgesi</small></div>
-                </a>
-                <a href="#section-stats" class="stg-nav-item" data-scroll-to="section-stats">
-                    <i class="bi bi-graph-up"></i>
-                    <div><span>İstatistikler</span><small>Sayısal veriler</small></div>
-                </a>
-                <a href="#section-team" class="stg-nav-item" data-scroll-to="section-team">
-                    <i class="bi bi-people"></i>
-                    <div><span>Ekip</span><small>Ekip üyeleri</small></div>
-                </a>
-                <a href="#section-cta" class="stg-nav-item" data-scroll-to="section-cta">
-                    <i class="bi bi-megaphone"></i>
-                    <div><span>CTA</span><small>Aksiyon çağrısı</small></div>
-                </a>
-                @endif
             </div>
         </div>
 

@@ -27,12 +27,4 @@ enum SubscriberStatus: string
             self::Bounced      => 'danger',
         };
     }
-
-    /**
-     * Only these addresses may receive a campaign.
-     */
-    public function canReceive(): bool
-    {
-        return $this === self::Subscribed;
-    }
 }

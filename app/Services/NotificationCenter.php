@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Cache;
  *
  * Kullanım:
  *  NotificationCenter::send('backup_failed', 'Yedek alınamadı', 'Disk dolu', level: NotificationLevel::Error, actionUrl: ...);
- *  NotificationCenter::sendCritical('Backup hatası', 'Disk dolu', actionUrl: ...);
  *
  * Throttle: aynı (type + title hash) için 5 dakika tekrar gönderilmez.
  */
@@ -54,17 +53,6 @@ final class NotificationCenter
         } catch (\Throwable) {
             return null;
         }
-    }
-
-    /** Kritik seviye kısayol — Telegram + in-app çift bildirim */
-    public static function sendCritical(string $title, ?string $message = null, ?string $actionUrl = null): ?AdminNotification
-    {
-        // Telegram'a da düşür (önemli)
-        if (TelegramNotifier::isEnabled()) {
-            TelegramNotifier::notifyAdminError($title, $message ? ['detay' => $message] : [], $actionUrl, emoji: '🚨');
-        }
-
-        return self::send('critical', $title, $message, NotificationLevel::Critical, null, null, $actionUrl);
     }
 
     /** Belirli kullanıcı için okundu işaretle */

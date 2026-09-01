@@ -38,7 +38,6 @@ return [
             'title',
             'slug',
             'content',
-            'sections',
             'excerpt',
             'image',
             'status',

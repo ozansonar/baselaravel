@@ -77,11 +77,6 @@ final class ContactMessageService
         return $this->query($filters)->paginate($perPage);
     }
 
-    public function findById(int $id): ContactMessage
-    {
-        return ContactMessage::findOrFail($id);
-    }
-
     /**
      * @param array<string, mixed> $data
      */

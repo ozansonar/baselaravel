@@ -47,19 +47,6 @@ class SubscriberList extends Model
     }
 
     /**
-     * Listenin gerçekten mail alabilecek üyeleri.
-     *
-     * Ayrılmış ya da ulaşılamayan adresler üyelikte kalmaya devam ediyor
-     * (geçmiş kaybolmasın) ama hiçbir gönderime girmiyor.
-     *
-     * @return BelongsToMany<Subscriber, $this>
-     */
-    public function activeSubscribers(): BelongsToMany
-    {
-        return $this->subscribers()->subscribed();
-    }
-
-    /**
      * @param Builder<static> $query
      * @return Builder<static>
      */
