@@ -60,8 +60,8 @@ final class StoreTranslatedPageRequest extends FormRequest
             $rules["{$prefix}.remove_image"]     = ['nullable', 'in:0,1'];
             $rules["{$prefix}.status"]           = ['nullable', new Enum(ContentStatus::class)];
             $rules["{$prefix}.sort_order"]       = ['nullable', 'integer', 'min:0', 'max:65535'];
-            $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:70'];
-            $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:160'];
+            $rules["{$prefix}.meta_title"]       = ['nullable', 'string', 'max:' . config('seo.title.max')];
+            $rules["{$prefix}.meta_description"] = ['nullable', 'string', 'max:' . config('seo.description.max')];
             // Ekler dosya olarak değil belirteç olarak geliyor: dosyalar forma
             // binmeden, tek tek kendi istekleriyle yüklendi.
             $rules["{$prefix}.file_tokens"]      = ['nullable', 'array'];

@@ -143,6 +143,13 @@
         </a>
         @endcan
 
+        @can('viewAny', \App\Models\Page::class)
+        <a href="{{ route('admin.seo.index') }}"
+           class="nav-link {{ Route::is('admin.seo.*') ? 'active' : '' }}">
+            <i class="bi bi-search-heart-fill"></i> SEO Denetimi
+        </a>
+        @endcan
+
 
         {{-- ─── SİSTEM ───────────────────────────────────────── --}}
         <div class="nav-section-title">Sistem</div>
@@ -195,6 +202,14 @@
         <a href="{{ route('admin.campaigns.index') }}"
            class="nav-link {{ Route::is('admin.campaigns.*') ? 'active' : '' }}">
             <i class="bi bi-megaphone-fill"></i> Mail Kampanyaları
+        </a>
+        @endcan
+
+
+        @can('viewAny', \App\Models\PushNotification::class)
+        <a href="{{ route('admin.push-notifications.index') }}"
+           class="nav-link {{ Route::is('admin.push-notifications.*') ? 'active' : '' }}">
+            <i class="bi bi-bell-fill"></i> Push Duyuruları
         </a>
         @endcan
 

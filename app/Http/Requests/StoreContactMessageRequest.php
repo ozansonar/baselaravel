@@ -26,8 +26,13 @@ final class StoreContactMessageRequest extends FormRequest
         return [
             // İstemci maskesi harf dışını yazdırmıyor; sunucu da aynı şeyi söylemeli,
             // yoksa formu atlayan bir istek rakamlı ad geçirebilir.
-            'name'    => ['required', 'string', 'min:2', 'max:191', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'   => ['required', 'string', EmailAddress::rule(), 'max:191'],
+            //
+            // Desen Türkçe harflerle sınırlıydı: site çok dilli ama "José" ya da
+            // "Anaïs" reddediliyordu. \p{L} her dilin harfini kabul ediyor;
+            // kesme ve tire de ada ait ("O'Brien", "Jean-Luc"), rakam ve
+            // işaretler hâlâ dışarıda.
+            'name'    => ['required', 'string', 'min:2', 'max:191', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'email'   => ['required', 'string', ...EmailAddress::rules(), 'max:191'],
             'phone'   => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'subject' => ['required', 'string', 'max:191'],
             'message'              => ['required', 'string', 'min:10', 'max:5000'],

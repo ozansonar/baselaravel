@@ -17,8 +17,14 @@ final class ContactMessageNotification extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Yeni İletişim Mesajı - {$this->contactMessage->subject}",
+            subject: __('mail.contact_notification.subject', ['subject' => $this->contactMessage->subject]),
         );
+    }
+
+    /** Alıcı yönetici; panel tek dilde. */
+    protected function resolveLocale(): string
+    {
+        return $this->defaultLocale();
     }
 
     protected function emailView(): string

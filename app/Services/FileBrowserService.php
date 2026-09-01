@@ -224,11 +224,7 @@ final class FileBrowserService
      */
     private function resolve(string $folder): string
     {
-        $root = realpath(UploadService::basePath());
-
-        if ($root === false) {
-            throw new RuntimeException('Yükleme dizini bulunamadı.');
-        }
+        $root = $this->rootPath();
 
         if ($folder === '') {
             return $root;
@@ -245,14 +241,41 @@ final class FileBrowserService
 
     private function resolveFile(string $path): string
     {
-        $root = realpath(UploadService::basePath());
+        $root = $this->rootPath();
         $real = realpath(UploadService::basePath($path));
 
-        if ($root === false || $real === false || ! is_file($real) || ! $this->inside($real, $root)) {
+        if ($real === false || ! is_file($real) || ! $this->inside($real, $root)) {
             throw new RuntimeException('Dosya bulunamadı.');
         }
 
         return $real;
+    }
+
+    /**
+     * Yükleme kökünün gerçek yolu; yoksa oluşturulur.
+     *
+     * Kök dizin, henüz hiçbir şey yüklenmemiş taze bir kurulumda var olmayabilir
+     * (git boş dizin taşımıyor, yol .env'den başka bir yere de bakabiliyor).
+     * Eskiden bu durum "Yükleme dizini bulunamadı" hatasına ve editörün dosya
+     * seçicisinde 404'e dönüyordu: kullanıcı bir arıza sanıyordu, oysa ortada
+     * yalnızca boş bir kurulum vardı. Yükleme de aynı köke yazacağı için dizini
+     * burada açmak, sonraki ilk yüklemenin yapacağı işi öne almaktan ibaret.
+     */
+    private function rootPath(): string
+    {
+        $base = UploadService::basePath();
+
+        if (! is_dir($base) && ! @mkdir($base, 0755, true) && ! is_dir($base)) {
+            throw new RuntimeException('Yükleme dizini oluşturulamadı.');
+        }
+
+        $root = realpath($base);
+
+        if ($root === false) {
+            throw new RuntimeException('Yükleme dizini bulunamadı.');
+        }
+
+        return $root;
     }
 
     private function inside(string $path, string $root): bool

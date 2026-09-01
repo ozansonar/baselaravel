@@ -114,7 +114,7 @@
         // The bundled onlyLetterSp rule is ASCII only, which would reject
         // Ömer or Çağla; this mirrors the regex the FormRequests use.
         allRules.letters = {
-            regex: /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/,
+            regex: /^[\p{L}\p{M}\s'’-]+$/u,
             alertText: 'Bu alanda sadece harf kullanılabilir'
         };
     }
@@ -161,7 +161,7 @@
      */
     var MASKS = {
         letters: function (value) {
-            return value.replace(/[^a-zA-ZçÇğĞıİöÖşŞüÜ\s]/g, '');
+            return value.replace(/[^\p{L}\p{M}\s'’-]/gu, '');
         },
         digits: function (value) {
             return value.replace(/\D/g, '');

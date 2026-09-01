@@ -173,7 +173,7 @@
                     <h6 class="mb-0"><i class="bi bi-grid-3x3 me-2 text-teal"></i>İzin Matrisi</h6>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <select class="form-select form-select-sm form-control-theme" style="width:auto" id="matrixCategoryFilter" data-fv-ignore>
+                    <select class="form-select form-select-sm form-control-theme w-auto" id="matrixCategoryFilter" data-fv-ignore>
                         <option value="all">Tüm Kategoriler</option>
                         @foreach($matrix as $key => $section)
                             <option value="{{ $key }}">{{ $section['group']->label() }}</option>

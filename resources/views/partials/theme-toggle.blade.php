@@ -12,8 +12,6 @@
 <button type="button"
         class="theme-toggle {{ $wide ? 'theme-toggle--wide' : '' }}"
         data-theme-toggle
-        data-label-dark="{{ __('site.theme.dark') }}"
-        data-label-light="{{ __('site.theme.light') }}"
         aria-label="{{ __('site.theme.dark') }}"
         title="{{ __('site.theme.dark') }}">
     <span class="theme-toggle__icons" aria-hidden="true">

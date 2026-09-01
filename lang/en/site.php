@@ -123,6 +123,7 @@ return [
     ],
 
     'gallery' => [
+        'untitled' => 'Image',
         'all' => 'All',
         'type_filter' => 'Type filter',
         'no_results' => 'No items match this filter',
@@ -147,6 +148,7 @@ return [
     ],
 
     'contact' => [
+        'closed' => 'Closed',
         'name_min'              => 'Your name must be at least :min characters.',
         'name_required'               => 'Your name is required.',
         'name_max'                    => 'Your name may be at most :max characters.',
@@ -326,14 +328,17 @@ return [
 
     'notifications' => [
         'title' => 'Notifications',
-        'desc'  => 'Choose which e-mails you receive.',
-        'lead'  => 'Turn the e-mails we send you on or off here.',
+        'desc'  => 'Choose which notifications you receive.',
+        'lead'  => 'Turn the e-mails and app notifications we send you on or off here.',
 
         'newsletter'      => 'Newsletter and announcements',
         'newsletter_hint' => 'Bulk e-mails about new content and campaigns.',
 
         'comment_updates'      => 'Comment notifications',
         'comment_updates_hint' => 'We let you know when your comment is published.',
+
+        'push_announcements'      => 'App announcements',
+        'push_announcements_hint' => 'Announcement notifications sent to the mobile app. Account security notifications are separate and cannot be turned off.',
 
         'always_on' => 'Password resets, e-mail verification and account security warnings are always sent; those cannot be turned off.',
         'saved'     => 'Your notification preferences have been saved.',
@@ -600,7 +605,7 @@ return [
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
-        'name_letters'          => 'The name may contain only letters and spaces.',
+        'name_letters'          => 'The name may contain only letters, spaces, apostrophes and hyphens.',
         'phone_format'          => 'The phone number may contain only digits and + ( ) - . characters.',
         'throttle_login'              => 'Too many sign-in attempts. Please wait a minute.',
         'throttle_contact'            => 'You have sent too many messages. Please wait a few minutes.',
@@ -608,12 +613,26 @@ return [
         'recaptcha'                   => 'Please confirm that you are not a robot.',
         'email_required'              => 'An e-mail address is required.',
         'email_invalid'               => 'Enter a valid e-mail address.',
+        'email_disposable' => 'Disposable e-mail addresses are not accepted. Please use a permanent address.',
         'email_invalid_formal'        => 'Please enter a valid e-mail address.',
         'password_required'           => 'A password is required.',
         'password_min'                => 'The password must be at least :min characters.',
         'first_name_required'         => 'The first name is required.',
-        'first_name_letters'          => 'The first name may contain only letters and spaces.',
+        'first_name_letters'          => 'The first name may contain only letters, spaces, apostrophes and hyphens.',
         'last_name_required'          => 'The last name is required.',
-        'last_name_letters'           => 'The last name may contain only letters and spaces.',
+        'last_name_letters'           => 'The last name may contain only letters, spaces, apostrophes and hyphens.',
+    ],
+    // Betiklerin yazdığı metinler — ön yüz JS dosyaları bunları
+    // window.SiteText üzerinden okuyor, bkz. App\Support\FrontScriptText.
+    'js' => [
+        'title_success'             => 'Success',
+        'title_error'               => 'Error',
+        'title_warning'             => 'Warning',
+        'title_info'                => 'Information',
+        'failed'                    => 'The action could not be completed.',
+        'only_letters'              => 'This field accepts letters, spaces, apostrophes and hyphens only',
+        'image_size'                => 'The image may be at most :max MB',
+        'image_type'                => 'The image must be a JPG, PNG or WebP file',
+        'current_password_required' => 'Enter your current password to change it',
     ],
 ];

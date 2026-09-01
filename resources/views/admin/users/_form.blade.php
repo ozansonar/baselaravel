@@ -8,16 +8,16 @@
 
     <!-- Left Navigation -->
     <div class="stg-nav" data-aos="fade-right" data-aos-delay="100">
-        <a href="#section-avatar" class="stg-nav-item active" onclick="scrollToSection('section-avatar', this)">
+        <a href="#section-avatar" class="stg-nav-item active" data-scroll-to="section-avatar">
             <i class="bi bi-camera"></i> Profil Fotoğrafı
         </a>
-        <a href="#section-personal" class="stg-nav-item" onclick="scrollToSection('section-personal', this)">
+        <a href="#section-personal" class="stg-nav-item" data-scroll-to="section-personal">
             <i class="bi bi-person"></i> Kişisel Bilgiler
         </a>
-        <a href="#section-account" class="stg-nav-item" onclick="scrollToSection('section-account', this)">
+        <a href="#section-account" class="stg-nav-item" data-scroll-to="section-account">
             <i class="bi bi-key"></i> Hesap Bilgileri
         </a>
-        <a href="#section-role" class="stg-nav-item" onclick="scrollToSection('section-role', this)">
+        <a href="#section-role" class="stg-nav-item" data-scroll-to="section-role">
             <i class="bi bi-shield"></i> Rol & Yetki
         </a>
     </div>
@@ -44,7 +44,7 @@
                         @else
                             <img src="https://ui-avatars.com/api/?name={{ urlencode($isEdit ? $u->full_name : 'Yeni Kullanıcı') }}&background=14b8a6&color=fff&size=120" alt="{{ $isEdit ? $u->full_name : 'Yeni Kullanıcı' }}" id="avatarImg">
                         @endif
-                        <div class="uf-avatar-overlay" onclick="document.getElementById('avatarInput').click()">
+                        <div class="uf-avatar-overlay" data-click-target="avatarInput">
                             <i class="bi bi-camera-fill"></i>
                             <span>Değiştir</span>
                         </div>
@@ -53,14 +53,14 @@
                         <h6 id="avatarUserName">{{ $isEdit ? $u->full_name : 'Yeni Kullanıcı' }}</h6>
                         <p class="text-muted mb-2 fs-13">PNG, JPG veya WebP formatında, maksimum 1MB boyutunda bir fotoğraf yükleyin.</p>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn-glass" onclick="document.getElementById('avatarInput').click()">
+                            <button type="button" class="btn-glass" data-click-target="avatarInput">
                                 <i class="bi bi-upload me-1"></i> Fotoğraf Yükle
                             </button>
-                            <button type="button" class="btn-teal btn-danger-gradient {{ ($isEdit && $u->avatar) ? '' : 'd-none' }}" onclick="removeAvatar()" id="removeAvatarBtn">
+                            <button type="button" class="btn-teal btn-danger-gradient {{ ($isEdit && $u->avatar) ? '' : 'd-none' }}" data-action="avatar-kaldir" id="removeAvatarBtn">
                                 <i class="bi bi-trash me-1"></i> Kaldır
                             </button>
                         </div>
-                        <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden onchange="previewAvatar(this)" data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/jpeg,image/png,image/webp">
+                        <input type="file" id="avatarInput" name="avatar" accept="image/png,image/jpeg,image/webp" hidden data-avatar-preview data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/jpeg,image/png,image/webp">
                         @if($isEdit && $u->avatar)
                             <input type="hidden" name="remove_avatar" data-fv-ignore id="removeAvatarFlag" value="0">
                         @endif

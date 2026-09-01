@@ -27,8 +27,8 @@ final class UpdateUserRequest extends FormRequest
         $userId = $this->route('user')?->id;
 
         return [
-            'first_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'last_name'   => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
+            'first_name'  => ['required', 'string', 'max:50', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'last_name'   => ['required', 'string', 'max:50', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
             'email'       => ['required', 'string', EmailAddress::rule(), 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique($userId)],
             'phone'       => ['nullable', 'string', 'max:20'],
             'birth_date'  => ['nullable', 'date', 'before:today'],

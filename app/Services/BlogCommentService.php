@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Enums\CommentStatus;
 use App\Mail\BlogCommentAdminNotification;
@@ -190,11 +191,6 @@ final class BlogCommentService
         return $this->query($filters)->paginate($perPage);
     }
 
-    public function findById(int $id): BlogComment
-    {
-        return BlogComment::with(['post', 'parent', 'replies'])->findOrFail($id);
-    }
-
     /**
      * Süzgeç listesinde gösterilecek yazılar: yalnız yorumu olanlar.
      *
@@ -217,7 +213,7 @@ final class BlogCommentService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.blog_comments.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_BLOG_COMMENTS_STATS, 300, function (): array {
             $counts = BlogComment::withTrashed()
                 ->selectRaw('SUM(CASE WHEN deleted_at IS NULL THEN 1 ELSE 0 END) as total')
                 ->selectRaw('SUM(CASE WHEN deleted_at IS NULL AND status = ? THEN 1 ELSE 0 END) as approved', [CommentStatus::Approved->value])
@@ -374,7 +370,7 @@ final class BlogCommentService
      */
     public function clearCache(): void
     {
-        Cache::forget('admin.blog_comments.stats');
+        Cache::forget(CacheKeys::ADMIN_BLOG_COMMENTS_STATS);
     }
 
     // ── Bildirimler ──

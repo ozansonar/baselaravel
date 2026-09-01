@@ -57,20 +57,6 @@ final class MenuService
     }
 
     /**
-     * Every language version of a location, default language first.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Menu>
-     */
-    public function allForLocation(string $location): \Illuminate\Database\Eloquent\Collection
-    {
-        return Menu::query()
-            ->byLocation($location)
-            ->withCount('items')
-            ->orderBy('locale')
-            ->get();
-    }
-
-    /**
      * Copy a menu — including its whole item tree — into another language.
      *
      * Without this, activating a language would mean rebuilding the navigation
@@ -133,6 +119,11 @@ final class MenuService
     public function clearCache(string $location): void
     {
         $this->forgetLocalized($this->cacheKey($location));
+
+        // Alt bilgi menü sütunlarını çizilmiş hâliyle saklıyor; menü değişip de
+        // o parça yerinde kalırsa ziyaretçi bir saat boyunca eski bağlantıları
+        // görür — hata vermeden.
+        app(\App\Services\CachePurger::class)->forgetPrefix(\App\Support\CacheKeys::PREFIX_FRAGMENT);
     }
 
     public function clearAllCaches(): void

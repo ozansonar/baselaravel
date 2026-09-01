@@ -8,24 +8,21 @@
  * güvenilemiyor — kanca yalnız tarayıcının gönderimini durdurabiliyor, fetch
  * çağrısını değil — ve istek atılmadan hemen önce burada soruluyor.
  *
- * Metinler ve reCAPTCHA'nın açık olup olmadığı script etiketinin data
- * nitelikleriyle sunucudan geliyor; dosyanın içinde gömülü Türkçe metin yok.
+ * Metinler window.SiteText'ten (partials/js-lang) geliyor; dosyanın içinde
+ * gömülü Türkçe metin yok. reCAPTCHA'nın açık olup olmadığı sayfaya özel bir
+ * ayar, o yüzden script etiketinin data niteliğinde kalıyor.
  */
 (function () {
     var script = document.currentScript;
 
-    function label(name, fallback) {
-        return (script && script.dataset[name]) || fallback;
-    }
-
     var METIN = {
-        gonderiliyor: label('sending', 'Gönderiliyor...'),
-        genelHata: label('errorGeneric', 'Bir hata oluştu.'),
-        baglantiHatasi: label('errorRetry', 'Bir hata oluştu. Lütfen tekrar deneyin.'),
-        recaptchaGerekli: label('recaptchaRequired', 'Lütfen robot olmadığınızı doğrulayın.')
+        gonderiliyor: window.siteText('sending'),
+        genelHata: window.siteText('errorGeneric'),
+        baglantiHatasi: window.siteText('errorRetry'),
+        recaptchaGerekli: window.siteText('recaptchaRequired')
     };
 
-    var recaptchaAcik = label('recaptchaEnabled', '0') === '1';
+    var recaptchaAcik = ((script && script.dataset.recaptchaEnabled) || '0') === '1';
 
     document.addEventListener('DOMContentLoaded', function () {
         var form = document.getElementById('blogCommentForm');

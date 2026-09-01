@@ -32,7 +32,7 @@
 
                     {{-- Yeniden dene: sayfayı tazeliyor. Ağ geri geldiyse
                          servis çalışanı isteği yine ağa götürüyor. --}}
-                    <button type="button" class="btn btn-primary" onclick="window.location.reload()">
+                    <button type="button" class="btn btn-primary" data-action="yenile">
                         {{ __('site.offline.retry') }}
                     </button>
                 </div>

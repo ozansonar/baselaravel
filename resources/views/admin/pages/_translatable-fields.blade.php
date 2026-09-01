@@ -38,7 +38,7 @@
                                 value="{{ old("translations.{$language->code}.title", $translation?->title) }}"
                                 placeholder="Sayfanın ana başlığını yazın..."
                                 data-slug-source data-slug-target="slug_{{ $language->code }}"
-                                oninput="updateCharCounter(this, 120); updateSeoPreview(this)">
+                                data-char-counter="120" data-seo-preview>
                             @error("translations.{$language->code}.title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -62,7 +62,7 @@
                                     value="{{ old("translations.{$language->code}.slug", $translation?->slug) }}"
                                     placeholder="otomatik-olusturulur"
                                     data-slug-field
-                                    oninput="updateSeoPreview(this)">
+                                    data-seo-preview>
                             </div>
                             @error("translations.{$language->code}.slug")
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -99,7 +99,7 @@
                                        data-validation-engine="validate[maxSize[500]]"
                                 rows="3"
                                 placeholder="Sayfanın kısa bir özetini yazın..."
-                                oninput="updateCharCounter(this, 300)"
+                                data-char-counter="300"
                             >{{ old("translations.{$language->code}.excerpt", $translation?->excerpt) }}</textarea>
                             @error("translations.{$language->code}.excerpt")
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -209,16 +209,16 @@
                                 class="form-control @error("translations.{$language->code}.meta_title") is-invalid @enderror"
                                 id="meta_title_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][meta_title]"
-                                       data-validation-engine="validate[maxSize[70]]"
+                                       data-validation-engine="validate[maxSize[{{ $seoTitleMax }}]]"
                                 value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
                                 placeholder="SEO için özel başlık (boş bırakılırsa sayfa başlığı kullanılır)"
-                                oninput="updateSeoPreview(this); updateCharCounter(this, 60)">
+                                data-seo-preview data-char-counter="{{ $seoTitleMax }}">
                             @error("translations.{$language->code}.meta_title")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="d-flex justify-content-between mt-1">
                                 <div class="form-text">Önerilen: 50–60 karakter</div>
-                                <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">0</span>/60</div>
+                                <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">0</span>/{{ $seoTitleMax }}</div>
                             </div>
                         </div>
 
@@ -229,18 +229,27 @@
                                 class="form-control @error("translations.{$language->code}.meta_description") is-invalid @enderror"
                                 id="meta_description_{{ $language->code }}"
                                 name="translations[{{ $language->code }}][meta_description]"
-                                       data-validation-engine="validate[maxSize[160]]"
+                                       data-validation-engine="validate[maxSize[{{ $seoDescMax }}]]"
                                 rows="3"
                                 placeholder="Arama sonuçlarında görünecek açıklama metni..."
-                                oninput="updateSeoPreview(this); updateCharCounter(this, 160)"
+                                data-seo-preview data-char-counter="{{ $seoDescMax }}"
                             >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
                             @error("translations.{$language->code}.meta_description")
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="d-flex justify-content-between mt-1">
-                                <div class="form-text">Önerilen: 120–160 karakter</div>
-                                <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">0</span>/160</div>
+                                <div class="form-text">Önerilen: {{ $seoDescMin }}–{{ $seoDescMax }} karakter</div>
+                                <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">0</span>/{{ $seoDescMax }}</div>
                             </div>
+                        </div>
+
+                        {{-- Denetim paneli: alanların hemen altında, çünkü bulgular
+                             çoğunlukla bu alanlara işaret ediyor. --}}
+                        <div class="col-12">
+                            @include('partials.admin.seo-panel', [
+                                'seoLocale' => $language->code,
+                                'seoType'   => 'page',
+                            ])
                         </div>
 
                     </div>

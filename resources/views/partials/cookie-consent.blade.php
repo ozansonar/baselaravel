@@ -49,10 +49,15 @@
                 @foreach($categories as $category)
                     @php $copy = $texts[$category->value] ?? ['label' => $category->label(), 'text' => $category->description()]; @endphp
                     <label class="cc-option">
+                        {{-- Seçim kutusu; yazılan bir değer yok, doğrulanacak
+                             bir uzunluk da yok. Gelen değerlerin tanınan
+                             kategoriler olduğunu sunucu söylüyor
+                             (StoreConsentRequest). --}}
                         <input type="checkbox"
                                name="categories[]"
                                value="{{ $category->value }}"
                                class="cc-check"
+                               data-fv-ignore
                                @checked($category->isRequired() || in_array($category->value, $current, true))
                                @disabled($category->isRequired())>
                         <span class="cc-option-body">

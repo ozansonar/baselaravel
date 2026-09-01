@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\MailTemplate;
+use App\Support\MailTemplateDefaults;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use App\Support\LikeSearch;
@@ -15,16 +15,6 @@ final class MailTemplateService
 {
     private const CACHE_KEY = 'mail_templates.all';
     private const CACHE_TTL = 86400; // 24 hours
-
-    /**
-     * Get all templates for admin listing.
-     *
-     * @return EloquentCollection<int, MailTemplate>
-     */
-    public function getAll(): EloquentCollection
-    {
-        return MailTemplate::orderBy('name')->get();
-    }
 
     /**
      * Süzülmüş ve sıralanmış şablon listesi.
@@ -43,7 +33,7 @@ final class MailTemplateService
      */
     public function filterKeys(): array
     {
-        return ['status', 'search', 'variable', 'origin', 'sort'];
+        return ['locale', 'status', 'search', 'variable', 'origin', 'sort'];
     }
 
     /**
@@ -59,6 +49,13 @@ final class MailTemplateService
     public function query(array $filters = []): Builder
     {
         $query = MailTemplate::query();
+
+        // Aynı şablonun her dilde bir satırı var. Süzgeç boşken hepsi
+        // listelenirse ekranda aynı ad beş kez görünür; ekran hangi dile
+        // baktığını her zaman söylüyor.
+        if (($filters['locale'] ?? '') !== '') {
+            $query->where('locale', $filters['locale']);
+        }
 
         if (($filters['status'] ?? '') !== '') {
             $query->where('is_active', $filters['status'] === 'active');
@@ -113,7 +110,7 @@ final class MailTemplateService
      */
     public function hasDefault(MailTemplate $template): bool
     {
-        return isset($this->getDefaults()[$template->key]);
+        return $this->defaultFor($template) !== null;
     }
 
     /**
@@ -125,7 +122,7 @@ final class MailTemplateService
      */
     public function isCustomized(MailTemplate $template): bool
     {
-        $default = $this->getDefaults()[$template->key] ?? null;
+        $default = $this->defaultFor($template);
 
         if ($default === null) {
             return false;
@@ -140,11 +137,11 @@ final class MailTemplateService
      *
      * @return array<string, array{label: string, count: int}> değişken => bilgi
      */
-    public function variableOptions(): array
+    public function variableOptions(?string $locale = null): array
     {
         $options = [];
 
-        foreach (MailTemplate::query()->get() as $template) {
+        foreach ($this->scoped($locale)->get() as $template) {
             foreach ($template->variables ?? [] as $variable) {
                 $key = (string) ($variable['key'] ?? '');
 
@@ -167,9 +164,9 @@ final class MailTemplateService
      *
      * @return array{total: int, active: int, inactive: int, customized: int}
      */
-    public function stats(): array
+    public function stats(?string $locale = null): array
     {
-        $templates = MailTemplate::query()->get();
+        $templates = $this->scoped($locale)->get();
 
         return [
             'total'      => $templates->count(),
@@ -177,6 +174,43 @@ final class MailTemplateService
             'inactive'   => $templates->where('is_active', false)->count(),
             'customized' => $templates->filter(fn (MailTemplate $t): bool => $this->isCustomized($t))->count(),
         ];
+    }
+
+    /**
+     * Bir dile daraltılmış sorgu.
+     *
+     * Sayılar dile bağlı olmalı: beş dilin satırları birlikte sayılınca özet
+     * kutusu "60 şablon" diyor, ekranda ise 12 kart duruyordu.
+     *
+     * @return Builder<MailTemplate>
+     */
+    private function scoped(?string $locale): Builder
+    {
+        $query = MailTemplate::query();
+
+        return $locale === null || $locale === ''
+            ? $query
+            : $query->where('locale', $locale);
+    }
+
+    /**
+     * Aynı şablonun öteki dillerdeki satırları, dil sırasına göre.
+     *
+     * @return Collection<int, MailTemplate>
+     */
+    public function siblings(MailTemplate $template): Collection
+    {
+        $order = app(LanguageService::class)->all()->pluck('code')->values()->all();
+
+        return MailTemplate::query()
+            ->where('key', $template->key)
+            ->get()
+            ->sortBy(static function (MailTemplate $row) use ($order): int {
+                $index = array_search($row->locale, $order, true);
+
+                return $index === false ? PHP_INT_MAX : $index;
+            })
+            ->values();
     }
 
     /**
@@ -228,12 +262,12 @@ final class MailTemplateService
      */
     public function resetToDefault(MailTemplate $template): MailTemplate
     {
-        $defaults = $this->getDefaults();
+        $default = $this->defaultFor($template);
 
-        if (isset($defaults[$template->key])) {
+        if ($default !== null) {
             $template->update([
-                'subject' => $defaults[$template->key]['subject'],
-                'body'    => $defaults[$template->key]['body'],
+                'subject' => $default['subject'],
+                'body'    => $default['body'],
             ]);
             $this->clearCache();
         }
@@ -242,157 +276,75 @@ final class MailTemplateService
     }
 
     /**
+     * Bir dilde eksik kalan şablon satırlarını açar.
+     *
+     * Yeni bir dil eklendiğinde çağrılıyor: o dilin satırı olmadan panelde
+     * çevrilecek bir şey görünmüyor, mail de varsayılan dile düşüyordu.
+     * Zaten var olan satırlara dokunulmuyor — yöneticinin yazdığı metni
+     * varsayılana geri çevirmek olurdu.
+     *
+     * @return int açılan satır sayısı
+     */
+    public function syncLocale(string $locale): int
+    {
+        $defaultLocale = app(LanguageService::class)->defaultCode();
+
+        if ($locale === $defaultLocale) {
+            return 0;
+        }
+
+        $existing = MailTemplate::query()->where('locale', $locale)->pluck('key')->all();
+        $content = MailTemplateDefaults::forLocale($locale);
+        $created = 0;
+
+        foreach (MailTemplate::query()->where('locale', $defaultLocale)->get() as $source) {
+            if (in_array($source->key, $existing, true)) {
+                continue;
+            }
+
+            MailTemplate::create([
+                'key'    => $source->key,
+                'locale' => $locale,
+                // Ad, açıklama ve değişken listesi şablonu panelde etiketliyor;
+                // panel tek dilli, o yüzden diller arasında aynı kalıyor.
+                'name'        => $source->name,
+                'description' => $source->description,
+                'subject'     => $content[$source->key]['subject'] ?? $source->subject,
+                'body'        => $content[$source->key]['body'] ?? $source->body,
+                'variables'   => $source->variables,
+                'is_active'   => $source->is_active,
+            ]);
+
+            $created++;
+        }
+
+        if ($created > 0) {
+            $this->clearCache();
+        }
+
+        return $created;
+    }
+
+    /**
+     * Şablonun kendi dilindeki varsayılan içeriği.
+     *
+     * O dil için bir karşılık yoksa null: "varsayılana dön" düğmesi de,
+     * "özelleştirildi" rozeti de karşılaştıracak bir metin olmadan yalan
+     * söylerdi. Varsayılan dilin metnine düşmek, İngilizce bir şablonu
+     * Türkçeye çevirmek anlamına gelirdi.
+     *
+     * @return array{subject: string, body: string}|null
+     */
+    private function defaultFor(MailTemplate $template): ?array
+    {
+        return MailTemplateDefaults::for($template->key, (string) $template->locale);
+    }
+
+    /**
      * Clear template cache.
      */
     public function clearCache(): void
     {
         Cache::forget(self::CACHE_KEY);
-    }
-
-    /**
-     * Get default template contents (for reset functionality).
-     *
-     * @return array<string, array{subject: string, body: string}>
-     */
-    private function getDefaults(): array
-    {
-        return [
-            'test' => [
-                'subject' => '{site_name} — Test E-postası',
-                'body'    => '<p class="em-greeting">Test E-postası</p>
-<h1 class="em-heading">{mail_subject}</h1>
-
-<p class="em-text">{mail_body}</p>
-
-<hr class="em-divider">
-
-<p class="em-text-sm">Bu e-posta, SMTP ayarlarınızın doğru çalışıp çalışmadığını test etmek amacıyla gönderilmiştir.</p>',
-            ],
-            'welcome' => [
-                'subject' => 'Hoş Geldiniz - {site_name}',
-                'body'    => '<p class="em-greeting">Merhaba</p>
-<h1 class="em-heading">Hoş Geldiniz, {user_name}! &#127793;</h1>
-
-<p class="em-text">
-    {site_name} ailesine katıldığınız için teşekkür ederiz.
-    Aramıza hoş geldiniz! Size yardımcı olmaktan mutluluk duyarız.
-</p>
-
-<hr class="em-divider">
-
-<p class="em-heading-sm">Hesabınızla neler yapabilirsiniz?</p>
-
-<table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr><td class="em-feature-td"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td class="em-feature-icon-td">&#128100;</td><td class="em-feature-text-td"><strong>Profil bilgilerinizi</strong> yönetin</td></tr></table></td></tr>
-    <tr><td class="em-feature-td"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td class="em-feature-icon-td">&#128196;</td><td class="em-feature-text-td"><strong>İçeriklerimizi</strong> keşfedin</td></tr></table></td></tr>
-    <tr><td class="em-feature-td"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td class="em-feature-icon-td">&#128227;</td><td class="em-feature-text-td"><strong>Yeni yazılardan</strong> haberdar olun</td></tr></table></td></tr>
-    <tr><td class="em-feature-td"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td class="em-feature-icon-td">&#9993;</td><td class="em-feature-text-td"><strong>Bizimle iletişimde</strong> kalın</td></tr></table></td></tr>
-</table>
-
-<hr class="em-divider">
-
-<p class="em-text">
-    Herhangi bir sorunuz varsa bize iletişim sayfamızdan ulaşabilirsiniz.
-    İyi çalışmalar dileriz!
-</p>',
-            ],
-            'verify_email' => [
-                'subject' => 'E-posta Adresinizi Doğrulayın - {site_name}',
-                'body'    => '<p class="em-greeting">Merhaba</p>
-<h1 class="em-heading">E-posta Adresinizi Doğrulayın</h1>
-
-<p class="em-text">
-    {user_name}, hesabınızı kullanmaya başlamak için aşağıdaki butona tıklayarak
-    e-posta adresinizi doğrulayın.
-</p>
-
-<div class="em-btn-wrap">
-    <a href="{verification_url}" class="em-btn">E-postamı Doğrula</a>
-</div>
-
-<hr class="em-divider">
-
-<p class="em-text-sm">
-    Bağlantının geçerlilik süresi 60 dakikadır. Bu hesabı siz oluşturmadıysanız
-    bu e-postayı yok sayabilirsiniz.
-</p>',
-            ],
-            'reset_password' => [
-                'subject' => 'Şifre Sıfırlama - {site_name}',
-                'body'    => '<p class="em-greeting">Güvenlik</p>
-<h1 class="em-heading">Şifre Sıfırlama Talebi &#128274;</h1>
-
-<p class="em-text">
-    Merhaba, hesabınız için bir şifre sıfırlama talebi aldık.
-    Şifrenizi sıfırlamak için aşağıdaki butona tıklayın:
-</p>
-
-<div class="em-btn-wrap">
-    <a href="{reset_url}" class="em-btn">&#128275; Şifremi Sıfırla</a>
-</div>
-
-<table class="em-highlight" role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr><td class="em-highlight-td"><p class="em-text-sm">&#9200; Bu şifre sıfırlama bağlantısı <strong>60 dakika</strong> içinde geçerliliğini yitirecektir.</p></td></tr>
-</table>
-
-<hr class="em-divider">
-
-<p class="em-text">
-    Eğer şifre sıfırlama talebinde bulunmadıysanız, bu e-postayı görmezden gelebilirsiniz.
-    Hesabınız güvende.
-</p>
-
-<p class="em-text-sm">
-    Butona tıklayamıyorsanız aşağıdaki bağlantıyı tarayıcınıza kopyalayıp yapıştırın:<br>
-    <a href="{reset_url}">{reset_url}</a>
-</p>',
-            ],
-            'contact_message' => [
-                'subject' => 'Yeni İletişim Mesajı - {contact_subject}',
-                'body'    => '<p class="em-greeting">İletişim</p>
-<h1 class="em-heading">Yeni İletişim Mesajı &#128233;</h1>
-
-<p class="em-text">Web sitesi üzerinden yeni bir iletişim mesajı alındı.</p>
-
-<table class="em-info-box" role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr><td class="em-info-box-td">
-        <p class="em-info-row"><span class="em-info-label">Gönderen:</span> {contact_name}</p>
-        <p class="em-info-row"><span class="em-info-label">E-posta:</span> {contact_email}</p>
-        <p class="em-info-row"><span class="em-info-label">Telefon:</span> {contact_phone}</p>
-        <p class="em-info-row"><span class="em-info-label">Konu:</span> {contact_subject}</p>
-        <p class="em-info-row"><span class="em-info-label">Tarih:</span> {contact_date}</p>
-    </td></tr>
-</table>
-
-<hr class="em-divider">
-<p class="em-heading-sm">Mesaj İçeriği</p>
-<p class="em-text">{contact_message}</p>
-<hr class="em-divider">
-
-<p class="em-text">Bu mesajı yönetim panelinden görüntüleyebilir ve yanıtlayabilirsiniz.</p>
-
-<div class="em-btn-wrap">
-    <a href="{message_url}" class="em-btn">Mesajı Görüntüle</a>
-</div>',
-            ],
-            'contact_reply' => [
-                'subject' => 'Re: {contact_subject}',
-                'body'    => '<p class="em-greeting">Merhaba {contact_name},</p>
-<h1 class="em-heading">Mesajınıza Yanıt &#9993;</h1>
-
-<p class="em-text">İletişim formundan gönderdiğiniz mesajınız için teşekkür ederiz. Yanıtımız aşağıdadır:</p>
-
-<table class="em-highlight" role="presentation" cellpadding="0" cellspacing="0" width="100%">
-    <tr><td class="em-highlight-td"><p class="em-text">{reply_body}</p></td></tr>
-</table>
-
-<hr class="em-divider">
-<p class="em-heading-sm">Orijinal Mesajınız</p>
-<p class="em-text" style="font-style: italic; opacity: 0.8;">{contact_message}</p>
-<hr class="em-divider">
-
-<p class="em-text">Başka sorularınız varsa bu e-postayı yanıtlayabilir veya web sitemiz üzerinden bize ulaşabilirsiniz.</p>',
-            ],
-        ];
     }
 }

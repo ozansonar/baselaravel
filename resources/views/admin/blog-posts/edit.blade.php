@@ -34,8 +34,14 @@
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+          {{-- Sürüm geçmişi ayrı bir ekranda: bu form zaten yedi bölümlü ve
+               geçmiş listesi dil sekmelerinin içine sıkıştırılamıyor. --}}
+          <a href="{{ route('admin.revisions.index', ['type' => 'blog', 'id' => $post->id]) }}"
+             class="btn-glass" title="Bu yazının kayıtlı sürümleri">
+            <i class="bi bi-clock-history me-1"></i>Sürümler
+          </a>
           <button type="button" class="btn-glass"
-                  onclick="shareBlogToSocial({{ $post->id }})"
+                  data-action="blog-paylas" data-id="{{ $post->id }}"
                   title="Bu yazıyı Instagram + Facebook'ta paylaşmak için taslak oluşturur">
             <i class="bi bi-share me-1"></i>Sosyal Medyada Paylaş
           </button>
@@ -88,11 +94,12 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ versioned_asset('assets/admin/js/seo-audit.js') }}" nonce="{{ csp_nonce() }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/slug.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-form.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-files.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
 'use strict';
 
 /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Enums\ContentStatus;
 use App\Models\BlogPost;
 use App\Support\LikeSearch;
@@ -231,7 +232,7 @@ final class BlogService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('blog.admin_stats', 300, function (): array {
+        return Cache::remember(CacheKeys::BLOG_ADMIN_STATS, 300, function (): array {
             // "Published" means live on the site, so the date has to have
             // arrived — same rule the status tabs and the front use.
             $counts = $this->onlyGroupRepresentatives(BlogPost::withTrashed(), BlogPost::class)->selectRaw("
@@ -274,11 +275,6 @@ final class BlogService
             'archived'  => (int) $counts->archived,
             'trashed'   => (int) $counts->trashed,
         ];
-    }
-
-    public function findById(int $id): BlogPost
-    {
-        return BlogPost::with(['category', 'author'])->findOrFail($id);
     }
 
     public function create(array $data): BlogPost
@@ -483,9 +479,9 @@ final class BlogService
 
     private function clearCache(): void
     {
-        Cache::forget('blog_categories.active');
-        Cache::forget('blog.admin_stats');
-        Cache::forget('sitemap.urls');
-        Cache::forget('sitemap_page.groups');
+        Cache::forget(CacheKeys::BLOG_CATEGORIES_ACTIVE);
+        Cache::forget(CacheKeys::BLOG_ADMIN_STATS);
+        Cache::forget(CacheKeys::SITEMAP_URLS);
+        Cache::forget(CacheKeys::SITEMAP_PAGE_GROUPS);
     }
 }

@@ -9,7 +9,7 @@
 
 @push('scripts')
 <script src="{{ asset('assets/vendor/tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
 (function () {
     'use strict';
 

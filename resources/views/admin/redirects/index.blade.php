@@ -127,7 +127,7 @@
                     <div class="mt-field">
                         <span>Durum kodu</span>
                         <select class="cl-filter-select" name="status_code" aria-label="Durum kodu"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             @foreach($statuses as $status)
                                 <option value="{{ $status->value }}" @selected($filters['status_code'] === (string) $status->value)>
@@ -140,7 +140,7 @@
                     <div class="mt-field">
                         <span>Etkinlik</span>
                         <select class="cl-filter-select" name="status" aria-label="Etkinlik durumu"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>Etkin</option>
                             <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>Kapalı</option>
@@ -152,7 +152,7 @@
                     <div class="mt-field">
                         <span>Kullanım</span>
                         <select class="cl-filter-select" name="usage" aria-label="Kullanım durumu"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             <option value="used" {{ $filters['usage'] === 'used' ? 'selected' : '' }}>Kullanılmış</option>
                             <option value="unused" {{ $filters['usage'] === 'unused' ? 'selected' : '' }}>Hiç kullanılmamış</option>
@@ -163,20 +163,20 @@
                         <span>Eklenme (baş.)</span>
                         <input type="date" name="from" class="cl-filter-select" value="{{ $filters['from'] }}"
                                aria-label="Eklenme başlangıç tarihi"
-                               onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                               data-submit-form="filterForm" data-fv-ignore>
                     </div>
 
                     <div class="mt-field">
                         <span>Eklenme (bitiş)</span>
                         <input type="date" name="to" class="cl-filter-select" value="{{ $filters['to'] }}"
                                aria-label="Eklenme bitiş tarihi"
-                               onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                               data-submit-form="filterForm" data-fv-ignore>
                     </div>
 
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>
                                     {{ $sortLabel }}
@@ -196,7 +196,7 @@
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
                                 <select name="per_page" id="perPage"
-                                        onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                        data-submit-form="filterForm" data-fv-ignore>
                                     @foreach($perPageList as $pp)
                                         <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                                     @endforeach

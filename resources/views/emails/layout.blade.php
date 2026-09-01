@@ -259,7 +259,9 @@
                             @else
                                 <span class="em-logo-text">&#127807; {{ $siteName }}</span>
                             @endif
-                            <span class="em-logo-sub">Do&#287;al&#305;n En Tazesi</span>
+                            @if(!empty($siteTagline))
+                                <span class="em-logo-sub">{{ $siteTagline }}</span>
+                            @endif
                         </td>
                     </tr>
                 </table>
@@ -308,7 +310,7 @@
                             @endif
 
                             <hr class="em-footer-divider">
-                            <p class="em-footer-copy">&copy; {{ $currentYear }} {{ $siteName }}. T&uuml;m haklar&#305; sakl&#305;d&#305;r.</p>
+                            <p class="em-footer-copy">&copy; {{ $currentYear }} {{ $siteName }}. {{ __('site.misc.rights') }}</p>
                         </td>
                     </tr>
                 </table>

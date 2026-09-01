@@ -47,7 +47,7 @@
 
             @if($menu->rootItems->isEmpty())
                 <div class="text-center py-5">
-                    <i class="bi bi-list-nested" style="font-size: 3rem; opacity: 0.4;"></i>
+                    <i class="bi bi-list-nested mn-empty-icon"></i>
                     <p class="mt-3 text-clr-secondary mb-0">Henüz menü öğesi yok. Yeni bir öğe ekleyerek başlayın.</p>
                 </div>
             @else
@@ -176,8 +176,8 @@
     </div>
 
     {{-- Hidden data for JS --}}
-    <script id="menuItemsData" type="application/json">@json($menu->rootItems->map(fn($i) => $i->toArray()))</script>
-    <script>
+    <script id="menuItemsData" type="application/json" nonce="{{ csp_nonce() }}">@json($menu->rootItems->map(fn($i) => $i->toArray()))</script>
+    <script nonce="{{ csp_nonce() }}">
         window.menuConfig = {
             menuId: {{ $menu->id }},
             storeUrl: '{{ route('admin.menus.items.store', $menu) }}',
@@ -190,7 +190,7 @@
 @push('scripts')
     <script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/menu-items.js') }}"></script>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     (function () {
         @if($errors->any())
             if (window.AdminModal && typeof AdminModal.status === 'function') {

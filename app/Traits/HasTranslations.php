@@ -57,17 +57,6 @@ trait HasTranslations
         return $rows;
     }
 
-    /**
-     * @return Collection<int, static>
-     */
-    public function siblingTranslations(): Collection
-    {
-        /** @var Collection<int, static> $rows */
-        $rows = $this->translationsQuery()->where('id', '!=', $this->getKey())->get();
-
-        return $rows;
-    }
-
     public function translation(string $locale): ?static
     {
         /** @var static|null $row */

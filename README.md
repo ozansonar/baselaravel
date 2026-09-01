@@ -317,7 +317,7 @@ app/
 resources/views/
 ├── admin/              Panel ekranları
 ├── admin-theme/        Hazır HTML tema referansları
-├── components/         Blade component'leri (enum-select, responsive-image)
+├── components/         Blade component'leri (export-menu, language-tabs, responsive-image)
 ├── emails/             Mail şablonları
 ├── layouts/            app (front), admin, auth
 └── partials/           Ortak parçalar
@@ -936,7 +936,12 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 ## Ek dokümanlar
 
 - `CLAUDE.md` — proje kuralları (zorunlu)
+- **`docs/PROJE-KAYDI.md` — tek kayıt: güncel durum tablosu, kalan iş planı ve
+  aşağıdaki dört belgenin tamamı. Bir maddenin durumunu öğrenmek için önce buraya bakın.**
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
+- `docs/PROJE-DURUMU-V2.md` — denetim kaydı: bulunan kusurlar, çözümleri, kurulan bekçiler
+- `docs/BOSLUK-ANALIZI.md` — mimari denetim: on beş bulgu, gerekçeleri ve kapanışları
+- `docs/YOL-HARITASI.md` — fazlar ve kabul ölçütleri
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
 - `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)
@@ -991,15 +996,100 @@ eski önbellek silinir. Sayfalar "önce ağ" ile gelir (içerik sitesinde
 
 ---
 
+## Liste dışa aktarma
+
+Panelin **bütün liste ekranları** — kullanıcılar, bloglar, yorumlar, sayfalar,
+galeri, menüler, iletişim mesajları, aboneler, kampanyalar, diller, çeviriler,
+yönlendirmeler, özel adresler, dosyalar, yedekler, denetim kayıtları, mail
+kayıtları, ziyaretler, başarısız işler, birleşik içerik listesi ve dahası —
+**Excel, CSV ve PDF** olarak indirilebilir. Ekranın sağ üstündeki *Dışa Aktar*
+menüsü üç biçimi de sunar.
+
+**Dosyaya ekranın kendisi iner.** Adres satırındaki süzgeçler dosyaya aynen
+geçer: ekranda "son 30 gün, yayında olanlar" görünüyorsa dosyada da o vardır.
+Sayfa numarası süzgeç sayılmaz — dosyaya tek sayfa değil, listenin tamamı iner.
+
+| Biçim | Ne zaman | Notlar |
+|---|---|---|
+| **Excel** (`.xlsx`) | Tabloyla çalışırken | Başlık satırı donuk, otomatik süzgeç açık, tarih ve sayı hücreleri gerçek tip |
+| **CSV** (`.csv`) | Veri başka bir sisteme taşınırken | UTF-8 BOM ve noktalı virgül ayracı — Türkçe Excel'de doğru açılır |
+| **PDF** (`.pdf`) | Yazdırma ve paylaşım | Sütunlar sığmıyorsa sayfa kendiliğinden yatay döner |
+
+Excel ve CSV satırları akış hâlinde yazar; yüz binlerce satırda da bellek sabit
+kalır. PDF'in bir satır tavanı vardır (mPDF sayfaları belge kapanana kadar
+bellekte tutuyor) ve tavan sunucunun `memory_limit` değerine göre daralır —
+aşıldığında dosya sessizce kırpılmaz, kullanıcı uyarılıp Excel/CSV'ye
+yönlendirilir.
+
+**Yeni bir liste eklemek** için `App\Support\Export\ListExport` sınıfından
+türeyen bir tanım yazıp `config/export.php`'ye tek satır eklemek yeterlidir;
+ayrı rota, denetleyici ya da biçim kodu gerekmez. Ekrana menüyü koymak da tek
+satır: `<x-export-menu export="anahtar" :total="$kayitlar->total()" />`
+
+Her indirme denetim kaydına düşer — dışa aktarma, veriyi sistemin dışına
+çıkaran tek okuma işlemidir. Yetki ekranla aynıdır: listeyi göremeyen dosyayı
+da indiremez.
+
+CSV'nin üç ayarı yerel ayara göre değiştirilebilir:
+`EXPORT_CSV_DELIMITER`, `EXPORT_CSV_DECIMAL_SEPARATOR`, `EXPORT_CSV_BOM`.
+
+`ListExportTest` bir bekçidir: `config/export.php`'ye eklenen her liste, ayrıca
+test yazmaya gerek kalmadan kapsama girer — üç biçimde de dosya ürettiği,
+yetkinin çalıştığı ve satır başına sorgu atmadığı sınanır.
+
+---
+
+## SEO denetleyici
+
+Editör kaydetmeden **önce** sayfasının SEO sorunlarını görüyor. Denetim iki
+yerde çalışıyor ve ikisi de aynı motoru kullanıyor:
+
+- **İçerik formunda** (blog ve sayfa, her dil sekmesinde ayrı) — yazarken
+  kendiliğinden koşuyor. Bulgular seviyeye göre sıralı, her bulgunun yanında
+  ilgili alana götüren bir düğme var. Denetim kaydedilmiş kayda değil **formun
+  o anki hâline** bakıyor; asıl değeri bu.
+- **Admin → SEO Denetimi** (`/admin/seo`) — bütün içerikler tek listede, en
+  düşük puanlı başta. Tür, dil ve seviye süzgeci; Excel/CSV/PDF dışa aktarma.
+
+**Bulgular kaydetmeyi engellemiyor.** Uyarıdırlar, doğrulama değil — bir yazarın
+"şimdilik taslak" kaydetme hakkı var ve SEO kuralını zorunlu doğrulamaya
+çevirmek onu kuralı atlatmaya iter. Kaydetmeyi FormRequest sınırlar.
+
+### Ne denetleniyor
+
+| Seviye | Kural |
+|---|---|
+| **Hata** | Gövdede ikinci bir H1, alt metni olmayan görsel, hiçbir yere çıkmayan iç bağlantı |
+| **Uyarı** | Eksik/kısa/uzun meta başlık ve açıklama, atlanan başlık seviyesi, kapak görseli yokluğu, "buraya tıklayın" gibi bağlantı metni, metinsiz bağlantı, biçimsiz adres, boş gövde |
+| **Öneri** | Meta başlığın sayfa başlığının kopyası olması, başlıkla ilgisiz adres, ince içerik |
+
+Kırık bağlantı denetimi **rota tablosuna ve içeriğe** birlikte soruyor:
+`/tr/olmayan-sayfa` adresi rota kalıbına uysa da karşılığı yoksa kırık sayılıyor.
+Panelden açılmış özel adresler ve tanımlı yönlendirmeler kırık sayılmıyor —
+ikisi de ziyaretçiyi bir yere götürüyor.
+
+### Yeni kural eklemek
+
+`App\Services\Seo\SeoCheck` arayüzünü uygulayan bir sınıf yazıp
+`config/seo.php`'ye bir satır eklemek yeterli; motor gerisini biliyor. Bir kural
+patlarsa atlanıyor ve sebep loga düşüyor — denetim bir kolaylık, kaydetmenin
+şartı değil.
+
+Karakter sınırları (`config/seo.php`) tek kaynak: sunucu doğrulaması, formdaki
+sayaç ve denetleyici aynı sayıyı okuyor.
+
+---
+
 ## Rapor merkezi
 
 **Admin → Raporlar** altı raporu tek ekranda toplar: trafik, içerik, kullanıcı,
-e-posta, kampanya ve abone. Her rapor seçilen tarih aralığında üretilir, Excel
-ya da PDF olarak indirilir.
+e-posta, kampanya ve abone. Her rapor seçilen tarih aralığında üretilir, Excel,
+CSV ya da PDF olarak indirilir.
 
 **Zamanlanmış raporlar** aynı raporu düzenli aralıklarla e-postayla gönderir
-(günlük, haftalık, aylık). Üretim cron'dan geçer (`reports:dispatch`) ve
-ekranda indirilen dosya ile postayla gelen dosya aynı kodun ürünüdür.
+(günlük, haftalık, aylık). Biçim tanımda seçilir (Excel, CSV, PDF); üretim
+cron'dan geçer (`reports:dispatch`) ve ekranda indirilen dosya ile postayla
+gelen dosya aynı kodun ürünüdür.
 
 Rapor okuma ile zamanlama ayrı izinlerdir: editör raporu görebilir ama düzenli
 gönderim tanımlayamaz — dışarıya sürekli veri gönderen bir iş yöneticinin

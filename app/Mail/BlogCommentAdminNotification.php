@@ -24,8 +24,17 @@ final class BlogCommentAdminNotification extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Yeni Yorum — ' . ($this->comment->post?->title ?? 'Blog'),
+            subject: __('mail.comment_admin.subject', [
+                'post' => $this->comment->post?->title ?? '-',
+                'site' => Setting::getValue('site_name', config('app.name')),
+            ]),
         );
+    }
+
+    /** Alıcı yönetici; panel tek dilde. */
+    protected function resolveLocale(): string
+    {
+        return $this->defaultLocale();
     }
 
     protected function emailView(): string

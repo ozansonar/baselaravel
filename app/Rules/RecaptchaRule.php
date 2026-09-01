@@ -19,7 +19,9 @@ final class RecaptchaRule implements ValidationRule
         }
 
         if (! $service->verify($value, request()->ip())) {
-            $fail('Lütfen robot olmadığınızı doğrulayın.');
+            // Kural ön yüzdeki iletişim ve yorum formlarında çalışıyor; metin
+            // koda gömülü olduğu için İngilizce sayfada Türkçe uyarı çıkıyordu.
+            $fail(__('site.forms.recaptcha'));
         }
     }
 }

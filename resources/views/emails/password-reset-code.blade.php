@@ -1,13 +1,10 @@
 @extends('emails.layout')
 
 @section('content')
-    <p class="em-greeting">Güvenlik</p>
-    <h1 class="em-heading">Şifre Sıfırlama Kodunuz &#128274;</h1>
+    <p class="em-greeting">{{ __('mail.common.security') }}</p>
+    <h1 class="em-heading">{{ __('mail.reset_code.heading') }} &#128274;</h1>
 
-    <p class="em-text">
-        Merhaba, hesabınız için bir şifre sıfırlama talebi aldık.
-        Uygulamadaki alana aşağıdaki kodu girin:
-    </p>
+    <p class="em-text">{{ __('mail.reset_code.lead') }}</p>
 
     <table class="em-highlight" role="presentation" cellpadding="0" cellspacing="0" width="100%">
         <tr>
@@ -18,13 +15,10 @@
     </table>
 
     <p class="em-text-sm">
-        &#9200; Bu kod <strong>{{ $expiresInMinutes }} dakika</strong> içinde geçerliliğini yitirecektir.
+        &#9200; {{ __('mail.reset_code.expires', ['minutes' => $expiresInMinutes]) }}
     </p>
 
     <hr class="em-divider">
 
-    <p class="em-text">
-        Eğer şifre sıfırlama talebinde bulunmadıysanız, bu e-postayı görmezden gelebilirsiniz.
-        Kodu kimseyle paylaşmayın; ekibimiz sizden bu kodu asla istemez.
-    </p>
+    <p class="em-text">{{ __('mail.reset_code.ignore') }}</p>
 @endsection

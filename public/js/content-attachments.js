@@ -19,25 +19,15 @@
         return;
     }
 
+    // Etiketler sunucudan geliyor (partials/js-lang): pencere ziyaretçinin
+    // dilinde açılmalı ve dosyanın içinde yazılı metin kalmamalı — gömülü bir
+    // karşılık İngilizce sayfada Türkçe çıkardı.
     var metin = {
-        close: 'Kapat',
-        prev: 'Önceki',
-        next: 'Sonraki',
-        download: 'İndir'
+        close: window.siteText('attachmentClose'),
+        prev: window.siteText('attachmentPrev'),
+        next: window.siteText('attachmentNext'),
+        download: window.siteText('attachmentDownload')
     };
-
-    // Etiketler sunucudan geliyor: pencere ziyaretçinin dilinde açılmalı,
-    // JS içine gömülü Türkçe metin İngilizce sayfada yanlış olurdu.
-    var veri = document.getElementById('attachmentsLabels');
-
-    if (veri) {
-        try {
-            metin = JSON.parse(veri.textContent) || metin;
-        } catch (e) {
-            // Etiketler okunamadıysa gömülü karşılıklar kalıyor; pencere
-            // etiketsiz açılmaktansa varsayılanla açılsın.
-        }
-    }
 
     var katman = null;
     var gorselAlani = null;

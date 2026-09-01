@@ -84,6 +84,18 @@ class User extends Authenticatable implements MustVerifyEmail
     /** canAccessPanel() için istek içi hatırlatıcı; sütun değil. */
     private ?bool $panelAccess = null;
 
+    /**
+     * Bildirim tercihleri.
+     *
+     * Tercih kaydı olmayan tür açık sayılıyor; tablo yalnız kullanıcının
+     * bilerek değiştirdiklerini taşıyor. Toplu gönderimde "kim kapatmış"
+     * sorusunu tek sorguda yanıtlayabilmek için ilişki gerekiyor.
+     */
+    public function notificationPreferences(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserNotificationPreference::class);
+    }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->withTimestamps();

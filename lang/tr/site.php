@@ -126,6 +126,7 @@ return [
     ],
 
     'gallery' => [
+        'untitled' => 'Görsel',
         'all' => 'Tümü',
         'type_filter' => 'Tür filtresi',
         'no_results' => 'Bu süzgece uyan görsel bulunamadı',
@@ -150,6 +151,7 @@ return [
     ],
 
     'contact' => [
+        'closed' => 'Kapalı',
         'name_min'              => 'Ad soyad en az :min karakter olmalıdır.',
         'name_required'               => 'Ad soyad zorunludur.',
         'name_max'                    => 'Ad soyad en fazla :max karakter olabilir.',
@@ -329,14 +331,17 @@ return [
 
     'notifications' => [
         'title' => 'Bildirimler',
-        'desc'  => 'Hangi e-postaları alacağınızı seçin.',
-        'lead'  => 'Size gönderilen e-postaları buradan açıp kapatabilirsiniz.',
+        'desc'  => 'Hangi bildirimleri alacağınızı seçin.',
+        'lead'  => 'Size gönderilen e-postaları ve uygulama bildirimlerini buradan açıp kapatabilirsiniz.',
 
         'newsletter'      => 'Bülten ve duyurular',
         'newsletter_hint' => 'Yeni içerikler ve kampanyalar için gönderilen toplu e-postalar.',
 
         'comment_updates'      => 'Yorum bildirimleri',
         'comment_updates_hint' => 'Yorumunuz yayınlandığında haber verilir.',
+
+        'push_announcements'      => 'Uygulama duyuruları',
+        'push_announcements_hint' => 'Mobil uygulamaya gönderilen duyuru bildirimleri. Hesap güvenliğine dair bildirimler bundan bağımsızdır.',
 
         'always_on' => 'Şifre sıfırlama, e-posta doğrulama ve hesap güvenliğiyle ilgili uyarılar her zaman gönderilir; bunlar kapatılamaz.',
         'saved'     => 'Bildirim tercihleriniz kaydedildi.',
@@ -604,7 +609,7 @@ return [
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
-        'name_letters'          => 'Ad soyad yalnızca harf ve boşluk içerebilir.',
+        'name_letters'          => 'Ad soyad yalnızca harf, boşluk, kesme ve tire içerebilir.',
         'phone_format'          => 'Telefon numarası yalnızca rakam ve + ( ) - . işaretlerini içerebilir.',
         'throttle_login'              => 'Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika bekleyin.',
         'throttle_contact'            => 'Çok fazla mesaj gönderdiniz. Lütfen birkaç dakika bekleyin.',
@@ -612,12 +617,26 @@ return [
         'recaptcha'                   => 'Lütfen robot olmadığınızı doğrulayın.',
         'email_required'              => 'E-posta adresi zorunludur.',
         'email_invalid'               => 'Geçerli bir e-posta adresi girin.',
+        'email_disposable' => 'Tek kullanımlık e-posta adresleri kabul edilmiyor. Lütfen kalıcı bir adres girin.',
         'email_invalid_formal'        => 'Geçerli bir e-posta adresi giriniz.',
         'password_required'           => 'Şifre zorunludur.',
         'password_min'                => 'Şifre en az :min karakter olmalıdır.',
         'first_name_required'         => 'Ad alanı zorunludur.',
-        'first_name_letters'          => 'Ad yalnızca harf ve boşluk içerebilir.',
+        'first_name_letters'          => 'Ad yalnızca harf, boşluk, kesme ve tire içerebilir.',
         'last_name_required'          => 'Soyad alanı zorunludur.',
-        'last_name_letters'           => 'Soyad yalnızca harf ve boşluk içerebilir.',
+        'last_name_letters'           => 'Soyad yalnızca harf, boşluk, kesme ve tire içerebilir.',
+    ],
+    // Betiklerin yazdığı metinler — ön yüz JS dosyaları bunları
+    // window.SiteText üzerinden okuyor, bkz. App\Support\FrontScriptText.
+    'js' => [
+        'title_success'             => 'Başarılı',
+        'title_error'               => 'Hata',
+        'title_warning'             => 'Uyarı',
+        'title_info'                => 'Bilgi',
+        'failed'                    => 'İşlem tamamlanamadı.',
+        'only_letters'              => 'Bu alanda yalnızca harf, boşluk, kesme ve tire kullanılabilir',
+        'image_type'                => 'Görsel JPG, PNG veya WebP formatında olmalıdır',
+        'image_size'                => 'Görsel en fazla :max MB olabilir',
+        'current_password_required' => 'Şifrenizi değiştirmek için mevcut şifrenizi girin',
     ],
 ];

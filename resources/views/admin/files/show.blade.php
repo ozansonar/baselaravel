@@ -340,7 +340,7 @@
                             <button type="button" class="btn-glass fmgr-delete-btn"
                                     data-file-id="{{ $file->id }}"
                                     data-file-name="{{ $file->original_name }}"
-                                    onclick="fmgrConfirmDelete(this)">
+                                    data-action="dosya-sil-onay">
                                 <i class="bi bi-trash me-1"></i>Dosyayı Sil
                             </button>
                             <button type="submit" class="btn-teal">
@@ -378,7 +378,7 @@
 @endpush
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
 'use strict';
 
 // Tüm "Kopyala" butonları için tek handler

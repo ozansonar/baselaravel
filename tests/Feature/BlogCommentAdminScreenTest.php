@@ -216,9 +216,12 @@ final class BlogCommentAdminScreenTest extends TestCase
 
         $html = (string) $this->get(route('admin.blog-comments.show', $comment))->assertOk()->getContent();
 
-        $this->assertStringContainsString("confirmCommentAction('approve'", $html);
-        $this->assertStringContainsString("confirmCommentAction('reject'", $html);
-        $this->assertStringContainsString('openDeleteModal(', $html);
+        // Onay kancası: davranış artık nitelikte değil, merkezi bağlayıcıda
+        // (inline-actions.js). Sınanan şey değişmedi — düğme onay istiyor mu.
+        $this->assertStringContainsString('data-action="yorum-eylem"', $html);
+        $this->assertStringContainsString('data-eylem="approve"', $html);
+        $this->assertStringContainsString('data-eylem="reject"', $html);
+        $this->assertStringContainsString('data-action="sil"', $html);
 
         // İşlem formlarının düğmeleri doğrudan gönderim yapmıyor. Denetim
         // formun kendi gövdesine bakıyor: düzendeki çıkış formu da submit
@@ -240,7 +243,8 @@ final class BlogCommentAdminScreenTest extends TestCase
 
         $html = (string) $this->get(route('admin.blog-comments.index'))->assertOk()->getContent();
 
-        $this->assertStringContainsString("confirmCommentAction('approve'", $html);
-        $this->assertStringContainsString("confirmCommentAction('reject'", $html);
+        $this->assertStringContainsString('data-action="yorum-eylem"', $html);
+        $this->assertStringContainsString('data-eylem="approve"', $html);
+        $this->assertStringContainsString('data-eylem="reject"', $html);
     }
 }

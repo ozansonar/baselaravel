@@ -20,7 +20,7 @@ class ResetPasswordMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Şifre Sıfırlama - ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.reset.subject', ['site' => Setting::getValue('site_name', config('app.name'))]),
         );
     }
 

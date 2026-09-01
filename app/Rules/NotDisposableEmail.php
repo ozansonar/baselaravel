@@ -7,6 +7,23 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
+/**
+ * Tek kullanımlık ("throwaway") e-posta adreslerini eler.
+ *
+ * `email:rfc,dns` uydurma alan adlarını zaten eliyor; bu kural onun
+ * göremediği şeye bakıyor. Tek kullanımlık sağlayıcıların alan adları gerçek,
+ * MX kayıtları çalışıyor ve biçimleri kusursuz — kural olarak geçerli, hesap
+ * olarak on dakika sonra yok.
+ *
+ * Liste `config/disposable_emails.php`'de: yeni bir sağlayıcı çıktığında tek
+ * satır eklemek yetiyor, koda dokunmak gerekmiyor.
+ *
+ * Alt alan adları da yakalanıyor (`kutu.10minutemail.com`): sağlayıcılar
+ * genelde her kullanıcıya bir alt alan adı veriyor ve yalnız tam eşleşmeye
+ * bakan bir liste ilk gün delinirdi.
+ *
+ * Nerede uygulandığı {@see EmailAddress::rules()} içinde yazılı.
+ */
 final class NotDisposableEmail implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -15,13 +32,23 @@ final class NotDisposableEmail implements ValidationRule
             return;
         }
 
-        $domain = strtolower(substr($value, strrpos($value, '@') + 1));
+        $domain = strtolower(trim(substr($value, strrpos($value, '@') + 1)));
 
-        /** @var array<int, string> $disposableDomains */
-        $disposableDomains = config('disposable_emails', []);
+        if ($domain === '') {
+            return;
+        }
 
-        if (in_array($domain, $disposableDomains, true)) {
-            $fail('Tek kullanımlık e-posta adresleri kabul edilmemektedir.');
+        /** @var array<int, string> $disposable */
+        $disposable = config('disposable_emails', []);
+
+        foreach ($disposable as $blocked) {
+            $blocked = strtolower((string) $blocked);
+
+            if ($domain === $blocked || str_ends_with($domain, '.' . $blocked)) {
+                $fail(__('site.forms.email_disposable'));
+
+                return;
+            }
         }
     }
 }

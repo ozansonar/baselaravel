@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\CspReportController;
 use App\Http\Controllers\AnalyticsTrackController;
 use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\LegacyUrlController;
@@ -42,6 +43,15 @@ Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/site.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
 Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.service-worker');
 Route::get('/offline', [PwaController::class, 'offline'])->name('offline');
+
+// İçerik güvenlik politikası ihlal raporları.
+//
+// Tarayıcı bu adrese oturum çerezi göndermiyor, dolayısıyla kimlik istenemez;
+// uç kendini hız sınırı, gövde tavanı ve alan beyaz listesiyle koruyor. CSRF
+// dışarıda: raporu gönderen bizim formumuz değil, tarayıcının kendisi.
+Route::post('/csp-ihlali', CspReportController::class)
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class])
+    ->name('csp.report');
 
 // Language switcher — forwards to the same page in the requested language.
 Route::get('/dil/{code}', LocaleController::class)->name('locale.switch');

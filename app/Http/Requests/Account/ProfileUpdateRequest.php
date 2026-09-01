@@ -6,6 +6,7 @@ namespace App\Http\Requests\Account;
 
 use App\Rules\UserEmail;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\EmailAddress;
 
 final class ProfileUpdateRequest extends FormRequest
 {
@@ -22,9 +23,9 @@ final class ProfileUpdateRequest extends FormRequest
         $userId = auth()->id();
 
         return [
-            'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'last_name'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email' => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique($userId)],
+            'first_name' => ['required', 'string', 'max:50', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'last_name'  => ['required', 'string', 'max:50', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'email' => ['required', 'string', ...EmailAddress::rules(), 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique($userId)],
             'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             // Changing a password requires proving the current one, so a hijacked
             // session cannot lock the real owner out.

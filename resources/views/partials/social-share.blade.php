@@ -14,7 +14,7 @@
            class="social-share__btn social-share__btn--facebook"
            target="_blank" rel="noopener noreferrer"
            aria-label="{{ __('site.misc.share_on', ['network' => 'Facebook']) }}"
-           onclick="window.open(this.href,'share','width=600,height=400');return false;">
+           data-share-window="600x400">
             <i class="fa-brands fa-facebook-f"></i>
         </a>
 
@@ -22,7 +22,7 @@
            class="social-share__btn social-share__btn--x"
            target="_blank" rel="noopener noreferrer"
            aria-label="{{ __('site.misc.share_on', ['network' => 'X']) }}"
-           onclick="window.open(this.href,'share','width=600,height=400');return false;">
+           data-share-window="600x400">
             <i class="fa-brands fa-x-twitter"></i>
         </a>
 
@@ -37,7 +37,7 @@
            class="social-share__btn social-share__btn--telegram"
            target="_blank" rel="noopener noreferrer"
            aria-label="{{ __('site.misc.share_on', ['network' => 'Telegram']) }}"
-           onclick="window.open(this.href,'share','width=600,height=400');return false;">
+           data-share-window="600x400">
             <i class="fa-brands fa-telegram"></i>
         </a>
 
@@ -46,7 +46,7 @@
            class="social-share__btn social-share__btn--pinterest"
            target="_blank" rel="noopener noreferrer"
            aria-label="{{ __('site.misc.share_on', ['network' => 'Pinterest']) }}"
-           onclick="window.open(this.href,'share','width=600,height=700');return false;">
+           data-share-window="600x700">
             <i class="fa-brands fa-pinterest-p"></i>
         </a>
         @endif
@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ csp_nonce() }}">
 document.querySelectorAll('.js-copy-link').forEach(function (btn) {
     if (btn.dataset.bound) return;
     btn.dataset.bound = '1';
@@ -86,3 +86,9 @@ document.querySelectorAll('.js-copy-link').forEach(function (btn) {
     });
 });
 </script>
+
+@once
+@push('scripts')
+    <script src="{{ versioned_asset('js/share-window.js') }}" nonce="{{ csp_nonce() }}"></script>
+@endpush
+@endonce

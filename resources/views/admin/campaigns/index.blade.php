@@ -145,7 +145,7 @@
                     <div class="mt-field">
                         <span>Kitle</span>
                         <select class="cl-filter-select" name="audience" aria-label="Alıcı kitlesi"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm kitleler</option>
                             @foreach($audiences as $case)
                                 <option value="{{ $case->value }}" {{ $filters['audience'] === $case->value ? 'selected' : '' }}>
@@ -186,7 +186,7 @@
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>
                                     {{ $sortLabel }}
@@ -204,7 +204,7 @@
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
                                 <select name="per_page" id="perPage"
-                                        onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                        data-submit-form="filterForm" data-fv-ignore>
                                     @foreach($perPageList as $pp)
                                         <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                                     @endforeach
@@ -324,7 +324,7 @@
                                     @endif
                                     @can('delete', $campaign)
                                         <button type="button" class="usr-action-btn danger" title="Sil"
-                                                onclick="openDeleteModal({{ $campaign->id }}, @js($campaign->name))">
+                                                data-action="sil" data-id="{{ $campaign->id }}" data-label="{{ $campaign->name }}">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     @endcan

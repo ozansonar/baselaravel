@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Support\CacheKeys;
 use App\Models\Redirect;
 use Closure;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ final class HandleRedirects
     {
         $path = '/' . ltrim($request->path(), '/');
 
-        $redirects = Cache::remember('redirects.active', 3600, fn (): array =>
+        $redirects = Cache::remember(CacheKeys::REDIRECTS_ACTIVE, 3600, fn (): array =>
             Redirect::where('is_active', true)
                 ->get(['old_url', 'new_url', 'status_code'])
                 ->keyBy('old_url')

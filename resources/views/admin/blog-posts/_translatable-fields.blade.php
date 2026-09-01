@@ -23,7 +23,7 @@
 
         {{-- Mobile Section Jumper --}}
         <div class="d-lg-none mb-4">
-          <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0" data-fv-ignore>
+          <select class="form-select form-select-sm" data-scroll-select data-fv-ignore>
             <option value="" disabled selected>Bölüme git...</option>
             <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
             <option value="section-content_{{ $language->code }}">İçerik Editörü</option>
@@ -40,27 +40,27 @@
           {{-- Sol Navigasyon (yalnızca desktop) --}}
           <div class="col-lg-3 d-none d-lg-block">
             <div class="stg-nav-inner position-sticky stg-nav-sticky">
-              <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic_{{ $language->code }}', this)">
+              <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" data-scroll-to="section-basic_{{ $language->code }}">
                 <i class="bi bi-text-paragraph"></i>
                 <div><span>Temel Bilgiler</span><small>Başlık, slug, kategori</small></div>
               </a>
-              <a href="#section-content_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-content_{{ $language->code }}', this)">
+              <a href="#section-content_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-content_{{ $language->code }}">
                 <i class="bi bi-body-text"></i>
                 <div><span>İçerik Editörü</span><small>Ana metin ve özet</small></div>
               </a>
-              <a href="#section-media_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media_{{ $language->code }}', this)">
+              <a href="#section-media_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-media_{{ $language->code }}">
                 <i class="bi bi-images"></i>
                 <div><span>Medya Yönetimi</span><small>Kapak görseli</small></div>
               </a>
-              <a href="#section-files_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-files_{{ $language->code }}', this)">
+              <a href="#section-files_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-files_{{ $language->code }}">
                 <i class="bi bi-paperclip"></i>
                 <div><span>Dosya Ekleri</span><small>Belge, tablo, video</small></div>
               </a>
-              <a href="#section-seo_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-seo_{{ $language->code }}', this)">
+              <a href="#section-seo_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-seo_{{ $language->code }}">
                 <i class="bi bi-search"></i>
                 <div><span>SEO Ayarları</span><small>Meta başlık, açıklama</small></div>
               </a>
-              <a href="#section-publish_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-publish_{{ $language->code }}', this)">
+              <a href="#section-publish_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-publish_{{ $language->code }}">
                 <i class="bi bi-calendar-event"></i>
                 <div><span>Yayın Ayarları</span><small>Durum, tarih</small></div>
               </a>
@@ -99,7 +99,7 @@
                     maxlength="120"
                     data-validation-engine="{{ $rules(['maxSize[120]']) }}"
                     data-slug-source data-slug-target="slug_{{ $language->code }}"
-                    oninput="updateCharCounter(this, 120); updateSeoPreview(this)">
+                    data-char-counter="120" data-seo-preview>
                   @error("translations.{$language->code}.title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -184,7 +184,7 @@
                     maxlength="300"
                     placeholder="İçeriğin kısa bir özetini yazın (listeleme sayfalarında görünür)..."
                     data-validation-engine="validate[maxSize[300]]"
-                    oninput="updateCharCounter(this, 300)"
+                    data-char-counter="300"
                   >{{ old("translations.{$language->code}.excerpt", $translation?->excerpt) }}</textarea>
                   @error("translations.{$language->code}.excerpt")
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -296,16 +296,16 @@
                     id="meta_title_{{ $language->code }}"
                     name="translations[{{ $language->code }}][meta_title]"
                     value="{{ old("translations.{$language->code}.meta_title", $translation?->meta_title) }}"
-                    maxlength="60"
+                    maxlength="{{ $seoTitleMax }}"
                     placeholder="SEO için özel başlık (boş bırakılırsa içerik başlığı kullanılır)"
-                    data-validation-engine="validate[maxSize[60]]"
-                    oninput="updateCharCounter(this, 60); updateSeoPreview(this)">
+                    data-validation-engine="validate[maxSize[{{ $seoTitleMax }}]]"
+                    data-char-counter="{{ $seoTitleMax }}" data-seo-preview>
                   @error("translations.{$language->code}.meta_title")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
-                    <div class="form-text">Önerilen: 50-60 karakter</div>
-                    <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_title", $translation?->meta_title ?? '')) }}</span>/60</div>
+                    <div class="form-text">Önerilen: {{ $seoTitleMin }}-{{ $seoTitleMax }} karakter</div>
+                    <div class="form-text"><span id="meta_title_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_title", $translation?->meta_title ?? '')) }}</span>/{{ $seoTitleMax }}</div>
                   </div>
                 </div>
 
@@ -317,18 +317,27 @@
                     id="meta_description_{{ $language->code }}"
                     name="translations[{{ $language->code }}][meta_description]"
                     rows="3"
-                    maxlength="160"
+                    maxlength="{{ $seoDescMax }}"
                     placeholder="Arama sonuçlarında görünecek açıklama metni..."
-                    data-validation-engine="validate[maxSize[160]]"
-                    oninput="updateCharCounter(this, 160); updateSeoPreview(this)"
+                    data-validation-engine="validate[maxSize[{{ $seoDescMax }}]]"
+                    data-char-counter="{{ $seoDescMax }}" data-seo-preview
                   >{{ old("translations.{$language->code}.meta_description", $translation?->meta_description) }}</textarea>
                   @error("translations.{$language->code}.meta_description")
                   <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
                   <div class="d-flex justify-content-between mt-1">
-                    <div class="form-text">Önerilen: 120-160 karakter</div>
-                    <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_description", $translation?->meta_description ?? '')) }}</span>/160</div>
+                    <div class="form-text">Önerilen: {{ $seoDescMin }}-{{ $seoDescMax }} karakter</div>
+                    <div class="form-text"><span id="meta_description_{{ $language->code }}-counter">{{ Str::length(old("translations.{$language->code}.meta_description", $translation?->meta_description ?? '')) }}</span>/{{ $seoDescMax }}</div>
                   </div>
+                </div>
+
+                {{-- Denetim paneli: alanların hemen altında, çünkü bulgular
+                     çoğunlukla bu alanlara işaret ediyor. --}}
+                <div class="col-12">
+                  @include('partials.admin.seo-panel', [
+                      'seoLocale' => $language->code,
+                      'seoType'   => 'blog_post',
+                  ])
                 </div>
 
               </div>

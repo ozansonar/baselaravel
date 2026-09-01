@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\SubscriberStatus;
 use App\Support\PersonName;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,9 +18,20 @@ use Illuminate\Support\Str;
  * @property string|null $first_name
  * @property string|null $last_name
  */
-class Subscriber extends Model
+class Subscriber extends Model implements HasLocalePreference
 {
     use HasFactory, SoftDeletes;
+
+    /**
+     * Abonenin bülteni okuduğu dil.
+     *
+     * Laravel, alıcı bu arayüzü uyguladığında maili kendiliğinden bu dilde
+     * çiziyor; kayıtlı dil yoksa gönderimin kendi dili geçerli kalıyor.
+     */
+    public function preferredLocale(): ?string
+    {
+        return $this->locale;
+    }
 
     protected $fillable = [
         'email',

@@ -20,7 +20,7 @@
 
     {{-- Mobile Section Jumper --}}
     <div class="d-lg-none mb-4">
-        <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0" data-fv-ignore>
+        <select class="form-select form-select-sm" data-scroll-select data-fv-ignore>
             <option value="" disabled selected>Bölüme git...</option>
             <option value="section-basic_{{ $code }}">Temel Bilgiler</option>
             <option value="section-settings_{{ $code }}">Ayarlar</option>
@@ -33,11 +33,11 @@
         {{-- Sol Navigasyon (yalnızca desktop) --}}
         <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right" data-aos-delay="100">
             <div class="stg-nav-inner position-sticky stg-nav-sticky">
-                <a href="#section-basic_{{ $code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic_{{ $code }}', this)">
+                <a href="#section-basic_{{ $code }}" class="stg-nav-item active" data-scroll-to="section-basic_{{ $code }}">
                     <i class="bi bi-text-paragraph"></i>
                     <div><span>Temel Bilgiler</span><small>Kategori adı, ikon</small></div>
                 </a>
-                <a href="#section-settings_{{ $code }}" class="stg-nav-item" onclick="scrollToSection('section-settings_{{ $code }}', this)">
+                <a href="#section-settings_{{ $code }}" class="stg-nav-item" data-scroll-to="section-settings_{{ $code }}">
                     <i class="bi bi-gear"></i>
                     <div><span>Ayarlar</span><small>Sıralama, görünürlük</small></div>
                 </a>
@@ -98,7 +98,7 @@
                                     maxlength="100"
                                     data-validation-engine="validate[maxSize[100]]"
                                     data-prompt-target="icon_error_{{ $code }}"
-                                    oninput="updateIconPreview(this)">
+                                    data-icon-preview>
                             </div>
                             <div id="icon_error_{{ $code }}"></div>
                             @error("translations.{$code}.icon")

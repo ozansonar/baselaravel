@@ -30,7 +30,7 @@ class PasswordResetCodeMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Şifre Sıfırlama Kodunuz - ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.reset_code.subject', ['site' => Setting::getValue('site_name', config('app.name'))]),
         );
     }
 

@@ -52,13 +52,13 @@
                 </div>
 
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="status" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" name="status" data-submit-form="filterForm" data-fv-ignore>
                         <option value="">Tüm Durumlar</option>
                         <option value="published" @selected(request('status') === 'published')>Yayında</option>
                         <option value="draft" @selected(request('status') === 'draft')>Yayında değil</option>
                     </select>
 
-                    <select class="cl-filter-select" name="locale" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" name="locale" data-submit-form="filterForm" data-fv-ignore>
                         <option value="">Tüm Diller</option>
                         @foreach($languages as $language)
                             <option value="{{ $language->code }}" @selected(request('locale') === $language->code)>
@@ -68,11 +68,11 @@
                     </select>
 
                     <input type="date" class="cl-filter-select" name="from" value="{{ request('from') }}"
-                           onchange="document.getElementById('filterForm').submit()"
+                           data-submit-form="filterForm"
                            title="Başlangıç tarihi" data-fv-ignore>
 
                     <input type="date" class="cl-filter-select" name="to" value="{{ request('to') }}"
-                           onchange="document.getElementById('filterForm').submit()"
+                           data-submit-form="filterForm"
                            title="Bitiş tarihi" data-fv-ignore>
                 </div>
 
@@ -82,12 +82,14 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select name="per_page" data-submit-form="filterForm" data-fv-ignore>
                             @foreach($perPages as $value)
                                 <option value="{{ $value }}" @selected($perPage === $value)>{{ $value }}</option>
                             @endforeach
                         </select>
                     </div>
+
+                    <x-export-menu export="content-list" :total="$items->total()" />
                 </div>
             </form>
         </div>

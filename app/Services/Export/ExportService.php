@@ -16,24 +16,30 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  * kaydını düşer ve tarayıcıya verir.
  *
  * Dosya önce geçici dizine yazılır, indirme bitince silinir. Doğrudan çıktıya
- * yazmak yerine bunun tercih edilmesinin nedeni, iki yazıcının da (ZIP ve PDF)
- * dosyayı ancak sonunda bütünleyebilmesi.
+ * yazmak yerine bunun tercih edilmesinin nedeni, yazıcıların dosyayı ancak
+ * sonunda bütünleyebilmesi (ZIP ve PDF) ve indirmenin boyutunu bildirebilmek.
  */
 final class ExportService
 {
     public function __construct(
         private readonly ExcelExportService $excel,
+        private readonly CsvExportService $csv,
         private readonly PdfExportService $pdf,
     ) {}
 
     /**
-     * PDF satır tavanının altında mı? Aşımda dosya üretilmez.
+     * Biçimin satır tavanı aşılıyor mu? Aşımda dosya üretilmez.
+     *
+     * Tavanı olan tek biçim PDF; Excel ve CSV akış hâlinde yazıldığı için
+     * satır sayısı belleği etkilemiyor. Karar biçimin kendisine soruluyor,
+     * böylece yeni bir biçim eklendiğinde denetleyici değişmiyor.
      *
      * @param array<string, mixed> $filters
      */
-    public function exceedsPdfLimit(ListExport $export, array $filters): bool
+    public function exceedsRowLimit(ListExport $export, ExportFormat $format, array $filters): bool
     {
-        return $this->pdfLimit() > 0
+        return $format->hasRowLimit()
+            && $this->pdfLimit() > 0
             && $export->count($filters) > $this->pdfLimit();
     }
 
@@ -106,6 +112,7 @@ final class ExportService
 
         $rowCount = match ($format) {
             ExportFormat::Excel => $this->excel->write($export, $filters, $path),
+            ExportFormat::Csv   => $this->csv->write($export, $filters, $path),
             ExportFormat::Pdf   => $this->pdf->write($export, $filters, $path),
         };
 
@@ -133,6 +140,7 @@ final class ExportService
 
         match ($format) {
             ExportFormat::Excel => $this->excel->write($export, $filters, $path),
+            ExportFormat::Csv   => $this->csv->write($export, $filters, $path),
             ExportFormat::Pdf   => $this->pdf->write($export, $filters, $path),
         };
 

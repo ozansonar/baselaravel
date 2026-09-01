@@ -156,7 +156,7 @@
                     <div class="mt-field">
                         <span>Trafik</span>
                         <select class="cl-filter-select" name="is_bot" id="filterBot" aria-label="Trafik türü"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             <option value="0" {{ $filters['is_bot'] === '0' ? 'selected' : '' }}>Sadece insan</option>
                             <option value="1" {{ $filters['is_bot'] === '1' ? 'selected' : '' }}>Sadece bot</option>
@@ -166,7 +166,7 @@
                     <div class="mt-field">
                         <span>Cihaz</span>
                         <select class="cl-filter-select" name="device_type" id="filterDevice" aria-label="Cihaz türü"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             @foreach($cihazEtiketleri as $val => $label)
                                 <option value="{{ $val }}" {{ $filters['device_type'] === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -177,7 +177,7 @@
                     <div class="mt-field">
                         <span>Ziyaretçi</span>
                         <select class="cl-filter-select" name="visitor" aria-label="Ziyaretçi türü"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             @foreach($ziyaretciEtiketleri as $val => $label)
                                 <option value="{{ $val }}" {{ $filters['visitor'] === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -190,7 +190,7 @@
                     <div class="mt-field">
                         <span>Tarayıcı</span>
                         <select class="cl-filter-select" name="browser" aria-label="Tarayıcı"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             @foreach($filterOptions['browsers'] as $secenek)
                                 <option value="{{ $secenek }}" {{ $filters['browser'] === $secenek ? 'selected' : '' }}>{{ $secenek }}</option>
@@ -201,7 +201,7 @@
                     <div class="mt-field">
                         <span>Sistem</span>
                         <select class="cl-filter-select" name="os" aria-label="İşletim sistemi"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             @foreach($filterOptions['systems'] as $secenek)
                                 <option value="{{ $secenek }}" {{ $filters['os'] === $secenek ? 'selected' : '' }}>{{ $secenek }}</option>
@@ -212,7 +212,7 @@
                     <div class="mt-field">
                         <span>Kaynak</span>
                         <select class="cl-filter-select" name="referrer" aria-label="Geliş kaynağı"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             <option value="direct" {{ $filters['referrer'] === 'direct' ? 'selected' : '' }}>Doğrudan</option>
                             @foreach($filterOptions['referrers'] as $secenek)
@@ -225,20 +225,20 @@
                         <span>Başlangıç</span>
                         <input type="date" name="from" class="cl-filter-select" value="{{ $filters['from'] }}"
                                aria-label="Başlangıç tarihi"
-                               onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                               data-submit-form="visitsFilterForm" data-fv-ignore>
                     </div>
 
                     <div class="mt-field">
                         <span>Bitiş</span>
                         <input type="date" name="to" class="cl-filter-select" value="{{ $filters['to'] }}"
                                aria-label="Bitiş tarihi"
-                               onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                               data-submit-form="visitsFilterForm" data-fv-ignore>
                     </div>
 
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="visitsFilterForm" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>
                                     {{ $sortLabel }}
@@ -258,7 +258,7 @@
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
                                 <select name="per_page" id="perPage"
-                                        onchange="document.getElementById('visitsFilterForm').submit()" data-fv-ignore>
+                                        data-submit-form="visitsFilterForm" data-fv-ignore>
                                     @foreach($perPageList as $pp)
                                         <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                                     @endforeach

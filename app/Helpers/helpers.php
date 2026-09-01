@@ -201,3 +201,19 @@ if (! function_exists('localized_route')) {
         return app(\App\Services\LocalizedUrlService::class)->canonicalFor($routeName, $params);
     }
 }
+
+if (! function_exists('csp_nonce')) {
+    /**
+     * Bu isteğin içerik güvenlik politikası anahtarı.
+     *
+     * Sayfadaki her satır içi betik bunu taşımak zorunda; taşımayan betik
+     * tarayıcı tarafından çalıştırılmıyor. Saldırganın enjekte ettiği kod bu
+     * anahtarı bilemeyeceği için, Blade'in kaçışı delinse bile çalışmıyor.
+     *
+     * @see \App\Services\ContentSecurityPolicy
+     */
+    function csp_nonce(): string
+    {
+        return app(\App\Services\ContentSecurityPolicy::class)->nonce();
+    }
+}

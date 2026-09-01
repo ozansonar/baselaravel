@@ -72,6 +72,13 @@ return [
         'others_revoked' => ':count session(s) on other devices were signed out.',
     ],
 
+    'two_factor' => [
+        'setup_started'   => 'Setup started. Scan the code with your authenticator app, then send the code it shows.',
+        'already_enabled' => 'Two-factor authentication is already on.',
+        'not_started'     => 'Start the setup first.',
+        'not_enabled'     => 'Two-factor authentication is not on.',
+    ],
+
     'menus' => [
         'not_found' => 'No published menu for that location.',
     ],

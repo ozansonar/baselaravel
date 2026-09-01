@@ -196,7 +196,7 @@
                     <div class="mt-field">
                         <span>Durum</span>
                         <select class="cl-filter-select" name="status" aria-label="Durum"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm durumlar</option>
                             @foreach($statuses as $status)
                                 <option value="{{ $status->value }}" {{ $filters['status'] === $status->value ? 'selected' : '' }}>
@@ -209,7 +209,7 @@
                     <div class="mt-field">
                         <span>Kaynak</span>
                         <select class="cl-filter-select" name="source" aria-label="Kaynak"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm kaynaklar</option>
                             @foreach($sources as $source)
                                 <option value="{{ $source->value }}" {{ $filters['source'] === $source->value ? 'selected' : '' }}>
@@ -222,7 +222,7 @@
                     <div class="mt-field">
                         <span>Dil</span>
                         <select class="cl-filter-select" name="locale" aria-label="Dil"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm diller</option>
                             @foreach($languages as $language)
                                 <option value="{{ $language->code }}" {{ $filters['locale'] === $language->code ? 'selected' : '' }}>
@@ -261,7 +261,7 @@
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'recent') === $sortValue ? 'selected' : '' }}>{{ $sortLabel }}</option>
                             @endforeach
@@ -273,7 +273,7 @@
                             <label class="cmp-check sub-unlisted-toggle">
                                 <input type="checkbox" name="unlisted" value="1"
                                        {{ $filters['unlisted'] !== '' ? 'checked' : '' }}
-                                       onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                       data-submit-form="filterForm" data-fv-ignore>
                                 <span class="cmp-check__text">Yalnızca listesizler</span>
                             </label>
                             <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
@@ -282,7 +282,7 @@
                             </a>
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
-                                <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                <select name="per_page" id="perPage" data-submit-form="filterForm" data-fv-ignore>
                                     @foreach($perPageOptions as $option)
                                         <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
                                     @endforeach

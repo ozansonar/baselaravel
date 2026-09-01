@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Models\Slider;
 use Illuminate\Database\Eloquent\Collection;
@@ -87,11 +88,6 @@ final class SliderService
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         return $this->attachGroupLocales($this->query($filters)->paginate($perPage), Slider::class);
-    }
-
-    public function findById(int $id): Slider
-    {
-        return Slider::findOrFail($id);
     }
 
     public function create(array $data): Slider
@@ -228,7 +224,7 @@ final class SliderService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.sliders.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_SLIDERS_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(Slider::withTrashed(), Slider::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
@@ -260,6 +256,6 @@ final class SliderService
     private function clearCache(): void
     {
         $this->forgetLocalized('sliders.active');
-        Cache::forget('admin.sliders.stats');
+        Cache::forget(CacheKeys::ADMIN_SLIDERS_STATS);
     }
 }

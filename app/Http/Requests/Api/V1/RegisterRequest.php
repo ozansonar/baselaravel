@@ -9,6 +9,7 @@ use App\Enums\TokenAbility;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use App\Rules\EmailAddress;
 
 /**
  * API üzerinden kayıt.
@@ -35,9 +36,9 @@ final class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string', 'min:2', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'last_name'  => ['required', 'string', 'min:2', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'      => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique()],
+            'first_name' => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'last_name'  => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'email'      => ['required', 'string', ...EmailAddress::rules(), 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique()],
             'phone'      => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'password'   => ['required', 'string', Password::min(8), 'confirmed'],
             // Jetonun etiketi: kullanıcı "hangi cihazdan girmişim" sorusunu

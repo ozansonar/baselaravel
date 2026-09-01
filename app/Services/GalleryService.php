@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Enums\GalleryType;
 use App\Models\GalleryItem;
@@ -32,27 +33,6 @@ final class GalleryService
         return Cache::remember($this->localeCacheKey('gallery.photos'), 3600, fn () =>
             GalleryItem::active()->localeWithFallback()->photos()->sorted()->with('galleryCategory')->get(),
         );
-    }
-
-    /**
-     * @return Collection<int, GalleryItem>
-     */
-    public function activeVideos(): Collection
-    {
-        return Cache::remember($this->localeCacheKey('gallery.videos'), 3600, fn () =>
-            GalleryItem::active()->localeWithFallback()->videos()->sorted()->with('galleryCategory')->get(),
-        );
-    }
-
-    /**
-     * @return array<string, Collection<int, GalleryItem>>
-     */
-    public function allActiveGrouped(): array
-    {
-        return [
-            'photos' => $this->activePhotos(),
-            'videos' => $this->activeVideos(),
-        ];
     }
 
     // ── Ön yüz galerisi ──
@@ -187,11 +167,6 @@ final class GalleryService
         return $this->attachGroupLocales($this->query($filters)->paginate($perPage), GalleryItem::class);
     }
 
-    public function findById(int $id): GalleryItem
-    {
-        return GalleryItem::with('galleryCategory')->findOrFail($id);
-    }
-
     /**
      * @param array<string, mixed> $data
      */
@@ -290,7 +265,7 @@ final class GalleryService
      */
     public function createFromUpload(\Illuminate\Http\UploadedFile $file, array $shared): GalleryItem
     {
-        $title = $this->titleFromFilename($file->getClientOriginalName());
+        $title = $this->titleFromFilename($file->getClientOriginalName(), $shared['locale']);
 
         return DB::transaction(function () use ($file, $shared, $title): GalleryItem {
             $item = GalleryItem::create([
@@ -349,9 +324,11 @@ final class GalleryService
      * Dosya adını okunur bir başlığa çevirir.
      *
      * Uzantı atılıyor, ayraçlar boşluğa dönüyor, baş harfler büyütülüyor.
-     * Adı boş kalan dosya (".jpg" gibi) başlıksız kalamaz; zorunlu alan.
+     * Adı boş kalan dosya (".jpg" gibi) başlıksız kalamaz; zorunlu alan. O
+     * durumdaki karşılık öğenin kendi dilinde yazılıyor: panel Türkçeye sabit
+     * ama öğe İngilizce galeriye giriyor olabilir.
      */
-    private function titleFromFilename(string $filename): string
+    private function titleFromFilename(string $filename, string $locale): string
     {
         $ad = \Illuminate\Support\Str::of(pathinfo($filename, PATHINFO_FILENAME))
             ->replaceMatches('/[_\-]+/u', ' ')
@@ -360,7 +337,7 @@ final class GalleryService
             ->trim();
 
         if ($ad->isEmpty()) {
-            return 'Görsel';
+            return __('site.gallery.untitled', [], $locale);
         }
 
         return \Illuminate\Support\Str::title((string) $ad);
@@ -424,7 +401,7 @@ final class GalleryService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.gallery.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_GALLERY_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and type = ? then 1 else 0 end) as photos', [GalleryType::Photo->value])
@@ -465,9 +442,9 @@ final class GalleryService
     {
         $this->forgetLocalized('gallery.photos');
         $this->forgetLocalized('gallery.videos');
-        Cache::forget('admin.gallery.stats');
+        Cache::forget(CacheKeys::ADMIN_GALLERY_STATS);
         // Photos are listed in the sitemap as image entries, so a new or
         // removed one has to reach it straight away.
-        Cache::forget('sitemap.urls');
+        Cache::forget(CacheKeys::SITEMAP_URLS);
     }
 }

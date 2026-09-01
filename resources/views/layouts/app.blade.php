@@ -123,14 +123,14 @@
          yüklendiği anda istek atıyor ve çerezini kuruyor. --}}
     @if($gaId && $consent->allows(\App\Enums\ConsentCategory::Analytics))
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $gaId }}');</script>
+    <script nonce="{{ csp_nonce() }}">window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $gaId }}');</script>
     @endif
 
     {{-- Tag Manager pazarlama sayılıyor: içine ne konduğu buradan görünmez,
          bir kap her etiketi yükleyebilir. Belirsiz olanı en dar kategoriye
          koymak doğru varsayılan. --}}
     @if($gtmId && $consent->allows(\App\Enums\ConsentCategory::Marketing))
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $gtmId }}');</script>
+    <script nonce="{{ csp_nonce() }}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $gtmId }}');</script>
     @endif
 
     @if($customHead)
@@ -173,8 +173,8 @@
             'inLanguage'  => app()->getLocale(),
         ];
     @endphp
-    <script type="application/ld+json">{!! json_encode($orgJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-    <script type="application/ld+json">{!! json_encode($websiteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">{!! json_encode($orgJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">{!! json_encode($websiteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     @stack('json-ld')
 </head>
 <body>
@@ -187,12 +187,20 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}" height="0" width="0" class="d-none"></iframe></noscript>
     @endif
 
-    @include('partials.navbar')
+    {{-- Gezinti her sayfada birebir aynı çıkıyor: menü ağacı yalnız dile göre
+         değişiyor, aktif sayfa vurgusu istemcide yapılıyor. Oturum açmış
+         kullanıcıda parça hiç saklanmıyor (kendi adını taşıyor), o kararı
+         FragmentCache veriyor. --}}
+    @cachedInclude('partials.navbar', [], [app()->getLocale()])
 
     <main id="main-content">
         @yield('content')
     </main>
 
+    {{-- Alt bilgi bilinçli olarak önbelleğe alınmıyor: içinde bülten formu ve
+         dolayısıyla CSRF anahtarı var. Çizilmiş hâlini saklamak o anahtarı
+         bütün ziyaretçilere dağıtmak olurdu; FragmentCache zaten reddediyor,
+         burada da denenmiyor. --}}
     @include('partials.footer')
 
     {{-- WhatsApp Button --}}
@@ -217,6 +225,7 @@
     @include('partials.lightbox')
 
     {{-- JS --}}
+    @include('partials.js-lang')
     <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     {{-- Form doğrulama motoru. jQuery yalnızca bunun için yükleniyor; kendi
          kodumuz vanilla. Front dosyası admin'inkinden ayrı: js/form-validation.js --}}
@@ -230,10 +239,8 @@
     {{-- Koyu/açık kip düğmesi. Kipin kendisini <head>'deki satır içi betik
          yazıyor; bu dosya yalnızca düğmeyi bağlıyor. --}}
     <script src="{{ versioned_asset('js/theme.js') }}"></script>
-    {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı sayfanın dilinden geliyor. --}}
-    <script src="{{ versioned_asset('js/password-toggle.js') }}"
-            data-show-label="{{ __('site.actions.show_password') }}"
-            data-hide-label="{{ __('site.actions.hide_password') }}"></script>
+    {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı window.SiteText'ten. --}}
+    <script src="{{ versioned_asset('js/password-toggle.js') }}"></script>
     @include('partials.flash-message')
 
     @if(app(\App\Services\RecaptchaService::class)->isEnabled())

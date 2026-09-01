@@ -435,7 +435,7 @@
 {{-- Kütüphane projede duruyor; CDN'den çekmek dış bir servise bağımlılık
      demekti: erişilemediğinde grafikler sessizce boş kalıyordu. --}}
 <script src="{{ versioned_asset('assets/vendor/chartjs/chart.umd.min.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     window.analyticsConfig = {
         dailyChart: @json($dailyChart),
         topPages: @json($topPages),

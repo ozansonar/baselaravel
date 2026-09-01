@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\EmailAddress;
 
 /**
  * API üzerinden blog yorumu.
@@ -33,8 +34,8 @@ final class StoreBlogCommentRequest extends FormRequest
         return [
             'blog_post_id' => ['required', 'integer', 'exists:blog_posts,id'],
             'parent_id'    => ['nullable', 'integer', 'exists:blog_comments,id'],
-            'name'         => ['required', 'string', 'min:2', 'max:100', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'        => ['required', 'email', 'max:191'],
+            'name'         => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
+            'email'        => ['required', ...EmailAddress::rules(), 'max:191'],
             'body'         => ['required', 'string', 'min:3', 'max:2000'],
         ];
     }

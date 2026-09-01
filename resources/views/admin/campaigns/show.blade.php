@@ -251,8 +251,12 @@
                     <span class="text-clr-secondary">Gönderim ilerlemesi</span>
                     <strong>%{{ $campaign->progress() }}</strong>
                 </div>
-                <div class="progress mb-3" style="height: 10px;">
-                    <div class="progress-bar bg-teal" role="progressbar" style="width: {{ $campaign->progress() }}%"
+                <div class="progress mb-3 cmp-progress">
+                    {{-- Doluluk oranı çalışma anında değişiyor; sabit bir sınıfla
+                         anlatılamaz. Değer bir CSS değişkeni olarak veriliyor,
+                         genişliği .cmp-progress-bar okuyor. --}}
+                    <div class="progress-bar bg-teal cmp-progress-bar" role="progressbar"
+                         style="--cmp-progress: {{ $campaign->progress() }}%"
                          aria-valuenow="{{ $campaign->progress() }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
 

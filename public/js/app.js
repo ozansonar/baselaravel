@@ -194,13 +194,21 @@ window.showResultModal = function (type, message, title) {
         .join('\n')
         .split('\n');
 
-    if (!el) { alert(lines.join('\n')); return; }
+    /* Kutu yoksa mesaj kaybolmasın diye konsola düşüyor. Tarayıcının
+       alert()'i yedekti ama ulaşılamazdı (partial ön yüz layout'una koşulsuz
+       basılıyor) ve proje onu yasaklıyor: sayfayı kilitliyor, ekranın diliyle
+       konuşmuyor ve biçimlenmiyor. */
+    if (!el) {
+        console.error('Result modal is missing; message not shown: ' + lines.join(' '));
+
+        return;
+    }
 
     const map = {
-        success: { icon: 'fa-circle-check',        cls: 'result-icon--success', title: 'Başarılı' },
-        error:   { icon: 'fa-circle-exclamation',  cls: 'result-icon--error',   title: 'Hata' },
-        warning: { icon: 'fa-triangle-exclamation',cls: 'result-icon--warning', title: 'Uyarı' },
-        info:    { icon: 'fa-circle-info',          cls: 'result-icon--info',    title: 'Bilgi' },
+        success: { icon: 'fa-circle-check',        cls: 'result-icon--success', title: window.siteText('titleSuccess') },
+        error:   { icon: 'fa-circle-exclamation',  cls: 'result-icon--error',   title: window.siteText('titleError') },
+        warning: { icon: 'fa-triangle-exclamation',cls: 'result-icon--warning', title: window.siteText('titleWarning') },
+        info:    { icon: 'fa-circle-info',          cls: 'result-icon--info',    title: window.siteText('titleInfo') },
     };
     const cfg = map[type] || map.info;
 
@@ -222,13 +230,23 @@ window.showResultModal = function (type, message, title) {
 /* ---- Global confirm modal ---- */
 window.showConfirmModal = function (options) {
     const el = document.getElementById('confirmModal');
-    if (!el) { if (confirm(options.message)) options.onConfirm && options.onConfirm(); return; }
 
-    document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || 'Emin misiniz?';
+    // Kutu yoksa işlem yapılmıyor. Tarayıcının confirm()'i yedekti ama
+    // ulaşılamazdı — partial ön yüz layout'una koşulsuz basılıyor — ve proje
+    // onu yasaklıyor. Onay alamadan devam etmektense hiç devam etmemek doğru
+    // taraf; sebep konsola yazılıyor ki sessizce çalışmayan bir düğme olarak
+    // kalmasın.
+    if (!el) {
+        console.error('Confirm modal is missing; the action was not run.');
+
+        return;
+    }
+
+    document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || window.siteText('confirmTitle');
     document.getElementById('confirmModalBody').textContent = window.plainText(options.message);
 
     const confirmBtn = document.getElementById('confirmModalConfirmBtn');
-    confirmBtn.textContent = window.plainText(options.confirmText) || 'Evet';
+    confirmBtn.textContent = window.plainText(options.confirmText) || window.siteText('confirmYes');
 
     // Reset listener by cloning
     const fresh = confirmBtn.cloneNode(true);
@@ -300,12 +318,12 @@ window.showConfirmModal = function (options) {
                     }
 
                     var errors = result.data.errors || {};
-                    show(errors.email ? errors.email[0] : (result.data.message || 'İşlem tamamlanamadı.'), false);
+                    show(errors.email ? errors.email[0] : (result.data.message || window.siteText('failed')), false);
                 })
                 .catch(function () {
                     button.disabled = false;
                     button.innerHTML = original;
-                    show('Bağlantı hatası. Lütfen tekrar deneyin.', false);
+                    show(window.siteText('errorRetry'), false);
                 });
         });
 

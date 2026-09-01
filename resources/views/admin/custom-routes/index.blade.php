@@ -99,6 +99,7 @@
             @if($aktifSuzgecler->isNotEmpty())
                 <a href="{{ route('admin.custom-routes.index') }}" class="btn-glass"><i class="bi bi-x-lg"></i> Temizle</a>
             @endif
+            <x-export-menu export="custom-routes" :total="$routes->total()" />
         </div>
     </form>
 
@@ -136,7 +137,7 @@
                     <table class="cl-table mb-0">
                         <thead>
                             <tr>
-                                <th style="width:2.5rem"><input type="checkbox" data-bulk-all aria-label="Tümünü seç"></th>
+                                <th class="cl-th-check"><input type="checkbox" data-bulk-all aria-label="Tümünü seç"></th>
                                 <th>Adres</th>
                                 <th>Dil</th>
                                 <th>Hedef</th>
@@ -186,7 +187,7 @@
                                             @endcan
                                             @can('delete', $kayit)
                                                 <button type="button" class="usr-action-btn danger" title="Sil"
-                                                        onclick="openDeleteModal({{ $kayit->id }}, @js($kayit->slug))"><i class="bi bi-trash3"></i></button>
+                                                        data-action="sil" data-id="{{ $kayit->id }}" data-label="{{ $kayit->slug }}"><i class="bi bi-trash3"></i></button>
                                             @endcan
                                         @endif
                                     </td>
@@ -206,7 +207,7 @@
 
 @push('scripts')
 <script src="{{ asset('assets/admin/js/bulk-actions.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     function openDeleteModal(id, slug) {
         AdminModal.confirm({
             title: 'Adres Silinsin Mi?',

@@ -34,7 +34,11 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\ContentRevisionController;
+use App\Http\Controllers\Admin\PushNotificationController;
 use App\Http\Controllers\Admin\LanguageController;
+use App\Http\Controllers\Admin\SeoAuditController;
+use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\SubscriberListController;
@@ -64,6 +68,18 @@ Route::get('/', DashboardController::class)->name('dashboard');
 Route::get('disa-aktar/{key}/{format}', ExportController::class)
     ->middleware('throttle:30,1')
     ->name('export');
+
+// SEO denetimi.
+//
+// Form ekranı, yazar daha kaydetmeden buraya soruyor: gövde istekle geliyor,
+// yanıt bulgular. Hız sınırı var çünkü panel her yazı duraksamasında çağırıyor;
+// ekran kendi tarafında da bekletiyor ama sunucu tarafı ona güvenmemeli.
+Route::post('seo/denetle', SeoAuditController::class)
+    ->middleware('throttle:60,1')
+    ->name('seo.audit');
+
+// Toplu denetim: bütün içeriklerin SEO durumu tek listede, en kötü başta.
+Route::get('seo', [SeoController::class, 'index'])->name('seo.index');
 
 // Pages
 // Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {page} kalıbına
@@ -307,6 +323,23 @@ Route::prefix('kampanyalar')->name('campaigns.')->group(function () {
     Route::patch('{campaign}/geri-yukle', [CampaignController::class, 'restore'])->name('restore')->withTrashed();
 });
 
+// Push duyuruları (mobil uygulama bildirimleri)
+//
+// Gönderim isteğin içinde değil: "gönder" kaydı sıraya alıyor, cron parça
+// parça gönderiyor. Gerekçesi PushNotificationDispatcher'ın başında.
+Route::prefix('push-duyurulari')->name('push-notifications.')->group(function () {
+    Route::get('/', [PushNotificationController::class, 'index'])->name('index');
+    Route::get('yeni', [PushNotificationController::class, 'create'])->name('create');
+    // Hedef seçimi değiştikçe "kaç cihaza gidecek" sayısı sunucudan geliyor.
+    Route::post('hedef-boyutu', [PushNotificationController::class, 'audienceSize'])->name('audience-size');
+    Route::get('kullanici-ara', [PushNotificationController::class, 'searchUsers'])->name('users.search');
+    Route::post('/', [PushNotificationController::class, 'store'])->name('store');
+    Route::get('{pushNotification}', [PushNotificationController::class, 'show'])->name('show');
+    Route::post('{pushNotification}/iptal', [PushNotificationController::class, 'cancel'])->name('cancel');
+    Route::delete('{pushNotification}', [PushNotificationController::class, 'destroy'])->name('destroy');
+    Route::patch('{pushNotification}/geri-yukle', [PushNotificationController::class, 'restore'])->name('restore')->withTrashed();
+});
+
 // Mail listesi (aboneler)
 Route::prefix('aboneler')->name('subscribers.')->group(function () {
     Route::get('/', [SubscriberController::class, 'index'])->name('index');
@@ -360,6 +393,24 @@ Route::patch('blog-posts/toplu-durum/{status}', [BlogPostController::class, 'bul
     ->whereIn('status', ['publish', 'draft'])->name('blog-posts.bulk-status');
 Route::resource('blog-posts', BlogPostController::class);
 Route::patch('blog-posts/{blogPost}/restore', [BlogPostController::class, 'restore'])->name('blog-posts.restore')->withTrashed();
+
+// İçerik sürümleri (sayfa ve blog yazısı).
+//
+// Tek rota çifti iki içerik türüne birden hizmet ediyor; hangi tür olduğu
+// adres satırındaki `type` ile geliyor ve denetleyicideki sabit haritadan
+// çözülüyor — serbest bırakılsaydı adres satırındaki değer doğrudan sınıf
+// adına dönerdi.
+Route::prefix('surumler')->name('revisions.')->group(function (): void {
+    Route::get('{type}/{id}', [ContentRevisionController::class, 'index'])
+        ->whereIn('type', ['sayfa', 'blog'])
+        ->whereNumber('id')
+        ->name('index');
+
+    Route::post('{type}/{id}/{revision}/geri-yukle', [ContentRevisionController::class, 'restore'])
+        ->whereIn('type', ['sayfa', 'blog'])
+        ->whereNumber('id')
+        ->name('restore');
+});
 
 // Blog Comments
 Route::get('blog-comments', [BlogCommentController::class, 'index'])->name('blog-comments.index');

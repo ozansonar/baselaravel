@@ -40,13 +40,16 @@ final class ExportController extends Controller
 
         $filters = $export->filtersFromRequest($request);
 
-        // PDF tavanı: dosya sessizce kırpılmaz, kullanıcı ne olduğunu öğrenir.
-        if ($exportFormat === ExportFormat::Pdf && $this->exports->exceedsPdfLimit($export, $filters)) {
+        // Satır tavanı: dosya sessizce kırpılmaz, kullanıcı ne olduğunu öğrenir.
+        // Tavanı olan tek biçim PDF; Excel ve CSV akış hâlinde yazıldığı için
+        // satır sayısından etkilenmiyor.
+        if ($this->exports->exceedsRowLimit($export, $exportFormat, $filters)) {
             $limit = number_format($this->exports->pdfLimit(), 0, ',', '.');
 
             return back()->with(
                 'warning',
-                "Bu liste PDF sınırını ({$limit} kayıt) aşıyor. Süzgeçleri daraltın ya da Excel olarak indirin.",
+                "Bu liste {$exportFormat->label()} sınırını ({$limit} kayıt) aşıyor. "
+                . 'Süzgeçleri daraltın ya da Excel/CSV olarak indirin.',
             );
         }
 

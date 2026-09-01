@@ -18,7 +18,7 @@ final class VerifyEmailMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'E-posta Adresinizi Doğrulayın - ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.verify.subject', ['site' => Setting::getValue('site_name', config('app.name'))]),
         );
     }
 

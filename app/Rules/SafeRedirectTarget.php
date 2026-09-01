@@ -16,6 +16,15 @@ use Illuminate\Contracts\Validation\ValidationRule;
  */
 final class SafeRedirectTarget implements ValidationRule
 {
+    /**
+     * Kural iki yerde kullanılıyor — yönlendirme hedefi ve push duyurusunun
+     * açacağı adres. Hata metni alanın kendi adıyla başlasın diye etiket
+     * dışarıdan veriliyor; verilmezse eski davranış aynen sürüyor.
+     */
+    public function __construct(
+        private readonly string $label = 'Yeni URL',
+    ) {}
+
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! is_string($value) || $value === '') {
@@ -27,7 +36,7 @@ final class SafeRedirectTarget implements ValidationRule
         // A backslash is normalised to a forward slash by some browsers, which
         // turns "/\evil.test" into a protocol-relative URL pointing off-site.
         if (str_contains($target, '\\')) {
-            $fail('Yeni URL ters bölü (\\) içeremez.');
+            $fail($this->label . ' ters bölü (\\) içeremez.');
 
             return;
         }
@@ -35,7 +44,7 @@ final class SafeRedirectTarget implements ValidationRule
         // Control characters can be used to smuggle a different target past
         // this check while the browser still follows it.
         if (preg_match('/[\x00-\x1F\x7F]/', $target) === 1) {
-            $fail('Yeni URL geçersiz karakter içeriyor.');
+            $fail($this->label . ' geçersiz karakter içeriyor.');
 
             return;
         }
@@ -43,7 +52,7 @@ final class SafeRedirectTarget implements ValidationRule
         if (str_starts_with($target, '/')) {
             // "//evil.test" is protocol-relative: it leaves the site.
             if (str_starts_with($target, '//')) {
-                $fail('Yeni URL çift bölü (//) ile başlayamaz, bu site dışına çıkar.');
+                $fail($this->label . ' çift bölü (//) ile başlayamaz, bu site dışına çıkar.');
             }
 
             return;
@@ -52,7 +61,7 @@ final class SafeRedirectTarget implements ValidationRule
         $host = parse_url($target, PHP_URL_HOST);
 
         if ($host === false || $host === null) {
-            $fail('Yeni URL ya / ile başlayan bir yol ya da tam bir adres olmalıdır.');
+            $fail($this->label . ' ya / ile başlayan bir yol ya da tam bir adres olmalıdır.');
 
             return;
         }
@@ -60,7 +69,7 @@ final class SafeRedirectTarget implements ValidationRule
         $scheme = strtolower((string) parse_url($target, PHP_URL_SCHEME));
 
         if (! in_array($scheme, ['http', 'https'], true)) {
-            $fail('Yeni URL yalnızca http veya https olabilir.');
+            $fail($this->label . ' yalnızca http veya https olabilir.');
 
             return;
         }

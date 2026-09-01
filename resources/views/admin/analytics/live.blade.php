@@ -156,7 +156,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     window.analyticsLive = {
         url: @js(route('admin.analytics.live.data')),
         window: {{ $windowMinutes }},

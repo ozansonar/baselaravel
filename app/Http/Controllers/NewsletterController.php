@@ -20,7 +20,7 @@ final class NewsletterController extends Controller
     public function subscribe(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email'      => ['required', EmailAddress::rule(), 'max:191'],
+            'email'      => ['required', ...EmailAddress::rules(), 'max:191'],
             'first_name' => ['nullable', 'string', 'max:191'],
             'last_name'  => ['nullable', 'string', 'max:191'],
         ]);

@@ -887,17 +887,6 @@ final class CampaignService
     }
 
     /**
-     * Bağlanmadan kalan ekleri diskten temizler; form terk edildiğinde çağrılır.
-     */
-    public function discardAllPending(): void
-    {
-        CampaignAttachment::query()
-            ->pending(auth()->id())
-            ->get()
-            ->each(fn (CampaignAttachment $ek) => $this->discardPendingAttachment((string) $ek->token));
-    }
-
-    /**
      * Sahipsiz kalmış bekleyen ekleri siler.
      *
      * Kullanıcı dosyayı yükleyip kampanyayı kaydetmeden çıkarsa satır da dosya

@@ -43,19 +43,4 @@ enum AttachableContent: string
             self::Page     => 'Sayfa',
         };
     }
-
-    /**
-     * Modelden anahtara dönüş — kayıtlı bir ekin hangi ekrana ait olduğunu
-     * bulmak için.
-     */
-    public static function fromModel(Model $model): ?self
-    {
-        foreach (self::cases() as $case) {
-            if ($model instanceof ($case->modelClass())) {
-                return $case;
-            }
-        }
-
-        return null;
-    }
 }

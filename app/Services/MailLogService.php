@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Enums\MailLogStatus;
 use App\Models\MailLog;
 use App\Models\User;
@@ -68,7 +69,7 @@ final class MailLogService
             'user_id'        => Auth::id(),
         ]);
 
-        Cache::forget('admin.mail_logs.stats');
+        Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
 
         return $mailLog;
     }
@@ -104,7 +105,7 @@ final class MailLogService
 
         $mailLog->update($update);
 
-        Cache::forget('admin.mail_logs.stats');
+        Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
     }
 
     /**
@@ -268,7 +269,7 @@ final class MailLogService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.mail_logs.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_MAIL_LOGS_STATS, 300, function (): array {
             $counts = MailLog::query()
                 ->selectRaw('count(*) as total')
                 ->selectRaw('sum(case when status = ? then 1 else 0 end) as sent', [MailLogStatus::Sent->value])

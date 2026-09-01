@@ -208,8 +208,9 @@ Jeton yalnız ikinci adım geçildiğinde üretilir: "al ama kullanma" diye bir 
 olamaz. `GET /auth/me` yanıtındaki `two_factor_enabled` alanı uygulamanın
 güvenlik ekranını çizmesi için var; anahtarın kendisi hiçbir yanıtta geçmez.
 
-İki adımlı doğrulamanın **kurulumu** şimdilik yalnız web'de
-(`/hesabim/guvenlik`): QR okutma, kurtarma kodları ve kapatma oradan yapılıyor.
+İki adımlı doğrulamanın **kurulumu** da API'de: `/account/two-factor`
+altındaki dört uç (aşağıda). Web'deki `/hesabim/guvenlik` ekranıyla aynı
+servisi kullanıyorlar, yani iki yüz aynı kuralları uyguluyor.
 
 ### `POST /auth/logout` *(jeton gerekli)*
 
@@ -484,13 +485,24 @@ yorumun var olduğunu söylerdi.
 ### `GET|PUT /account/notification-preferences` *(jeton gerekli)*
 
 ```json
-{ "newsletter": true, "preferences": { "comment_updates": false } }
+{
+  "newsletter": true,
+  "preferences": {
+    "comment_updates": false,
+    "push_announcements": true
+  }
+}
 ```
 
 Yanıt aynı gövdeyi, bir de `types` listesini taşır: her türün anahtarı,
-etiketi ve açıklaması. Etiketler sunucudan geliyor — uygulamanın kendi metin
-listesini tutması, yeni bir tür eklendiğinde mağaza güncellemesi beklemek
-demekti. Gönderilmeyen tür değişmez; tanınmayan anahtar **422** döner.
+etiketi ve açıklaması. **Türler sabit değil** — yukarıdaki iki anahtar bugünkü
+hâli; uygulama listeyi `types` üzerinden çizmeli, kendi içine gömmemeli.
+`push_announcements`, panelden gönderilen duyuru bildirimlerini kapatıyor;
+hesabın güvenliğine dair bir push varsa o bu anahtarla susturulamaz.
+
+Etiketler sunucudan geliyor — uygulamanın kendi metin listesini tutması, yeni
+bir tür eklendiğinde mağaza güncellemesi beklemek demekti. Gönderilmeyen tür
+değişmez; tanınmayan anahtar **422** döner.
 
 Güvenlik postaları (şifre sıfırlama, e-posta doğrulama, adres değişikliği
 uyarısı) listede yok ve kapatılamaz: kapatılabilseydi hesabı ele geçiren biri
@@ -520,6 +532,67 @@ dışında). Mağazaların uygulama içi hesap silme şartının karşılığı 
 geçiren biri hesabı kapatabilseydi bu, geri alınması en zor işlem olurdu.
 Panele erişebilen hesaplar buradan kapanmaz (**403**): son yöneticinin kendini
 kapatması siteyi yönetilemez bırakırdı.
+
+### İki adımlı doğrulamanın kurulumu *(jeton gerekli)*
+
+Girişin ikinci adımı `/auth/login` tarafında anlatıldı; burası **kurulum**.
+Dört uç, hepsi `/account/two-factor` altında ve web'deki güvenlik ekranıyla
+aynı servisten geçiyor.
+
+| Yöntem | Adres | Yetenek | Ne yapar |
+|---|---|---|---|
+| `GET` | `/account/two-factor` | `profile:read` | Durum |
+| `POST` | `/account/two-factor` | `profile:write` | Kurulumu başlat |
+| `POST` | `/account/two-factor/confirm` | `profile:write` | İlk kodla tamamla |
+| `DELETE` | `/account/two-factor` | `profile:write` | Kapat (şifre onaylı) |
+| `POST` | `/account/two-factor/recovery-codes` | `profile:write` | Kodları yenile (şifre onaylı) |
+
+**Kurulum iki isteğe bölünmüş.** Önce anahtar üretilir, sonra kullanıcının
+girdiği ilk kod doğrulanınca açılır. Tek istekte açılsaydı kareyi okutmayı
+beceremeyen kişi kendi hesabından kilitlenirdi.
+
+`POST /account/two-factor` üç biçim birden döner:
+
+```json
+{
+  "secret": "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP",
+  "otpauth_uri": "otpauth://totp/Site:ali@ornek.com?secret=...&issuer=Site&...",
+  "qr_svg": "<svg ...>...</svg>"
+}
+```
+
+`otpauth_uri` kimlik doğrulayıcıyı doğrudan açmak için, `secret` kareyi
+okutamayan kullanıcının elle girmesi için, `qr_svg` ise ekranda kare
+göstermek için — kullanıcı çoğu zaman kodu **başka** bir cihazdaki uygulamayla
+okutuyor ve o durumda kareyi uygulamanın kendisi çizmeli.
+
+`POST /account/two-factor/confirm` gövdesi `{ "code": "123456" }`. Kod
+doğruysa kurtarma kodları **bu yanıtta bir kez** döner:
+
+```json
+{ "recovery_codes": ["a3f9k-2mq7z", "..."] }
+```
+
+Bir daha gösterilmezler; her istekte dönselerdi ele geçirilen bir jeton onları
+istediği zaman okuyabilirdi. Kaç tanesinin kaldığı `GET /account/two-factor`
+yanıtındaki `recovery_codes_remaining` alanında.
+
+**Kapatma ve kod yenileme şifre ister** (`{ "password": "..." }`): ele
+geçirilmiş bir oturum, sahibinin ikinci adımını sessizce kaldırabilseydi
+2FA'nın koruduğu şey kalmazdı.
+
+Durum ucundaki `pending`, yarıda kalmış bir kurulumu bildirir — anahtar
+üretilmiş ama ilk kod girilmemiş. İstemci bunu bilmezse kullanıcıyı baştan
+başlatır ve okuttuğu kare geçersiz olur.
+
+Yönetici zorunluluğu açıkken (`required: true`) yönetici kendi ikinci adımını
+kaldıramaz, kapatma **422** döner: kaldırabilseydi ayar bir kural değil bir
+öneri olurdu.
+
+Duruma uymayan istekler **409** döner: zaten açıkken başlatmak, hiç
+başlatmadan onaylamak, kapalıyken kapatmak.
+
+Anahtar hiçbir okuma ucunda geçmez — yalnız kurulumu başlatan istek onu görür.
 
 ---
 

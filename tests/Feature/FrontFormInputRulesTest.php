@@ -117,6 +117,41 @@ final class FrontFormInputRulesTest extends TestCase
         ])->assertSessionHasErrors('name');
     }
 
+    /**
+     * Ad alanı Türkçe harflerle sınırlı değil.
+     *
+     * Desen /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/ idi: site çok dilli ama "José" ya da
+     * "Jean-Luc" adındaki bir ziyaretçi ne kaydolabiliyor ne mesaj
+     * gönderebiliyordu — hem de yazdığı harfin neden kabul edilmediğini
+     * söylemeyen bir uyarıyla.
+     *
+     * @dataProvider foreignNames
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('foreignNames')]
+    public function test_a_name_in_any_language_is_accepted(string $name): void
+    {
+        $this->post(route('contact.store', ['locale' => 'en']), [
+            'name' => $name, 'email' => 'a@ornek.com',
+            'subject' => 'Konu', 'message' => 'Yeterince uzun bir deneme mesaji.',
+        ])->assertSessionHasNoErrors();
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function foreignNames(): array
+    {
+        return [
+            'ispanyolca'  => ['José García'],
+            'fransızca'   => ['Anaïs Dupont'],
+            'tireli'      => ['Jean-Luc Picard'],
+            'kesmeli'     => ['O’Brien'],
+            'lehçe'       => ['Łukasz Nowak'],
+            'almanca'     => ['Jürgen Müller'],
+            'türkçe'      => ['Ömer Çağlayan'],
+        ];
+    }
+
     public function test_a_phone_with_letters_is_refused_by_the_server(): void
     {
         $this->post(route('contact.store', ['locale' => 'tr']), [
@@ -152,41 +187,12 @@ final class FrontFormInputRulesTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors('name');
     }
 
-    /**
-     * Bir alan doldurulabiliyorsa ya kuralı olmalı ya da bilerek dışarıda
-     * bırakıldığını söyleyen işareti.
+    /*
+     * Kuralsız alan bekçisi buradaydı; ön yüzün elle yazılmış on görünümüne
+     * bakıyordu ve panelin doksana yakın formunu hiç görmüyordu. Aynı sınav
+     * artık görünüm ağacının tamamı üzerinde koşuyor:
+     * FormFieldsCarryRulesTest.
      */
-    public function test_no_visible_field_is_left_without_a_rule(): void
-    {
-        $kuralsiz = [];
-
-        foreach ($this->frontFormViews() as $view) {
-            $source = (string) file_get_contents(resource_path('views/' . $view));
-
-            foreach ($this->inputTags($source) as [$line, $tag]) {
-                if (preg_match('/name="([^"]+)"/', $tag, $m) !== 1) {
-                    continue;
-                }
-
-                // Gizli alanlar ve çerçevenin kendi alanları kullanıcı girdisi değil.
-                if (str_contains($tag, 'type="hidden"') || in_array($m[1], ['_token', '_method'], true)) {
-                    continue;
-                }
-
-                if (! str_contains($tag, 'data-validation-engine') && ! str_contains($tag, 'data-fv-ignore')) {
-                    $kuralsiz[] = "{$view}:{$line}  {$m[1]}";
-                }
-            }
-        }
-
-        sort($kuralsiz);
-
-        $this->assertSame(
-            [],
-            $kuralsiz,
-            "Kuralsız alan — data-validation-engine ya da data-fv-ignore ekleyin:\n  " . implode("\n  ", $kuralsiz),
-        );
-    }
 
     // ── Yardımcılar ──
 

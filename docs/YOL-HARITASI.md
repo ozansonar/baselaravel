@@ -1,11 +1,24 @@
 # Yol Haritası — "Eksiksiz Base Kit"e Kalan Yol
 
+> **Not.** Güncel durum tablosu ve kalan iş planı
+> [`PROJE-KAYDI.md`](PROJE-KAYDI.md)'de — dört durum belgesinin tek dosyada
+> toplandığı kayıt. Bu dosya faz planı olarak yerinde duruyor ve **maddelerin
+> durumu kapandıkça burada da güncelleniyor**: donmuş bir "ne eksik" listesi,
+> eksik olmayan şeyleri eksik göstererek yanıltıyor.
+>
+> **Son güncelleme:** 2026-09-01 — Faz 4 kapandı (4.1 panel ekranı), Faz 5'in
+> ertelenmiş maddesi kapandı, kabul ölçütlerindeki test adları gerçek dosya
+> adlarıyla eşlendi (altı tanesi tutmuyordu).
+
 **Çıkarıldığı tarih:** 2026-08-31
 **Dal:** `feat/laravel-13-upgrade`
 **Kapsam:** üç yüz birden — masaüstü web, mobil web, API
 
 Bu belge *ne eksik* sorusunun cevabı. *Ne var* sorusunun cevabı
-[`PROJE-DURUMU.md`](PROJE-DURUMU.md)'de; API sözleşmesi
+[`PROJE-DURUMU.md`](PROJE-DURUMU.md)'de; *yapıldı denilen gerçekten çalışıyor mu*
+sorusunun cevabı [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md)'de; *hangi sırayla
+kapatılmalı* sorusunun cevabı [`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md)'de;
+API sözleşmesi
 [`API.md`](API.md) ve [`openapi.json`](openapi.json)'da.
 
 ---
@@ -21,8 +34,14 @@ Bu kit'ten türeyen bir kurumsal proje, ilk günden şunları **yazmadan** bulma
    sözleşmesi makine okunur bir katman
 4. **İşletme** — panelden ölçme, raporlama, yedekleme, izleme, kurtarma
 
-Aşağıdaki dört fazın sonunda dördü de kapanıyor. Her madde bir commit, her
-maddenin bir kabul ölçütü ve en az bir testi var.
+Aşağıdaki **beş fazın** sonunda bu dört alanın dördü de kapanıyor. Her madde
+bir commit, her maddenin bir kabul ölçütü ve en az bir testi var — kabul
+ölçütünde anılan test adının gerçekten var olduğunu `DocsCiteRealTestsTest`
+sınıyor.
+
+**Bugünkü durum: beş fazın beşi de kapandı.** Kalan iki iş (içerik sürümleme ve
+dinamik form oluşturucu) bu haritanın değil, `PROJE-KAYDI.md`'nin 3. bölümünün
+konusu — ikisi de faz planından sonra açılmış yetenek maddeleri.
 
 ---
 
@@ -60,7 +79,7 @@ kapat (şifre onaylı, gecikmeli kalıcı silme). API: `GET /account/export`,
 `DELETE /account`.
 **Kabul:** Kapatılan hesap giriş yapamıyor, jetonları iptal, e-postası
 serbest kalıyor; dışa aktarma kişinin bütün kayıtlarını içeriyor.
-Test: `AccountDataRightsTest`, `Api/ApiAccountDeletionTest`.
+Test: `AccountDataRightsTest`, `Api/ApiAccountDataTest`.
 
 ### 1.4 API hesap uçlarının tamamlanması — ✅ bitti
 **Neden:** Web'de olup API'de olmayan üç akış var: şifre değiştirme, e-posta
@@ -93,7 +112,7 @@ bağlantı kesildiğinde tarayıcının kendi hata sayfasını gösteriyor.
 sabit dosya olsaydı her projede elle düzenlenirdi), 192/512 ikon üretimi
 `UploadService` üzerinden, `apple-touch-icon` zinciri.
 **Kabul:** Chrome ve Safari'de kurulabilir; kurulan uygulama panelde ayarlanan
-adı ve rengi taşıyor. Test: `PwaManifestTest`.
+adı ve rengi taşıyor. Test: `PwaTest`.
 
 ### 2.2 Servis çalışanı ve çevrimdışı sayfa — ✅ bitti
 **Neden:** Build tool yasağı yüzünden hazır PWA eklentileri kullanılamıyor;
@@ -103,7 +122,7 @@ eski önbellek düşer), çevrimdışı sayfa, HTML için "önce ağ" stratejisi
 içerik bayatlamamalı.
 **Kabul:** Uçak modunda site açılıyor ve çevrimdışı sayfa çıkıyor; yeni sürüm
 yayınlandığında bir sonraki ziyarette güncel içerik geliyor.
-Test: `ServiceWorkerTest` (kayıt, kapsam, sürüm damgası).
+Test: `PwaTest` (kayıt, kapsam, sürüm damgası).
 
 ### 2.3 Mobil kullanım denetimi — ✅ bitti
 **Neden:** 70 KB'lık ön yüz CSS'inde yalnız 10 medya sorgusu var; düzen
@@ -161,23 +180,52 @@ değiştirilebilir.
 
 ---
 
-## Faz 4 — API Olgunluğu
+## Faz 4 — API Olgunluğu — ✅ TAMAMLANDI
 
-### 4.1 Push bildirim altyapısı — 🟡 sunucu tarafı bitti, panel ekranı bekliyor
+### 4.1 Push bildirim altyapısı — ✅ bitti (1 Eylül 2026)
 **Neden:** Mobil uygulamanın ilk isteyeceği şey; sunucu tarafı hazır değilse
 uygulama ekibi bekliyor. Sağlayıcıdan bağımsız kurgulanabilir: jeton kaydı ve
 gönderim kancası bizde, taşıyıcı (FCM/APNs) yapılandırmada.
 **Kapsam:** `POST/DELETE /account/push-tokens`, cihaz eşleştirmesi, panelden
 "bildirim gönder" ekranı, gönderim kuyruğa düşüyor.
-**Yapılan:** Jeton kaydı, cihaz eşleştirme, sağlayıcıdan bağımsız gönderim
-servisi (FCM sürücüsü + yapılandırılmamışken log), ölü jetonun düşmesi ve
-oturum kapanınca jetonların silinmesi.
-**Kalan:** Panelden bildirim yazıp gönderme ekranı. Admin temada bu ekranın
-tasarımı yok (`notifications.html` yalnız tercih anahtarları içeriyor) ve
-tasarımda olmayan ekranı uydurmak proje kuralına aykırı — tasarım geldiğinde
-ya da onay verildiğinde yapılacak.
+
+**Yapılan — sunucu tarafı.** Jeton kaydı, cihaz eşleştirme, sağlayıcıdan
+bağımsız gönderim servisi (FCM sürücüsü + yapılandırılmamışken log), ölü
+jetonun düşmesi ve oturum kapanınca jetonların silinmesi.
+
+**Yapılan — panel ekranı.** Üç ekran: liste (süzgeç, durum sekmeleri, ilerleme
+çubuğu, Excel/CSV/PDF dışa aktarma), duyuru yazma formu ve gönderim detayı.
+
+Ekran aylarca "tasarım bekliyor" diye açık kaldı: admin temada karşılığı yok,
+`notifications.html` yalnız tercih anahtarları içeriyor ve tasarımda olmayan
+bir ekranı uydurmak proje kuralına aykırı. Çözüm uydurmak değil **kampanya
+modülünün tasarımını uyarlamak** oldu — iki ekran aynı işi yapıyor (başlık,
+metin, hedef kitle, gönder, sonuç) ve o tasarım temada mevcut. Düzen, sınıflar
+ve bileşenler kampanyanınkiyle birebir aynı; tek yeni CSS sınıfı yok.
+
+**Gönderim neden kuyrukta değil, cron'da.** Paylaşımlı hosting'de alt süreç
+açılamıyor, `queue:work` çalıştırılamıyor (bkz. `SHARED-HOSTING.md`). Kayıt
+`queued` doğuyor, `push:dispatch` beş dakikada bir kaldığı yerden 200 cihaz
+gönderiyor. Tek istekte göndermek beş yüz cihazlı bir kurulumda beş yüz HTTP
+çağrısı demekti: tarayıcı zaman aşımına düşer, yönetici gönderimin olup
+olmadığını bilmez ve düğmeye bir kez daha basar.
+
+**Hedef üç süzgeçten geçiyor:** kitle (herkes / rol / tek kullanıcı), hesabın
+açık olması, ve kullanıcının duyuruları kapatmamış olması. Üçüncüsü için
+`NotificationPreference::PushAnnouncements` eklendi — hesap ekranındaki
+"Uygulama duyuruları" anahtarı artık gerçekten bir şey yapıyor (Faz 1.5'in
+tercih altyapısı üzerinden).
+
+**Yetki üçe ayrık:** görüntüle / gönder / sil. Editör duyuruyu görüyor ama
+gönderemiyor — kampanyadaki gerekçenin aynısı: cihaza ulaşmış bildirim geri
+alınamıyor.
+
 **Kabul:** Jeton kaydı cihazla eşleşiyor, oturum kapanınca jeton düşüyor.
-Test: `Api/ApiPushTokenTest`.
+Panelden yazılan duyuru sıraya giriyor, cron turunda yalnız bildirime izin
+vermiş aktif hesapların cihazlarına ulaşıyor, sıradayken iptal edilebiliyor,
+başlamış gönderim iptal edilemiyor.
+Test: `Api/ApiPushAndHealthTest` (jeton uçları),
+`PushNotificationPanelTest` (panel ve gönderim, 29 test).
 
 ### 4.2 Sürüm ve sağlık ucu — ✅ bitti
 **Neden:** Mağazadaki eski sürümü zorla güncellemenin yolu yok; bakım
@@ -185,7 +233,7 @@ penceresini uygulama önceden bilmiyor.
 **Kapsam:** `GET /api/v1/health` — sürüm, asgari desteklenen istemci sürümü,
 bakım durumu.
 **Kabul:** Asgari sürüm ayarı yükseltilince eski istemci "güncelle" yanıtı
-alıyor. Test: `Api/ApiHealthTest`.
+alıyor. Test: `Api/ApiPushAndHealthTest`.
 
 ### 4.3 Kullanıcının kendi yorumları — ✅ bitti
 **Neden:** Yorum gönderilebiliyor ama kişi kendi yorumlarını göremiyor,
@@ -193,9 +241,9 @@ silemiyor. Web'de de yok — ikisi birlikte yapılmalı.
 **Kapsam:** `GET /account/comments`, `DELETE /account/comments/{id}`; web'de
 hesap ekranında aynı liste.
 **Kabul:** Sadece kendi yorumları, onay bekleyenler dahil.
-Test: `Api/ApiAccountCommentsTest`.
+Test: `AccountCommentsTest` (web ve API uçları aynı dosyada).
 
-### 4.4 Şemanın hizada kalması — ✅ sürüyor (38 uç şemada)
+### 4.4 Şemanın hizada kalması — ✅ sürüyor (46 uç şemada)
 **Neden:** `openapi.json` kendi kendini denetliyor (`OpenApiSpecTest`); yeni
 uçlar eklendikçe bu bekçi güncel kalmalı, yoksa sessizce bayatlar.
 **Kapsam:** Faz 1–4'te eklenen her uç için şema girdisi ve `API.md` bölümü.
@@ -203,7 +251,7 @@ uçlar eklendikçe bu bekçi güncel kalmalı, yoksa sessizce bayatlar.
 
 ---
 
-## Faz 5 — Dayanıklılık ve Bakım — ✅ TAMAMLANDI (bir madde bilerek ertelendi)
+## Faz 5 — Dayanıklılık ve Bakım — ✅ TAMAMLANDI
 
 ### 5.1 Yedeğin dış kopyası — ✅ bitti
 **Neden:** Arşiv, yedeklediği veriyle aynı diskte duruyor. Diski kaybeden
@@ -218,9 +266,10 @@ hedef erişilemezse iş "başarılı" sayılmıyor. Test: `BackupOffsiteTest`.
 etki alanı dar olduğu için şimdi çıkmak ucuz, PHP 9'da mecbur kalmak pahalı.
 **Kapsam:** Tarayıcı/işletim sistemi/cihaz türü tespiti için küçük bir iç
 servis + kendi test kümesi (gerçek `User-Agent` örnekleriyle).
-**Yapılan:** Ayrıştırma `UserAgentParser` servisine çıkarıldı (Faz 1.1 yolunda);
-paket kararı artık tek dosyada. Kalan: paketin yerine geçecek tabloyu
-zenginleştirip bağımlılığı `composer.json`'dan düşürmek.
+**Yapılan:** Ayrıştırma `UserAgentParser` servisine çıkarıldı, tablo gerçek
+`User-Agent` örnekleriyle zenginleştirildi ve bağımlılık `composer.json`'dan
+düşürüldü. Kod tabanında pakete kalan tek gönderme, servisin başındaki bir
+tarihçe yorumu.
 **Kabul:** Analitik ekranındaki dağılımlar değişmiyor; bağımlılık
 `composer.json`'dan düşüyor. Test: `UserAgentParserTest`.
 
@@ -237,16 +286,21 @@ gereken sınırı kendisi vermeli ve README bunu yazmalı.
 **Kabul:** `composer test` stok 128 MB'lık bir PHP ile baştan sona koşuyor.
 Test: mevcut suite (kendisi ölçüt).
 
-### 5.4 Sertleştirme kararları — 🟡 biri yapıldı
+### 5.4 Sertleştirme kararları — ✅ ikisi de yapıldı
 **Neden:** İki config değeri bilinçli olarak varsayılanda bırakılmıştı; karar
 verilmiş ama uygulanmamış hâlde duruyorlar.
 **Kapsam:** `session.serialization = json` (bakım penceresinde, oturumlar
 düşeceği için) ve `cache.serializable_classes` için izin listesi.
 **Yapılan:** `cache.serializable_classes` izin listesi kuruldu ve yedi
 önbellekli yolun hepsi iki geçişli testle (yaz + geri oku) kapsandı.
-**Kalan:** `session.serialization = json`. Bilerek ertelendi: çevirmek o anda
-açık olan bütün oturumları düşürüyor ve bu, çalışan bir kurulumda bakım
-penceresi gerektiren bir karar — kod değil, zamanlama meselesi.
+`session.serialization = json` 1 Eylül 2026'da kapandı: ertelenme sebebi
+çevirmenin açık oturumları düşürmesiydi, `migrate` modu o bedeli kaldırdı
+(okuma iki biçimi de kabul ediyor, yazma JSON'a dönüyor). Kit varsayılanı
+artık `json`.
+**Kabul:** Önbellekten geri okunan nesne izin listesinde olmayan bir sınıfsa
+kurulmuyor; eski biçimde yazılmış bir oturum yeni ayarla da okunuyor ve bir
+sonraki yazmada JSON'a dönüyor.
+Test: `CacheSerializationTest`, `SessionSerializationTest`.
 
 ---
 
@@ -267,3 +321,20 @@ penceresi gerektiren bir karar — kod değil, zamanlama meselesi.
 - **Sosyal giriş** (Google/Apple ile giriş) — her projede farklı sağlayıcı ve
   onay süreci; kit'e sabit gelmesi zarar veriyor.
 - **Çok kiracılı yapı (multi-tenant)** — mimarinin tamamını değiştirir.
+- **Dinamik form oluşturucu** — *(1 Eylül 2026'da bilerek kapsam dışına
+  alındı.)* Kit'in en katı kuralıyla çatışıyor: her alan kabul ettiği **en dar**
+  doğrulama kuralını taşır ve istemcideki `maxSize[n]` sunucudaki `max:` ile
+  birebir aynı olur. Panelden "metin alanı" ekleyen kişi o alanın ad mı, şehir
+  mi, açıklama mı olduğunu sisteme söylemiyor; üretilen form da `required` ile
+  yetiniyor — yani kitin en sıkı kuralı kendi modülünde en gevşek uygulanmış
+  olurdu. Tasarım sadakati kuralıyla da çatışıyor: üretilen form projenin
+  tasarımına birebir uymuyor, çok adımlı akış ya da koşullu alan istendiğinde
+  ekip zaten elle yazıyor.
+  Karşılığında pahalı olan her parça **zaten kit'te**: `FormRequest` deseni ve
+  kural tablosu, `UploadService` ve `ContentFile`, `MailTemplate` + kuyruk,
+  `RecaptchaService` ve hız sınırı, liste ekranı deseni, Excel/CSV/PDF dışa
+  aktarma, `PermissionKey` + policy. Yeni bir form, iletişim formu zincirini
+  kopyalayıp alanları değiştirmek demek.
+  **Kararı belirleyen soru:** formu kim oluşturacak? Geliştirici oluşturacaksa
+  oluşturucuya gerek yok. Müşteri/editör panelden kendisi kuracaksa o zaman
+  çekirdek bir yetenek olur ve bu karar yeniden açılmalı.

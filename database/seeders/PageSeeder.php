@@ -20,7 +20,6 @@ class PageSeeder extends Seeder
                     . '<p>Bu, Laravel Base kiti ile gelen örnek bir sayfadır. Admin panelinden '
                     . '(Sayfalar) içeriği düzenleyerek kendi kurumsal metninizi ekleyebilirsiniz.</p>'
                     . '<p>Buraya vizyonunuzu, misyonunuzu ve kısa hikâyenizi yazın.</p>',
-                'sections'         => null,
                 'status'           => 'published',
                 'sort_order'       => 1,
                 'meta_title'       => 'Hakkımızda',
@@ -34,7 +33,6 @@ class PageSeeder extends Seeder
                 'content'          => '<h2>Gizlilik Politikası</h2>'
                     . '<p>Bu örnek metni kendi gizlilik politikanızla değiştirin. KVKK/GDPR kapsamında '
                     . 'hangi verileri topladığınızı, nasıl kullandığınızı ve kullanıcı haklarını burada açıklayın.</p>',
-                'sections'         => null,
                 'status'           => 'published',
                 'sort_order'       => 2,
                 'meta_title'       => 'Gizlilik Politikası',
@@ -48,7 +46,6 @@ class PageSeeder extends Seeder
                 'content'          => '<h2>Kullanım Koşulları</h2>'
                     . '<p>Bu örnek metni kendi kullanım koşullarınızla değiştirin. Siteyi kullanan '
                     . 'ziyaretçilerin uyması gereken kuralları ve fikri mülkiyet haklarını burada belirtin.</p>',
-                'sections'         => null,
                 'status'           => 'published',
                 'sort_order'       => 3,
                 'meta_title'       => 'Kullanım Koşulları',

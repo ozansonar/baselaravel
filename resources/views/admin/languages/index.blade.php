@@ -145,7 +145,7 @@
                     <div class="mt-field">
                         <span>Arayüz çevirisi</span>
                         <select class="cl-filter-select" name="files" aria-label="Arayüz çevirisi durumu"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             <option value="yes" {{ $filters['files'] === 'yes' ? 'selected' : '' }}>Olanlar</option>
                             <option value="no" {{ $filters['files'] === 'no' ? 'selected' : '' }}>Olmayanlar</option>
@@ -155,7 +155,7 @@
                     <div class="mt-field">
                         <span>İçerik</span>
                         <select class="cl-filter-select" name="content" aria-label="İçerik durumu"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tümü</option>
                             <option value="yes" {{ $filters['content'] === 'yes' ? 'selected' : '' }}>İçeriği olanlar</option>
                             <option value="no" {{ $filters['content'] === 'no' ? 'selected' : '' }}>İçeriği olmayanlar</option>
@@ -165,7 +165,7 @@
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'order') === $sortValue ? 'selected' : '' }}>
                                     {{ $sortLabel }}
@@ -185,7 +185,7 @@
                             <div class="cl-per-page">
                                 <label for="perPage">Göster:</label>
                                 <select name="per_page" id="perPage"
-                                        onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                        data-submit-form="filterForm" data-fv-ignore>
                                     @foreach($perPageList as $pp)
                                         <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                                     @endforeach
@@ -288,7 +288,7 @@
                                         @can('delete', $language)
                                             @unless($language->is_default)
                                                 <button type="button" class="usr-action-btn danger" title="Sil"
-                                                        onclick="openLanguageDelete({{ $language->id }}, @js($language->native_name ?: $language->name), {{ $contentCount }})">
+                                                        data-action="dil-sil" data-id="{{ $language->id }}" data-label="{{ $language->native_name ?: $language->name }}" data-count="{{ $contentCount }}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             @endunless
@@ -354,7 +354,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     window.languageDeleteUrl = @js(route('admin.languages.destroy', ['language' => 'LANGUAGE_ID']));
 </script>
 <script src="{{ versioned_asset('assets/admin/js/languages.js') }}"></script>

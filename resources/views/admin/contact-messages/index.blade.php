@@ -132,7 +132,7 @@
 
             <div class="msg-list-header">
                 <div class="d-flex align-items-center gap-2">
-                    <button class="msg-mobile-back d-lg-none" onclick="toggleFolders()"><i class="bi bi-list"></i></button>
+                    <button class="msg-mobile-back d-lg-none" data-action="mesaj-klasor"><i class="bi bi-list"></i></button>
                     <form method="GET" action="{{ route('admin.contact-messages.index') }}" class="msg-search" id="searchForm">
                         @if(request('status'))
                             <input type="hidden" name="status" value="{{ request('status') }}">
@@ -148,7 +148,7 @@
                     @if(request('search'))
                         <a href="{{ route('admin.contact-messages.index', request()->except(['search', 'page'])) }}" class="msg-action-sm" title="Aramayı Temizle"><i class="bi bi-x-circle"></i></a>
                     @endif
-                    <select class="msg-sort-select" id="perPageSelect" onchange="changePerPage(this.value)" data-fv-ignore>
+                    <select class="msg-sort-select" id="perPageSelect" data-per-page data-fv-ignore>
                         @foreach([10, 25, 50, 100] as $pp)
                             <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }} mesaj</option>
                         @endforeach
@@ -163,9 +163,9 @@
                 @forelse($messages as $message)
                     <div class="msg-item {{ !$message->is_read ? 'unread' : '' }} {{ $message->trashed() ? 'draft' : '' }}"
                          data-id="{{ $message->id }}"
-                         onclick="openMessage({{ $message->id }})">
+                         data-action="mesaj-ac" data-id="{{ $message->id }}">
                         <div class="msg-item-check">
-                            <input type="checkbox" class="usr-checkbox msg-checkbox" value="{{ $message->id }}" onclick="event.stopPropagation(); toggleBulk()" data-fv-ignore>
+                            <input type="checkbox" class="usr-checkbox msg-checkbox" value="{{ $message->id }}" data-action="mesaj-toplu" data-stop data-fv-ignore>
                         </div>
                         <div class="msg-avatar msg-avatar--{{ $message->trashed() ? 'gray' : ($message->is_read ? 'teal' : 'orange') }}">
                             {{ strtoupper(mb_substr($message->name, 0, 1)) }}{{ strtoupper(mb_substr(explode(' ', $message->name)[1] ?? '', 0, 1)) }}
@@ -183,13 +183,13 @@
                         </div>
                         <div class="msg-item-actions">
                             @if($message->trashed())
-                                <form method="POST" action="{{ route('admin.contact-messages.restore', $message->id) }}" onclick="event.stopPropagation()">
+                                <form method="POST" action="{{ route('admin.contact-messages.restore', $message->id) }}" data-action="durdur" data-stop>
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" title="Geri Yükle"><i class="bi bi-arrow-counterclockwise"></i></button>
                                 </form>
                             @else
-                                <button onclick="event.stopPropagation(); openDeleteModal({{ $message->id }}, '{{ addslashes($message->name) }}')" title="Sil"><i class="bi bi-trash3"></i></button>
+                                <button data-action="sil" data-stop data-id="{{ $message->id }}" data-label="{{ $message->name }}" title="Sil"><i class="bi bi-trash3"></i></button>
                             @endif
                         </div>
                     </div>
@@ -206,7 +206,7 @@
             <div class="msg-bulk-bar" id="msgBulkBar">
                 <span class="msg-bulk-count"><span id="bulkCount">0</span> mesaj seçildi</span>
                 <div class="d-flex gap-2">
-                    <button class="btn-glass btn-sm" onclick="bulkDelete()"><i class="bi bi-trash3 me-1"></i>Sil</button>
+                    <button class="btn-glass btn-sm" data-action="mesaj-toplu-sil"><i class="bi bi-trash3 me-1"></i>Sil</button>
                 </div>
             </div>
 
@@ -224,11 +224,11 @@
 
             <div class="msg-detail-content d-none" id="msgDetailContent">
                 <div class="msg-detail-header">
-                    <button class="msg-detail-back d-xl-none" onclick="closeDetail()"><i class="bi bi-arrow-left"></i></button>
+                    <button class="msg-detail-back d-xl-none" data-action="mesaj-detay-kapat"><i class="bi bi-arrow-left"></i></button>
                     <div class="msg-detail-actions">
-                        <button onclick="toggleReplyForm()" id="detailReplyBtn" title="Yanıtla"><i class="bi bi-reply"></i></button>
+                        <button data-action="mesaj-yanit-ac" id="detailReplyBtn" title="Yanıtla"><i class="bi bi-reply"></i></button>
                         <a href="" id="detailPhoneBtn" class="d-none" title="Telefon"><i class="bi bi-telephone"></i></a>
-                        <button onclick="deleteDetail()" title="Sil"><i class="bi bi-trash3"></i></button>
+                        <button data-action="mesaj-detay-sil" title="Sil"><i class="bi bi-trash3"></i></button>
                     </div>
                 </div>
 
@@ -265,15 +265,15 @@
                         <div class="cm-reply-header">
                             <i class="bi bi-reply-fill"></i>
                             <span>Yanıt Yaz</span>
-                            <button class="cm-reply-close" onclick="toggleReplyForm()"><i class="bi bi-x-lg"></i></button>
+                            <button class="cm-reply-close" data-action="mesaj-yanit-ac"><i class="bi bi-x-lg"></i></button>
                         </div>
                         <div class="cm-reply-to" id="replyToInfo"></div>
                         <textarea class="cm-reply-textarea" id="replyBody" rows="6" placeholder="Yanıtınızı buraya yazın..." data-fv-ignore></textarea>
                         <div class="cm-reply-footer">
                             <span class="cm-reply-hint"><i class="bi bi-info-circle"></i> Yanıt e-posta olarak gönderilecektir</span>
                             <div class="d-flex gap-2">
-                                <button class="btn-glass btn-sm" onclick="toggleReplyForm()">İptal</button>
-                                <button class="btn-teal btn-sm" id="sendReplyBtn" onclick="sendReply()">
+                                <button class="btn-glass btn-sm" data-action="mesaj-yanit-ac">İptal</button>
+                                <button class="btn-teal btn-sm" id="sendReplyBtn" data-action="mesaj-yanit-gonder">
                                     <i class="bi bi-send me-1"></i> Gönder
                                 </button>
                             </div>

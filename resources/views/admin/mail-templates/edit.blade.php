@@ -6,7 +6,7 @@
 <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down" data-aos-duration="400">
     <ol class="breadcrumb">
         <li><a href="{{ route('admin.dashboard') }}" class="breadcrumb-link"><i class="bi bi-house"></i> Ana Sayfa</a></li>
-        <li><a href="{{ route('admin.mail-templates.index') }}" class="breadcrumb-link">Mail Şablonları</a></li>
+        <li><a href="{{ route('admin.mail-templates.index', ['locale' => $template->locale]) }}" class="breadcrumb-link">Mail Şablonları</a></li>
         <li class="breadcrumb-item active text-teal">{{ $template->name }}</li>
     </ol>
 </nav>
@@ -15,6 +15,9 @@
     <div>
         <h1 class="page-title">{{ $template->name }}</h1>
         <p class="page-subtitle">{{ $template->description }}</p>
+        <p class="page-subtitle mb-0">
+            <i class="bi bi-translate me-1"></i>{{ $language?->label() ?? strtoupper($template->locale) }}
+        </p>
     </div>
     <div class="d-flex gap-2">
         <button type="button" class="btn-glass" id="btnPreview">
@@ -25,6 +28,34 @@
         </button>
     </div>
 </div>
+
+{{-- Aynı şablonun dilleri.
+
+     Şablon (anahtar, dil) başına bir satır; her dil kendi adresinde
+     düzenleniyor. Sekmeler tek forma değil ayrı sayfalara gidiyor, bu yüzden
+     x-language-tabs bileşeni değil bağlantı; görünüm onun lang-tabs
+     sınıflarını paylaşıyor ki panelde iki ayrı sekme çubuğu olmasın. --}}
+@if($siblings->count() > 1)
+    <ul class="nav lang-tabs mb-4" data-aos="fade-down" aria-label="Şablon dili">
+        <li class="lang-tabs__label" aria-hidden="true">
+            <i class="bi bi-translate"></i><span class="d-none d-sm-inline">Şablon dili</span>
+        </li>
+        @foreach($siblings as $sibling)
+            <li class="nav-item">
+                <a class="nav-link lang-tabs__btn {{ $sibling->id === $template->id ? 'active' : '' }}"
+                   href="{{ route('admin.mail-templates.edit', $sibling) }}"
+                   aria-current="{{ $sibling->id === $template->id ? 'page' : 'false' }}">
+                    <span>{{ strtoupper($sibling->locale) }}</span>
+                    @unless($sibling->is_active)
+                        <span class="lang-tabs__badge lang-tabs__badge--missing" title="Bu dilde şablon kapalı">
+                            <i class="bi bi-pause-circle"></i> Pasif
+                        </span>
+                    @endunless
+                </a>
+            </li>
+        @endforeach
+    </ul>
+@endif
 
 <form action="{{ route('admin.mail-templates.update', $template) }}" method="POST" id="templateForm" data-validate novalidate>
     @csrf

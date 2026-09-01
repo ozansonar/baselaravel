@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Support\ShellExec;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -41,21 +40,6 @@ final class UploadService
         'image/webp',
         'image/bmp',
     ];
-
-    /**
-     * Allowed video mime types (mp4/quicktime).
-     *
-     * @var array<string>
-     */
-    private const ALLOWED_VIDEO_MIMES = [
-        'video/mp4',
-        'video/quicktime',
-    ];
-
-    /**
-     * Maximum video file size (bytes) ~100MB.
-     */
-    private const MAX_VIDEO_SIZE_BYTES = 104_857_600; // 100 MB
 
     // ──────────────────────────────────────────────
     //  PUBLIC API
@@ -173,99 +157,6 @@ final class UploadService
         $file->move($directory, $filename);
 
         return "{$folder}/{$filename}";
-    }
-
-    /**
-     * Upload a video file.
-     *
-     * Validation: mp4/quicktime MIME + max 100MB. Süre kontrolü FFprobe yoksa atlanır.
-     *
-     * @param  UploadedFile $file
-     * @param  string       $folder Sub-folder (e.g. "videos")
-     * @param  string       $name   Slug için isim
-     * @return string               Relative path: "videos/example-a1b2c3d4e5.mp4"
-     *
-     * @throws RuntimeException Validation hatası
-     */
-    public function uploadVideo(
-        UploadedFile $file,
-        string $folder,
-        string $name,
-    ): string {
-        $this->validateVideo($file);
-
-        $slug = Str::slug($name);
-        if ($slug === '') {
-            $slug = 'video';
-        }
-
-        $uniqueKey = Str::lower(Str::random(self::UNIQUE_KEY_LENGTH));
-        // Standardize: .mov → .mp4 ile yeniden adlandır (extension cosmetic, içerik aynı container'a uyumlu)
-        $extension = strtolower($file->getClientOriginalExtension());
-        if ($extension === '' || ! in_array($extension, ['mp4', 'mov'], true)) {
-            $extension = 'mp4';
-        }
-        $filename = "{$slug}-{$uniqueKey}.{$extension}";
-
-        $directory = $this->uploadsPath($folder);
-        $this->ensureDirectoryExists($directory);
-
-        $file->move($directory, $filename);
-
-        return "{$folder}/{$filename}";
-    }
-
-    /**
-     * Video dosyası süresini saniye cinsinden tahmin et (FFprobe varsa).
-     * FFprobe yoksa null döner — UI'da gösterim opsiyonel.
-     */
-    public function probeVideoDuration(string $relativePath): ?int
-    {
-        $fullPath = $this->uploadsPath($relativePath);
-        if (! is_file($fullPath)) {
-            return null;
-        }
-
-        // FFprobe kontrolü — ShellExec helper ile 3 katmanlı guard
-        // (function_exists + disable_functions + try/catch).
-        if (! ShellExec::isAvailable() && ! ShellExec::isExecAvailable()) {
-            return null;
-        }
-
-        $command = sprintf(
-            'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 %s 2>/dev/null',
-            escapeshellarg($fullPath),
-        );
-
-        $output = ShellExec::runAny($command);
-
-        if ($output === null || trim($output) === '' || ! is_numeric(trim($output))) {
-            return null;
-        }
-
-        return (int) round((float) $output);
-    }
-
-    /**
-     * Video dosyası validation.
-     *
-     * @throws RuntimeException
-     */
-    private function validateVideo(UploadedFile $file): void
-    {
-        if (! $file->isValid()) {
-            throw new RuntimeException('Video yükleme hatası: dosya geçersiz veya bozuk.');
-        }
-
-        if ($file->getSize() > self::MAX_VIDEO_SIZE_BYTES) {
-            $maxMb = (int) (self::MAX_VIDEO_SIZE_BYTES / 1_048_576);
-            throw new RuntimeException("Video maksimum {$maxMb} MB olabilir.");
-        }
-
-        $mime = (string) $file->getMimeType();
-        if (! in_array($mime, self::ALLOWED_VIDEO_MIMES, true)) {
-            throw new RuntimeException("Desteklenmeyen video formatı ({$mime}). Sadece MP4 veya MOV kabul edilir.");
-        }
     }
 
     /**
@@ -415,16 +306,6 @@ final class UploadService
         }
 
         return implode(', ', $parts);
-    }
-
-    /**
-     * Get available size definitions.
-     *
-     * @return array<string, array{width: int, height: ?int, crop: bool}>
-     */
-    public static function sizes(): array
-    {
-        return self::SIZES;
     }
 
     /**

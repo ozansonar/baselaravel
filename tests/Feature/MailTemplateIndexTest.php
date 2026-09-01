@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Language;
 use App\Models\MailTemplate;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\LanguageService;
 use App\Services\MailTemplateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -28,15 +30,19 @@ class MailTemplateIndexTest extends TestCase
     {
         $this->seedAuthorization();
 
-        $admin = User::create([
-            'first_name' => 'Şablon',
-            'last_name'  => 'Yöneticisi',
-            'email'      => 'template-admin@example.com',
-            'password'   => 'password',
-            'is_active'  => true,
-        ]);
+        // Tek testte listeye birden çok kez bakılabiliyor; her seferinde yeni
+        // bir kullanıcı açmak benzersiz e-posta kuralına takılırdı.
+        $admin = User::firstOrCreate(
+            ['email' => 'template-admin@example.com'],
+            [
+                'first_name' => 'Şablon',
+                'last_name'  => 'Yöneticisi',
+                'password'   => 'password',
+                'is_active'  => true,
+            ],
+        );
 
-        $admin->roles()->attach(Role::where('slug', 'admin')->firstOrFail());
+        $admin->roles()->syncWithoutDetaching(Role::where('slug', 'admin')->firstOrFail());
 
         return $admin;
     }
@@ -65,6 +71,40 @@ class MailTemplateIndexTest extends TestCase
             ->viewData('templates')
             ->pluck('name')
             ->all();
+    }
+
+    /**
+     * Liste her zaman tek bir dile bakıyor.
+     *
+     * Şablonun her dilde bir satırı var; süzgeç olmasaydı aynı ad ekranda beş
+     * kez görünürdü ve hangisine tıklandığı belirsiz kalırdı.
+     */
+    public function test_the_list_shows_one_language_at_a_time(): void
+    {
+        Language::firstOrCreate(
+            ['code' => 'en'],
+            ['name' => 'English', 'is_active' => true, 'is_default' => false],
+        );
+        app(MailTemplateService::class)->syncLocale('en');
+
+        $default = app(LanguageService::class)->defaultCode();
+        $keys = MailTemplate::where('locale', $default)->count();
+
+        $this->assertCount($keys, $this->listedNames([]));
+        $this->assertCount($keys, $this->listedNames(['locale' => 'en']));
+    }
+
+    /**
+     * Tanınmayan bir dil kodu boş liste değil, varsayılan dil demeli.
+     */
+    public function test_an_unknown_language_falls_back_to_the_default(): void
+    {
+        $filters = $this->actingAs($this->admin())
+            ->get(route('admin.mail-templates.index', ['locale' => 'zz']))
+            ->assertOk()
+            ->viewData('filters');
+
+        $this->assertSame(app(LanguageService::class)->defaultCode(), $filters['locale']);
     }
 
     public function test_search_narrows_the_list(): void
@@ -115,7 +155,12 @@ class MailTemplateIndexTest extends TestCase
 
     public function test_origin_filter_separates_customized_from_default(): void
     {
-        MailTemplate::where('key', 'welcome')->firstOrFail()->update(['subject' => 'Yepyeni bir konu']);
+        // Şablonun her dilde bir satırı var ve liste bir dile bakıyor; dili
+        // söylemeyen bir sorgu başka bir dilin satırını değiştirebilirdi.
+        MailTemplate::where('key', 'welcome')
+            ->where('locale', app(LanguageService::class)->defaultCode())
+            ->firstOrFail()
+            ->update(['subject' => 'Yepyeni bir konu']);
 
         $this->assertSame(['Hoş Geldiniz'], $this->listedNames(['origin' => 'customized']));
     }

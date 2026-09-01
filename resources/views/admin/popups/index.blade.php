@@ -129,7 +129,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select name="per_page" id="perPage" data-submit-form="filterForm" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -168,9 +168,9 @@
                                         <img src="{{ upload_url($popup->image, 'thumb') }}"
                                              alt="{{ $popup->title }}"
                                              class="rounded" width="60" height="60" loading="lazy"
-                                             style="object-fit: cover;">
+                                             object-fit-cover">
                                     @else
-                                        <div class="d-flex align-items-center justify-content-center rounded bg-dark" style="width:60px;height:60px;">
+                                        <div class="d-flex align-items-center justify-content-center rounded bg-dark pp-thumb-placeholder">
                                             <i class="bi bi-image text-muted"></i>
                                         </div>
                                     @endif
@@ -228,7 +228,7 @@
                                             </form>
                                         @else
                                             <a href="{{ route('admin.popups.edit', $popup) }}" class="usr-action-btn" title="Düzenle"><i class="bi bi-pencil"></i></a>
-                                            <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal({{ $popup->id }}, '{{ addslashes($popup->title) }}')"><i class="bi bi-trash"></i></button>
+                                            <button class="usr-action-btn danger" title="Sil" data-action="sil" data-id="{{ $popup->id }}" data-label="'{{ addslashes($popup->title) }}'"><i class="bi bi-trash"></i></button>
                                         @endif
                                     </div>
                                 </td>
@@ -252,7 +252,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     function openDeleteModal(id, title) {
         AdminModal.confirm({
             title: 'Silme Onayı',

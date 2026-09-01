@@ -151,7 +151,7 @@
                            value="{{ $filters['q'] ?? '' }}" data-fv-ignore>
                 </div>
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="category" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" name="category" data-submit-form="filterForm" data-fv-ignore>
                         <option value="">Tüm Kategoriler</option>
                         @foreach($categories as $value => $label)
                             <option value="{{ $value }}" {{ ($filters['category'] ?? '') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -159,11 +159,11 @@
                     </select>
                     <input type="date" class="cl-filter-select" name="date_from"
                            value="{{ $filters['date_from'] ?? '' }}"
-                           onchange="document.getElementById('filterForm').submit()"
+                           data-submit-form="filterForm"
                            title="Başlangıç tarihi" data-fv-ignore>
                     <input type="date" class="cl-filter-select" name="date_to"
                            value="{{ $filters['date_to'] ?? '' }}"
-                           onchange="document.getElementById('filterForm').submit()"
+                           data-submit-form="filterForm"
                            title="Bitiş tarihi" data-fv-ignore>
                 </div>
                 <div class="cl-toolbar-actions">
@@ -172,7 +172,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select name="per_page" data-submit-form="filterForm" data-fv-ignore>
                             @foreach([12, 24, 48, 96] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach

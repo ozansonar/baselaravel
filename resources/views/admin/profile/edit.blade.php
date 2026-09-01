@@ -195,7 +195,7 @@
                             <input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp" class="d-none"
                                    data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
                                    data-max-size="1" data-accept="image/jpeg,image/png,image/webp">
-                            <button type="button" class="prf-btn prf-btn-primary w-100 mt-3" onclick="document.getElementById('avatarInput').click()">
+                            <button type="button" class="prf-btn prf-btn-primary w-100 mt-3" data-click-target="avatarInput">
                                 <i class="bi bi-upload"></i> Fotoğraf Seç
                             </button>
                             @if($user->avatar)
@@ -205,7 +205,7 @@
                                 </label>
                             @endif
                             @error('avatar')
-                                <div class="text-danger mt-2" style="font-size: 13px;">{{ $message }}</div>
+                                <div class="text-danger mt-2 fld-error-text">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="stg-hint mt-2">JPG, PNG veya WebP. Maksimum 1 MB.</div>

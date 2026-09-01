@@ -73,6 +73,13 @@ return [
         'others_revoked'  => 'Diğer cihazlardaki :count oturum kapatıldı.',
     ],
 
+    'two_factor' => [
+        'setup_started'   => 'Kurulum başladı. Kareyi kimlik doğrulayıcı uygulamanızla okutup kodu gönderin.',
+        'already_enabled' => 'İki adımlı doğrulama zaten açık.',
+        'not_started'     => 'Önce kurulumu başlatın.',
+        'not_enabled'     => 'İki adımlı doğrulama açık değil.',
+    ],
+
     'menus' => [
         'not_found' => 'Bu konumda yayında bir menü yok.',
     ],

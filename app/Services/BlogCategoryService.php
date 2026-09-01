@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Models\BlogCategory;
 use Illuminate\Database\Eloquent\Collection;
@@ -107,7 +108,7 @@ final class BlogCategoryService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.blog_categories.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_BLOG_CATEGORIES_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(BlogCategory::withTrashed(), BlogCategory::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
@@ -139,11 +140,6 @@ final class BlogCategoryService
     public function findBySlug(string $slug): ?BlogCategory
     {
         return BlogCategory::active()->where('slug', $slug)->first();
-    }
-
-    public function findById(int $id): BlogCategory
-    {
-        return BlogCategory::findOrFail($id);
     }
 
     public function create(array $data): BlogCategory
@@ -253,9 +249,9 @@ final class BlogCategoryService
     private function clearCache(): void
     {
         $this->forgetLocalized('blog_categories.active');
-        Cache::forget('admin.blog_categories.stats');
+        Cache::forget(CacheKeys::ADMIN_BLOG_CATEGORIES_STATS);
         // Modül 7 — blog kategori değişikliği sitemap'e anında yansısın.
-        Cache::forget('sitemap.urls');
-        Cache::forget('sitemap_page.groups');
+        Cache::forget(CacheKeys::SITEMAP_URLS);
+        Cache::forget(CacheKeys::SITEMAP_PAGE_GROUPS);
     }
 }

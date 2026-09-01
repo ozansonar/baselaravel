@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Support\CacheKeys;
 use App\Enums\MailLogStatus;
 use App\Mail\BaseMail;
 use App\Models\MailLog;
@@ -49,7 +50,7 @@ final class UpdateMailLogOnFailed
             ]);
 
         if ($updated) {
-            Cache::forget('admin.mail_logs.stats');
+            Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
         }
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Support\CacheKeys;
 use App\Enums\MailLogStatus;
 use App\Models\MailLog;
 use App\Services\MailLogService;
@@ -123,7 +124,7 @@ final class LogOutgoingMail
             ->update($update);
 
         if ($updated) {
-            Cache::forget('admin.mail_logs.stats');
+            Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
         }
     }
 

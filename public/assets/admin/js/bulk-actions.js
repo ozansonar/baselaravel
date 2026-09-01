@@ -101,27 +101,33 @@
 
         // Onay penceresi olmadan hiçbir toplu işlem çalışmıyor: yanlış
         // tıklamayla onlarca kayıt gitmesin.
-        if (window.AdminModal && typeof AdminModal.confirm === 'function') {
-            AdminModal.confirm({
-                title: dugme.dataset.bulkTitle || 'Toplu İşlem Onayı',
-                message: mesaj,
-                type: dugme.dataset.bulkType || 'warning',
-                confirmText: dugme.dataset.bulkConfirm || 'Evet, Devam Et',
-                confirmIcon: dugme.dataset.bulkIcon || 'bi bi-check-lg'
-            }).then(function (onay) {
-                if (onay) {
-                    gonder(form);
-                }
-            });
+        //
+        // Burada tarayıcının kendi confirm() kutusu yedek olarak duruyordu.
+        // İki sebeple kaldırıldı: proje onu yasaklıyor (ekranın diliyle
+        // konuşmuyor, biçimlenmiyor, sayfayı kilitliyor) ve yedek zaten
+        // ulaşılamazdı — modal işaretlemesi admin layout'una koşulsuz
+        // basılıyor, betiği de her sayfada yükleniyor.
+        //
+        // Yine de yoksa işlem yapılmıyor. Onay alamadan silmektense hiç
+        // silmemek doğru taraf; sebebi de konsola yazılıyor ki sessizce
+        // çalışmayan bir düğme olarak kalmasın.
+        if (!window.AdminModal || typeof AdminModal.confirm !== 'function') {
+            console.error('AdminModal yüklenmedi: toplu işlem onay alınamadığı için çalıştırılmadı.');
 
             return;
         }
 
-        // AdminModal yoksa işlem sessizce yapılmıyor; tarayıcının kendi
-        // sorusu son çare.
-        if (window.confirm(mesaj)) {
-            gonder(form);
-        }
+        AdminModal.confirm({
+            title: dugme.dataset.bulkTitle || 'Toplu İşlem Onayı',
+            message: mesaj,
+            type: dugme.dataset.bulkType || 'warning',
+            confirmText: dugme.dataset.bulkConfirm || 'Evet, Devam Et',
+            confirmIcon: dugme.dataset.bulkIcon || 'bi bi-check-lg'
+        }).then(function (onay) {
+            if (onay) {
+                gonder(form);
+            }
+        });
     }
 
     document.addEventListener('change', function (olay) {

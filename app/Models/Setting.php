@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\CacheKeys;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,15 +23,6 @@ class Setting extends Model
 
     // ── Scopes ──
 
-    /**
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
-     */
-    public function scopeByGroup(\Illuminate\Database\Eloquent\Builder $query, string $group): \Illuminate\Database\Eloquent\Builder
-    {
-        return $query->where('group', $group);
-    }
-
     // ── Static Helpers ──
 
     /** @var array<string, string|null>|null */
@@ -40,7 +32,7 @@ class Setting extends Model
     {
         if (static::$cachedSettings === null) {
             /** @var array<string, string|null> $all */
-            $all = Cache::remember('settings.all', 86400, fn () =>
+            $all = Cache::remember(CacheKeys::SETTINGS_ALL, 86400, fn () =>
                 static::pluck('value', 'key')->toArray(),
             );
             static::$cachedSettings = $all;
@@ -74,11 +66,15 @@ class Setting extends Model
     public static function clearSettingsCache(): void
     {
         static::$cachedSettings = null;
-        Cache::forget('settings.all');
+        Cache::forget(CacheKeys::SETTINGS_ALL);
 
         // API'nin dışarı açtığı süzülmüş liste ayrı bir anahtarda duruyor
         // (grup ve tip bilgisi gerektiği için). Burada düşürülmezse panelden
         // değişen bir ayar mobil tarafta bir saat daha eskisiyle görünürdü.
         Cache::forget(\App\Services\SettingService::PUBLIC_CACHE_KEY);
+
+        // Çizilmiş parçalar da ayarlardan besleniyor (site adı, iletişim
+        // bilgileri, alt bilgi metni); ayar değişince onlar da bayatlıyor.
+        app(\App\Services\CachePurger::class)->forgetPrefix(CacheKeys::PREFIX_FRAGMENT);
     }
 }

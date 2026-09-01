@@ -28,7 +28,7 @@ final class SubscribeNewsletterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'      => ['required', EmailAddress::rule(), 'max:191'],
+            'email'      => ['required', ...EmailAddress::rules(), 'max:191'],
             'first_name' => ['nullable', 'string', 'max:191'],
             'last_name'  => ['nullable', 'string', 'max:191'],
         ];

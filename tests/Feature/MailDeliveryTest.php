@@ -118,7 +118,7 @@ class MailDeliveryTest extends TestCase
     public function test_a_mail_prefers_the_panel_template_over_the_blade_view(): void
     {
         MailTemplate::updateOrCreate(
-            ['key' => 'welcome'],
+            ['key' => 'welcome', 'locale' => app()->getLocale()],
             [
                 'name'      => 'Hoş Geldiniz',
                 'subject'   => 'Panelden gelen konu',

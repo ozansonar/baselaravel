@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Exceptions\EmailAlreadyTakenException;
 use App\Models\User;
@@ -30,7 +31,7 @@ final class UserService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin_user_stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_USER_STATS, 300, function (): array {
             $startOfMonth = Carbon::now()->startOfMonth();
 
             $counts = User::withTrashed()->selectRaw("
@@ -154,7 +155,7 @@ final class UserService
             $this->roleService->syncUserRoles($user, $roles);
         }
 
-        Cache::forget('admin_user_stats');
+        Cache::forget(CacheKeys::ADMIN_USER_STATS);
 
         return $user;
     }
@@ -188,7 +189,7 @@ final class UserService
             $this->roleService->syncUserRoles($user, $roles);
         }
 
-        Cache::forget('admin_user_stats');
+        Cache::forget(CacheKeys::ADMIN_USER_STATS);
 
         return $user;
     }
@@ -196,7 +197,7 @@ final class UserService
     public function delete(User $user): void
     {
         $user->delete();
-        Cache::forget('admin_user_stats');
+        Cache::forget(CacheKeys::ADMIN_USER_STATS);
     }
 
     /**
@@ -238,7 +239,7 @@ final class UserService
                 'id' => $ids,
             ]);
 
-            Cache::forget('admin_user_stats');
+            Cache::forget(CacheKeys::ADMIN_USER_STATS);
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }
 
@@ -274,7 +275,7 @@ final class UserService
                 'id'   => $ids,
             ]);
 
-            Cache::forget('admin_user_stats');
+            Cache::forget(CacheKeys::ADMIN_USER_STATS);
             Cache::forget(DashboardStatsObserver::CACHE_KEY);
         }
 
@@ -291,7 +292,7 @@ final class UserService
         }
 
         $user->restore();
-        Cache::forget('admin_user_stats');
+        Cache::forget(CacheKeys::ADMIN_USER_STATS);
     }
 
     /**

@@ -26,6 +26,11 @@ namespace App\Support;
  * Kullanım:
  *   $output = ShellExec::run('which mysqldump');   // disabled ise null
  *   if (ShellExec::isAvailable()) { ... }
+ *
+ * Yalnız `shell_exec` sarılıyor. Bir zamanlar `exec()` yedeği de vardı ama
+ * hiçbir çağrı ona düşmüyordu: shell hiç yoksa yedek `exec` değil,
+ * BackupService'in PDO ile döküm alan yolu — ve o yol gerçekten bağlı.
+ * Çağrılmayan bir yedek, olmayan bir yedektir.
  */
 final class ShellExec
 {
@@ -38,14 +43,6 @@ final class ShellExec
     public static function isAvailable(): bool
     {
         return self::isFunctionAvailable('shell_exec');
-    }
-
-    /**
-     * exec() (output array'le) çağrılabilir mi?
-     */
-    public static function isExecAvailable(): bool
-    {
-        return self::isFunctionAvailable('exec');
     }
 
     /**
@@ -65,39 +62,6 @@ final class ShellExec
         } catch (\Throwable) {
             return null;
         }
-    }
-
-    /**
-     * exec() fallback — shell_exec yoksa ama exec varsa.
-     *
-     * @return ?string Çıktının newline-join hali, fail ise null
-     */
-    public static function runExec(string $command): ?string
-    {
-        if (! self::isExecAvailable()) {
-            return null;
-        }
-
-        try {
-            $lines = [];
-            $exitCode = 0;
-            @exec($command, $lines, $exitCode);
-            if ($exitCode === 0 && ! empty($lines)) {
-                return implode("\n", $lines);
-            }
-            return null;
-        } catch (\Throwable) {
-            return null;
-        }
-    }
-
-    /**
-     * shell_exec varsa onu, yoksa exec'i dene.
-     * En agresif fallback — sadece "komut çıktı verdi mi" lazımsa kullan.
-     */
-    public static function runAny(string $command): ?string
-    {
-        return self::run($command) ?? self::runExec($command);
     }
 
     /**

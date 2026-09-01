@@ -12,7 +12,12 @@
     <form method="POST" action="{{ route('admin.contact-messages.destroy', $message) }}" id="deleteMessageForm">
         @csrf
         @method('DELETE')
-        <button type="button" class="btn btn-sm btn-outline-danger" onclick="AdminModal.confirm({ title: 'Silme Onayı', message: 'Bu mesajı silmek istediğinize emin misiniz?', type: 'danger', confirmText: 'Evet, Sil', confirmIcon: 'bi bi-trash3' }).then(function(c){ if(c) document.getElementById('deleteMessageForm').submit(); })">
+        <button type="button" class="btn btn-sm btn-outline-danger"
+                data-confirm-submit="deleteMessageForm"
+                data-confirm-title="Silme Onayı"
+                data-confirm-message="Bu mesajı silmek istediğinize emin misiniz?"
+                data-confirm-text="Evet, Sil"
+                data-confirm-icon="bi bi-trash3">
             <i class="bi bi-trash me-1"></i> Sil
         </button>
     </form>

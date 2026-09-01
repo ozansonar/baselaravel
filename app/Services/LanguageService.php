@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -145,6 +146,11 @@ final class LanguageService
             }
 
             $this->clearCache();
+
+            // Mail şablonları dil başına bir satır tutuyor. Yeni dilin satırı
+            // açılmazsa panelde çevrilecek bir şey görünmüyor ve o dildeki
+            // mailler sessizce varsayılan dilde gidiyor.
+            app(MailTemplateService::class)->syncLocale($language->code);
 
             return $language;
         });
@@ -346,6 +352,6 @@ final class LanguageService
         Cache::forget(self::CACHE_KEY_DEFAULT);
         // Switching a language on or off adds or removes a whole language's
         // URLs, so the sitemap is stale the moment this changes.
-        Cache::forget('sitemap.urls');
+        Cache::forget(CacheKeys::SITEMAP_URLS);
     }
 }

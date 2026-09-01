@@ -1,5 +1,5 @@
 @if(session('success') || session('error') || session('warning') || session('info'))
-<script>
+<script nonce="{{ csp_nonce() }}">
 document.addEventListener('DOMContentLoaded', function () {
     @if(session('success'))
         window.showResultModal('success', @json(session('success')));

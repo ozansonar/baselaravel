@@ -226,13 +226,6 @@ final class TranslationService
         return (int) $count;
     }
 
-    public function resetKey(string $locale, string $group, string $key): void
-    {
-        Translation::withTrashed()->for($locale, $group)->where('key', $key)->forceDelete();
-
-        $this->forget($locale, $group);
-    }
-
     /**
      * How many strings each language has overridden, for the screen's counters.
      *

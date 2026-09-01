@@ -80,6 +80,9 @@ class PermissionSeeder extends Seeder
             // An editor may draft a campaign and see the list, but starting a
             // send to everyone is left to an admin — it cannot be taken back.
             P::CampaignsView, P::CampaignsManage,
+            // Duyuruyu görebiliyor ama gönderemiyor: aynı gerekçe —
+            // cihaza ulaşmış bir bildirim geri alınamaz.
+            P::PushNotificationsView,
             P::SubscribersView,
         ];
 

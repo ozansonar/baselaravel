@@ -43,7 +43,7 @@
                     </div>
                     <div class="usr-stat-info">
                         <span class="usr-stat-label">Arayüz Çevirisi</span>
-                        <h3 class="usr-stat-value" style="font-size:1.1rem">
+                        <h3 class="usr-stat-value usr-stat-value--sm">
                             {{ $hasFiles ? 'lang/' . $language->code . '/ var' : 'lang/' . $language->code . '/ yok' }}
                         </h3>
                     </div>
@@ -76,7 +76,7 @@
                 @can('delete', $language)
                     @unless($language->is_default)
                         <button type="button" class="btn-glass text-neon-red"
-                                onclick="openLanguageDelete({{ $language->id }}, @js($language->native_name ?: $language->name), {{ $contentCount }})">
+                                data-action="dil-sil" data-id="{{ $language->id }}" data-label="{{ $language->native_name ?: $language->name }}" data-count="{{ $contentCount }}">
                             <i class="bi bi-trash"></i> Dili Sil
                         </button>
                     @endunless
@@ -114,7 +114,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     window.languageDeleteUrl = @js(route('admin.languages.destroy', ['language' => 'LANGUAGE_ID']));
 </script>
 <script src="{{ versioned_asset('assets/admin/js/languages.js') }}"></script>

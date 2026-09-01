@@ -15,9 +15,6 @@ use Illuminate\Http\Request;
  * ve bağlantıları düşürür. Yasal metinlerde (KVKK, gizlilik) bu bir biçim
  * sorunu değil, içerik kaybıdır.
  *
- * `sections` panelde tanımlanan serbest bölümler; sayfa şablonu onları
- * kullanmıyorsa boş gelir.
- *
  * @mixin Page
  */
 final class PageDetailResource extends PageResource
@@ -32,7 +29,6 @@ final class PageDetailResource extends PageResource
             'excerpt' => $this->excerpt,
             'content' => $this->content,
             'content_format' => 'html',
-            'sections' => $this->sections ?? [],
             'image'    => $this->imageUrls($this->image),
             'meta'     => [
                 'title'       => $this->meta_title ?: $this->title,

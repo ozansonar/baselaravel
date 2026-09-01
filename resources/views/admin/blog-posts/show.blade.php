@@ -264,7 +264,7 @@
                                 <i class="bi bi-pencil"></i> Düzenle
                             </a>
                             @if(!$post->trashed())
-                                <button class="btn-glass d-flex align-items-center justify-content-center gap-2 cl-btn-danger-text" onclick="openDeleteModal('{{ e($post->title) }}', {{ $post->id }})">
+                                <button class="btn-glass d-flex align-items-center justify-content-center gap-2 cl-btn-danger-text" data-action="sil-tersine" data-label="'{{ e($post->title) }}'" data-id="{{ $post->id }}">
                                     <i class="bi bi-trash"></i> Sil
                                 </button>
                             @else
@@ -314,7 +314,7 @@
 
 @if(!$post->trashed())
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
 function openDeleteModal(name, id) {
     document.getElementById('deleteItemName').textContent = name;
     document.getElementById('deleteForm').action = '{{ url("admin/blog-posts") }}/' + id;

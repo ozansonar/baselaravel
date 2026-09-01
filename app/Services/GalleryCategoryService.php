@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Models\GalleryCategory;
 use Illuminate\Database\Eloquent\Collection;
@@ -106,7 +107,7 @@ final class GalleryCategoryService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.gallery_categories.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_GALLERY_CATEGORIES_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(GalleryCategory::withTrashed(), GalleryCategory::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
@@ -215,9 +216,9 @@ final class GalleryCategoryService
     private function clearCache(): void
     {
         $this->forgetLocalized('gallery_categories.active');
-        Cache::forget('admin.gallery_categories.stats');
+        Cache::forget(CacheKeys::ADMIN_GALLERY_CATEGORIES_STATS);
         // Kategorilerin süzülmüş adresleri sitemap'te ayrı birer giriş; adı,
         // slug'ı veya durumu değişen bir kategori oraya hemen yansımalı.
-        Cache::forget('sitemap.urls');
+        Cache::forget(CacheKeys::SITEMAP_URLS);
     }
 }

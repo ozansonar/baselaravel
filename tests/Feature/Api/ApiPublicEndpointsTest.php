@@ -126,7 +126,7 @@ class ApiPublicEndpointsTest extends TestCase
             ->assertJsonPath('data.slug', 'gizlilik')
             ->assertJsonPath('data.content_format', 'html')
             ->assertJsonPath('data.content', '<h2>Kişisel veriler</h2><p>Metin.</p>')
-            ->assertJsonStructure(['data' => ['meta' => ['title', 'description'], 'sections']]);
+            ->assertJsonStructure(['data' => ['meta' => ['title', 'description']]]);
     }
 
     public function test_an_unpublished_page_is_not_reachable(): void

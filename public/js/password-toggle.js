@@ -12,7 +12,7 @@
  * satır olduğu için hizalama şaşmaz. Grupsuz alanlarda girdi ince bir
  * sarmalayıcıya alınır.
  *
- * Ön yüz çok dilli: düğmenin okunur adı, betiğin kendi etiketindeki veriden
+ * Ön yüz çok dilli: düğmenin okunur adı window.SiteText'ten (partials/js-lang)
  * alınıyor, böylece metin sayfanın diliyle geliyor.
  *
  * Form gönderilirken alan şifre kipine geri döner: açık bırakılan bir alan
@@ -23,9 +23,8 @@
     var ICON_SHOW = 'fa-solid fa-eye';
     var ICON_HIDE = 'fa-solid fa-eye-slash';
 
-    var script = document.currentScript;
-    var LABEL_SHOW = (script && script.dataset.showLabel) || 'Şifreyi göster';
-    var LABEL_HIDE = (script && script.dataset.hideLabel) || 'Şifreyi gizle';
+    var LABEL_SHOW = window.siteText('showPassword');
+    var LABEL_HIDE = window.siteText('hidePassword');
 
     /**
      * Düğmenin oturacağı kap: varsa alanın grubu, yoksa yeni bir sarmalayıcı.

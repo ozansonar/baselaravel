@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Str;
 
 return [
@@ -16,6 +18,20 @@ return [
     */
 
     'default' => env('CACHE_STORE', 'database'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Parça Önbelleği
+    |--------------------------------------------------------------------------
+    | Her sayfada aynı çıkan blokların (gezinti gibi) çizilmiş hâlini saklar.
+    | Yalnız oturumu olmayan GET isteklerinde devreye giriyor ve kişiye özel iz
+    | taşıyan çıktı — CSRF anahtarı ya da CSP nonce'u — hiçbir koşulda
+    | saklanmıyor. Hata ayıklarken kapatmak, ekranda gördüğünüzün her zaman
+    | taze çizim olduğunu garanti eder.
+    |
+    | @see \App\Services\FragmentCache
+    */
+    'fragments' => (bool) env('CACHE_FRAGMENTS', true),
 
     /*
     |--------------------------------------------------------------------------

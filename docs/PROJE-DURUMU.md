@@ -1,6 +1,13 @@
 # Proje Durumu
 
-**Son güncelleme:** 2026-08-31 (yol haritasının beş fazı tamamlandıktan sonra)
+> **Not.** Güncel durum tablosu ve kalan iş planı
+> [`PROJE-KAYDI.md`](PROJE-KAYDI.md)'de — dört durum belgesinin tek dosyada
+> toplandığı kayıt. Bu dosya "ne var" belgesi olarak yerinde duruyor ve
+> **maddeler kapandıkça burada da güncelleniyor**: kapanmış bir işi açık
+> gösteren belge, hiç olmamasından kötü.
+
+**Son güncelleme:** 2026-09-01 (açık madde kalmadı: içerik sürümleme yapıldı,
+form oluşturucu kapsam dışına alındı)
 **Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
 **Kalan iş listesi:** [`YOL-HARITASI.md`](YOL-HARITASI.md)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
@@ -173,15 +180,17 @@ değiştiriyor; `down()` işlemi geri alıyor (ikisi de test edildi).
 `orders_count` ve "Sipariş" içermediği, "Kayıt Tarihi" içerdiği doğrulandı.
 Kod tabanında kalan tek eşleşme temizlik migration'ının kendi arama metni.
 
-### ⬜ Hâlâ duran ölü kod (sipariş/ürünle ilgisiz)
+### ✅ Ölü kod maddesi kapandı (1 Eylül 2026'da yeniden bakıldı)
 
-Bunlar ayrı bir temizlik turu ister:
+Buradaki üç madde de artık geçerli değil; koda karşı tek tek doğrulandı:
 
-- **`app/Enums/UserRole.php`** — kod tabanında **0 referans**. Roller `roles`
-  tablosu + `Role` modeli üzerinden yönetiliyor.
-- **`resources/views/vendor/pagination/custom.blade.php`** — hiçbir yerden
-  referans verilmiyor; sayfalama `pagination::bootstrap-5` kullanıyor.
-- **`.gitignore`** — `/storage/app/google/*.json` kuralı duruyor ama dizin yok.
+- **`app/Enums/UserRole.php`** — "0 referans" doğru değil: yedi dosyadan
+  çağrılıyor. Rol tohumlaması (`RoleSeeder`) slug'ları buradan okuyor, izin
+  matrisi (`PermissionSeeder`) rolleri buradan eşliyor, `RoleService` sistem
+  rolünü buradan tanıyor. Silinecek değil, kaynak niteliğinde bir enum.
+- **`resources/views/vendor/pagination/custom.blade.php`** — dosya yok;
+  dizinde yalnız kullanılan iki şablon duruyor.
+- **`.gitignore`** — `/storage/app/google/*.json` satırı yok.
 
 ---
 
@@ -514,8 +523,9 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ## 6. Kalan Yapılacak İşler
 
-[`YOL-HARITASI.md`](YOL-HARITASI.md)'nin beş fazı da tamamlandı. Geriye
-bilerek ertelenmiş iki madde ve bir gözlem kaldı.
+[`YOL-HARITASI.md`](YOL-HARITASI.md)'nin beş fazı da tamamlandı. Bir süre
+bilerek ertelenen iki madde de 1 Eylül 2026'da kapandı; geriye faz planından
+sonra açılmış iki yetenek maddesi ve bir gözlem kaldı.
 
 ### Üç yüzün karşılaştırması
 
@@ -532,20 +542,34 @@ bilerek ertelenmiş iki madde ve bir gözlem kaldı.
 | Bildirim tercihleri | ✅ | ✅ | ✅ |
 | Yorumlarım | ✅ | ✅ | ✅ |
 | Kurulabilirlik (PWA, çevrimdışı) | — | ✅ | — |
-| Push bildirim | — | — | ✅ jeton kaydı + gönderim servisi |
+| Push bildirim | — | ✅ tercih anahtarı | ✅ jeton + gönderim + panel ekranı |
 | Sürüm / sağlık ucu | — | — | ✅ |
 
-### ⬜ Bilerek ertelenenler
+### ✅ Ertelenmiş iki madde de kapandı (1 Eylül 2026)
 
-- **Panelden push bildirim gönderme ekranı.** Sunucu tarafı hazır (jeton
-  kaydı, sağlayıcıdan bağımsız gönderim, ölü jetonun düşmesi). Admin temada bu
-  ekranın tasarımı yok — `notifications.html` yalnız tercih anahtarları
-  içeriyor — ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
-  Tasarım geldiğinde ya da onay verildiğinde yapılacak.
-- **`session.serialization = json`.** Çevirmek o anda açık olan bütün
-  oturumları düşürüyor; çalışan bir kurulumda bu bakım penceresi gerektiren
-  bir karar, kod değil zamanlama meselesi. `cache.serializable_classes` ise
-  yapıldı (bkz. 5z).
+- **Panelden push bildirim gönderme ekranı.** Tasarım bekliyordu: admin temada
+  karşılığı yok ve tasarımda olmayan ekranı uydurmak proje kuralına aykırı.
+  Uydurmak yerine **kampanya modülünün tasarımı uyarlandı** — iki ekran aynı
+  işi yapıyor (başlık, metin, hedef, gönder, sonuç) ve o tasarım temada
+  mevcut. Üç ekran, cron tabanlı parça parça gönderim, üç ayrı yetki,
+  Excel/CSV/PDF dışa aktarma, 29 test.
+- **`session.serialization = json`.** Ertelenme sebebi çevirmenin o anda açık
+  olan bütün oturumları düşürmesiydi. `migrate` modu bu bedeli kaldırdı:
+  okuma iki biçimi de kabul ediyor, yazma JSON'a dönüyor, açık oturumlar bir
+  sonraki isteklerinde sessizce yeni biçime geçiyor. Kit varsayılanı artık
+  `json`. `cache.serializable_classes` ise daha önce yapılmıştı (bkz. 5z).
+
+### ✅ Faz planından sonra açılan iki madde de kapandı
+
+- **İçerik sürümleme (revisions)** — ✅ yapıldı (1 Eylül). Sayfa ve blog
+  yazısında, dil başına son 20 sürüm; geri yükleme mevcut kaydı güncelliyor ve
+  kendisi de bir sürüm doğuruyor.
+- **Dinamik form oluşturucu** — ⛔ **bilerek kapsam dışı** (1 Eylül). Kit'in
+  "her alan en dar doğrulama kuralını taşır" kuralıyla ve tasarım sadakati
+  kuralıyla çatışıyor; pahalı olan parçalar (FormRequest deseni, upload, mail
+  şablonu, reCAPTCHA, liste ekranı, dışa aktarma) zaten kit'te ve yeni bir form
+  iletişim formu zincirinin kopyası. Gerekçenin tamamı
+  [`YOL-HARITASI.md`](YOL-HARITASI.md) → *Kapsam dışı*.
 
 ### 🔍 MySQL doğrulaması
 
@@ -563,6 +587,21 @@ dönüyordu. Düzeltildi — yalnız gerçekten bulunan dil hatırlanıyor.
 
 - Bir koşuda `ModelFactoriesTest`'te tek seferlik bir hata görüldü; ardından
   dört ayrı koşuda tekrarlanmadı. Sebebi bulunamadı, kayda geçirildi.
+
+### 🔎 v2 denetimi (2026-09-01)
+
+Yol haritasının beş fazı kapandıktan sonra bir denetim turu koştu: yapıldı
+denilenlerin gerçekten çalıştığı doğrulandı ve kimsenin bakmadığı yerde ne
+biriktiği arandı. On altı kusur çıktı — on ikisi "kural yazılı ama bekçisi ya
+yok ya da elle yazılmış dar bir listeye bakıyor" desenindeydi. Hepsi kapatıldı
+ve her biri için liste yerine kaynağından beslenen bir bekçi kuruldu.
+
+Aynı turda, 31 Ağustos tarihli **Base Kit Boşluk Analizi** de depoya alındı
+([`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md)) — o güne kadar yalnız bir Artifact
+olarak duruyordu. On beş bulgusundan dördü hâlâ açıktı (CSP, cache hijyeni
+üçlüsü); dördü de kapatıldı, artık tamamı kapalı.
+
+Ayrıntılar: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md).
 
 ### ✅ Bu turda kapananlar
 
@@ -1565,11 +1604,14 @@ Tam tur ayrı bir MySQL veritabanında elle yapıldı:
 gibi davranılarak): paylaşımlı hostingde çalışacak olan yol bu ve aynı 563
 ifadeyi doğru uyguladı.
 
-### Kalan yarı
+### Kalan yarı — ✅ sonraki turda kapandı
 
-Yedeğin **dış kopyası** hâlâ yok: arşiv yedeklediği veriyle aynı diskte
-duruyor. Geri yükleme artık mümkün olduğu için dosyanın başka bir yerde
-durması da anlamlı hâle geldi — sonraki tur.
+Denetim günü yedeğin **dış kopyası** yoktu: arşiv yedeklediği veriyle aynı
+diskte duruyordu ve diski kaybeden yedeği de kaybediyordu. Yol haritasının
+5.1 maddesinde kapandı: yapılandırılabilir dış hedef (S3 uyumlu ya da FTP),
+yükleme sonrası doğrulama, başarısızlıkta yöneticiye bildirim ve dış kopyada
+ayrı saklama süresi. Hedef erişilemezse iş "başarılı" sayılmıyor.
+Ayar `config/backups.php` → `offsite`. Test: `BackupOffsiteTest`.
 
 
 ---
@@ -2025,8 +2067,11 @@ güvenle çalıştırılabiliyor.
 - [x] **Faz 3 — Panelin eksik ekranları** (6c)
 - [x] **Faz 4 — API olgunluğu** (6d)
 - [x] **Faz 5 — Dayanıklılık** (6e)
+- [x] **Satır içi olay işleyicileri JS'e taşındı**, CSP tavizi kalktı (1 Eylül)
+- [x] **`session.serialization = json`** — geçiş moduyla, kimse düşmeden (1 Eylül)
+- [x] **Panelden push duyurusu gönderme ekranı** (1 Eylül)
 
-### Açık kalan iki madde
+### Açık madde kalmadı
 
-Bölüm 6'da: panelden push gönderme ekranı (tasarım bekliyor) ve
-`session.serialization = json` (bakım penceresi bekliyor).
+Bölüm 6'daki iki madde de 1 Eylül'de kapandı: içerik sürümleme yapıldı,
+dinamik form oluşturucu bilerek kapsam dışına alındı.

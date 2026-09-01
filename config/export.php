@@ -32,6 +32,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CSV biçimi
+    |--------------------------------------------------------------------------
+    | CSV, tablo biçimi değil taşıma biçimidir: veri başka bir sisteme
+    | aktarılacağında isteniyor. Varsayılanlar Türkçe Excel'e göre seçildi —
+    | ondalık ayracı virgül olan yerel ayarlarda Excel virgülle ayrılmış dosyayı
+    | tek sütuna basıyor, bu yüzden alan ayracı noktalı virgül. BOM olmadan da
+    | Türkçe harfler bozuluyor. Başka yerel ayara kurulan projede bu üç değer
+    | .env üzerinden değiştirilir.
+    */
+    'csv_delimiter'         => env('EXPORT_CSV_DELIMITER', ';'),
+    'csv_decimal_separator' => env('EXPORT_CSV_DECIMAL_SEPARATOR', ','),
+    'csv_bom'               => (bool) env('EXPORT_CSV_BOM', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Geçici dosya dizini
     |--------------------------------------------------------------------------
     | Hem OpenSpout hem mPDF ara dosyalarını buraya yazar. Sistemin /tmp dizini
@@ -87,6 +102,12 @@ return [
         // adres satırındaki `type` parametresinden geliyor.
         'reports'            => App\Exports\ReportExport::class,
         'campaign-recipients' => App\Exports\CampaignRecipientExport::class,
+        'content-list'        => App\Exports\ContentListExport::class,
+        'custom-routes'       => App\Exports\CustomRouteExport::class,
+        'failed-jobs'         => App\Exports\FailedJobExport::class,
+        'seo-audit'           => App\Exports\SeoAuditExport::class,
+        'push-notifications'  => App\Exports\PushNotificationExport::class,
+        'content-revisions'   => App\Exports\ContentRevisionExport::class,
     ],
 
 ];

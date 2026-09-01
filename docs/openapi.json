@@ -677,12 +677,6 @@
                 "type": "string",
                 "const": "html"
               },
-              "sections": {
-                "type": "array",
-                "items": {
-                  "type": "object"
-                }
-              },
               "image": {
                 "$ref": "#/components/schemas/ImageSet"
               },
@@ -5225,6 +5219,494 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/account/two-factor": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "getTwoFactorStatus",
+        "summary": "İki adımlı doğrulama durumum",
+        "description": "Uygulamanın güvenlik ekranını çizmesi için durum. Anahtarın kendisi burada DÖNMEZ — onu yalnız kurulumu başlatan istek görür. `pending` yarıda kalmış bir kurulumu bildirir (anahtar üretilmiş ama ilk kod girilmemiş); istemci bunu bilmezse kullanıcıyı baştan başlatır ve okuttuğu kare geçersiz olur. `required` açıkken kapatma ucu reddeder.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Durum.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "enabled",
+                        "pending",
+                        "recovery_codes_remaining",
+                        "required"
+                      ],
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "pending": {
+                          "type": "boolean",
+                          "description": "Kurulum başlatılmış ama onaylanmamış."
+                        },
+                        "confirmed_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "recovery_codes_remaining": {
+                          "type": "integer",
+                          "description": "Kalan tek kullanımlık kod sayısı."
+                        },
+                        "required": {
+                          "type": "boolean",
+                          "description": "Yönetici zorunluluğu bu kullanıcı için açık mı."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "startTwoFactorSetup",
+        "summary": "İki adımlı doğrulama kurulumunu başlat",
+        "description": "Anahtar üretilir ama doğrulama AÇILMAZ: açılması ilk doğru kodun girilmesine bağlı (`/account/two-factor/confirm`). Tek istekte açılsaydı kareyi okutmayı beceremeyen kişi kendi hesabından kilitlenirdi. Yanıt üç biçim birden taşır: `otpauth_uri` kimlik doğrulayıcıyı doğrudan açmak için, `secret` kareyi okutamayan kullanıcının elle girmesi için, `qr_svg` ise ekranda kare göstermek için — kullanıcı çoğu zaman kodu başka bir cihazdaki uygulamayla okutur. Yarıda kalmış bir kurulum varsa anahtar yenilenir.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kurulum başladı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "secret",
+                        "otpauth_uri",
+                        "qr_svg"
+                      ],
+                      "properties": {
+                        "secret": {
+                          "type": "string",
+                          "description": "Base32, 32 karakter."
+                        },
+                        "otpauth_uri": {
+                          "type": "string",
+                          "description": "otpauth://totp/... — kimlik doğrulayıcıya verilecek adres."
+                        },
+                        "qr_svg": {
+                          "type": "string",
+                          "description": "Satır içi SVG gövdesi (XML bildirimi olmadan)."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "disableTwoFactor",
+        "summary": "İki adımlı doğrulamayı kapat",
+        "description": "Şifre onaylı: jeton tek başına yetmez, çünkü telefonu birkaç dakika eline geçiren biri açık uygulamadan hesabın ikinci adımını sessizce kaldırabilirdi. Yönetici zorunluluğu açıkken yönetici kendi ikinci adımını kaldıramaz — kaldırabilseydi ayar bir kural değil öneri olurdu; o durumda 422 döner.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Hesabın mevcut şifresi."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kapatıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/two-factor/confirm": {
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "confirmTwoFactorSetup",
+        "summary": "Kurulumu ilk kodla tamamla",
+        "description": "Kimlik doğrulayıcının verdiği altı haneli kod. Doğruysa doğrulama açılır ve kurtarma kodları BU YANITTA bir kez döner — her istekte dönselerdi ele geçirilen bir jeton onları istediği zaman okuyabilirdi. Kod yanlışsa hiçbir şey değişmez, kullanıcı yeniden deneyebilir. Kurulum başlatılmadan çağrılırsa 409 döner.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[0-9]{6}$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Açıldı; kurtarma kodları yanıtta.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "recovery_codes"
+                      ],
+                      "properties": {
+                        "recovery_codes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Sekiz tek kullanımlık kod. Yalnız burada dönüyor; bir daha gösterilmiyor."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/two-factor/recovery-codes": {
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "regenerateTwoFactorRecoveryCodes",
+        "summary": "Kurtarma kodlarını yenile",
+        "description": "Şifre onaylı. Yeni bir liste üretilir ve eski liste geçersiz olur — yenilemenin bütün anlamı bu. Doğrulama açık değilken 409 döner.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Hesabın mevcut şifresi."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Yeni kodlar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "recovery_codes"
+                      ],
+                      "properties": {
+                        "recovery_codes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Sekiz tek kullanımlık kod. Yalnız burada dönüyor; bir daha gösterilmiyor."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }

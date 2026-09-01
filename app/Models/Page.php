@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\ContentStatus;
 use App\Traits\HasContentFiles;
+use App\Traits\HasRevisions;
 use App\Traits\HasSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Page extends Model
 {
-    use HasTranslations, HasContentFiles, HasFactory, HasSlug, SoftDeletes;
+    use HasTranslations, HasContentFiles, HasFactory, HasRevisions, HasSlug, SoftDeletes;
 
     protected $fillable = [
         'locale',
@@ -22,7 +23,6 @@ class Page extends Model
         'title',
         'slug',
         'content',
-        'sections',
         'excerpt',
         'image',
         'status',
@@ -36,7 +36,6 @@ class Page extends Model
     {
         return [
             'status' => ContentStatus::class,
-            'sections' => 'array',
             'sort_order' => 'integer',
             'published_at' => 'datetime',
         ];
@@ -73,28 +72,5 @@ class Page extends Model
 
     // ── Accessors ──
 
-    /**
-     * @param string $key Section key (e.g. 'story', 'values', 'timeline', 'stats', 'team', 'cta')
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getSection(string $key, mixed $default = null): mixed
-    {
-        return $this->sections[$key] ?? $default;
-    }
-
     // ── Helpers ──
-
-    public function isPublished(): bool
-    {
-        if ($this->status !== ContentStatus::Published) {
-            return false;
-        }
-
-        if ($this->published_at !== null && $this->published_at->isFuture()) {
-            return false;
-        }
-
-        return true;
-    }
 }
