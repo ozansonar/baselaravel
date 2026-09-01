@@ -162,7 +162,13 @@ class CampaignPanelTest extends TestCase
 
         $recipients = Campaign::firstOrFail()->audience_filter['recipients'];
 
-        $this->assertSame([
+        // assertSame değil: audience_filter bir `json` sütunu ve MySQL 8 nesne
+        // anahtarlarını depolarken yeniden sıralıyor (önce uzunluğa, sonra bayt
+        // sırasına) — first_name, last_name, email geri email, last_name,
+        // first_name olarak geliyor. `===` bunu fark bilir; oysa kodun hiçbir
+        // yeri bu sırayı okumuyor, alanlara adıyla erişiyor. SQLite ve MariaDB
+        // sıralamadığı için sapma yalnız CI'da görünüyordu.
+        $this->assertEquals([
             ['first_name' => 'Ahmet', 'last_name' => 'Yılmaz', 'email' => 'ahmet@ornek.com'],
             ['first_name' => 'Ayşe',  'last_name' => 'Demir',  'email' => 'ayse@ornek.com'],
             ['first_name' => null,    'last_name' => null,     'email' => 'bilgi@ornek.com'],
@@ -183,7 +189,8 @@ class CampaignPanelTest extends TestCase
             ],
         ]));
 
-        $this->assertSame(
+        // Anahtar sırası MySQL'in işi, bkz. yukarıdaki sınav.
+        $this->assertEquals(
             [['first_name' => 'Ahmet', 'last_name' => 'Yılmaz', 'email' => 'ahmet@ornek.com']],
             Campaign::firstOrFail()->audience_filter['recipients'],
         );

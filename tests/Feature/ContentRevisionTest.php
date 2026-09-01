@@ -149,6 +149,41 @@ class ContentRevisionTest extends TestCase
         $this->assertSame($count, $page->fresh()->revisions()->count());
     }
 
+    /**
+     * Karşılaştırma anahtar sırasına takılmamalı.
+     *
+     * payload bir `json` sütunu ve MySQL 8 nesne anahtarlarını depolarken
+     * yeniden sıralıyor (önce uzunluğa, sonra bayt sırasına). Karşılaştırma
+     * kodlanmış dizgeye baktığı sürece MySQL'de hiçbir zaman eşleşmiyor:
+     * hiçbir şey değişmese bile her kaydetme yeni bir sürüm yazıyor ve yirmi
+     * sürümlük tavan gerçek geçmişi dışarı itiyordu. SQLite ve MariaDB
+     * anahtarları sıralamadığı için hata yalnız üretimde görünüyordu — bu
+     * sınav sürücüden bağımsız: sırayı elle bozuyor.
+     */
+    public function test_a_reordered_payload_is_still_the_same_content(): void
+    {
+        $page = $this->page();
+
+        $latest = ContentRevision::query()->forTarget($page)->firstOrFail();
+
+        // MySQL'in yaptığı: aynı içerik, farklı anahtar sırası. Sayı da dizge
+        // olarak dönebiliyor, o da karışsın.
+        $shuffled = $latest->payload;
+        ksort($shuffled);
+        $shuffled = array_map(
+            static fn ($value) => is_int($value) ? (string) $value : $value,
+            $shuffled,
+        );
+
+        $latest->update(['payload' => $shuffled]);
+
+        $count = $page->fresh()->revisions()->count();
+
+        $page->update(['title' => $page->title]);
+
+        $this->assertSame($count, $page->fresh()->revisions()->count());
+    }
+
     public function test_saving_the_same_content_twice_leaves_one_revision(): void
     {
         $page = $this->page();

@@ -147,10 +147,22 @@ final class ContentRevisionService
     /**
      * Bu hâl zaten en son sürümde duruyor mu?
      *
-     * Karşılaştırma JSON üzerinden: değerler bir yandan veritabanından dizge
-     * olarak, bir yandan PHP tarafından sayı olarak gelebiliyor ve iki biçim
-     * aynı içeriği anlatıyor. `===` bunları farklı sayardı ve her kaydetmede
-     * bir sürüm daha yazılırdı.
+     * İki şey karşılaştırmayı bozabiliyor, ikisi de içeriğin kendisiyle
+     * ilgisiz:
+     *
+     * 1. **Anahtar sırası.** payload bir `json` sütunu ve MySQL 8 nesne
+     *    anahtarlarını depolarken yeniden sıralıyor (önce uzunluğa, sonra
+     *    bayt sırasına). Sayfanın alanları `title, slug, content…` sırasıyla
+     *    yazılıyor, geri `slug, image, title…` olarak okunuyor. Eski karşılaştırma
+     *    kodlanmış dizgeye baktığı için MySQL'de **hiçbir zaman** eşleşmiyordu:
+     *    hiçbir şey değişmese bile her kaydetme yeni bir sürüm yazıyor, yirmi
+     *    sürümlük tavan gerçek geçmişi dışarı itiyordu. SQLite ve MariaDB
+     *    anahtarları sıralamadığı için sorun yalnız üretimde görünüyordu.
+     * 2. **Değer türü.** Aynı değer bir yandan veritabanından dizge, bir
+     *    yandan PHP tarafından sayı olarak geliyor.
+     *
+     * Bu yüzden karşılaştırma kanonik bir biçim üzerinden: anahtarlar sıralı,
+     * değerler ya null ya dizge.
      *
      * @param array<string, mixed> $payload
      */
@@ -162,7 +174,29 @@ final class ContentRevisionService
             return false;
         }
 
-        return json_encode($latest->payload) === json_encode($payload);
+        return $this->canonical((array) $latest->payload) === $this->canonical($payload);
+    }
+
+    /**
+     * Karşılaştırılabilir hâl: anahtarlar sıralı, değerler null ya da dizge.
+     *
+     * null korunuyor — "boş bırakıldı" ile "boş dizge yazıldı" aynı şey değil
+     * ve ikisini birbirine katmak gerçek bir değişikliği görünmez yapardı.
+     *
+     * @param  array<string, mixed> $payload
+     * @return array<string, string|null>
+     */
+    private function canonical(array $payload): array
+    {
+        $values = [];
+
+        foreach ($payload as $field => $value) {
+            $values[$field] = $value === null ? null : (is_scalar($value) ? (string) $value : json_encode($value));
+        }
+
+        ksort($values);
+
+        return $values;
     }
 
     /**
