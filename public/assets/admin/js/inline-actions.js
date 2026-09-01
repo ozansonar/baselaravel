@@ -78,6 +78,9 @@
         /* Dosya yöneticisi */
         'dosya-sil-onay': function (el) { cagir(window.fmgrConfirmDelete, [el]); },
 
+        /* Push duyurusu: sıradaki gönderimi iptal etme onayı */
+        'push-iptal': function (el) { cagir(window.openPushCancel, [el.dataset.label]); },
+
         /* Blog: sosyal paylaşım önizlemesi */
         'blog-paylas': function (el) { cagir(window.shareBlogToSocial, [el.dataset.id]); },
 

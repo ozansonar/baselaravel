@@ -106,6 +106,7 @@ return [
         'custom-routes'       => App\Exports\CustomRouteExport::class,
         'failed-jobs'         => App\Exports\FailedJobExport::class,
         'seo-audit'           => App\Exports\SeoAuditExport::class,
+        'push-notifications'  => App\Exports\PushNotificationExport::class,
     ],
 
 ];

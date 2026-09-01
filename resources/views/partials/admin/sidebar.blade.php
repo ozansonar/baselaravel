@@ -206,6 +206,14 @@
         @endcan
 
 
+        @can('viewAny', \App\Models\PushNotification::class)
+        <a href="{{ route('admin.push-notifications.index') }}"
+           class="nav-link {{ Route::is('admin.push-notifications.*') ? 'active' : '' }}">
+            <i class="bi bi-bell-fill"></i> Push Duyuruları
+        </a>
+        @endcan
+
+
         @can('viewAny', \App\Models\Subscriber::class)
         <a href="{{ route('admin.subscribers.index') }}"
            class="nav-link {{ Route::is('admin.subscribers.*') ? 'active' : '' }}">

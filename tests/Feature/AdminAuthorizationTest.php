@@ -64,6 +64,9 @@ class AdminAuthorizationTest extends TestCase
             // Mailing is content work too: the editor writes and sends it
             '/admin/aboneler'           => [200, 200, 403],
             '/admin/kampanyalar'        => [200, 200, 403],
+            // Duyuruyu görebiliyor ama gönderemiyor: gönderme yetkisi ayrı ve
+            // yalnızca yöneticide — cihaza ulaşmış bildirim geri alınamıyor.
+            '/admin/push-duyurulari'    => [200, 200, 403],
 
             // Admin only
             '/admin/settings'           => [200, 403, 403],

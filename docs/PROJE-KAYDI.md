@@ -44,15 +44,15 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 
 | | | | |
 |---|---|---|---|
-| **37** model | **100** servis | **26** policy | **79** migration |
-| **134** test dosyası | **1888** test | **7637** doğrulama | **33** dışa aktarma tanımı |
-| **359** rota | **249** admin rotası | **43** API rotası | **2** dil (tr, en) |
+| **38** model | **102** servis | **27** policy | **80** migration |
+| **134** test dosyası | **1923** test | **7733** doğrulama | **34** dışa aktarma tanımı |
+| **368** rota | **258** admin rotası | **43** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1888 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1923 geçiyor, 8 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -75,7 +75,7 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | Bildirim tercihleri | ✅ | ✅ | ✅ |
 | Yorumlarım | ✅ | ✅ | ✅ |
 | Kurulabilirlik (PWA, çevrimdışı) | — | ✅ | — |
-| Push bildirim | — | — | ✅ jeton + gönderim |
+| Push bildirim | — | ✅ tercih anahtarı | ✅ jeton + gönderim + panel ekranı |
 | Sürüm / sağlık ucu | — | — | ✅ |
 
 ---
@@ -130,7 +130,7 @@ arşiv bölümünde olduğunu söylüyor.
 | 3.1 | Raporlar ekranı | B Faz 3 | ✅ |
 | 3.2 | Genel içerik listesi | B Faz 3 | ✅ |
 | 3.3 | Yardım ekranı | B Faz 3 | ✅ |
-| 4.1 | Push bildirim altyapısı | B Faz 4 | 🟡 **sunucu bitti, panel ekranı bekliyor** |
+| 4.1 | Push bildirim altyapısı | B Faz 4 | ✅ **panel ekranı da tamam (1 Eylül)** |
 | 4.2 | Sürüm ve sağlık ucu | B Faz 4 | ✅ |
 | 4.3 | Kullanıcının kendi yorumları | B Faz 4 | ✅ |
 | 4.4 | Şemanın hizada kalması | B Faz 4 | ✅ |
@@ -217,7 +217,7 @@ arşiv bölümünde olduğunu söylüyor.
 
 ## 3. Kalan işler ve plan
 
-Bilinen **üç açık madde** var. Biri tasarım bekliyor, ikisi gerçek iş.
+Bilinen **iki açık madde** var; ikisi de gerçek iş.
 
 ### Öncelik sırası ve gerekçesi
 
@@ -226,7 +226,7 @@ Bilinen **üç açık madde** var. Biri tasarım bekliyor, ikisi gerçek iş.
 | ~~1~~ | ~~Satır içi olay işleyicilerini JS'e taşımak~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | **1** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
 | **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
-| **3** | Panelden push bildirim gönderme ekranı | Küçük | **Tasarım bekliyor** — sunucu tarafı hazır, admin temada bu ekranın tasarımı yok |
+| ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 
 ---
@@ -323,19 +323,88 @@ mevcut).
 
 ---
 
-### İş 3 — Panelden push bildirim gönderme ekranı
+### ✅ Tamamlandı — Panelden push bildirim gönderme ekranı
 
-**Durum:** 🟡 tasarım bekliyor · **Efor:** küçük
+**Durum:** ✅ kapandı (1 Eylül 2026) · **Tür:** eksik modül
 
-Sunucu tarafı **hazır**: jeton kaydı, cihaz eşleştirme, sağlayıcıdan bağımsız
-gönderim servisi (FCM sürücüsü + yapılandırılmamışken log), ölü jetonun
-düşmesi, oturum kapanınca jetonların silinmesi.
+**Sorundu.** Sunucu tarafı aylardır hazırdı — jeton kaydı, cihaz eşleştirme,
+sağlayıcıdan bağımsız gönderim servisi, ölü jetonun düşmesi — ama bildirimi
+yazıp gönderecek bir ekran yoktu. Duyuru göndermek için tinker'dan servis
+çağırmak gerekiyordu; yani pratikte hiç gönderilmiyordu.
 
-Eksik olan tek şey panelden bildirim yazıp gönderme ekranı. Admin temada bu
-ekranın tasarımı yok (`notifications.html` yalnız tercih anahtarları içeriyor)
-ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
+Ekranın yapılmamasının gerekçesi tasarımdı: admin temada bu ekranın karşılığı
+yok, `notifications.html` yalnız tercih anahtarları içeriyor ve tasarımda
+olmayan bir ekranı uydurmak proje kuralına aykırı.
 
-**Karar senin:** tasarım gelirse ya da "uydur" onayı verirsen yapılır.
+**Çözüldüğü yer.** Uydurma yerine **kampanya modülünün tasarımı uyarlandı.**
+İki ekran aynı işi yapıyor — başlık, metin, hedef kitle, gönder, sonuç — ve
+kampanya ekranının tasarımı temada mevcut. Kullanılan düzen, sınıflar ve
+bileşenler kampanyanınkiyle birebir aynı: `cmp-choice` hedef kartları,
+`cmp-bar` ilerleme çubuğu, `cl-status-tabs` durum sekmeleri, `rdr-meta` künye
+satırları. Tek yeni CSS sınıfı yok.
+
+**Gönderim neden istekte değil.** Kampanya ile aynı gerekçe ve aynı desen:
+paylaşımlı hosting'de alt süreç açılamıyor, `queue:work` çalıştırılamıyor.
+"Sıraya Al" düğmesi kaydı `queued` durumunda açıyor, `push:dispatch` komutu beş
+dakikada bir kaldığı yerden devam ediyor (`PushNotificationDispatcher`,
+turda 200 cihaz). Tek istekte göndermek beş yüz cihazlı bir kurulumda beş yüz
+HTTP çağrısı demekti: tarayıcı zaman aşımına düşer, yönetici gönderimin olup
+olmadığını bilmez ve düğmeye bir kez daha basar.
+
+**Hedef üç süzgeçten geçiyor.** Kitle (herkes / rol / tek kullanıcı), hesabın
+açık olması, ve kullanıcının duyuruları kapatmamış olması. Üçüncüsü için
+`NotificationPreference::PushAnnouncements` eklendi: hesap ekranındaki
+"Uygulama duyuruları" anahtarı gerçekten bir şey yapıyor, kapatan kişiye
+duyuru gitmiyor. Tercih kaydı olmayan kullanıcı açık sayılıyor — varsayılan
+kapalı olsaydı özellik, varlığından haberi olmayan kimseye ulaşmazdı.
+
+**Yazılan dosyalar.**
+
+| Katman | Dosya |
+|---|---|
+| Enum | `PushNotificationStatus`, `PushAudience` |
+| Şema | `2026_09_01_120000_create_push_notifications_table` |
+| Model | `PushNotification` (+ `PushNotificationFactory`) |
+| Servis | `PushBroadcastService` (liste/kayıt/iptal), `PushNotificationDispatcher` (gönderim) |
+| Yetki | `PushNotificationPolicy` + üç `PermissionKey` (`view` / `send` / `delete`) |
+| İstek | `StorePushNotificationRequest` |
+| Denetleyici | `Admin\PushNotificationController` |
+| Ekran | `admin/push-notifications/{index,create,show}.blade.php` |
+| JS | `push-notifications.js` (liste/detay), `push-notification-form.js` (form) |
+| Cron | `push:dispatch` + `routes/console.php` girdisi (5 dk) |
+| Dışa aktarma | `PushNotificationExport` + `config/export.php` girdisi |
+| Kayıt | sidebar, `config/help.php`, `PermissionSeeder` matrisi, rol matrisi testi |
+| Test | `PushNotificationPanelTest` (29 test) |
+
+**Yetki ayrımı.** Editör duyuruyu görebiliyor ama gönderemiyor — kampanyadaki
+gerekçenin aynısı: cihaza ulaşmış bildirim geri alınamıyor. Silme üçüncü ve
+ayrı bir yetki.
+
+**Formda üç yardım.** Yazılan metin cihazda nasıl görünecek (canlı önizleme),
+kaç karakter kaldı (sayaç), ve hedefe kaç cihaz denk geliyor (sunucudan
+sorulan sayı — kullanıcının tercihi ve hesabının açık olması ekranda yok).
+
+**Yol boyunca çıkan iki kusur.**
+
+1. **`cursor` null kalıyordu.** Sütunun veritabanı varsayılanı 0 ama o yalnız
+   satır yazıldıktan sonra geçerli; yeni kurulan örnekte alan null kalıyor ve
+   gönderim `id > null` diye sorgu kurmaya çalışıyordu. Model artık
+   `$attributes` ile sayaçların başlangıcını kendisi taşıyor.
+2. **`@js()` HTML niteliğinin içindeydi.** Satır içi işleyicilerin taşındığı
+   gün sekiz ekrana birden bu biçimde girmiş: `data-label="@js($ad)"`. `@js()`
+   değeri JavaScript'e gömmek için üretiyor ve dizgeyi tırnak içinde veriyor,
+   nitelik değerine konduğunda o tırnaklar değerin parçası oluyor — silme
+   onayında kampanyanın adı `'Bahar kampanyası'` diye görünüyordu. On yerde
+   `{{ }}` ile değiştirildi ve `InlineHandlersAreForbiddenTest`e bekçisi
+   eklendi.
+
+**Doğrulama.** 1923 test yeşil (29'u yeni), Pint sapmasız, PHPStan temiz.
+Şema MySQL 8'de kuruldu, `down()` gidiş-dönüşü yapıldı, test paketi MySQL'e
+karşı da koştu. Tarayıcıda: liste/form/detay ekranları, doğrulama motorunun
+tetiklenmesi, canlı önizleme ve sayaç, hedef değişince cihaz sayısının
+güncellenmesi, kullanıcı arama, gerçek gönderim akışı (`push:dispatch`),
+iptal onayı ve üç biçimde dışa aktarma (Excel 5,4 KB / CSV 227 B / PDF 31 KB)
+tek tek denendi; konsol temiz, CSP ihlali yok.
 
 ---
 

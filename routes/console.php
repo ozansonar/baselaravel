@@ -80,6 +80,14 @@ Schedule::call($run('campaigns:dispatch'))
     ->everyFiveMinutes()
     ->withoutOverlapping(10);
 
+// Push duyuruları — kampanyayla aynı gerekçe ve aynı desen. Aralık
+// PushNotificationDispatcher::RUN_INTERVAL_MINUTES ile aynı olmalı: gönderimin
+// ne kadar sürede başlayacağı ekranda o sabitten okunup kullanıcıya söyleniyor.
+Schedule::call($run('push:dispatch'))
+    ->name('push-dispatch')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10);
+
 // Analytics: aggregate the previous day's page_views into analytics_daily_stats
 Schedule::call($run('analytics:aggregate-daily'))
     ->name('analytics-aggregate-daily')

@@ -159,6 +159,14 @@ return [
             'icon'  => 'bi-megaphone',
         ],
         [
+            'route' => 'admin.push-notifications.index',
+            'title' => 'Push Duyuruları',
+            'description' => 'Mobil uygulamaya duyuru bildirimi gönderme. Gönderim birkaç dakikada bir çalışan görevle parça parça yapılır; başlamış bir duyuru geri alınamaz, yalnızca sıradayken iptal edilebilir.',
+            'badge' => 'İleri',
+            'cover' => 'orange',
+            'icon'  => 'bi-bell',
+        ],
+        [
             'route' => 'admin.mail-templates.index',
             'title' => 'Mail Şablonları',
             'description' => 'Sistemin gönderdiği e-postaların metinleri. Şablondaki {degisken} yazımları gönderim anında gerçek değerlerle değiştirilir.',

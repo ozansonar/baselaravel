@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Enums;
 
 /**
- * Kullanıcının kapatabileceği e-posta türleri.
+ * Kullanıcının kapatabileceği bildirim türleri.
  *
  * Burada olmayan e-postalar kapatılamaz ve bu bilinçli: şifre sıfırlama,
  * e-posta doğrulama ve adres değişikliği uyarısı hesabın güvenliğine dair —
@@ -21,17 +21,28 @@ enum NotificationPreference: string
     /** Yorumu yayınlandığında ya da yanıtlandığında gelen bildirim. */
     case CommentUpdates = 'comment_updates';
 
+    /**
+     * Panelden gönderilen duyuru bildirimleri (push).
+     *
+     * Buradaki tek şey duyuru: hesabın güvenliğine dair bir push varsa o bu
+     * anahtarla susturulamaz. Duyuru ise pazarlama iletisi sayılıyor ve
+     * kapatılabilmesi gerekiyor.
+     */
+    case PushAnnouncements = 'push_announcements';
+
     public function label(): string
     {
         return match ($this) {
-            self::CommentUpdates => __('site.notifications.comment_updates'),
+            self::CommentUpdates    => __('site.notifications.comment_updates'),
+            self::PushAnnouncements => __('site.notifications.push_announcements'),
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::CommentUpdates => __('site.notifications.comment_updates_hint'),
+            self::CommentUpdates    => __('site.notifications.comment_updates_hint'),
+            self::PushAnnouncements => __('site.notifications.push_announcements_hint'),
         };
     }
 

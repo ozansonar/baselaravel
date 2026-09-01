@@ -187,7 +187,7 @@
                                             @endcan
                                             @can('delete', $kayit)
                                                 <button type="button" class="usr-action-btn danger" title="Sil"
-                                                        data-action="sil" data-id="{{ $kayit->id }}" data-label="@js($kayit->slug)"><i class="bi bi-trash3"></i></button>
+                                                        data-action="sil" data-id="{{ $kayit->id }}" data-label="{{ $kayit->slug }}"><i class="bi bi-trash3"></i></button>
                                             @endcan
                                         @endif
                                     </td>

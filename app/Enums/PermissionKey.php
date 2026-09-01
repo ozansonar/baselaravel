@@ -57,6 +57,9 @@ enum PermissionKey: string
     case CommentsView = 'comments.view';
     case CommentsModerate = 'comments.moderate';
     case CommentsDelete = 'comments.delete';
+    case PushNotificationsView = 'push-notifications.view';
+    case PushNotificationsSend = 'push-notifications.send';
+    case PushNotificationsDelete = 'push-notifications.delete';
     case NotificationsView = 'notifications.view';
     case NotificationsManage = 'notifications.manage';
     case NotificationsDelete = 'notifications.delete';
@@ -136,6 +139,9 @@ enum PermissionKey: string
             self::CommentsView => 'Yorumları görüntüle',
             self::CommentsModerate => 'Yorum onayla ve reddet',
             self::CommentsDelete => 'Yorum sil',
+            self::PushNotificationsView => 'Push duyurularını görüntüle',
+            self::PushNotificationsSend => 'Push duyurusu gönder',
+            self::PushNotificationsDelete => 'Push duyurusu sil',
             self::NotificationsView => 'Bildirimleri görüntüle',
             self::NotificationsManage => 'Bildirimleri okundu işaretle',
             self::NotificationsDelete => 'Bildirim sil',
@@ -217,6 +223,9 @@ enum PermissionKey: string
             self::CommentsView => PermissionGroup::Communication,
             self::CommentsModerate => PermissionGroup::Communication,
             self::CommentsDelete => PermissionGroup::Communication,
+            self::PushNotificationsView => PermissionGroup::Communication,
+            self::PushNotificationsSend => PermissionGroup::Communication,
+            self::PushNotificationsDelete => PermissionGroup::Communication,
             self::NotificationsView => PermissionGroup::Communication,
             self::NotificationsManage => PermissionGroup::Communication,
             self::NotificationsDelete => PermissionGroup::Communication,

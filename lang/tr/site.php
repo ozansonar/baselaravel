@@ -329,14 +329,17 @@ return [
 
     'notifications' => [
         'title' => 'Bildirimler',
-        'desc'  => 'Hangi e-postaları alacağınızı seçin.',
-        'lead'  => 'Size gönderilen e-postaları buradan açıp kapatabilirsiniz.',
+        'desc'  => 'Hangi bildirimleri alacağınızı seçin.',
+        'lead'  => 'Size gönderilen e-postaları ve uygulama bildirimlerini buradan açıp kapatabilirsiniz.',
 
         'newsletter'      => 'Bülten ve duyurular',
         'newsletter_hint' => 'Yeni içerikler ve kampanyalar için gönderilen toplu e-postalar.',
 
         'comment_updates'      => 'Yorum bildirimleri',
         'comment_updates_hint' => 'Yorumunuz yayınlandığında haber verilir.',
+
+        'push_announcements'      => 'Uygulama duyuruları',
+        'push_announcements_hint' => 'Mobil uygulamaya gönderilen duyuru bildirimleri. Hesap güvenliğine dair bildirimler bundan bağımsızdır.',
 
         'always_on' => 'Şifre sıfırlama, e-posta doğrulama ve hesap güvenliğiyle ilgili uyarılar her zaman gönderilir; bunlar kapatılamaz.',
         'saved'     => 'Bildirim tercihleriniz kaydedildi.',

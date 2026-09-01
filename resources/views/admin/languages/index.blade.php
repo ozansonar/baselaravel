@@ -288,7 +288,7 @@
                                         @can('delete', $language)
                                             @unless($language->is_default)
                                                 <button type="button" class="usr-action-btn danger" title="Sil"
-                                                        data-action="dil-sil" data-id="{{ $language->id }}" data-label="@js($language->native_name ?: $language->name)" data-count="{{ $contentCount }}">
+                                                        data-action="dil-sil" data-id="{{ $language->id }}" data-label="{{ $language->native_name ?: $language->name }}" data-count="{{ $contentCount }}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             @endunless

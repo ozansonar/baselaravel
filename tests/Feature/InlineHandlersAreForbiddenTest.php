@@ -130,6 +130,36 @@ class InlineHandlersAreForbiddenTest extends TestCase
         );
     }
 
+    /**
+     * `@js()` bir HTML niteliğinin içine yazılmamalı.
+     *
+     * `@js()` değeri JavaScript'e gömmek için üretiyor ve dizgeyi tırnak
+     * içinde veriyor. Nitelik değerine konduğunda o tırnaklar değerin parçası
+     * oluyor: onay kutusunda kampanyanın adı `'Bahar kampanyası'` diye,
+     * tırnaklarıyla birlikte görünüyor. Nitelikte doğru olan `{{ }}` — o da
+     * kaçırıyor ama tırnak eklemiyor.
+     *
+     * Kural yazılıydı ama bekçisi yoktu: satır işleyicilerin taşındığı gün
+     * sekiz ekrana birden bu biçimde girdi.
+     */
+    public function test_no_view_puts_a_js_helper_inside_an_attribute(): void
+    {
+        $offenders = [];
+
+        foreach ($this->views() as $path => $contents) {
+            if (preg_match_all('/[a-z-]+="@js\\(/', $contents, $matches) > 0) {
+                $offenders[] = $path . ' (' . count($matches[0]) . ')';
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $offenders,
+            "Nitelik içinde @js() var; tırnaklar değere karışır, {{ }} kullanın:\n  "
+                . implode("\n  ", $offenders),
+        );
+    }
+
     /** @return array<string, string> */
     private function views(): array
     {

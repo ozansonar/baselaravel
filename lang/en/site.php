@@ -326,14 +326,17 @@ return [
 
     'notifications' => [
         'title' => 'Notifications',
-        'desc'  => 'Choose which e-mails you receive.',
-        'lead'  => 'Turn the e-mails we send you on or off here.',
+        'desc'  => 'Choose which notifications you receive.',
+        'lead'  => 'Turn the e-mails and app notifications we send you on or off here.',
 
         'newsletter'      => 'Newsletter and announcements',
         'newsletter_hint' => 'Bulk e-mails about new content and campaigns.',
 
         'comment_updates'      => 'Comment notifications',
         'comment_updates_hint' => 'We let you know when your comment is published.',
+
+        'push_announcements'      => 'App announcements',
+        'push_announcements_hint' => 'Announcement notifications sent to the mobile app. Account security notifications are separate and cannot be turned off.',
 
         'always_on' => 'Password resets, e-mail verification and account security warnings are always sent; those cannot be turned off.',
         'saved'     => 'Your notification preferences have been saved.',
