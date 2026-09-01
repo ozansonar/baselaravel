@@ -111,6 +111,56 @@ class SystemHealthPageTest extends TestCase
     }
 
     /**
+     * Hızın iki sessiz düşmanı ekranda görünmeli.
+     *
+     * OPcache kapalı ya da config/rota önbelleği kurulmamışken site istek
+     * başına birkaç yüz milisaniye kaybediyor ve bu hiçbir yerde yazmıyor:
+     * sayfa yavaş açılır, sorgular hızlıdır, sebep bulunamaz. Canlı bir
+     * kurulumda tam olarak bu yaşandı — neredeyse hiç iş yapmayan bir rota
+     * bile yarım saniye sürüyordu.
+     */
+    public function test_the_screen_reports_the_two_silent_speed_killers(): void
+    {
+        $keys = collect($this->health()['checks'])->pluck('key');
+
+        $this->assertTrue($keys->contains('opcache'), 'OPcache kontrolü ekranda yok');
+        $this->assertTrue($keys->contains('app_cache'), 'Uygulama önbelleği kontrolü ekranda yok');
+    }
+
+    /**
+     * Testler `php artisan optimize` çalıştırılmadan koşuyor, yani config ve
+     * rota önbelleği kurulu değil — kontrol bunu uyarı olarak söylemeli ve ne
+     * yapılacağını yazmalı.
+     */
+    public function test_a_missing_application_cache_is_reported_with_the_command_that_fixes_it(): void
+    {
+        $check = collect($this->health()['checks'])->firstWhere('key', 'app_cache');
+
+        $this->assertSame(HealthCheckService::STATUS_WARNING, $check['status']);
+        $this->assertStringContainsString('config', (string) $check['message']);
+        $this->assertStringContainsString('optimize', (string) $check['hint']);
+    }
+
+    /**
+     * OPcache kontrolü hiçbir ortamda çökmemeli.
+     *
+     * `opcache_get_status()` üç ayrı şekilde işe yaramaz olabiliyor: eklenti
+     * hiç yok, `opcache.restrict_api` çağrıyı yasaklamış, ya da açık ama CLI
+     * için kapalı. Üçünde de kontrol bir cevap üretmeli — "bilmiyorum" da bir
+     * cevap, ama istisna değil.
+     */
+    public function test_the_opcache_check_answers_in_every_environment(): void
+    {
+        $check = collect($this->health()['checks'])->firstWhere('key', 'opcache');
+
+        $this->assertContains($check['status'], [
+            HealthCheckService::STATUS_OK,
+            HealthCheckService::STATUS_WARNING,
+        ]);
+        $this->assertNotSame('', (string) $check['message']);
+    }
+
+    /**
      * Yedek alınmamışsa kart hem uyarı vermeli hem de yedekler sayfasına
      * götürmeli.
      */

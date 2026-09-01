@@ -171,13 +171,55 @@ php artisan backup:run
 
 ---
 
-## 7. Deploy sonrası kontrol listesi
+## 7. Hız: OPcache ve uygulama önbellekleri
+
+Paylaşımlı hosting'de bir sayfanın yavaş açılmasının en sık iki sebebi kodda
+değil, ortamda:
+
+**OPcache kapalı.** PHP her istekte binlerce dosyayı yeniden okuyup derliyor.
+Uygulamada hiçbir şey değişmeden istek başına birkaç yüz milisaniye demek.
+Ölçüldüğü bir kurulumda **hiç iş yapmayan bir rota bile ~400 ms** sürüyordu;
+statik bir dosya aynı sunucudan 40 ms'de geliyordu. Hosting panelinden PHP
+eklentileri bölümünde açılır:
+
+```ini
+opcache.enable=1
+opcache.memory_consumption=128
+opcache.max_accelerated_files=20000
+opcache.validate_timestamps=1
+```
+
+Açık olması yetmiyor: belleği dolduğunda ya da dosya tavanına dayandığında
+OPcache dosyaları atmaya başlıyor ve kazanç sessizce kayboluyor. Panelin
+**Sistem Sağlık** ekranı isabet oranını, dosya sayısını ve bellek kullanımını
+yazıyor — kapalıysa ya da tıkandıysa orada uyarı çıkıyor.
+
+**Config ve rota önbelleği kurulu değil.** Kurulmadığında her istek otuz küsur
+config dosyasını okuyor ve rota tablosunu baştan kuruyor. Tek komut:
+
+```bash
+php artisan optimize
+```
+
+Ayar ya da rota değiştirdiğinizde tekrarlanır. Bu ikisi de Sistem Sağlık
+ekranında kontrol olarak duruyor (`opcache`, `app_cache`), yani sunucuda ölçüm
+yapmadan görülebiliyor.
+
+> **Debugbar not.** Ölçümde Debugbar'ın kendi maliyeti şaşırtıcı biçimde
+> küçük çıktı: Debugbar'ın kendini hariç tuttuğu bir yol 406 ms, tuttuğu bir
+> yol 409 ms sürdü. Yani demo ortamında açık bırakmak hızın sebebi değil —
+> yine de canlıda kapatılmalı, çünkü sorguları ve oturum içeriğini herkese
+> gösteriyor.
+
+---
+
+## 8. Deploy sonrası kontrol listesi
 
 ```bash
 php artisan migrate --force
 php artisan optimize:clear
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-php artisan schedule:list          # görevler görünüyor mu
+php artisan optimize                # config + rota + görünüm önbelleği
+php artisan schedule:list           # görevler görünüyor mu
 ```
 
 - [ ] Panelde cron tanımlı ve **her dakika** çalışıyor
@@ -185,11 +227,14 @@ php artisan schedule:list          # görevler görünüyor mu
 - [ ] `public/uploads/` yazılabilir
 - [ ] `storage/` ve `bootstrap/cache/` yazılabilir
 - [ ] `APP_DEBUG=false`, `APP_ENV=production`
+- [ ] `DEBUGBAR_ENABLED=false` ve `composer install --no-dev --optimize-autoloader`
+- [ ] **OPcache açık** — Sistem Sağlık ekranında yeşil görünüyor
+- [ ] **Sistem Sağlık ekranında kritik/uyarı kalmadı**
 - [ ] Demo hesapların şifresi değiştirildi veya hesaplar silindi
 
 ---
 
-## 8. Bu kuralları koruyan testler
+## 9. Bu kuralları koruyan testler
 
 `tests/Feature/ScheduleUsesCallablesTest.php`:
 

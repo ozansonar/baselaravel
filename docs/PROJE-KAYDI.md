@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **38** model | **102** servis | **27** policy | **80** migration |
-| **135** test dosyası | **1924** test | **7734** doğrulama | **34** dışa aktarma tanımı |
+| **135** test dosyası | **1927** test | **7749** doğrulama | **34** dışa aktarma tanımı |
 | **368** rota | **258** admin rotası | **43** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1924 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1927 geçiyor, 8 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -235,6 +235,95 @@ olduğu bulundu ve o da düzeltilip bekçisi yazıldı.
 | **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
 | ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
+
+---
+
+### 3.0 Canlı ortam ölçümü (1 Eylül) — yavaşlığın sebebi kod değil
+
+Demo sunucuda blog sayfaları ~5 saniyede açılıyordu ve şüphe son eklenen
+özelliklerdeydi. Ölçüldü, değillermiş.
+
+#### Ölçüm
+
+| İstek | Sunucu boştayken |
+|---|---|
+| Statik dosya (`/css/app.css`, PHP çalışmıyor) | **42 ms** |
+| `/_debugbar/assets` — Laravel açılıyor, Debugbar kendini hariç tutuyor | **406 ms** |
+| `/robots.txt` — Laravel + Debugbar, sayfa mantığı yok denecek kadar az | **409 ms** |
+| `/tr/blog` — Laravel + Debugbar + sayfa | **635 ms** |
+
+Üç sonuç birden çıkıyor:
+
+- **Çerçeve açılışı tek başına ~365 ms.** Hiçbir sayfa mantığı çalışmadan.
+- **Debugbar'ın maliyeti ölçülebilir düzeyde değil** — kendini hariç tuttuğu
+  yol 406 ms, tutmadığı yol 409 ms. Demo ortamında açık kalması hızın sebebi
+  değil.
+- **Blog sayfasının kendi işi ~230 ms.** Yani toplamın üçte biri; geri kalanı
+  her rotada aynı şekilde ödenen sabit maliyet.
+
+Debugbar'ın kendi sayacı da aynı şeyi söylüyordu: 621 ms toplam, **23 ms
+SQL** (30 sorgu). Veritabanı suçlu değil. Laravel'in kendi saydığı 621 ms ile
+tarayıcının gördüğü ~1000 ms arasındaki fark, Laravel'in sayacı başlamadan
+önce geçen süre — PHP açılışı ve dosya derlemesi, yani **OPcache imzası.**
+
+Arka arkaya istek geldiğinde aynı sayfa 635 ms'den 3 saniyeye çıkıyor: derleme
+CPU'ya bağlı olduğu için sunucu en hafif eşzamanlılıkta bile bozuluyor. "5
+saniye" tam olarak bu.
+
+#### Karşılaştırma
+
+Aynı sayfa yerel makinede **19 ms** (SQLite, Debugbar açık, OPcache açık:
+isabet %99.9, 1282 dosya). Aradaki fark koddan değil ortamdan geliyor.
+
+#### Yapılan
+
+Sunucu ayarını buradan değiştiremiyoruz ama **panelin bunu söylememesi bir
+eksikti**: site yavaş açılır, sorgular hızlıdır, sebep hiçbir ekranda yazmaz.
+Sistem Sağlık ekranına iki kontrol eklendi:
+
+- **`opcache`** — açık mı, isabet oranı, önbellekteki dosya sayısı, bellek
+  kullanımı. Açık olmak yetmediği için iki tuzak ayrıca sınanıyor: bellek
+  dolduğunda ve dosya tavanına dayanıldığında OPcache dosya atmaya başlıyor,
+  kazanç sessizce kayboluyor. `opcache.restrict_api` yüzünden okunamadığında
+  "bilmiyorum" diyor — varsaymıyor.
+- **`app_cache`** — config ve rota önbelleği kurulu mu. Görünüm önbelleği
+  bilerek dışarıda: Blade ilk çizimde kendiliğinden derlendiği için derlenmiş
+  dizine bakmak "önden derlendi" ile "birisi o sayfayı bir kez açtı"yı ayırt
+  edemiyor, ölçemediğimiz şeyi yeşil göstermek hiç göstermemekten kötü.
+
+`docs/SHARED-HOSTING.md`'ye "Hız" bölümü eklendi (ölçüm, `opcache.ini`
+değerleri, `php artisan optimize`) ve deploy kontrol listesine OPcache,
+`DEBUGBAR_ENABLED=false` ve `--no-dev` maddeleri girdi.
+
+Test: `SystemHealthPageTest` — üç yeni test (iki kontrolün varlığı, önbellek
+uyarısının düzeltme komutunu söylemesi, OPcache kontrolünün her ortamda
+istisna atmadan cevap vermesi).
+
+#### Sunucuda yapılacaklar
+
+```bash
+# hosting panelinden PHP eklentileri → OPcache
+opcache.enable=1
+opcache.memory_consumption=128
+opcache.max_accelerated_files=20000
+```
+
+```bash
+php artisan optimize
+```
+
+Beklenen: ~365 ms'lik sabit maliyet 40-80 ms'ye iner.
+
+#### Yol üzerinde görülen, sebep olmayanlar
+
+- **Alt bilgi istek başına 8 sorgu açıyor** (her sayfa bağlantısı için önce
+  `lang_group_id`, sonra `slug`). Toplam ~4 ms; SQL zaten 23 ms olduğu için
+  bugün ölçülebilir bir kazanç yok. Alt bilgi bilerek parça önbelleğine
+  alınmamıştı (bülten formu CSRF taşıyor).
+- **Canlıdaki sürüm eski.** `/admin/seo` ve `/admin/push-duyurulari` 404
+  dönüyor, yanıtta `Content-Security-Policy` başlığı yok — 1 Eylül'ün hiçbir
+  işi sunucuda değil. "Son eklenenler yavaşlattı" ihtimali zaten fiilen
+  mümkün değildi.
 
 ---
 

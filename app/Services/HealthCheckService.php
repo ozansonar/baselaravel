@@ -85,6 +85,18 @@ final class HealthCheckService
             'hint'  => '.env dosyasında LOG_STACK=daily ve LOG_DAILY_DAYS=14 kullanın; dönmeyen log dosyası diski doldurur.',
             'route' => null,
         ],
+        'opcache' => [
+            'icon'  => 'bi-lightning-charge-fill',
+            'what'  => 'PHP kodunun derlenmiş hâlinin bellekte tutulup tutulmadığına bakar.',
+            'hint'  => 'Hosting panelinden OPcache eklentisini açın; opcache.memory_consumption=128 ve opcache.max_accelerated_files=20000 iyi bir başlangıç.',
+            'route' => null,
+        ],
+        'app_cache' => [
+            'icon'  => 'bi-speedometer2',
+            'what'  => 'Yapılandırma, rota ve görünüm önbelleklerinin kurulu olduğuna bakar.',
+            'hint'  => 'Sunucuda `php artisan optimize` çalıştırın (config + rota + görünüm önbelleğini birlikte kurar); ayar ya da rota değiştirdiğinizde tekrarlayın.',
+            'route' => null,
+        ],
         'last_backup' => [
             'icon'  => 'bi-archive-fill',
             'what'  => 'En son yedeğin ne zaman alındığını söyler.',
@@ -111,6 +123,8 @@ final class HealthCheckService
             $this->checkTelegram(),
             $this->checkStorageWritable(),
             $this->checkPhpExtensions(),
+            $this->checkOpcache(),
+            $this->checkApplicationCaches(),
             $this->checkLogs(),
             $this->checkLastBackup(),
         ];
@@ -302,6 +316,133 @@ final class HealthCheckService
         return $this->result('php_ext', 'PHP Modülleri', self::STATUS_OK,
             'Tüm gerekli modüller yüklü',
             'PHP ' . PHP_VERSION . ' — ' . count($required) . ' modül OK');
+    }
+
+    /**
+     * OPcache.
+     *
+     * Kapalıyken PHP her istekte bütün dosyaları yeniden okuyup derliyor.
+     * Uygulama kodunda hiçbir şey değişmeden istek başına birkaç yüz
+     * milisaniye demek — ve hiçbir yerde görünmüyor: sayfa yavaş açılır,
+     * sorgular hızlıdır, kimse sebebi bulamaz.
+     *
+     * Bu ölçüm isteğin kendi SAPI'sinde yapılıyor, yani panelde görülen değer
+     * ziyaretçinin gördüğü davranışın ta kendisi. CLI'da OPcache ayrı
+     * yapılandırılır; oradan bakmak yanıltır.
+     *
+     * @return array<string, mixed>
+     */
+    private function checkOpcache(): array
+    {
+        if (! function_exists('opcache_get_status')) {
+            return $this->result('opcache', 'OPcache', self::STATUS_WARNING,
+                'OPcache eklentisi yüklü değil',
+                'Her istekte bütün PHP dosyaları yeniden derleniyor');
+        }
+
+        // `opcache.restrict_api` ayarlıysa çağrı yasaklanmış olabilir; o durumda
+        // OPcache açık olabilir de olmayabilir de — bilmediğimizi söylemek,
+        // varsaymaktan iyi.
+        try {
+            $status = @opcache_get_status(false);
+        } catch (\Throwable) {
+            $status = false;
+        }
+
+        if ($status === false) {
+            $etkin = filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOL);
+
+            return $etkin
+                ? $this->result('opcache', 'OPcache', self::STATUS_OK,
+                    'Açık görünüyor', 'Durum bilgisi okunamıyor (opcache.restrict_api)')
+                : $this->result('opcache', 'OPcache', self::STATUS_WARNING,
+                    'Kapalı', 'php.ini içinde opcache.enable=1 yapın');
+        }
+
+        if (($status['opcache_enabled'] ?? false) !== true) {
+            return $this->result('opcache', 'OPcache', self::STATUS_WARNING,
+                'Kapalı', 'Her istekte bütün PHP dosyaları yeniden derleniyor');
+        }
+
+        $bellek = $status['memory_usage'] ?? [];
+        $istatistik = $status['opcache_statistics'] ?? [];
+
+        $kullanilan = (int) ($bellek['used_memory'] ?? 0);
+        $bos = (int) ($bellek['free_memory'] ?? 0);
+        $toplam = $kullanilan + $bos + (int) ($bellek['wasted_memory'] ?? 0);
+
+        $isabet = (float) ($istatistik['opcache_hit_rate'] ?? 0);
+        $dosya = (int) ($istatistik['num_cached_scripts'] ?? 0);
+        $tavan = (int) ($istatistik['max_cached_keys'] ?? 0);
+
+        $detay = sprintf(
+            'İsabet %%%.1f · %d dosya önbellekte · bellek %s / %s',
+            $isabet,
+            $dosya,
+            $this->humanBytes($kullanilan),
+            $this->humanBytes($toplam),
+        );
+
+        // Açık olmak yetmiyor: bellek dolduğunda ya da dosya tavanına
+        // dayanıldığında OPcache dosyaları atmaya başlıyor ve kazanç sessizce
+        // kayboluyor. İkisi de kapalı olmak kadar sinsi.
+        if ($toplam > 0 && $bos < $toplam * 0.05) {
+            return $this->result('opcache', 'OPcache', self::STATUS_WARNING,
+                'Açık ama belleği doldu', $detay . ' — opcache.memory_consumption artırın');
+        }
+
+        if ($tavan > 0 && $dosya >= $tavan * 0.95) {
+            return $this->result('opcache', 'OPcache', self::STATUS_WARNING,
+                'Açık ama dosya tavanına dayandı', $detay . ' — opcache.max_accelerated_files artırın');
+        }
+
+        // Isınma sırasında isabet oranı doğal olarak düşük; yalnız yeterince
+        // istek görmüş bir süreçte düşük oran anlamlı.
+        $istek = (int) ($istatistik['hits'] ?? 0) + (int) ($istatistik['misses'] ?? 0);
+
+        if ($istek > 500 && $isabet < 90.0) {
+            return $this->result('opcache', 'OPcache', self::STATUS_WARNING,
+                'Açık ama isabet oranı düşük', $detay);
+        }
+
+        return $this->result('opcache', 'OPcache', self::STATUS_OK, 'Açık ve çalışıyor', $detay);
+    }
+
+    /**
+     * Yapılandırma, rota ve görünüm önbellekleri.
+     *
+     * İkisi de kurulmadığında her istek otuz küsur config dosyasını okuyor ve
+     * rota tablosunu baştan kuruyor. Kurulduklarında bu iş bir kez yapılıyor.
+     *
+     * Görünüm önbelleği bilerek dışarıda: Blade dosyaları ilk çizimde
+     * kendiliğinden derleniyor ve derlenmiş dizine bakmak "önden derlendi" ile
+     * "birisi o sayfayı bir kez açtı"yı ayırt edemiyor. Ölçemediğimiz bir şeyi
+     * yeşil göstermek, hiç göstermemekten kötü — `view:cache` yine de
+     * çalıştırılmalı ve ipucunda yazılı.
+     *
+     * @return array<string, mixed>
+     */
+    private function checkApplicationCaches(): array
+    {
+        $eksik = [];
+
+        if (! app()->configurationIsCached()) {
+            $eksik[] = 'config';
+        }
+
+        if (! app()->routesAreCached()) {
+            $eksik[] = 'route';
+        }
+
+        if ($eksik === []) {
+            return $this->result('app_cache', 'Uygulama Önbellekleri', self::STATUS_OK,
+                'Config ve rota önbelleği kurulu',
+                'Ayar ya da rota değiştirdiğinizde `php artisan optimize` ile yenileyin');
+        }
+
+        return $this->result('app_cache', 'Uygulama Önbellekleri', self::STATUS_WARNING,
+            'Kurulu değil: ' . implode(', ', $eksik),
+            'Geliştirme makinesinde beklenen durum; sunucuda istek başına birkaç yüz milisaniye demek');
     }
 
     /**
