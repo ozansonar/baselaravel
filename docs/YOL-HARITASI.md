@@ -252,9 +252,10 @@ verilmiş ama uygulanmamış hâlde duruyorlar.
 düşeceği için) ve `cache.serializable_classes` için izin listesi.
 **Yapılan:** `cache.serializable_classes` izin listesi kuruldu ve yedi
 önbellekli yolun hepsi iki geçişli testle (yaz + geri oku) kapsandı.
-**Kalan:** `session.serialization = json`. Bilerek ertelendi: çevirmek o anda
-açık olan bütün oturumları düşürüyor ve bu, çalışan bir kurulumda bakım
-penceresi gerektiren bir karar — kod değil, zamanlama meselesi.
+**Kalan:** ~~`session.serialization = json`~~ — **1 Eylül 2026'da kapandı.**
+Ertelenme sebebi çevirmenin açık oturumları düşürmesiydi; `migrate` modu o
+bedeli kaldırdı (okuma iki biçimi de kabul ediyor, yazma JSON'a dönüyor).
+Kit varsayılanı artık `json`.
 
 ---
 

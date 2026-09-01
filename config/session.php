@@ -24,6 +24,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Oturum Serileştirmesi
+    |--------------------------------------------------------------------------
+    | Oturum verisinin diske/veritabanına hangi biçimde yazılacağı.
+    |
+    | Çerçevenin varsayılanı `php`, yani `serialize()`. O biçimin bilinen bir
+    | tehlikesi var: `unserialize()` veri okumakla kalmıyor, nesne kuruyor —
+    | saklanan dizgeyi değiştirebilen biri, uygulamadaki sınıflardan bir zincir
+    | kurup kod çalıştırabiliyor. `json` bu yüzeyi tamamen kapatıyor: okunan şey
+    | yalnız veri.
+    |
+    | Üç değer tanınıyor:
+    |
+    |   php      → çerçeve varsayılanı; yeni kurulumda tercih edilmez
+    |   migrate  → yazma JSON, okuma iki biçimi de kabul ediyor
+    |   json     → hedef durum
+    |
+    | **Yeni kurulum** doğrudan `json` ile başlar; ortada oturum olmadığı için
+    | geçiş diye bir şey yoktur.
+    |
+    | **Çalışan bir kurulum** doğrudan `json`'a çevrilirse o anda açık olan
+    | bütün oturumlar okunamaz hâle gelir ve herkes aynı anda çıkış yapar.
+    | `migrate` bu bedeli kaldırıyor: açık oturumlar bir sonraki isteklerinde
+    | sessizce yeni biçime geçiyor. Oturum ömrü kadar bir süre geçtikten sonra
+    | (SESSION_LIFETIME) ayar `json`'a alınmalı — `migrate` açıkken
+    | `unserialize()` yolu hâlâ duruyor ve geçişin amacı onu kapatmaktı.
+    |
+    | @see \App\Session\SessionManager
+    */
+    'serialization' => env('SESSION_SERIALIZATION', 'json'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Session Lifetime
     |--------------------------------------------------------------------------
     |

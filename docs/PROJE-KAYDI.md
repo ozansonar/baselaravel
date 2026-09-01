@@ -1,6 +1,6 @@
 # Proje Kaydı — Laravel Base Kit
 
-**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `97d0ae3`
+**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `KOMIT`
 
 Bu belge, projenin dört ayrı kaydını **tek yerde** toplar. Dört belge birbirine
 bağlıydı ama ayrı ayrı okunması gerekiyordu; bir maddenin durumunu öğrenmek için
@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **37** model | **100** servis | **26** policy | **79** migration |
-| **133** test dosyası | **1875** test | **7601** doğrulama | **33** dışa aktarma tanımı |
+| **134** test dosyası | **1888** test | **7637** doğrulama | **33** dışa aktarma tanımı |
 | **359** rota | **249** admin rotası | **43** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1875 geçiyor, 8 gerekçeli atlama (üç ardışık koşuda kararlı) |
+| Test paketi (`composer test`) | ✅ 1888 geçiyor, 8 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -138,7 +138,7 @@ arşiv bölümünde olduğunu söylüyor.
 | 5.2 | `jenssegers/agent` bağımlılığından çıkış | B Faz 5 | ✅ |
 | 5.3 | Test paketinin bellek bütçesi | B Faz 5 | ✅ |
 | 5.4 | Sertleştirme: `cache.serializable_classes` | B Faz 5 | ✅ |
-| 5.4 | Sertleştirme: `session.serialization = json` | B Faz 5 | 🟡 **bakım penceresi bekliyor** |
+| 5.4 | Sertleştirme: `session.serialization = json` | B Faz 5 | ✅ *(1 Eyl)* — geçiş modu bakım penceresi ihtiyacını kaldırdı |
 
 ### 2.3 Boşluk analizi bulguları (S-01 … S-15)
 
@@ -211,13 +211,13 @@ arşiv bölümünde olduğunu söylüyor.
 | CSP satır içi işleyici kusuru + kapak görseli kusuru | `03e2bba` | ✅ |
 | Dört durum belgesi tek kayıtta toplandı | `4aeb75d` | ✅ |
 | **219 satır içi işleyici JS'e taşındı, CSP tavizi kalktı** | `97d0ae3` | ✅ |
+| **Oturum serileştirmesi JSON'a alındı (geçiş moduyla)** | `KOMIT` | ✅ |
 
 ---
 
 ## 3. Kalan işler ve plan
 
-Bilinen **dört açık madde** var. İkisi bilinçli erteleme (kod değil, zamanlama
-ve tasarım meselesi), ikisi gerçek iş.
+Bilinen **üç açık madde** var. Biri tasarım bekliyor, ikisi gerçek iş.
 
 ### Öncelik sırası ve gerekçesi
 
@@ -227,7 +227,7 @@ ve tasarım meselesi), ikisi gerçek iş.
 | **1** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
 | **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
 | **3** | Panelden push bildirim gönderme ekranı | Küçük | **Tasarım bekliyor** — sunucu tarafı hazır, admin temada bu ekranın tasarımı yok |
-| **4** | `session.serialization = json` | Küçük | **Bakım penceresi bekliyor** — çevirmek açık oturumları düşürüyor |
+| ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 
 ---
 
@@ -339,16 +339,65 @@ ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
 
 ---
 
-### İş 4 — `session.serialization = json`
+### ✅ Tamamlandı — `session.serialization = json`
 
-**Durum:** 🟡 bakım penceresi bekliyor · **Efor:** küçük
+**Durum:** ✅ kapandı (1 Eylül 2026) · **Tür:** güvenlik sertleştirmesi
 
-Karar verilmiş, uygulanmamış. Çevirmek o anda açık olan **bütün oturumları
-düşürüyor**; çalışan bir kurulumda bu bir bakım penceresi kararı, kod değil
-zamanlama meselesi.
+**Sorundu.** Oturum verisi PHP'nin `serialize()` biçiminde yazılıyordu.
+`unserialize()` veri okumakla kalmıyor, **nesne kuruyor** — saklanan dizgeyi
+değiştirebilen biri uygulamadaki sınıflardan bir zincir kurup kod
+çalıştırabiliyor. JSON'da bu yüzey yok; okunan şey yalnız veri.
 
-Kardeşi olan `cache.serializable_classes` izin listesi yapıldı (yedi önbellekli
-yol iki geçişli testle kapsandı).
+Karar verilmişti ama **uygulanmamıştı**: ayarı çevirmek o anda açık olan bütün
+oturumları okunamaz hâle getiriyor ve çerçeve sessizce boş bir oturum veriyor —
+yani herkes aynı anda çıkış yapıyor. Çalışan bir kurulumda bu bir bakım
+penceresi kararıydı.
+
+**Yapıldı — bakım penceresi ihtiyacı kalktı.** `session.serialization` ayarına
+üçüncü bir değer eklendi:
+
+| Ayar | Yazma | Okuma |
+|---|---|---|
+| `php` | serialize | serialize |
+| **`migrate`** | **JSON** | **JSON, tutmazsa serialize** |
+| `json` | JSON | JSON |
+
+`migrate` modunda açık oturumlar bir sonraki isteklerinde sessizce yeni biçime
+geçiyor; kimse düşmüyor. Oturum ömrü kadar süre geçtikten sonra ayar `json`'a
+alınıyor ve `unserialize()` yolu tamamen kapanıyor.
+
+**Kit varsayılanı `json`** — yeni kurulumda ortada oturum olmadığı için geçiş
+diye bir şey yok.
+
+**Geçiş dönemi bile nesne kurmuyor.** Eski biçimi okurken `unserialize()`
+sınırlı çağrılıyor (`allowed_classes: false`): eski bir oturumda nesne bulunsa
+da kurulmuyor. Geçişin amacı o yüzeyi kapatmaktı; geçiş boyunca açık bırakmak
+amacı boşa çıkarırdı.
+
+**Önce doğrulandı, sonra yazıldı.** Projenin oturuma yazdığı her şey tarandı:
+dil kodu (dizge), 2FA bekleme kaydı (id, bool, zaman damgası) ve flash
+mesajları — hepsi skaler, JSON'a uygun. Tek nesne çerçevenin doğrulama hataları
+torbası ve onu çerçeve zaten JSON için özel olarak çeviriyor
+(`prepareErrorBagForSerialization` / `marshalErrorBag`).
+
+**Doğrulama (gerçek tarayıcı oturumuyla).** Giriş yapılmış canlı bir oturumun
+dosyası elle eski biçime çevrildi:
+
+- `migrate` modunda istek → **200, oturum ayakta** ve dosya **kendiliğinden
+  JSON'a taşındı**
+- Karşıt durum testte kanıtlı: saf `json` deposu aynı oturumu okuyamıyor
+
+Ayrıca doğrulama hataları ekranda göründü ("Geçerli bir e-posta adresi girin"),
+giriş ve panel çalıştı, diskteki taze oturum dosyaları JSON.
+
+**Test.** `SessionSerializationTest` — 13 test: varsayılan, üç modun doğru
+depoyu kurması, eski oturumun okunması, JSON'a taşınması, nesne kurulmaması,
+giriş akışı, doğrulama hataları, flash, dil seçimi. Ayrıca bir bekçi: oturuma
+nesne yazan kod yok (JSON yalnız veri saklar).
+
+**Değişen dosyalar:** `app/Session/` (4 yeni dosya), `config/session.php`,
+`app/Providers/AppServiceProvider.php`, `.env.example`,
+`tests/Feature/SessionSerializationTest.php` (yeni)
 
 ---
 
@@ -2694,9 +2743,10 @@ verilmiş ama uygulanmamış hâlde duruyorlar.
 düşeceği için) ve `cache.serializable_classes` için izin listesi.
 **Yapılan:** `cache.serializable_classes` izin listesi kuruldu ve yedi
 önbellekli yolun hepsi iki geçişli testle (yaz + geri oku) kapsandı.
-**Kalan:** `session.serialization = json`. Bilerek ertelendi: çevirmek o anda
-açık olan bütün oturumları düşürüyor ve bu, çalışan bir kurulumda bakım
-penceresi gerektiren bir karar — kod değil, zamanlama meselesi.
+**Kalan:** ~~`session.serialization = json`~~ — **1 Eylül 2026'da kapandı.**
+Ertelenme sebebi çevirmenin açık oturumları düşürmesiydi; `migrate` modu o
+bedeli kaldırdı (okuma iki biçimi de kabul ediyor, yazma JSON'a dönüyor).
+Kit varsayılanı artık `json`.
 
 ---
 

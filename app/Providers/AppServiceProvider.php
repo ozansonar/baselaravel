@@ -75,6 +75,17 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 
+        // Oturum yöneticisi: `session.serialization` ayarına `migrate` değerini
+        // tanıtan sürüm. Çerçevenin kendi yöneticisi iki değer biliyor (php,
+        // json); geçiş modu üçüncüsü ve çalışan bir kurulumu bakım penceresi
+        // açmadan taşımak için var.
+        //
+        // Bağ, çerçevenin SessionServiceProvider'ından SONRA kuruluyor:
+        // uygulama sağlayıcıları çerçeveninkilerden sonra kaydediliyor,
+        // dolayısıyla bu tanım üsttekini geçersiz kılıyor.
+        $this->app->singleton('session', static fn ($app): \App\Session\SessionManager
+            => new \App\Session\SessionManager($app));
+
         // İçerik güvenlik politikası istek kapsamında paylaşılıyor: başlığa
         // yazılan nonce ile sayfadaki satır içi betiklerin taşıdığı nonce aynı
         // olmak zorunda. Singleton olsaydı kuyruk işçisi gibi uzun ömürlü
