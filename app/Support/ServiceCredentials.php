@@ -26,12 +26,11 @@ namespace App\Support;
  *
  * Mail ve Telegram bilerek burada değil: ikisi de yalnız kimlik bilgisinden
  * ibaret değil (bağlantı testi, gönderim limitleri, mail teması, bildirim
- * seviyesi) ve kendi sekmelerinde bütün hâlinde duruyorlar. Analitik
- * kimlikleri de burada değil: onlar üçüncü taraf *anahtarı* değil site
- * ayarı ve Ayarlar → Genel altında duruyorlar.
+ * seviyesi) ve kendi sekmelerinde bütün hâlinde duruyorlar.
  *
  * Kural şu: bir ayar iki formdan yönetilmemeli. İkisinin sessizce ayrışmasının
- * en kısa yolu budur.
+ * en kısa yolu budur — bu yüzden buraya taşınan alanlar eski ekranlarından
+ * kaldırıldı.
  */
 final class ServiceCredentials
 {
@@ -198,6 +197,58 @@ final class ServiceCredentials
                 ],
             ],
 
+            'analytics' => [
+                'label'       => 'Analitik ve Etiketler',
+                'icon'        => 'bi-graph-up',
+                'description' => 'Ziyaretçi ölçümü. Üçü de çerez rızasına bağlı: ziyaretçi izin '
+                    . 'vermeden sayfaya hiç eklenmezler. Alan boşsa betik hiç basılmaz — '
+                    . 'gereksiz istek gitmez.',
+                'doc' => [
+                    'url'   => 'https://analytics.google.com/',
+                    'label' => 'Google Analytics',
+                ],
+                'fields' => [
+                    'google_analytics_id' => [
+                        'label'       => 'Google Analytics 4 Ölçüm Kimliği',
+                        // Ön yüz düzeni bu ayarı doğrudan okuyor.
+                        'config'      => '',
+                        'env'         => '',
+                        'type'        => 'text',
+                        'secret'      => false,
+                        'pattern'     => '/^G-[A-Z0-9]{4,}$/i',
+                        'placeholder' => 'G-XXXXXXXXXX',
+                        'help'        => 'Google Analytics → **Yönetici** → *Veri akışları* → akışınızı '
+                            . 'seçin. Sağ üstte duran **"Ölçüm Kimliği"** `G-` ile başlar; olduğu gibi '
+                            . 'buraya yapıştırın. Eski Universal Analytics kimlikleri (`UA-` ile '
+                            . 'başlayanlar) artık çalışmıyor. **Analitik** çerez iznine bağlıdır.',
+                    ],
+                    'google_tag_manager_id' => [
+                        'label'       => 'Google Tag Manager Kapsayıcı Kimliği',
+                        'config'      => '',
+                        'env'         => '',
+                        'type'        => 'text',
+                        'secret'      => false,
+                        'pattern'     => '/^GTM-[A-Z0-9]{4,}$/i',
+                        'placeholder' => 'GTM-XXXXXXX',
+                        'help'        => 'Tag Manager çalışma alanınızın üst çubuğunda, kapsayıcı adının '
+                            . 'yanında `GTM-` ile başlayan kimlik. **Pazarlama** çerez iznine bağlıdır: '
+                            . 'bir kapsayıcının içine ne konduğu buradan görünmüyor, o yüzden en dar '
+                            . 'kategoriye konuyor.',
+                    ],
+                    'facebook_pixel_id' => [
+                        'label'       => 'Meta (Facebook) Pixel Kimliği',
+                        'config'      => '',
+                        'env'         => '',
+                        'type'        => 'text',
+                        'secret'      => false,
+                        'pattern'     => '/^[0-9]{8,20}$/',
+                        'placeholder' => '1234567890123456',
+                        'help'        => 'Meta **Events Manager** → *Veri kaynakları* → Pixel\'inizi '
+                            . 'seçin; kimlik yalnız rakamlardan oluşur. **Pazarlama** çerez iznine '
+                            . 'bağlıdır.',
+                    ],
+                ],
+            ],
         ];
     }
 

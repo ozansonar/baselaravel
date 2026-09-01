@@ -468,30 +468,17 @@
                         <h6>Analitik & Takip Kodları</h6>
                     </div>
 
-                    <div class="stg-field">
-                        <label class="stg-label">Google Analytics ID</label>
-                        <div class="stg-input-group">
-                            <span class="stg-input-prefix">GA</span>
-                            <input type="text" class="stg-input" name="settings[google_analytics_id]"
-                                   value="{{ $s('google_analytics_id') }}" placeholder="G-XXXXXXXXXX" data-validation-engine="validate[maxSize[10000]]">
-                        </div>
-                        <small class="stg-hint">Google Analytics 4 ölçüm kimliği</small>
-                    </div>
-
-                    <div class="stg-field">
-                        <label class="stg-label">Google Tag Manager ID</label>
-                        <div class="stg-input-group">
-                            <span class="stg-input-prefix">GTM</span>
-                            <input type="text" class="stg-input" name="settings[google_tag_manager_id]"
-                                   value="{{ $s('google_tag_manager_id') }}" placeholder="GTM-XXXXXXX" data-validation-engine="validate[maxSize[10000]]">
-                        </div>
-                    </div>
-
-                    <div class="stg-field">
-                        <label class="stg-label">Facebook Pixel ID</label>
-                        <input type="text" class="stg-input" name="settings[facebook_pixel_id]"
-                               value="{{ $s('facebook_pixel_id') }}" placeholder="XXXXXXXXXXXXXXX" data-validation-engine="validate[maxSize[10000]]">
-                    </div>
+                    {{-- Analytics, Tag Manager ve Pixel kimlikleri buradan
+                         taşındı: hepsi "API ve Servisler" ekranında, her
+                         alanın altında kimliğin hangi konsoldan alınacağı ve
+                         hangi çerez iznine bağlı olduğu yazılı olarak duruyor.
+                         Aynı ayarı iki formdan yönetmek, ikisinin sessizce
+                         ayrışması demekti. --}}
+                    <p class="stg-hint mb-3">
+                        Ölçüm kimlikleri (Analytics, Tag Manager, Meta Pixel)
+                        <a href="{{ route('admin.service-credentials.index') }}">API ve Servisler</a>
+                        ekranına taşındı.
+                    </p>
 
                     <div class="stg-field">
                         <label class="stg-label">Özel Head Kodu</label>

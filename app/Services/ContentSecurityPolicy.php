@@ -174,12 +174,38 @@ final class ContentSecurityPolicy
         $sources = [];
 
         foreach ($vendors as $vendor) {
+            // Koşullu sağlayıcı: ilgili ayar boşken alan adı hiç yayılmıyor.
+            // Kullanılmayan bir kaynağı sürekli açık tutmak, politikayı
+            // gereksiz yere genişletmek olurdu.
+            if (($vendor['requires'] ?? null) !== null && ! $this->settingIsFilled((string) $vendor['requires'])) {
+                continue;
+            }
+
             foreach ($vendor[$directive] ?? [] as $source) {
                 $sources[] = $source;
             }
         }
 
         return $sources;
+    }
+
+    /**
+     * Bir ayar dolu mu?
+     *
+     * Politika her istekte kuruluyor; ayarlar zaten önbellekte ve istek içinde
+     * bir kez okunuyor, yani bu soru bir dizi araması. Veritabanı yoksa
+     * (taze klon, göç öncesi) cevap "hayır" — politika dar kalıyor, ki
+     * güvenli taraf o.
+     */
+    private function settingIsFilled(string $key): bool
+    {
+        try {
+            $value = \App\Models\Setting::getValue($key);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return $value !== null && $value !== '';
     }
 
     /**

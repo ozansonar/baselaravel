@@ -74,10 +74,26 @@ final class ServiceCredentialController extends Controller
 
         $fields = ServiceCredentials::fields();
 
-        $request->validate([
+        $rules = [
             'credentials'   => ['nullable', 'array'],
             'credentials.*' => ['nullable', 'string', 'max:20000'],
-        ]);
+        ];
+        $messages = [];
+
+        // Biçimi belli olan alanlar doğrulanıyor: yanlış yazılmış bir ölçüm
+        // kimliği hiçbir hata vermez, yalnız sessizce çalışmaz — yönetici
+        // haftalarca veri beklerken sebebi göremez.
+        foreach ($fields as $key => $field) {
+            if (($field['pattern'] ?? '') === '') {
+                continue;
+            }
+
+            $rules['credentials.' . $key] = ['nullable', 'string', 'regex:' . $field['pattern']];
+            $messages['credentials.' . $key . '.regex'] =
+                $field['label'] . ' beklenen biçimde değil. Örnek: ' . $field['placeholder'];
+        }
+
+        $request->validate($rules, $messages);
 
         DB::transaction(function () use ($request, $fields): void {
             /** @var array<string, mixed> $input */
