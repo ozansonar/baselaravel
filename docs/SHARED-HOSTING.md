@@ -231,6 +231,11 @@ php artisan schedule:list           # görevler görünüyor mu
 - [ ] **OPcache açık** — Sistem Sağlık ekranında yeşil görünüyor
 - [ ] **Sistem Sağlık ekranında kritik/uyarı kalmadı**
 - [ ] Demo hesapların şifresi değiştirildi veya hesaplar silindi
+- [ ] HTTPS varsa `SESSION_SECURE_COOKIE=true`
+- [ ] Mobil bildirim kullanılacaksa `PUSH_DRIVER=fcm` ve `FCM_CREDENTIALS`
+      (Firebase servis hesabı JSON'u `storage/app/` altında) → `docs/API.md`
+- [ ] Sunucu **Nginx** ise `public/uploads/.htaccess` okunmuyor; aynı korumayı
+      sunucu bloğuna ekleyin (yolu o dosyanın içinde yazılı)
 
 ---
 

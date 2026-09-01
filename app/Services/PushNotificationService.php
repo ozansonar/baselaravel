@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\PushPlatform;
+use App\Services\Push\FcmAccessToken;
 use App\Models\PushToken;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -29,6 +30,10 @@ use Illuminate\Support\Facades\Log;
  */
 final class PushNotificationService
 {
+    public function __construct(
+        private readonly FcmAccessToken $accessToken,
+    ) {}
+
     /**
      * Cihazın adresini kaydeder.
      *
@@ -84,7 +89,7 @@ final class PushNotificationService
 
     public function isConfigured(): bool
     {
-        return config('push.driver') === 'fcm' && (string) config('push.fcm.key') !== '';
+        return config('push.driver') === 'fcm' && $this->accessToken->isConfigured();
     }
 
     /**
@@ -138,13 +143,22 @@ final class PushNotificationService
      */
     private function deliver(PushToken $token, string $title, string $body, array $data): bool
     {
+        $accessToken = $this->accessToken->token();
+        $endpoint = $this->accessToken->endpoint();
+
+        if ($accessToken === null || $endpoint === null) {
+            return false;
+        }
+
         try {
-            $response = Http::withToken((string) config('push.fcm.key'))
+            $response = Http::withToken($accessToken)
                 ->timeout((int) config('push.timeout', 10))
-                ->post((string) config('push.fcm.endpoint'), [
-                    'to'           => $token->token,
-                    'notification' => ['title' => $title, 'body' => $body],
-                    'data'         => $data,
+                ->post($endpoint, [
+                    'message' => [
+                        'token'        => $token->token,
+                        'notification' => ['title' => $title, 'body' => $body],
+                        'data'         => self::stringifyData($data),
+                    ],
                 ]);
 
             if ($response->successful()) {
@@ -153,13 +167,14 @@ final class PushNotificationService
                 return true;
             }
 
-            if ($response->status() === 404 || str_contains((string) $response->body(), 'NotRegistered')) {
+            if ($this->tokenIsDead($response->status(), (string) $response->body())) {
                 $token->delete();
             }
 
             Log::warning('Push bildirimi düştü', [
                 'token_id' => $token->getKey(),
                 'status'   => $response->status(),
+                'error'    => mb_substr((string) $response->body(), 0, 300),
             ]);
 
             return false;
@@ -171,6 +186,51 @@ final class PushNotificationService
 
             return false;
         }
+    }
+
+    /**
+     * Jeton artık geçerli değil mi?
+     *
+     * v1 bunu iki biçimde söylüyor: uygulaması silinmiş cihaz için 404
+     * UNREGISTERED, hiç var olmamış bir dizge için 400 INVALID_ARGUMENT.
+     * İkisinde de kayıt gitmeli — ölü jetonlar birikirse her bildirim, çoğu
+     * boşa giden yüzlerce isteğe dönüşür.
+     *
+     * 401/403 bilerek dışarıda: onlar jetonun değil kurulumun sorunu ve
+     * kayıtları silmek yanlış olurdu.
+     */
+    private function tokenIsDead(int $status, string $body): bool
+    {
+        if ($status === 404) {
+            return true;
+        }
+
+        return $status === 400 && str_contains($body, 'INVALID_ARGUMENT');
+    }
+
+    /**
+     * v1 `data` alanında yalnız dizge kabul ediyor.
+     *
+     * Sayı ya da boolean gönderen bir çağrı 400 alıyordu; dönüştürme burada
+     * yapılıyor ki çağıran tarafın bunu bilmesi gerekmesin.
+     *
+     * @param  array<string, mixed> $data
+     * @return array<string, string>
+     */
+    private static function stringifyData(array $data): array
+    {
+        $out = [];
+
+        foreach ($data as $key => $value) {
+            $out[(string) $key] = match (true) {
+                is_bool($value)   => $value ? 'true' : 'false',
+                is_scalar($value) => (string) $value,
+                $value === null   => '',
+                default           => (string) json_encode($value, JSON_UNESCAPED_UNICODE),
+            };
+        }
+
+        return $out;
     }
 
     /**

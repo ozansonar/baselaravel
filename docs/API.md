@@ -470,6 +470,33 @@ jetonlar düşer; cihaz yeniden giriş yaptığında adresini zaten yeniden bır
 Gönderim tarafı sağlayıcıdan bağımsız: `PUSH_DRIVER` tanımlı değilse jetonlar
 kaydedilir ama bildirim gönderilmez ve bu log'a düşer — sessizce kaybolmaz.
 
+#### Gönderimi açmak (FCM HTTP v1)
+
+Taşıyıcı Firebase Cloud Messaging'in **HTTP v1** arayüzünü kullanıyor. Eski
+sürüm (sunucu anahtarı + `/fcm/send`) Google tarafından Haziran 2024'te
+kapatıldı; v1 OAuth2 istiyor ve gereken tek şey servis hesabı anahtarı:
+
+1. Firebase Console → **Proje ayarları → Hizmet hesapları**
+2. **"Yeni özel anahtar oluştur"** → inen JSON'u `storage/app/` altına koyun
+   (o dizin `.gitignore`'da; anahtar depoya girmemeli)
+3. `.env`:
+
+   ```
+   PUSH_DRIVER=fcm
+   FCM_CREDENTIALS=storage/app/firebase-service-account.json
+   ```
+
+Proje kimliği JSON'un içinde; `FCM_PROJECT_ID` yalnız onu ezmek gerekirse.
+Erişim jetonu 55 dakika önbellekte tutuluyor, yani yüz cihazlık bir gönderim
+Google'ın jeton ucuna bir kez gidiyor.
+
+Sağlayıcı "bu jeton artık geçerli değil" derse (`404 NOT_FOUND` ya da
+`400 INVALID_ARGUMENT`) kayıt düşürülüyor. `401`/`403` bunun dışında: onlar
+jetonun değil kurulumun sorunu ve kayıtları silmek yanlış olurdu.
+
+`data` alanındaki değerler dizgeye çevrilerek gönderiliyor — v1 başka türünü
+kabul etmiyor, çağıran tarafın bunu bilmesi gerekmiyor.
+
 ### `GET /account/comments` · `DELETE /account/comments/{id}` *(jeton gerekli)*
 
 Kişinin kendi yorumları, **onay bekleyenler dahil**: yorumunun neden henüz

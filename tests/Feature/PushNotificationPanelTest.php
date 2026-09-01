@@ -16,7 +16,7 @@ use App\Models\User;
 use App\Services\NotificationPreferenceService;
 use App\Services\PushNotificationDispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
+use Tests\Concerns\ConfiguresFcm;
 use Tests\TestCase;
 
 /**
@@ -28,7 +28,7 @@ use Tests\TestCase;
  */
 class PushNotificationPanelTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, ConfiguresFcm;
 
     protected function setUp(): void
     {
@@ -36,10 +36,8 @@ class PushNotificationPanelTest extends TestCase
 
         // Taşıyıcı açık kabul ediliyor: kapalıyken gönderim hiç denenmiyor ve
         // sınanacak bir yol kalmıyor.
-        config()->set('push.driver', 'fcm');
-        config()->set('push.fcm.key', 'test-anahtari');
-
-        Http::fake(['*' => Http::response(['success' => 1], 200)]);
+        $this->configureFcm();
+        $this->fakeFcm();
     }
 
     /**
