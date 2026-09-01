@@ -217,7 +217,9 @@ arşiv bölümünde olduğunu söylüyor.
 
 ## 3. Kalan işler ve plan
 
-Bilinen **iki açık madde** var; ikisi de gerçek iş.
+Bilinen **iki büyük açık madde** var; ikisi de gerçek iş. Bunların yanında
+belge taramasından çıkan dört küçük kalem ve altı belge borcu var — hepsi
+3.1'de.
 
 ### Öncelik sırası ve gerekçesi
 
@@ -228,6 +230,70 @@ Bilinen **iki açık madde** var; ikisi de gerçek iş.
 | **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
 | ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
+
+---
+
+### 3.1 Belge taraması (1 Eylül, push ekranından sonra)
+
+Yedi belge yeniden tarandı ve her açık madde **koda karşı doğrulandı** — belge
+"açık" diyor diye açık sayılmadı, "kapandı" diyen de sınandı. Sonuç: iki büyük
+iş dışında kalan her şey ya kapanmış ya da küçük kalem.
+
+#### Gerçek açık işler
+
+| # | Madde | Efor | Not |
+|---|---|---|---|
+| 1 | İçerik sürümleme (revisions) | Orta | Üç karar bekliyor: hangi modeller, kaç sürüm, dil mi dil grubu mu |
+| 2 | Dinamik form oluşturucu | Büyük | Kapsam kararı bekliyor |
+
+#### Küçük kalemler — koda karşı doğrulanmış
+
+| # | Bulgu | Nerede | Durum |
+|---|---|---|---|
+| K-1 | `window.confirm()` iki yerde duruyor | `assets/admin/js/bulk-actions.js:122`, `public/js/app.js:225` | ⬜ **kural ihlali** — CLAUDE.md `confirm()` kullanımını yasaklıyor. İkisi de "modal yoksa son çare" diye yazılmış ama modal işaretlemesi hem admin hem front layout'ta koşulsuz yükleniyor: dallar ulaşılamaz |
+| K-2 | `alert` / `confirm` / `prompt` yasağının bekçisi yok | — | ⬜ v2 denetiminin 14. bulgusu profil ekranındaki `alert()`'i temizledi ama yasağı sınayan bir test yazılmadı; K-1 bu yüzden görünmedi |
+| K-3 | "Her liste ekranında dışa aktarma" kuralının bekçisi yok | — | ⬜ Bugün kural tutuyor (34 liste, hepsi menülü — `analytics/index`, `dashboard`, `help`, `settings` liste değil; `reports` kendi düğmelerini taşıyor), ama yeni bir liste eklendiğinde kimse uyarmayacak |
+| K-4 | `ModelFactoriesTest` bir koşuda tek seferlik düştü | — | 👀 **izlemede** — ardından beş koşuda tekrarlamadı, sebebi bulunamadı |
+
+#### Belge borcu — belgeler gerçeği anlatmıyor
+
+Aşağıdakiler kodda **kapanmış** ama belgede hâlâ açık duruyor. Birleştirme
+turunda özgün dosyalar bilerek silinmedi; sonraki üç iş yalnız bu kayda
+işlendi ve özgün dosyalar geride kaldı.
+
+| # | Belge | Satır | Ne diyor | Gerçek |
+|---|---|---|---|---|
+| B-1 | `YOL-HARITASI.md` | 174 | "4.1 Push — panel ekranı bekliyor" | Ekran 1 Eylül'de yapıldı |
+| B-2 | `YOL-HARITASI.md` | 230 | "Kalan: bağımlılığı `composer.json`'dan düşürmek" | `jenssegers/agent` composer.json'da yok, kodda tek referans bir yorum satırı |
+| B-3 | `PROJE-DURUMU.md` | 523, 543, 2051 | "bilerek ertelenmiş iki madde" (push ekranı + session json) | İkisi de 1 Eylül'de kapandı |
+| B-4 | `PROJE-DURUMU-V2.md` | 607 | "Açık kalan iki madde" | Aynı iki madde, ikisi de kapandı |
+| B-5 | `PROJE-KAYDI.md` arşivi + `PROJE-DURUMU.md` | 680 / 181 | "Hâlâ duran ölü kod: `UserRole`, `pagination/custom.blade.php`, `.gitignore` google kuralı" | Üçü de geçersiz: `UserRole` yedi dosyadan çağrılıyor (rol tohumlama + izin matrisi), `custom.blade.php` yok, `.gitignore`'da google satırı yok |
+| B-6 | `API.md` | 487 | Örnek gövde yalnız `comment_updates` gösteriyor | `push_announcements` türü eklendi. OpenAPI şeması anahtar-bağımsız (`additionalProperties`), yani sözleşme bozulmuyor; yalnız örnek eksik kalıyor |
+
+**Arşiv notu.** B-5'in `PROJE-KAYDI.md` kopyası **arşiv bölümünde** (Bölüm A) ve
+arşivler bilerek birebir dondurulmuş durumda. Düzeltilmesi gerekiyorsa arşiv
+metnine dokunmak yerine yanına bir "bugün geçersiz" notu düşülmeli.
+
+#### Doğrulanan ama sağlam çıkanlar
+
+Tarama sırasında sınanıp **sorun bulunmayan** kurallar — bir sonraki turda
+tekrar bakılmasın diye yazılı:
+
+- `declare(strict_types=1)`: `app`, `database`, `routes`, `config`, `tests`
+  altındaki **her** PHP dosyasında var (sıfır eksik).
+- `SoftDeletes`: 38 modelin hepsinde.
+- `$guarded`: hiçbir modelde yok, hepsi `$fillable`.
+- `down()`: 80 migration'ın hepsinde.
+- `Storage::disk('public')` / `asset('storage/...')`: sıfır kullanım.
+- Kendi kodumuzda jQuery: yalnız doğrulama motoru ve Select2 sarmalayıcıları.
+- Kod içinde `TODO` / `FIXME` / `HACK`: sıfır.
+- Atlanan 8 test: hepsi gerekçeli ve gerekçesi doğru — arkasında tablo olmayan
+  sekiz dışa aktarma listesi (`backups`, `translations`, `system-health`,
+  `reports`, `campaign-recipients`, `content-list`, `failed-jobs`,
+  `seo-audit`). Fabrikası olmadığı için atlanan **hiçbir** liste yok.
+- OpenAPI kapsamı: `api/v1` altındaki 43 ucun hepsi belgeli, belgede uydurma uç
+  yok (`OpenApiSpecTest` sekiz açıdan sınıyor). `POST /api/analytics/track`
+  bilerek dışarıda: o mobil sözleşmenin değil ön yüzün izleme ucu.
 
 ---
 
