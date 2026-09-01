@@ -24,13 +24,66 @@ final class TwoFactorChallengeService
     /** Şifreyi geçtikten sonra ikinci adım için tanınan süre (saniye). */
     private const TTL = 300;
 
+    /**
+     * Bir bekleme durumunda kaç yanlış kod denenebilir.
+     *
+     * Altı hanelik kod bir milyon olasılık demek; bu sayı olmadan yanlış kod
+     * bedava oluyordu — bekleme durumu ayakta kalıyor, sayaç tutulmuyordu ve
+     * saldırgan aynı oturumda sınırsız deneyebiliyordu. Beş deneme, kodu
+     * yanlış giren gerçek kullanıcıya rahat davranırken tahmini de anlamsız
+     * kılıyor: sınıra gelen bekleme düşüyor ve şifreden başlamak gerekiyor.
+     */
+    private const MAX_ATTEMPTS = 5;
+
     public function start(User $user, bool $remember): void
     {
         session()->put(self::SESSION_KEY, [
             'id'         => $user->getKey(),
             'remember'   => $remember,
             'expires_at' => now()->addSeconds(self::TTL)->getTimestamp(),
+            'failures'   => 0,
         ]);
+    }
+
+    /**
+     * Bekleyen kullanıcının kimliği — hız sınırının kovası bununla kuruluyor.
+     *
+     * Sınır isteğin gövdesinden okunan bir alana bağlanamaz: ikinci adım formu
+     * yalnız `code` gönderiyor, dolayısıyla gövdeye rastgele bir `email`
+     * eklemek her seferinde yeni bir kova açıyor ve sınır hiçbir şey
+     * tutmuyordu.
+     */
+    public function pendingId(): ?int
+    {
+        $pending = session(self::SESSION_KEY);
+
+        return is_array($pending) && isset($pending['id']) ? (int) $pending['id'] : null;
+    }
+
+    /**
+     * Yanlış kodu sayar; sınıra gelindiğinde beklemeyi düşürür.
+     *
+     * @return bool bekleme hâlâ ayakta mı
+     */
+    public function recordFailure(): bool
+    {
+        $pending = session(self::SESSION_KEY);
+
+        if (! is_array($pending)) {
+            return false;
+        }
+
+        $pending['failures'] = (int) ($pending['failures'] ?? 0) + 1;
+
+        if ($pending['failures'] >= self::MAX_ATTEMPTS) {
+            $this->forget();
+
+            return false;
+        }
+
+        session()->put(self::SESSION_KEY, $pending);
+
+        return true;
     }
 
     /**

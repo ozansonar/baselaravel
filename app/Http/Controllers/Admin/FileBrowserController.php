@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\UploadedFile;
 use App\Services\FileBrowserService;
+use App\Services\UploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -55,12 +56,22 @@ final class FileBrowserController extends Controller
     {
         $this->authorize('create', UploadedFile::class);
 
+        // Uzantı beyaz listesi: bu uç yalnız "dosya" diyordu ve .html/.svg
+        // public/uploads altına inip sitenin kendi kaynağından servis
+        // ediliyordu. UploadService de aynı listeyi ayrıca uyguluyor; buradaki
+        // kopya kullanıcıya 500 yerine düzgün bir mesaj vermek için.
         $validated = $request->validate([
-            'file'   => ['required', 'file', 'max:10240'],
+            'file'   => [
+                'required',
+                'file',
+                'max:10240',
+                'extensions:' . implode(',', UploadService::ALLOWED_EXTENSIONS),
+            ],
             'folder' => ['nullable', 'string', 'max:255'],
         ], [
-            'file.required' => 'Bir dosya seçin.',
-            'file.max'      => 'Dosya en fazla 10 MB olabilir.',
+            'file.required'   => 'Bir dosya seçin.',
+            'file.max'        => 'Dosya en fazla 10 MB olabilir.',
+            'file.extensions' => 'Bu dosya türü yüklenemez.',
         ]);
 
         try {

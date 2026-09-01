@@ -173,8 +173,14 @@
             'inLanguage'  => app()->getLocale(),
         ];
     @endphp
-    <script type="application/ld+json" nonce="{{ csp_nonce() }}">{!! json_encode($orgJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-    <script type="application/ld+json" nonce="{{ csp_nonce() }}">{!! json_encode($websiteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    {{-- JSON_HEX_TAG şart: değerler panelden geliyor (site adı, açıklama,
+         iletişim, sosyal adresler) ve JSON_UNESCAPED_SLASHES ile bir "</script>"
+         olduğu gibi çıkıyordu — ayarları düzenleyebilen biri betik bloğundan
+         çıkıp sayfaya kod yazabilirdi. Bayrak "<" ve ">" karakterlerini
+         \u003C/\u003E'ye çeviriyor; JSON-LD yine geçerli kalıyor. --}}
+    @php $jsonLdFlags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; @endphp
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">{!! json_encode($orgJsonLd, $jsonLdFlags) !!}</script>
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">{!! json_encode($websiteJsonLd, $jsonLdFlags) !!}</script>
     @stack('json-ld')
 </head>
 <body>

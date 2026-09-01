@@ -29,6 +29,59 @@ final class UploadService
     private const UNIQUE_KEY_LENGTH = 10;
 
     /**
+     * Diske yazılmasına izin verilen uzantılar.
+     *
+     * Liste burada, çünkü istemcinin verdiği uzantının diskteki ada geçtiği
+     * tek yer burası. FormRequest'ler de kendi listelerini taşıyor — onlar
+     * kullanıcıya düzgün bir mesaj vermek için; buradaki denetim ise
+     * doğrulamayı hiç kurmamış bir çağrı için. İki uç bunu atlıyordu (dosya
+     * seçici ve kampanya eki): `.html` ya da `.svg` bir dosya public/uploads
+     * altına inip sitenin kendi kaynağından servis ediliyordu, yani panele
+     * girebilen birinin JavaScript'i ötekinin oturumunda çalışıyordu.
+     *
+     * SVG ve HTML bilerek yok: ikisi de betik taşıyor. Çalıştırılabilir
+     * uzantılar da yok — public/uploads/.htaccess onları ayrıca engelliyor,
+     * ama tek savunma o olmamalı: Nginx o dosyayı hiç okumuyor.
+     *
+     * @var list<string>
+     */
+    public const ALLOWED_EXTENSIONS = [
+        // Görseller (SVG hariç — betik taşıyabiliyor)
+        'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'avif', 'heic',
+        // Belgeler
+        'pdf', 'doc', 'docx', 'odt', 'rtf', 'txt',
+        // Tablolar
+        'xls', 'xlsx', 'ods', 'csv',
+        // Sunumlar
+        'ppt', 'pptx', 'odp',
+        // Arşivler
+        'zip', 'rar', '7z',
+        // Video
+        'mp4', 'webm', 'mov', 'm4v', 'avi', 'mkv',
+        // Ses
+        'mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac',
+    ];
+
+    /**
+     * Dosyanın uzantısı beyaz listede mi?
+     *
+     * Küçük harfe indiriliyor: ".PHP" ile ".php" aynı dosya, listede biri
+     * yoksa öteki de olmamalı.
+     *
+     * @throws RuntimeException uzantı kabul edilmiyorsa
+     */
+    private static function assertAllowedExtension(UploadedFile $file): string
+    {
+        $extension = Str::lower($file->getClientOriginalExtension());
+
+        if (! in_array($extension, self::ALLOWED_EXTENSIONS, true)) {
+            throw new RuntimeException("Bu dosya türü yüklenemez: .{$extension}");
+        }
+
+        return $extension;
+    }
+
+    /**
      * Allowed image mime types for upload.
      *
      * @var array<string>
@@ -148,7 +201,7 @@ final class UploadService
     ): string {
         $slug = Str::slug($name);
         $uniqueKey = Str::lower(Str::random(self::UNIQUE_KEY_LENGTH));
-        $extension = $file->getClientOriginalExtension();
+        $extension = self::assertAllowedExtension($file);
         $filename = "{$slug}-{$uniqueKey}.{$extension}";
 
         $directory = $this->uploadsPath($folder);
