@@ -321,3 +321,20 @@ Test: `CacheSerializationTest`, `SessionSerializationTest`.
 - **Sosyal giriş** (Google/Apple ile giriş) — her projede farklı sağlayıcı ve
   onay süreci; kit'e sabit gelmesi zarar veriyor.
 - **Çok kiracılı yapı (multi-tenant)** — mimarinin tamamını değiştirir.
+- **Dinamik form oluşturucu** — *(1 Eylül 2026'da bilerek kapsam dışına
+  alındı.)* Kit'in en katı kuralıyla çatışıyor: her alan kabul ettiği **en dar**
+  doğrulama kuralını taşır ve istemcideki `maxSize[n]` sunucudaki `max:` ile
+  birebir aynı olur. Panelden "metin alanı" ekleyen kişi o alanın ad mı, şehir
+  mi, açıklama mı olduğunu sisteme söylemiyor; üretilen form da `required` ile
+  yetiniyor — yani kitin en sıkı kuralı kendi modülünde en gevşek uygulanmış
+  olurdu. Tasarım sadakati kuralıyla da çatışıyor: üretilen form projenin
+  tasarımına birebir uymuyor, çok adımlı akış ya da koşullu alan istendiğinde
+  ekip zaten elle yazıyor.
+  Karşılığında pahalı olan her parça **zaten kit'te**: `FormRequest` deseni ve
+  kural tablosu, `UploadService` ve `ContentFile`, `MailTemplate` + kuyruk,
+  `RecaptchaService` ve hız sınırı, liste ekranı deseni, Excel/CSV/PDF dışa
+  aktarma, `PermissionKey` + policy. Yeni bir form, iletişim formu zincirini
+  kopyalayıp alanları değiştirmek demek.
+  **Kararı belirleyen soru:** formu kim oluşturacak? Geliştirici oluşturacaksa
+  oluşturucuya gerek yok. Müşteri/editör panelden kendisi kuracaksa o zaman
+  çekirdek bir yetenek olur ve bu karar yeniden açılmalı.

@@ -6,8 +6,8 @@
 > **maddeler kapandıkça burada da güncelleniyor**: kapanmış bir işi açık
 > gösteren belge, hiç olmamasından kötü.
 
-**Son güncelleme:** 2026-09-01 (ertelenmiş iki madde kapandı, ölü kod notu
-düzeltildi)
+**Son güncelleme:** 2026-09-01 (açık madde kalmadı: içerik sürümleme yapıldı,
+form oluşturucu kapsam dışına alındı)
 **Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
 **Kalan iş listesi:** [`YOL-HARITASI.md`](YOL-HARITASI.md)
 **Stack:** PHP 8.4 · Laravel 13.26.1 · Blade · MySQL 8 · Bootstrap 5.3.8 (self-hosted) · Vanilla JS
@@ -559,12 +559,17 @@ sonra açılmış iki yetenek maddesi ve bir gözlem kaldı.
   sonraki isteklerinde sessizce yeni biçime geçiyor. Kit varsayılanı artık
   `json`. `cache.serializable_classes` ise daha önce yapılmıştı (bkz. 5z).
 
-### ⬜ Faz planından sonra açılan iki madde
+### ✅ Faz planından sonra açılan iki madde de kapandı
 
-- **İçerik sürümleme (revisions).** Denetim izi neyin değiştiğini gösteriyor
-  ama geri döndüremiyor.
-- **Dinamik form oluşturucu.** Her projede en az bir form isteniyor ve her
-  seferinde elle kodlanıyor.
+- **İçerik sürümleme (revisions)** — ✅ yapıldı (1 Eylül). Sayfa ve blog
+  yazısında, dil başına son 20 sürüm; geri yükleme mevcut kaydı güncelliyor ve
+  kendisi de bir sürüm doğuruyor.
+- **Dinamik form oluşturucu** — ⛔ **bilerek kapsam dışı** (1 Eylül). Kit'in
+  "her alan en dar doğrulama kuralını taşır" kuralıyla ve tasarım sadakati
+  kuralıyla çatışıyor; pahalı olan parçalar (FormRequest deseni, upload, mail
+  şablonu, reCAPTCHA, liste ekranı, dışa aktarma) zaten kit'te ve yeni bir form
+  iletişim formu zincirinin kopyası. Gerekçenin tamamı
+  [`YOL-HARITASI.md`](YOL-HARITASI.md) → *Kapsam dışı*.
 
 ### 🔍 MySQL doğrulaması
 
@@ -2066,8 +2071,7 @@ güvenle çalıştırılabiliyor.
 - [x] **`session.serialization = json`** — geçiş moduyla, kimse düşmeden (1 Eylül)
 - [x] **Panelden push duyurusu gönderme ekranı** (1 Eylül)
 
-### Açık kalan iki madde
+### Açık madde kalmadı
 
-Bölüm 6'da: içerik sürümleme (revisions) ve dinamik form oluşturucu. İkisi de
-faz planından sonra açılmış yetenek maddesi; bir karar beklemiyorlar, kapsam
-belirlenip yazılmaları gerekiyor.
+Bölüm 6'daki iki madde de 1 Eylül'de kapandı: içerik sürümleme yapıldı,
+dinamik form oluşturucu bilerek kapsam dışına alındı.

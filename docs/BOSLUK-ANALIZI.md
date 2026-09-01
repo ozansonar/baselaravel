@@ -436,9 +436,9 @@ yedekleme ve sistem sağlığı.
 | Site içi arama (S-15) | Ziyaretçinin arama yapma yolu yok | Orta | ✅ |
 | Raporlama ekranı | `reports.html` hazır bekliyor | Orta | ✅ |
 | API katmanı (Sanctum) | `routes/api.php` hiç yok | Orta | ✅ |
-| İçerik sürümleme (revisions) | Denetim izi geri döndüremez | Orta | ⬜ |
+| İçerik sürümleme (revisions) | Denetim izi geri döndüremez | Orta | ✅ *(1 Eyl)* |
 | SEO denetleyici | Kaydetmeden önce başlık/alt/H1 uyarısı | Orta | ✅ *(1 Eyl)* |
-| Dinamik form oluşturucu | Her projede en az bir form isteniyor | Büyük | ⬜ |
+| Dinamik form oluşturucu | Her projede en az bir form isteniyor | Büyük | ⛔ *kapsam dışı (1 Eyl)* |
 | Satır içi olay işleyicilerini JS'e taşımak | CSP'nin `script-src-attr` tavizini kaldırdı (219 işleyici, 50 dosya) | Orta | ✅ *(1 Eyl)* |
 
 ---

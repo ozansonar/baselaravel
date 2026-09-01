@@ -29,7 +29,7 @@ birleştirilmedi, çünkü farklı iş görüyorlar:
 
 1. [Durum özeti](#1-durum-özeti)
 2. [Ana durum tablosu](#2-ana-durum-tablosu) — her madde, kaynağı ve durumu
-3. [Kalan işler ve plan](#3-kalan-i̇şler-ve-plan)
+3. [Kapanış: yapılanlar ve bilerek yapılmayanlar](#3-kapanış-yapılanlar-ve-bilerek-yapılmayanlar)
 4. [Arşiv bölümleri](#4-arşiv-bölümleri) → A · B · C · D
 
 ---
@@ -197,7 +197,7 @@ arşiv bölümünde olduğunu söylüyor.
 | **SEO denetleyici** | Orta | ✅ *(1 Eyl)* |
 | Satır içi olay işleyicilerini JS'e taşımak | Orta | ✅ *(1 Eyl)* |
 | **İçerik sürümleme (revisions)** | Orta | ✅ *(1 Eyl)* |
-| **Dinamik form oluşturucu** | Büyük | ⬜ **açık** |
+| **Dinamik form oluşturucu** | Büyük | ⛔ *kapsam dışı (1 Eyl)* |
 
 ### 2.6 Son turda eklenenler (1 Eylül, bu belgeye yeni giren)
 
@@ -219,13 +219,19 @@ arşiv bölümünde olduğunu söylüyor.
 | Sistem sağlığına OPcache + uygulama önbelleği kontrolleri | `55a54d3` | ✅ |
 | **API'de iki adımlı doğrulama kurulumu** (4 uç, 18 test) | — | ✅ |
 | **İçerik sürümleme** (sayfa + blog, 20 sürüm, dil başına, 24 test) | — | ✅ |
+| Dinamik form oluşturucu kapsam dışına alındı — **açık madde kalmadı** | — | ⛔ |
 
 ---
 
-## 3. Kalan işler ve plan
+## 3. Kapanış: yapılanlar ve bilerek yapılmayanlar
 
-Bilinen **tek açık madde** kaldı: dinamik form oluşturucu. İçerik sürümleme
-ve API'de iki adımlı doğrulama kurulumu 1 Eylül'de kapandı.
+**Açık madde kalmadı.** Son madde olan dinamik form oluşturucu 1 Eylül'de
+tartışılıp **bilerek kapsam dışına** alındı — gerekçesi aşağıda, *"Kapsam
+dışı — Dinamik form oluşturucu"* başlığında. İçerik sürümleme ve API'de iki
+adımlı doğrulama kurulumu aynı gün yapıldı.
+
+Bu bölüm artık bir yapılacaklar listesi değil, **kapanış kaydı**: hangi işin
+neden yapıldığı ve hangisinin neden yapılmadığı burada duruyor.
 
 Belge taramasından çıkan dört küçük kalem ve altı belge borcunun **dokuzu 1
 Eylül'de kapatıldı**; geriye yalnız izlemedeki K-4 kaldı (bir koşuda tek
@@ -236,14 +242,17 @@ durduğu. İkisi de düzeltildi, ikisinin de bekçisi yazıldı.
 
 ### Öncelik sırası ve gerekçesi
 
-| Sıra | İş | Efor | Neden bu sırada |
+Tablo, planın kapandığı hâliyle duruyor: sırayla ne yapıldığı ve son maddenin
+neden yapılmadığı.
+
+| # | İş | Efor | Sonuç |
 |---|---|---|---|
-| ~~1~~ | ~~Satır içi olay işleyicilerini JS'e taşımak~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
-| ~~1~~ | ~~İçerik sürümleme (revisions)~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
-| ~~2~~ | ~~API'de iki adımlı doğrulama kurulumu~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
-| **1** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
-| ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
-| ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
+| 1 | Satır içi olay işleyicilerini JS'e taşımak | Orta | ✅ yapıldı — CSP'nin `script-src-attr` tavizi kalktı |
+| 2 | `session.serialization = json` | Küçük | ✅ yapıldı — `migrate` moduyla, kimse düşmeden |
+| 3 | Panelden push bildirim gönderme ekranı | Küçük | ✅ yapıldı — kampanya tasarımı uyarlandı |
+| 4 | API'de iki adımlı doğrulama kurulumu | Küçük | ✅ yapıldı — yalnız mobilden giren de 2FA açabiliyor |
+| 5 | İçerik sürümleme (revisions) | Orta | ✅ yapıldı — sayfa + blog, dil başına 20 sürüm |
+| 6 | Dinamik form oluşturucu | Büyük | ⛔ **bilerek kapsam dışı** — gerekçesi aşağıda |
 
 ---
 
@@ -790,19 +799,51 @@ ekranındaki düğme tek tek denendi; konsol temiz.
 
 ---
 
-### İş 1 — Dinamik form oluşturucu
+### ⛔ Kapsam dışı — Dinamik form oluşturucu
 
-**Durum:** ⬜ açık · **Efor:** büyük · **Tür:** yetenek
+**Durum:** ⛔ bilerek kapsam dışı (1 Eylül 2026) · **Efor:** büyük
 
-**Neden.** Her kurumsal projede iletişim dışında en az bir form isteniyor
-(başvuru, teklif, bayilik) ve her seferinde kod yazılıyor.
+Aylardır "yapılacak" listesindeydi. Sıra gelince tartışıldı ve **yapmama**
+kararı verildi. Gerekçe üç başlıkta ve ikisi teknik değil, kitin kendi
+kurallarıyla ilgili.
 
-**Neyin üstüne oturur.** FormRequest deseni, `data-validation-engine` kural
-tablosu, `ContentFile` ekleri, mevcut mail altyapısı.
+**1 · Kitin en katı kuralıyla çatışıyor.** Kural şu: her alan kabul ettiği
+**en dar** doğrulama kuralını taşır ve istemcideki `maxSize[n]`, sunucudaki
+`max:` ile birebir aynı olur. Panelden "metin alanı" ekleyen kişi o alanın ad
+mı, şehir mi, açıklama mı olduğunu sisteme söylemiyor; üretilen form da
+tipik olarak `required` ile yetiniyor. Yani kitin en sıkı kuralı, kitin kendi
+modülünde en gevşek uygulanmış olurdu. Düzgün yapmak, panelde alan başına
+kural seçtiren ikinci bir arayüz demek — ve o noktada form oluşturucu, form
+yazmaktan zor hâle geliyor.
 
-**Açık sorular.** Alan türleri kümesi, gönderilerin nerede saklanacağı, dosya
-eki sınırları, formun çok dilli olup olmayacağı, spam koruması (reCAPTCHA
-mevcut).
+**2 · Tasarım sadakati kuralıyla çatışıyor.** "Orijinal tasarıma birebir
+uyulmalı" diyen bir projede, oluşturucunun ürettiği form projenin tasarımına
+birebir uymuyor. Çok adımlı akış, koşullu alan ya da özel yerleşim
+istendiğinde ekip zaten elle yazıyor; modül bakımı olan ama kullanılmayan bir
+yük hâline geliyor.
+
+**3 · Pahalı olan parçalar zaten kit'te.** Yeni bir form sıfırdan iş değil,
+iletişim formu zincirinin kopyası:
+
+| İhtiyaç | Kit'teki karşılığı |
+|---|---|
+| Doğrulama | `StoreContactMessageRequest` + `data-validation-engine` kural tablosu |
+| İş mantığı | `ContactMessageService` deseni |
+| Dosya eki | `UploadService`, `ContentFile` |
+| Bildirim maili | `MailTemplate` + kuyruk |
+| Spam | `RecaptchaService`, hız sınırı |
+| Panelde okuma | liste ekranı deseni + Excel/CSV/PDF dışa aktarma |
+| Yetki | `PermissionKey` + policy |
+
+**Kararı belirleyen soru — ve tekrar açılma koşulu.** Formu kim oluşturacak?
+Geliştirici oluşturacaksa oluşturucuya gerek yok. **Müşteri ya da editör
+panelden kendisi form kuracaksa** o zaman çekirdek bir yetenek olur ve bu
+karar yeniden açılmalı. Bugünkü cevap birincisi.
+
+Karşılığında ucuz bir seçenek masada duruyor ve yapılmadı: iletişim formu
+zincirini adım adım anlatan bir şablon rehberi (ve istenirse bir `make:form`
+üreticisi). Modülün değerinin çoğunu maliyetinin onda biriyle verir; ihtiyaç
+görülürse yazılır.
 
 ---
 
