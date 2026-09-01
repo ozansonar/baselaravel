@@ -145,6 +145,7 @@ final class MailTemplateController extends Controller
             'emailBody'        => $renderedBody,
             'siteName'         => $replacements['{site_name}'] ?? config('app.name'),
             'siteUrl'          => config('app.url'),
+            'siteTagline'      => \App\Models\Setting::getValue('site_description', __('site.misc.site_description')),
             'currentYear'      => date('Y'),
             'themePrimary'     => \App\Models\Setting::getValue('mail_theme_primary_color', '#4f46e5'),
             'themePrimaryDark' => \App\Models\Setting::getValue('mail_theme_primary_dark_color', '#4338ca'),

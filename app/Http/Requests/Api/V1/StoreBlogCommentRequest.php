@@ -34,7 +34,7 @@ final class StoreBlogCommentRequest extends FormRequest
         return [
             'blog_post_id' => ['required', 'integer', 'exists:blog_posts,id'],
             'parent_id'    => ['nullable', 'integer', 'exists:blog_comments,id'],
-            'name'         => ['required', 'string', 'min:2', 'max:100', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
+            'name'         => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
             'email'        => ['required', ...EmailAddress::rules(), 'max:191'],
             'body'         => ['required', 'string', 'min:3', 'max:2000'],
         ];

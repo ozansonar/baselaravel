@@ -60,6 +60,15 @@ abstract class BaseMail extends Mailable
     public string $siteUrl;
 
     /**
+     * The one line under the logo in the mail header.
+     *
+     * It used to be the literal "Doğalın En Tazesi" — a tagline left over from
+     * another project, written as HTML entities so no search for Turkish
+     * letters ever found it. Every mail this kit sent carried it.
+     */
+    public string $siteTagline;
+
+    /**
      * Current year for footer copyright.
      */
     public string $currentYear;
@@ -88,6 +97,7 @@ abstract class BaseMail extends Mailable
     {
         $this->siteName = Setting::getValue('site_name', config('app.name'));
         $this->siteUrl = config('app.url', 'http://localhost');
+        $this->siteTagline = (string) Setting::getValue('site_description', __('site.misc.site_description'));
         $this->currentYear = date('Y');
 
         $this->prepareMailLogo();

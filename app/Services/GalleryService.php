@@ -265,7 +265,7 @@ final class GalleryService
      */
     public function createFromUpload(\Illuminate\Http\UploadedFile $file, array $shared): GalleryItem
     {
-        $title = $this->titleFromFilename($file->getClientOriginalName());
+        $title = $this->titleFromFilename($file->getClientOriginalName(), $shared['locale']);
 
         return DB::transaction(function () use ($file, $shared, $title): GalleryItem {
             $item = GalleryItem::create([
@@ -324,9 +324,11 @@ final class GalleryService
      * Dosya adını okunur bir başlığa çevirir.
      *
      * Uzantı atılıyor, ayraçlar boşluğa dönüyor, baş harfler büyütülüyor.
-     * Adı boş kalan dosya (".jpg" gibi) başlıksız kalamaz; zorunlu alan.
+     * Adı boş kalan dosya (".jpg" gibi) başlıksız kalamaz; zorunlu alan. O
+     * durumdaki karşılık öğenin kendi dilinde yazılıyor: panel Türkçeye sabit
+     * ama öğe İngilizce galeriye giriyor olabilir.
      */
-    private function titleFromFilename(string $filename): string
+    private function titleFromFilename(string $filename, string $locale): string
     {
         $ad = \Illuminate\Support\Str::of(pathinfo($filename, PATHINFO_FILENAME))
             ->replaceMatches('/[_\-]+/u', ' ')
@@ -335,7 +337,7 @@ final class GalleryService
             ->trim();
 
         if ($ad->isEmpty()) {
-            return 'Görsel';
+            return __('site.gallery.untitled', [], $locale);
         }
 
         return \Illuminate\Support\Str::title((string) $ad);

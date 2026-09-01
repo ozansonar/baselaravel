@@ -117,6 +117,41 @@ final class FrontFormInputRulesTest extends TestCase
         ])->assertSessionHasErrors('name');
     }
 
+    /**
+     * Ad alanı Türkçe harflerle sınırlı değil.
+     *
+     * Desen /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/ idi: site çok dilli ama "José" ya da
+     * "Jean-Luc" adındaki bir ziyaretçi ne kaydolabiliyor ne mesaj
+     * gönderebiliyordu — hem de yazdığı harfin neden kabul edilmediğini
+     * söylemeyen bir uyarıyla.
+     *
+     * @dataProvider foreignNames
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('foreignNames')]
+    public function test_a_name_in_any_language_is_accepted(string $name): void
+    {
+        $this->post(route('contact.store', ['locale' => 'en']), [
+            'name' => $name, 'email' => 'a@ornek.com',
+            'subject' => 'Konu', 'message' => 'Yeterince uzun bir deneme mesaji.',
+        ])->assertSessionHasNoErrors();
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function foreignNames(): array
+    {
+        return [
+            'ispanyolca'  => ['José García'],
+            'fransızca'   => ['Anaïs Dupont'],
+            'tireli'      => ['Jean-Luc Picard'],
+            'kesmeli'     => ['O’Brien'],
+            'lehçe'       => ['Łukasz Nowak'],
+            'almanca'     => ['Jürgen Müller'],
+            'türkçe'      => ['Ömer Çağlayan'],
+        ];
+    }
+
     public function test_a_phone_with_letters_is_refused_by_the_server(): void
     {
         $this->post(route('contact.store', ['locale' => 'tr']), [

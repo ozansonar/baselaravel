@@ -126,6 +126,7 @@ return [
     ],
 
     'gallery' => [
+        'untitled' => 'Görsel',
         'all' => 'Tümü',
         'type_filter' => 'Tür filtresi',
         'no_results' => 'Bu süzgece uyan görsel bulunamadı',
@@ -150,6 +151,7 @@ return [
     ],
 
     'contact' => [
+        'closed' => 'Kapalı',
         'name_min'              => 'Ad soyad en az :min karakter olmalıdır.',
         'name_required'               => 'Ad soyad zorunludur.',
         'name_max'                    => 'Ad soyad en fazla :max karakter olabilir.',
@@ -607,7 +609,7 @@ return [
 
     // Form uyarıları — birden çok formun paylaştığı metinler.
     'forms' => [
-        'name_letters'          => 'Ad soyad yalnızca harf ve boşluk içerebilir.',
+        'name_letters'          => 'Ad soyad yalnızca harf, boşluk, kesme ve tire içerebilir.',
         'phone_format'          => 'Telefon numarası yalnızca rakam ve + ( ) - . işaretlerini içerebilir.',
         'throttle_login'              => 'Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika bekleyin.',
         'throttle_contact'            => 'Çok fazla mesaj gönderdiniz. Lütfen birkaç dakika bekleyin.',
@@ -620,9 +622,9 @@ return [
         'password_required'           => 'Şifre zorunludur.',
         'password_min'                => 'Şifre en az :min karakter olmalıdır.',
         'first_name_required'         => 'Ad alanı zorunludur.',
-        'first_name_letters'          => 'Ad yalnızca harf ve boşluk içerebilir.',
+        'first_name_letters'          => 'Ad yalnızca harf, boşluk, kesme ve tire içerebilir.',
         'last_name_required'          => 'Soyad alanı zorunludur.',
-        'last_name_letters'           => 'Soyad yalnızca harf ve boşluk içerebilir.',
+        'last_name_letters'           => 'Soyad yalnızca harf, boşluk, kesme ve tire içerebilir.',
     ],
     // Betiklerin yazdığı metinler — ön yüz JS dosyaları bunları
     // window.SiteText üzerinden okuyor, bkz. App\Support\FrontScriptText.
@@ -632,7 +634,7 @@ return [
         'title_warning'             => 'Uyarı',
         'title_info'                => 'Bilgi',
         'failed'                    => 'İşlem tamamlanamadı.',
-        'only_letters'              => 'Bu alanda sadece harf kullanılabilir',
+        'only_letters'              => 'Bu alanda yalnızca harf, boşluk, kesme ve tire kullanılabilir',
         'image_type'                => 'Görsel JPG, PNG veya WebP formatında olmalıdır',
         'image_size'                => 'Görsel en fazla :max MB olabilir',
         'current_password_required' => 'Şifrenizi değiştirmek için mevcut şifrenizi girin',

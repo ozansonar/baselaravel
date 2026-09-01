@@ -25,7 +25,9 @@ final class ContactController extends Controller
             'address' => $this->settingService->get('contact_address'),
             'workingHoursWeekday'  => $this->settingService->get('working_hours_weekday', '08:00 - 18:00'),
             'workingHoursSaturday' => $this->settingService->get('working_hours_saturday', '09:00 - 16:00'),
-            'workingHoursSunday'   => $this->settingService->get('working_hours_sunday', 'Kapalı'),
+            // Ayar boşken devreye giren karşılık da sayfanın dilinde olmalı;
+            // saatlerin kendisi sayı, yalnız bu satır metin.
+            'workingHoursSunday'   => $this->settingService->get('working_hours_sunday', __('site.contact.closed')),
         ]);
     }
 

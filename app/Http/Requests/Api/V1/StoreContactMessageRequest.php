@@ -28,7 +28,7 @@ final class StoreContactMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'    => ['required', 'string', 'min:2', 'max:191', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
+            'name'    => ['required', 'string', 'min:2', 'max:191', 'regex:/^[\p{L}\p{M}\s\'’-]+$/u'],
             'email'   => ['required', 'string', ...EmailAddress::rules(), 'max:191'],
             'phone'   => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'subject' => ['required', 'string', 'max:191'],

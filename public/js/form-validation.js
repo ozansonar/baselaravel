@@ -69,7 +69,7 @@
         // Paketteki onlyLetterSp yalnızca ASCII biliyor, "Ömer" ya da "Çağla"
         // reddedilirdi; bu desen FormRequest'lerdeki regex ile birebir aynı.
         allRules.letters = {
-            regex: /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/,
+            regex: /^[\p{L}\p{M}\s'’-]+$/u,
             alertText: window.siteText('onlyLetters')
         };
     }
@@ -133,7 +133,7 @@
      */
     var MASKS = {
         letters: function (value) {
-            return value.replace(/[^a-zA-ZçÇğĞıİöÖşŞüÜ\s]/g, '');
+            return value.replace(/[^\p{L}\p{M}\s'’-]/gu, '');
         },
         digits: function (value) {
             return value.replace(/\D/g, '');
