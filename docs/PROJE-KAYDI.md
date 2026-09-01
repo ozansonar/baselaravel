@@ -1,9 +1,353 @@
-# Proje Durumu
+# Proje Kaydı — Laravel Base Kit
 
-> **Not.** Bu belge artık [`PROJE-KAYDI.md`](PROJE-KAYDI.md) içinde de
-> bulunuyor — dört durum belgesinin tek dosyada toplandığı, güncel durum
-> tablosunu ve kalan iş planını taşıyan kayıt. Bu dosya kaynak olarak yerinde
-> duruyor ve içeriği değişmedi.
+**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `03e2bba`
+
+Bu belge, projenin dört ayrı kaydını **tek yerde** toplar. Dört belge birbirine
+bağlıydı ama ayrı ayrı okunması gerekiyordu; bir maddenin durumunu öğrenmek için
+hangisine bakılacağını bilmek gerekiyordu.
+
+> **Veri kaybı yok.** Aşağıdaki A–D bölümleri kaynak dosyaların **tam ve
+> değiştirilmemiş** içeriğidir — tek fark, başlık seviyelerinin bu belgenin
+> hiyerarşisine oturması için bir kademe indirilmesi. Kaynak dosyalar da
+> yerinde duruyor ve silinmedi.
+
+| Bölüm | Kaynak | Ne anlatıyor |
+|---|---|---|
+| **A** | `PROJE-DURUMU.md` | *Ne var* — modül modül, tur tur |
+| **B** | `YOL-HARITASI.md` | *Ne eksikti* — beş faz, kabul ölçütleriyle |
+| **C** | `BOSLUK-ANALIZI.md` | *Hangi sırayla* — 31 Ağustos mimari denetimi, 15 bulgu |
+| **D** | `PROJE-DURUMU-V2.md` | *Çalışıyor mu* — 1 Eylül denetimi, 16 bulgu |
+
+Bu belgenin kapsamı **durum ve plan**. Referans belgeler ayrı kalıyor ve
+birleştirilmedi, çünkü farklı iş görüyorlar:
+`API.md` (API sözleşmesi), `openapi.json` (makine okunur şema),
+`SHARED-HOSTING.md` (hosting kısıtları), `CLAUDE.md` (proje kuralları).
+
+---
+
+## İçindekiler
+
+1. [Durum özeti](#1-durum-özeti)
+2. [Ana durum tablosu](#2-ana-durum-tablosu) — her madde, kaynağı ve durumu
+3. [Kalan işler ve plan](#3-kalan-i̇şler-ve-plan)
+4. [Arşiv bölümleri](#4-arşiv-bölümleri) → A · B · C · D
+
+---
+
+## 1. Durum özeti
+
+Kurumsal siteler, CRM/admin panelleri ve mobil uygulama API'leri için ortak
+kullanılan bir Laravel 13 base kit. Build aracı yok (Vite/npm/Node yasak),
+paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna göre).
+
+### Rakamlar
+
+| | | | |
+|---|---|---|---|
+| **37** model | **100** servis | **26** policy | **79** migration |
+| **131** test dosyası | **1873** test | **7596** doğrulama | **33** dışa aktarma tanımı |
+| **359** rota | **249** admin rotası | **43** API rotası | **2** dil (tr, en) |
+
+### Kalite kapıları
+
+| Kapı | Durum |
+|---|---|
+| Test paketi (`composer test`) | ✅ 1873 geçiyor, 8 gerekçeli atlama |
+| Kod stili (`pint --test`) | ✅ sıfır sapma |
+| Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
+| CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
+| Üretim önbellekleri (`config/route/view:cache`) | ✅ sorunsuz kuruluyor |
+| `app/` içinde `env()` çağrısı | ✅ sıfır (config:cache güvenli) |
+
+### Üç yüzün karşılaştırması
+
+| Yetenek | Web | Mobil web | API |
+|---|---|---|---|
+| İçerik (blog, sayfa, galeri, SSS) | ✅ | ✅ | ✅ |
+| Çok dillilik | ✅ | ✅ | ✅ |
+| SEO (sitemap, hreflang, JSON-LD, RSS) | ✅ | ✅ | — |
+| **SEO denetleyici** | ✅ | ✅ | — |
+| Kimlik (kayıt, giriş, sıfırlama, doğrulama) | ✅ | ✅ | ✅ |
+| Profil ve şifre değiştirme | ✅ | ✅ | ✅ |
+| Cihaz / oturum yönetimi | ✅ | ✅ | ✅ |
+| İki adımlı doğrulama (TOTP) | ✅ | ✅ | ✅ giriş |
+| Hesap kapatma + veri indirme (KVKK) | ✅ | ✅ | ✅ |
+| Bildirim tercihleri | ✅ | ✅ | ✅ |
+| Yorumlarım | ✅ | ✅ | ✅ |
+| Kurulabilirlik (PWA, çevrimdışı) | — | ✅ | — |
+| Push bildirim | — | — | ✅ jeton + gönderim |
+| Sürüm / sağlık ucu | — | — | ✅ |
+
+---
+
+## 2. Ana durum tablosu
+
+Dört belgedeki **bütün maddeler** burada. "Kaynak" sütunu, ayrıntının hangi
+arşiv bölümünde olduğunu söylüyor.
+
+### 2.1 Temel turlar — hepsi kapalı
+
+| # | Madde | Kaynak | Durum |
+|---|---|---|---|
+| 4 | Eski proje kalıntılarının temizliği (15 kalem) | A §4 | ✅ |
+| 5 | Yetkilendirme ve rol matrisi | A §5 | ✅ |
+| 5c | Açık yönlendirme koruması | A §5c | ✅ |
+| 5d | SoftDeletes — her modelde | A §5d | ✅ |
+| 5e | Çok dilli yapı | A §5e | ✅ |
+| 5f | Arayüz çevirisi | A §5f | ✅ |
+| 5g | Çok dilli navigasyon | A §5g | ✅ |
+| 5h | Mail ve upload yolları (3 kusur kapatıldı) | A §5h | ✅ |
+| 5i | Toplu mail / kampanyalar | A §5i | ✅ |
+| 5j | Shared hosting uyumu (kritik hata) | A §5j | ✅ |
+| 5k | Diller ekranı | A §5k | ✅ |
+| 5l | Dil yazıları ekranı | A §5l | ✅ |
+| 5m | Bölgesel ayarlar (2 kusur) | A §5m | ✅ |
+| 5n | Pasif kullanıcı oturumu + güvenilen proxy | A §5n | ✅ |
+| 5o | `robots.txt` dosyadan rotaya | A §5o | ✅ |
+| 5p | Hata bildirimi + log rotasyonu | A §5p | ✅ |
+| 5r | Denetim izi — tek modelden kritik kümeye | A §5r | ✅ |
+| 5s | Kuyruk izleyici | A §5s | ✅ |
+| 5t | Ölü Telegram ayarı + kaydedilmeyen başarısız işler | A §5t | ✅ |
+| 5u | Yedek geri yükleme | A §5u | ✅ |
+| 5v | CI ve statik analiz (6 gizli hata çıkardı) | A §5v | ✅ |
+| 5y | Çerez rızası | A §5y | ✅ |
+| 5z | API katmanı (v1) | A §5z | ✅ |
+| 5ab | Arama (blog + site geneli) | A §5ab | ✅ |
+
+### 2.2 Yol haritası fazları
+
+| # | Madde | Kaynak | Durum |
+|---|---|---|---|
+| 1.1 | Web'de cihaz ve oturum yönetimi | B Faz 1 | ✅ |
+| 1.2 | İki adımlı doğrulama (TOTP) | B Faz 1 | ✅ |
+| 1.3 | Hesap kapatma + veri indirme (KVKK/GDPR) | B Faz 1 | ✅ |
+| 1.4 | API hesap uçlarının tamamlanması | B Faz 1 | ✅ |
+| 1.5 | Bildirim tercihleri | B Faz 1 | ✅ |
+| 2.1 | PWA manifest | B Faz 2 | ✅ |
+| 2.2 | Servis çalışanı ve çevrimdışı sayfa | B Faz 2 | ✅ |
+| 2.3 | Mobil kullanım denetimi (360 px) | B Faz 2 | ✅ |
+| 2.4 | Erişilebilirlik taban çizgisi | B Faz 2 | ✅ |
+| 3.1 | Raporlar ekranı | B Faz 3 | ✅ |
+| 3.2 | Genel içerik listesi | B Faz 3 | ✅ |
+| 3.3 | Yardım ekranı | B Faz 3 | ✅ |
+| 4.1 | Push bildirim altyapısı | B Faz 4 | 🟡 **sunucu bitti, panel ekranı bekliyor** |
+| 4.2 | Sürüm ve sağlık ucu | B Faz 4 | ✅ |
+| 4.3 | Kullanıcının kendi yorumları | B Faz 4 | ✅ |
+| 4.4 | Şemanın hizada kalması | B Faz 4 | ✅ |
+| 5.1 | Yedeğin dış kopyası | B Faz 5 | ✅ |
+| 5.2 | `jenssegers/agent` bağımlılığından çıkış | B Faz 5 | ✅ |
+| 5.3 | Test paketinin bellek bütçesi | B Faz 5 | ✅ |
+| 5.4 | Sertleştirme: `cache.serializable_classes` | B Faz 5 | ✅ |
+| 5.4 | Sertleştirme: `session.serialization = json` | B Faz 5 | 🟡 **bakım penceresi bekliyor** |
+
+### 2.3 Boşluk analizi bulguları (S-01 … S-15)
+
+| # | Bulgu | Alan | Durum |
+|---|---|---|---|
+| S-01 | Pasife alınan kullanıcı oturumdan düşmüyor | Güvenlik | ✅ |
+| S-02 | Proxy güveni tanımsız — rate limit tek kovada | Güvenlik | ✅ |
+| S-03 | İşlenmeyen istisna kimseye ulaşmıyor, log sınırsız | Operasyon | ✅ |
+| S-04 | Audit trail yalnızca tek modeli izliyor | Uyumluluk | ✅ |
+| S-05 | Content-Security-Policy yok | Güvenlik | ✅ *(1 Eyl)* |
+| S-06 | `robots.txt` statik, eski projenin alan adı | SEO | ✅ |
+| S-07 | Yedek tek diskte, geri yükleme yok | Operasyon | ✅ |
+| S-08 | Kuyruk görünmez | Operasyon | ✅ |
+| S-09 | Çerez rızası alınmadan izleme başlıyor | Uyumluluk | ✅ |
+| S-10 | Parola politikası zayıf, 2FA yok | Güvenlik | ✅ |
+| S-11 | 966 test var, hiçbiri otomatik koşmuyor | Kalite | ✅ |
+| S-12 | Analitik cache temizliği tüm cache'i siliyor | Performans | ✅ *(1 Eyl)* |
+| S-13 | Cache anahtarları 30 ayrı yerde elle temizleniyor | Bakım | ✅ *(1 Eyl)* |
+| S-14 | Ön yüzde çıktı cache'i yok | Performans | ✅ *(1 Eyl)* |
+| S-15 | Site içi arama yok | Ürün | ✅ |
+
+### 2.4 v2 denetimi bulguları (1 Eylül)
+
+| # | Bulgu | Durum |
+|---|---|---|
+| 1 | Dışa aktarmada CSV biçimi yoktu | ✅ |
+| 2 | Üç liste ekranında dışa aktarma hiç yoktu | ✅ |
+| 3 | Dışa aktarma modülünün hiçbir testi yoktu | ✅ 81 test |
+| 4 | Zamanlanmış raporlarda CSV seçilemiyordu | ✅ |
+| 5 | Editörün dosya seçicisi boş kurulumda 404 veriyordu | ✅ |
+| 6 | Kuralsız alan bekçisi panelin hiçbir formunu görmüyordu | ✅ |
+| 7 | Bekçinin tarayıcısı nitelikleri yanlış okuyordu | ✅ |
+| 8 | Satır içi stil yasağının bekçisi yoktu (13 ihlal) | ✅ |
+| 9 | Rol matrisi 12 modül geride kalmıştı | ✅ |
+| 10 | Panel duman testi 26 rotaya bakıyordu (55 ekran var) | ✅ |
+| 11 | Ön yüzün duman testi hiç yoktu | ✅ |
+| 12 | Çeviri eşliği yalnız `site.php`'de sınanıyordu | ✅ |
+| 13 | `lang/tr/validation.php` dokuz kuralı taşımıyordu | ✅ |
+| 14 | Profil ekranında tarayıcının `alert()` kutusu | ✅ |
+| 15 | Çerez rızası kutuları kuralsız ve işaretsizdi | ✅ |
+| 16 | Stok config dosyalarında `strict_types` yoktu | ✅ |
+
+### 2.5 Modül önerileri (boşluk analizinden)
+
+| Modül | Efor | Durum |
+|---|---|---|
+| Denetim izi genişletmesi | Küçük | ✅ |
+| Kuyruk & iş izleyici | Küçük | ✅ |
+| Oturum & cihaz yönetimi | Küçük | ✅ |
+| İki aşamalı doğrulama (TOTP) | Orta | ✅ |
+| Çerez rızası yöneticisi | Orta | ✅ |
+| Yedek geri yükleme + dış kopya | Orta | ✅ |
+| Site içi arama | Orta | ✅ |
+| Raporlama ekranı | Orta | ✅ |
+| API katmanı (Sanctum) | Orta | ✅ |
+| **SEO denetleyici** | Orta | ✅ *(1 Eyl)* |
+| **İçerik sürümleme (revisions)** | Orta | ⬜ **açık** |
+| **Dinamik form oluşturucu** | Büyük | ⬜ **açık** |
+
+### 2.6 Son turda eklenenler (1 Eylül, bu belgeye yeni giren)
+
+| Madde | Commit | Durum |
+|---|---|---|
+| Dışa aktarmaya CSV, üç ekran, 81 test | `f9cfff6` | ✅ |
+| Proje kurallarının bekçileri, dört sessiz kusur | `edc6df9` | ✅ |
+| v2 raporu, yetki matrisi, çeviri boşluğu | `6bd21e7` | ✅ |
+| Boşluk analizi arşive alındı, S-05/12/13/14 kapatıldı | `c40c427` | ✅ |
+| **SEO denetleyici modülü** (9 kural, 2 yüzey, 43 test) | `748254a` | ✅ |
+| CSP satır içi işleyici kusuru + kapak görseli kusuru | `03e2bba` | ✅ |
+
+---
+
+## 3. Kalan işler ve plan
+
+Bilinen **beş açık madde** var. İkisi bilinçli erteleme (kod değil, zamanlama
+ve tasarım meselesi), üçü gerçek iş.
+
+### Öncelik sırası ve gerekçesi
+
+| Sıra | İş | Efor | Neden bu sırada |
+|---|---|---|---|
+| **1** | Satır içi olay işleyicilerini JS'e taşımak | Orta | Güvenlik borcu: CSP'de açık duran tek taviz bu. Ötekiler yetenek, bu ise var olan bir korumanın tamamlanması |
+| **2** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
+| **3** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
+| **4** | Panelden push bildirim gönderme ekranı | Küçük | **Tasarım bekliyor** — sunucu tarafı hazır, admin temada bu ekranın tasarımı yok |
+| **5** | `session.serialization = json` | Küçük | **Bakım penceresi bekliyor** — çevirmek açık oturumları düşürüyor |
+
+---
+
+### İş 1 — Satır içi olay işleyicilerini JS'e taşımak
+
+**Durum:** ⬜ açık · **Efor:** orta · **Tür:** güvenlik borcu
+
+**Sorun.** Nonce tabanlı CSP, `onclick`/`onchange`/`oninput` niteliklerini
+engelliyor — nitelik değeri betiğin kendisi olduğu için oraya nonce konulamıyor.
+Panelde bunlardan **219 tane** var, **50 dosyada**: süzgeç seçicileri, karakter
+sayaçları, toplu işlem düğmeleri.
+
+**Bugünkü durum.** Geçici çözüm yürürlükte: `script-src-attr 'unsafe-inline'`
+yönergesi yalnız nitelik işleyicilerini serbest bırakıyor; `<script>` bloklarına
+enjeksiyon hâlâ nonce'a bağlı ve kapalı. Yani **panel çalışıyor ve XSS'in asıl
+yolu kapalı**, ama dar bir taviz duruyor.
+
+**Yapılacak.** İşleyicileri olay dinleyicilerine çevirmek (`data-*` kancaları +
+merkezi JS), sonra `script-src-attr` yönergesini kaldırmak.
+
+**Kabul ölçütü.** Politikadan `script-src-attr` düştüğünde panelin bütün
+süzgeçleri, sayaçları ve toplu işlemleri çalışmaya devam ediyor.
+`ContentSecurityPolicyTest` içindeki *"panel hâlâ işleyici taşıyor"* testi
+tersine çevrilir: artık taşımamalı.
+
+**Dağılım.** `onclick` 118 · `onchange` 91 · `oninput` 10
+
+---
+
+### İş 2 — İçerik sürümleme (revisions)
+
+**Durum:** ⬜ açık · **Efor:** orta · **Tür:** yetenek
+
+**Neden.** Denetim izi *neyin* değiştiğini gösteriyor ama geri döndüremiyor.
+Çok yazarlı içerikte "dün çalışan hâline dön" kaçınılmaz olarak isteniyor.
+
+**Neyin üstüne oturur.** `HasTranslations`, `lang_group_id`, mevcut geri
+yükleme akışları (`BackupRestoreService` deseni), denetim izi altyapısı.
+
+**Açık sorular.** Hangi modeller sürümlenecek (blog + sayfa yeter mi, galeri ve
+SSS de mi), kaç sürüm saklanacak, sürümler dile göre mi yoksa dil grubuna göre
+mi tutulacak.
+
+---
+
+### İş 3 — Dinamik form oluşturucu
+
+**Durum:** ⬜ açık · **Efor:** büyük · **Tür:** yetenek
+
+**Neden.** Her kurumsal projede iletişim dışında en az bir form isteniyor
+(başvuru, teklif, bayilik) ve her seferinde kod yazılıyor.
+
+**Neyin üstüne oturur.** FormRequest deseni, `data-validation-engine` kural
+tablosu, `ContentFile` ekleri, mevcut mail altyapısı.
+
+**Açık sorular.** Alan türleri kümesi, gönderilerin nerede saklanacağı, dosya
+eki sınırları, formun çok dilli olup olmayacağı, spam koruması (reCAPTCHA
+mevcut).
+
+---
+
+### İş 4 — Panelden push bildirim gönderme ekranı
+
+**Durum:** 🟡 tasarım bekliyor · **Efor:** küçük
+
+Sunucu tarafı **hazır**: jeton kaydı, cihaz eşleştirme, sağlayıcıdan bağımsız
+gönderim servisi (FCM sürücüsü + yapılandırılmamışken log), ölü jetonun
+düşmesi, oturum kapanınca jetonların silinmesi.
+
+Eksik olan tek şey panelden bildirim yazıp gönderme ekranı. Admin temada bu
+ekranın tasarımı yok (`notifications.html` yalnız tercih anahtarları içeriyor)
+ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
+
+**Karar senin:** tasarım gelirse ya da "uydur" onayı verirsen yapılır.
+
+---
+
+### İş 5 — `session.serialization = json`
+
+**Durum:** 🟡 bakım penceresi bekliyor · **Efor:** küçük
+
+Karar verilmiş, uygulanmamış. Çevirmek o anda açık olan **bütün oturumları
+düşürüyor**; çalışan bir kurulumda bu bir bakım penceresi kararı, kod değil
+zamanlama meselesi.
+
+Kardeşi olan `cache.serializable_classes` izin listesi yapıldı (yedi önbellekli
+yol iki geçişli testle kapsandı).
+
+---
+
+### İzlemede
+
+- **`ModelFactoriesTest`** — bir koşuda tek seferlik bir hata görüldü, ardından
+  dört ayrı koşuda tekrarlanmadı. Sebebi bulunamadı, kayda geçirildi.
+
+### Kapsam dışı (bilerek)
+
+- **E-ticaret** (ürün, sipariş, ödeme) — `ab57deb`'de sökülmüştü, base kit genel
+  kalmalı. Temada duran `orders.html` / `products.html` bu yüzden boş.
+- **Sosyal giriş** (Google/Apple) — her projede farklı sağlayıcı ve onay süreci.
+- **Çok kiracılı yapı (multi-tenant)** — mimarinin tamamını değiştirir.
+
+---
+
+## 4. Arşiv bölümleri
+
+Aşağıdaki dört bölüm, kaynak belgelerin tam içeriğidir. Yukarıdaki tablolarda
+bir maddenin **ne olduğunu**, aşağıda **neden öyle yapıldığını** bulursun.
+
+
+---
+---
+
+# BÖLÜM A — Proje Durumu
+
+> **Arşiv.** Bu bölüm `docs/PROJE-DURUMU.md` dosyasının **tam ve değiştirilmemiş**
+> içeriğidir; yalnız başlık seviyeleri bir kademe indirildi ki bu belgenin
+> hiyerarşisine otursun. Modül modül ne var, hangi tur neyi kapattı, yol üzerinde hangi kusurlar çıktı. Projenin en uzun ve en ayrıntılı kaydı.
+>
+> Kaynak dosya yerinde duruyor ve okunmaya devam edebilir.
+
+
+### Proje Durumu
 
 **Son güncelleme:** 2026-08-31 (yol haritasının beş fazı tamamlandıktan sonra)
 **Branch:** `feat/laravel-13-upgrade` — `main`'e göre 36 commit önde
@@ -12,7 +356,7 @@
 
 ---
 
-## 1. Proje Nedir?
+#### 1. Proje Nedir?
 
 Yeniden kullanılabilir bir **kurumsal site + admin panel base kit**'i. Projeye özgü
 modüller (ürün, sipariş, e-ticaret) `ab57deb` commit'inde sökülüp genel altyapı
@@ -22,7 +366,7 @@ inşa etmek.
 Build tool yok — Vite/npm/Node kullanılmıyor, tüm vendor kütüphaneleri
 `public/assets/vendor/` altında hazır dosya olarak duruyor.
 
-### Rakamlar
+##### Rakamlar
 
 | | Adet | | Adet |
 |---|---|---|---|
@@ -45,7 +389,7 @@ PHPStan temiz.
 
 ---
 
-## 2. Mimari
+#### 2. Mimari
 
 Katmanlar net ayrılmış ve tutarlı uygulanmış:
 
@@ -62,7 +406,7 @@ Route → Controller (thin) → FormRequest (validation)
 - `HasSlug` trait'i slug üretimini merkezileştiriyor
 - Admin route'ları `bootstrap/app.php` içinde ayrı yükleniyor (`admin` prefix + middleware)
 
-### Öne çıkan tasarım kararları
+##### Öne çıkan tasarım kararları
 
 - **Shared hosting'e göre kurgulanmış:** `queue:work` yerine `routes/console.php`
   içinde cron'la her dakika 20 job çeken manuel worker (pcntl yok)
@@ -77,9 +421,9 @@ Route → Controller (thin) → FormRequest (validation)
 
 ---
 
-## 3. Mevcut Modüller
+#### 3. Mevcut Modüller
 
-### İçerik yönetimi
+##### İçerik yönetimi
 | Modül | Admin | Front | Not |
 |---|---|---|---|
 | Sayfalar | ✅ CRUD + restore | ✅ `/{slug}` | Başlık/içerik/görsel/SEO — dil sekmeli |
@@ -90,7 +434,7 @@ Route → Controller (thin) → FormRequest (validation)
 | Popup/Modal | ✅ CRUD | ✅ sayfa bazlı | Tarih aralığı + sayfa hedefleme |
 | Menü | ✅ Drag-drop sıralama | ✅ navbar | Sortable.js, konum bazlı (header) |
 
-### Sistem
+##### Sistem
 | Modül | Durum | Not |
 |---|---|---|
 | Kullanıcı & Rol | ✅ | 5 rol: admin, editor, moderator, user, viewer |
@@ -105,11 +449,11 @@ Route → Controller (thin) → FormRequest (validation)
 | Backup | ✅ | DB + uploads → ZIP, gecelik cron |
 | System health | ✅ | Disk/DB/cache/queue kontrolü |
 
-### Front kullanıcı alanı (`/hesabim`)
+##### Front kullanıcı alanı (`/hesabim`)
 Sadece **dashboard + profil düzenleme** var. Şifre değiştirme, e-posta doğrulama,
 adres/tercih yönetimi yok.
 
-### Zamanlanmış görevler (`routes/console.php`)
+##### Zamanlanmış görevler (`routes/console.php`)
 - Her dakika: queue worker (manuel pop/fire)
 - 02:00: analytics günlük agregasyon
 - 03:00: IP anonimleştirme (KVKK, 90 gün) + gecelik backup
@@ -117,12 +461,12 @@ adres/tercih yönetimi yok.
 
 ---
 
-## 4. Eski Proje Kalıntıları — ✅ Temizlendi
+#### 4. Eski Proje Kalıntıları — ✅ Temizlendi
 
 `ab57deb` refactor'unda ürün/sipariş modülü sökülürken geride kalan referanslar
 temizlendi. Aşağıdaki tablo ne yapıldığını kayıt altına alır.
 
-### Hoş geldin e-postası
+##### Hoş geldin e-postası
 
 Yeni kayıt olan her kullanıcıya gıda/e-ticaret metni gidiyordu ve "Ürünleri Keşfet"
 butonu var olmayan `/urunler` rotasına link veriyordu (catch-all `/{slug}` yakalayıp
@@ -153,7 +497,7 @@ Mevcut veritabanındaki `welcome` satırı için
 yazıldı. Admin'in özelleştirmesini ezmemek için **yalnızca** eski metin parçasını
 değiştiriyor; `down()` işlemi geri alıyor (ikisi de test edildi).
 
-### Diğer temizlenenler
+##### Diğer temizlenenler
 
 | # | Konum | Sorun | Yapılan |
 |---|---|---|---|
@@ -178,7 +522,7 @@ değiştiriyor; `down()` işlemi geri alıyor (ikisi de test edildi).
 `orders_count` ve "Sipariş" içermediği, "Kayıt Tarihi" içerdiği doğrulandı.
 Kod tabanında kalan tek eşleşme temizlik migration'ının kendi arama metni.
 
-### ⬜ Hâlâ duran ölü kod (sipariş/ürünle ilgisiz)
+##### ⬜ Hâlâ duran ölü kod (sipariş/ürünle ilgisiz)
 
 Bunlar ayrı bir temizlik turu ister:
 
@@ -190,14 +534,14 @@ Bunlar ayrı bir temizlik turu ister:
 
 ---
 
-## 5. Yetkilendirme — ✅ Kapatıldı
+#### 5. Yetkilendirme — ✅ Kapatıldı
 
 Daha önce 26 admin controller'ın 13'ü `authorize()` çağırmıyordu; tek koruma
 `AdminMiddleware`'di ve o da `admin`, `editor`, `moderator` rollerinin üçünü
 birden içeri alıyordu. Yani bir **editör** veritabanı yedeğini indirebiliyor,
 şifre sıfırlama e-postalarının gövdesini okuyabiliyordu.
 
-### Rol matrisi (artık uygulanıyor)
+##### Rol matrisi (artık uygulanıyor)
 
 | Alan | admin | editor | moderator |
 |---|:---:|:---:|:---:|
@@ -228,7 +572,7 @@ birden içeri alıyordu. Yani bir **editör** veritabanı yedeğini indirebiliyo
 > moderatörü dışlıyordu; yani rol tanımlıydı ama hiçbir şey yapamıyordu.
 > Policy rol tanımına uyduruldu. Silme yetkisi admin'de kaldı.
 
-### Yapılanlar
+##### Yapılanlar
 
 **7 yeni Policy** (Laravel isim kuralıyla otomatik keşfediliyor, kayıt gerekmiyor):
 
@@ -261,7 +605,7 @@ her yasak alan kullanıcı için ölü bir link olurdu.
 başına onlarca sorguya çıkacaktı. Artık `roles` ilişkisi üzerinden okuyor —
 istek başına tek sorgu.
 
-### Doğrulama
+##### Doğrulama
 
 `tests/Feature/AdminAuthorizationTest` — 7 test:
 
@@ -275,7 +619,7 @@ istek başına tek sorgu.
 
 ---
 
-## 5c. Açık Yönlendirme — ✅ Kapatıldı
+#### 5c. Açık Yönlendirme — ✅ Kapatıldı
 
 `HandleRedirects` middleware'i `new_url` değerini doğrudan `redirect()`
 fonksiyonuna veriyor. `old_url` için `starts_with:/` kuralı vardı ama
@@ -310,7 +654,7 @@ kaydı hedefsiz oluşturulabiliyor ve kayıtlı yönlendirme hâlâ çalışıyo
 
 ---
 
-## 5d. SoftDeletes — ✅ Her Modelde
+#### 5d. SoftDeletes — ✅ Her Modelde
 
 CLAUDE.md "SoftDeletes → HER MODELDE ZORUNLU" diyordu ama 3 model dışarıdaydı:
 `AdminNotification`, `AnalyticsDailyStat`, `AuditLog`. Üçüne de eklendi;
@@ -321,7 +665,7 @@ kolonlarını ekliyor. `audit_logs` ve `admin_notifications` her panel isteğind
 sorgulandığı için trait'in eklediği `deleted_at is null` koşuluna ayrı index
 verildi. `up()` ve `down()` ayrı ayrı test edildi.
 
-### Bu değişikliğin bozacağı 3 yer önceden düzeltildi
+##### Bu değişikliğin bozacağı 3 yer önceden düzeltildi
 
 SoftDeletes `->delete()` çağrısının anlamını değiştirdiği için körü körüne
 eklemek sessiz hatalara yol açardı:
@@ -339,7 +683,7 @@ Ek olarak agregasyon araması `whereDate` ile yapılıyor; önceki eşitlik
 karşılaştırması sürücü `date` kolonuna tam zaman damgası yazdığında
 eşleşmiyordu.
 
-### Doğrulama
+##### Doğrulama
 
 `tests/Feature/SoftDeleteRetentionTest` — 6 test:
 
@@ -358,13 +702,13 @@ komutları da çalıştırılıp doğrulandı.
 
 ---
 
-## 5e. Çok Dilli Yapı — ✅ Kuruldu
+#### 5e. Çok Dilli Yapı — ✅ Kuruldu
 
 Site birden fazla dilde yayınlanabiliyor. Diller panelden yönetiliyor, içerik
 dil başına ayrı satır olarak tutuluyor ve aynı içeriğin farklı dillerdeki
 sürümleri ortak bir `lang_group_id` ile birbirine bağlı.
 
-### Diller
+##### Diller
 
 `languages` tablosu panelden yönetiliyor; yeni dil eklemek deploy gerektirmiyor.
 Kurulumla Türkçe (varsayılan) ve İngilizce aktif, Almanca/Fransızca/İtalyanca
@@ -377,7 +721,7 @@ pasif hazır geliyor.
 - Pasif bir dil varsayılan yapılırsa otomatik aktifleşiyor
 - Sistemdeki ilk dil zorunlu olarak varsayılan oluyor
 
-### Ziyaretçi hangi dili görüyor
+##### Ziyaretçi hangi dili görüyor
 
 1. Seçiciden seçtiği dil (oturumda)
 2. `Accept-Language` başlığından en iyi eşleşme — q değerleri dikkate alınıyor,
@@ -388,7 +732,7 @@ Yalnızca aktif diller sayılıyor. Seçici sağ üstte, aktif dil bayrak ve kod
 gösteriliyor; tek dil aktifse hiç render edilmiyor. `<html lang>`, `hreflang`
 etiketleri ve `og:locale` aktif dilden geliyor.
 
-### İçerik nasıl saklanıyor
+##### İçerik nasıl saklanıyor
 
 Sekiz içerik tablosu (`pages`, `blog_posts`, `blog_categories`,
 `gallery_categories`, `gallery_items`, `faqs`, `sliders`, `popups`) `locale` ve
@@ -407,7 +751,7 @@ Sekiz içerik tablosu (`pages`, `blog_posts`, `blog_categories`,
 `scopeLocaleWithFallback()` sağlıyor. Fallback scope'u sayesinde **henüz
 çevrilmemiş içerik siteden kaybolmuyor**, varsayılan dilden geliyor.
 
-### Admin formları
+##### Admin formları
 
 Her aktif dil için bir sekme açılıyor, her sekmede o dile ait alanlar var.
 
@@ -423,14 +767,14 @@ Her aktif dil için bir sekme açılıyor, her sekmede o dile ait alanlar var.
 - Blog yazılarında yayın durumu ve yazar dil bloklarının dışında; yayınlamak
   yazı hakkında bir karar, tek çevirisi hakkında değil
 
-### Cache
+##### Cache
 
 Ön yüz sorguları dile göre cache'leniyor. Anahtarlar dil içermeseydi ilk
 ziyaretçinin dili, süre dolana kadar herkese servis edilirdi. `LocalizedCache`
 trait'i anahtarları dile göre üretiyor ve içerik değişince tüm dillerin
 anahtarını temizliyor.
 
-### Yol üzerinde bulunan hata
+##### Yol üzerinde bulunan hata
 
 `resources/views/pages/show.blade.php` içinde
 `@section('meta_description', $page->meta_description ?? $page->excerpt)` vardı.
@@ -440,7 +784,7 @@ olmayan **her sayfa görüntülemesi bir çıktı tamponu sızdırıyordu**. PHP
 "risky" işareti sayesinde yakalandı, bölüm artık yalnızca içerik varsa
 tanımlanıyor.
 
-### Testler
+##### Testler
 
 `LanguageManagementTest` (12), `ContentTranslationTest` (13),
 `LocaleResolutionTest` (13), `TranslatedPageFormTest` (13),
@@ -448,7 +792,7 @@ tanımlanıyor.
 
 ---
 
-## 5f. Arayüz Çevirisi — ✅ Tamamlandı
+#### 5f. Arayüz Çevirisi — ✅ Tamamlandı
 
 İçerik çok dilliydi ama arayüz değildi: buton, başlık, form etiketi ve
 `aria-label`'lar Blade içinde Türkçe sabit yazılıydı. İngilizce ziyaretçi
@@ -483,7 +827,7 @@ dosyası olmayan dilde varsayılana düşme.
 
 ---
 
-## 5g. Çok Dilli Navigasyon — ✅ Tamamlandı
+#### 5g. Çok Dilli Navigasyon — ✅ Tamamlandı
 
 Arayüz çevrildikten sonra tarayıcı testinde çıktı: navbar hâlâ Türkçeydi. Menü
 öğeleri veritabanı içeriği ve `menus`/`menu_items` çeviri tablolarına dahil
@@ -517,12 +861,12 @@ olarak bağlandı; istek ömrü boyunca çözülen slug'lar hafızada tutuluyor.
 
 ---
 
-## 6. Kalan Yapılacak İşler
+#### 6. Kalan Yapılacak İşler
 
 [`YOL-HARITASI.md`](YOL-HARITASI.md)'nin beş fazı da tamamlandı. Geriye
 bilerek ertelenmiş iki madde ve bir gözlem kaldı.
 
-### Üç yüzün karşılaştırması
+##### Üç yüzün karşılaştırması
 
 | Yetenek | Web | Mobil web | API |
 |---|---|---|---|
@@ -540,7 +884,7 @@ bilerek ertelenmiş iki madde ve bir gözlem kaldı.
 | Push bildirim | — | — | ✅ jeton kaydı + gönderim servisi |
 | Sürüm / sağlık ucu | — | — | ✅ |
 
-### ⬜ Bilerek ertelenenler
+##### ⬜ Bilerek ertelenenler
 
 - **Panelden push bildirim gönderme ekranı.** Sunucu tarafı hazır (jeton
   kaydı, sağlayıcıdan bağımsız gönderim, ölü jetonun düşmesi). Admin temada bu
@@ -552,7 +896,7 @@ bilerek ertelenmiş iki madde ve bir gözlem kaldı.
   bir karar, kod değil zamanlama meselesi. `cache.serializable_classes` ise
   yapıldı (bkz. 5z).
 
-### 🔍 MySQL doğrulaması
+##### 🔍 MySQL doğrulaması
 
 Bu turun dokuz migration'ı ve bütün suite MySQL 8'e karşı da koşuldu (yerel
 `lb_migtest`). Dört senaryo geçildi: sıfırdan kurulum, mevcut veriyle göç,
@@ -564,12 +908,12 @@ varsayılan dil `config('app.locale')` değerine düşüyor ve dile duyarlı bü
 sorgular yanlış dile bakıyordu. API'de yayında olan bir yazının yorum ucu 404
 dönüyordu. Düzeltildi — yalnız gerçekten bulunan dil hatırlanıyor.
 
-### 👀 İzlemede
+##### 👀 İzlemede
 
 - Bir koşuda `ModelFactoriesTest`'te tek seferlik bir hata görüldü; ardından
   dört ayrı koşuda tekrarlanmadı. Sebebi bulunamadı, kayda geçirildi.
 
-### 🔎 v2 denetimi (2026-09-01)
+##### 🔎 v2 denetimi (2026-09-01)
 
 Yol haritasının beş fazı kapandıktan sonra bir denetim turu koştu: yapıldı
 denilenlerin gerçekten çalıştığı doğrulandı ve kimsenin bakmadığı yerde ne
@@ -584,7 +928,7 @@ olarak duruyordu. On beş bulgusundan dördü hâlâ açıktı (CSP, cache hijye
 
 Ayrıntılar: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md).
 
-### ✅ Bu turda kapananlar
+##### ✅ Bu turda kapananlar
 
 Faz 1 (hesap ve kimlik), Faz 2 (mobil web), Faz 3 (panel ekranları),
 Faz 4 (API olgunluğu), Faz 5 (dayanıklılık) — ayrıntılar bölüm 5t–5z ve
@@ -592,12 +936,12 @@ yol haritasında.
 
 ---
 
-## 5h. Mail ve Upload Yolları — ✅ Test Edildi ve Üç Kusur Kapatıldı
+#### 5h. Mail ve Upload Yolları — ✅ Test Edildi ve Üç Kusur Kapatıldı
 
 Diske ve SMTP'ye dokunan yollar kodu okuyarak doğrulanamıyordu. Test yazılırken
 üçü de sessizce çalışan üç kusur çıktı.
 
-### 1. Upload kökü iki farklı yerden okunuyordu
+##### 1. Upload kökü iki farklı yerden okunuyordu
 
 Yazma `config('uploads.path')` kullanıyordu ama **okuma altı yerde
 `public_path('uploads')` sabitliyordu** — `UploadService::url()`,
@@ -611,7 +955,7 @@ sağlık kontrolü yanlış klasörü raporluyordu.
 
 `UploadService::basePath()` tek kaynak oldu, yedi çağrı yeri ona bağlandı.
 
-### 2. `contact_reply` şablonu hiç seed edilmemişti
+##### 2. `contact_reply` şablonu hiç seed edilmemişti
 
 `ContactMessageReplyMail::templateKey()` her zaman `'contact_reply'` döndürüyordu
 ve `MailTemplateService` bunun varsayılanını biliyordu, ama **veritabanına hiç
@@ -620,14 +964,14 @@ iletişim mesajına panelden verilen yanıt sessizce Blade view'ına düşüyord
 yani yöneticinin en çok kendi cümleleriyle yazmak isteyeceği mail, düzenleyemediği
 tek mail'di. `2026_08_25_210000` migration'ı ile seed edildi.
 
-### 3. Şablon drift'i (yanlış alarm, doğrulandı)
+##### 3. Şablon drift'i (yanlış alarm, doğrulandı)
 
 `resetToDefault()` ile migration seed'i arasında dört şablonda fark vardı, ama
 normalize edilince farkın **tamamen biçimsel** olduğu görüldü (girinti ve etiket
 içi boşluk). İçerik regresyonu yok. Test bu yüzden boşluğa duyarsız karşılaştırma
 yapıyor — biçim değil, kullanıcının okuduğu kelimeler korunuyor mu diye bakıyor.
 
-### Bekçiler
+##### Bekçiler
 
 - `test_every_mail_template_key_has_a_row_in_the_panel` — her mail sınıfının
   `templateKey()` değeri panelde bir satıra karşılık geliyor mu. `contact_reply`
@@ -642,12 +986,12 @@ yapıyor — biçim değil, kullanıcının okuduğu kelimeler korunuyor mu diye
 
 ---
 
-## 5i. Toplu Mail (Kampanyalar) — ✅ Kuruldu
+#### 5i. Toplu Mail (Kampanyalar) — ✅ Kuruldu
 
 Üyelere, bülten listesine, Excel'den yüklenen veya elle girilen adreslere toplu
 mail gönderimi. Cron ile arka planda, saatlik limite göre yayarak.
 
-### Gönderim motoru
+##### Gönderim motoru
 
 İki limit birlikte çalışıyor:
 
@@ -666,27 +1010,27 @@ seferde "gönderilmiyor"; başlarken kitle donduruluyor ve cron bu tabloyu azar
 azar boşaltıyor. Saatlik limit, çökme sonrası kaldığı yerden devam ve kişi
 bazlı teslim durumu ancak bu sayede mümkün.
 
-### Akış
+##### Akış
 
 Form asla doğrudan göndermiyor: taslak kaydediliyor, **onay ekranı** gerçek
 alıcı sayısını, alıcılardan örneği, cron'un ne zaman çalışacağını ve tahmini
 bitişi gösteriyor, gönderim ancak açık onaydan sonra başlıyor.
 
-### Görseller
+##### Görseller
 
 **CID olarak gömülüyor**, bağlantı olarak değil. Mail programlarının çoğu uzak
 görselleri varsayılan engelliyor; bağlantılı görsel mail iletildiğinde veya
 çevrimdışı okunduğunda tamamen kayboluyor. Site dışındaki görseller olduğu gibi
 bırakılıyor — gönderim döngüsünden üçüncü parti URL'e istek atılmıyor.
 
-### Excel
+##### Excel
 
 `openspout/openspout` kullanılıyor (akış tabanlı; tüm sayfayı belleğe almıyor,
 paylaşımlı hostingte on binlerce satır güvenli). Başlık satırı isimle
 eşleştiriliyor, başlık yoksa adres sütunu bulunuyor. Türkçe Excel'in noktalı
 virgüllü CSV'si ve BOM'u destekleniyor. Panelde örnek şablon indirme var.
 
-### Yol üzerinde bulunan üç kusur
+##### Yol üzerinde bulunan üç kusur
 
 1. **`emailBody` sessizce boşalıyordu.** Laravel, mailable'ın public
    özelliklerini `Content(with:)` verisinden **sonra** uyguluyor; `BaseMail`'in
@@ -703,7 +1047,7 @@ Ayrıca: alıcı listesi boşken onaylanan kampanya `Scheduled` durumunda kalıy
 cron sonsuza kadar başlatmayı deniyordu — zamanlama ve başlatma tek transaction'a
 alındı.
 
-### Abonelikten çıkma
+##### Abonelikten çıkma
 
 Her mail alıcıya özel çıkış bağlantısı taşıyor (gövde + `List-Unsubscribe`
 başlığı). Elle girilen ve Excel'den yüklenen alıcılar da kendi anahtarını
@@ -711,14 +1055,14 @@ alıyor — ilk kurulumda yalnızca abonelerde vardı, yani listede olmayan kiş
 çıkış yolu yoktu. Çıkan adres `subscribers` tablosuna engelleme kaydı olarak
 yazılıyor ve sonraki kampanyalara dahil edilmiyor.
 
-### Testler
+##### Testler
 
 `CampaignDispatchTest` (28), `CampaignPanelTest` (25),
 `CampaignMailContentTest` (17).
 
 ---
 
-## 5j. Shared Hosting Uyumu — ✅ Kritik Hata Düzeltildi
+#### 5j. Shared Hosting Uyumu — ✅ Kritik Hata Düzeltildi
 
 Kullanıcının hosting kuralları belgesi (`cron-rules.md`) incelendiğinde
 projedeki **yedi zamanlanmış görevin altısının hiç çalışmadığı** ortaya çıktı.
@@ -738,7 +1082,7 @@ Sessizce çalışmayanlar:
 
 Yalnızca `Schedule::call()` ile yazılmış kuyruk işleyicisi çalışıyordu.
 
-### Yapılan
+##### Yapılan
 
 Hepsi `Schedule::call(fn () => Artisan::call(...))` biçimine çevrildi —
 aynı süreçte çalışır, alt süreç veya özel uzantı gerektirmez.
@@ -753,14 +1097,14 @@ Bundan doğan üç ayrıntı:
 3. **Saatler ayrıştırıldı.** Aynı dakikaya denk gelen görevler tek süreçte arka
    arkaya çalışıyor. Yedekleme (en yavaş iş) 03:00'ten 05:00'e alındı.
 
-### Doküman
+##### Doküman
 
 `cron-rules.md` kök dizinden `docs/SHARED-HOSTING.md`'ye taşındı ve genişletildi:
 mevcut görev takvimi, cron'un çalıştığını doğrulama, deploy sonrası kontrol
 listesi, mail ve upload kısıtlamaları. CLAUDE.md'ye kırmızı çizgi olarak,
 README'ye cron bölümüne bağlandı.
 
-### Bekçi
+##### Bekçi
 
 `ScheduleUsesCallablesTest` (11): hiçbir görev `Schedule::command()` ile
 tanımlanmamış, `runInBackground()` kullanılmamış, her görevin adı var, beklenen
@@ -770,7 +1114,7 @@ dosya bu çağrıları neden yasak olduklarını anlatmak için zaten adıyla an
 
 ---
 
-## 5k. Diller Ekranı — ✅ Eksik Tamamlandı
+#### 5k. Diller Ekranı — ✅ Eksik Tamamlandı
 
 Çok dilli yapı kurulurken `LanguageService` tüm kuralları taşıyordu ve servis
 seviyesinde test edilmişti, ama **panelde arayüzü hiç yapılmamıştı**. Diller
@@ -789,13 +1133,13 @@ varsayılan-yapma düğmeleri render edilmiyor, "Yayında" anahtarı disabled.
 Sunucu tarafı bunlara güvenmiyor, `LanguageService` aynı kuralları yeniden
 uyguluyor.
 
-### Yol üzerinde bulunan hata
+##### Yol üzerinde bulunan hata
 
 `$request->boolean('is_active', true)` işaretlenmemiş kutuyu da `true`
 yapıyordu — işaretsiz checkbox istekte hiç yer almadığı için varsayılan devreye
 giriyor ve **hiçbir dil formdan pasife alınamıyordu.** Varsayılan `false` oldu.
 
-### Testler
+##### Testler
 
 `LanguagePanelTest` (21): ekran listeleme, çeviri dosyası eksikliği uyarısı,
 ekleme (kod doğrulama, büyük harf normalizasyonu, tekrar reddi), güncelleme,
@@ -805,13 +1149,13 @@ ayrımı, değişikliğin ön yüz dil seçicisine ve `hreflang` etiketlerine ya
 
 ---
 
-## 5l. Dil Yazıları Ekranı — ✅ Kuruldu
+#### 5l. Dil Yazıları Ekranı — ✅ Kuruldu
 
 Arayüz metinleri yalnızca `lang/` dosyalarındaydı; değiştirmek için kod
 düzenlemek gerekiyordu. **Admin → Dil Yazıları** ekranı eklendi: 231 metin,
 dile göre sekmeler, bölümlere ayrılmış form, anlık arama.
 
-### Neden dosyaya değil veritabanına yazıyor
+##### Neden dosyaya değil veritabanına yazıyor
 
 İki seçenek vardı ve seçim performansla ilgili değil:
 
@@ -827,7 +1171,7 @@ Performans farkı yok: bir dilin değişiklikleri tek dizi olarak
 kez yüklerken üzerine biniyor. Isınmış sayfa render'ı **sıfır** sorgu atıyor;
 test bunu ölçüyor.
 
-### Nasıl çalışıyor
+##### Nasıl çalışıyor
 
 `DatabaseOverrideLoader`, Laravel'in dosya yükleyicisini sarıyor. Her `__()`
 çağrısı ve her Blade `@lang` olduğu gibi kalıyor — tek satır view değişmedi.
@@ -838,7 +1182,7 @@ yeni bir metin eklendiğinde panelde kendiliğinden beliriyor.
 Varsayılana eşit değer override olarak saklanmıyor, siliniyor: aksi hâlde metin
 donar ve ileride dosyadaki varsayılan değişse bile siteye ulaşmazdı.
 
-### Yol üzerinde bulunan üç sorun
+##### Yol üzerinde bulunan üç sorun
 
 1. **`TranslationService` singleton değildi.** Yükleyici kendi örneğini tutuyor
    ve istek içi hafızası vardı; ikinci bir örnek kaydederken kendi hafızasını
@@ -850,7 +1194,7 @@ donar ve ileride dosyadaki varsayılan değişse bile siteye ulaşmazdı.
    ilk migration öncesi var olan bir durumu korumak için, sonsuza kadar. Zaten
    var olan try/catch bunu bedelsiz kapsıyor.
 
-### Testler
+##### Testler
 
 `TranslationOverrideTest` (21): çözümleme, dil kapsamı, yer tutucuların
 korunması, varsayılana eşit değerin saklanmaması, boş değerin varsayılana
@@ -860,11 +1204,11 @@ yetki ayrımı.
 
 ---
 
-## 5m. Bölgesel Ayarlar Temizliği — ✅ İki Kusur Kapatıldı
+#### 5m. Bölgesel Ayarlar Temizliği — ✅ İki Kusur Kapatıldı
 
 Ayarlar → Bölgesel ekranı incelenirken iki sorun çıktı.
 
-### 1. Dil alanı hiçbir işe yaramıyordu
+##### 1. Dil alanı hiçbir işe yaramıyordu
 
 `app_locale` ayarı kaydediliyordu ama **hiçbir yerde okunmuyordu.** Dili
 belirleyen zincir şu: oturumdaki seçim → `Accept-Language` → `languages`
@@ -882,7 +1226,7 @@ Alan kaldırıldı, `AppLocale` enum'u silindi (başka kullanıcısı yoktu), b�
 "Bölgesel" yerine **"Saat Dilimi"** oldu ve yerine dilin nereden yönetildiğini
 söyleyen bir bilgi kutusu kondu (Diller ve Dil Yazıları ekranlarına bağlantılı).
 
-### 2. Saat dilimi cron'da uygulanmıyordu
+##### 2. Saat dilimi cron'da uygulanmıyordu
 
 Saat dilimi `SetLocale` **middleware**'inde uygulanıyordu — yani yalnızca web
 isteklerinde. Scheduler konsolda çalışır ve middleware oraya hiç uğramaz.
@@ -896,7 +1240,7 @@ Uygulama `AppServiceProvider::boot()`'a taşındı; hem web hem konsol için
 çalışıyor. Geçersiz bir değer ve ayar tablosu henüz yokken (taze klon, migration
 ortası) sessizce config varsayılanına düşüyor.
 
-### Tek nokta kuralı
+##### Tek nokta kuralı
 
 Artık her kavramın tek bir yeri var:
 
@@ -906,7 +1250,7 @@ Artık her kavramın tek bir yeri var:
 | Arayüz metinleri | Dil Yazıları ekranı |
 | Saat dilimi | Ayarlar → Saat Dilimi |
 
-### Testler
+##### Testler
 
 `TimezoneSettingTest` (9): ayarın uygulanması, konsolda da geçerli olması, web
 ve konsolun aynı değeri kullanması, ayar yokken config varsayılanının
@@ -915,13 +1259,13 @@ bulunmaması ve yönlendirmenin yetkiye göre link/düz metin olması.
 
 ---
 
-## 5n. Pasif Kullanıcı Oturumu ve Güvenilen Proxy — ✅ İki Sessiz Açık Kapatıldı
+#### 5n. Pasif Kullanıcı Oturumu ve Güvenilen Proxy — ✅ İki Sessiz Açık Kapatıldı
 
 Base kit'in production'a hazırlık denetiminde çıkan iki bulgu. İkisinin de ortak
 özelliği **hata vermeden yanlış davranmaları**: kod çalışıyor, test yeşil, ekran
 doğru sonucu gösteriyor — ama iş yapılmıyor.
 
-### 1. Pasife alınan kullanıcı oturumundan düşmüyordu
+##### 1. Pasife alınan kullanıcı oturumundan düşmüyordu
 
 `is_active` kod tabanında **tek bir yerde** okunuyordu: `AuthService::login()`.
 Yani bayrak yalnızca "kim oturum **açabilir**" sorusunu cevaplıyordu. Zaten açık
@@ -955,7 +1299,7 @@ kurulduğu için panel ve ön yüz aynı kontrolden geçiyor.
 - `UserService::deleteMany()` — toplu silme sorgu kurucusundan gittiği için
   model olayı doğmuyor, servis işi kendisi yapıyor
 
-### Yol üzerinde bulunan iki kusur
+##### Yol üzerinde bulunan iki kusur
 
 **Force delete kullanıcıyı geri getiriyordu.** `revoke()` içindeki
 `saveQuietly()` çağrısı, `forceDelete()` sonrası `exists = false` olan bir model
@@ -967,7 +1311,7 @@ satır aktif oluyordu ama `create()`'in döndürdüğü **modelde alan hiç yokt
 `null` okunuyordu. Middleware modele sorduğu için suite'te 294 test birden
 düştü. Fabrikaya `'is_active' => true` ve bir `inactive()` state'i eklendi.
 
-### 2. Güvenilen proxy tanımsızdı
+##### 2. Güvenilen proxy tanımsızdı
 
 `bootstrap/app.php` içinde `trustProxies()` çağrısı yoktu. Laravel'in
 `TrustProxies` middleware'i global yığında zaten duruyor, ama güvenilecek proxy
@@ -997,7 +1341,7 @@ varsayılanından **dar** tutuldu: `FOR | HOST | PORT | PROTO`. `AWS_ELB` ve
 > değil: middleware yapılandırması uygulama önyüklenmeden çalışıyor ve orada
 > `config()` henüz yok. Liste istek anında çözülüyor.
 
-### Testler
+##### Testler
 
 `InactiveUserSessionTest` (11): aktif kullanıcının oturumunun korunması, pasife
 alınan kullanıcının panelde ve ön yüzde bir sonraki istekte çıkarılması, JSON
@@ -1017,7 +1361,7 @@ Her iki düzeltme de geri alınıp testlerin gerçekten kırıldığı doğrulan
 middleware kaldırılınca 3, observer kaldırılınca 4, `exists` kontrolü ve toplu
 silme çağrısı kaldırılınca 2, config dosyası kaldırılınca 4 test düşüyor.
 
-### Bilinen ortam kaynaklı hata
+##### Bilinen ortam kaynaklı hata
 
 Suite'te 5 test ağ erişimi olmayan ortamda düşüyor:
 `CampaignPanelTest` (3), `FrontFormInputRulesTest` (1), `SubscriberListTest` (1).
@@ -1027,7 +1371,7 @@ Sebep `email:rfc,dns` kuralının DNS sorgusu; bu değişikliklerden önce de ay
 
 ---
 
-## 5o. robots.txt — ✅ Dosyadan Rotaya Taşındı
+#### 5o. robots.txt — ✅ Dosyadan Rotaya Taşındı
 
 `public/robots.txt` sabit bir dosyaydı ve iki ayrı sebeple yanlıştı.
 
@@ -1047,7 +1391,7 @@ panelden yayına alınıyor. Elle yazılmış bir liste bu iki ekranın arkasın
 kaçınılmaz olarak geride kalıyordu: yeni bir dil yayına alındığında o dilin
 `/de/giris` adresi robots'ta hiç görünmüyordu.
 
-### Şimdi nasıl çalışıyor
+##### Şimdi nasıl çalışıyor
 
 `RobotsService` listeyi **rotaların kendisinden** üretiyor:
 
@@ -1071,19 +1415,19 @@ alan adında dizine girer ve canlı siteyle kopya içerik çakışması üretird
 haritası) zaten kendi önbelleklerinden geliyor; üçüncü bir önbellek yalnızca
 geçersizleştirilecek bir yüzey daha eklerdi.
 
-### Fazla satır basılmıyor
+##### Fazla satır basılmıyor
 
 Robots kuralları önek eşleştirdiği için `/tr/hesabim` yazıldıktan sonra
 `/tr/hesabim/profil` fazladan satır. Üretilen liste tekrarları atıyor ve kısa
 öneki olan uzun yolları düşürüyor.
 
-### Bakım modu
+##### Bakım modu
 
 `/robots.txt` `web` grubunda, yani bakım modunda `CheckMaintenanceMode` 503
 dönüyor. Bu bilinçli: arama motorları robots.txt'e gelen 5xx'i "şimdilik hiçbir
 şeyi tarama" diye okur, bakım penceresinde istenen davranış tam olarak budur.
 
-### Yol üzerinde bulunan şey
+##### Yol üzerinde bulunan şey
 
 Giriş/kayıt/şifre sayfalarına `@section('robots', 'noindex, nofollow')` eklemeye
 kalkıldı — gereksizdi: `layouts/auth.blade.php` `noindex` etiketini zaten sabit
@@ -1091,7 +1435,7 @@ basıyor ve o layout böyle bir section yield etmiyor. Eklenen satırlar ölü k
 olacaktı, geri alındı. (`auth/verify-email.blade.php:5` içinde aynı sebeple ölü
 duran bir section var; zararsız olduğu için dokunulmadı.)
 
-### Testler
+##### Testler
 
 `RobotsTest` (14): statik dosyanın geri gelmemesi (gelirse web sunucusu onu
 basar ve rota ölü koda döner), canlı olmayan kopyanın kapalı olması, sitemap
@@ -1108,7 +1452,7 @@ sabitlenip ortam kontrolü kaldırılınca 3 test düşüyor.
 
 ---
 
-## 5p. Hata Bildirimi ve Log Rotasyonu — ✅ Kapatıldı
+#### 5p. Hata Bildirimi ve Log Rotasyonu — ✅ Kapatıldı
 
 Canlıda 500 veren bir sayfa **kimseye haber vermiyordu**. `bootstrap/app.php`
 içindeki `withExceptions()` bloğu boştu; hata yalnızca `storage/logs` altına
@@ -1120,7 +1464,7 @@ Acı olan tarafı: projede çalışan bir bildirim kanalı **zaten vardı**.
 zilinde gösterimi hazırdı — yalnızca yedekleme komutu ve birkaç servis onu
 çağırıyordu.
 
-### 1. İşlenmeyen hata artık yöneticiye ulaşıyor
+##### 1. İşlenmeyen hata artık yöneticiye ulaşıyor
 
 `ExceptionNotifier` iki kanala birden düşürüyor: Telegram (açıksa) ve panel
 bildirim merkezi (`type: exception`, kritik seviye).
@@ -1153,7 +1497,7 @@ olarak işaretleniyor.
 > alternatifi Telegram token'ını `.env`'e taşımaktı; ayarın sahibi panel olduğu
 > için ikinci bir doğruluk kaynağı açılmadı.
 
-### 2. Log dosyası artık dönüyor
+##### 2. Log dosyası artık dönüyor
 
 `.env.example` `LOG_STACK=single` diyordu: tek dosya, rotasyon yok. Paylaşımlı
 hostingde `laravel.log` zamanla gigabaytlara çıkar ve **disk dolduğunda yalnız
@@ -1163,7 +1507,7 @@ log yazımı değil yükleme, yedekleme ve oturum yazımı da durur.**
 zaten okuyordu). `LOG_LEVEL` için de canlıda `error` önerisi yorum olarak
 eklendi.
 
-### 3. Sistem Sağlık ekranına log kontrolü
+##### 3. Sistem Sağlık ekranına log kontrolü
 
 Disk kontrolü sorunu ancak disk dolduğunda görüyor; yeni kontrol **sebebe**
 bakıyor:
@@ -1182,7 +1526,7 @@ ipucu doğrudan çözümü söylüyor: `LOG_STACK=daily` ve `LOG_DAILY_DAYS=14`.
 Kontrol dizini `storage/logs` **varsaymıyor**, kanalın kendi `path` değerinden
 çözüyor — log başka bir yere yönlendirilmişse oraya bakıyor.
 
-### Testler
+##### Testler
 
 `ExceptionNotificationTest` (10): bildirimin merkeze düşmesi, konumun proje
 köküne göre yazılması, Telegram açıkken gönderilmesi ve kapalıyken hiç
@@ -1202,7 +1546,7 @@ Mutasyonla doğrulandı: `report()` kancası kaldırılınca 1, kapanış `false
 döndürülünce log testi, rotasyon tespiti sabitlenince 3, log dizini sabit
 `storage/logs` yapılınca 5 test düşüyor.
 
-### Yol üzerinde görülen
+##### Yol üzerinde görülen
 
 `telegram_notify_level` ayarı panelde kaydediliyor ama **kodda hiçbir yerde
 okunmuyor** — temizlenen `app_locale` ile aynı durumda. Bu turda dokunulmadı;
@@ -1211,7 +1555,7 @@ anlamı (iş yeniden deneme verbosity'si) hata bildirimiyle ilgisiz.
 
 ---
 
-## 5r. Denetim İzi — ✅ Tek Modelden Kritik Kümeye
+#### 5r. Denetim İzi — ✅ Tek Modelden Kritik Kümeye
 
 Altyapı baştan iyi yazılmıştı: `audit_logs` tablosu, indeksleri, saklama süresi
 temizliği, panel ekranı, süzgeçleri ve **hassas alan maskesi** hepsi yerindeydi.
@@ -1222,7 +1566,7 @@ Yani "kim giriş yaptı", "kim başarısız giriş denedi", "kim hangi rolün iz
 değiştirdi", "kim kullanıcı sildi", "kim yönlendirme ekledi" sorularının
 hiçbirinin cevabı yoktu. Kurumsal bir denetimin ilk sorduğu şeyler de bunlar.
 
-### Üç ayrı yol, çünkü tek gözlemci hepsini göremiyor
+##### Üç ayrı yol, çünkü tek gözlemci hepsini göremiyor
 
 | Yol | Neyi yakalıyor | Neden ayrı |
 |---|---|---|
@@ -1233,7 +1577,7 @@ hiçbirinin cevabı yoktu. Kurumsal bir denetimin ilk sorduğu şeyler de bunlar
 Model listesi dizi üzerinden geçiyor — yeni bir kritik model eklendiğinde tek
 satır yetiyor.
 
-### Kapsam neden içerik modellerini almıyor
+##### Kapsam neden içerik modellerini almıyor
 
 Sayfa, blog ve galeri her kaydetmede satır üretir. 90 günlük saklama süresiyle
 denetim izi kendi gürültüsünde boğulur ve asıl aranan kayıt — bir yetkinin ne
@@ -1243,7 +1587,7 @@ geçmişi denetim izinin değil **sürümlemenin** işi (bkz. modül önerileri)
 
 Testi var: `Page` oluşturmak denetim izine düşmüyor.
 
-### Ayrıntılar
+##### Ayrıntılar
 
 **Şifre hiçbir biçimde ize girmiyor.** İki katman: `Failed` dinleyicisi
 `$event->credentials`'tan yalnızca adresi alıyor (dizi şifreyi de taşıyor),
@@ -1268,7 +1612,7 @@ olay hiç doğmuyor. Dinlemek ölü kod olurdu.
 **Ekranda değişiklik gerekmedi:** tür süzgeci `modelOptions()` ile tablodaki
 gerçek verilerden üretiliyor, yeni modeller kendiliğinden listeye giriyor.
 
-### Yol üzerinde bulunan
+##### Yol üzerinde bulunan
 
 `AuditLogPageTest` ve `AuditLogDetailTest` kendi kurdukları kayıtların sayısına
 bakıyordu; `User` izlenmeye başlayınca sayfayı açan yöneticinin kendi izi
@@ -1276,7 +1620,7 @@ sonuçları kaydırdı ve 5 test düştü. Fikstür kurulumundan sonra tablo
 sıfırlanıyor — testlerin niyeti "şu N kayıt verildiğinde özet şunu der",
 kurulum gürültüsü değil.
 
-### Testler
+##### Testler
 
 `AuditTrailCoverageTest` (17): izlenen modellerin her biri için gerçekten kayıt
 doğması, içerik modellerinin dışarıda kalması, şifrenin ize hiç girmemesi,
@@ -1291,7 +1635,7 @@ düşüyor.
 
 ---
 
-## 5s. Kuyruk İzleyici — ✅ Kuruldu
+#### 5s. Kuyruk İzleyici — ✅ Kuruldu
 
 `failed_jobs` tablosu projede **tek bir yerde** okunuyordu:
 `HealthCheckService.php:162`, o da yalnızca son 24 saatin *sayısını* alıyordu.
@@ -1302,7 +1646,7 @@ Bu proje için özellikle önemli: tüm mail gönderimi `MailService::queue()`
 `failed_jobs.exception` alanında duruyor ve o alana panelden bakmanın yolu
 yoktu — kayıt tabloda sessizce birikiyordu.
 
-### Ekran
+##### Ekran
 
 `Admin → Kuyruk` (`admin/kuyruk`). Üstte dört sayı, altta başarısız iş listesi.
 
@@ -1325,7 +1669,7 @@ her satırda taşınsaydı liste gereksiz şişerdi.
 işle** (cron dakikasını beklemeden). Hepsi `AdminModal` onayından geçiyor ve
 denetim izine düşüyor — bir işin neden kaybolduğu sonradan sorulacak ilk şey.
 
-### Tasarım kararları
+##### Tasarım kararları
 
 **Eloquent modeli yok.** `jobs` ve `failed_jobs` çerçevenin kendi tabloları;
 projenin model kurallarına (SoftDeletes, `$fillable`) tabi değiller ve
@@ -1350,7 +1694,7 @@ deploy'da kaldırılmışsa ya da yük bozuksa bu adım patlıyor** ve ekran 500
 veriyordu. O durumda deneme sayacı sıfırlanıp yük olduğu gibi kuyruğa
 yazılıyor: işin geri konması damganın tazelenmesinden önemli. Testi var.
 
-### Yeni izinler mevcut kurulumlara nasıl gidiyor
+##### Yeni izinler mevcut kurulumlara nasıl gidiyor
 
 İzinlerin tek kaynağı `PermissionKey` enum'u ama `PermissionSeeder` yalnızca
 kurulumda çalışıyor. Deploy `git pull` + `migrate` ile yapıldığı için yeni bir
@@ -1358,7 +1702,7 @@ enum case'i satır karşılığı bulamaz ve **yönetici bile ekranı göremezdi
 `2026_08_31_100000_seed_queue_permissions` migration'ı satırları ekliyor ve
 yönetici rolüne veriyor.
 
-### Testler
+##### Testler
 
 `QueueMonitorTest` (20): yetki ayrımı (editör ve moderatör giremiyor,
 kenar çubuğunda link görünmüyor, yeniden deneme/silme reddediliyor), sayılar,
@@ -1377,13 +1721,13 @@ ayrıntı penceresi yığın izini çekiyor ve yeniden deneme sonrası bekleyen 
 
 ---
 
-## 5t. Ölü Telegram Ayarı ve Kaydedilmeyen Başarısız İşler — ✅ İkisi de Kapatıldı
+#### 5t. Ölü Telegram Ayarı ve Kaydedilmeyen Başarısız İşler — ✅ İkisi de Kapatıldı
 
 `telegram_notify_level` ayarı panelde kaydediliyordu ama **kodda hiçbir yerde
 okunmuyordu** — 5m'de temizlenen `app_locale` ile birebir aynı durum. Kararı
 verirken çok daha büyük bir şey çıktı.
 
-### Ayar neden kaldırıldı, bağlanmadı
+##### Ayar neden kaldırıldı, bağlanmadı
 
 Enum'un sunduğu seçim şuydu: bildirim *her başarısızlıkta* mı gelsin, yoksa
 *yalnız 3/3 deneme sonunda* mı? İki gerekçeyle bağlanmadı:
@@ -1411,7 +1755,7 @@ Alanın yerine ne olduğunu söyleyen bir bilgi kutusu kondu (`app_locale` için
 yapılanla aynı desen): Telegram'a neyin gittiği, neyin gitmediği ve patlayan
 işlerin listesinin Kuyruk ekranında olduğu.
 
-### Yol üzerinde bulunan asıl kusur: başarısız işler hiç kaydedilmiyordu
+##### Yol üzerinde bulunan asıl kusur: başarısız işler hiç kaydedilmiyordu
 
 Kararı doğrulamak için patlayan bir işi kuyruğa koyup `QueueRunner`'ı
 çalıştırdığımızda `failed_jobs` **boş kaldı.**
@@ -1439,14 +1783,14 @@ içinde: buradan fırlayan bir hata kuyruğun kalanını da durdururdu.
 > `queue:work`'ün olmadığı varsayımına dayanıyor (`docs/SHARED-HOSTING.md`); o
 > varsayım değişirse buranın da gözden geçirilmesi gerekir.
 
-### Ayrıca
+##### Ayrıca
 
 Telegram bölümünün alt başlığı hâlâ **"Instagram paylaşımları başarısız
 olduğunda..."** diyordu — sökülmüş modülden kalan ve artık düpedüz yanlış olan
 bir metin. Tam da neyin bildirim ürettiğini anlatan kutunun üstünde durduğu
 için düzeltildi.
 
-### Testler
+##### Testler
 
 `FailedJobRecordingTest` (5): patlayan işin `failed_jobs`'a düşmesi, kaydın
 hata metnini ve yükü taşıması, işin yeniden denenmemesi, yöneticinin zaten
@@ -1461,13 +1805,13 @@ Dinleyici kaldırılıp doğrulandı: 3 test düşüyor.
 
 ---
 
-## 5u. Yedek Geri Yükleme — ✅ Kuruldu, Yol Üzerinde Sessiz Bir Kusur Çıktı
+#### 5u. Yedek Geri Yükleme — ✅ Kuruldu, Yol Üzerinde Sessiz Bir Kusur Çıktı
 
 Yedek alınıyordu ama **geri dönüş yolu yoktu**: dosya indirilebiliyor, ama
 uygulanabilmesi için sunucuda elle SQL çalıştırmak gerekiyordu. Hiç denenmemiş
 bir yedek, olmayan bir yedektir.
 
-### Yol üzerinde bulunan asıl kusur: gövdesiz yedekler
+##### Yol üzerinde bulunan asıl kusur: gövdesiz yedekler
 
 Geri yüklemeyi gerçek bir MySQL veritabanında sınarken alınan yedek **133 KB
 değil 398 bayt** çıktı. Arşivde `database.sql` **hiç yoktu** — ama `create()`
@@ -1491,7 +1835,7 @@ yedeklerin çalışıp çalışmadığını kimse denemiyordu.**
 | Bağlantı tek kaynaktan | `phpSideDump` elle DSN kurmuyor, uygulamanın kendi bağlantısını (`DB::connection()->getPdo()`) kullanıyor |
 | Soket desteği | `mysqldump` ve `mysql` çağrıları `unix_socket` tanımlıysa `--socket` ile bağlanıyor |
 
-### Geri yükleme
+##### Geri yükleme
 
 `BackupRestoreService`. Sıra bilinçli:
 
@@ -1514,7 +1858,7 @@ Onay penceresi neyin uygulanacağını sayıyla yazıyor ve kullanıcı hesaplar
 da yedekteki hâline döneceğini — yani oturumun kapanabileceğini — söylüyor.
 "Emin misiniz?" bu kararı verdirmeye yetmez.
 
-### SQL dökümünü ifadelere ayırma
+##### SQL dökümünü ifadelere ayırma
 
 Geri yüklemenin en sessiz kırılma noktası. Paylaşımlı hostingde `mysql`
 istemcisi yok, yani döküm PHP tarafında ifadelere ayrılıp tek tek
@@ -1532,7 +1876,7 @@ sığmayabilir) ve ileri-bakış gerektiren kalıplar parça sınırına denk ge
 kaçmasın diye üç karakterlik pay bırakılıyor. Testi bu sınırı bilerek kalıbın
 ortasına getiriyor.
 
-### Dışarıdan yedek yükleme
+##### Dışarıdan yedek yükleme
 
 Sunucusu gitmiş bir kurulumu ayağa kaldırmanın tek yolu. Dosya önce **listeye
 giriyor**, geri yükleme sonra aynı doğrulanmış yoldan yapılıyor — yükleyip
@@ -1547,14 +1891,14 @@ açılırken hedef dizinin dışına yazar. Tek bir kötü girdi bulunduğunda a
 tamamı reddediliyor — kötü girdiyi atlayıp gerisini açmak saldırganın neyi
 hedeflediğini gizler.
 
-### Yedek dizini artık yapılandırmadan geliyor
+##### Yedek dizini artık yapılandırmadan geliyor
 
 `config/backups.php` eklendi ve sınama takımı burayı geçici bir dizine
 çeviriyor (`phpunit.xml`, yükleme dizini için zaten yapılan şey). Öncesinde
 testler geliştiricinin **gerçek yedek dizinine** yazıyordu ve `create()` →
 `rotate()` zinciri oradaki eski yedekleri silebilirdi.
 
-### Testler
+##### Testler
 
 `SqlStatementReaderTest` (15, birim): metin içindeki noktalı virgül,
 kaçırılmış ve ikilenmiş tırnak, çift tırnak, geri tırnak içinde ters bölü,
@@ -1569,7 +1913,7 @@ modundan çıkılması, boş arşivin güvenlik yedeği alınmadan reddedilmesi,
 denetim izi, yetki ayrımı, dışarıdan yükleme ve **gövdesiz yedeğin başarılı
 sayılmaması**.
 
-### Gerçek MySQL'de doğrulama
+##### Gerçek MySQL'de doğrulama
 
 Suite SQLite üzerinde koşuyor, veritabanı geri yüklemesi ise MySQL'e özgü.
 Tam tur ayrı bir MySQL veritabanında elle yapıldı:
@@ -1585,7 +1929,7 @@ Tam tur ayrı bir MySQL veritabanında elle yapıldı:
 gibi davranılarak): paylaşımlı hostingde çalışacak olan yol bu ve aynı 563
 ifadeyi doğru uyguladı.
 
-### Kalan yarı
+##### Kalan yarı
 
 Yedeğin **dış kopyası** hâlâ yok: arşiv yedeklediği veriyle aynı diskte
 duruyor. Geri yükleme artık mümkün olduğu için dosyanın başka bir yerde
@@ -1594,13 +1938,13 @@ durması da anlamlı hâle geldi — sonraki tur.
 
 ---
 
-## 5v. CI ve Statik Analiz — ✅ Kuruldu, Altı Gizli Hata Çıkardı
+#### 5v. CI ve Statik Analiz — ✅ Kuruldu, Altı Gizli Hata Çıkardı
 
 1282 test vardı ve **hiçbiri otomatik koşmuyordu**. Kırılmadığını doğrulamak
 birinin elle `composer test` yazmasına bağlıydı; bu base kit'ten türeyen
 projelerde ilk terk edilen alışkanlık.
 
-### Üç kontrol, iki iş
+##### Üç kontrol, iki iş
 
 `.github/workflows/ci.yml`: push ve pull request'te koşuyor.
 
@@ -1611,7 +1955,7 @@ projelerde ilk terk edilen alışkanlık.
 
 `composer check` (lint + analyse + test) aynı üçünü yerelde koşuyor.
 
-### Testler neden MySQL'e karşı
+##### Testler neden MySQL'e karşı
 
 Yerelde SQLite hızlı ama üretim MySQL 8 ve ikisi aynı şeyi kabul etmiyor. Bu iş
 akışı kurulduğu gün **SQLite'ın sakladığı altı hata** çıktı:
@@ -1637,7 +1981,7 @@ ikisinde de düz karakter. `LikeSearchIsPortableTest` hem kuralı hem
 uygulanışını bekçilik ediyor ve sorguyu **gerçek veritabanına** atıyor, yani CI
 onu iki sürücüde birden sınıyor.
 
-### Kod stili: gürültüden sinyale
+##### Kod stili: gürültüden sinyale
 
 `pint --test` **459 dosyada** sapma bildiriyordu ve bu yüzden çıktısı hiçbir işe
 yaramıyordu — gerçek bir stil hatası o gürültüde görünmezdi. Sapmaların büyük
@@ -1657,7 +2001,7 @@ içindi.)
 Uygulanan diff hizalamaya dokunmadığı satır satır doğrulandı: `=>` sütunu kayan
 tek satır bile yok, değişen yalnızca `!$x` → `! $x`.
 
-### Statik analiz: seviye 1, sıfır tolerans
+##### Statik analiz: seviye 1, sıfır tolerans
 
 Larastan eklendi. Seviye 5'te 552 hata çıkıyor ama ezici çoğunluğu gerçek kusur
 değil, Eloquent çıkarım sınırı (`selectRaw('count(*) as count')` sütunları,
@@ -1669,7 +2013,7 @@ seviye, gürültülü yüksek bir seviyeden çok iş görüyor. Yukarı çıkman
 modellere `@property` blokları eklemek — ayrı ve büyük bir iş, `phpstan.neon`
 içinde not düşüldü.
 
-### Seviye 0'ın çıkardığı üç şey
+##### Seviye 0'ın çıkardığı üç şey
 
 Seviye 0 hataları neredeyse her zaman gerçektir ve üçü de öyleydi:
 
@@ -1691,7 +2035,7 @@ yazıyordu; `array_filter` sıfırları attığı için tüm adaylar sıfır old
 `min()` argümansız çağrılıyor ve ölümcül hata veriyordu. Bugünkü çağıranlar
 pozitif sabit geçiyor ama sıfır geçen ilk çağrı yükleme yolunu çökertirdi.
 
-### Testler
+##### Testler
 
 `LikeSearchIsPortableTest` (4): ters bölü kaçışının hiçbir serviste geri
 gelmemesi, yardımcıyı kullanan her servisin koşulu da ondan alması, joker
@@ -1704,7 +2048,7 @@ yerine çalışma zamanı değerini aradığı için yakalamıyordu, düzeltildi
 
 ---
 
-## 5y. Çerez Rızası — ✅ Kuruldu
+#### 5y. Çerez Rızası — ✅ Kuruldu
 
 Hiçbir rıza mekanizması yoktu. Google Analytics ve Tag Manager ayar doluysa
 **koşulsuz** yükleniyor, projenin kendi ziyaret kaydı da ilk istekten itibaren
@@ -1713,7 +2057,7 @@ giriyor — yani veri önce toplanıp sonra anonimleştiriliyordu. KVKK'da açı
 ispat yükü veri sorumlusunda; GDPR kapsamındaki bir ziyaretçi için de analitik
 çerezler rızadan önce çalışamaz.
 
-### Üç kategori
+##### Üç kategori
 
 `ConsentCategory` enum'u: **zorunlu** (oturum, güvenlik jetonu, dil ve tema —
 kapatılamaz), **analitik** (kendi ziyaret kaydımız + Google Analytics),
@@ -1723,7 +2067,7 @@ Tag Manager'ın pazarlama sayılması bilinçli: bir kap içine ne konduğu kodd
 görünmez, her etiketi yükleyebilir. Belirsiz olanı en dar kategoriye koymak
 doğru varsayılan.
 
-### Karar verilmeden hiçbir şey yüklenmiyor
+##### Karar verilmeden hiçbir şey yüklenmiyor
 
 Betikler sayfaya konup "çalışmasın" denmiyor — **hiç basılmıyor**. Bir etiket
 yüklendiği anda istek atıyor ve çerezini kuruyor; sonradan susturmak geç kalır.
@@ -1733,7 +2077,7 @@ Dört yol da kapalı: başlıktaki GA betiği, GTM betiği, `<noscript>` GTM
 denetliyor: betik rıza olmadan yüklenmiyor ama uç nokta herkese açık, doğrudan
 istek atan biri kaydı yine de oluşturabilirdi.
 
-### Betiksiz de çalışıyor
+##### Betiksiz de çalışıyor
 
 Band düz bir form, düğmeler gerçek submit. Hangi kategorilere izin verildiğini
 sunucu `choice` alanından çözüyor (`all` / `necessary` / `custom`) — kutulardan
@@ -1751,7 +2095,7 @@ yapabiliyor — hak kaybı yok.
 **Reddetmek kabul etmek kadar kolay:** iki düğme aynı boyutta, aynı yerde ve
 aynı sayıda tıkla ulaşılıyor.
 
-### İspat kaydı
+##### İspat kaydı
 
 Tercih iki yerde duruyor ve ikisi farklı işe yarıyor. **Çerez** kararı
 hatırlamak için — ziyaretçi silebilir, silerse yeniden sorulur. **`consents`
@@ -1771,19 +2115,19 @@ için doğru yer. Her ziyaretçinin tıklaması denetim izine düşseydi iz kend
 gürültüsünde boğulurdu — içerik modellerini izlemeye almama gerekçesinin
 aynısı.
 
-### Metin sürümü
+##### Metin sürümü
 
 `ConsentService::VERSION`. Kategoriler ya da açıklamaları değişirse artırılıyor;
 eski rıza yeni metne verilmiş sayılmıyor ve ziyaretçiye bir kez daha soruluyor.
 
-### Yol üzerinde bulunan sızıntı
+##### Yol üzerinde bulunan sızıntı
 
 Başlıktaki iki betik kapatıldıktan sonra test hâlâ GTM kimliğini buluyordu:
 gövdedeki **`<noscript>` GTM çerçevesi** gözden kaçmıştı. Betiği kapatıp
 çerçeveyi açık bırakmak, JavaScript'i kapalı ziyaretçiyi — tam da korunması
 gereken kişiyi — rızasız izlemek olurdu.
 
-### Testler
+##### Testler
 
 `CookieConsentTest` (20): rıza öncesi bandın görünmesi ve hiçbir izleme
 betiğinin basılmaması, uç noktanın kayıt tutmaması; analitik izninin GA ile
@@ -1801,7 +2145,7 @@ yeniden açıyor; mobilde taşma yok.
 
 ---
 
-## 5z. API Katmanı (v1) — ✅ Kuruldu
+#### 5z. API Katmanı (v1) — ✅ Kuruldu
 
 Mobil uygulamanın ve harici istemcilerin **aynı iş mantığından** beslendiği
 katman. Kural şu: bir uç, ön yüzün kullandığı Service'i çağırır; kendi
@@ -1824,7 +2168,7 @@ sorgusunu yazmaz. Yazsaydı iki taraf zamanla farklı şeyler döndürürdü.
   `/api/v1/yanlis-adres` web tarafındaki fallback'e düşüp HTML sayfa
   döndürüyordu.
 
-### Kapsam
+##### Kapsam
 
 | Alan | Uçlar |
 |---|---|
@@ -1838,7 +2182,7 @@ sorgusunu yazmaz. Yazsaydı iki taraf zamanla farklı şeyler döndürürdü.
 | Arama | site geneli tek uç |
 | Formlar | iletişim, bülten aboneliği |
 
-### Jeton yetkileri ve önbellek başlıkları (`26fa4fd`)
+##### Jeton yetkileri ve önbellek başlıkları (`26fa4fd`)
 
 Yetkiler enum'da: `profile:read`, `profile:write`, `devices:manage`. Çıkış
 bilerek yetkisiz — bir jeton her zaman kendini iptal edebilmeli, yoksa dar
@@ -1849,25 +2193,25 @@ içerik değişmemişse 304 alıyor ve gövde hiç inmiyor. En büyük kazanç �
 sözlüğünde (yüz kilobayta yaklaşabiliyor). İçerik listeleri bilerek dışarıda:
 orada tazelik önbellekten değerli ve sayfalama ETag'i sürekli değiştiriyor.
 
-### Cihaz yönetimi (`471ea76`)
+##### Cihaz yönetimi (`471ea76`)
 
 Kullanıcı kendi oturumlarını görüp kapatabiliyor. Doğrulanmış e-posta şartı
 bilerek yok: hesabına şüpheli erişim olduğunu düşünen kişi, doğrulama adımını
 tamamlayamamış olsa bile oturumları kapatabilmeli.
 
-### E-posta değişimi (`7873d89`, `fbabbaf`)
+##### E-posta değişimi (`7873d89`, `fbabbaf`)
 
 Adres değişince doğrulama sıfırlanıyor ve **eski adrese** güvenlik uyarısı
 gidiyor — hesabı ele geçiren biri adresi değiştirse bile sahibi haberdar olur.
 
-### Makine okunur sözleşme (`782cea2`)
+##### Makine okunur sözleşme (`782cea2`)
 
 `docs/openapi.json` — OpenAPI 3.1. Kendi kendini denetliyor:
 `Api/OpenApiSpecTest` şemayı rotalarla karşılaştırıyor, yeni bir uç şemaya
 yazılmadan eklenirse test düşüyor. İkinci bir Postman koleksiyonu bilerek
 tutulmuyor: ikinci dosya ikinci bayatlama kaynağı.
 
-### Testler
+##### Testler
 
 `tests/Feature/Api/` altında 11 sınıf: kimlik, şifre sıfırlama, hesap, cihaz,
 jeton yetkileri, önbellek başlıkları, içerik uçları, herkese açık uçlar, blog
@@ -1875,7 +2219,7 @@ araması, site araması ve sözleşme denetimi.
 
 ---
 
-## 5ab. Arama — ✅ Kuruldu (blog + site geneli)
+#### 5ab. Arama — ✅ Kuruldu (blog + site geneli)
 
 Üç commit'te büyüdü: önce blog araması (`08dcf33`), sonra blog sayfasındaki
 kutu (`5013668`), sonunda blog + sayfa + SSS + galeriyi tek kutudan tarayan
@@ -1893,7 +2237,7 @@ site geneli arama (`de77f5e`).
 
 ---
 
-## 6a. Hesap ve Kimlik — ✅ Faz 1
+#### 6a. Hesap ve Kimlik — ✅ Faz 1
 
 Hesap alanı iki ekrandı (pano, profil). Bir base kit'in en çok kopyalanan
 parçası burasıdır; eksik kalırsa her projede yeniden yazılır.
@@ -1926,7 +2270,7 @@ parçası burasıdır; eksik kalırsa her projede yeniden yazılır.
 
 ---
 
-## 6b. Mobil Web — ✅ Faz 2
+#### 6b. Mobil Web — ✅ Faz 2
 
 Site duyarlıydı ama mobil değildi: telefona kurulamıyor, bağlantı kesildiğinde
 tarayıcının kendi hata sayfası çıkıyordu.
@@ -1955,7 +2299,7 @@ tarayıcının kendi hata sayfası çıkıyordu.
 
 ---
 
-## 6c. Panelin Eksik Ekranları — ✅ Faz 3
+#### 6c. Panelin Eksik Ekranları — ✅ Faz 3
 
 - **Rapor merkezi** (`/admin/raporlar`): altı rapor (trafik, içerik, kullanıcı,
   e-posta, kampanya, abone), her biri aynı yapıda (metrics + series + rows).
@@ -1974,7 +2318,7 @@ tarayıcının kendi hata sayfası çıkıyordu.
 
 ---
 
-## 6d. API Olgunluğu — ✅ Faz 4
+#### 6d. API Olgunluğu — ✅ Faz 4
 
 - **`GET /api/v1/health`**: jeton istemiyor ve bakım modunda da açık —
   uygulamanın bakımı öğrenebileceği tek yer burası. Asgari istemci sürümü
@@ -1990,7 +2334,7 @@ tarayıcının kendi hata sayfası çıkıyordu.
 
 ---
 
-## 6e. Dayanıklılık — ✅ Faz 5
+#### 6e. Dayanıklılık — ✅ Faz 5
 
 - **Yedeğin dış kopyası**: `local` (ikinci disk, ağ klasörü) ve `ftp`. Kopya
   sonrası boyut karşılaştırılıyor; dış kopyanın saklama süresi var;
@@ -2007,7 +2351,7 @@ tarayıcının kendi hata sayfası çıkıyordu.
 
 ---
 
-## 7. Laravel 13 Upgrade Notları
+#### 7. Laravel 13 Upgrade Notları
 
 `ef5042c` commit'inde 12.52.0 → 13.26.1 yükseltmesi yapıldı. Upgrade guide'daki
 kırılmaların hiçbiri projeye dokunmadı. İki config değeri **bilinçli olarak
@@ -2018,7 +2362,7 @@ varsayılanda bırakıldı**:
 | `session.serialization` | Tanımsız → `'php'` | `json`'a çevirmek tüm aktif oturumları düşürür. Güvenlik sertleştirmesi olarak sonradan açılabilir. |
 | `cache.serializable_classes` | Tanımsız → `null` | `false` yapılırsa Eloquent Collection cache'leyen 5 servis (`SliderService`, `PageService`, `FaqService`, `PopupService`, `BlogCategoryService`) kırılır. Açılacaksa allow-list ile açılmalı. |
 
-### Kod stili uyarısı
+##### Kod stili uyarısı
 
 ~~`pint --test` ~180 dosyada sapma bildiriyor~~ — kapatıldı (bkz. bölüm 5v).
 `pint.json` projenin kendi biçimini tanımlıyor, sapma sıfır ve fix modu artık
@@ -2026,9 +2370,9 @@ güvenle çalıştırılabiliyor.
 
 ---
 
-## 8. Tamamlananlar
+#### 8. Tamamlananlar
 
-### Kapanan turlar
+##### Kapanan turlar
 
 - [x] SoftDeletes, yetkilendirme, açık yönlendirme, moderatör rolü (5, 5c, 5d)
 - [x] Ürün/sipariş kalıntılarının temizliği — 15 kalem (4)
@@ -2046,7 +2390,1408 @@ güvenle çalıştırılabiliyor.
 - [x] **Faz 4 — API olgunluğu** (6d)
 - [x] **Faz 5 — Dayanıklılık** (6e)
 
-### Açık kalan iki madde
+##### Açık kalan iki madde
 
 Bölüm 6'da: panelden push gönderme ekranı (tasarım bekliyor) ve
 `session.serialization = json` (bakım penceresi bekliyor).
+
+
+---
+---
+
+# BÖLÜM B — Yol Haritası
+
+> **Arşiv.** Bu bölüm `docs/YOL-HARITASI.md` dosyasının **tam ve değiştirilmemiş**
+> içeriğidir; yalnız başlık seviyeleri bir kademe indirildi ki bu belgenin
+> hiyerarşisine otursun. Beş fazın her maddesi: neden gerekli, kapsamı ne, kabul ölçütü ve testi ne.
+>
+> Kaynak dosya yerinde duruyor ve okunmaya devam edebilir.
+
+
+### Yol Haritası — "Eksiksiz Base Kit"e Kalan Yol
+
+**Çıkarıldığı tarih:** 2026-08-31
+**Dal:** `feat/laravel-13-upgrade`
+**Kapsam:** üç yüz birden — masaüstü web, mobil web, API
+
+Bu belge *ne eksik* sorusunun cevabı. *Ne var* sorusunun cevabı
+[`PROJE-DURUMU.md`](PROJE-DURUMU.md)'de; *yapıldı denilen gerçekten çalışıyor mu*
+sorusunun cevabı [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md)'de; *hangi sırayla
+kapatılmalı* sorusunun cevabı [`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md)'de;
+API sözleşmesi
+[`API.md`](API.md) ve [`openapi.json`](openapi.json)'da.
+
+---
+
+#### Ölçüt: "tam donanımlı" ne demek
+
+Bu kit'ten türeyen bir kurumsal proje, ilk günden şunları **yazmadan** bulmalı:
+
+1. **Web** — içerik yönetimi, çok dillilik, SEO, kimlik, hesap alanı, formlar
+2. **Mobil web** — aynı sitenin telefonda kurulabilir, çevrimdışı hata vermeyen,
+   parmakla kullanılabilir hâli
+3. **API** — mobil uygulamanın aynı iş mantığından beslendiği, sürümlü,
+   sözleşmesi makine okunur bir katman
+4. **İşletme** — panelden ölçme, raporlama, yedekleme, izleme, kurtarma
+
+Aşağıdaki dört fazın sonunda dördü de kapanıyor. Her madde bir commit, her
+maddenin bir kabul ölçütü ve en az bir testi var.
+
+---
+
+#### Faz 1 — Hesap ve Kimlik (web + API birlikte) — ✅ TAMAMLANDI
+
+Bugün hesap alanı iki ekran: pano ve profil. API tarafı ondan bir adım önde
+(cihaz yönetimi var), web tarafı geride. Bir base kit'in en çok kopyalanan
+parçası burası; eksik kalırsa her projede yeniden yazılıyor.
+
+##### 1.1 Web'de cihaz ve oturum yönetimi — ✅ bitti (`de77f5e` sonrası)
+**Neden:** API'de var (`GET/DELETE /auth/devices`), web'de yok. Aynı kullanıcı
+telefonda oturumunu kapatabiliyor, tarayıcıda kapatamıyor.
+**Kapsam:** `/hesabim/cihazlar` — açık oturumlar (IP, tarayıcı, son görülme),
+tek tek ve toplu kapatma. `SessionRevoker` zaten duruyor.
+**Kabul:** Başka bir tarayıcıdaki oturum listede görünüyor, kapatıldığında o
+tarayıcı bir sonraki istekte girişe düşüyor. Test: `AccountDeviceTest`.
+
+##### 1.2 İki adımlı doğrulama (TOTP) — ✅ bitti
+**Neden:** Panel yöneticisinin tek koruması şifre. Kurumsal müşterinin ilk
+sorduğu şey; sonradan eklemek oturum ve API akışlarının ikisini birden
+değiştiriyor, şimdi eklemek ucuz.
+**Kapsam:** TOTP (Google Authenticator uyumlu, harici servis yok), QR kurulum,
+tek kullanımlık kurtarma kodları, "yöneticiler için zorunlu" ayarı. Web giriş
+akışı + API `POST /auth/login` iki aşamalı yanıt (`two_factor_required`).
+**Kabul:** 2FA açık kullanıcı doğru şifreyle giriş yapamıyor, kod isteniyor;
+kurtarma kodu bir kez çalışıp tükeniyor. Test: `TwoFactorTest`,
+`Api/ApiTwoFactorTest`.
+
+##### 1.3 Hesabı kapatma ve veri indirme (KVKK/GDPR) — ✅ bitti
+**Neden:** Rıza kaydı var (`Consent`), ama kişinin *silme* ve *taşınabilirlik*
+hakkının karşılığı yok. Mağazalar (App Store / Play) uygulama içi hesap silme
+yolunu artık şart koşuyor — mobil uygulama bu olmadan yayınlanamıyor.
+**Kapsam:** Web `/hesabim/veriler`: verilerimi indir (JSON+ZIP) ve hesabımı
+kapat (şifre onaylı, gecikmeli kalıcı silme). API: `GET /account/export`,
+`DELETE /account`.
+**Kabul:** Kapatılan hesap giriş yapamıyor, jetonları iptal, e-postası
+serbest kalıyor; dışa aktarma kişinin bütün kayıtlarını içeriyor.
+Test: `AccountDataRightsTest`, `Api/ApiAccountDeletionTest`.
+
+##### 1.4 API hesap uçlarının tamamlanması — ✅ bitti
+**Neden:** Web'de olup API'de olmayan üç akış var: şifre değiştirme, e-posta
+değiştirme doğrulaması, avatar kaldırma. Mobil uygulama bunlar için tarayıcı
+açmak zorunda kalıyor.
+**Kapsam:** `PUT /account/password` (mevcut şifre onaylı, diğer jetonları
+düşürme seçeneği), e-posta değişiminde doğrulama akışının API karşılığı.
+**Kabul:** Şifre değişince — istenirse — öteki cihazların jetonu düşüyor.
+Test: `Api/ApiAccountTest` genişletmesi.
+
+##### 1.5 Bildirim tercihleri — ✅ bitti
+**Neden:** Kullanıcının aldığı e-postaları (bülten, yorum yanıtı, duyuru)
+kapatabileceği tek yer bülten çıkış bağlantısı. Tercih tablosu olmadan her yeni
+e-posta türü aynı sorunu tekrar doğuruyor.
+**Kapsam:** `user_notification_preferences`, hesap ekranında anahtarlar, gönderim
+öncesi tek kapıdan kontrol; API'de oku/yaz.
+**Kabul:** Kapatılan tür o kullanıcıya gitmiyor ve `mail_logs`'a "tercih"
+gerekçesiyle düşüyor. Test: `NotificationPreferenceTest`.
+
+---
+
+#### Faz 2 — Mobil Web (PWA + erişilebilirlik) — ✅ TAMAMLANDI
+
+Site bugün duyarlı (responsive) ama *mobil* değil: telefona kurulamıyor,
+bağlantı kesildiğinde tarayıcının kendi hata sayfasını gösteriyor.
+
+##### 2.1 Uygulama bildirimi (`manifest.json`) — ✅ bitti
+**Neden:** "Ana ekrana ekle" olmadan PWA'nın geri kalanı da anlamsız.
+**Kapsam:** Rotadan üretilen manifest (ad, ikon, tema rengi panelden geliyor —
+sabit dosya olsaydı her projede elle düzenlenirdi), 192/512 ikon üretimi
+`UploadService` üzerinden, `apple-touch-icon` zinciri.
+**Kabul:** Chrome ve Safari'de kurulabilir; kurulan uygulama panelde ayarlanan
+adı ve rengi taşıyor. Test: `PwaManifestTest`.
+
+##### 2.2 Servis çalışanı ve çevrimdışı sayfa — ✅ bitti
+**Neden:** Build tool yasağı yüzünden hazır PWA eklentileri kullanılamıyor;
+elle yazılmış, küçük ve okunur bir servis çalışanı gerekiyor.
+**Kapsam:** Kabuk + statik varlık önbelleği, sürüm damgası (dosya değişince
+eski önbellek düşer), çevrimdışı sayfa, HTML için "önce ağ" stratejisi —
+içerik bayatlamamalı.
+**Kabul:** Uçak modunda site açılıyor ve çevrimdışı sayfa çıkıyor; yeni sürüm
+yayınlandığında bir sonraki ziyarette güncel içerik geliyor.
+Test: `ServiceWorkerTest` (kayıt, kapsam, sürüm damgası).
+
+##### 2.3 Mobil kullanım denetimi — ✅ bitti
+**Neden:** 70 KB'lık ön yüz CSS'inde yalnız 10 medya sorgusu var; düzen
+Bootstrap ızgarasına bırakılmış. Izgara düzeni çözer, dokunma hedefini ve
+yatay taşmayı çözmez.
+**Kapsam:** 360 px'te bütün ön yüz ve panel ekranlarının taranması; dokunma
+hedefi ≥44 px, yatay kaydırma sıfır, panel tablolarında kaydırma kabı,
+yapışkan başlık/eylem çubukları.
+**Kabul:** Tarayıcıda 360×640'ta gezinti kanıtlanıyor; `document.body.scrollWidth`
+taşmıyor. Test: yatay taşma bekçisi + görsel kanıt.
+
+##### 2.4 Erişilebilirlik taban çizgisi — ✅ bitti
+**Düzeltme:** Bu maddenin gerekçesi kısmen yanlıştı — içeriğe atlama bağlantısı
+zaten vardı (`skip-to-content`). Denetim yapıldığında ön yüzde adsız tek bir
+kontrol çıktı (bültenin gönder düğmesi) ve bütün form alanlarının etiketi
+yerindeydi. Eksik olan şey bekçiydi: `AccessibilityBaselineTest`.
+**Kapsam:** Skip link, odak halkaları, form etiket eşleşmeleri, ikon
+düğmelerine erişilebilir ad, renk kontrastı, `prefers-reduced-motion`
+(kısmen var).
+**Kabul:** Klavyeyle bütün ön yüz gezilebiliyor, odak her zaman görünür.
+Test: `AccessibilityBaselineTest` (etiketsiz girdi ve adsız ikon düğmesi yok).
+
+---
+
+#### Faz 3 — Panelin Eksik Ekranları — ✅ TAMAMLANDI
+
+Temada tasarımı hazır olup kodu olmayan üç ekran. Tasarım dosyaları
+`resources/views/admin-theme/` altında duruyor, birebir uyarlanacak.
+
+##### 3.1 Raporlar (`reports.html`) — ✅ bitti
+**Neden:** Veri panelde toplanıyor (ziyaret, içerik, mail, kullanıcı, kampanya)
+ama tek bir yerden okunmuyor; yönetici sayıları beş ekrandan derliyor.
+**Kapsam:** Tarih aralığı seçimli rapor ekranı — trafik, içerik üretimi, mail
+gönderimi, kullanıcı büyümesi, kampanya başarımı; her rapor Excel/PDF çıktısı
+(`app/Exports` altyapısı hazır).
+**Kabul:** Seçilen aralık bütün kartlara ve dışa aktarmaya aynı şekilde
+uygulanıyor. Test: `AdminReportsTest`.
+
+##### 3.2 Genel içerik listesi (`content-list.html`) — ✅ bitti
+**Neden:** Blog, sayfa, galeri ve SSS ayrı listelerde; "geçen ay ne yayınlandı"
+sorusunun tek ekranlık cevabı yok. Site geneli arama servisi
+(`SearchService`) bu birleşik görünümün sorgu tarafını zaten kuruyor.
+**Kapsam:** Tür/dil/durum/tarih süzgeçli birleşik liste, toplu durum
+değiştirme, kayda gitme.
+**Kabul:** Dört tür de tek listede, süzgeçler birleşik çalışıyor, yetkisi
+olmayan türü göremiyor. Test: `AdminContentListTest`.
+
+##### 3.3 Yardım (`help.html`) — ✅ bitti
+**Neden:** Panelde 30'dan fazla ekran var; devralan kişi için panel içi rehber
+yok. Bu kit başkalarına teslim edilmek için var.
+**Kapsam:** Modül modül kısa rehber, sık sorulanlar, sürüm ve ortam bilgisi,
+destek iletişimi — içeriği çeviri dosyalarından, böylece projeye göre
+değiştirilebilir.
+**Kabul:** Her sidebar modülünün bir yardım başlığı var. Test: `AdminHelpTest`.
+
+---
+
+#### Faz 4 — API Olgunluğu
+
+##### 4.1 Push bildirim altyapısı — 🟡 sunucu tarafı bitti, panel ekranı bekliyor
+**Neden:** Mobil uygulamanın ilk isteyeceği şey; sunucu tarafı hazır değilse
+uygulama ekibi bekliyor. Sağlayıcıdan bağımsız kurgulanabilir: jeton kaydı ve
+gönderim kancası bizde, taşıyıcı (FCM/APNs) yapılandırmada.
+**Kapsam:** `POST/DELETE /account/push-tokens`, cihaz eşleştirmesi, panelden
+"bildirim gönder" ekranı, gönderim kuyruğa düşüyor.
+**Yapılan:** Jeton kaydı, cihaz eşleştirme, sağlayıcıdan bağımsız gönderim
+servisi (FCM sürücüsü + yapılandırılmamışken log), ölü jetonun düşmesi ve
+oturum kapanınca jetonların silinmesi.
+**Kalan:** Panelden bildirim yazıp gönderme ekranı. Admin temada bu ekranın
+tasarımı yok (`notifications.html` yalnız tercih anahtarları içeriyor) ve
+tasarımda olmayan ekranı uydurmak proje kuralına aykırı — tasarım geldiğinde
+ya da onay verildiğinde yapılacak.
+**Kabul:** Jeton kaydı cihazla eşleşiyor, oturum kapanınca jeton düşüyor.
+Test: `Api/ApiPushTokenTest`.
+
+##### 4.2 Sürüm ve sağlık ucu — ✅ bitti
+**Neden:** Mağazadaki eski sürümü zorla güncellemenin yolu yok; bakım
+penceresini uygulama önceden bilmiyor.
+**Kapsam:** `GET /api/v1/health` — sürüm, asgari desteklenen istemci sürümü,
+bakım durumu.
+**Kabul:** Asgari sürüm ayarı yükseltilince eski istemci "güncelle" yanıtı
+alıyor. Test: `Api/ApiHealthTest`.
+
+##### 4.3 Kullanıcının kendi yorumları — ✅ bitti
+**Neden:** Yorum gönderilebiliyor ama kişi kendi yorumlarını göremiyor,
+silemiyor. Web'de de yok — ikisi birlikte yapılmalı.
+**Kapsam:** `GET /account/comments`, `DELETE /account/comments/{id}`; web'de
+hesap ekranında aynı liste.
+**Kabul:** Sadece kendi yorumları, onay bekleyenler dahil.
+Test: `Api/ApiAccountCommentsTest`.
+
+##### 4.4 Şemanın hizada kalması — ✅ sürüyor (38 uç şemada)
+**Neden:** `openapi.json` kendi kendini denetliyor (`OpenApiSpecTest`); yeni
+uçlar eklendikçe bu bekçi güncel kalmalı, yoksa sessizce bayatlar.
+**Kapsam:** Faz 1–4'te eklenen her uç için şema girdisi ve `API.md` bölümü.
+**Kabul:** `OpenApiSpecTest` yeşil ve rotalarla şema arasında fark yok.
+
+---
+
+#### Faz 5 — Dayanıklılık ve Bakım — ✅ TAMAMLANDI (bir madde bilerek ertelendi)
+
+##### 5.1 Yedeğin dış kopyası — ✅ bitti
+**Neden:** Arşiv, yedeklediği veriyle aynı diskte duruyor. Diski kaybeden
+yedeği de kaybediyor — yedeklemenin var olma sebebi bu senaryoydu.
+**Kapsam:** Yapılandırılabilir dış hedef (S3 uyumlu ya da FTP), yükleme sonrası
+doğrulama, başarısızlıkta yöneticiye bildirim, dış kopyada saklama süresi.
+**Kabul:** Yedek alındıktan sonra dış hedefte aynı boyutta dosya bulunuyor;
+hedef erişilemezse iş "başarılı" sayılmıyor. Test: `BackupOffsiteTest`.
+
+##### 5.2 `jenssegers/agent` bağımlılığından çıkış — ✅ bitti
+**Neden:** 2020'den beri güncellenmiyor. Tek kullanım yeri `AnalyticsService`;
+etki alanı dar olduğu için şimdi çıkmak ucuz, PHP 9'da mecbur kalmak pahalı.
+**Kapsam:** Tarayıcı/işletim sistemi/cihaz türü tespiti için küçük bir iç
+servis + kendi test kümesi (gerçek `User-Agent` örnekleriyle).
+**Yapılan:** Ayrıştırma `UserAgentParser` servisine çıkarıldı (Faz 1.1 yolunda);
+paket kararı artık tek dosyada. Kalan: paketin yerine geçecek tabloyu
+zenginleştirip bağımlılığı `composer.json`'dan düşürmek.
+**Kabul:** Analitik ekranındaki dağılımlar değişmiyor; bağımlılık
+`composer.json`'dan düşüyor. Test: `UserAgentParserTest`.
+
+##### 5.3 Test paketinin bellek bütçesi — ✅ bitti
+**Neden:** `vendor/bin/phpunit` 1516 testi 44 saniyede yeşil bitiriyor ama tepe
+belleği **131 MB**. Stok `memory_limit=128M` ile suite yarıda düşüyor
+(`RolePermissionManagementTest` render ederken). Tek başına en ağır sınıf
+83 MB'de kalıyor — yani ekran değil, suite boyunca biriken bellek. CI'da sınır
+yüksek olduğu için görünmüyor; kit'i klonlayan geliştiricinin makinesinde
+görünüyor.
+**Kapsam:** Birikimin kaynağı (test başına tutulan uygulama örneği, fabrika
+verileri) bulunup düşürülmeli; olmazsa `phpunit.xml` ya da `composer test`
+gereken sınırı kendisi vermeli ve README bunu yazmalı.
+**Kabul:** `composer test` stok 128 MB'lık bir PHP ile baştan sona koşuyor.
+Test: mevcut suite (kendisi ölçüt).
+
+##### 5.4 Sertleştirme kararları — 🟡 biri yapıldı
+**Neden:** İki config değeri bilinçli olarak varsayılanda bırakılmıştı; karar
+verilmiş ama uygulanmamış hâlde duruyorlar.
+**Kapsam:** `session.serialization = json` (bakım penceresinde, oturumlar
+düşeceği için) ve `cache.serializable_classes` için izin listesi.
+**Yapılan:** `cache.serializable_classes` izin listesi kuruldu ve yedi
+önbellekli yolun hepsi iki geçişli testle (yaz + geri oku) kapsandı.
+**Kalan:** `session.serialization = json`. Bilerek ertelendi: çevirmek o anda
+açık olan bütün oturumları düşürüyor ve bu, çalışan bir kurulumda bakım
+penceresi gerektiren bir karar — kod değil, zamanlama meselesi.
+
+---
+
+#### Sıra ve Gerekçesi
+
+| Faz | Neden bu sırada |
+|---|---|
+| 1 — Hesap ve kimlik | En çok kopyalanan parça, en eksik olan; mağaza şartı (hesap silme) buna bağlı |
+| 2 — Mobil web | Kullanıcının gördüğü ikinci yüz; Faz 1'in ekranları da mobil doğsun |
+| 3 — Panel ekranları | İçeride kalıyor, dışarıya söz vermiyor; ertelenebilir ama tema zaten hazır |
+| 4 — API olgunluğu | Mobil uygulama başlamadan önce bitmeli, Faz 1'in uçlarıyla aynı şemayı paylaşıyor |
+| 5 — Dayanıklılık | Görünmez ama en pahalı hatalar burada; bellek maddesi hedef ortamı doğrudan ilgilendiriyor |
+
+#### Kapsam dışı (bilerek)
+
+- **E-ticaret** (ürün, sipariş, ödeme) — `ab57deb`'de sökülmüştü, base kit
+  genel kalmalı. Temada duran `orders.html` / `products.html` bu yüzden boş.
+- **Sosyal giriş** (Google/Apple ile giriş) — her projede farklı sağlayıcı ve
+  onay süreci; kit'e sabit gelmesi zarar veriyor.
+- **Çok kiracılı yapı (multi-tenant)** — mimarinin tamamını değiştirir.
+
+
+---
+---
+
+# BÖLÜM C — Base Kit Boşluk Analizi
+
+> **Arşiv.** Bu bölüm `docs/BOSLUK-ANALIZI.md` dosyasının **tam ve değiştirilmemiş**
+> içeriğidir; yalnız başlık seviyeleri bir kademe indirildi ki bu belgenin
+> hiyerarşisine otursun. 31 Ağustos 2026 mimari denetimi: on beş bulgu, gerekçeleri ve hangi sırayla kapatılmaları gerektiği. Uzun süre yalnız bir Artifact olarak durdu.
+>
+> Kaynak dosya yerinde duruyor ve okunmaya devam edebilir.
+
+
+### Base Kit Boşluk Analizi
+
+**Mimari denetim · 31 Ağustos 2026**
+**Denetlenen sürüm:** `1d2e14f`
+**Dal:** `feat/laravel-13-upgrade`
+**Kapsam:** `app/` · `routes/` · `config/` · `database/migrations/` ·
+`resources/views/` · `public/` · `docs/`
+
+Laravel 13 kurumsal başlangıç altyapısının production-ready olma yolunda kalan
+boşlukları. Zemin sağlam — bu rapor *neyin eksik olduğunu* değil, **hangi
+sırayla kapatılması gerektiğini** anlatıyor.
+
+> **Bu dosya hakkında.** Denetim başta bir Artifact olarak yayımlanmıştı ve
+> depoda karşılığı yoktu; 1 Eylül 2026'da buraya alındı. Metin orijinaline
+> sadık, tek ekleme **"Bugün"** sütunu ve her bulgunun altındaki *güncel durum*
+> notları — denetimden sonra kapanan maddeler işaretlensin diye.
+>
+> Kardeş belgeler: [`PROJE-DURUMU.md`](PROJE-DURUMU.md) (*ne var*),
+> [`YOL-HARITASI.md`](YOL-HARITASI.md) (*ne eksik*),
+> [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md) (*yapıldı denilen çalışıyor mu*).
+
+---
+
+#### Denetim anındaki rakamlar
+
+| Model | Servis | Policy | Migration | Test | Admin rota |
+|---|---|---|---|---|---|
+| 23 | 33 | 26 | 65 | 966 | 184 |
+
+**15 bulgu** · denetim günü 7'si kapatılmış, 1'i yarısı.
+
+---
+
+#### Zemin: neyin üstüne inşa ediyoruz
+
+Bu, "eksikleri sayılan" bir proje değil. Aşağıdaki alanlar çoğu kurumsal
+projeden **daha olgun** ve bulgular bu zemine göre önceliklendirildi — yani
+düşük seviyeli hijyen değil, üretim ve uyumluluk katmanı konuşuluyor.
+
+- **Katman disiplini** — Controller → FormRequest → Policy → Service → Model
+  zinciri istisnasız uygulanmış.
+- **Kural bekçisi testler** — SoftDeletes, build-tool yasağı, enum kullanımı,
+  observer cascade reflection ile korunuyor.
+- **Upload sertleştirmesi** — uzantı + MIME beyaz listesi, ad temizliği ve
+  `uploads/.htaccess` ile çalıştırma reddi.
+- **Açık yönlendirme koruması** — `SafeRedirectTarget` altı saldırı vektörünü
+  test edilmiş biçimde reddediyor.
+- **DB tabanlı yetki matrisi** — izin tek kaynaktan (`PermissionKey`); rol
+  yetkisi değiştirmek deploy gerektirmiyor.
+- **Çok dilli SEO** — hreflang, x-default, sitemap alternates ve dile ait
+  slug'lar eksiksiz.
+- **Hosting gerçekçiliği** — pcntl yokluğu kabullenilip kuyruk ve cron buna
+  göre kurulmuş, test ile korunuyor.
+- **Sorgu bütçesi testleri** — N+1 ve tekrarlı sorgu, kod incelemesiyle değil
+  testle engelleniyor.
+
+---
+
+#### Bulgu tablosu
+
+| # | Bulgu | Alan | Denetim günü | Bugün |
+|---|---|---|---|---|
+| S-01 | Pasife alınan kullanıcı oturumdan düşmüyor | Güvenlik | ✅ `d2975a9` | ✅ |
+| S-02 | Proxy güveni tanımsız — rate limit tek kovaya düşüyor | Güvenlik | ✅ `d2975a9` | ✅ |
+| S-03 | İşlenmeyen istisna kimseye ulaşmıyor, log sınırsız büyüyor | Operasyon | ✅ `84df590` | ✅ |
+| S-04 | Audit trail yalnızca tek modeli izliyor | Uyumluluk | ✅ `5a4bfd8` | ✅ |
+| S-05 | **Content-Security-Policy yok** | Güvenlik | ⬜ Yüksek | ✅ *(1 Eyl)* |
+| S-06 | `robots.txt` statik ve eski projenin alan adını taşıyor | SEO | ✅ `0a63fac` | ✅ |
+| S-07 | Yedek tek diskte duruyor ve geri yükleme yok | Operasyon | 🟡 `a4c54b3` | ✅ |
+| S-08 | Kuyruk görünmez: başarısız işler sessizce birikiyor | Operasyon | ✅ `fc9759b` | ✅ |
+| S-09 | Çerez rızası alınmadan izleme başlıyor | Uyumluluk | ⬜ Yüksek | ✅ |
+| S-10 | Parola politikası zayıf, panel için ikinci faktör yok | Güvenlik | ⬜ Orta | ✅ |
+| S-11 | 966 test var, hiçbiri otomatik koşmuyor | Kalite | ✅ `41cdbf8` | ✅ |
+| S-12 | **Analitik cache temizliği tüm cache'i siliyor** | Performans | ⬜ Orta | ✅ *(1 Eyl)* |
+| S-13 | **Cache anahtarları otuz ayrı yerde elle temizleniyor** | Bakım | ⬜ Orta | ✅ *(1 Eyl)* |
+| S-14 | **Ön yüzde çıktı cache'i yok** | Performans | ⬜ Orta | ✅ *(1 Eyl)* |
+| S-15 | Site içi arama yok | Ürün | ⬜ Orta | ✅ |
+
+---
+
+#### S-01 — Pasife alınan kullanıcı oturumdan düşmüyor · ✅
+
+**Güvenlik · Erişim kontrolü**
+
+`is_active` yalnızca giriş anında, `AuthService::login()` içinde kontrol
+ediliyor. `AdminMiddleware` her istekte `roles()->whereHas('permissions')`
+sorgusunu attığı için *izin kaldırma* anında etkili oluyor — ama `is_active`
+hiçbir middleware'de okunmuyor.
+
+Sonuç: işten ayrılan ya da güvenlik gerekçesiyle pasife alınan bir yönetici,
+mevcut oturumu ile panelde kalmaya devam ediyor. Oturum ömrü 120 dakika, "beni
+hatırla" işaretliyse `remember_token` aylarca geçerli. Panelden "pasifleştir"
+düğmesine basan yönetici işini bitirdiğini sanıyor.
+
+**Yapıldı.** `EnsureUserIsActive` middleware'i `web` grubuna `SetLocale`'den
+sonra eklendi; JSON isteğinde yönlendirme yerine 403 dönüyor. `SessionRevoker`
+servisi oturum satırlarını ve `remember_token`'ı düşürüyor — observer'dan,
+silmeden ve toplu silmeden çağrılıyor. Yol üzerinde iki kusur çıktı: force
+delete sonrası `saveQuietly()` silinen kullanıcıyı geri getiriyordu, ve
+`UserFactory` `is_active` üretmediği için modelde alan `null` okunuyordu.
+`InactiveUserSessionTest` — 11 test.
+
+---
+
+#### S-02 — Proxy güveni tanımsız · ✅
+
+**Güvenlik · Operasyon**
+
+`bootstrap/app.php` içinde `trustProxies()` çağrısı yok. Cloudflare, nginx
+reverse proxy veya yük dengeleyici arkasında `$request->ip()` ziyaretçinin
+değil **proxy'nin** adresini döndürür. Üç yerde birden bozuluyor:
+
+1. `throttle:login`, `throttle:contact`, `throttle:register` IP'ye göre kova
+   açıyor — tek IP görüldüğü için tüm ziyaretçiler aynı kovayı paylaşır; bir
+   kişinin üç başarısız girişi **herkesi** kilitler, kaba kuvvet saldırısı ise
+   hiç yavaşlamaz.
+2. `page_views.ip_address` ve audit log IP'leri anlamsızlaşır.
+3. `$request->secure()` `false` döndüğü için `SecurityHeaders` HSTS başlığını
+   hiç basmaz.
+
+**Yapıldı.** `config/trustedproxy.php` eklendi — Laravel'in `TrustProxies`
+sınıfı bu anahtarı kendiliğinden okuyor, liste *istek anında*
+`TRUSTED_PROXIES`'ten çözülüyor ve varsayılan boş. Güvenilen başlık kümesi
+çerçevenin varsayılanından dar tutuldu: `FOR | HOST | PORT | PROTO`.
+`TrustedProxyTest` — 12 test, aynı proxy arkasındaki iki ziyaretçinin ayrı hız
+sınırı kovasına düştüğü dahil.
+
+---
+
+#### S-03 — İşlenmeyen istisna kimseye ulaşmıyor · ✅
+
+**Operasyon · Gözlemlenebilirlik**
+
+`bootstrap/app.php` içindeki `withExceptions()` bloğu boş. Projede çalışan bir
+bildirim kanalı var — `TelegramNotifier` — ama yalnızca yedekleme komutu ve
+`NotificationCenter` onu çağırıyor. Canlıda 500 veren bir sayfa hiçbir yere
+haber vermiyor; kullanıcı şikâyet edene kadar kimse bilmiyor.
+
+Aynı yerde ikinci sorun: `.env.example` içinde `LOG_STACK=single`. Tek dosya,
+rotasyon yok. Paylaşımlı hostingde `laravel.log` zamanla gigabaytlara çıkıp
+diski doldurur — ve disk dolduğunda yedekleme de, upload da, oturum yazımı da
+durur.
+
+**Yapıldı.** `ExceptionNotifier` hatayı iki kanala birden düşürüyor: Telegram ve
+panelin bildirim merkezi. Raporlama kapanışı hiçbir şey döndürmüyor — `false`
+dönseydi hatanın loga yazılmasını da durdururdu, bunun testi var. Aynı hata için
+10 dakikada bir bildirim (parmak izi: tür + dosya + satır), ve `notify()` baştan
+sona `try/catch` içinde: bildirim yolu patlarsa asıl hatanın yerini alamaz.
+`LOG_STACK=daily` + `LOG_DAILY_DAYS=14` oldu, ve Sistem Sağlık ekranına log
+dizini kontrolü eklendi. `ExceptionNotificationTest` ve `LogHealthCheckTest` —
+20 test.
+
+---
+
+#### S-04 — Audit trail yalnızca tek modeli izliyor · ✅
+
+**Uyumluluk · Denetlenebilirlik**
+
+Altyapı hazır ve iyi yazılmış: `audit_logs` tablosu, indeksleri, saklama süresi
+temizliği, panel ekranı, hassas alan maskesi (`password`, `remember_token`,
+`mail_password`…) hepsi yerinde. Ama `AuditObserver` `AppServiceProvider.php:127`'de
+**tek bir modele** bağlanmış: `Setting`.
+
+Yani "kim giriş yaptı", "kim başarısız giriş denedi", "kim hangi rolün iznini
+değiştirdi", "kim kullanıcı sildi", "kim yönlendirme ekledi" sorularının
+hiçbirinin cevabı yok. ISO 27001 / KVKK denetimlerinde ilk istenen bu.
+
+**Yapıldı.** Üç ayrı yol, çünkü tek gözlemci hepsini göremiyor: `AuditObserver`
+artık bir model listesine bağlı (`Setting`, `User`, `Role`, `Redirect`,
+`CustomRoute`, `MailTemplate`, `Language`); bir abone giriş, çıkış ve başarısız
+denemeyi yazıyor; izin matrisi, kullanıcı rolleri ve toplu silme ilgili
+servislerden düşüyor — pivotun modeli yok, toplu işlem de model olayı
+doğurmuyor. Şifre iki katmanla korunuyor. İçerik modelleri bilinçli olarak
+dışarıda — 90 günlük saklama süresiyle izi kendi gürültüsünde boğarlardı.
+`AuditTrailCoverageTest` — 17 test.
+
+---
+
+#### S-05 — Content-Security-Policy yok · ✅ *(1 Eylül 2026'da kapatıldı)*
+
+**Güvenlik · XSS savunması** — denetimde *Yüksek*
+
+`SecurityHeaders` beş başlık basıyor ve doğru olanları seçmiş, ancak **CSP yok**
+— XSS'e karşı ikinci savunma hattı olan tek başlık.
+
+Bu, sıradan bir eksiklikten fazlası: panelde `custom_head_code` ayarı ham HTML
+olarak `{!! !!}` ile basılıyor ve mail şablonları TinyMCE ile düzenleniyor.
+Blade'in kaçışı doğru kullanılmış, ama tek savunma o.
+
+Yan not: `X-XSS-Protection` artık hiçbir güncel tarayıcıda desteklenmiyor; bazı
+eski sürümlerde XSS'i kolaylaştırdığı için kaldırılması önerilen bir başlık.
+
+**Öneri (denetim).** Nonce tabanlı CSP: `SecurityHeaders` istek başına bir nonce
+üretip container'a koysun, layout'lardaki inline script'ler onu taşısın. Front
+ve admin ayrı politika ister — admin'in TinyMCE'si `'unsafe-inline'` stil
+gerektirir, front gerektirmez. İlk tur `Content-Security-Policy-Report-Only` ile
+çıkılmalı; ihlaller `Log::warning`'e düşen basit bir controller'a toplanabilir.
+
+**Yapıldı.** Nonce tabanlı politika (`ContentSecurityPolicy` + `SecurityHeaders`),
+görünüm ağacındaki 39 satır içi betiğe `nonce="{{ csp_nonce() }}"`, ihlal raporu
+ucu (`/csp-ihlali`, hız sınırlı ve alan beyaz listeli), panel için ayrı ve biraz
+daha geniş politika (TinyMCE'nin `blob:` ihtiyacı). `X-XSS-Protection`
+kaldırıldı. Ayrıntı: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md) → *Tur 3*.
+
+**Sonradan bulunan ve düzeltilen kusur.** İlk sürüm satır içi *olay
+işleyicilerini* (`onclick`, `onchange`, `oninput`) engelliyordu: nitelik değeri
+betiğin kendisi olduğu için oraya nonce konulamıyor. Panelde bunlardan iki
+yüzden fazla var — süzgeç seçicileri, karakter sayaçları, toplu işlem düğmeleri
+— ve hepsi sessizce çalışmaz olmuştu. İhlal yalnız işleyici *tetiklendiğinde*
+bildirildiği için sayfa açılışında konsol temiz görünüyordu; kusur, SEO
+modülünün kontrol turunda ortaya çıktı.
+
+Çözüm ayrı bir yönerge: `script-src-attr 'unsafe-inline'` yalnız nitelik
+işleyicilerini kapsıyor, `<script>` bloklarına enjeksiyon nonce'a bağlı
+kalıyor. Taviz dar ve bilinçli; işleyicileri JS dosyalarına taşımak yönergeyi
+tamamen kaldırır (yukarıdaki modül önerileri tablosunda).
+
+---
+
+#### S-06 — `robots.txt` statik ve eski projenin alan adını taşıyor · ✅
+
+**SEO · Base kit doğruluğu**
+
+`public/robots.txt` dosyasında `Sitemap: https://orhanbabaninciftligi.com/sitemap.xml`
+satırı ve sökülmüş modüllerden kalan `Disallow: /*/siparis`, `/*/sepet` kuralları
+duruyor. Bu depodan türeyen **her yeni proje** arama motorlarına başka bir
+sitenin sitemap adresini gösteriyor — ve kimse fark etmiyor, çünkü hata vermiyor.
+
+İkinci boyut: dosya statik olduğu için staging kopyası da `Allow: /` diyor.
+
+**Yapıldı.** `RobotsService` listeyi rotaların kendisinden üretiyor. `Sitemap:`
+satırı `route('sitemap')`'ten geliyor, `APP_ENV` production değilse gövde
+yalnızca `Disallow: /`. Listeye eski dosyada hiç olmayan iki uç eklendi: dil
+değiştirici ve bülten çıkış bağlantısı. Statik dosya silindi; `RobotsTest` (14)
+geri gelmediğini de bekçilik ediyor.
+
+---
+
+#### S-07 — Yedek tek diskte duruyor ve geri yükleme yok · ✅
+
+**Operasyon · İş sürekliliği**
+
+`BackupService` gecelik ZIP alıyor, `storage/app` altında tutuyor (web erişimine
+kapalı — doğru tercih), saklama süresini uyguluyor ve başarısızlıkta Telegram'a
+haber veriyor. İki boşluk vardı:
+
+- **Dış kopya yok.** Yedek, yedeklediği veriyle aynı diskte. Disk arızası,
+  hosting hesabının askıya alınması veya fidye yazılımı senaryosunda ikisi
+  birlikte gidiyor — yani bu bir yedek değil, bir *anlık görüntü*.
+- **Geri yükleme yok.** Hiç denenmemiş bir yedek, olmayan yedektir.
+
+**Yapıldı.** Geri yükleme `a4c54b3` ile geldi: doğrula → mevcut durumun yedeğini
+al → bakım moduna geç → uygula → çık. Yol üzerinde asıl kusur çıktı:
+*veritabanı dökümü alınamadığında yedek yine "başarılı" sayılıyordu.* Dış kopya
+sonradan `BackupOffsiteService` ile kapandı (Faz 5.1).
+
+---
+
+#### S-08 — Kuyruk görünmez · ✅
+
+**Operasyon · Gözlemlenebilirlik**
+
+`QueueRunner::drain()` bir iş patladığında `$job->fail($e)` çağırıp sıradakine
+geçiyor — doğru davranış. Ama `failed_jobs` tablosu projede **tek bir yerde**
+okunuyor: `HealthCheckService.php:162`, o da yalnızca son 24 saatin *sayısını*
+alıyor.
+
+Bu, proje için özellikle önemli: tüm mail gönderimi kuyruk üzerinden gidiyor.
+"Doğrulama maili gelmedi" şikâyetinin cevabı `failed_jobs.exception` alanında
+duruyor ve o alana panelden bakmanın yolu yok.
+
+**Yapıldı.** **Admin → Kuyruk** ekranı: bekleyen iş, *en eski işin yaşı* (cron
+çalışıyor mu sorusunun en net cevabı), son 24 saat ve toplam başarısız. Yeniden
+dene / sil / listeyi temizle / kuyruğu şimdi işle — hepsi denetim izine düşüyor.
+İş adı yükün serileştirilmiş gövdesinden çıkarılıyor. `QueueMonitorTest` — 20 test.
+
+---
+
+#### S-09 — Çerez rızası alınmadan izleme başlıyor · ✅
+
+**Uyumluluk · KVKK / GDPR** — denetimde *Yüksek*
+
+`layouts/app.blade.php` Google Analytics ve GTM parçacıklarını ayar doluysa
+**koşulsuz** yüklüyor; buna ek olarak projenin kendi `page_views` takibi ilk
+istekten itibaren IP ve oturum kimliği yazıyor. IP maskeleme var ama 90 gün
+sonra devreye giriyor — yani veri toplanıyor, sonra anonimleştiriliyor.
+
+KVKK açısından açık rıza ispat yükü veri sorumlusunda.
+
+**Yapıldı.** `ConsentService` + kategori bazlı rıza bandı (5y). Karar verilmeden
+hiçbir izleme yüklenmiyor, ispat kaydı `consents` tablosunda.
+
+---
+
+#### S-10 — Parola politikası zayıf, panel için ikinci faktör yok · ✅
+
+**Güvenlik · Kimlik doğrulama**
+
+`RegisterRequest` yalnızca `Password::min(8)` uyguluyor — karakter çeşitliliği
+yok, `uncompromised()` yok. Sitenin ziyaretçi üyeleri için bu savunulabilir;
+ancak **aynı kural** panele giren yöneticiler için de geçerli ve orada
+savunulamaz.
+
+Buna eşlik eden üç eksik: iki aşamalı doğrulama yok, kullanıcının aktif oturum /
+cihaz listesi yok, "diğer tüm cihazlardan çık" yok.
+
+**Yapıldı.** TOTP tabanlı 2FA (`TwoFactorService`, rol düzeyinde zorunlu
+kılınabilir), cihaz/oturum yönetimi (`/hesabim/cihazlar` + API), "diğer
+cihazlardan çık". Faz 1.1 ve 1.2.
+
+---
+
+#### S-11 — 966 test var, hiçbiri otomatik koşmuyor · ✅
+
+**Kalite · Süreç**
+
+Suite bu projenin en güçlü tarafı ve kuralları kendi kendine koruyacak şekilde
+yazılmış. Ama `.github/workflows` dizini yok — çalışması birinin elle
+`composer test` yazmasına bağlı.
+
+İkinci boşluk statik analiz: PHPStan/Larastan yok. Üçüncüsü bir sinyal sorunu —
+`pint --test` yaklaşık 180 dosyada sapma bildiriyor; araç her koşuda kırmızı
+döndüğü için *gerçek* bir stil hatası fark edilmez hâle geliyor.
+
+**Yapıldı.** İki işli GitHub Actions: testler **MySQL 8'e karşı**, ayrıca
+`pint --test` ve `phpstan analyse`. **İlk koşuda SQLite'ın sakladığı altı hata
+çıktı** — en ağırı, iki servisin LIKE koşulunu `ESCAPE '\'` ile yazması:
+MySQL'de sözdizimi hatası, yani *arama yapan her ekran üretimde 500 veriyordu.*
+`LikeSearch` ile tek yere toplandı. `pint.json` ile sapma 459 dosyadan **sıfıra**
+indi. Larastan seviye 1 — temiz geçen en yüksek seviye.
+
+---
+
+#### S-12 — Analitik cache temizliği tüm cache'i siliyor · ✅ *(1 Eylül 2026'da kapatıldı)*
+
+**Performans**
+
+`AnalyticsService::flushCache()` doğrudan `Cache::flush()` çağırıyor. Yorumu
+gerekçesini açıkça yazıyor — sürücü tag desteklemeyebilir — ama sonuç, analitik
+ekranındaki bir yenilemenin *ayarları, çevirileri, sitemap'i, dil listesini ve
+tüm ön yüz içerik cache'ini* birlikte silmesi. `CACHE_STORE=database` olduğu için
+yeniden ısınma da bedava değil: ilk ziyaretçiler bütün sorguları sırtlanır.
+
+**Öneri (denetim).** Analitik anahtarları ortak bir önekle yazılıp yalnızca o
+önek silinmeli; veritabanı sürücüsünde bu tek bir `DELETE ... WHERE key LIKE`
+ifadesi.
+
+**Yapıldı.** `Cache::flush()` yerine önek bazlı temizlik (`CachePurger`):
+veritabanı ve Redis'te doğrudan sorgu, dosya sürücüsünde yazarken tutulan
+kayıt. Ayrıntı: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md) → *Tur 3*.
+
+---
+
+#### S-13 — Cache anahtarları otuz ayrı yerde elle temizleniyor · ✅ *(1 Eylül 2026'da kapatıldı)*
+
+**Bakım · Ölçeklenme**
+
+Cache kullanımı doğru — `Cache::remember` + servis içinde `Cache::forget`. Sorun
+sayıda: temizlik çağrıları 30'dan fazla yere dağılmış ve anahtarlar dizge sabiti
+(`'sitemap.urls'`, `'sitemap_page.groups'`, `'admin.pages.stats'`…). Bir servis
+birden fazla anahtar silmek zorunda ve hangi içeriğin hangi türev cache'i
+beslediği kodun içine gömülü.
+
+Bugün çalışıyor. Ama base kit'in amacı üstüne modül eklemek: yeni bir içerik
+türü eklendiğinde `sitemap.urls`'i unutmak, sitemap'in bir saat boyunca bayat
+kalmasına yol açar — hata vermez, test kırmaz.
+
+**Öneri (denetim).** Anahtarları tek bir `App\Support\CacheKeys` sınıfında
+toplamak ve "içerik değişti" olayına tepki veren bir trait tanımlamak.
+
+**Durum.** Bu turda ele alınıyor.
+
+---
+
+#### S-14 — Ön yüzde çıktı cache'i yok · ✅ *(1 Eylül 2026'da kapatıldı)*
+
+**Performans**
+
+Sorgu düzeyinde cache iyi kurulmuş (ayarlar 24 saat, sitemap 1 saat, çeviriler
+süresiz) ve sorgu bütçesi testleri N+1'i engelliyor. Ama anonim bir ziyaretçinin
+gördüğü her sayfa yine de tam bir render döngüsü: menü, popup, slider, dil
+listesi, SEO ayarları her istekte yeniden çözülüyor.
+
+Paylaşımlı hostingde tek büyük performans kazancı burada. İçeriğin ezici
+çoğunluğu anonim ziyaretçi için birebir aynı.
+
+**Öneri (denetim).** Oturumu olmayan `GET` istekleri için parça (fragment)
+düzeyinde cache — dil ve aktif menü anahtara girmek kaydıyla. Tam sayfa cache'e
+gidilecekse geçersiz kılma yüzeyi `CustomRoute` ve `Redirect` middleware'lerini
+de kapsamalı.
+
+**Yapıldı.** `@cachedInclude` direktifi ve `FragmentCache`: parça önbellekte
+varsa görünüm hiç çizilmiyor. Gezinti (10 KB) önbelleğe alınıyor; alt bilgi
+bilinçli olarak alınmıyor — içinde bülten formu ve dolayısıyla CSRF anahtarı
+var. Ayrıntı: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md) → *Tur 3*.
+
+---
+
+#### S-15 — Site içi arama yok · ✅
+
+**Ürün · Eksik yetenek**
+
+`routes/front.php` içinde arama rotası yok. Blog, sayfa, galeri ve SSS modülleri
+dolu ama ziyaretçinin içerikte arama yapma yolu bulunmuyor. Kurumsal bir sitede
+bu, iletişim formundan sonra en çok kullanılan ikinci etkileşimdir.
+
+**Yapıldı.** `SearchService` — blog araması ve site geneli arama (5ab). Dil
+farkında, sonuç sayfası `noindex`.
+
+---
+
+#### Modül önerileri (denetim günü)
+
+Sorulan modüllerin bir kısmı **zaten vardı** ve iyi durumdaydı: rol/yetkilendirme
+(Spatie'ye gerek yok — `PermissionKey` tabanlı kendi matrisi daha az bağımlılıkla
+aynı işi yapıyor), 301 yönlendirme yöneticisi, medya/dosya yöneticisi, mail logu,
+yedekleme ve sistem sağlığı.
+
+| Modül | Neden gerekli | Efor | Bugün |
+|---|---|---|---|
+| Denetim izi genişletmesi (S-04) | Kim ne zaman ne değiştirdi sorusu cevapsız | Küçük | ✅ |
+| Kuyruk & iş izleyici (S-08) | Mail gönderimi kuyruğa bağlı | Küçük | ✅ |
+| Oturum & cihaz yönetimi (S-01, S-10) | Pasifleştirmenin etkili olması için | Küçük | ✅ |
+| İki aşamalı doğrulama (TOTP) | Panelin tek kapısı bir parola | Orta | ✅ |
+| Çerez rızası yöneticisi (S-09) | KVKK ispat yükü sizde | Orta | ✅ |
+| Yedek geri yükleme + dış kopya (S-07) | Denenmemiş yedek, yedek sayılmaz | Orta | ✅ |
+| Site içi arama (S-15) | Ziyaretçinin arama yapma yolu yok | Orta | ✅ |
+| Raporlama ekranı | `reports.html` hazır bekliyor | Orta | ✅ |
+| API katmanı (Sanctum) | `routes/api.php` hiç yok | Orta | ✅ |
+| İçerik sürümleme (revisions) | Denetim izi geri döndüremez | Orta | ⬜ |
+| SEO denetleyici | Kaydetmeden önce başlık/alt/H1 uyarısı | Orta | ✅ *(1 Eyl)* |
+| Dinamik form oluşturucu | Her projede en az bir form isteniyor | Büyük | ⬜ |
+| Satır içi olay işleyicilerini JS'e taşımak | CSP'nin `script-src-attr` tavizini kaldırır (219 işleyici, 50 dosya) | Orta | ⬜ |
+
+---
+
+#### Önerilen sıra (denetim günü)
+
+Sıralama bilinçliydi: önce **sessiz yanlış davranan** şeyler, sonra
+**göremediğimiz** şeyler, sonra hukuki yükümlülük, en sonra yetenek.
+
+| Tur | İçerik | Durum |
+|---|---|---|
+| **Tur 1** | S-01, S-02, S-06, S-03 | ✅ Tamamlandı |
+| **Tur 2** | S-04, S-08, S-11, S-07 | ✅ Tamamlandı |
+| **Tur 3** | S-09, S-05, S-10 | ✅ Tamamlandı |
+| **Tur 4** | S-15, S-12/S-13/S-14 | ✅ Tamamlandı |
+
+Denetim günü kapatılanlar: S-01 ve S-02 `d2975a9`, S-06 `0a63fac`,
+S-03 `84df590`, S-04 `5a4bfd8`, S-08 `fc9759b`, S-11 `41cdbf8`, S-07'nin geri
+yükleme yarısı `a4c54b3`.
+
+Kalan sekiz madde sonraki turlarda kapandı: S-07'nin dış kopyası, S-09, S-10 ve
+S-15 yol haritası fazlarında; **S-05, S-12, S-13 ve S-14** ise 1 Eylül 2026'da
+([`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md) → *Tur 3*). **On beş bulgunun
+tamamı kapalı.**
+
+`docs/PROJE-DURUMU.md` içinde zaten kayıtlı olan eksikler (raporlama ekranı,
+içerik listesi, `jenssegers/agent` bakımsızlığı) bu denetimde tekrarlanmadı.
+
+
+---
+---
+
+# BÖLÜM D — v2 Denetimi
+
+> **Arşiv.** Bu bölüm `docs/PROJE-DURUMU-V2.md` dosyasının **tam ve değiştirilmemiş**
+> içeriğidir; yalnız başlık seviyeleri bir kademe indirildi ki bu belgenin
+> hiyerarşisine otursun. 1 Eylül 2026 denetimi: "yapıldı denilen çalışıyor mu" sorusu. On altı bulgu ve boşluk analizinin kalan dört maddesinin kapanışı.
+>
+> Kaynak dosya yerinde duruyor ve okunmaya devam edebilir.
+
+
+### Proje Durumu — v2 Denetimi
+
+**Tarih:** 2026-09-01
+**Dal:** `feat/laravel-13-upgrade`
+**Başlangıç noktası:** `f1eca0c`
+**Kapsam:** üç yüz birden — web, panel (CRM), mobil API
+
+Bu belge bir *denetimin* kaydı. [`PROJE-DURUMU.md`](PROJE-DURUMU.md) *ne var*
+sorusunu, [`YOL-HARITASI.md`](YOL-HARITASI.md) *ne eksik*,
+[`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md) *hangi sırayla* sorusunu yanıtlıyor.
+Buradaki soru üçüncüsü: **yapıldı denilen şeyler gerçekten çalışıyor mu, ve
+kimsenin bakmadığı yerde ne birikmiş?**
+
+---
+
+#### Yöntem
+
+Denetim üç aşamada koştu:
+
+1. **Doğrulama.** Var olan 1711 test, kod stili (Pint) ve statik analiz
+   (PHPStan) çalıştırıldı — üçü de temiz. Yani dokümanda "bitti" yazan
+   maddelerin kod karşılığı gerçekten duruyor.
+2. **Arama.** Doğrulama yeşil olduğu için asıl soru şuna dönüştü: *hangi kural
+   yazılı ama bekçisiz, hangi modül kodlanmış ama sınanmamış?* Aranan şey kırık
+   kod değil, **görünmeyen kod** oldu.
+3. **Kapatma.** Bulunan her kusur düzeltildi ve her biri için bir bekçi kuruldu
+   — düzeltmenin kendisi değil, bir daha açılmaması aranan sonuçtu.
+
+Bulguların ortak deseni şu çıktı: **kural yazılıydı, bekçi ya yoktu ya da elle
+yazılmış bir listeye bakıyordu.** Elle yazılan liste, projenin geri kalanı
+büyürken yerinde kalıyor; kural teknik olarak yürürlükte ama pratikte
+uygulanmıyor. On altı bulgunun on ikisi bu boşlukta birikmişti.
+
+---
+
+#### Özet tablo
+
+| # | Bulgu | Ağırlık | Durum |
+|---|---|---|---|
+| 1 | Dışa aktarmada CSV biçimi yoktu | Yüksek | ✅ Kapatıldı |
+| 2 | Üç liste ekranında dışa aktarma hiç yoktu | Yüksek | ✅ Kapatıldı |
+| 3 | Dışa aktarma modülünün hiçbir testi yoktu | Yüksek | ✅ 81 test |
+| 4 | Zamanlanmış raporlarda CSV seçilemiyordu | Orta | ✅ Kapatıldı |
+| 5 | Editörün dosya seçicisi boş kurulumda 404 veriyordu | Yüksek | ✅ Kapatıldı |
+| 6 | Kuralsız alan bekçisi panelin hiçbir formunu görmüyordu | Yüksek | ✅ Kapatıldı |
+| 7 | Bekçinin tarayıcısı nitelikleri yanlış okuyordu | Orta | ✅ Kapatıldı |
+| 8 | Satır içi stil yasağının bekçisi yoktu; 13 ihlal birikmişti | Orta | ✅ Kapatıldı |
+| 9 | Rol matrisi 12 modül geride kalmıştı | Yüksek | ✅ Kapatıldı |
+| 10 | Panel duman testi 26 rotaya bakıyordu (55 ekran var) | Orta | ✅ Kapatıldı |
+| 11 | Ön yüzün duman testi hiç yoktu | Orta | ✅ Kapatıldı |
+| 12 | Çeviri eşliği yalnız `site.php`'de sınanıyordu | Orta | ✅ Kapatıldı |
+| 13 | `lang/tr/validation.php` dokuz kuralı taşımıyordu | Orta | ✅ Kapatıldı |
+| 14 | Profil ekranında tarayıcının `alert()` kutusu | Düşük | ✅ Kapatıldı |
+| 15 | Çerez rızası kutuları kuralsız ve işaretsizdi | Düşük | ✅ Kapatıldı |
+| 16 | Stok config dosyalarında `strict_types` yoktu | Düşük | ✅ Kapatıldı |
+
+**Sonuç:** 1711 → **1834 test** (1827 geçiyor, 7'si gerekçeli olarak atlanıyor),
+6303 → **7408 doğrulama**. Pint sıfır sapma, PHPStan sıfır hata.
+
+Bu tablo v2 denetiminin kendi bulgularını sayıyor. Turun sonunda ayrıca 31
+Ağustos tarihli boşluk analizinin açık kalan dört bulgusu da kapatıldı —
+aşağıda *Tur 3* bölümünde.
+
+---
+
+#### 1. Dışa aktarma — CSV yoktu
+
+**Hata.** Modül Excel (XLSX) ve PDF yazıyordu; CSV yoktu. Bu bir biçim eksiği
+gibi görünse de aslında bir *kullanım* eksiği: XLSX ve PDF insanın okuduğu
+biçimler, CSV ise verinin başka bir sisteme taşındığı biçim — muhasebe
+programına, e-posta aracına, bir betiğe. Kit'ten türeyen her projede er ya da
+geç isteniyor ve olmadığında herkes kendi çözümünü yazıyor.
+
+**Çözüm.** `CsvExportService` eklendi; XLSX yazıcısıyla aynı sözleşmeyi
+(`ListExport`) okuyor, yani bir liste tanımı üç biçimde birden çalışıyor.
+
+Türkçe Excel'i hedefleyen iki ayar yapılandırmadan geliyor:
+
+- **UTF-8 BOM** — dosyanın başındaki imza olmadan Excel Türkçe harfleri sistemin
+  kod sayfasıyla açıyor ve bozuyor.
+- **Noktalı virgül ayracı** — ondalık ayracı virgül olan yerel ayarlarda Excel,
+  virgülle ayrılmış dosyayı tek sütuna basıyor.
+
+Başka yerel ayara kurulan bir projede üçü de `.env` üzerinden çevrilebiliyor
+(`EXPORT_CSV_DELIMITER`, `EXPORT_CSV_DECIMAL_SEPARATOR`, `EXPORT_CSV_BOM`).
+
+**Yol üzerinde bulunan iki şey:**
+
+- Formül enjeksiyonu koruması (`=CMD(...)` gibi bir metnin hücrede formüle
+  dönmesi) yalnız XLSX yazıcısında vardı. CSV'de tehlike daha büyük — orada tip
+  diye bir şey yok, her hücre metin gidiyor ve açan program ne olduğuna kendi
+  karar veriyor. Koruma ortak bir trait'e çıkarıldı, iki yazıcı da aynı kuralı
+  uyguluyor.
+- Satır tavanı kontrolü denetleyicide `format === Pdf` diye yazılıydı. Tavanı
+  olan biçim gerçekten yalnız PDF (mPDF sayfaları belge kapanana kadar bellekte
+  tutuyor; XLSX ve CSV akış hâlinde yazılıyor) ama bu bilgi biçimin kendisine
+  ait. `ExportFormat::hasRowLimit()` olarak taşındı: yeni bir biçim
+  eklendiğinde denetleyiciye dokunmak gerekmiyor.
+
+**Değişen dosyalar**
+
+| Dosya | Ne oldu |
+|---|---|
+| `app/Services/Export/CsvExportService.php` | yeni — CSV yazıcısı |
+| `app/Services/Export/Concerns/GuardsSpreadsheetFormulas.php` | yeni — ortak formül koruması |
+| `app/Support/Export/ExportFormat.php` | `Csv` durumu, `hasRowLimit()` |
+| `app/Services/Export/ExportService.php` | CSV bağlandı, tavan biçime soruluyor |
+| `app/Services/Export/ExcelExportService.php` | formül koruması trait'e devredildi |
+| `app/Http/Controllers/Admin/ExportController.php` | biçime duyarlı tavan kontrolü |
+| `config/export.php` | CSV ayarları |
+| `resources/views/components/export-menu.blade.php` | menüye CSV satırı |
+
+---
+
+#### 2. Üç liste ekranında dışa aktarma hiç yoktu
+
+**Hata.** Panelde 29 liste dışa aktarılabiliyordu, üçü aktarılamıyordu:
+
+- **İçerikler** (`/admin/icerikler`) — blog, sayfa, galeri ve SSS'nin birleşik
+  listesi. "Geçen ay ne yayınladık" sorusunun tek ekranlık cevabı, ama dosyaya
+  dökülemiyordu.
+- **Özel Adresler** (`/admin/custom-routes`) — hangi adresin nereye baktığı.
+  Bir siteyi devralan ekibin ilk sorduğu şey ve çoğu zaman panelin dışında
+  (yönlendirme planı, SEO denetimi) okunuyor.
+- **Başarısız İşler** (`/admin/kuyruk`) — bu listenin kaybı en pahalısı: kayıt
+  kalıcı değil, iş yeniden denendiğinde ya da tablo temizlendiğinde siliniyor.
+  Dosya, tabloyu boşaltmadan önce elde kalan tek kayıt oluyor.
+
+**Çözüm.** Üç liste tanımı yazıldı ve `config/export.php`'ye kaydedildi;
+ekranlarına dışa aktarma menüsü eklendi. İki servise okuma ucu açıldı:
+
+- `ContentListService`: sıralı sorgu `rows()` ve `count()` olarak ayrıldı,
+  `paginate()` de artık onları kullanıyor — ekranda görünen ile dosyaya inen
+  aynı sorgunun ürünü, zamanla ayrışamazlar.
+- `QueueMonitorService`: `countFailed()` ve `eachFailedChunk()`. Satırlar
+  ekrandakiyle aynı sunumdan geçiyor, yani dosyada `SendQueuedMailable` değil,
+  gerçekte patlayan işin adı duruyor.
+
+**Değişen dosyalar:** `app/Exports/ContentListExport.php`,
+`app/Exports/CustomRouteExport.php`, `app/Exports/FailedJobExport.php` (yeni),
+`app/Services/ContentListService.php`, `app/Services/QueueMonitorService.php`,
+`config/export.php`, üç `index.blade.php`.
+
+---
+
+#### 3. Modülün hiçbir testi yoktu
+
+**Hata.** 1711 testlik bir projede dışa aktarma modülü — 29 liste tanımı, iki
+yazıcı, yetki kontrolü, denetim kaydı, satır tavanı — **tek testle bile
+kapsanmıyordu.** (Tek istisna raporlar ekranının Excel çıktısıydı.)
+
+Bu, modülün doğası yüzünden özellikle tehlikeli: bir liste tanımındaki hata —
+yanlış sütun kapanışı, olmayan bir ilişki, sorgusuz bırakılmış bir liste — ancak
+dosya üretilirken patlıyor. Ekranda hiçbir şey görünmüyor; kullanıcı indirmeye
+bastığında 500 alıyor.
+
+**Çözüm.** `ListExportTest` — 81 test (74 koşuyor, 7'si arkasında tablo olmayan
+listeler için gerekçeli olarak atlanıyor). Sınav tek tek listeler üzerinden değil,
+**kayıt defterinin tamamı** üzerinden koşuyor: `config/export.php`'ye yeni bir
+liste eklendiği anda o liste de kapsama giriyor, ayrıca test yazmak gerekmiyor.
+
+Kapsanan sorular:
+
+- Kayıtlı 32 listenin her biri, üç biçimde de dosya üretiyor mu?
+- Üretilen dosya iddia ettiği biçimde mi? (imza denetimi: `PK` → XLSX,
+  `%PDF` → PDF, BOM → CSV)
+- Yetkisiz kullanıcı indirebiliyor mu? Oturum açmamış ziyaretçi?
+- Ekrandaki süzgeçler dosyaya yansıyor mu? Sayfa numarası süzgeç sanılıyor mu?
+- PDF tavanı aşıldığında dosya sessizce kırpılıyor mu, kullanıcı uyarılıyor mu?
+- Excel ve CSV aynı tavandan etkileniyor mu? (etkilenmemeli)
+- Her indirme denetim kaydına düşüyor mu?
+- Ekranların gösterdiği her anahtar kayıt defterinde var mı?
+- **Dışa aktarma satır başına sorgu atıyor mu?**
+
+Son madde ayrı bir not hak ediyor. Listelerin en sessiz tehlikesi bu: ekranda
+yirmi beş satır varken ilişkiye dokunan bir sütun fark edilmiyor; aynı sütun on
+bin satırlık dosyada on bin sorgu açıyor ve istek zaman aşımına düşüyor. Sınav
+sayıya değil davranışa bakıyor — kayıt sayısı artınca sorgu sayısı artmamalı.
+**25 listede N+1 yok**; kalan yediden altısı arkasında tablo olmayan listeler
+(yedekler diskten, sistem durumu canlı ölçümden okuyor), biri de tek bir üst
+kayda bağlı.
+
+Ölçüm iki kez yanlış alarm verdi ve ikisi de öğreticiydi:
+
+1. İlk istek ayarları ve dilleri önbelleğe alıyor; o sorgular listeye değil
+   kuruluma ait. Ölçüm ısınmış durumdan başlamalı.
+2. Kayıt eklemek ilgili önbellekleri düşürüyor (yönlendirme haritası gibi); o
+   bir kerelik tazeleme satır sayısına bağlı değil. Kayıtlar eklendikten sonra
+   ikinci bir ısıtma gerekiyor.
+
+**Değişen dosya:** `tests/Feature/ListExportTest.php` (yeni, 81 test).
+
+---
+
+#### 4. Zamanlanmış raporlarda CSV seçilemiyordu
+
+**Hata.** Rapor zamanlama formu yalnız Excel ve PDF sunuyordu; `FormRequest`
+kuralı da `Rule::in(['excel', 'pdf'])` ile bunu sabitliyordu. İlginç ayrıntı:
+panel temasının CSS'inde `.rpr-format-badge.csv` sınıfı **zaten duruyordu** —
+tasarım CSV'yi öngörmüş, kod eklememişti.
+
+**Çözüm.** Biçim seçeneğine CSV eklendi, sunucu kuralı genişletildi, rapor
+kartlarındaki biçim rozetlerine CSV eklendi (tasarımın hazır sınıfıyla).
+Gönderim yolu zaten biçimden bağımsızdı — `ReportScheduleService` dosyayı
+`ExportService::store()` ile üretiyor, yani ekranda inen dosya ile postayla
+gelen dosya aynı kodun ürünü.
+
+**Değişen dosyalar:** `resources/views/admin/reports/index.blade.php`,
+`app/Http/Requests/Admin/StoreReportScheduleRequest.php`.
+
+---
+
+#### 5. Editörün dosya seçicisi boş kurulumda 404 veriyordu
+
+**Hata.** `FileBrowserService::resolve()` yükleme kökünü `realpath()` ile
+çözüyor, çözemezse istisna fırlatıyordu; denetleyici bunu 404'e çeviriyordu.
+Kök dizin ise henüz hiçbir şey yüklenmemiş taze bir kurulumda var olmayabilir —
+git boş dizin taşımıyor ve yol `.env` üzerinden başka bir yere de bakabiliyor.
+
+Sonuç: kit'i klonlayan geliştirici zengin metin editöründe "Görsel seç"e
+bastığında hata alıyor, bir arıza sanıyor. Oysa ortada yalnızca boş bir kurulum
+var.
+
+Bu kusuru bulan şey, panelin genişletilmiş duman testi oldu (bkz. 10): eski
+liste `/admin/dosya-secici` adresini hiç açmıyordu.
+
+**Çözüm.** Kök dizin gerektiğinde açılıyor. Yükleme de aynı köke yazacağı için
+bu, sonraki ilk yüklemenin yapacağı işi öne almaktan ibaret.
+
+**Değişen dosya:** `app/Services/FileBrowserService.php`.
+
+---
+
+#### 6–7. Kuralsız alan bekçisi panelin hiçbir formunu görmüyordu
+
+**Hata.** Proje kuralı net: *kullanıcının veri girdiği her alan ya
+`data-validation-engine` taşır ya da bilerek boş bırakıldığını söyleyen
+`data-fv-ignore` taşır.* Bekçisi de vardı — ama **elle yazılmış on ön yüz
+görünümüne** bakıyordu. Panelin doksana yakın formu hiç taranmıyordu ve yeni bir
+ekranın kapsama girmesi, o listeye elle satır yazmaya bağlıydı.
+
+**İkinci hata, birincisinden ilginç:** bekçinin etiket tarayıcısı nitelikleri
+yanlış okuyordu. İki yerde kırılıyordu:
+
+```html
+<textarea placeholder="<iframe src='...'></iframe>" data-validation-engine="...">
+<input @checked($tercihler[$tur->value]) data-fv-ignore>
+```
+
+Birincisinde `placeholder` değerinin içindeki `>`, ikincisinde
+`$tur->value` ifadesindeki ok işareti etiketi erken kapatıyor; ondan sonraki
+nitelikler — kuralın kendisi dahil — görünmez oluyordu. Yani bekçi hem kural
+taşıyan alanı kuralsız sanabiliyor, hem de kuralsız bir alanı hiç görmeyebiliyordu.
+
+**Çözüm.** `FormFieldsCarryRulesTest` — liste yok, görünüm ağacının tamamı
+taranıyor (`admin-theme`, `emails` ve `vendor` gerekçeleriyle dışarıda).
+Tarayıcı düzeltildi: nitelik değerleri tırnak içinde okunuyor ve nitelik yerine
+geçen Blade direktifleri maskeleniyor. Taramanın kendisi de sınanıyor — iki ayrı
+test, iki kırılma biçimini tekrar üretip tarayıcının artık doğru okuduğunu
+gösteriyor.
+
+Ön yüz testindeki dar kopya kaldırıldı; yerine yeni bekçiye gönderen bir not
+bırakıldı.
+
+**Tarama sonucu:** panelin doksana yakın formunda **tek bir kuralsız alan
+yoktu** — kural gerçekten uygulanmış, yalnız kanıtı eksikmiş. Ön yüzde bir
+tane çıktı (bkz. 15).
+
+**Değişen dosyalar:** `tests/Feature/FormFieldsCarryRulesTest.php` (yeni),
+`tests/Feature/FrontFormInputRulesTest.php`.
+
+---
+
+#### 8. Satır içi stil yasağının bekçisi yoktu
+
+**Hata.** Kural yazılıydı (*inline style yasak, her zaman class kullan*) ama
+bekçisi yoktu ve görünümlerde **on üç yerde** satır içi stil birikmişti — biri
+iki ayrı ekrana kopyalanmış aynı biçimdi.
+
+Böyle biriken stiller tasarımı tek yerden değiştirilemez hâle getiriyor: aynı
+kutunun rengi ekranın birinde değişiyor, ötekinde kalıyor. Bir örnek doğrudan
+buydu — bildirim açılır listesinin ölçüleri hem `.nt-dropdown` sınıfında hem de
+etiketin üstünde duruyordu.
+
+**Çözüm.** On üç biçim de CSS'e taşındı, **değerler birebir korunarak**. Bootstrap'in
+birebir karşılığı olan ikisi (`w-auto`, `object-fit-cover`) hazır sınıfa
+bağlandı; kalanı için `styles.css`'e adı anlamlı sınıflar eklendi.
+
+Çalışma anında hesaplanan tek değer — kampanya ilerleme çubuğunun doluluğu —
+sabit bir sınıfla anlatılamaz. O, projede zaten kullanılan kalıba çevrildi:
+etikete giden şey biçim değil, tek bir CSS değişkeni (`--cmp-progress`); genişliği
+stil sayfası okuyor.
+
+**Bekçi.** `InlineStylesAreForbiddenTest`. İki durum kapsam dışı ve ikisi de
+kaçınılabilir değil: e-posta gövdeleri (posta istemcileri harici stili atıyor)
+ve yalnız CSS değişkeni taşıyan bildirimler. Tek tek istisna da var — panelin
+stil sayfasının ulaşamadığı bir `iframe` belgesine yazılan yedek metin — ve
+istisna listesinin bayatlamaması ayrıca sınanıyor.
+
+**Değişen dosyalar:** `public/assets/admin/css/styles.css`, on bir görünüm,
+`tests/Feature/InlineStylesAreForbiddenTest.php` (yeni).
+
+---
+
+#### 9. Rol matrisi on iki modül geride kalmıştı
+
+**Hata.** Yetki matrisi 24 rota kapsıyordu; panelde 33 modül ekranı var.
+Kapsam dışı kalanlar arasında **sistem ayarlarına dokunan ekranlar** vardı:
+diller, dil yazıları, kuyruk izleyici, özel adresler. Hiçbirinin rol davranışı
+sınanmıyordu — biri yanlışlıkla editöre açılsa kimse görmezdi.
+
+**Çözüm.** Önce eksik on iki modülün gerçek davranışı ölçüldü, sonra matrise
+yazıldı. Ölçüm tutarlı çıktı ve mevcut yetki tasarımını doğruladı:
+
+| Alan | Admin | Editör | Moderatör |
+|---|---|---|---|
+| Yardım (panel içi rehber) | ✅ | ✅ | ✅ |
+| İçerik: kategoriler, birleşik liste, dosya seçici, raporlar | ✅ | ✅ | ⛔ |
+| Pazarlama: aboneler, kampanyalar | ✅ | ✅ | ⛔ |
+| Sistem: diller, dil yazıları, kuyruk, özel adresler | ✅ | ⛔ | ⛔ |
+
+**Bekçi.** Matris elle yazılıyor — hangi rolün neyi göreceği bir iş kararı,
+koddan çıkarılamaz. *Kapsamının tam olması* ise koddan çıkarılabilir:
+`test_the_matrix_covers_every_module_in_the_panel` panele yeni bir modül
+eklendiğinde kırmızı oluyor ve kararın verilmesini zorluyor.
+
+**Değişen dosya:** `tests/Feature/AdminAuthorizationTest.php` (24 → 35 rota,
++1 kapsam bekçisi).
+
+---
+
+#### 10–11. Duman testleri
+
+**Hata.** Panelin duman testi elle yazılmış **26 rotaya** bakıyordu; parametresiz
+admin ekranı sayısı **55**. Aradaki fark — kuyruk, raporlar, içerikler, diller,
+çeviriler, kampanyalar, yardım, özel adresler, dosya seçici — hiç açılmadan
+kalıyordu. Ön yüzün duman testi ise **hiç yoktu**: bir sayfanın açıldığını
+doğrulayan tek şey, o sayfaya ait modül testinin varlığıydı.
+
+Bu boşluğun bedeli somut çıktı: 5 numaralı kusur (dosya seçicisi 404) tam olarak
+buradan bulundu.
+
+**Çözüm.**
+
+- `AdminSmokeTest` artık rota tablosundan besleniyor: parametresiz her admin GET
+  rotası geziliyor, **ayrıca hepsinin oturum açmamış ziyaretçiye kapalı olduğu**
+  doğrulanıyor. Bu ikincisi ince bir riski kapatıyor: tek bir rotanın ara katman
+  grubunun dışında tanımlanması yetiyor ve o ekran herkese açık kalıyor.
+- `FrontSmokeTest` yeni. Herkese açık sayfalar (ana sayfa, blog, galeri,
+  iletişim, arama, SSS, besleme, giriş/kayıt akışları, çevrimdışı sayfası,
+  `robots.txt`, `sitemap.xml`, manifest, servis çalışanı) ve hesap alanının
+  bütün ekranları — hem üyeye açık hem ziyaretçiye kapalı olduğu.
+
+Ayrıca Laravel'in stok `ExampleTest` dosyaları kaldırıldı; biri
+`assertTrue(true)` idi, yani hiçbir şey sınamıyordu.
+
+**Değişen dosyalar:** `tests/Feature/AdminSmokeTest.php`,
+`tests/Feature/FrontSmokeTest.php` (yeni), iki `ExampleTest.php` (silindi).
+
+---
+
+#### 12–13. Çeviri eşliği ve eksik doğrulama metinleri
+
+**Hata.** İki dilin aynı anahtarları taşıdığını sınayan bekçi vardı ama yalnız
+`site.php`'ye bakıyordu. `validation.php` ve `api.php` kapsam dışıydı — ve
+`lang/tr/validation.php`, Laravel 13 ile gelen **dokuz kuralı** taşımıyordu:
+
+`any_of`, `array_keys`, `base64`, `doesnt_contain`, `encoding`,
+`in_array_keys`, `prohibited_if_accepted`, `prohibited_if_declined`, `custom`
+
+Bu kurallardan biri kullanıldığında Türkçe sayfada mesaj yerine anahtarın
+kendisi görünecekti: `validation.base64`.
+
+**Çözüm.** Dokuz karşılık Türkçe dosyaya eklendi. Bekçi iki dilde de bulunan
+bütün dosyalara genişletildi; boş değer sınavı da öyle. Yalnız bir dilde olan
+dosyalar kasıtlı ve gerekçeleri dosyaların içinde yazılı: `auth.php`,
+`passwords.php` ve `pagination.php` Türkçede var çünkü yedek dil Türkçe ve
+dosya olmadığında anahtarın kendisi görünüyordu; İngilizcede çerçevenin kendi
+dosyaları devreye giriyor.
+
+**Değişen dosyalar:** `lang/tr/validation.php`,
+`tests/Feature/InterfaceTranslationTest.php`.
+
+---
+
+#### 14–16. Küçük kusurlar
+
+**Tarayıcının `alert()` kutusu.** Profil ekranında 2 MB üstü avatar seçilince
+`alert()` çıkıyordu — panelin kendi kutusu (`AdminModal`) varken ve proje kuralı
+bunu yasaklarken. Değiştirildi; `AdminModal` yüklenmemişse işlem yine
+durduruluyor, sadece sessizce.
+→ `public/assets/admin/js/profile.js`
+
+**Çerez rızası kutuları.** Ne kural ne de "bilerek boş" işareti taşıyorlardı —
+6 numaralı bekçinin ön yüzde bulduğu tek gerçek eksik. Seçim kutusu oldukları
+için doğrulanacak bir uzunluk yok; gelen değerlerin tanınan kategoriler olduğunu
+sunucu söylüyor (`StoreConsentRequest`). `data-fv-ignore` gerekçesiyle eklendi.
+→ `resources/views/partials/cookie-consent.blade.php`
+
+**`strict_types`.** Projenin kendi yazdığı her PHP dosyasında vardı; Laravel'in
+stok config dosyalarında (10 dosya) yoktu. Eklendi.
+→ `config/*.php`
+
+---
+
+#### Denetlenip temiz çıkanlar
+
+Bir denetimin yarısı da bulunmayan şeylerdir. Aşağıdakiler tek tek kontrol
+edildi ve kusur çıkmadı:
+
+- **SoftDeletes** — 37 modelin hepsinde.
+- **Yetkilendirme kapsamı** — 26 policy var, 11 model policy'siz. Onların
+  hepsi ya bir üst modelin policy'sinden (`ContentFile` → içeriğin kendisi,
+  `SubscriberList` → `Subscriber::manageLists`) ya da bir Gate'ten
+  (`view-reports`, `view-queue`, `view-analytics`) geçiyor. Yetkisiz uç yok.
+- **API katmanı** — Sanctum jeton yetkileri (`abilities`/`ability`), uca özel
+  hız sınırları (giriş, kayıt, şifre, doğrulama), hesabı kapatılmış kullanıcı
+  ve bakım modu için ara katmanlar, JSON zorlaması (hata yanıtları dahil),
+  güvenlik başlıkları, CORS, `Accept-Language` ile yanıt dili. 15 API test
+  sınıfı, `openapi.json` kendi kendini denetliyor.
+- **N+1** — 25 dışa aktarma listesinde satır başına sorgu yok (bkz. 3).
+- **Kod stili ve statik analiz** — Pint sıfır sapma, PHPStan (larastan, seviye 1)
+  sıfır hata.
+- **Yapı taşı yasakları** — build araçları yok (`NoBuildToolchainTest`),
+  `Schedule::command()` yok (`ScheduleUsesCallablesTest`), doğrulama sınırları
+  şema ile eşleşiyor (`ValidationLimitsMatchTheSchemaTest`).
+
+---
+
+#### Tarayıcıda doğrulanan
+
+Test yeşil olması bir şeyin *çalıştığını* değil, *iddia edilen şeyin
+sınandığını* gösterir. Aşağıdakiler ayrıca gerçek tarayıcıda, gerçek oturumla
+doğrulandı:
+
+- Üç yeni ekranın dışa aktarma menüsü açılıyor ve üç seçeneği gösteriyor.
+- Üç biçim de imzası doğru dosya indiriyor: CSV `EF BB BF` (BOM), XLSX
+  `50 4B 03 04` (ZIP), PDF `25 50 44 46`.
+- İnen CSV'de Türkçe harfler bozulmuyor, tarihler biçimli, dil kodları büyük
+  harf, durumlar çevrilmiş:
+  `Tür;Başlık;Dil;Durum;Oluşturulma;Güncelleme` →
+  `"Galeri Öğesi";"Çalışma alanı";TR;Yayında;"28.08.2026 21:40";…`
+- Kullanıcılar, Raporlar, İçerikler ve Özel Adresler ekranlarının hepsinde üç
+  biçim de bağlı.
+- 2 MB üstü avatar seçildiğinde `AdminModal` açılıyor, tarayıcı kutusu değil,
+  ve girdi temizleniyor.
+- Satır içi stilden taşınan biçimler ölçülen değerleriyle aynı (bildirim
+  listesi: 380 px / 500 px / auto).
+- Çerez rızası kutuları `data-fv-ignore` taşıyor ve bant çalışıyor.
+
+---
+
+#### Tur 3 — Boşluk analizinin kalan dört bulgusu
+
+Bu turun sonunda ortaya çıktı ki denetimin bir yarısı eksikti: 31 Ağustos'ta
+yapılan **Base Kit Boşluk Analizi** depoda değil, bir Artifact olarak
+duruyordu. Belge [`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md) olarak arşive alındı
+ve on beş bulgusu bugünkü koda karşı tek tek kontrol edildi: on biri
+kapanmıştı, **dördü hâlâ açıktı.**
+
+Dördü de bu turda kapatıldı. Bu bulgular v2 denetiminin kendi eksenine
+girmiyordu — o denetim kural/bekçi boşluklarına bakmıştı, bu dördü ise üretim
+ve performans katmanına ait.
+
+##### S-05 — Content-Security-Policy yok *(Yüksek)*
+
+**Hata.** `SecurityHeaders` beş başlık basıyordu ve doğru olanları seçmişti,
+ama CSP yoktu — XSS'e karşı ikinci savunma hattı olan tek başlık. Bu, sıradan
+bir eksiklikten fazlasıydı: panelde `custom_head_code` ayarı ham HTML olarak
+basılıyor ve mail şablonları zengin metin editörüyle düzenleniyor. Blade'in
+kaçışı doğru kullanılmış, ama tek savunma oydu.
+
+**Çözüm.** Nonce tabanlı politika. Her istekte bir kerelik anahtar üretiliyor;
+sayfadaki satır içi betikler onu taşıyor, saldırganın enjekte ettiği betik
+taşıyamıyor ve çalışmıyor.
+
+- `ContentSecurityPolicy` politikayı kuruyor ve nonce'u istek boyunca taşıyor
+  (`scoped` bağ: aynı istekte tek anahtar, uzun ömürlü süreçte her istekte
+  yeni).
+- Görünüm ağacındaki **39 satır içi betiğe** `nonce="{{ csp_nonce() }}"`
+  eklendi; bir tanesinin unutulmadığını bekçi sınıyor.
+- Panel ile ön yüz **ayrı politika** alıyor: zengin metin editörü `blob:`
+  kaynaklı görsel üretiyor ve kendi iskeletini bir iframe'de açıyor; ziyaretçi
+  yüzeyine o izinleri vermek kazanç olmadan yüzeyi genişletirdi.
+- `style-src` tarafında `'unsafe-inline'` bilinçli olarak duruyor: Bootstrap'in
+  konumlandırıcısı açılır menüleri yerleştirirken elemanın `style` niteliğini
+  yazıyor. Betik tarafında ise o anahtar hiç yok — orada olsaydı politika
+  anlamsız kalırdı ve bunu ayrı bir test bekliyor.
+- İhlal raporları `/csp-ihlali` ucuna düşüyor: hız sınırlı, gövde tavanı olan,
+  yalnız tanınan alanları loglayan dar bir uç. Rapor gönderen tarayıcı oturum
+  çerezi taşımadığı için kimlik istenemiyor; koruma bu üç kapıdan geliyor.
+- `X-XSS-Protection` **kaldırıldı** — güncel hiçbir tarayıcı desteklemiyor ve
+  bazı eski sürümlerde filtrenin kendisi XSS'i kolaylaştırıyordu.
+
+**Yol üzerinde bulunan.** İlk denemede tarayıcı konsolu ihlal bildirdi ve
+kaynağı Laravel Debugbar çıktı — sayfaya kendi betiğini basıyor ve nonce
+taşımıyordu. Debugbar `csp-nonce` adlı bir container bağı arıyor; o bağ
+sağlandı, hem Debugbar hem aynı sözleşmeyi kullanan başka paketler çözüldü.
+Yalnız geliştirme ortamını ilgilendiren bir çakışmaydı ama "CSP çalışmıyor"
+izlenimi bırakırdı.
+
+**Test.** `ContentSecurityPolicyTest` — 18 test.
+
+**Değişen dosyalar:** `app/Services/ContentSecurityPolicy.php`,
+`app/Http/Controllers/CspReportController.php` (yeni),
+`app/Http/Middleware/SecurityHeaders.php`, `config/security.php` (yeni),
+`app/Helpers/helpers.php`, `app/Providers/AppServiceProvider.php`,
+`routes/web.php`, 27 görünüm.
+
+---
+
+##### S-12 — Analitik cache temizliği tüm cache'i siliyordu
+
+**Hata.** `AnalyticsService::flushCache()` doğrudan `Cache::flush()`
+çağırıyordu. Kendi yorumu gerekçesini yazıyordu — sürücü etiket
+desteklemeyebilir — ama sonuç, analitik ekranındaki tek bir yenilemenin
+ayarları, çevirileri, site haritasını, dil listesini ve bütün ön yüz içerik
+önbelleğini birlikte silmesiydi. Varsayılan sürücü veritabanı olduğu için
+yeniden ısınmanın bedelini de ilk ziyaretçiler ödüyordu.
+
+İlginç ayrıntı: yorumda *"cache:clear gibi davranmak yerine bilinen prefix'leri
+tek tek temizle"* yazıyordu. Niyet yazılmış, uygulanmamıştı.
+
+**Çözüm.** `CachePurger` — önek bazlı temizlik, sürücüye göre:
+
+| Sürücü | Yol | Neden |
+|---|---|---|
+| Veritabanı | tek `DELETE ... LIKE` | anahtarlar adıyla duruyor |
+| Redis | `SCAN` + `DEL` | `KEYS` bütün anahtar uzayını tarar, sunucuyu kilitler |
+| Dizi | bellekteki dizinin taranması | test ortamı gerçeğinden ayrılmasın |
+| Dosya | yazarken tutulan kayıt | anahtar diskte hash, önek diye bir şey yok |
+
+**Yol üzerinde bulunan.** İlk yazımda LIKE kalıbını kendi kaçış metodumla
+kurmuştum ve `LikeSearchIsPortableTest` onu yakaladı — kaçış karakteri ters
+bölüydü, yani MySQL'de tam olarak S-11'de bulunan sözdizimi hatasını doğuran
+biçim. `LikeSearch::prefix()` + `LikeSearch::clause()` kullanıldı; bekçi kendi
+işini yaptı.
+
+---
+
+##### S-13 — Cache anahtarları otuz ayrı yerde elle temizleniyordu
+
+**Hata.** Temizlik çağrıları 30'dan fazla yere dağılmıştı ve anahtarlar dizge
+sabitiydi (`'sitemap.urls'`, `'admin.pages.stats'`…). Hangi içeriğin hangi
+türev önbelleği beslediği kodun içine gömülüydü: yeni bir içerik türü
+eklendiğinde `sitemap.urls`'i unutmak, site haritasının bir saat bayat
+kalmasına yol açıyordu — hata vermeden, testi kırmadan.
+
+**Çözüm.** `App\Support\CacheKeys` — bütün anahtarlar ve önekler tek yerde.
+**52 çağrı, 19 dosyada** sabite bağlandı ve dizge olarak yazılmış anahtar
+kalmadığını bir bekçi sınıyor. `contentKeys()` ise "içerik değişti" sinyalini
+tek yerde topluyor: yeni bir tür eklendiğinde neyin düşeceği orada
+güncelleniyor, çağıran yerler değil.
+
+İkinci bekçi daha ince bir tuzağı kapatıyor: önek taşıyan anahtarlar doğrudan
+`Cache::put()` ile yazılırsa dosya sürücüsünde kayda girmiyor ve **hiçbir zaman
+temizlenmiyor**. O anahtarların tek doğru yazma yolu
+`CachePurger::rememberWithin()`, ve bunu bir test zorluyor.
+
+---
+
+##### S-14 — Ön yüzde çıktı cache'i yoktu
+
+**Hata.** Sorgu düzeyinde önbellek iyi kurulmuştu ama anonim bir ziyaretçinin
+gördüğü her sayfa yine tam bir çizim döngüsüydü: menü ağacı, alt bilgi
+sütunları, dil listesi her istekte yeniden kuruluyordu. Paylaşımlı hostingde en
+büyük kazanç burada.
+
+**Çözüm.** `@cachedInclude` direktifi ve `FragmentCache`. `@include` ile aynı
+yerde durur, aynı şekilde çağrılır; farkı, parça önbellekte varsa görünümün
+**hiç çizilmemesi** — kazanç buradan geliyor.
+
+Üç kapı parçanın saklanmasını engelliyor:
+
+1. **Oturum açmış kullanıcı** — kendi adını taşıyan bir menü sonraki
+   ziyaretçiye gösterilemez.
+2. **GET olmayan istek** — form gönderiminden sonra çizilen sayfa o isteğe
+   özgü.
+3. **Kişiye özel iz taşıyan çıktı** — CSRF anahtarı ya da CSP nonce'u içeren
+   bir parça saklanırsa iki hata birden doğar: başkasının anahtarını taşıyan
+   form reddedilir, bayat nonce betiği çalıştırılamaz hâle getirir.
+
+**Yol üzerinde bulunan.** İlk hedef alt bilgiydi — her sayfada aynı, menü
+ağacı geziyor, iyi bir aday. Üçüncü kapı onu reddetti: alt bilgi bülten formunu
+içeriyor, yani CSRF anahtarı taşıyor. Koruma çalıştı ve karar değişti: **gezinti
+önbelleğe alınıyor** (10 KB, misafirde temiz), alt bilgi bilinçli olarak
+alınmıyor. Gerekçe hem görünümde hem testte yazılı — biri ileride alt bilgiyi
+önbelleğe alırsa bekçi kırılıyor.
+
+Menü ya da ayar değişince çizilmiş parçalar düşüyor; ziyaretçi bir saat boyunca
+eski bağlantıları görmüyor.
+
+**Test.** `CacheHygieneTest` — 17 test (S-12, S-13 ve S-14 birlikte).
+
+**Değişen dosyalar:** `app/Support/CacheKeys.php`, `app/Services/CachePurger.php`,
+`app/Services/FragmentCache.php` (yeni), `app/Services/AnalyticsService.php`,
+`app/Services/MenuService.php`, `app/Models/Setting.php`, `config/cache.php`,
+`resources/views/layouts/app.blade.php`, 19 servis/observer.
+
+---
+
+#### Açık kalan iki madde
+
+İkisi de bu denetimden önce de bilerek açıktı; durumları değişmedi.
+
+- **Panelden push bildirim gönderme ekranı.** Sunucu tarafı hazır (jeton kaydı,
+  sağlayıcıdan bağımsız gönderim servisi, ölü jetonun düşmesi). Admin temada bu
+  ekranın tasarımı yok ve tasarımda olmayan bir ekranı uydurmak proje kuralına
+  aykırı. Tasarım geldiğinde ya da onay verildiğinde yapılacak.
+- **`session.serialization = json`.** Çevirmek o anda açık olan bütün oturumları
+  düşürüyor; çalışan bir kurulumda bu bakım penceresi gerektiren bir karar, kod
+  değil zamanlama meselesi.
+
+---
+
+#### Ders
+
+Bu denetimin tek cümlelik özeti şu: **kural yazmak yetmiyor, kuralın bekçisi
+olması gerekiyor — ve bekçinin kapsamı elle yazılmış bir listeye bağlıysa o
+bekçi zamanla kör oluyor.**
+
+Bulunan on altı kusurun on ikisi bu desende. Hiçbiri kodun yanlış yazılmasından
+doğmadı; hepsi projenin bir yerinin büyürken bekçisinin yerinde kalmasından
+doğdu. Bu turda kurulan bekçilerin ortak özelliği de bu: hiçbiri elle yazılmış
+liste kullanmıyor. Rota tablosundan, görünüm ağacından, kayıt defterinden,
+dil dizininden besleniyorlar. Bir sonraki ekran eklendiğinde kapsama kendiliğinden
+giriyor; girmemesi gereken şey varsa gerekçesi yazılı bir istisna listesine
+konuyor ve o listenin bayatlamadığı ayrıca sınanıyor.

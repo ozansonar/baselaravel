@@ -1,5 +1,10 @@
 # Proje Durumu — v2 Denetimi
 
+> **Not.** Bu belge artık [`PROJE-KAYDI.md`](PROJE-KAYDI.md) içinde de
+> bulunuyor — dört durum belgesinin tek dosyada toplandığı, güncel durum
+> tablosunu ve kalan iş planını taşıyan kayıt. Bu dosya kaynak olarak yerinde
+> duruyor ve içeriği değişmedi.
+
 **Tarih:** 2026-09-01
 **Dal:** `feat/laravel-13-upgrade`
 **Başlangıç noktası:** `f1eca0c`

@@ -936,6 +936,8 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 ## Ek dokümanlar
 
 - `CLAUDE.md` — proje kuralları (zorunlu)
+- **`docs/PROJE-KAYDI.md` — tek kayıt: güncel durum tablosu, kalan iş planı ve
+  aşağıdaki dört belgenin tamamı. Bir maddenin durumunu öğrenmek için önce buraya bakın.**
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
 - `docs/PROJE-DURUMU-V2.md` — denetim kaydı: bulunan kusurlar, çözümleri, kurulan bekçiler
 - `docs/BOSLUK-ANALIZI.md` — mimari denetim: on beş bulgu, gerekçeleri ve kapanışları

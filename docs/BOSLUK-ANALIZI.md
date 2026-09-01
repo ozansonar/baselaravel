@@ -1,5 +1,10 @@
 # Base Kit Boşluk Analizi
 
+> **Not.** Bu belge artık [`PROJE-KAYDI.md`](PROJE-KAYDI.md) içinde de
+> bulunuyor — dört durum belgesinin tek dosyada toplandığı, güncel durum
+> tablosunu ve kalan iş planını taşıyan kayıt. Bu dosya kaynak olarak yerinde
+> duruyor ve içeriği değişmedi.
+
 **Mimari denetim · 31 Ağustos 2026**
 **Denetlenen sürüm:** `1d2e14f`
 **Dal:** `feat/laravel-13-upgrade`

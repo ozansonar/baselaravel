@@ -1,5 +1,10 @@
 # Yol Haritası — "Eksiksiz Base Kit"e Kalan Yol
 
+> **Not.** Bu belge artık [`PROJE-KAYDI.md`](PROJE-KAYDI.md) içinde de
+> bulunuyor — dört durum belgesinin tek dosyada toplandığı, güncel durum
+> tablosunu ve kalan iş planını taşıyan kayıt. Bu dosya kaynak olarak yerinde
+> duruyor ve içeriği değişmedi.
+
 **Çıkarıldığı tarih:** 2026-08-31
 **Dal:** `feat/laravel-13-upgrade`
 **Kapsam:** üç yüz birden — masaüstü web, mobil web, API
