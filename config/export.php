@@ -84,6 +84,7 @@ return [
         'contact-messages'   => App\Exports\ContactMessageExport::class,
         'subscribers'        => App\Exports\SubscriberExport::class,
         'audit-logs'         => App\Exports\AuditLogExport::class,
+        'error-logs'         => App\Exports\ErrorLogExport::class,
         'mail-logs'          => App\Exports\MailLogExport::class,
         'redirects'          => App\Exports\RedirectExport::class,
         'notifications'      => App\Exports\NotificationExport::class,

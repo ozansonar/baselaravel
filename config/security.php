@@ -84,6 +84,17 @@ return [
                 'frame'  => ['https://www.google.com'],
                 'img'    => ['https://www.gstatic.com'],
             ],
+            // Meta (Facebook) Pixel. Yalnız panelde bir Pixel kimliği
+            // girilmişken yayılıyor: `requires` alanı dolu olan sağlayıcı,
+            // o ayar boşken CSP'ye hiç eklenmiyor. Kullanılmayan bir alan
+            // adını sürekli açık tutmak, kazanç olmadan yüzeyi genişletmek
+            // olurdu.
+            'meta_pixel' => [
+                'requires' => 'facebook_pixel_id',
+                'script'   => ['https://connect.facebook.net'],
+                'img'      => ['https://www.facebook.com'],
+                'connect'  => ['https://www.facebook.com'],
+            ],
             // Avatarı olmayan kullanıcı için baş harflerden görsel üreten
             // servis. Yalnız görsel kaynağı.
             'avatars' => [

@@ -18,35 +18,45 @@ final class SettingService
      * ayrı bırakılsaydı panelden değiştirilen bir ayar mobilde bir saat daha
      * eski hâliyle görünürdü.
      */
-    public const PUBLIC_CACHE_KEY = 'api.settings.public';
+    /**
+     * Dil başına bir girdi.
+     *
+     * Değerler artık isteğin dilinde çözülüyor; tek bir anahtarda tutulsaydı
+     * önbelleği ilk ısıtan dil bütün dillere servis edilirdi.
+     */
+    public const PUBLIC_CACHE_PREFIX = 'api.settings.public.';
 
     /**
-     * Get a single setting value.
+     * Bir ayarın değeri — isteğin dilinde çözülmüş hâliyle.
+     *
+     * Ayarların çoğu dilden bağımsız; metin taşıyan bir avucu dile ait ikinci
+     * bir satır tutabiliyor ve o varsa o kazanıyor.
+     *
+     * @see \App\Support\TranslatableSettings
      */
-    public function get(string $key, ?string $default = null): ?string
+    public function get(string $key, ?string $default = null, ?string $locale = null): ?string
     {
-        return Setting::getValue($key, $default);
+        return Setting::getValue($key, $default, $locale);
     }
 
     /**
-     * Get all settings as key-value pairs.
+     * Bütün ayarlar, isteğin dilinde çözülmüş hâliyle.
      *
      * @return array<string, string|null>
      */
     public function all(): array
     {
-        // Trigger static cache load via getValue, then return cached array
-        Setting::getValue('__noop__');
-
         return Setting::getCachedSettings();
     }
 
     /**
      * Set a single setting value.
+     *
+     * @param string|null $locale null → bütün diller; bir dil kodu → o dilin çevirisi
      */
-    public function set(string $key, ?string $value, string $group = 'general', string $type = 'text'): void
+    public function set(string $key, ?string $value, string $group = 'general', string $type = 'text', ?string $locale = null): void
     {
-        Setting::setValue($key, $value, $group, $type);
+        Setting::setValue($key, $value, $group, $type, $locale);
     }
 
     /**
@@ -70,7 +80,9 @@ final class SettingService
      */
     public function publicValues(): array
     {
-        return Cache::remember(self::PUBLIC_CACHE_KEY, 3600, function (): array {
+        $locale = app()->getLocale();
+
+        return Cache::remember(self::PUBLIC_CACHE_PREFIX . $locale, 3600, function () use ($locale): array {
             /** @var array<int, string> $groups */
             $groups = (array) config('api.public_settings.groups', []);
             /** @var array<int, string> $except */
@@ -82,7 +94,13 @@ final class SettingService
                 return [];
             }
 
+            // Yalnız "bütün diller" satırları listeleniyor: bir ayarın var
+            // olup olmadığını, grubunu ve tipini onlar tanımlıyor. Dile ait
+            // satır yalnız değeri eziyor ve o ezme publicValue() içinde
+            // çözülüyor — burada listelenselerdi aynı anahtar iki kez çıkar,
+            // hangisinin kazandığı sıralamaya kalırdı.
             return Setting::query()
+                ->whereNull('locale')
                 ->whereIn('group', $groups)
                 ->where('type', '!=', SettingType::Password->value)
                 ->orderBy('group')
@@ -96,7 +114,7 @@ final class SettingService
                 ->groupBy('group')
                 ->map(fn (Collection $rows): array => $rows
                     ->mapWithKeys(fn (Setting $setting): array => [
-                        $setting->key => $this->publicValue($setting),
+                        $setting->key => $this->publicValue($setting, $locale),
                     ])
                     ->all())
                 ->all();
@@ -110,13 +128,18 @@ final class SettingService
      * aynı alan adında olduğu için ön yüzde bu yeterli. Mobil uygulamada bir
      * "sayfa" yok — göreli yol hiçbir şeye çözülmez.
      */
-    private function publicValue(Setting $setting): ?string
+    private function publicValue(Setting $setting, string $locale): ?string
     {
-        if ($setting->type !== SettingType::Image->value || $setting->value === null || $setting->value === '') {
-            return $setting->value;
+        // Değer dilin kendi satırından geliyorsa o kazanıyor; yoksa bu satırın
+        // kendi değeri. Görsel ayarları çevrilmiyor ama aynı yoldan geçmeleri
+        // zararsız.
+        $value = Setting::getValue($setting->key, $setting->value, $locale);
+
+        if ($setting->type !== SettingType::Image->value || $value === null || $value === '') {
+            return $value;
         }
 
-        return url(upload_url($setting->value));
+        return url(upload_url($value));
     }
 
     public function clearCache(): void

@@ -412,6 +412,35 @@ bulunamaz hâle getirirlerdi.
 silinemez ve anahtarları değiştirilemez. Panelden istediğin kadar **özel rol**
 ekleyip izinlerini matristen verebilirsin.
 
+### Hata kayıtları
+
+**Admin → Hata Kayıtları** sunucuda oluşan beklenmedik hataları listeler. Ekran
+`storage/logs/laravel.log` dosyasının panelden okunabilir hâli değil: dosya her
+tekrarı ayrı satır olarak yazar, bu liste aynı hatayı **tek satırda toplar** ve
+kaç kez olduğunu sayar. Aradaki fark, "yüz bin satırlık log" ile "üç açık hatam
+var" arasındaki farktır.
+
+- **Parmak izi** hata türü + dosya + satırdır. Mesaj kasten dışarıdadır: aynı
+  kusur her istekte farklı mesaj üretebilir (`Kullanıcı 41 bulunamadı`,
+  `Kullanıcı 87 bulunamadı`) ve mesaja bakan bir eşleştirme listeyi aynı hatanın
+  binlerce kopyasıyla doldururdu.
+- **Tekrarlar kısılmaz.** Telegram ve bildirim merkezi aynı hata için on
+  dakikada bir haber verir; kayıt her seferinde tutulur. Kaybedilen bilgi tam
+  olarak buydu: "bu hata bir kez mi oldu, günde bin kez mi?"
+- **Çözüldü işareti** koyabilirsin. Aynı hata yeniden oluşursa işaret
+  kendiliğinden kalkar — düzeldiği sanılan bir kusurun geri döndüğü görünür.
+  Silinen bir kayıt da hata devam ediyorsa geri gelir.
+- **Kaynak** sütunu hatanın proje kodundan mı paketten mi geldiğini söyler.
+  Paket içinde patlayan bir hatanın sebebi çoğu zaman onu çağıran kendi
+  kodumuzdur, ama düzeltilecek yer orası değildir.
+- Detayda **yığın izi**, zincirdeki önceki hatalarla birlikte durur. Yollar
+  proje köküne göre yazılır; paylaşımlı hosting'in mutlak yolu ekrana çıkmaz.
+- Kayıtlar **60 gündür tekrar etmiyorsa** haftalık temizlik görevinde silinir.
+  Ölçüt son görülmedir: aylardır tekrar eden bir hata "eski" değil, açıktır.
+
+Ekran yalnızca yöneticiye açıktır — yığın izi dosya yolları, sınıf adları ve
+sorgu parçaları taşır.
+
 ## Çok dilli yapı
 
 Site birden fazla dilde yayınlanabilir. Diller **Admin → Diller** ekranından

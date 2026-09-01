@@ -540,6 +540,14 @@ server {
 Web tarafı bunlar olmadan da tam çalışır; yalnız mobil uygulama yazacaksanız
 gerekiyor.
 
+> **Bunları `.env` yerine panelden de girebilirsiniz:**
+> **Yönetim → API ve Servisler** (`/admin/api-ayarlari`). Her alanın altında
+> anahtarın hangi konsoldan alınacağı adım adım yazıyor, girilen değer
+> kaydedildiği anda geçerli oluyor ve gizli anahtarlar şifreli saklanıyor.
+> Panelde boş bıraktığınız alan için aşağıdaki `.env` değerleri geçerli kalır.
+> Yeni bir sunucuya taşırken `.env`'e yazmak yine de pratik olabilir; ikisi
+> birlikte çalışıyor.
+
 ### Bildirimler (Firebase Cloud Messaging)
 
 1. Firebase Console → **Proje ayarları → Hizmet hesapları**

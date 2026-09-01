@@ -159,6 +159,10 @@
            class="nav-link {{ Route::is('admin.settings.*') ? 'active' : '' }}">
             <i class="bi bi-gear-fill"></i> Ayarlar
         </a>
+        <a href="{{ route('admin.service-credentials.index') }}"
+           class="nav-link {{ Route::is('admin.service-credentials.*') ? 'active' : '' }}">
+            <i class="bi bi-key-fill"></i> API ve Servisler
+        </a>
         @endcan
 
 
@@ -280,6 +284,16 @@
         <a href="{{ route('admin.system-health.index') }}"
            class="nav-link {{ Route::is('admin.system-health.*') ? 'active' : '' }}">
             <i class="bi bi-heart-pulse-fill"></i> Sistem Sağlık
+        </a>
+        @endcan
+
+        @endif
+
+        @if(Route::has('admin.error-logs.index'))
+        @can('viewAny', \App\Models\ErrorLog::class)
+        <a href="{{ route('admin.error-logs.index') }}"
+           class="nav-link {{ Route::is('admin.error-logs.*') ? 'active' : '' }}">
+            <i class="bi bi-bug-fill"></i> Hata Kayıtları
         </a>
         @endcan
 

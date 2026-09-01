@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\NotificationLevel;
+use App\Models\ErrorLog;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
@@ -37,17 +38,30 @@ final class ExceptionNotifier
      */
     public const THROTTLE_MINUTES = 10;
 
+    public function __construct(
+        private readonly ErrorLogService $errorLogs,
+    ) {}
+
     public function notify(Throwable $e): void
     {
+        // Kayıt önce ve **kısılmadan**: bildirim on dakikada bir gidiyor, ama
+        // "bu hata kaç kez oldu" bilgisi ancak her tekrarı sayarak elde
+        // ediliyor. Panelin hata listesi bunun üzerine kurulu.
+        //
+        // Servis kendi içinde her şeyi yutuyor; yine de bir şey sızarsa
+        // bildirimin gitmesine engel olmamalı — 500'lerin en sık sebebi
+        // veritabanının kendisi ve tam o anda haber vermek en kritik olduğu an.
+        $log = $this->errorLogs->record($e);
+
         try {
-            $this->dispatch($e);
+            $this->dispatch($e, $log);
         } catch (Throwable) {
             // Zaten hata işlemenin içindeyiz. Buradan bir şey fırlarsa asıl
             // hatanın yerini alır ve loglanan şey yanlış olur.
         }
     }
 
-    private function dispatch(Throwable $e): void
+    private function dispatch(Throwable $e, ?ErrorLog $log): void
     {
         $fingerprint = $this->fingerprint($e);
 
@@ -57,9 +71,18 @@ final class ExceptionNotifier
 
         $title = 'Sunucu hatası: ' . class_basename($e);
 
+        $context = $this->context($e);
+
+        // Kısma penceresi yüzünden bildirim her tekrarda gitmiyor; kaçıncı kez
+        // olduğu bu yüzden mesajın içinde. "Bir kez oldu" ile "bu ay 4.000 kez
+        // oldu" arasındaki fark, aciliyetin kendisi.
+        if ($log !== null && $log->occurrences > 1) {
+            $context['tekrar'] = $log->occurrences . '. kez';
+        }
+
         TelegramNotifier::notifyAdminError(
             $title,
-            $this->context($e),
+            $context,
             null,
             '🚨',
             cacheKey: $fingerprint,
@@ -71,7 +94,26 @@ final class ExceptionNotifier
             message: $this->summary($e),
             level: NotificationLevel::Critical,
             icon: 'bi-bug-fill',
+            // Bildirimden hatanın detayına: yığın izi, kaç kez olduğu ve
+            // hangi adreste patladığı orada duruyor.
+            actionUrl: $this->panelUrl($log),
         );
+    }
+
+    /**
+     * Bildirimden hatanın panel sayfasına bağlantı.
+     *
+     * `route()` burada fırlayabilir —rota önbelleği bozuksa ya da hata rotalar
+     * yüklenmeden önce oluştuysa— ve o an bildirimi kaybetmek, bağlantıyı
+     * kaybetmekten çok daha pahalı.
+     */
+    private function panelUrl(?ErrorLog $log): ?string
+    {
+        if ($log === null) {
+            return null;
+        }
+
+        return rescue(static fn (): string => route('admin.error-logs.show', $log->id), null, false);
     }
 
     /**

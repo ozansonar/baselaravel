@@ -269,7 +269,8 @@
     @if($typeSummary !== [])
         <div class="row g-4 mt-1 mb-4">
             <div class="col-lg-6" data-aos="fade-up" data-aos-delay="50">
-                <div class="nt-card">
+                {{-- h-100: iki kart yan yana duruyor, alt kenarları hizalı olsun --}}
+                <div class="nt-card h-100">
                     <div class="nt-card-header">
                         <div class="nt-card-icon c-purple"><i class="bi bi-bar-chart"></i></div>
                         <h6>Bildirim Özeti</h6>
@@ -301,28 +302,49 @@
             </div>
 
             <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="nt-card">
+                <div class="nt-card h-100">
                     <div class="nt-card-header">
                         <div class="nt-card-icon c-teal"><i class="bi bi-lightbulb"></i></div>
                         <h6>Nasıl kullanılır?</h6>
                     </div>
+                    {{-- İpuçları düz bir liste yerine ikili ızgarada duruyor.
+                         Tam genişlik çizgilerle ayrılmış dört satır, yanındaki
+                         özet kartından iki kat uzun bir blok üretiyordu ve
+                         sayfanın geri kalanının dilini konuşmuyordu; ikon
+                         yongası (nt-card-icon) zaten bu ekranın kendi deseni. --}}
                     <div class="nt-card-body">
-                        <div class="nt-summary-list">
-                            <div class="nt-hint-row">
-                                <i class="bi bi-check2-square"></i>
-                                <span>Soldaki kutulardan birden fazla bildirim seçip tek seferde okundu yapabilir ya da silebilirsiniz.</span>
+                        <div class="nt-hints">
+                            <div class="nt-hint">
+                                <span class="nt-hint__icon c-teal"><i class="bi bi-check2-square"></i></span>
+                                <div>
+                                    <strong>Toplu işlem</strong>
+                                    Soldaki kutulardan birden fazla bildirim seçip tek seferde okundu
+                                    yapabilir ya da silebilirsiniz.
+                                </div>
                             </div>
-                            <div class="nt-hint-row">
-                                <i class="bi bi-envelope-open"></i>
-                                <span>Zarf düğmesi okundu/okunmadı arasında geçiş yapar; yanlışlıkla okuduğunuzu geri alabilirsiniz.</span>
+                            <div class="nt-hint">
+                                <span class="nt-hint__icon c-green"><i class="bi bi-envelope-open"></i></span>
+                                <div>
+                                    <strong>Geri alınabilir</strong>
+                                    Zarf düğmesi okundu/okunmadı arasında geçiş yapar; yanlışlıkla
+                                    okuduğunuzu geri alabilirsiniz.
+                                </div>
                             </div>
-                            <div class="nt-hint-row">
-                                <i class="bi bi-box-arrow-up-right"></i>
-                                <span>Bildirimin ilgili olduğu sayfa varsa ok düğmesi doğrudan oraya götürür.</span>
+                            <div class="nt-hint">
+                                <span class="nt-hint__icon c-blue"><i class="bi bi-box-arrow-up-right"></i></span>
+                                <div>
+                                    <strong>İlgili sayfa</strong>
+                                    Bildirimin ilgili olduğu bir sayfa varsa ok düğmesi doğrudan
+                                    oraya götürür.
+                                </div>
                             </div>
-                            <div class="nt-hint-row">
-                                <i class="bi bi-funnel"></i>
-                                <span>Sekmeler seviyeye göre süzer, arama kutusu başlık ve metin içinde arar.</span>
+                            <div class="nt-hint">
+                                <span class="nt-hint__icon c-orange"><i class="bi bi-funnel"></i></span>
+                                <div>
+                                    <strong>Süzme ve arama</strong>
+                                    Sekmeler seviyeye göre süzer, arama kutusu başlık ve metin
+                                    içinde arar.
+                                </div>
                             </div>
                         </div>
                     </div>

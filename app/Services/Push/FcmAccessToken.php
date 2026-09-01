@@ -81,6 +81,45 @@ final class FcmAccessToken
      */
     public function credentials(): ?array
     {
+        $raw = $this->rawCredentials();
+
+        if ($raw === null) {
+            return null;
+        }
+
+        try {
+            /** @var array<string, mixed> $json */
+            $json = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        } catch (Throwable) {
+            return null;
+        }
+
+        $email = (string) ($json['client_email'] ?? '');
+        $key = (string) ($json['private_key'] ?? '');
+        $project = (string) (config('push.fcm.project_id') ?: ($json['project_id'] ?? ''));
+
+        if ($email === '' || $key === '' || $project === '') {
+            return null;
+        }
+
+        return ['client_email' => $email, 'private_key' => $key, 'project_id' => $project];
+    }
+
+    /**
+     * Servis hesabı JSON'unun ham metni.
+     *
+     * İki kaynak var ve panel önce geliyor: yönetici anahtarı panele
+     * yapıştırdığında sunucudaki dosyaya dokunmaya gerek kalmıyor. Dosya yolu
+     * .env'le kurulum yapmış olanlar için duruyor.
+     */
+    private function rawCredentials(): ?string
+    {
+        $json = trim((string) config('push.fcm.credentials_json'));
+
+        if ($json !== '') {
+            return $json;
+        }
+
         $path = (string) config('push.fcm.credentials');
 
         if ($path === '') {
@@ -97,22 +136,9 @@ final class FcmAccessToken
             return null;
         }
 
-        try {
-            /** @var array<string, mixed> $json */
-            $json = json_decode((string) file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
-        } catch (Throwable) {
-            return null;
-        }
+        $contents = file_get_contents($path);
 
-        $email = (string) ($json['client_email'] ?? '');
-        $key = (string) ($json['private_key'] ?? '');
-        $project = (string) (config('push.fcm.project_id') ?: ($json['project_id'] ?? ''));
-
-        if ($email === '' || $key === '' || $project === '') {
-            return null;
-        }
-
-        return ['client_email' => $email, 'private_key' => $key, 'project_id' => $project];
+        return $contents === false ? null : $contents;
     }
 
     /**

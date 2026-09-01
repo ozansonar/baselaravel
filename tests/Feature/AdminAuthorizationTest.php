@@ -70,12 +70,18 @@ class AdminAuthorizationTest extends TestCase
 
             // Admin only
             '/admin/settings'           => [200, 403, 403],
+            // Üçüncü taraf anahtarları: ayarlarla aynı seviyede. Ekran gizli
+            // anahtar taşıyor, editör ve moderatöre kapalı.
+            '/admin/api-ayarlari'       => [200, 403, 403],
             '/admin/users'              => [200, 403, 403],
             '/admin/roller'             => [200, 403, 403],
             '/admin/redirects'          => [200, 403, 403],
             '/admin/mail-templates'     => [200, 403, 403],
             '/admin/mail-logs'          => [200, 403, 403],
             '/admin/aktivite-loglari'   => [200, 403, 403],
+            // Hata kayıtları yığın izi taşıyor: dosya yolları, sınıf adları,
+            // sorgu parçaları. Editör ve moderatörün ihtiyacı yok.
+            '/admin/hata-kayitlari'     => [200, 403, 403],
             '/admin/yedekler'           => [200, 403, 403],
             '/admin/sistem-saglik'      => [200, 403, 403],
             '/admin/custom-routes'      => [200, 403, 403],
@@ -209,12 +215,12 @@ class AdminAuthorizationTest extends TestCase
     {
         $hiddenFor = [
             'editor' => [
-                '/admin/settings', '/admin/users', '/admin/roller', '/admin/redirects',
+                '/admin/settings', '/admin/api-ayarlari', '/admin/users', '/admin/roller', '/admin/redirects',
                 '/admin/mail-templates', '/admin/mail-logs',
                 '/admin/aktivite-loglari', '/admin/yedekler', '/admin/sistem-saglik',
             ],
             'moderator' => [
-                '/admin/settings', '/admin/users', '/admin/roller', '/admin/redirects',
+                '/admin/settings', '/admin/api-ayarlari', '/admin/users', '/admin/roller', '/admin/redirects',
                 '/admin/mail-templates', '/admin/mail-logs',
                 '/admin/aktivite-loglari', '/admin/yedekler', '/admin/sistem-saglik',
                 '/admin/pages', '/admin/blog-posts', '/admin/files',

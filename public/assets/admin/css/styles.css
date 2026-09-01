@@ -30994,11 +30994,19 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   z-index: 1055;
 }
 
-/* Menüyü taşıyan kartın kendisi de yükselmeli: AOS animasyonunun transform'u
-   her karta ayrı bir yığın bağlamı veriyor, o yüzden menünün z-index'i tek
-   başına altındaki tablo kartını aşmaya yetmiyor. */
+/* Menüyü taşıyan kabın kendisi de yükselmeli.
+   
+   AOS animasyonu bittiğinde `transform: translateZ(0)` bırakıyor ve o transform
+   kalıcı: her `data-aos` elemanı kalıcı bir yığın bağlamı oluşturuyor. Menünün
+   z-index'i o bağlamın İÇİNDE kalıyor, dolayısıyla tek başına dışarıdaki bir
+   kardeşi aşamıyor — kap da yükseltilmezse menü, kendisinden sonra gelen
+   (ve o da transform taşıyan) bloğun arkasında kalıyor.
+   
+   .page-header de listede: sistem sağlık ekranında menü kartın içinde değil
+   sayfa başlığında duruyor ve hemen altındaki durum bloğu onu örtüyordu. */
 .card-dark:has(.export-menu),
-.card-glass:has(.export-menu) {
+.card-glass:has(.export-menu),
+.page-header:has(.export-menu) {
   position: relative;
   z-index: 5;
 }
@@ -33123,3 +33131,341 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
 .seo-details__item--error   { border-left-color: #f87171; }
 .seo-details__item--warning { border-left-color: #fbbf24; }
 .seo-details__item--info    { border-left-color: #60a5fa; }
+
+/* ==========================================================================
+   Ayarlarda çeviri kutusu
+   ==========================================================================
+   Metin taşıyan ayarların öteki dillerdeki karşılığı. Kapalı açılıyor:
+   on üç alanın hepsini açık göstermek ayarlar ekranını iki katına çıkarırdı.
+   Dolu olan kendiliğinden açık geliyor — yönetici bir çeviri girdiyse onu
+   aramak zorunda kalmamalı.
+
+   Açma/kapama <details>'in kendi işi; JS yok. Aynı desen SEO ve kampanya
+   ekranlarında da kullanılıyor (.seo-details).
+   ========================================================================== */
+
+.stg-i18n {
+  margin-top: 8px;
+  border-left: 2px solid var(--border-color, #334155);
+  padding-left: 12px;
+}
+
+.stg-i18n__summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  user-select: none;
+}
+
+.stg-i18n__summary::-webkit-details-marker { display: none; }
+
+.stg-i18n__summary::before {
+  content: "▸";
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.stg-i18n[open] > .stg-i18n__summary::before { transform: rotate(90deg); }
+
+.stg-i18n__summary:hover { color: var(--text-secondary); }
+
+.stg-i18n__badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: var(--bg-hover, rgba(148, 163, 184, 0.12));
+  color: var(--text-secondary);
+}
+
+.stg-i18n__badge--empty { opacity: 0.6; }
+
+.stg-i18n__body { padding-top: 8px; }
+
+/* Çeviri alanı asıl alandan görsel olarak bir adım geride durmalı:
+   ekranda hangisinin asıl değer olduğu bakışta anlaşılsın. */
+.stg-i18n__field { margin-bottom: 10px; }
+.stg-i18n__field:last-child { margin-bottom: 2px; }
+.stg-i18n__field .stg-label { font-size: 12px; opacity: 0.85; }
+
+.stg-i18n__flag { margin-right: 4px; }
+
+/* ==========================================================================
+   API ve Servis Ayarları
+   ==========================================================================
+   Ekranın tamamı ServiceCredentials kayıt defterinden çiziliyor; buradaki
+   sınıflar da alan türüne değil, alanın çevresindeki bilgiye ait: kaynağın
+   nerede olduğunu söyleyen rozet ve anahtarın nereden alınacağını anlatan
+   rehber metni.
+   ========================================================================== */
+
+.svc-legend {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--neon-blue, #38bdf8);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.svc-legend > i {
+  color: var(--neon-blue, #38bdf8);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.svc-legend code,
+.svc-env code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--bg-hover, rgba(148, 163, 184, 0.12));
+  font-size: 12px;
+}
+
+.svc-group-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.svc-doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--neon-blue, #38bdf8);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+.svc-doc-link:hover { text-decoration: underline; }
+
+/* Firebase'in gerçekten çalışıp çalışmadığı. Anahtar girilmiş ama bozuksa
+   yönetici bunu ilk bildirimi göndermeye çalışırken değil burada öğrenmeli. */
+.svc-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 12.5px;
+  margin-bottom: 16px;
+}
+
+.svc-status--ok {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--neon-green, #22c55e);
+}
+
+.svc-status--idle {
+  background: var(--bg-hover, rgba(148, 163, 184, 0.1));
+  color: var(--text-muted);
+}
+
+.svc-field { margin-bottom: 22px; }
+.svc-field:last-child { margin-bottom: 0; }
+
+.svc-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+/* Değerin nereden geldiği. "env" bir hata değil bilgi: sunucunun .env
+   dosyasından okunuyor ve panelden doldurulduğu anda onun yerine geçiyor. */
+.svc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.svc-badge--panel {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--neon-green, #22c55e);
+}
+
+.svc-badge--env {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--neon-blue, #38bdf8);
+}
+
+.svc-badge--empty {
+  background: var(--bg-hover, rgba(148, 163, 184, 0.1));
+  color: var(--text-muted);
+}
+
+.svc-help {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 8px 0 0;
+}
+
+.svc-help strong { color: var(--text-secondary); }
+
+.svc-env {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+  opacity: 0.75;
+}
+
+.svc-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.svc-actions {
+  position: sticky;
+  bottom: 0;
+  margin-top: 24px;
+  padding: 16px 0;
+  background: linear-gradient(to top, var(--bg-body) 60%, transparent);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ==========================================================================
+   Bildirimler — "Nasıl kullanılır?" ipuçları
+   ==========================================================================
+   Dört ipucu düz bir liste yerine ikili ızgarada duruyor. Tam genişlik
+   çizgilerle ayrılmış dört satır, yanındaki özet kartından iki kat uzun bir
+   blok üretiyor ve sayfanın geri kalanının dilini konuşmuyordu; ikon yongası
+   bu ekranın kendi deseni (.nt-card-icon) ve burada küçültülmüş hâliyle
+   tekrar ediyor.
+
+   Dar ekranda tek sütuna düşüyor: iki sütun 480 pikselde okunmaz oluyor.
+   ========================================================================== */
+
+.nt-hints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.nt-hint {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: var(--radius-md, 10px);
+  background: var(--bg-hover, rgba(148, 163, 184, 0.06));
+  border: 1px solid var(--border-color);
+}
+
+.nt-hint__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  color: var(--c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.nt-hint > div {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.nt-hint strong {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 575.98px) {
+  .nt-hints { grid-template-columns: 1fr; }
+}
+
+/* ---------- Hata kayıtları: sütun genişlikleri ---------------------------
+   Hata mesajı ve dosya yolu iki uçlu: kimi bir kelime, kimi iki yüz karakter.
+   Karakter sayısıyla kırpmak yetmiyor — genişliği belirleyen karakter sayısı
+   değil, karakterin kendisi ("İşlem" ile "WWWWW" aynı sayıda harf, iki katı
+   genişlik). Sınır sütuna konuyor; taşan metin üç noktayla kesiliyor ve tamamı
+   `title` niteliğinde duruyor.
+
+   Sınır olmadan tablo 1500 piksellik ekranda bile yatayda taşıyor ve en çok
+   bakılan sütun —Tekrar— görüş alanının dışında kalıyordu. */
+.el-table .el-error-cell {
+  max-width: 340px;
+}
+
+.el-table .el-error-cell .al-label,
+.el-table .el-error-cell .cl-content-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.el-table .el-loc {
+  display: inline-block;
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* Dar ekranda tablo zaten kart düzenine geçiyor; orada sınır metni kırpıyor. */
+@media (max-width: 991.98px) {
+  .el-table .el-error-cell,
+  .el-table .el-error-cell .al-label,
+  .el-table .el-error-cell .cl-content-meta,
+  .el-table .el-loc {
+    max-width: none;
+    white-space: normal;
+  }
+}
+
+/* ---------- Hata kayıtları: tekrar sayacı -------------------------------
+   Listedeki tek yeni parça. Diğer her şey —istatistik kutuları, sekmeler,
+   araç çubuğu, tablo, özet kartları— panelin mevcut sınıflarıyla çiziliyor.
+
+   Sayaç bilerek öne çıkıyor: bir kez olan hata talihsizlik, bin kez olan
+   kusur ve listeye bakan kişinin ilk ayırt etmesi gereken şey bu. */
+.el-count {
+  display: inline-block;
+  min-width: 46px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* Tekrar etmiş hata: aynı kusur ısrar ediyor demek. */
+.el-count--many {
+  background: color-mix(in srgb, var(--neon-red, #ef4444) 12%, transparent);
+  border-color: color-mix(in srgb, var(--neon-red, #ef4444) 32%, transparent);
+  color: var(--neon-red, #ef4444);
+}

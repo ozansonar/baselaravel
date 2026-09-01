@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Support\TranslatableSettings;
 use App\Services\MailService;
+use App\Services\LanguageService;
 use App\Services\SettingService;
 use App\Services\SystemStatusService;
 use App\Services\UploadService;
@@ -24,20 +26,39 @@ final class SettingController extends Controller
         private readonly UploadService $uploadService,
         private readonly MailService $mailService,
         private readonly SystemStatusService $systemStatus,
+        private readonly LanguageService $languages,
     ) {}
 
     public function index(): View
     {
         $this->authorize('viewAny', Setting::class);
 
-        $allSettings = Setting::all()->keyBy('key');
+        // Yalnız "bütün diller" satırları: formun asıl alanları bunlar.
+        // Dile ait satırlar aynı anahtarı taşıyor, birlikte alınsalardı
+        // keyBy() hangisinin kalacağına sıralamaya bakarak karar verirdi.
+        $allSettings = Setting::query()->whereNull('locale')->get()->keyBy('key');
+
+        // Çeviriler: [anahtar][dil] => değer
+        $translations = Setting::query()
+            ->whereNotNull('locale')
+            ->get()
+            ->groupBy('key')
+            ->map(fn ($rows) => $rows->pluck('value', 'locale')->all())
+            ->all();
 
         // Sistem durumunun hesabı ekranda değil serviste: ekran yalnızca
         // sonucu çiziyor.
         $system = $this->systemStatus->snapshot();
 
         return view('admin.settings.index', [
-            'settings'   => $allSettings,
+            'settings'     => $allSettings,
+            'translations' => $translations,
+            // Çeviri alanı çizilecek diller: varsayılan dışındaki etkin
+            // diller. Varsayılanın kendi kutusu zaten asıl alan.
+            'otherLanguages' => $this->languages->active()
+                ->reject(fn ($language): bool => (bool) $language->is_default)
+                ->values(),
+            'translatableKeys' => TranslatableSettings::keys(),
             'systemInfo' => $system,
             'verdict'    => $this->systemStatus->verdict(
                 $system['limits'],
@@ -55,6 +76,9 @@ final class SettingController extends Controller
         $request->validate([
             'settings'   => ['nullable', 'array'],
             'settings.*' => ['nullable', 'string', 'max:10000'],
+            'settings_translations'     => ['nullable', 'array'],
+            'settings_translations.*'   => ['nullable', 'array'],
+            'settings_translations.*.*' => ['nullable', 'string', 'max:10000'],
             // Gönderim limitleri sayı olmak zorunda: metin girilirse tavan
             // sıfıra düşer ve kampanyalar sessizce durur.
             'settings.mail_hourly_limit' => ['nullable', 'integer', 'min:0', 'max:100000'],
@@ -104,10 +128,11 @@ final class SettingController extends Controller
 
             // Handle mail logo removal
             if (($settings['mail_logo_remove'] ?? '0') === '1') {
-                $logoValue = Setting::where('key', 'mail_logo')->value('value');
+                // Görseller çevrilmiyor: her zaman "bütün diller" satırında.
+                $logoValue = Setting::whereNull('locale')->where('key', 'mail_logo')->value('value');
                 if ($logoValue) {
                     $this->uploadService->deleteImage($logoValue);
-                    Setting::where('key', 'mail_logo')->update(['value' => null]);
+                    Setting::whereNull('locale')->where('key', 'mail_logo')->update(['value' => null]);
                 }
             }
             unset($settings['mail_logo_remove']);
@@ -115,12 +140,12 @@ final class SettingController extends Controller
             foreach ($settings as $key => $value) {
                 if (in_array($key, $mailKeys, true)) {
                     Setting::updateOrCreate(
-                        ['key' => $key],
+                        ['key' => $key, 'locale' => null],
                         ['value' => $value, 'group' => 'mail', 'type' => $key === 'mail_password' ? 'password' : 'text'],
                     );
                 } elseif (in_array($key, $recaptchaKeys, true)) {
                     Setting::updateOrCreate(
-                        ['key' => $key],
+                        ['key' => $key, 'locale' => null],
                         ['value' => $value, 'group' => 'recaptcha', 'type' => $key === 'recaptcha_secret_key' ? 'password' : 'text'],
                     );
                 } elseif (in_array($key, $telegramKeys, true)) {
@@ -130,30 +155,77 @@ final class SettingController extends Controller
                         default              => 'text',
                     };
                     Setting::updateOrCreate(
-                        ['key' => $key],
+                        ['key' => $key, 'locale' => null],
                         ['value' => $value, 'group' => 'telegram', 'type' => $telegramType],
                     );
                 } elseif (in_array($key, $maintenanceKeys, true)) {
                     Setting::updateOrCreate(
-                        ['key' => $key],
+                        ['key' => $key, 'locale' => null],
                         ['value' => $value, 'group' => 'maintenance', 'type' => 'text'],
                     );
                 } elseif (in_array($key, $regionalKeys, true)) {
                     Setting::updateOrCreate(
-                        ['key' => $key],
+                        ['key' => $key, 'locale' => null],
                         ['value' => $value, 'group' => 'regional', 'type' => 'text'],
                     );
                 } else {
                     Setting::updateOrCreate(
-                        ['key' => $key],
+                        ['key' => $key, 'locale' => null],
                         ['value' => $value, 'group' => 'general', 'type' => 'text'],
+                    );
+                }
+            }
+
+            // Çeviriler ayrı bir alandan geliyor: settings_translations[dil][anahtar]
+            //
+            // Boş bırakılan çeviri satırı **siliniyor**, boş dizgeyle
+            // kaydedilmiyor: "çevirmedim" ile "boş bıraktım" aynı şey değil ve
+            // ikincisi ziyaretçiye boş bir alt bilgi gösterirdi.
+            $translatable = TranslatableSettings::keys();
+            $activeCodes = $this->languages->active()->pluck('code')->all();
+
+            foreach ((array) $request->input('settings_translations', []) as $locale => $values) {
+                if (! in_array($locale, $activeCodes, true)) {
+                    continue;
+                }
+
+                foreach ((array) $values as $key => $value) {
+                    if (! in_array($key, $translatable, true)) {
+                        continue;
+                    }
+
+                    $value = is_string($value) ? trim($value) : null;
+
+                    if ($value === null || $value === '') {
+                        // forceDelete: yumuşak silinen satır (key, locale)
+                        // benzersizlik yerini tutmaya devam ediyor. Yönetici
+                        // çeviriyi silip geri eklemek istediğinde
+                        // updateOrCreate silinmiş satırı göremez, INSERT dener
+                        // ve benzersizlik ihlaline çarpardı. Silinmiş bir
+                        // çevirinin saklanacak bir tarafı da yok: asıl değer
+                        // duruyor.
+                        Setting::query()->where('key', $key)->where('locale', $locale)->forceDelete();
+
+                        continue;
+                    }
+
+                    Setting::updateOrCreate(
+                        ['key' => $key, 'locale' => $locale],
+                        [
+                            // Grup ve tip asıl satırdan kopyalanıyor: çeviri
+                            // yalnız değeri eziyor, ayarın kimliğini değil.
+                            'value' => $value,
+                            'group' => Setting::query()->whereNull('locale')->where('key', $key)->value('group') ?? 'general',
+                            'type'  => 'text',
+                        ],
                     );
                 }
             }
 
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $key => $file) {
-                    $setting = Setting::where('key', $key)->first();
+                    // Görseller çevrilmiyor: her zaman "bütün diller" satırı.
+                    $setting = Setting::whereNull('locale')->where('key', $key)->first();
                     $isMailFile = str_starts_with($key, 'mail_');
 
                     [$maxWidth, $maxHeight, $sizes, $preserveFormat] = match ($key) {
@@ -182,8 +254,9 @@ final class SettingController extends Controller
                         $setting->update(['value' => $path]);
                     } else {
                         Setting::create([
-                            'key'   => $key,
-                            'value' => $path,
+                            'key'    => $key,
+                            'locale' => null,
+                            'value'  => $path,
                             'group' => $isMailFile ? 'mail' : 'general',
                             'type'  => 'image',
                         ]);

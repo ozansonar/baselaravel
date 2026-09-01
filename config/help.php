@@ -215,6 +215,17 @@ return [
             'icon'  => 'bi-sliders',
         ],
         [
+            'route' => 'admin.service-credentials.index',
+            'title' => 'API ve Servisler',
+            'description' => 'Google ile giriş, Apple ile giriş, Firebase bildirimleri ve reCAPTCHA anahtarları. '
+                . 'Her alanın altında anahtarın hangi konsoldan alınacağı yazıyor. Girilen değer kaydedildiği '
+                . 'anda geçerli olur — sunucudaki .env dosyasına dokunmak gerekmez; panelde boş bırakılan alan '
+                . 'için .env geçerli kalır. Gizli anahtarlar şifreli saklanır ve bir daha ekrana basılmaz.',
+            'badge' => 'İleri',
+            'cover' => 'purple',
+            'icon'  => 'bi-key-fill',
+        ],
+        [
             'route' => 'admin.languages.index',
             'title' => 'Diller',
             'description' => 'Sitenin yayınlandığı diller. Varsayılan dil silinemez; bir dil kapatıldığında o dildeki içerikler ziyaretçiye görünmez ama silinmez.',
@@ -277,6 +288,14 @@ return [
             'badge' => 'İleri',
             'cover' => 'teal',
             'icon'  => 'bi-file-earmark-bar-graph',
+        ],
+        [
+            'route' => 'admin.error-logs.index',
+            'title' => 'Hata Kayıtları',
+            'description' => 'Sunucuda oluşan hatalar tek listede: ne olduğu, hangi dosyada patladığı, kaç kez tekrar ettiği ve yığın izi. Düzelttiğiniz hatayı çözüldü işaretleyebilirsiniz; aynı hata yeniden oluşursa işaret kendiliğinden kalkar.',
+            'badge' => 'İleri',
+            'cover' => 'orange',
+            'icon'  => 'bi-bug-fill',
         ],
         [
             'route' => 'admin.audit-logs.index',
@@ -361,6 +380,21 @@ return [
             'question' => 'Yöneticiler için iki adımlı doğrulamayı nasıl zorunlu kılarım?',
             'answer'   => 'Ayarlar → Genel Tercihler bölümündeki anahtarı açın. Açıldığı andan itibaren panele erişebilen her hesap, iki adımlı doğrulamayı kurmadan panele giremez.',
             'route'    => 'admin.settings.index',
+        ],
+        [
+            'category' => 'system',
+            'question' => 'Google ya da Apple ile giriş anahtarını nereden alırım?',
+            'answer'   => 'API ve Servisler ekranındaki her alanın altında adım adım yazıyor: hangi konsolun '
+                . 'hangi bölümünden, hangi düğmeyle. Alanın yanındaki bağlantı sizi doğrudan o konsola götürür. '
+                . 'Anahtarı yapıştırıp kaydettiğinizde hemen geçerli olur.',
+            'route'    => 'admin.service-credentials.index',
+        ],
+        [
+            'category' => 'system',
+            'question' => 'Bir alanda ".env" rozeti görüyorum, sorun mu?',
+            'answer'   => 'Hayır. Değerin sunucunun .env dosyasından okunduğunu söylüyor. Aynı alanı panelden '
+                . 'doldurursanız artık paneldeki geçerli olur; boşaltırsanız yeniden .env devreye girer.',
+            'route'    => 'admin.service-credentials.index',
         ],
         [
             'category' => 'system',
