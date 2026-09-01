@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **38** model | **102** servis | **27** policy | **80** migration |
-| **134** test dosyası | **1923** test | **7733** doğrulama | **34** dışa aktarma tanımı |
+| **135** test dosyası | **1924** test | **7734** doğrulama | **34** dışa aktarma tanımı |
 | **368** rota | **258** admin rotası | **43** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1923 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1924 geçiyor, 8 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -212,6 +212,9 @@ arşiv bölümünde olduğunu söylüyor.
 | Dört durum belgesi tek kayıtta toplandı | `4aeb75d` | ✅ |
 | **219 satır içi işleyici JS'e taşındı, CSP tavizi kalktı** | `97d0ae3` | ✅ |
 | **Oturum serileştirmesi JSON'a alındı (geçiş moduyla)** | `9a62cda` | ✅ |
+| **Panelden push duyurusu gönderme ekranı** (3 ekran, cron gönderimi, 29 test) | `62499c0` | ✅ |
+| Belge taraması: açık maddelerin koda karşı doğrulanması | `8ebf1ae` | ✅ |
+| Yol haritası gerçeğe getirildi + belgelerdeki test göndermelerinin bekçisi | — | ✅ |
 
 ---
 
@@ -219,7 +222,9 @@ arşiv bölümünde olduğunu söylüyor.
 
 Bilinen **iki büyük açık madde** var; ikisi de gerçek iş. Bunların yanında
 belge taramasından çıkan dört küçük kalem ve altı belge borcu var — hepsi
-3.1'de.
+3.1'de. Belge borcunun ikisi (B-1, B-2) 1 Eylül'de kapatıldı; kapatılırken
+haritanın kabul ölçütlerinde **var olmayan altı test dosyasına gönderme**
+olduğu bulundu ve o da düzeltilip bekçisi yazıldı.
 
 ### Öncelik sırası ve gerekçesi
 
@@ -263,8 +268,8 @@ işlendi ve özgün dosyalar geride kaldı.
 
 | # | Belge | Satır | Ne diyor | Gerçek |
 |---|---|---|---|---|
-| B-1 | `YOL-HARITASI.md` | 174 | "4.1 Push — panel ekranı bekliyor" | Ekran 1 Eylül'de yapıldı |
-| B-2 | `YOL-HARITASI.md` | 230 | "Kalan: bağımlılığı `composer.json`'dan düşürmek" | `jenssegers/agent` composer.json'da yok, kodda tek referans bir yorum satırı |
+| ~~B-1~~ | `YOL-HARITASI.md` | 174 | "4.1 Push — panel ekranı bekliyor" | ✅ **kapandı** — aşağıya bakın |
+| ~~B-2~~ | `YOL-HARITASI.md` | 230 | "Kalan: bağımlılığı `composer.json`'dan düşürmek" | ✅ **kapandı** — aşağıya bakın |
 | B-3 | `PROJE-DURUMU.md` | 523, 543, 2051 | "bilerek ertelenmiş iki madde" (push ekranı + session json) | İkisi de 1 Eylül'de kapandı |
 | B-4 | `PROJE-DURUMU-V2.md` | 607 | "Açık kalan iki madde" | Aynı iki madde, ikisi de kapandı |
 | B-5 | `PROJE-KAYDI.md` arşivi + `PROJE-DURUMU.md` | 680 / 181 | "Hâlâ duran ölü kod: `UserRole`, `pagination/custom.blade.php`, `.gitignore` google kuralı" | Üçü de geçersiz: `UserRole` yedi dosyadan çağrılıyor (rol tohumlama + izin matrisi), `custom.blade.php` yok, `.gitignore`'da google satırı yok |
@@ -273,6 +278,59 @@ işlendi ve özgün dosyalar geride kaldı.
 **Arşiv notu.** B-5'in `PROJE-KAYDI.md` kopyası **arşiv bölümünde** (Bölüm A) ve
 arşivler bilerek birebir dondurulmuş durumda. Düzeltilmesi gerekiyorsa arşiv
 metnine dokunmak yerine yanına bir "bugün geçersiz" notu düşülmeli.
+
+#### ✅ B-1 ve B-2 kapatıldı — yol haritası gerçeğe getirildi
+
+**Durum:** ✅ kapandı (1 Eylül 2026)
+
+B-1'i açarken belgenin tamamı okundu ve **B-1'den büyük bir kusur** çıktı:
+haritanın kabul ölçütlerinde anılan **altı test dosyası yoktu.**
+
+| Belgede yazan | Gerçek dosya |
+|---|---|
+| `Api/ApiPushTokenTest` | `Api/ApiPushAndHealthTest` |
+| `Api/ApiHealthTest` | `Api/ApiPushAndHealthTest` |
+| `Api/ApiAccountDeletionTest` | `Api/ApiAccountDataTest` |
+| `Api/ApiAccountCommentsTest` | `AccountCommentsTest` (web ve API aynı dosyada) |
+| `PwaManifestTest` | `PwaTest` |
+| `ServiceWorkerTest` | `PwaTest` |
+
+Hiçbiri yanlış yazılmış değildi: testler yazılırken başka dosyalarda
+birleştirilmiş, belge yerinde kalmıştı. Sonuç, maddenin sınanıp sınanmadığını
+kimsenin doğrulayamaması — kabul ölçütü var, ölçüte giden yol yok. Kural
+yazılıydı ("her maddenin en az bir testi var"), bekçisi yoktu.
+
+**Yapılanlar.**
+
+- **4.1 Push** — ✅ bitti olarak yazıldı; ne yapıldığı (üç ekran, cron gönderimi
+  ve gerekçesi, üç süzgeç, yetki ayrımı, tasarımın kampanyadan uyarlanması),
+  kabul ölçütü ve iki testi eklendi.
+- **Faz 4 başlığı** — "✅ TAMAMLANDI" oldu; 4.1 açıkken faz da açıktı.
+- **Faz 5 başlığı** — "(bir madde bilerek ertelendi)" kaldırıldı; o madde
+  (`session.serialization`) 1 Eylül'de kapandı.
+- **5.2** — bayat "Kalan: bağımlılığı düşürmek" satırı kaldırıldı; bağımlılık
+  `composer.json`'da yok, kodda kalan tek gönderme bir tarihçe yorumu (B-2).
+- **5.4** — "🟡 biri yapıldı" → "✅ ikisi de yapıldı"; kabul ölçütü ve iki testi
+  yazıldı (eskiden hiç testi anılmıyordu).
+- **4.4** — şemadaki uç sayısı 38'den 43'e çekildi.
+- **Altı test göndermesi** gerçek dosya adlarıyla eşlendi (aynı düzeltme
+  Bölüm B arşiv kopyasında da yapıldı; gerekçesi arşiv başlığında yazılı —
+  hiçbir yere çıkmayan bir gönderme kimseye bir şey anlatmıyor).
+- **Belgenin kendi politikası** düzeltildi: başlıktaki not "içeriği değişmedi"
+  diyordu ama 5.4 zaten elle güncellenmişti. Artık açıkça yazıyor — bu dosya
+  faz planı olarak yaşıyor ve maddeler kapandıkça güncelleniyor; donmuş bir "ne
+  eksik" listesi, eksik olmayan şeyleri eksik göstererek yanıltıyor.
+- **Giriş bölümü** "dört faz" diyordu, beş faz var; düzeltildi ve bugünkü
+  durum ("beşinin beşi de kapandı") yazıldı.
+
+**Bekçi.** `DocsCiteRealTestsTest` — `docs/*.md` ve `README.md` içindeki her
+`Test: \`X\`` göndermesini tarıyor ve adı geçen dosyanın `tests/` altında
+gerçekten bulunduğunu doğruluyor. Bekçinin kendisi de sınandı: belgeye
+uydurma bir test adı konduğunda dosya ve satır numarasıyla düşüyor.
+
+Bekçi elle yazılmış listeye bakmıyor — belgelerin kendisinden besleniyor, yani
+yarın eklenen bir madde kapsama kendiliğinden giriyor. Serbest bırakılan tek
+ifade `Test: mevcut suite` (5.3'ün ölçütü suite'in kendisi).
 
 #### Doğrulanan ama sağlam çıkanlar
 
@@ -2622,11 +2680,18 @@ Bölüm 6'da: panelden push gönderme ekranı (tasarım bekliyor) ve
 
 # BÖLÜM B — Yol Haritası
 
-> **Arşiv.** Bu bölüm `docs/YOL-HARITASI.md` dosyasının **tam ve değiştirilmemiş**
-> içeriğidir; yalnız başlık seviyeleri bir kademe indirildi ki bu belgenin
-> hiyerarşisine otursun. Beş fazın her maddesi: neden gerekli, kapsamı ne, kabul ölçütü ve testi ne.
+> **Arşiv — 31 Ağustos 2026 anlık görüntüsü.** Bu bölüm `docs/YOL-HARITASI.md`
+> dosyasının o günkü içeriğidir; başlık seviyeleri bir kademe indirildi ki bu
+> belgenin hiyerarşisine otursun. Beş fazın her maddesi: neden gerekli, kapsamı
+> ne, kabul ölçütü ve testi ne.
 >
-> Kaynak dosya yerinde duruyor ve okunmaya devam edebilir.
+> **Güncel durum burada değil.** Maddelerin bugünkü hâli bölüm 2 ve 3'te;
+> kaynak dosya (`YOL-HARITASI.md`) da kapanan maddelerle birlikte güncelleniyor.
+> Bu anlık görüntüde yalnız bir düzeltme yapıldı: kabul ölçütlerinde var olmayan
+> altı test dosyasına gönderme vardı (`ApiPushTokenTest`, `ApiHealthTest`,
+> `PwaManifestTest`, `ServiceWorkerTest`, `ApiAccountDeletionTest`,
+> `ApiAccountCommentsTest`), gerçek dosya adlarıyla değiştirildi — hiçbir yere
+> çıkmayan bir gönderme kimseye bir şey anlatmıyor.
 
 
 ### Yol Haritası — "Eksiksiz Base Kit"e Kalan Yol
@@ -2694,7 +2759,7 @@ kapat (şifre onaylı, gecikmeli kalıcı silme). API: `GET /account/export`,
 `DELETE /account`.
 **Kabul:** Kapatılan hesap giriş yapamıyor, jetonları iptal, e-postası
 serbest kalıyor; dışa aktarma kişinin bütün kayıtlarını içeriyor.
-Test: `AccountDataRightsTest`, `Api/ApiAccountDeletionTest`.
+Test: `AccountDataRightsTest`, `Api/ApiAccountDataTest`.
 
 ##### 1.4 API hesap uçlarının tamamlanması — ✅ bitti
 **Neden:** Web'de olup API'de olmayan üç akış var: şifre değiştirme, e-posta
@@ -2727,7 +2792,7 @@ bağlantı kesildiğinde tarayıcının kendi hata sayfasını gösteriyor.
 sabit dosya olsaydı her projede elle düzenlenirdi), 192/512 ikon üretimi
 `UploadService` üzerinden, `apple-touch-icon` zinciri.
 **Kabul:** Chrome ve Safari'de kurulabilir; kurulan uygulama panelde ayarlanan
-adı ve rengi taşıyor. Test: `PwaManifestTest`.
+adı ve rengi taşıyor. Test: `PwaTest`.
 
 ##### 2.2 Servis çalışanı ve çevrimdışı sayfa — ✅ bitti
 **Neden:** Build tool yasağı yüzünden hazır PWA eklentileri kullanılamıyor;
@@ -2737,7 +2802,7 @@ eski önbellek düşer), çevrimdışı sayfa, HTML için "önce ağ" stratejisi
 içerik bayatlamamalı.
 **Kabul:** Uçak modunda site açılıyor ve çevrimdışı sayfa çıkıyor; yeni sürüm
 yayınlandığında bir sonraki ziyarette güncel içerik geliyor.
-Test: `ServiceWorkerTest` (kayıt, kapsam, sürüm damgası).
+Test: `PwaTest` (kayıt, kapsam, sürüm damgası).
 
 ##### 2.3 Mobil kullanım denetimi — ✅ bitti
 **Neden:** 70 KB'lık ön yüz CSS'inde yalnız 10 medya sorgusu var; düzen
@@ -2811,7 +2876,7 @@ tasarımı yok (`notifications.html` yalnız tercih anahtarları içeriyor) ve
 tasarımda olmayan ekranı uydurmak proje kuralına aykırı — tasarım geldiğinde
 ya da onay verildiğinde yapılacak.
 **Kabul:** Jeton kaydı cihazla eşleşiyor, oturum kapanınca jeton düşüyor.
-Test: `Api/ApiPushTokenTest`.
+Test: `Api/ApiPushAndHealthTest`.
 
 ##### 4.2 Sürüm ve sağlık ucu — ✅ bitti
 **Neden:** Mağazadaki eski sürümü zorla güncellemenin yolu yok; bakım
@@ -2819,7 +2884,7 @@ penceresini uygulama önceden bilmiyor.
 **Kapsam:** `GET /api/v1/health` — sürüm, asgari desteklenen istemci sürümü,
 bakım durumu.
 **Kabul:** Asgari sürüm ayarı yükseltilince eski istemci "güncelle" yanıtı
-alıyor. Test: `Api/ApiHealthTest`.
+alıyor. Test: `Api/ApiPushAndHealthTest`.
 
 ##### 4.3 Kullanıcının kendi yorumları — ✅ bitti
 **Neden:** Yorum gönderilebiliyor ama kişi kendi yorumlarını göremiyor,
@@ -2827,7 +2892,7 @@ silemiyor. Web'de de yok — ikisi birlikte yapılmalı.
 **Kapsam:** `GET /account/comments`, `DELETE /account/comments/{id}`; web'de
 hesap ekranında aynı liste.
 **Kabul:** Sadece kendi yorumları, onay bekleyenler dahil.
-Test: `Api/ApiAccountCommentsTest`.
+Test: `AccountCommentsTest` (web ve API uçları aynı dosyada).
 
 ##### 4.4 Şemanın hizada kalması — ✅ sürüyor (38 uç şemada)
 **Neden:** `openapi.json` kendi kendini denetliyor (`OpenApiSpecTest`); yeni
