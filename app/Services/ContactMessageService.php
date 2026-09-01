@@ -84,6 +84,11 @@ final class ContactMessageService
     {
         $data['ip_address'] = request()->ip();
 
+        // Ziyaretçinin dili yalnız burada biliniyor: yanıt panelden yazılıyor
+        // ve panel Türkçeye sabit, o yüzden yanıt mailinin dilini bu satır
+        // taşıyor.
+        $data['locale'] ??= app()->getLocale();
+
         $message = ContactMessage::create($data);
 
         $this->clearCache();

@@ -46,7 +46,7 @@ final class EmailChangedMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Hesabınızın e-posta adresi değiştirildi - ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.email_changed.subject', ['site' => Setting::getValue('site_name', config('app.name'))]),
         );
     }
 

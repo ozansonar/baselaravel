@@ -1,26 +1,21 @@
 @extends('emails.layout')
 
 @section('content')
-    <p class="em-greeting">Merhaba</p>
-    <h1 class="em-heading">E-posta Adresinizi Doğrulayın</h1>
+    <p class="em-greeting">{{ __('mail.common.greeting') }}</p>
+    <h1 class="em-heading">{{ __('mail.verify.heading') }}</h1>
 
-    <p class="em-text">
-        {{ $user->full_name }}, hesabınızı kullanmaya başlamak için aşağıdaki
-        butona tıklayarak e-posta adresinizi doğrulayın.
-    </p>
+    <p class="em-text">{{ __('mail.verify.lead', ['name' => $user->full_name]) }}</p>
 
     <div class="em-btn-wrap">
-        <a href="{{ $verificationUrl }}" class="em-btn">E-postamı Doğrula</a>
+        <a href="{{ $verificationUrl }}" class="em-btn">{{ __('mail.verify.button') }}</a>
     </div>
 
     <hr class="em-divider">
 
     <p class="em-text-sm">
-        Buton çalışmıyorsa bu adresi tarayıcınıza yapıştırabilirsiniz:<br>
+        {{ __('mail.verify.fallback') }}<br>
         <span style="word-break: break-all;">{{ $verificationUrl }}</span>
     </p>
 
-    <p class="em-text-sm">
-        Bu hesabı siz oluşturmadıysanız bu e-postayı yok sayabilirsiniz.
-    </p>
+    <p class="em-text-sm">{{ __('mail.verify.ignore') }}</p>
 @endsection

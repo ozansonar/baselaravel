@@ -127,6 +127,17 @@ final class CampaignMail extends BaseMail
         return new Headers(text: $text);
     }
 
+    /**
+     * Alıcının kayıtlı dili, yoksa kampanyanın hedeflediği dil.
+     *
+     * Kampanya panelden gönderiliyor ve panel Türkçeye sabit; isteğin dili
+     * burada her aboneye aynı yanlış cevabı verirdi.
+     */
+    protected function resolveLocale(): string
+    {
+        return $this->recipient->locale ?? $this->campaign->locale ?? $this->defaultLocale();
+    }
+
     protected function emailView(): string
     {
         return 'emails.campaign';

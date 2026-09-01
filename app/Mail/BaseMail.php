@@ -6,8 +6,10 @@ namespace App\Mail;
 
 use App\Models\MailTemplate;
 use App\Models\Setting;
+use App\Services\LanguageService;
 use App\Services\UploadService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\Factory as Queue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Headers;
@@ -107,7 +109,7 @@ abstract class BaseMail extends Mailable
             $this->themeCardBg = $getValue('mail_theme_card_bg_color', '#ffffff');
             $this->themeText = $getValue('mail_theme_text_color', '#334155');
             $this->themeMuted = $getValue('mail_theme_muted_color', '#64748b');
-            $this->themeFooterText = $getValue('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.');
+            $this->themeFooterText = $getValue('mail_theme_footer_text', __('mail.footer_text'));
             $this->themeSocialLinks = $getValue('mail_theme_social_links', '1') === '1';
         } catch (\Throwable) {
             $this->themePrimary = '#4f46e5';
@@ -116,7 +118,7 @@ abstract class BaseMail extends Mailable
             $this->themeCardBg = '#ffffff';
             $this->themeText = '#334155';
             $this->themeMuted = '#64748b';
-            $this->themeFooterText = 'Sizinle çalışmaktan mutluluk duyuyoruz.';
+            $this->themeFooterText = __('mail.footer_text');
             $this->themeSocialLinks = true;
         }
     }
@@ -160,7 +162,65 @@ abstract class BaseMail extends Mailable
 
         $variables = $this->templateVariables();
 
-        return MailTemplate::render($key, $variables);
+        return MailTemplate::render($key, $variables, $this->resolveLocale());
+    }
+
+    /**
+     * Alıcının dili.
+     *
+     * Varsayılan olarak maili doğuran isteğin dili: kayıt, doğrulama, şifre
+     * sıfırlama ve yorum maillerini tetikleyen kişi zaten o dilde geziniyor.
+     * Alıcının dilini daha iyi bilen bir kaynak varsa (yorumun bağlı olduğu
+     * yazının dili, abonenin kayıtlı dili) alt sınıf bunu geçersiz kılıyor —
+     * panelden tetiklenen mailler için önemli: panel Türkçeye sabit, ama
+     * alıcı İngilizce yorum yapmış olabilir.
+     */
+    protected function resolveLocale(): string
+    {
+        return $this->locale ?? app()->getLocale();
+    }
+
+    /**
+     * Sitenin varsayılan dili.
+     *
+     * Yöneticiye giden mailler bunu kullanıyor: alıcı panelin kullanıcısı,
+     * paneli de tek dilde yazılmış. İsteğin dilini almak, bir ziyaretçinin
+     * İngilizce sayfadan yaptığı işlemin bildirimini yöneticiye İngilizce
+     * göndermek olurdu.
+     */
+    protected function defaultLocale(): string
+    {
+        return app(LanguageService::class)->defaultCode();
+    }
+
+    /**
+     * Dil, gönderim anında değil kuruluş anında biliniyor.
+     *
+     * Kuyruğa alınan bir mail işçide çiziliyor ve orada istek dili yok;
+     * Laravel de $this->locale boşsa config('app.locale')'e düşüyor, yani
+     * İngilizce bir ziyaretçinin karşılama maili Türkçe gidiyordu. queue() ve
+     * send() istek içinde çağrıldığı için dil burada mühürleniyor ve
+     * serileştirmeyle birlikte işçiye taşınıyor.
+     */
+    public function queue(Queue $queue)
+    {
+        $this->locale ??= $this->resolveLocale();
+
+        return parent::queue($queue);
+    }
+
+    public function later($delay, Queue $queue)
+    {
+        $this->locale ??= $this->resolveLocale();
+
+        return parent::later($delay, $queue);
+    }
+
+    public function send($mailer)
+    {
+        $this->locale ??= $this->resolveLocale();
+
+        return parent::send($mailer);
     }
 
     /**

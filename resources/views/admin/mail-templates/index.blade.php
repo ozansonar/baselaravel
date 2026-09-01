@@ -9,7 +9,9 @@
     @php
         // Süzgeçlerden herhangi biri açıksa hem başlıktaki sıfırlama düğmesi
         // hem de boş liste metni bunu bilmeli.
-        $hasFilter = collect($filters)->filter(fn ($value) => (string) $value !== '')->isNotEmpty();
+        // Dil süzgeci her zaman dolu — ekran bir dile bakmak zorunda — bu
+        // yüzden "süzgeç açık" sayılmıyor; yoksa sıfırlama düğmesi hep yanardı.
+        $hasFilter = collect($filters)->except('locale')->filter(fn ($value) => (string) $value !== '')->isNotEmpty();
 
         $originLabels = [
             'customized' => 'Özelleştirildi',
@@ -63,7 +65,7 @@
             <p class="page-subtitle">Sistemden gönderilen e-postaların konu ve içeriklerini düzenleyin</p>
         </div>
         @if($hasFilter)
-            <a href="{{ route('admin.mail-templates.index') }}" class="btn-glass">
+            <a href="{{ route('admin.mail-templates.index', ['locale' => $filters['locale']]) }}" class="btn-glass">
                 <i class="bi bi-arrow-counterclockwise"></i> Filtreleri Sıfırla
             </a>
         @endif
@@ -171,6 +173,20 @@
                 {{-- Alanların hepsi başlıklı: seçim kutuları aynı hizada başlar,
                      aynı hizada biter. --}}
                 <div class="cl-filters mt-filters">
+                    {{-- Şablonun her dilde ayrı bir satırı var; ekran her zaman
+                         bir dile bakıyor, açılışta sitenin kendi diline. --}}
+                    <div class="mt-field">
+                        <span>Dil</span>
+                        <select class="cl-filter-select" name="locale" aria-label="Şablon dili"
+                                data-submit-form="filterForm" data-fv-ignore>
+                            @foreach($languages as $language)
+                                <option value="{{ $language->code }}" {{ $filters['locale'] === $language->code ? 'selected' : '' }}>
+                                    {{ $language->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="mt-field">
                         <span>Değişken</span>
                         <select class="cl-filter-select" name="variable" aria-label="Değişken"
@@ -207,7 +223,7 @@
                     <div class="mt-field mt-field--actions ms-auto">
                         <div class="cl-toolbar-actions">
                             <button type="submit" class="usr-action-btn" title="Süz"><i class="bi bi-funnel"></i></button>
-                            <a href="{{ route('admin.mail-templates.index') }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
+                            <a href="{{ route('admin.mail-templates.index', ['locale' => $filters['locale']]) }}" class="cl-filter-reset" title="Filtreleri Sıfırla">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>
                             <span class="mt-result-count">{{ $templates->count() }} şablon</span>
@@ -232,7 +248,7 @@
                 <h6 class="text-muted mb-1">Sonuç bulunamadı</h6>
                 @if($hasFilter)
                     <p class="text-muted mb-3">Bu filtreyle eşleşen şablon yok.</p>
-                    <a href="{{ route('admin.mail-templates.index') }}" class="btn-glass">
+                    <a href="{{ route('admin.mail-templates.index', ['locale' => $filters['locale']]) }}" class="btn-glass">
                         <i class="bi bi-arrow-counterclockwise me-1"></i> Filtreleri Temizle
                     </a>
                 @else

@@ -147,6 +147,11 @@ final class LanguageService
 
             $this->clearCache();
 
+            // Mail şablonları dil başına bir satır tutuyor. Yeni dilin satırı
+            // açılmazsa panelde çevrilecek bir şey görünmüyor ve o dildeki
+            // mailler sessizce varsayılan dilde gidiyor.
+            app(MailTemplateService::class)->syncLocale($language->code);
+
             return $language;
         });
     }

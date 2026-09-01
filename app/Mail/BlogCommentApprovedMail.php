@@ -23,8 +23,17 @@ final class BlogCommentApprovedMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Yorumunuz Yayınlandı — ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.comment_approved.subject', ['site' => Setting::getValue('site_name', config('app.name'))]),
         );
+    }
+
+    /**
+     * Yorumu yazan kişi hangi dildeki yazının altına yazdıysa o dilde
+     * okuyor; yazının dili elimizdeki en iyi kaynak.
+     */
+    protected function resolveLocale(): string
+    {
+        return $this->comment->post?->locale ?? $this->defaultLocale();
     }
 
     protected function emailView(): string

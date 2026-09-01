@@ -18,6 +18,7 @@ class ContactMessage extends Model
         'phone',
         'subject',
         'message',
+        'locale',
         'is_read',
         'read_at',
         'replied_at',

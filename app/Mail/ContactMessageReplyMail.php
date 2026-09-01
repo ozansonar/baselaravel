@@ -18,9 +18,18 @@ final class ContactMessageReplyMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Re: {$this->contactMessage->subject}",
+            subject: __('mail.contact_reply.subject', ['subject' => $this->contactMessage->subject]),
             replyTo: [config('mail.from.address')],
         );
+    }
+
+    /**
+     * Ziyaretçinin formu doldururken bulunduğu dil. Yanıt panelden yazılıyor
+     * ve panel Türkçeye sabit, o yüzden isteğin dili burada yanlış cevap.
+     */
+    protected function resolveLocale(): string
+    {
+        return $this->contactMessage->locale ?? $this->defaultLocale();
     }
 
     protected function emailView(): string

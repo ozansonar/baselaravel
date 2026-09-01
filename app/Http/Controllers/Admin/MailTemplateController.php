@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\MailTemplateUpdateRequest;
 use App\Models\MailTemplate;
+use App\Services\LanguageService;
 use App\Services\MailTemplateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +18,7 @@ final class MailTemplateController extends Controller
 {
     public function __construct(
         private readonly MailTemplateService $mailTemplateService,
+        private readonly LanguageService $languages,
     ) {}
 
     /**
@@ -36,7 +38,16 @@ final class MailTemplateController extends Controller
         $sort = $request->string('sort')->value();
         $sort = array_key_exists($sort, self::SORT_OPTIONS) ? $sort : '';
 
+        // Her şablonun her dilde bir satırı var. Süzgeç boş bırakılırsa aynı
+        // ad beş kez listelenir; tanınmayan bir kod da boş liste demek. Bu
+        // yüzden ekran her zaman bir dile bakıyor, varsayılan olarak sitenin
+        // kendi diline.
+        $languages = $this->languages->all();
+        $locale = $request->string('locale')->value();
+        $locale = $languages->contains('code', $locale) ? $locale : $this->languages->defaultCode();
+
         $filters = [
+            'locale'   => $locale,
             'status'   => $request->string('status')->value(),
             'search'   => $request->string('search')->trim()->value(),
             'variable' => $request->string('variable')->value(),
@@ -62,14 +73,15 @@ final class MailTemplateController extends Controller
                     'customized'  => $this->mailTemplateService->isCustomized($template),
                 ],
             ])->all(),
-            'stats'           => $this->mailTemplateService->stats(),
+            'stats'           => $this->mailTemplateService->stats($locale),
             'statusCounts'    => [
                 'all'      => $scopedTemplates->count(),
                 'active'   => $scopedTemplates->where('is_active', true)->count(),
                 'inactive' => $scopedTemplates->where('is_active', false)->count(),
             ],
-            'variableOptions' => $this->mailTemplateService->variableOptions(),
+            'variableOptions' => $this->mailTemplateService->variableOptions($locale),
             'sortOptions'     => self::SORT_OPTIONS,
+            'languages'       => $languages,
             'filters'         => $filters,
         ]);
     }
@@ -80,6 +92,10 @@ final class MailTemplateController extends Controller
 
         return view('admin.mail-templates.edit', [
             'template' => $mailTemplate,
+            // Aynı şablonun öteki dillerdeki satırları: yönetici bir metni
+            // çevirirken sekmeyle karşılığına geçebilsin.
+            'siblings' => $this->mailTemplateService->siblings($mailTemplate),
+            'language' => $this->languages->all()->firstWhere('code', $mailTemplate->locale),
         ]);
     }
 
@@ -136,7 +152,7 @@ final class MailTemplateController extends Controller
             'themeCardBg'      => \App\Models\Setting::getValue('mail_theme_card_bg_color', '#ffffff'),
             'themeText'        => \App\Models\Setting::getValue('mail_theme_text_color', '#334155'),
             'themeMuted'       => \App\Models\Setting::getValue('mail_theme_muted_color', '#64748b'),
-            'themeFooterText'  => \App\Models\Setting::getValue('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.'),
+            'themeFooterText'  => \App\Models\Setting::getValue('mail_theme_footer_text', __('mail.footer_text')),
             'themeSocialLinks' => false,
             'mailLogoUrl'      => null,
         ])->render();

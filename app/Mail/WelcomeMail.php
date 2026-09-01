@@ -17,7 +17,7 @@ final class WelcomeMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Hoş Geldiniz - ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.welcome.subject', ['site' => Setting::getValue('site_name', config('app.name'))]),
         );
     }
 

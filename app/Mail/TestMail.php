@@ -21,6 +21,12 @@ final class TestMail extends BaseMail
         );
     }
 
+    /** Alıcı yönetici; panel tek dilde. */
+    protected function resolveLocale(): string
+    {
+        return $this->defaultLocale();
+    }
+
     protected function emailView(): string
     {
         return 'emails.test';

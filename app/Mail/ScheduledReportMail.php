@@ -34,7 +34,12 @@ final class ScheduledReportMail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->schedule->type->label() . ' — ' . Setting::getValue('site_name', config('app.name')),
+            subject: __('mail.report.subject', [
+                // Rapor türünün adı panelin sözlüğünden geliyor; alıcı da
+                // panelin kullanıcısı, o yüzden çevrilmiyor.
+                'title' => $this->schedule->type->label(),
+                'site'  => Setting::getValue('site_name', config('app.name')),
+            ]),
         );
     }
 
@@ -48,6 +53,12 @@ final class ScheduledReportMail extends BaseMail
                 ->as(basename($this->filePath))
                 ->withMime($this->schedule->format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
         ];
+    }
+
+    /** Alıcı yönetici; panel tek dilde. */
+    protected function resolveLocale(): string
+    {
+        return $this->defaultLocale();
     }
 
     protected function emailView(): string
