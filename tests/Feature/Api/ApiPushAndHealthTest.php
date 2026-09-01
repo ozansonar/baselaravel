@@ -13,6 +13,7 @@ use App\Services\PushNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
+use Tests\Concerns\ConfiguresFcm;
 use Tests\TestCase;
 
 /**
@@ -24,7 +25,7 @@ use Tests\TestCase;
  */
 class ApiPushAndHealthTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, ConfiguresFcm;
 
     protected function setUp(): void
     {
@@ -233,8 +234,8 @@ class ApiPushAndHealthTest extends TestCase
 
     public function test_sending_reaches_the_carrier_when_configured(): void
     {
-        config(['push.driver' => 'fcm', 'push.fcm.key' => 'test-anahtari']);
-        Http::fake(['*' => Http::response(['success' => 1], 200)]);
+        $this->configureFcm();
+        $this->fakeFcm();
 
         $user = $this->user();
         PushToken::create(['user_id' => $user->getKey(), 'token' => 'jeton', 'platform' => 'android']);
@@ -242,7 +243,7 @@ class ApiPushAndHealthTest extends TestCase
         $result = app(PushNotificationService::class)->sendToUser($user, 'Başlık', 'Gövde');
 
         $this->assertSame(1, $result['sent']);
-        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'fcm'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'messages:send'));
     }
 
     /**
@@ -251,8 +252,8 @@ class ApiPushAndHealthTest extends TestCase
      */
     public function test_a_dead_token_is_dropped(): void
     {
-        config(['push.driver' => 'fcm', 'push.fcm.key' => 'test-anahtari']);
-        Http::fake(['*' => Http::response('NotRegistered', 404)]);
+        $this->configureFcm();
+        $this->fakeFcm(404, ['error' => ['status' => 'NOT_FOUND']]);
 
         $user = $this->user();
         PushToken::create(['user_id' => $user->getKey(), 'token' => 'olu-jeton', 'platform' => 'android']);

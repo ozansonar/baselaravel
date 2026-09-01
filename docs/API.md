@@ -455,6 +455,58 @@ değiştirecek istemcinin ad, soyad ve e-postayı da taşıması gerekirdi.
 `logout_other_devices` açılırsa bu isteği yapan jeton dışındaki bütün jetonlar
 düşer.
 
+### `POST /auth/social/{provider}` — Google / Apple ile giriş
+
+`provider`: `google` | `apple`
+
+```json
+{ "id_token": "eyJhbGciOi...", "device_name": "iPhone 15",
+  "first_name": "Grace", "last_name": "Hopper" }
+```
+
+Akış mobilin akışı: uygulama sağlayıcının kendi SDK'sıyla bir **kimlik jetonu**
+alıyor, sunucu onu sağlayıcının açık anahtarıyla doğruluyor. Tarayıcı
+yönlendirmesi yok.
+
+`first_name` / `last_name` yalnız Apple için: Apple adı **sadece ilk
+yetkilendirmede** ve jetonun dışında gönderiyor. Uygulama o anda yakalayıp
+buraya iletmeli, yoksa ad bir daha hiç gelmiyor.
+
+Cevap `/auth/login` ile birebir aynı: `user`, `token`, `expires_at`,
+`abilities`.
+
+**Doğrulama.** Jeton istemciden geliyor, yani istemci onu kendisi yazabilir.
+Dört şey birden doğrulanıyor ve biri eksikse jeton reddediliyor: **imza**
+(sağlayıcının JWKS'i), **`iss`**, **`aud`** (bizim istemci kimliğimiz) ve
+**`exp`**. `aud` olmadan saldırgan kendi uygulamasına aldığı gerçek bir Google
+jetonuyla buraya girerdi.
+
+**Hesap eşleştirme.** Anahtar sağlayıcının kullanıcı kimliği (`sub`), e-posta
+değil: adres sağlayıcıda değişse de hesap aynı kalıyor. Aynı e-postayla sitede
+bir hesap varsa **yalnız sağlayıcı o adresi doğruladıysa** bağlanıyor;
+doğrulamadıysa `409` dönüyor ve kişinin şifresiyle girip hesabını bağlaması
+gerekiyor. Bu ayrım sosyal girişin en bilinen hesap devralma yolunu kapatıyor.
+
+**Kurulum.** `.env` içinde istemci kimlikleri:
+
+```
+GOOGLE_CLIENT_IDS=123-ios.apps.googleusercontent.com,123-android.apps.googleusercontent.com
+APPLE_CLIENT_IDS=com.sirket.uygulama
+```
+
+Virgülle birden çok: iOS, Android ve web ayrı kimlik taşıyor, üçü de aynı
+hesaba giriyor. Boş bırakılan sağlayıcı **kapalı** — `aud` doğrulaması
+yapılamayan bir jeton kabul edilemez. İstemci sırrı (client secret)
+gerekmiyor.
+
+### `GET /account/social-accounts` · `DELETE /account/social-accounts/{provider}`
+*(jeton gerekli)*
+
+Bağlı sağlayıcılar ve bağı koparma. Son bağlantı, hesabın ulaşılabilir bir
+e-posta adresi yoksa koparılamıyor (`422`): sosyal girişle açılan hesabın
+şifresi rastgele ve kişi "şifremi unuttum" ile kendini kurtaramazsa hesabına
+bir daha giremezdi.
+
 ### `POST|DELETE /account/push-tokens` *(jeton gerekli — `profile:write`)*
 
 ```json
@@ -469,6 +521,33 @@ jetonlar düşer; cihaz yeniden giriş yaptığında adresini zaten yeniden bır
 
 Gönderim tarafı sağlayıcıdan bağımsız: `PUSH_DRIVER` tanımlı değilse jetonlar
 kaydedilir ama bildirim gönderilmez ve bu log'a düşer — sessizce kaybolmaz.
+
+#### Gönderimi açmak (FCM HTTP v1)
+
+Taşıyıcı Firebase Cloud Messaging'in **HTTP v1** arayüzünü kullanıyor. Eski
+sürüm (sunucu anahtarı + `/fcm/send`) Google tarafından Haziran 2024'te
+kapatıldı; v1 OAuth2 istiyor ve gereken tek şey servis hesabı anahtarı:
+
+1. Firebase Console → **Proje ayarları → Hizmet hesapları**
+2. **"Yeni özel anahtar oluştur"** → inen JSON'u `storage/app/` altına koyun
+   (o dizin `.gitignore`'da; anahtar depoya girmemeli)
+3. `.env`:
+
+   ```
+   PUSH_DRIVER=fcm
+   FCM_CREDENTIALS=storage/app/firebase-service-account.json
+   ```
+
+Proje kimliği JSON'un içinde; `FCM_PROJECT_ID` yalnız onu ezmek gerekirse.
+Erişim jetonu 55 dakika önbellekte tutuluyor, yani yüz cihazlık bir gönderim
+Google'ın jeton ucuna bir kez gidiyor.
+
+Sağlayıcı "bu jeton artık geçerli değil" derse (`404 NOT_FOUND` ya da
+`400 INVALID_ARGUMENT`) kayıt düşürülüyor. `401`/`403` bunun dışında: onlar
+jetonun değil kurulumun sorunu ve kayıtları silmek yanlış olurdu.
+
+`data` alanındaki değerler dizgeye çevrilerek gönderiliyor — v1 başka türünü
+kabul etmiyor, çağıran tarafın bunu bilmesi gerekmiyor.
 
 ### `GET /account/comments` · `DELETE /account/comments/{id}` *(jeton gerekli)*
 

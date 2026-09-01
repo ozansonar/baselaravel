@@ -25,9 +25,23 @@ return [
 
     'timeout' => (int) env('PUSH_TIMEOUT', 10),
 
+    /*
+    | Firebase Cloud Messaging — HTTP v1.
+    |
+    | Eski sürüm (sunucu anahtarı + /fcm/send) Google tarafından 2024 Haziran'da
+    | kapatıldı; v1 OAuth2 istiyor. Gereken tek şey Firebase konsolundan
+    | indirilen servis hesabı JSON'u:
+    |
+    |   Firebase Console → Proje ayarları → Hizmet hesapları
+    |   → "Yeni özel anahtar oluştur"
+    |
+    | Dosya depoya girmemeli; storage/app/ altına konup .env'de yolu verilir.
+    | Proje kimliği JSON'un içinde zaten var, FCM_PROJECT_ID yalnız onu
+    | ezmek istenirse gerekiyor.
+    */
     'fcm' => [
-        'key'      => env('FCM_SERVER_KEY', ''),
-        'endpoint' => env('FCM_ENDPOINT', 'https://fcm.googleapis.com/fcm/send'),
+        'credentials' => env('FCM_CREDENTIALS', ''),
+        'project_id'  => env('FCM_PROJECT_ID', ''),
     ],
 
     /*

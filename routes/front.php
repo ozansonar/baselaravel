@@ -85,12 +85,15 @@ Route::middleware('guest')->group(function (): void {
      * Girişin ikinci adımı. Misafir grubunda: buraya gelen kişinin oturumu
      * henüz açılmadı, yalnız şifresi doğrulandı.
      *
-     * Hız sınırı girişinkiyle aynı kovadan: altı haneli bir kod, sınırsız
-     * denemeye açık bırakılsaydı dakikalar içinde tükenirdi.
+     * Hız sınırının kendi kovası var ve anahtarı bekleyen kullanıcının
+     * kimliği. Giriş kovası kullanılıyordu, o da anahtarını isteğin
+     * gövdesindeki `email` alanından okuyor — bu formda öyle bir alan yok,
+     * dolayısıyla gövdeye rastgele bir email eklemek her seferinde yeni bir
+     * kova açıyor ve altı haneli kod sınırsız denenebiliyordu.
      */
     Route::get('/giris/iki-adim', [AuthController::class, 'showTwoFactorChallenge'])->name('login.two-factor');
     Route::post('/giris/iki-adim', [AuthController::class, 'twoFactorChallenge'])
-        ->middleware('throttle:login')
+        ->middleware('throttle:two-factor')
         ->name('login.two-factor.verify');
 });
 

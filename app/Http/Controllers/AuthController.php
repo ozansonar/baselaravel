@@ -88,6 +88,12 @@ final class AuthController extends Controller
         }
 
         if (! $this->twoFactor->challenge($user, $request->string('code')->value())) {
+            // Yanlış kod bedava olmamalı: sayaç sınıra gelince bekleme düşüyor
+            // ve şifreden başlamak gerekiyor.
+            if (! $this->challenge->recordFailure()) {
+                return redirect()->route('login')->withErrors(['email' => __('site.two_factor.expired')]);
+            }
+
             return back()->withErrors(['code' => __('site.two_factor.invalid_code')]);
         }
 

@@ -66,8 +66,9 @@
             <div>
                 <strong>Bildirim taşıyıcısı yapılandırılmamış.</strong>
                 Duyurular sıraya alınır ama hiçbir cihaza ulaşmaz. Ayar
-                <code>.env</code> dosyasındaki <code>PUSH_DRIVER</code> ve
-                <code>FCM_SERVER_KEY</code> değerleriyle yapılır.
+                <code>.env</code> dosyasındaki <code>PUSH_DRIVER=fcm</code> ve
+                <code>FCM_CREDENTIALS</code> (Firebase servis hesabı JSON'unun yolu)
+                değerleriyle yapılır.
             </div>
         </div>
     @endunless

@@ -10,7 +10,15 @@ use App\Models\User;
 /**
  * Permissions come from the database (role -> permission), with two rules that
  * stay in code because they are about identity rather than configuration:
- * everyone may reach their own record, and nobody may delete themselves.
+ * everyone may *see* their own record, and nobody may delete themselves.
+ *
+ * Kendi kaydını **düzenlemek** bilerek bu listede yok. Bir zamanlar vardı ve
+ * yetki yükseltme kapısıydı: kullanıcı ekranının formu `roles[]` kabul ediyor,
+ * rotada izin denetimi yok, dolayısıyla panele girebilen herkes kendi kaydına
+ * tek bir PUT atıp admin rolünü kendine verebiliyordu. Kendi bilgilerini
+ * düzenlemenin yeri ProfileController — o form rol alanı taşımıyor.
+ *
+ * @see \App\Http\Controllers\Admin\ProfileController
  */
 final class UserPolicy
 {
@@ -32,8 +40,7 @@ final class UserPolicy
 
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id
-            || $user->hasPermission(PermissionKey::UsersManage);
+        return $user->hasPermission(PermissionKey::UsersManage);
     }
 
     public function delete(User $user, User $model): bool

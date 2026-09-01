@@ -104,4 +104,15 @@ return [
         'invalid_type'       => 'Geçersiz tür. Kullanılabilir değerler: photo, video.',
     ],
 
+    // Sosyal giriş (Google / Apple).
+    'social' => [
+        'token_required'  => 'Kimlik jetonu zorunludur.',
+        'token_invalid'   => 'Kimlik jetonunun biçimi geçersiz.',
+        'token_rejected'  => 'Kimlik jetonu doğrulanamadı.',
+        'unsupported'     => 'Bu sağlayıcı desteklenmiyor.',
+        'not_linked'      => 'Bu sağlayıcı hesabınıza bağlı değil.',
+        'unlinked'        => 'Bağlantı kaldırıldı.',
+        'last_link'       => 'Tek giriş yolunuz bu; kaldırmadan önce hesabınıza bir e-posta adresi tanımlayın.',
+        'email_unverified' => ':provider bu e-posta adresini doğrulamadı. Şifrenizle giriş yapıp hesabınızı bağlayın.',
+    ],
 ];

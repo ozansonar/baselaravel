@@ -299,6 +299,19 @@ class AppServiceProvider extends ServiceProvider
             });
         });
 
+        // İkinci adımın kendi kovası.
+        //
+        // 'login' kovası kullanılıyordu ve anahtarı `input('email')` — ama
+        // ikinci adım formu yalnız `code` gönderiyor. Gövdeye her seferinde
+        // farklı bir `email` koymak yeni bir kova açıyordu, yani altı hanelik
+        // kod sınırsız denenebiliyordu. Kova artık bekleyen kullanıcının
+        // kimliğinden kuruluyor: onu saldırgan yazamıyor, oturumda duruyor.
+        RateLimiter::for('two-factor', function (Request $request): Limit {
+            $pendingId = app(\App\Services\TwoFactorChallengeService::class)->pendingId();
+
+            return Limit::perMinute(5)->by(($pendingId ?? 'yok') . '|' . $request->ip());
+        });
+
         RateLimiter::for('contact', function (Request $request): Limit {
             return Limit::perMinute(3)->by($request->ip())->response(function () use ($request) {
                 return back()->withErrors([
@@ -362,14 +375,27 @@ class AppServiceProvider extends ServiceProvider
         //
         // Anahtar e-posta + IP: bir adrese karşı yapılan deneme, saldırgan IP
         // değiştirse de aynı kovaya düşsün.
+        // Kova önce oturumdan, sonra gövdeden kuruluyor.
+        //
+        // Yalnız `input('email')` kullanılıyordu; bu uç hem kimliksiz şifre
+        // sıfırlamada hem de kimlik doğrulanmış uçlarda (şifre değiştirme,
+        // 2FA kapatma, hesap kapatma, veri dışa aktarma) geçerli ve o
+        // uçlarda `email` diye bir alan yok — çalınmış bir jeton kullanılmayan
+        // alanı değiştirerek kovadan kaçabiliyordu.
         RateLimiter::for('api-password', fn (Request $request): Limit => Limit::perMinute($limits['password'] ?? 5)
-            ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()));
+            ->by(($request->user()?->getAuthIdentifier() ?? strtolower((string) $request->input('email'))) . '|' . $request->ip()));
 
         // Doğrulama maili — kullanıcı başına. Kotayı IP'ye bağlamak, aynı
         // ofisten giren ikinci kullanıcıyı ilkinin denemeleri yüzünden
         // kilitlerdi.
         RateLimiter::for('api-verification', fn (Request $request): Limit => Limit::perMinute($limits['verification'] ?? 3)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        // Sosyal giriş: gövdede `email` yok, kova IP başına. Sağlayıcının
+        // jetonu zaten imzalı ve tahmin edilemez; sınır kaba kuvvete karşı
+        // değil, geçersiz jetonla imza doğrulamasını meşgul etmeye karşı.
+        RateLimiter::for('api-social', fn (Request $request): Limit => Limit::perMinute($limits['social'] ?? 10)
+            ->by((string) $request->ip()));
 
         // Yorum ve bülten: ikisi de kimliksiz, ikisi de spam hedefi. API'de
         // reCAPTCHA olmadığı için tek fren burası.

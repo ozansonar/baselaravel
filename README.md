@@ -38,6 +38,10 @@ Node.js **gerekmez**.
 
 ## Kurulum
 
+> **Sunucuya kuruyorsanız → [`SETUP.md`](SETUP.md).** Orada adım adım üretim
+> kurulumu var: izinler, `.env`, cron, kuyruk, web sunucusu ayarları ve kurulum
+> sonrası kontrol listesi. Aşağıdaki kısayol geliştirme makinesi içindir.
+
 ```bash
 git clone <depo-adresi> proje-adi && cd proje-adi
 composer setup

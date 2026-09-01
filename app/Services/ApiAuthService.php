@@ -198,6 +198,21 @@ final class ApiAuthService
     }
 
     /**
+     * Şifre dışı bir yolla doğrulanmış kullanıcıya jeton üretir.
+     *
+     * Sosyal giriş kimlik doğrulamasını sağlayıcıya yaptırıyor; jeton üretme
+     * kuralları (aynı cihazın eski jetonunu düşürmek, ömür, yetki daraltma)
+     * ise aynı kalmalı — o yüzden kopyalanmıyor, buradan çağrılıyor.
+     *
+     * @param  array<int, string> $abilities
+     * @return array{user: User, token: string, expires_at: string|null, abilities: array<int, string>}
+     */
+    public function issueTokenFor(User $user, ?string $deviceName, array $abilities = []): array
+    {
+        return $this->issueToken($user, $deviceName, $abilities);
+    }
+
+    /**
      * @param  array<int, string> $abilities Boşsa jeton tam yetkili (`*`).
      * @return array{user: User, token: string, expires_at: string|null, abilities: array<int, string>}
      */

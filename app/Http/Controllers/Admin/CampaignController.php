@@ -17,6 +17,7 @@ use App\Models\Subscriber;
 use App\Models\User;
 use App\Services\CampaignDispatcher;
 use App\Services\CampaignService;
+use App\Services\UploadService;
 use App\Services\SubscriberListService;
 use App\Services\RecipientImportService;
 use App\Services\LanguageService;
@@ -389,8 +390,17 @@ final class CampaignController extends Controller
         $maxKb = (int) floor($limits['per_file'] / 1024);
 
         $validator = validator($request->all(), [
-            'file' => ['required', 'file', 'max:' . $maxKb],
+            // Uzantı beyaz listesi: bu uç yalnız boyuta bakıyordu ve .html/.svg
+            // bir ek public/uploads altına inip sitenin kendi kaynağından
+            // servis ediliyordu.
+            'file' => [
+                'required',
+                'file',
+                'max:' . $maxKb,
+                'extensions:' . implode(',', UploadService::ALLOWED_EXTENSIONS),
+            ],
         ], [
+            'file.extensions' => 'Bu dosya türü yüklenemez.',
             'file.required' => 'Dosya alınamadı.',
             'file.max'      => 'Dosya en fazla ' . $this->humanBytes($limits['per_file']) . ' olabilir.',
             'file.uploaded' => 'Dosya yüklenemedi; sunucu sınırını aşıyor olabilir.',

@@ -103,4 +103,15 @@ return [
         'invalid_type'       => 'Invalid type. Allowed values: photo, video.',
     ],
 
+    // Social sign-in (Google / Apple).
+    'social' => [
+        'token_required'  => 'An identity token is required.',
+        'token_invalid'   => 'The identity token is malformed.',
+        'token_rejected'  => 'The identity token could not be verified.',
+        'unsupported'     => 'This provider is not supported.',
+        'not_linked'      => 'This provider is not linked to your account.',
+        'unlinked'        => 'The link was removed.',
+        'last_link'       => 'This is your only way in; set an e-mail address on your account before removing it.',
+        'email_unverified' => ':provider did not verify this e-mail address. Sign in with your password and link the account.',
+    ],
 ];
