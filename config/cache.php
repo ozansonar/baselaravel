@@ -21,6 +21,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Parça Önbelleği
+    |--------------------------------------------------------------------------
+    | Her sayfada aynı çıkan blokların (gezinti gibi) çizilmiş hâlini saklar.
+    | Yalnız oturumu olmayan GET isteklerinde devreye giriyor ve kişiye özel iz
+    | taşıyan çıktı — CSRF anahtarı ya da CSP nonce'u — hiçbir koşulda
+    | saklanmıyor. Hata ayıklarken kapatmak, ekranda gördüğünüzün her zaman
+    | taze çizim olduğunu garanti eder.
+    |
+    | @see \App\Services\FragmentCache
+    */
+    'fragments' => (bool) env('CACHE_FRAGMENTS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Stores
     |--------------------------------------------------------------------------
     |

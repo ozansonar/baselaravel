@@ -35,7 +35,7 @@
 
 @push('scripts')
     <script src="{{ versioned_asset('assets/admin/js/campaign-form.js') }}"></script>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.campaignAttachments = @js([
             'uploadUrl'  => route('admin.campaigns.attachments.upload'),
             'discardUrl' => route('admin.campaigns.attachments.discard', 'TOKEN'),

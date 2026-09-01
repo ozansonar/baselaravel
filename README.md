@@ -938,6 +938,7 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 - `CLAUDE.md` — proje kuralları (zorunlu)
 - `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
 - `docs/PROJE-DURUMU-V2.md` — denetim kaydı: bulunan kusurlar, çözümleri, kurulan bekçiler
+- `docs/BOSLUK-ANALIZI.md` — mimari denetim: on beş bulgu, gerekçeleri ve kapanışları
 - `docs/YOL-HARITASI.md` — fazlar ve kabul ölçütleri
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı

@@ -207,7 +207,7 @@
 
 @push('scripts')
 <script src="{{ asset('assets/admin/js/bulk-actions.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     function openDeleteModal(id, slug) {
         AdminModal.confirm({
             title: 'Adres Silinsin Mi?',

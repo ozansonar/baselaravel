@@ -143,7 +143,7 @@
 </div>
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     /**
      * Seçilen hedefin istediği alanları gösterir.
      *

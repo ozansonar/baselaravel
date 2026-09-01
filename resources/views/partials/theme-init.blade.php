@@ -10,7 +10,7 @@
     bastığında localStorage'a yazılıyor ve o tercih kalıcı oluyor.
     Ayrıntı: public/js/theme.js
 --}}
-<script>
+<script nonce="{{ csp_nonce() }}">
     (function () {
         try {
             var stored = window.localStorage.getItem('theme');

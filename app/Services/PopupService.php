@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Enums\PopupPage;
 use App\Models\Popup;
@@ -191,7 +192,7 @@ final class PopupService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.popups.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_POPUPS_STATS, 300, function (): array {
             $today = now()->toDateString();
 
             $counts = $this->onlyGroupRepresentatives(Popup::withTrashed(), Popup::class)
@@ -226,7 +227,7 @@ final class PopupService
 
     private function clearCache(): void
     {
-        Cache::forget('admin.popups.stats');
+        Cache::forget(CacheKeys::ADMIN_POPUPS_STATS);
 
         foreach (PopupPage::cases() as $page) {
             $this->forgetLocalized("popups.page.{$page->value}");

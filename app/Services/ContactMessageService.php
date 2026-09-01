@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Mail\ContactMessageNotification;
 use App\Mail\ContactMessageReplyMail;
@@ -149,7 +150,7 @@ final class ContactMessageService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.contact_messages.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_CONTACT_MESSAGES_STATS, 300, function (): array {
             $counts = ContactMessage::withTrashed()
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and is_read = 0 then 1 else 0 end) as unread')
@@ -201,6 +202,6 @@ final class ContactMessageService
 
     public function clearCache(): void
     {
-        Cache::forget('admin.contact_messages.stats');
+        Cache::forget(CacheKeys::ADMIN_CONTACT_MESSAGES_STATS);
     }
 }

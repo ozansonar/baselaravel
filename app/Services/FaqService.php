@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Models\Faq;
 use Illuminate\Database\Eloquent\Collection;
@@ -199,7 +200,7 @@ final class FaqService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.faqs.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_FAQS_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(Faq::withTrashed(), Faq::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and is_active = 1 then 1 else 0 end) as active')
@@ -231,6 +232,6 @@ final class FaqService
     private function clearCache(): void
     {
         $this->forgetLocalized('faqs.active');
-        Cache::forget('admin.faqs.stats');
+        Cache::forget(CacheKeys::ADMIN_FAQS_STATS);
     }
 }

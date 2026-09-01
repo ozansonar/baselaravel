@@ -41,7 +41,7 @@
 
 @push('scripts')
     <script src="{{ versioned_asset('assets/admin/js/campaign-form.js') }}"></script>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.campaignAttachments = @js([
             'uploadUrl'  => route('admin.campaigns.attachments.upload'),
             'discardUrl' => route('admin.campaigns.attachments.discard', 'TOKEN'),
@@ -51,7 +51,7 @@
     </script>
     <script src="{{ versioned_asset('assets/admin/js/campaign-attachments.js') }}"></script>
     <script src="{{ versioned_asset('assets/admin/js/campaign-tags.js') }}"></script>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.campaignAttachmentUrl = @js(route('admin.campaigns.attachments.destroy', [$campaign, 'ATTACHMENT_ID']));
     </script>
 @endpush

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Enums\GalleryType;
 use App\Models\GalleryItem;
@@ -424,7 +425,7 @@ final class GalleryService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.gallery.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_GALLERY_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(GalleryItem::withTrashed(), GalleryItem::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and type = ? then 1 else 0 end) as photos', [GalleryType::Photo->value])
@@ -465,9 +466,9 @@ final class GalleryService
     {
         $this->forgetLocalized('gallery.photos');
         $this->forgetLocalized('gallery.videos');
-        Cache::forget('admin.gallery.stats');
+        Cache::forget(CacheKeys::ADMIN_GALLERY_STATS);
         // Photos are listed in the sitemap as image entries, so a new or
         // removed one has to reach it straight away.
-        Cache::forget('sitemap.urls');
+        Cache::forget(CacheKeys::SITEMAP_URLS);
     }
 }

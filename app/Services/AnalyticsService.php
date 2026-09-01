@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\PageView;
+use App\Support\CacheKeys;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -16,6 +17,7 @@ class AnalyticsService
 {
     public function __construct(
         private readonly UserAgentParser $userAgents,
+        private readonly CachePurger $cache,
     ) {}
 
     /**
@@ -100,7 +102,7 @@ class AnalyticsService
     {
         $cacheKey = 'analytics.stats.' . md5($from->toIso8601String() . $to->toIso8601String() . ($excludeBots ? '1' : '0'));
 
-        return Cache::remember($cacheKey, 60, function () use ($from, $to, $excludeBots): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, $cacheKey, 60, function () use ($from, $to, $excludeBots): array {
             $base = PageView::betweenDates($from, $to);
             $humans = (clone $base)->where('is_bot', false);
             $bots = (clone $base)->where('is_bot', true);
@@ -123,7 +125,7 @@ class AnalyticsService
     {
         $cacheKey = 'analytics.daily_chart.' . md5($from->toDateString() . $to->toDateString() . ($excludeBots ? '1' : '0'));
 
-        return Cache::remember($cacheKey, 60, function () use ($from, $to, $excludeBots): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, $cacheKey, 60, function () use ($from, $to, $excludeBots): array {
             $query = PageView::query()
                 ->selectRaw('DATE(viewed_at) as date, COUNT(*) as count')
                 ->betweenDates($from, $to)
@@ -156,7 +158,7 @@ class AnalyticsService
     {
         $cacheKey = 'analytics.top_pages.' . md5($from->toDateString() . $to->toDateString() . $limit . ($excludeBots ? '1' : '0'));
 
-        return Cache::remember($cacheKey, 60, function () use ($from, $to, $limit, $excludeBots): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, $cacheKey, 60, function () use ($from, $to, $limit, $excludeBots): array {
             $query = PageView::query()
                 ->selectRaw('url_path, COUNT(*) as count')
                 ->betweenDates($from, $to)
@@ -188,7 +190,7 @@ class AnalyticsService
     {
         $cacheKey = 'analytics.referrers.' . md5($from->toDateString() . $to->toDateString() . $limit);
 
-        return Cache::remember($cacheKey, 60, function () use ($from, $to, $limit): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, $cacheKey, 60, function () use ($from, $to, $limit): array {
             $rows = PageView::query()
                 ->selectRaw("COALESCE(referrer_domain, 'direct') as source, COUNT(*) as count")
                 ->where('is_bot', false)
@@ -206,7 +208,7 @@ class AnalyticsService
     {
         $cacheKey = 'analytics.bots.' . md5($from->toDateString() . $to->toDateString() . $limit);
 
-        return Cache::remember($cacheKey, 60, function () use ($from, $to, $limit): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, $cacheKey, 60, function () use ($from, $to, $limit): array {
             $rows = PageView::query()
                 ->selectRaw("COALESCE(bot_name, 'Unknown') as bot, COUNT(*) as count")
                 ->where('is_bot', true)
@@ -237,17 +239,19 @@ class AnalyticsService
     }
 
     /**
-     * Clear all analytics-related cache keys. Safe for both Redis and file drivers.
+     * Analitik önbelleğini düşürür — yalnız onu.
+     *
+     * Eskiden burada `Cache::flush()` vardı: analitik ekranındaki tek bir
+     * yenileme ayarları, çevirileri, site haritasını, dil listesini ve bütün
+     * ön yüz içerik önbelleğini birlikte siliyordu. Varsayılan sürücü
+     * veritabanı olduğu için yeniden ısınmanın bedelini de ilk ziyaretçiler
+     * ödüyordu.
+     *
+     * Anahtarların hepsi ortak bir önek taşıyor; silinen küme o önekle sınırlı.
      */
     public function flushCache(): void
     {
-        // Brute-force: cache:clear gibi davranmak yerine bilinen prefix'leri tek tek temizle.
-        // Driver tag desteği olmayabilir; o yüzden tüm cache'i flush etmek en güvenlisi.
-        try {
-            Cache::flush();
-        } catch (\Throwable $e) {
-            Log::warning('Analytics cache flush failed', ['error' => $e->getMessage()]);
-        }
+        $this->cache->forgetPrefix(CacheKeys::PREFIX_ANALYTICS);
     }
 
     /**
@@ -502,7 +506,7 @@ class AnalyticsService
      */
     public function visitFilterOptions(): array
     {
-        return Cache::remember('analytics.visit_filter_options', 600, function (): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, 'analytics.visit_filter_options', 600, function (): array {
             $column = function (string $column): array {
                 return PageView::query()
                     ->select($column)
@@ -527,7 +531,7 @@ class AnalyticsService
     {
         $cacheKey = 'analytics.breakdown.' . $column . '.' . md5($from->toDateString() . $to->toDateString() . ($excludeBots ? '1' : '0') . ($limit ?? 'all'));
 
-        return Cache::remember($cacheKey, 60, function () use ($column, $from, $to, $excludeBots, $limit): array {
+        return $this->cache->rememberWithin(CacheKeys::PREFIX_ANALYTICS, $cacheKey, 60, function () use ($column, $from, $to, $excludeBots, $limit): array {
             $query = PageView::query()
                 ->selectRaw("COALESCE($column, 'unknown') as label, COUNT(*) as count")
                 ->betweenDates($from, $to)

@@ -378,7 +378,7 @@
 @endpush
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
 'use strict';
 
 // Tüm "Kopyala" butonları için tek handler

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Support\LikeSearch;
 use App\Enums\ContentStatus;
 use App\Models\Page;
@@ -250,7 +251,7 @@ final class PageService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('admin.pages.stats', 300, function (): array {
+        return Cache::remember(CacheKeys::ADMIN_PAGES_STATS, 300, function (): array {
             $counts = $this->onlyGroupRepresentatives(Page::withTrashed(), Page::class)
                 ->selectRaw('sum(case when deleted_at is null then 1 else 0 end) as total')
                 ->selectRaw('sum(case when deleted_at is null and status = ? then 1 else 0 end) as published', [ContentStatus::Published->value])
@@ -283,9 +284,9 @@ final class PageService
     private function clearCache(): void
     {
         $this->forgetLocalized('pages.published');
-        Cache::forget('admin.pages.stats');
+        Cache::forget(CacheKeys::ADMIN_PAGES_STATS);
         // Modül 7 — yeni/güncellenen sayfa sitemap'e anında yansısın.
-        Cache::forget('sitemap.urls');
-        Cache::forget('sitemap_page.groups');
+        Cache::forget(CacheKeys::SITEMAP_URLS);
+        Cache::forget(CacheKeys::SITEMAP_PAGE_GROUPS);
     }
 }

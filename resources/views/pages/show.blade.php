@@ -67,6 +67,6 @@
         'download' => __('site.attachments.download'),
     ];
 @endphp
-<script type="application/json" id="attachmentsLabels">@json($attachmentLabels)</script>
+<script type="application/json" id="attachmentsLabels" nonce="{{ csp_nonce() }}">@json($attachmentLabels)</script>
 <script src="{{ versioned_asset('js/content-attachments.js') }}" defer></script>
 @endpush

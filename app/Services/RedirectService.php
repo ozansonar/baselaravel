@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Enums\RedirectStatus;
 use App\Models\Redirect;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -140,7 +141,7 @@ final class RedirectService
      */
     public function getAdminStats(): array
     {
-        return Cache::remember('redirects.admin_stats', 300, function (): array {
+        return Cache::remember(CacheKeys::REDIRECTS_ADMIN_STATS, 300, function (): array {
             $counts = Redirect::selectRaw("
                 COUNT(*) as total,
                 SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
@@ -231,7 +232,7 @@ final class RedirectService
 
     public function clearCache(): void
     {
-        Cache::forget('redirects.active');
-        Cache::forget('redirects.admin_stats');
+        Cache::forget(CacheKeys::REDIRECTS_ACTIVE);
+        Cache::forget(CacheKeys::REDIRECTS_ADMIN_STATS);
     }
 }

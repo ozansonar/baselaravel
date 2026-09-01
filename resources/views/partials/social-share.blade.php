@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ csp_nonce() }}">
 document.querySelectorAll('.js-copy-link').forEach(function (btn) {
     if (btn.dataset.bound) return;
     btn.dataset.bound = '1';

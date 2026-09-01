@@ -354,7 +354,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     window.languageDeleteUrl = @js(route('admin.languages.destroy', ['language' => 'LANGUAGE_ID']));
 </script>
 <script src="{{ versioned_asset('assets/admin/js/languages.js') }}"></script>

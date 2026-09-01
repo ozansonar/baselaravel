@@ -117,7 +117,7 @@
 </div>
 
 @push('scripts')
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.filePickerConfig = @js([
             'listUrl'   => route('admin.file-browser.index'),
             'uploadUrl' => route('admin.file-browser.store'),

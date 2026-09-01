@@ -176,8 +176,8 @@
     </div>
 
     {{-- Hidden data for JS --}}
-    <script id="menuItemsData" type="application/json">@json($menu->rootItems->map(fn($i) => $i->toArray()))</script>
-    <script>
+    <script id="menuItemsData" type="application/json" nonce="{{ csp_nonce() }}">@json($menu->rootItems->map(fn($i) => $i->toArray()))</script>
+    <script nonce="{{ csp_nonce() }}">
         window.menuConfig = {
             menuId: {{ $menu->id }},
             storeUrl: '{{ route('admin.menus.items.store', $menu) }}',
@@ -190,7 +190,7 @@
 @push('scripts')
     <script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/menu-items.js') }}"></script>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     (function () {
         @if($errors->any())
             if (window.AdminModal && typeof AdminModal.status === 'function') {

@@ -6,7 +6,8 @@
 **Kapsam:** üç yüz birden — web, panel (CRM), mobil API
 
 Bu belge bir *denetimin* kaydı. [`PROJE-DURUMU.md`](PROJE-DURUMU.md) *ne var*
-sorusunu, [`YOL-HARITASI.md`](YOL-HARITASI.md) *ne eksik* sorusunu yanıtlıyor.
+sorusunu, [`YOL-HARITASI.md`](YOL-HARITASI.md) *ne eksik*,
+[`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md) *hangi sırayla* sorusunu yanıtlıyor.
 Buradaki soru üçüncüsü: **yapıldı denilen şeyler gerçekten çalışıyor mu, ve
 kimsenin bakmadığı yerde ne birikmiş?**
 
@@ -53,8 +54,12 @@ uygulanmıyor. On altı bulgunun on ikisi bu boşlukta birikmişti.
 | 15 | Çerez rızası kutuları kuralsız ve işaretsizdi | Düşük | ✅ Kapatıldı |
 | 16 | Stok config dosyalarında `strict_types` yoktu | Düşük | ✅ Kapatıldı |
 
-**Sonuç:** 1711 → **1799 test** (1792 geçiyor, 7'si gerekçeli olarak atlanıyor),
-6303 → **7291 doğrulama**. Pint sıfır sapma, PHPStan sıfır hata.
+**Sonuç:** 1711 → **1834 test** (1827 geçiyor, 7'si gerekçeli olarak atlanıyor),
+6303 → **7408 doğrulama**. Pint sıfır sapma, PHPStan sıfır hata.
+
+Bu tablo v2 denetiminin kendi bulgularını sayıyor. Turun sonunda ayrıca 31
+Ağustos tarihli boşluk analizinin açık kalan dört bulgusu da kapatıldı —
+aşağıda *Tur 3* bölümünde.
 
 ---
 
@@ -442,6 +447,155 @@ doğrulandı:
 - Satır içi stilden taşınan biçimler ölçülen değerleriyle aynı (bildirim
   listesi: 380 px / 500 px / auto).
 - Çerez rızası kutuları `data-fv-ignore` taşıyor ve bant çalışıyor.
+
+---
+
+## Tur 3 — Boşluk analizinin kalan dört bulgusu
+
+Bu turun sonunda ortaya çıktı ki denetimin bir yarısı eksikti: 31 Ağustos'ta
+yapılan **Base Kit Boşluk Analizi** depoda değil, bir Artifact olarak
+duruyordu. Belge [`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md) olarak arşive alındı
+ve on beş bulgusu bugünkü koda karşı tek tek kontrol edildi: on biri
+kapanmıştı, **dördü hâlâ açıktı.**
+
+Dördü de bu turda kapatıldı. Bu bulgular v2 denetiminin kendi eksenine
+girmiyordu — o denetim kural/bekçi boşluklarına bakmıştı, bu dördü ise üretim
+ve performans katmanına ait.
+
+### S-05 — Content-Security-Policy yok *(Yüksek)*
+
+**Hata.** `SecurityHeaders` beş başlık basıyordu ve doğru olanları seçmişti,
+ama CSP yoktu — XSS'e karşı ikinci savunma hattı olan tek başlık. Bu, sıradan
+bir eksiklikten fazlasıydı: panelde `custom_head_code` ayarı ham HTML olarak
+basılıyor ve mail şablonları zengin metin editörüyle düzenleniyor. Blade'in
+kaçışı doğru kullanılmış, ama tek savunma oydu.
+
+**Çözüm.** Nonce tabanlı politika. Her istekte bir kerelik anahtar üretiliyor;
+sayfadaki satır içi betikler onu taşıyor, saldırganın enjekte ettiği betik
+taşıyamıyor ve çalışmıyor.
+
+- `ContentSecurityPolicy` politikayı kuruyor ve nonce'u istek boyunca taşıyor
+  (`scoped` bağ: aynı istekte tek anahtar, uzun ömürlü süreçte her istekte
+  yeni).
+- Görünüm ağacındaki **39 satır içi betiğe** `nonce="{{ csp_nonce() }}"`
+  eklendi; bir tanesinin unutulmadığını bekçi sınıyor.
+- Panel ile ön yüz **ayrı politika** alıyor: zengin metin editörü `blob:`
+  kaynaklı görsel üretiyor ve kendi iskeletini bir iframe'de açıyor; ziyaretçi
+  yüzeyine o izinleri vermek kazanç olmadan yüzeyi genişletirdi.
+- `style-src` tarafında `'unsafe-inline'` bilinçli olarak duruyor: Bootstrap'in
+  konumlandırıcısı açılır menüleri yerleştirirken elemanın `style` niteliğini
+  yazıyor. Betik tarafında ise o anahtar hiç yok — orada olsaydı politika
+  anlamsız kalırdı ve bunu ayrı bir test bekliyor.
+- İhlal raporları `/csp-ihlali` ucuna düşüyor: hız sınırlı, gövde tavanı olan,
+  yalnız tanınan alanları loglayan dar bir uç. Rapor gönderen tarayıcı oturum
+  çerezi taşımadığı için kimlik istenemiyor; koruma bu üç kapıdan geliyor.
+- `X-XSS-Protection` **kaldırıldı** — güncel hiçbir tarayıcı desteklemiyor ve
+  bazı eski sürümlerde filtrenin kendisi XSS'i kolaylaştırıyordu.
+
+**Yol üzerinde bulunan.** İlk denemede tarayıcı konsolu ihlal bildirdi ve
+kaynağı Laravel Debugbar çıktı — sayfaya kendi betiğini basıyor ve nonce
+taşımıyordu. Debugbar `csp-nonce` adlı bir container bağı arıyor; o bağ
+sağlandı, hem Debugbar hem aynı sözleşmeyi kullanan başka paketler çözüldü.
+Yalnız geliştirme ortamını ilgilendiren bir çakışmaydı ama "CSP çalışmıyor"
+izlenimi bırakırdı.
+
+**Test.** `ContentSecurityPolicyTest` — 18 test.
+
+**Değişen dosyalar:** `app/Services/ContentSecurityPolicy.php`,
+`app/Http/Controllers/CspReportController.php` (yeni),
+`app/Http/Middleware/SecurityHeaders.php`, `config/security.php` (yeni),
+`app/Helpers/helpers.php`, `app/Providers/AppServiceProvider.php`,
+`routes/web.php`, 27 görünüm.
+
+---
+
+### S-12 — Analitik cache temizliği tüm cache'i siliyordu
+
+**Hata.** `AnalyticsService::flushCache()` doğrudan `Cache::flush()`
+çağırıyordu. Kendi yorumu gerekçesini yazıyordu — sürücü etiket
+desteklemeyebilir — ama sonuç, analitik ekranındaki tek bir yenilemenin
+ayarları, çevirileri, site haritasını, dil listesini ve bütün ön yüz içerik
+önbelleğini birlikte silmesiydi. Varsayılan sürücü veritabanı olduğu için
+yeniden ısınmanın bedelini de ilk ziyaretçiler ödüyordu.
+
+İlginç ayrıntı: yorumda *"cache:clear gibi davranmak yerine bilinen prefix'leri
+tek tek temizle"* yazıyordu. Niyet yazılmış, uygulanmamıştı.
+
+**Çözüm.** `CachePurger` — önek bazlı temizlik, sürücüye göre:
+
+| Sürücü | Yol | Neden |
+|---|---|---|
+| Veritabanı | tek `DELETE ... LIKE` | anahtarlar adıyla duruyor |
+| Redis | `SCAN` + `DEL` | `KEYS` bütün anahtar uzayını tarar, sunucuyu kilitler |
+| Dizi | bellekteki dizinin taranması | test ortamı gerçeğinden ayrılmasın |
+| Dosya | yazarken tutulan kayıt | anahtar diskte hash, önek diye bir şey yok |
+
+**Yol üzerinde bulunan.** İlk yazımda LIKE kalıbını kendi kaçış metodumla
+kurmuştum ve `LikeSearchIsPortableTest` onu yakaladı — kaçış karakteri ters
+bölüydü, yani MySQL'de tam olarak S-11'de bulunan sözdizimi hatasını doğuran
+biçim. `LikeSearch::prefix()` + `LikeSearch::clause()` kullanıldı; bekçi kendi
+işini yaptı.
+
+---
+
+### S-13 — Cache anahtarları otuz ayrı yerde elle temizleniyordu
+
+**Hata.** Temizlik çağrıları 30'dan fazla yere dağılmıştı ve anahtarlar dizge
+sabitiydi (`'sitemap.urls'`, `'admin.pages.stats'`…). Hangi içeriğin hangi
+türev önbelleği beslediği kodun içine gömülüydü: yeni bir içerik türü
+eklendiğinde `sitemap.urls`'i unutmak, site haritasının bir saat bayat
+kalmasına yol açıyordu — hata vermeden, testi kırmadan.
+
+**Çözüm.** `App\Support\CacheKeys` — bütün anahtarlar ve önekler tek yerde.
+**52 çağrı, 19 dosyada** sabite bağlandı ve dizge olarak yazılmış anahtar
+kalmadığını bir bekçi sınıyor. `contentKeys()` ise "içerik değişti" sinyalini
+tek yerde topluyor: yeni bir tür eklendiğinde neyin düşeceği orada
+güncelleniyor, çağıran yerler değil.
+
+İkinci bekçi daha ince bir tuzağı kapatıyor: önek taşıyan anahtarlar doğrudan
+`Cache::put()` ile yazılırsa dosya sürücüsünde kayda girmiyor ve **hiçbir zaman
+temizlenmiyor**. O anahtarların tek doğru yazma yolu
+`CachePurger::rememberWithin()`, ve bunu bir test zorluyor.
+
+---
+
+### S-14 — Ön yüzde çıktı cache'i yoktu
+
+**Hata.** Sorgu düzeyinde önbellek iyi kurulmuştu ama anonim bir ziyaretçinin
+gördüğü her sayfa yine tam bir çizim döngüsüydü: menü ağacı, alt bilgi
+sütunları, dil listesi her istekte yeniden kuruluyordu. Paylaşımlı hostingde en
+büyük kazanç burada.
+
+**Çözüm.** `@cachedInclude` direktifi ve `FragmentCache`. `@include` ile aynı
+yerde durur, aynı şekilde çağrılır; farkı, parça önbellekte varsa görünümün
+**hiç çizilmemesi** — kazanç buradan geliyor.
+
+Üç kapı parçanın saklanmasını engelliyor:
+
+1. **Oturum açmış kullanıcı** — kendi adını taşıyan bir menü sonraki
+   ziyaretçiye gösterilemez.
+2. **GET olmayan istek** — form gönderiminden sonra çizilen sayfa o isteğe
+   özgü.
+3. **Kişiye özel iz taşıyan çıktı** — CSRF anahtarı ya da CSP nonce'u içeren
+   bir parça saklanırsa iki hata birden doğar: başkasının anahtarını taşıyan
+   form reddedilir, bayat nonce betiği çalıştırılamaz hâle getirir.
+
+**Yol üzerinde bulunan.** İlk hedef alt bilgiydi — her sayfada aynı, menü
+ağacı geziyor, iyi bir aday. Üçüncü kapı onu reddetti: alt bilgi bülten formunu
+içeriyor, yani CSRF anahtarı taşıyor. Koruma çalıştı ve karar değişti: **gezinti
+önbelleğe alınıyor** (10 KB, misafirde temiz), alt bilgi bilinçli olarak
+alınmıyor. Gerekçe hem görünümde hem testte yazılı — biri ileride alt bilgiyi
+önbelleğe alırsa bekçi kırılıyor.
+
+Menü ya da ayar değişince çizilmiş parçalar düşüyor; ziyaretçi bir saat boyunca
+eski bağlantıları görmüyor.
+
+**Test.** `CacheHygieneTest` — 17 test (S-12, S-13 ve S-14 birlikte).
+
+**Değişen dosyalar:** `app/Support/CacheKeys.php`, `app/Services/CachePurger.php`,
+`app/Services/FragmentCache.php` (yeni), `app/Services/AnalyticsService.php`,
+`app/Services/MenuService.php`, `app/Models/Setting.php`, `config/cache.php`,
+`resources/views/layouts/app.blade.php`, 19 servis/observer.
 
 ---
 

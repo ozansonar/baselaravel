@@ -6,7 +6,9 @@
 
 Bu belge *ne eksik* sorusunun cevabı. *Ne var* sorusunun cevabı
 [`PROJE-DURUMU.md`](PROJE-DURUMU.md)'de; *yapıldı denilen gerçekten çalışıyor mu*
-sorusunun cevabı [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md)'de; API sözleşmesi
+sorusunun cevabı [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md)'de; *hangi sırayla
+kapatılmalı* sorusunun cevabı [`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md)'de;
+API sözleşmesi
 [`API.md`](API.md) ve [`openapi.json`](openapi.json)'da.
 
 ---

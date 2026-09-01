@@ -487,7 +487,7 @@
                     <div class="stg-field">
                         <label class="stg-label">Özel Head Kodu</label>
                         <textarea class="stg-textarea font-mono" name="settings[custom_head_code]" rows="4"
-                                  placeholder="<script> veya <meta> etiketleri" data-validation-engine="validate[maxSize[10000]]">{{ $s('custom_head_code') }}</textarea>
+                                  placeholder="<script nonce="{{ csp_nonce() }}"> veya <meta> etiketleri" data-validation-engine="validate[maxSize[10000]]">{{ $s('custom_head_code') }}</textarea>
                         <small class="stg-hint">&lt;head&gt; etiketinin sonuna eklenecek özel kod (Google doğrulama, analitik vb.)</small>
                     </div>
                 </div>
@@ -1497,7 +1497,7 @@ max_execution_time = 120</pre>
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
 (function() {
     'use strict';
 
@@ -1814,7 +1814,7 @@ max_execution_time = 120</pre>
 {{-- Kütüphane projede duruyor; CDN'e erişilemediğinde görsel önizleme
      sessizce çalışmıyordu. --}}
 <script src="{{ versioned_asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     var lightbox = GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
 
     // ── TikTok Audit Rehberi: kopyala butonları ──────────────────

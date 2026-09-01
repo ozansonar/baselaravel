@@ -314,7 +314,7 @@
 
 @if(!$post->trashed())
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
 function openDeleteModal(name, id) {
     document.getElementById('deleteItemName').textContent = name;
     document.getElementById('deleteForm').action = '{{ url("admin/blog-posts") }}/' + id;

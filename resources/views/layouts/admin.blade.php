@@ -80,7 +80,7 @@
 <script src="{{ asset('assets/vendor/select2/js/i18n/tr.js') }}"></script>
 <script src="{{ asset('assets/vendor/select2/js/i18n/en.js') }}"></script>
 <script src="{{ asset('assets/vendor/dropzone/dropzone.min.js') }}"></script>
-<script>Dropzone.autoDiscover = false;</script>
+<script nonce="{{ csp_nonce() }}">Dropzone.autoDiscover = false;</script>
 <script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
 <script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/app.js') }}"></script>
@@ -99,8 +99,8 @@
 @if(Route::has('admin.notifications.recent'))
 <script src="{{ versioned_asset('assets/admin/js/notification-bell.js') }}"></script>
 @endif
-<script>AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 50 });</script>
-<script>
+<script nonce="{{ csp_nonce() }}">AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true, offset: 50 });</script>
+<script nonce="{{ csp_nonce() }}">
 (function() {
     if (typeof AdminModal === 'undefined') {
         return;
@@ -127,7 +127,7 @@
     }
 })();
 </script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     // Sidebar toggle (mobile + desktop)
     (function () {
         const toggle = document.getElementById('sidebarToggle');

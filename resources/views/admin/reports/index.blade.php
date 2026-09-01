@@ -512,7 +512,7 @@
             'label'  => $report['series']['label'],
         ];
     @endphp
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.reportChartData = {!! json_encode($chartData, JSON_UNESCAPED_UNICODE) !!};
         window.reportPreviewUrl = '{{ route('admin.reports.preview', ['type' => '__TYPE__']) }}';
         window.reportRange = '{{ $range }}';

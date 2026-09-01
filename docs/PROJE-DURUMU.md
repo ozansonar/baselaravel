@@ -572,6 +572,11 @@ biriktiği arandı. On altı kusur çıktı — on ikisi "kural yazılı ama bek
 yok ya da elle yazılmış dar bir listeye bakıyor" desenindeydi. Hepsi kapatıldı
 ve her biri için liste yerine kaynağından beslenen bir bekçi kuruldu.
 
+Aynı turda, 31 Ağustos tarihli **Base Kit Boşluk Analizi** de depoya alındı
+([`BOSLUK-ANALIZI.md`](BOSLUK-ANALIZI.md)) — o güne kadar yalnız bir Artifact
+olarak duruyordu. On beş bulgusundan dördü hâlâ açıktı (CSP, cache hijyeni
+üçlüsü); dördü de kapatıldı, artık tamamı kapalı.
+
 Ayrıntılar: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md).
 
 ### ✅ Bu turda kapananlar

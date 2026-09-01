@@ -177,7 +177,7 @@
 @push('scripts')
 {{-- "Şimdi Gönder" düğmesinin davranışı listeyle ortak. --}}
 <script src="{{ versioned_asset('assets/admin/js/mail-logs.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
 (function() {
     'use strict';
 

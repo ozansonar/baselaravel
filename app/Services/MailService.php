@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\CacheKeys;
 use App\Enums\MailLogStatus;
 use App\Mail\BaseMail;
 use App\Models\MailLog;
@@ -86,7 +87,7 @@ final class MailService
                 'error_message' => $e->getMessage(),
             ]);
 
-            Cache::forget('admin.mail_logs.stats');
+            Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
 
             return false;
         }
@@ -199,7 +200,7 @@ final class MailService
                 'error_message' => null,
             ]);
 
-            Cache::forget('admin.mail_logs.stats');
+            Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
 
             return true;
         } catch (\Throwable $e) {
@@ -213,7 +214,7 @@ final class MailService
                 'error_message' => $e->getMessage(),
             ]);
 
-            Cache::forget('admin.mail_logs.stats');
+            Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
 
             throw $e;
         }
@@ -284,7 +285,7 @@ final class MailService
             'error_message' => mb_substr($error, 0, 500),
         ]);
 
-        Cache::forget('admin.mail_logs.stats');
+        Cache::forget(CacheKeys::ADMIN_MAIL_LOGS_STATS);
     }
 
     /**

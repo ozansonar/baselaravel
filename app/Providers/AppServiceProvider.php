@@ -35,6 +35,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -74,6 +75,21 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LanguageService::class);
         $this->app->singleton(LocalizedUrlService::class);
 
+        // İçerik güvenlik politikası istek kapsamında paylaşılıyor: başlığa
+        // yazılan nonce ile sayfadaki satır içi betiklerin taşıdığı nonce aynı
+        // olmak zorunda. Singleton olsaydı kuyruk işçisi gibi uzun ömürlü
+        // süreçlerde aynı anahtar isteklere taşınır ve tek kullanımlık olma
+        // özelliğini kaybederdi.
+        $this->app->scoped(\App\Services\ContentSecurityPolicy::class);
+
+        // Aynı anahtarın yaygın adı. Kendi kodumuz servisi doğrudan soruyor;
+        // bu bağ, sayfaya kendi betiğini basan paketler için — Debugbar bunu
+        // arayıp bulduğunda enjekte ettiği betiğe nonce'u kendisi ekliyor,
+        // yoksa geliştirme ortamında konsol tek başına ihlal uyarısı basar.
+        $this->app->bind('csp-nonce', static fn ($app): string => $app
+            ->make(\App\Services\ContentSecurityPolicy::class)
+            ->nonce());
+
         // Interface texts stay in lang/ files; the panel's edits are laid over
         // them at load time. Decorating the loader keeps every __() call and
         // every Blade @lang untouched.
@@ -89,6 +105,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->applyConfiguredTimezone();
+
+        $this->registerFragmentDirective();
 
         Schema::defaultStringLength(191);
 
@@ -356,6 +374,23 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Throwable) {
             return (string) config('app.locale', 'tr');
         }
+    }
+
+    /**
+     * `@cachedInclude` — her sayfada aynı çıkan parçaları çizilmiş hâliyle sunar.
+     *
+     * `@include` ile aynı yerde durur, aynı şekilde çağrılır:
+     *
+     *     @cachedInclude('partials.footer', [], [app()->getLocale()])
+     *
+     * Farkı, parça önbellekte varsa görünümün **hiç çizilmemesi** — kazanç
+     * buradan geliyor. Saklanıp saklanmayacağına `FragmentCache` karar veriyor:
+     * oturum açmış kullanıcıda, GET olmayan istekte ya da çıktı kişiye özel bir
+     * iz taşıyorsa parça yazılmıyor.
+     */
+    private function registerFragmentDirective(): void
+    {
+        Blade::directive('cachedInclude', static fn (string $expression): string => '<?php echo app(\App\Services\FragmentCache::class)->renderCached(' . $expression . '); ?>');
     }
 
     private function applyConfiguredTimezone(): void

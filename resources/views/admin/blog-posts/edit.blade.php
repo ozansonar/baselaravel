@@ -92,7 +92,7 @@
 <script src="{{ versioned_asset('assets/admin/js/content-form.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-files.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
 'use strict';
 
 /**

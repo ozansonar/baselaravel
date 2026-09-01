@@ -252,7 +252,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ csp_nonce() }}">
     function openDeleteModal(id, title) {
         AdminModal.confirm({
             title: 'Silme Onayı',
