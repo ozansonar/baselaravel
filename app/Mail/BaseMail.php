@@ -109,8 +109,11 @@ abstract class BaseMail extends Mailable
      */
     private function loadThemeSettings(): void
     {
+        // Setting::getValue: ayarın bu dildeki karşılığı varsa o kazanıyor.
+        // Doğrudan sorgu, çevrilebilir olan mail altbilgisini her dilde aynı
+        // gösterirdi. Maildeki dil zaten mühürlü (BaseMail::resolveLocale).
         $getValue = fn (string $key, string $default): string =>
-            Setting::where('key', $key)->value('value') ?? $default;
+            Setting::getValue($key) ?? $default;
 
         try {
             $this->themePrimary = $getValue('mail_theme_primary_color', '#4f46e5');
@@ -303,7 +306,8 @@ abstract class BaseMail extends Mailable
     private function prepareMailLogo(): void
     {
         try {
-            $logoRelPath = Setting::where('key', 'mail_logo')->value('value');
+            // Görsel çevrilmiyor: "bütün diller" satırı.
+            $logoRelPath = Setting::whereNull('locale')->where('key', 'mail_logo')->value('value');
             if ($logoRelPath) {
                 $fullPath = UploadService::basePath($logoRelPath);
                 if (file_exists($fullPath)) {

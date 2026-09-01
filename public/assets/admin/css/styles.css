@@ -33123,3 +33123,65 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
 .seo-details__item--error   { border-left-color: #f87171; }
 .seo-details__item--warning { border-left-color: #fbbf24; }
 .seo-details__item--info    { border-left-color: #60a5fa; }
+
+/* ==========================================================================
+   Ayarlarda çeviri kutusu
+   ==========================================================================
+   Metin taşıyan ayarların öteki dillerdeki karşılığı. Kapalı açılıyor:
+   on üç alanın hepsini açık göstermek ayarlar ekranını iki katına çıkarırdı.
+   Dolu olan kendiliğinden açık geliyor — yönetici bir çeviri girdiyse onu
+   aramak zorunda kalmamalı.
+
+   Açma/kapama <details>'in kendi işi; JS yok. Aynı desen SEO ve kampanya
+   ekranlarında da kullanılıyor (.seo-details).
+   ========================================================================== */
+
+.stg-i18n {
+  margin-top: 8px;
+  border-left: 2px solid var(--border-color, #334155);
+  padding-left: 12px;
+}
+
+.stg-i18n__summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  user-select: none;
+}
+
+.stg-i18n__summary::-webkit-details-marker { display: none; }
+
+.stg-i18n__summary::before {
+  content: "▸";
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.stg-i18n[open] > .stg-i18n__summary::before { transform: rotate(90deg); }
+
+.stg-i18n__summary:hover { color: var(--text-secondary); }
+
+.stg-i18n__badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: var(--bg-hover, rgba(148, 163, 184, 0.12));
+  color: var(--text-secondary);
+}
+
+.stg-i18n__badge--empty { opacity: 0.6; }
+
+.stg-i18n__body { padding-top: 8px; }
+
+/* Çeviri alanı asıl alandan görsel olarak bir adım geride durmalı:
+   ekranda hangisinin asıl değer olduğu bakışta anlaşılsın. */
+.stg-i18n__field { margin-bottom: 10px; }
+.stg-i18n__field:last-child { margin-bottom: 2px; }
+.stg-i18n__field .stg-label { font-size: 12px; opacity: 0.85; }
+
+.stg-i18n__flag { margin-right: 4px; }

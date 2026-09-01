@@ -68,8 +68,11 @@ class SettingSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
+            // locale => null: "bütün diller" satırı. Anahtar tek başına
+            // eşleştirilseydi tohum tekrar çalıştığında bir çeviri satırını
+            // yakalayıp üzerine Türkçe asıl değeri yazabilirdi.
             Setting::updateOrCreate(
-                ['key' => $setting['key']],
+                ['key' => $setting['key'], 'locale' => null],
                 $setting,
             );
         }

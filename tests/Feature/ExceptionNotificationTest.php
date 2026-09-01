@@ -39,11 +39,13 @@ class ExceptionNotificationTest extends TestCase
 
     private function enableTelegram(): void
     {
+        // Benzersizlik (key, locale) çifti: ayarların metin taşıyan bir kısmı
+        // dile göre değişebiliyor. null = "bütün diller".
         Setting::query()->upsert([
-            ['key' => 'telegram_enabled', 'value' => '1'],
-            ['key' => 'telegram_bot_token', 'value' => 'test-token'],
-            ['key' => 'telegram_chat_id', 'value' => '12345'],
-        ], ['key'], ['value']);
+            ['key' => 'telegram_enabled', 'locale' => null, 'value' => '1'],
+            ['key' => 'telegram_bot_token', 'locale' => null, 'value' => 'test-token'],
+            ['key' => 'telegram_chat_id', 'locale' => null, 'value' => '12345'],
+        ], ['key', 'locale'], ['value']);
 
         Setting::clearSettingsCache();
     }

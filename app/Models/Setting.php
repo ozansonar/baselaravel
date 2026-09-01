@@ -16,6 +16,7 @@ class Setting extends Model
 
     protected $fillable = [
         'key',
+        'locale',
         'value',
         'group',
         'type',
@@ -25,26 +26,74 @@ class Setting extends Model
 
     // ── Static Helpers ──
 
-    /** @var array<string, string|null>|null */
+    /**
+     * Bütün ayarlar, anahtar ve dile göre: [anahtar][dil|''] => değer.
+     *
+     * Diller tek bir önbellek girdisinde duruyor, dil başına ayrı girdide
+     * değil: tablo küçük ve çözümleme PHP tarafında bir dizi okuması. Dil
+     * başına önbellek, dil sayısı kadar sorgu ve dil sayısı kadar
+     * geçersizleştirme demek olurdu.
+     *
+     * @var array<string, array<string, string|null>>|null
+     */
     private static ?array $cachedSettings = null;
 
-    public static function getValue(string $key, ?string $default = null): ?string
+    /**
+     * Bir ayarın bu dildeki değeri.
+     *
+     * Önce isteğin dili, sonra "bütün diller" satırı (locale = null). Ayarların
+     * çoğunun yalnız o satırı var; yalnız TranslatableSettings listesindekiler
+     * dile ait ikinci bir satır taşıyabiliyor.
+     *
+     * @param string|null $locale null ise isteğin dili
+     */
+    public static function getValue(string $key, ?string $default = null, ?string $locale = null): ?string
     {
-        if (static::$cachedSettings === null) {
-            /** @var array<string, string|null> $all */
-            $all = Cache::remember(CacheKeys::SETTINGS_ALL, 86400, fn () =>
-                static::pluck('value', 'key')->toArray(),
-            );
-            static::$cachedSettings = $all;
+        $all = static::allByLocale();
+
+        if (! isset($all[$key])) {
+            return $default;
         }
 
-        return static::$cachedSettings[$key] ?? $default;
+        $locale ??= app()->getLocale();
+        $row = $all[$key];
+
+        // Boş bir çeviri "çevrilmedi" demek: yönetici alanı boş bıraktığında
+        // ziyaretçi boş bir alt bilgi değil, asıl değeri görmeli.
+        if (isset($row[$locale]) && $row[$locale] !== null && $row[$locale] !== '') {
+            return $row[$locale];
+        }
+
+        return $row[''] ?? $default;
     }
 
-    public static function setValue(string $key, ?string $value, string $group = 'general', string $type = 'text'): void
+    /**
+     * @return array<string, array<string, string|null>>
+     */
+    public static function allByLocale(): array
+    {
+        if (static::$cachedSettings !== null) {
+            return static::$cachedSettings;
+        }
+
+        /** @var array<string, array<string, string|null>> $all */
+        $all = Cache::remember(CacheKeys::SETTINGS_ALL, 86400, function (): array {
+            $map = [];
+
+            foreach (static::query()->get(['key', 'locale', 'value']) as $setting) {
+                $map[$setting->key][(string) $setting->locale] = $setting->value;
+            }
+
+            return $map;
+        });
+
+        return static::$cachedSettings = $all;
+    }
+
+    public static function setValue(string $key, ?string $value, string $group = 'general', string $type = 'text', ?string $locale = null): void
     {
         static::updateOrCreate(
-            ['key' => $key],
+            ['key' => $key, 'locale' => $locale],
             ['value' => $value, 'group' => $group, 'type' => $type],
         );
 
@@ -52,15 +101,22 @@ class Setting extends Model
     }
 
     /**
+     * Düz "anahtar => değer" görünümü — isteğin dilinde çözülmüş hâliyle.
+     *
      * @return array<string, string|null>
      */
     public static function getCachedSettings(): array
     {
-        if (static::$cachedSettings === null) {
-            static::getValue('__noop__');
+        $locale = app()->getLocale();
+        $flat = [];
+
+        foreach (static::allByLocale() as $key => $byLocale) {
+            $flat[$key] = ($byLocale[$locale] ?? '') !== '' && ($byLocale[$locale] ?? null) !== null
+                ? $byLocale[$locale]
+                : ($byLocale[''] ?? null);
         }
 
-        return static::$cachedSettings ?? [];
+        return $flat;
     }
 
     public static function clearSettingsCache(): void
@@ -68,10 +124,12 @@ class Setting extends Model
         static::$cachedSettings = null;
         Cache::forget(CacheKeys::SETTINGS_ALL);
 
-        // API'nin dışarı açtığı süzülmüş liste ayrı bir anahtarda duruyor
-        // (grup ve tip bilgisi gerektiği için). Burada düşürülmezse panelden
-        // değişen bir ayar mobil tarafta bir saat daha eskisiyle görünürdü.
-        Cache::forget(\App\Services\SettingService::PUBLIC_CACHE_KEY);
+        // API'nin dışarı açtığı süzülmüş liste ayrı anahtarlarda duruyor
+        // (grup ve tip bilgisi gerektiği için) ve dil başına bir girdi var.
+        // Burada düşürülmezse panelden değişen bir ayar mobil tarafta bir saat
+        // daha eskisiyle görünürdü.
+        app(\App\Services\CachePurger::class)
+            ->forgetPrefix(\App\Services\SettingService::PUBLIC_CACHE_PREFIX);
 
         // Çizilmiş parçalar da ayarlardan besleniyor (site adı, iletişim
         // bilgileri, alt bilgi metni); ayar değişince onlar da bayatlıyor.

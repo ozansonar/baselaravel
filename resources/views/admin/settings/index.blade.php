@@ -161,6 +161,7 @@
                         <input type="text" class="stg-input" name="settings[site_title]"
                                value="{{ $s('site_title') }}" placeholder="Site başlığını girin" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Tarayıcı sekmesinde ve başlık çubuğunda görüntülenir</small>
+                        @include('partials.admin.setting-translations', ['key' => 'site_title', 'label' => 'Site Başlığı'])
                     </div>
 
                     <div class="stg-field">
@@ -168,6 +169,7 @@
                         <textarea class="stg-textarea" name="settings[site_description]" rows="3"
                                   placeholder="Kısa bir açıklama yazın" data-validation-engine="validate[maxSize[10000]]">{{ $s('site_description') }}</textarea>
                         <small class="stg-hint">Ana sayfada ve meta description'da kullanılır</small>
+                        @include('partials.admin.setting-translations', ['key' => 'site_description', 'label' => 'Site Açıklaması', 'rows' => 3])
                     </div>
 
                     <div class="stg-field">
@@ -175,6 +177,7 @@
                         <textarea class="stg-textarea" name="settings[site_keywords]" rows="2"
                                   placeholder="virgülle ayırarak yazın" data-validation-engine="validate[maxSize[10000]]">{{ $s('site_keywords') }}</textarea>
                         <small class="stg-hint">SEO için meta keywords. Virgülle ayırarak yazın</small>
+                        @include('partials.admin.setting-translations', ['key' => 'site_keywords', 'label' => 'Site Anahtar Kelimeleri', 'rows' => 2])
                     </div>
                 </div>
 
@@ -243,6 +246,7 @@
                         <input type="text" class="stg-input" name="settings[footer_text]"
                                value="{{ $s('footer_text') }}" placeholder="Footer metin bilgisi" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Site alt kısmında görünecek telif hakkı metni</small>
+                        @include('partials.admin.setting-translations', ['key' => 'footer_text', 'label' => 'Footer Metni', 'rows' => 2])
                     </div>
 
                     <div class="stg-field">
@@ -250,6 +254,7 @@
                         <input type="text" class="stg-input" name="settings[footer_credit]"
                                value="{{ $s('footer_credit') }}" placeholder="Örn: Acme Yazılım tarafından geliştirildi" data-validation-engine="validate[maxSize[10000]]">
                         <small class="stg-hint">Footer'ın sağ tarafında görünür. Boş bırakılırsa hiç gösterilmez.</small>
+                        @include('partials.admin.setting-translations', ['key' => 'footer_credit', 'label' => 'Footer Yazısı'])
                     </div>
                 </div>
             </form>
@@ -311,6 +316,7 @@
                         <label class="stg-label">Açık Adres</label>
                         <textarea class="stg-textarea" name="settings[contact_address]" rows="3"
                                   placeholder="Tam adres bilgisi" data-validation-engine="validate[maxSize[10000]]">{{ $s('contact_address') }}</textarea>
+                        @include('partials.admin.setting-translations', ['key' => 'contact_address', 'label' => 'Açık Adres', 'rows' => 3])
                     </div>
 
                     <div class="stg-field">
@@ -331,17 +337,20 @@
                             <label class="stg-label">Hafta İçi</label>
                             <input type="text" class="stg-input" name="settings[working_hours_weekday]"
                                    value="{{ $s('working_hours_weekday', '08:00 - 18:00') }}" placeholder="08:00 - 18:00" data-validation-engine="validate[maxSize[10000]]">
+                        @include('partials.admin.setting-translations', ['key' => 'working_hours_weekday', 'label' => 'Hafta İçi'])
                         </div>
                         <div class="stg-field stg-half">
                             <label class="stg-label">Cumartesi</label>
                             <input type="text" class="stg-input" name="settings[working_hours_saturday]"
                                    value="{{ $s('working_hours_saturday', '09:00 - 16:00') }}" placeholder="09:00 - 16:00" data-validation-engine="validate[maxSize[10000]]">
+                        @include('partials.admin.setting-translations', ['key' => 'working_hours_saturday', 'label' => 'Cumartesi'])
                         </div>
                     </div>
                     <div class="stg-field">
                         <label class="stg-label">Pazar</label>
                         <input type="text" class="stg-input" name="settings[working_hours_sunday]"
                                value="{{ $s('working_hours_sunday', 'Kapalı') }}" placeholder="Kapalı" data-validation-engine="validate[maxSize[10000]]">
+                        @include('partials.admin.setting-translations', ['key' => 'working_hours_sunday', 'label' => 'Pazar'])
                     </div>
                 </div>
             </form>
@@ -502,12 +511,14 @@
                         <label class="stg-label">OG Başlık</label>
                         <input type="text" class="stg-input" name="settings[og_title]"
                                value="{{ $s('og_title') }}" placeholder="{{ $s('site_name', config('app.name')) }} - Kurumsal Web Sitesi" data-validation-engine="validate[maxSize[10000]]">
+                        @include('partials.admin.setting-translations', ['key' => 'og_title', 'label' => 'OG Başlık'])
                     </div>
 
                     <div class="stg-field">
                         <label class="stg-label">OG Açıklama</label>
                         <textarea class="stg-textarea" name="settings[og_description]" rows="2"
                                   placeholder="Sosyal medya paylaşımlarında görünecek açıklama" data-validation-engine="validate[maxSize[10000]]">{{ $s('og_description') }}</textarea>
+                        @include('partials.admin.setting-translations', ['key' => 'og_description', 'label' => 'OG Açıklama', 'rows' => 3])
                     </div>
                 </div>
             </form>
@@ -671,6 +682,7 @@
                             <textarea name="settings[maintenance_message]" class="stg-input" rows="3"
                                       placeholder="Sitemiz şu anda planlı bakım çalışması nedeniyle geçici olarak kullanım dışıdır." data-validation-engine="validate[maxSize[10000]]">{{ $s('maintenance_message') }}</textarea>
                             <small class="stg-hint">Boş bırakılırsa varsayılan mesaj gösterilir</small>
+                        @include('partials.admin.setting-translations', ['key' => 'maintenance_message', 'label' => 'Bakım Mesajı', 'rows' => 3])
                         </div>
 
                         <div class="stg-field">
@@ -993,6 +1005,7 @@
                                   id="mtFooterText"
                                   placeholder="Sizinle çalışmaktan mutluluk duyuyoruz." data-validation-engine="validate[maxSize[10000]]">{{ $s('mail_theme_footer_text', 'Sizinle çalışmaktan mutluluk duyuyoruz.') }}</textarea>
                         <small class="stg-hint">E-posta footer bölümünde görünecek açıklama metni</small>
+                        @include('partials.admin.setting-translations', ['key' => 'mail_theme_footer_text', 'label' => 'Mail Altbilgisi'])
                     </div>
 
                     <div class="stg-field">
