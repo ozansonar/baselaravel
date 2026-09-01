@@ -116,6 +116,16 @@ Schedule::call($run('audit-logs:prune', ['--days' => \App\Services\AuditLogServi
     ->at('03:30')
     ->withoutOverlapping();
 
+// Hata kayıtları: uzun süredir tekrar etmeyenler siliniyor. Aktivite
+// loglarından kısa bir saklama süresi var çünkü satırlar yığın izi taşıyor ve
+// çözülmüş bir hatanın izine iki ay sonra kimse bakmıyor.
+Schedule::call($run('error-logs:prune', ['--days' => \App\Services\ErrorLogService::RETENTION_DAYS]))
+    ->name('error-logs-prune')
+    ->weekly()
+    ->sundays()
+    ->at('03:40')
+    ->withoutOverlapping();
+
 // Kampanya ekleri: kaydedilmeden bırakılmış yüklemeler bir günlük bekleme
 // sonrası siliniyor. Dosya kampanyadan önce yüklendiği için form terk
 // edilirse public/uploads altında sahipsiz kalıyor.

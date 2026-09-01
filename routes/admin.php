@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\CustomRouteController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogCommentController;
@@ -168,6 +169,16 @@ Route::get('sistem-saglik/json', [HealthController::class, 'json'])->name('syste
 // Audit Logs (Audit Trail)
 Route::get('aktivite-loglari', [AuditLogController::class, 'index'])->name('audit-logs.index');
 Route::get('aktivite-loglari/{auditLog}', [AuditLogController::class, 'show'])->name('audit-logs.show');
+
+// Hata kayıtları — sunucu hatalarının panelden okunabilen hâli.
+// Sabit yollar parametreli olandan ÖNCE: "toplu-temizle" de bir {errorLog}
+// gibi görünür ve sonra tanımlanırsa oraya takılır.
+Route::get('hata-kayitlari', [ErrorLogController::class, 'index'])->name('error-logs.index');
+Route::delete('hata-kayitlari/toplu-temizle', [ErrorLogController::class, 'purge'])->name('error-logs.purge');
+Route::get('hata-kayitlari/{errorLog}', [ErrorLogController::class, 'show'])->name('error-logs.show');
+Route::patch('hata-kayitlari/{errorLog}/cozuldu', [ErrorLogController::class, 'resolve'])->name('error-logs.resolve');
+Route::patch('hata-kayitlari/{errorLog}/yeniden-ac', [ErrorLogController::class, 'reopen'])->name('error-logs.reopen');
+Route::delete('hata-kayitlari/{errorLog}', [ErrorLogController::class, 'destroy'])->name('error-logs.destroy');
 
 // Notifications (Admin Notification Center)
 Route::get('bildirimler', [NotificationController::class, 'index'])->name('notifications.index');

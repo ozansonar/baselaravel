@@ -33401,3 +33401,71 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
 @media (max-width: 575.98px) {
   .nt-hints { grid-template-columns: 1fr; }
 }
+
+/* ---------- Hata kayıtları: sütun genişlikleri ---------------------------
+   Hata mesajı ve dosya yolu iki uçlu: kimi bir kelime, kimi iki yüz karakter.
+   Karakter sayısıyla kırpmak yetmiyor — genişliği belirleyen karakter sayısı
+   değil, karakterin kendisi ("İşlem" ile "WWWWW" aynı sayıda harf, iki katı
+   genişlik). Sınır sütuna konuyor; taşan metin üç noktayla kesiliyor ve tamamı
+   `title` niteliğinde duruyor.
+
+   Sınır olmadan tablo 1500 piksellik ekranda bile yatayda taşıyor ve en çok
+   bakılan sütun —Tekrar— görüş alanının dışında kalıyordu. */
+.el-table .el-error-cell {
+  max-width: 340px;
+}
+
+.el-table .el-error-cell .al-label,
+.el-table .el-error-cell .cl-content-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.el-table .el-loc {
+  display: inline-block;
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* Dar ekranda tablo zaten kart düzenine geçiyor; orada sınır metni kırpıyor. */
+@media (max-width: 991.98px) {
+  .el-table .el-error-cell,
+  .el-table .el-error-cell .al-label,
+  .el-table .el-error-cell .cl-content-meta,
+  .el-table .el-loc {
+    max-width: none;
+    white-space: normal;
+  }
+}
+
+/* ---------- Hata kayıtları: tekrar sayacı -------------------------------
+   Listedeki tek yeni parça. Diğer her şey —istatistik kutuları, sekmeler,
+   araç çubuğu, tablo, özet kartları— panelin mevcut sınıflarıyla çiziliyor.
+
+   Sayaç bilerek öne çıkıyor: bir kez olan hata talihsizlik, bin kez olan
+   kusur ve listeye bakan kişinin ilk ayırt etmesi gereken şey bu. */
+.el-count {
+  display: inline-block;
+  min-width: 46px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* Tekrar etmiş hata: aynı kusur ısrar ediyor demek. */
+.el-count--many {
+  background: color-mix(in srgb, var(--neon-red, #ef4444) 12%, transparent);
+  border-color: color-mix(in srgb, var(--neon-red, #ef4444) 32%, transparent);
+  color: var(--neon-red, #ef4444);
+}

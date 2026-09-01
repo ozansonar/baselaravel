@@ -82,6 +82,8 @@ enum PermissionKey: string
     case MailLogsView = 'mail-logs.view';
     case MailLogsResend = 'mail-logs.resend';
     case AuditLogsView = 'audit-logs.view';
+    case ErrorLogsView = 'error-logs.view';
+    case ErrorLogsManage = 'error-logs.manage';
     case BackupsView = 'backups.view';
     case BackupsManage = 'backups.manage';
     case BackupsDelete = 'backups.delete';
@@ -164,6 +166,8 @@ enum PermissionKey: string
             self::MailLogsView => 'Mail loglarını görüntüle',
             self::MailLogsResend => 'Maili yeniden gönder',
             self::AuditLogsView => 'Aktivite loglarını görüntüle',
+            self::ErrorLogsView => 'Hata kayıtlarını görüntüle',
+            self::ErrorLogsManage => 'Hata kaydını çözüldü işaretle ve sil',
             self::BackupsView => 'Yedekleri görüntüle',
             self::BackupsManage => 'Yedek oluştur ve indir',
             self::BackupsDelete => 'Yedek sil',
@@ -248,6 +252,8 @@ enum PermissionKey: string
             self::MailLogsView => PermissionGroup::System,
             self::MailLogsResend => PermissionGroup::System,
             self::AuditLogsView => PermissionGroup::System,
+            self::ErrorLogsView => PermissionGroup::System,
+            self::ErrorLogsManage => PermissionGroup::System,
             self::BackupsView => PermissionGroup::System,
             self::BackupsManage => PermissionGroup::System,
             self::BackupsDelete => PermissionGroup::System,

@@ -289,6 +289,16 @@
 
         @endif
 
+        @if(Route::has('admin.error-logs.index'))
+        @can('viewAny', \App\Models\ErrorLog::class)
+        <a href="{{ route('admin.error-logs.index') }}"
+           class="nav-link {{ Route::is('admin.error-logs.*') ? 'active' : '' }}">
+            <i class="bi bi-bug-fill"></i> Hata Kayıtları
+        </a>
+        @endcan
+
+        @endif
+
         @if(Route::has('admin.audit-logs.index'))
         @can('viewAny', \App\Models\AuditLog::class)
         <a href="{{ route('admin.audit-logs.index') }}"

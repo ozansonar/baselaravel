@@ -290,6 +290,14 @@ return [
             'icon'  => 'bi-file-earmark-bar-graph',
         ],
         [
+            'route' => 'admin.error-logs.index',
+            'title' => 'Hata Kayıtları',
+            'description' => 'Sunucuda oluşan hatalar tek listede: ne olduğu, hangi dosyada patladığı, kaç kez tekrar ettiği ve yığın izi. Düzelttiğiniz hatayı çözüldü işaretleyebilirsiniz; aynı hata yeniden oluşursa işaret kendiliğinden kalkar.',
+            'badge' => 'İleri',
+            'cover' => 'orange',
+            'icon'  => 'bi-bug-fill',
+        ],
+        [
             'route' => 'admin.audit-logs.index',
             'title' => 'Aktivite Logları',
             'description' => 'Panelde kim ne yaptı: giriş, çıkış, kayıt değişikliği, toplu işlem ve dışa aktarma. Kayıtlar bir süre sonra kendiliğinden temizlenir.',

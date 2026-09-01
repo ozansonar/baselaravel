@@ -79,6 +79,9 @@ class AdminAuthorizationTest extends TestCase
             '/admin/mail-templates'     => [200, 403, 403],
             '/admin/mail-logs'          => [200, 403, 403],
             '/admin/aktivite-loglari'   => [200, 403, 403],
+            // Hata kayıtları yığın izi taşıyor: dosya yolları, sınıf adları,
+            // sorgu parçaları. Editör ve moderatörün ihtiyacı yok.
+            '/admin/hata-kayitlari'     => [200, 403, 403],
             '/admin/yedekler'           => [200, 403, 403],
             '/admin/sistem-saglik'      => [200, 403, 403],
             '/admin/custom-routes'      => [200, 403, 403],
