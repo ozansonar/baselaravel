@@ -9,6 +9,7 @@ use App\Rules\RecaptchaRule;
 use App\Services\RecaptchaService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use App\Rules\EmailAddress;
 
 final class RegisterRequest extends FormRequest
 {
@@ -25,7 +26,7 @@ final class RegisterRequest extends FormRequest
         return [
             'first_name'           => ['required', 'string', 'min:2', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
             'last_name'            => ['required', 'string', 'min:2', 'max:50', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'                => ['required', 'string', 'email', 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique()],
+            'email'                => ['required', 'string', ...EmailAddress::rules(), 'max:' . UserEmail::MAX_LENGTH, UserEmail::unique()],
             'phone'                => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'password'             => ['required', 'string', Password::min(8), 'confirmed'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()

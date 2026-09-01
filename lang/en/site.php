@@ -611,6 +611,7 @@ return [
         'recaptcha'                   => 'Please confirm that you are not a robot.',
         'email_required'              => 'An e-mail address is required.',
         'email_invalid'               => 'Enter a valid e-mail address.',
+        'email_disposable' => 'Disposable e-mail addresses are not accepted. Please use a permanent address.',
         'email_invalid_formal'        => 'Please enter a valid e-mail address.',
         'password_required'           => 'A password is required.',
         'password_min'                => 'The password must be at least :min characters.',

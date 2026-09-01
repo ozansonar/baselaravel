@@ -615,6 +615,7 @@ return [
         'recaptcha'                   => 'Lütfen robot olmadığınızı doğrulayın.',
         'email_required'              => 'E-posta adresi zorunludur.',
         'email_invalid'               => 'Geçerli bir e-posta adresi girin.',
+        'email_disposable' => 'Tek kullanımlık e-posta adresleri kabul edilmiyor. Lütfen kalıcı bir adres girin.',
         'email_invalid_formal'        => 'Geçerli bir e-posta adresi giriniz.',
         'password_required'           => 'Şifre zorunludur.',
         'password_min'                => 'Şifre en az :min karakter olmalıdır.',

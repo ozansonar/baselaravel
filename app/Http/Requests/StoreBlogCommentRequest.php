@@ -7,6 +7,7 @@ namespace App\Http\Requests;
 use App\Rules\RecaptchaRule;
 use App\Services\RecaptchaService;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\EmailAddress;
 
 final class StoreBlogCommentRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ final class StoreBlogCommentRequest extends FormRequest
             'blog_post_id' => ['required', 'integer', 'exists:blog_posts,id'],
             'parent_id'    => ['nullable', 'integer', 'exists:blog_comments,id'],
             'name'         => ['required', 'string', 'min:2', 'max:100', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'        => ['required', 'email', 'max:191'],
+            'email'        => ['required', ...EmailAddress::rules(), 'max:191'],
             'body'                 => ['required', 'string', 'min:3', 'max:2000'],
             'g-recaptcha-response' => app(RecaptchaService::class)->isEnabled()
                 ? ['required', new RecaptchaRule()]

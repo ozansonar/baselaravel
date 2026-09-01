@@ -29,7 +29,7 @@ final class StoreContactMessageRequest extends FormRequest
     {
         return [
             'name'    => ['required', 'string', 'min:2', 'max:191', 'regex:/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/u'],
-            'email'   => ['required', 'string', EmailAddress::rule(), 'max:191'],
+            'email'   => ['required', 'string', ...EmailAddress::rules(), 'max:191'],
             'phone'   => ['nullable', 'string', 'max:20', 'regex:/^[0-9\s\-\+\(\).]+$/'],
             'subject' => ['required', 'string', 'max:191'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],

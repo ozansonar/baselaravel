@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **39** model | **102** servis | **27** policy | **82** migration |
-| **139** test dosyası | **1979** test | **7900** doğrulama | **35** dışa aktarma tanımı |
+| **139** test dosyası | **1990** test | **7950** doğrulama | **35** dışa aktarma tanımı |
 | **373** rota | **258** admin rotası | **48** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1979 geçiyor, 9 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1990 geçiyor, 9 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -220,6 +220,7 @@ arşiv bölümünde olduğunu söylüyor.
 | **API'de iki adımlı doğrulama kurulumu** (4 uç, 18 test) | — | ✅ |
 | **İçerik sürümleme** (sayfa + blog, 20 sürüm, dil başına, 24 test) | — | ✅ |
 | **Ölü kod temizliği** — 44 dosya, 1023 satır silindi | — | ✅ |
+| **Tek kullanımlık e-posta süzgeci** dokuz forma bağlandı | — | ✅ |
 | Dinamik form oluşturucu kapsam dışına alındı — **açık madde kalmadı** | — | ⛔ |
 
 ---
@@ -254,6 +255,92 @@ neden yapılmadığı.
 | 4 | API'de iki adımlı doğrulama kurulumu | Küçük | ✅ yapıldı — yalnız mobilden giren de 2FA açabiliyor |
 | 5 | İçerik sürümleme (revisions) | Orta | ✅ yapıldı — sayfa + blog, dil başına 20 sürüm |
 | 6 | Dinamik form oluşturucu | Büyük | ⛔ **bilerek kapsam dışı** — gerekçesi aşağıda |
+
+---
+
+### 3.5 Tek kullanımlık e-posta süzgeci bağlandı (1 Eylül)
+
+Temizlik turunda karar bekleyen tek kalem buydu: `NotDisposableEmail` kuralı
+ve 302 alan adlık liste yazılmış ama **hiçbir isteğe bağlanmamıştı**. Karar
+silmek değil **bağlamak** oldu.
+
+#### Bağlarken çıkan asıl boşluk
+
+Kuralı takacak yeri ararken görüldü ki sorun yalnız bağlanmamış bir kural
+değil: **üyelik kaydı, hesap adres değişikliği ve yorum formu düz `email`
+kuralıyla yetiniyordu.** Ne alan adına (`dns`) ne de tek kullanımlık listesine
+bakıyorlardı. Aynı sitede iletişim formu ikisini de yapıyordu.
+
+Bu, `EmailValidationTest`'in kendi açıklamasında zaten yazılıydı — *"ön yüz
+kaydı ile panelden kullanıcı ekleme bugün bile aynı şeyi sormuyor"* — ama
+sınayan bir bekçi yoktu.
+
+#### Yapılan
+
+`EmailAddress`'e ikinci bir giriş eklendi ve ikisi farklı sorulara cevap
+veriyor:
+
+| Giriş | Ne yapar | Nerede |
+|---|---|---|
+| `EmailAddress::rule()` | Biçim + alan adının posta alabilmesi | Giriş, şifre sıfırlama, panel |
+| `EmailAddress::rules()` | Yukarıdakiler **+ tek kullanımlık süzgeci** | Ziyaretçiden ilk kez adres alan her yer |
+
+`rules()` dokuz yere bağlandı: üyelik kaydı (web + API), bülten aboneliği
+(web + API), iletişim formu (web + API), yorum (web + API) ve hesap sahibinin
+adres değiştirmesi.
+
+**Nerede bilerek uygulanmadı ve neden:**
+
+- **Giriş, şifre sıfırlama:** adres zaten kayıtlı bir hesabı gösteriyor.
+  Engellemek, kaydı bir şekilde oluşmuş kişiyi kendi hesabından kilitlemek
+  olurdu.
+- **Panel (kullanıcı ekleme/düzenleme, abone düzenleme, kendi profili):**
+  adresi giren yönetici. Geçici bir hesabı bilerek açabilmeli — kural bir
+  yasak değil spam süzgeci, ve yönetici spam değil.
+
+#### Kuralın kendisi de sertleşti
+
+- **Alt alan adları yakalanıyor** (`kutu.10minutemail.com`). Sağlayıcılar
+  genelde her kullanıcıya bir alt alan adı veriyor; yalnız tam eşleşmeye bakan
+  bir liste ilk gün delinirdi.
+- **Büyük/küçük harf ayrımı yok** (`YOPMAIL.COM`).
+- **Mesaj çeviriye taşındı** (`site.forms.email_disposable`, tr + en). Önceden
+  koda gömülü Türkçe bir cümleydi; İngilizce gezen ziyaretçi Türkçe hata
+  görürdü.
+
+#### Neden `dns` yetmiyordu
+
+İki kural farklı şeylere bakıyor ve biri ötekinin yerini tutmuyor: `dns`
+uydurma alan adlarını eliyor, ama tek kullanımlık sağlayıcıların alan adları
+**gerçek** ve MX kayıtları çalışıyor — o süzgeçten sorunsuz geçiyorlar. Liste
+tam bu boşluk için var.
+
+#### Bekçi
+
+`EmailValidationTest`e iki sınav eklendi ve kapsam elle yazılmış listeden
+değil **dosya ağacından** besleniyor: `email` alanı doğrulayan her istek
+sınıfı sınava giriyor ve `EmailAddress::rules()` kullanmak zorunda. Biçim
+kuralının yettiği sekiz yer gerekçesiyle bir istisna listesinde ve **o
+listenin bayatlamadığı ayrıca sınanıyor** — dosya silinmişse ya da form
+sonradan tam kural kümesine geçmişse test düşüyor.
+
+Mevcut bekçi ("kural elle yazılmasın") yorumları atlayacak biçimde
+düzeltildi: `NotDisposableEmail`'in kuralı *anlatan* açıklaması kendi
+kuralına takılıyordu.
+
+#### Doğrulama
+
+11 yeni test (toplam 1990 yeşil), Pint sapmasız, PHPStan temiz. Tarayıcıda
+gerçek formlarla denendi:
+
+| Deneme | Sonuç |
+|---|---|
+| Ön yüz üyelik kaydı · `deneme@10minutemail.com` | ✅ reddedildi, Türkçe mesaj |
+| Ön yüz bülten · `deneme@10minutemail.com` | ✅ 422, Türkçe mesaj |
+| Ön yüz bülten · kalıcı adres | ✅ 200, abone oldu |
+| API kayıt · `x@kutu.10minutemail.com` (alt alan adı) | ✅ 422 |
+| API bülten · `deneme@yopmail.com` (büyük harf listede küçük) | ✅ 422 |
+| API iletişim · kalıcı adres | ✅ 201 |
 
 ---
 
@@ -336,19 +423,18 @@ elendi:
   ait ya da pivot.
 - **Kullanılmayan yardımcı fonksiyon: sıfır** (12 helper'ın hepsi çağrılıyor).
 
-#### Karar bekleyen tek kalem
+#### Karar bekleyen tek kalem — ✅ karara bağlandı, 3.5'e bakın
 
 `app/Rules/NotDisposableEmail.php` + `config/disposable_emails.php` (302
-alan adı). Kural hiçbir istek sınıfına bağlı değil — yani bugün çalışmıyor.
+alan adı). Kural hiçbir istek sınıfına bağlı değildi — yani çalışmıyordu.
 Ama bu "çöp kod" değil, **yarım kalmış bir özellik**: üretimdeki e-posta kuralı
 (`EmailAddress::RULE` = `email:rfc,dns`) uydurma alan adlarını eliyor,
 tek kullanımlık sağlayıcılar ise gerçek MX kaydı taşıdığı için o süzgeçten
 geçiyor. Liste tam bu boşluk için yazılmış.
 
-İki seçenek var ve karar kullanıcının: **bağlamak** (`EmailAddress`
-zincirine bir kural eklemek — tek satır) ya da **silmek**. Silmeden bırakıldı;
-bağlanmayan bir engelleme listesi ile silinmiş bir liste arasındaki fark bir
-ürün kararı, temizlik kararı değil.
+İki seçenek vardı — bağlamak ya da silmek — ve karar **bağlamak** oldu.
+Bağlarken asıl boşluğun kuralın kendisi değil, üyelik kaydının ve yorum
+formunun düz `email` kuralıyla yetinmesi olduğu görüldü. Ayrıntı 3.5'te.
 
 #### Doğrulama
 

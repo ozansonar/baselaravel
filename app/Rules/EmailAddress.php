@@ -39,8 +39,41 @@ final class EmailAddress
      */
     public const RULE_WITHOUT_DNS = 'email:rfc';
 
+    /**
+     * Biçim kuralı — adresin yazımı ve alan adının posta alabilmesi.
+     *
+     * Var olan bir hesabın adresi sorulurken (giriş, şifre sıfırlama) ve
+     * panelden kullanıcı eklenirken bu yeterli.
+     */
     public static function rule(): string
     {
         return app()->runningUnitTests() ? self::RULE_WITHOUT_DNS : self::RULE;
+    }
+
+    /**
+     * Ziyaretçiden **ilk kez** alınan bir adresin tam kural kümesi.
+     *
+     * Biçim kuralına tek kullanımlık adres süzgeci ekleniyor. İkisi farklı
+     * şeylere bakıyor ve biri ötekinin yerini tutmuyor: `dns` uydurma alan
+     * adlarını eliyor, ama tek kullanımlık sağlayıcıların alan adları gerçek
+     * ve MX kayıtları çalışıyor — o süzgeçten sorunsuz geçiyorlar.
+     *
+     * Nerede kullanılıyor: üyelik kaydı, bülten aboneliği, iletişim formu,
+     * yorum ve hesap sahibinin adres değiştirmesi. Yani adresin ileride
+     * ulaşılabilir olmasının önemli olduğu her yer.
+     *
+     * Nerede **kullanılmıyor** ve neden:
+     *  - Giriş ve şifre sıfırlama: adres zaten kayıtlı bir hesabı gösteriyor.
+     *    Burada engellemek, kaydı bir şekilde oluşmuş kişiyi kendi hesabından
+     *    kilitlemek olurdu.
+     *  - Panelden kullanıcı ekleme/düzenleme: yönetici ne yaptığını biliyor;
+     *    geçici bir hesabı bilerek açabilmeli. Kural bir engel değil, spam
+     *    süzgeci — ve yönetici spam değil.
+     *
+     * @return list<string|NotDisposableEmail>
+     */
+    public static function rules(): array
+    {
+        return [self::rule(), new NotDisposableEmail()];
     }
 }
