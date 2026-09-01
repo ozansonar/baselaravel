@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **38** model | **102** servis | **27** policy | **80** migration |
-| **137** test dosyası | **1933** test | **7775** doğrulama | **34** dışa aktarma tanımı |
-| **368** rota | **258** admin rotası | **43** API rotası | **2** dil (tr, en) |
+| **138** test dosyası | **1951** test | **7845** doğrulama | **34** dışa aktarma tanımı |
+| **373** rota | **258** admin rotası | **48** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1933 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1951 geçiyor, 8 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -70,7 +70,7 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | Kimlik (kayıt, giriş, sıfırlama, doğrulama) | ✅ | ✅ | ✅ |
 | Profil ve şifre değiştirme | ✅ | ✅ | ✅ |
 | Cihaz / oturum yönetimi | ✅ | ✅ | ✅ |
-| İki adımlı doğrulama (TOTP) | ✅ | ✅ | ✅ giriş |
+| İki adımlı doğrulama (TOTP) | ✅ | ✅ | ✅ giriş **+ kurulum** |
 | Hesap kapatma + veri indirme (KVKK) | ✅ | ✅ | ✅ |
 | Bildirim tercihleri | ✅ | ✅ | ✅ |
 | Yorumlarım | ✅ | ✅ | ✅ |
@@ -215,14 +215,17 @@ arşiv bölümünde olduğunu söylüyor.
 | **Panelden push duyurusu gönderme ekranı** (3 ekran, cron gönderimi, 29 test) | `62499c0` | ✅ |
 | Belge taraması: açık maddelerin koda karşı doğrulanması | `8ebf1ae` | ✅ |
 | Yol haritası gerçeğe getirildi + belgelerdeki test göndermelerinin bekçisi | — | ✅ |
+| Tarayıcı kutuları kaldırıldı, iki bekçi, belge borcu | `c982c45` | ✅ |
+| Sistem sağlığına OPcache + uygulama önbelleği kontrolleri | `55a54d3` | ✅ |
+| **API'de iki adımlı doğrulama kurulumu** (4 uç, 18 test) | — | ✅ |
 
 ---
 
 ## 3. Kalan işler ve plan
 
-Bilinen **üç açık madde** var: içerik sürümleme, dinamik form oluşturucu ve
-API'de iki adımlı doğrulama kurulumu (sonuncusu 3.2'deki ikinci taramada
-çıktı).
+Bilinen **iki açık madde** var: içerik sürümleme ve dinamik form oluşturucu.
+İkinci taramada çıkan üçüncü madde — API'de iki adımlı doğrulama kurulumu —
+1 Eylül'de kapandı.
 
 Belge taramasından çıkan dört küçük kalem ve altı belge borcunun **dokuzu 1
 Eylül'de kapatıldı**; geriye yalnız izlemedeki K-4 kaldı (bir koşuda tek
@@ -237,8 +240,8 @@ durduğu. İkisi de düzeltildi, ikisinin de bekçisi yazıldı.
 |---|---|---|---|
 | ~~1~~ | ~~Satır içi olay işleyicilerini JS'e taşımak~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | **1** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
-| **2** | API'de iki adımlı doğrulama kurulumu | Küçük | Yalnız mobilden giren kullanıcı 2FA'yı hiç açamıyor; servisler hazır, eksik olan uçlar |
-| **3** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
+| ~~2~~ | ~~API'de iki adımlı doğrulama kurulumu~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
+| **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
 | ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 
@@ -342,7 +345,7 @@ sonraki tur / kalan" ifadeleri de arandı. Her bulgu koda karşı doğrulandı.
 Sonuç: **bir tane gerçek eksik çıktı**, bir belge borcu, bir de yanlış teşhis
 düzeltildi.
 
-#### Yeni bulgu — API'de iki adımlı doğrulama kurulumu yok
+#### ✅ Kapandı — API'de iki adımlı doğrulama kurulumu yoktu
 
 `API.md`'de bir cümle olarak duruyordu: *"İki adımlı doğrulamanın **kurulumu**
 şimdilik yalnız web'de."* Üç yüz tablosunda da nitelikli bir işaretle:
@@ -362,7 +365,50 @@ denetleyicisi, rotalar, OpenAPI girdileri ve testler.
 | Yüz | Kurulum başlat | Onayla | Kapat | Kurtarma kodları | Girişte kullan |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Web | ✅ | ✅ | ✅ | ✅ | ✅ |
-| API | ⬜ | ⬜ | ⬜ | ⬜ | ✅ |
+| API | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+**Yapıldı (1 Eylül).** Dört uç `/account/two-factor` altında, hepsi web'deki
+güvenlik ekranıyla **aynı servisten** geçiyor (`TwoFactorService`) — iki yüz
+ayrı mantık yazsaydı biri ötekinden sapardı ve sapma ancak bir kullanıcı
+kilitlendiğinde görünürdü.
+
+| Yöntem | Adres | Yetenek | Ne yapar |
+|---|---|---|---|
+| `GET` | `/account/two-factor` | `profile:read` | Durum |
+| `POST` | `/account/two-factor` | `profile:write` | Kurulumu başlat |
+| `POST` | `/account/two-factor/confirm` | `profile:write` + hız sınırı | İlk kodla tamamla |
+| `DELETE` | `/account/two-factor` | `profile:write` + şifre + hız sınırı | Kapat |
+| `POST` | `/account/two-factor/recovery-codes` | `profile:write` + şifre + hız sınırı | Kodları yenile |
+
+**Kurulum iki isteğe bölünmüş** — web'deki gerekçenin aynısı: tek istekte
+açılsaydı kareyi okutmayı beceremeyen kişi kendi hesabından kilitlenirdi.
+
+**Başlatma ucu üç biçim birden dönüyor:** `otpauth_uri` (kimlik doğrulayıcıyı
+doğrudan açmak için), `secret` (kareyi okutamayan kullanıcının elle girmesi
+için) ve `qr_svg` (~8 KB satır içi SVG). Üçüncüsü fazlalık gibi duruyor ama
+değil: kullanıcı çoğu zaman kodu **başka** bir cihazdaki uygulamayla okutuyor
+ve o durumda kareyi uygulamanın kendisi çizmek zorunda.
+
+**Durumda `pending` alanı var** — anahtar üretilmiş ama ilk kod girilmemiş.
+İstemci bunu bilmezse kullanıcıyı baştan başlatır ve okuttuğu kare geçersiz
+olur.
+
+**Kapatma ve kod yenileme şifre istiyor**, ve yönetici zorunluluğu açıkken
+yönetici kendi ikinci adımını kaldıramıyor (422) — web'deki kuralın aynısı,
+yoksa ayar bir kural değil öneri olurdu.
+
+**Anahtar hiçbir okuma ucunda geçmiyor**; ayrıca sınanıyor.
+
+Test: `Api/ApiTwoFactorSetupTest` — 18 test. Sınavların çoğu "açılıyor mu"dan
+çok **açılmaması gereken durumlara** bakıyor: yanlış kodla açılmamalı, kurulum
+başlatılmadan onaylanmamalı, şifresiz kapatılmamalı, salt okunur jetonla
+değiştirilememeli.
+
+Uçtan uca tarayıcı/istemci denemesi: API'den kurulum yapıldıktan sonra
+`POST /auth/login` gerçekten ikinci adımı istedi ("Girişi tamamlamak için iki
+adımlı doğrulama kodu gerekiyor"), kapatıldıktan sonra jetonu doğrudan verdi.
+Şifre onaylı uçlar art arda çağrıldığında hız sınırı devreye girdi (429) —
+`throttle:api-password`, dakikada beş istek.
 
 #### Belge borcu — B-7
 
@@ -598,7 +644,7 @@ tekrar bakılmasın diye yazılı:
   sekiz dışa aktarma listesi (`backups`, `translations`, `system-health`,
   `reports`, `campaign-recipients`, `content-list`, `failed-jobs`,
   `seo-audit`). Fabrikası olmadığı için atlanan **hiçbir** liste yok.
-- OpenAPI kapsamı: `api/v1` altındaki 43 ucun hepsi belgeli, belgede uydurma uç
+- OpenAPI kapsamı: `api/v1` altındaki bütün uçlar belgeli, belgede uydurma uç
   yok (`OpenApiSpecTest` sekiz açıdan sınıyor). `POST /api/analytics/track`
   bilerek dışarıda: o mobil sözleşmenin değil ön yüzün izleme ucu.
 

@@ -243,7 +243,7 @@ hesap ekranında aynı liste.
 **Kabul:** Sadece kendi yorumları, onay bekleyenler dahil.
 Test: `AccountCommentsTest` (web ve API uçları aynı dosyada).
 
-### 4.4 Şemanın hizada kalması — ✅ sürüyor (43 uç şemada)
+### 4.4 Şemanın hizada kalması — ✅ sürüyor (46 uç şemada)
 **Neden:** `openapi.json` kendi kendini denetliyor (`OpenApiSpecTest`); yeni
 uçlar eklendikçe bu bekçi güncel kalmalı, yoksa sessizce bayatlar.
 **Kapsam:** Faz 1–4'te eklenen her uç için şema girdisi ve `API.md` bölümü.

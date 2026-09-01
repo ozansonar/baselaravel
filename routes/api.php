@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\AccountCommentController;
 use App\Http\Controllers\Api\V1\AccountController;
+use App\Http\Controllers\Api\V1\TwoFactorController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlogCategoryController;
 use App\Http\Controllers\Api\V1\BlogCommentController;
@@ -169,6 +170,37 @@ Route::prefix('account')
         Route::get('/export', [AccountController::class, 'export'])
             ->middleware(['abilities:profile:read', 'throttle:api-password'])
             ->name('export');
+
+        // İki adımlı doğrulamanın kurulumu. Girişin ikinci adımı zaten
+        // /auth/login'de vardı; kurulum yalnız web'deydi, yani yalnız mobilden
+        // giren kullanıcı 2FA'yı hiç açamıyordu.
+        //
+        // Kurulum iki isteğe bölünmüş (başlat + onayla): tek istekte açılsaydı
+        // QR'ı okutmayı beceremeyen kişi kendi hesabından kilitlenirdi.
+        Route::prefix('two-factor')->name('two-factor.')->group(function (): void {
+            Route::get('/', [TwoFactorController::class, 'show'])
+                ->middleware('abilities:profile:read')
+                ->name('show');
+
+            Route::post('/', [TwoFactorController::class, 'store'])
+                ->middleware('abilities:profile:write')
+                ->name('store');
+
+            // Kod denemesi sınırlı: altı hane, kaba kuvvetle taranabilir.
+            Route::post('/confirm', [TwoFactorController::class, 'confirm'])
+                ->middleware(['abilities:profile:write', 'throttle:api-password'])
+                ->name('confirm');
+
+            // Kapatma ve kod yenileme şifre onaylı: ele geçirilmiş bir oturum,
+            // sahibinin ikinci adımını sessizce kaldıramamalı.
+            Route::delete('/', [TwoFactorController::class, 'destroy'])
+                ->middleware(['abilities:profile:write', 'throttle:api-password'])
+                ->name('destroy');
+
+            Route::post('/recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes'])
+                ->middleware(['abilities:profile:write', 'throttle:api-password'])
+                ->name('recovery-codes');
+        });
 
         // Hesabı kapatma. Mağazaların uygulama içi hesap silme şartı bu uçla
         // karşılanıyor; şifre onayı isteğin gövdesinde.
