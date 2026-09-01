@@ -30994,11 +30994,19 @@ body.fp-acik .modal-backdrop { z-index: 1390; }
   z-index: 1055;
 }
 
-/* Menüyü taşıyan kartın kendisi de yükselmeli: AOS animasyonunun transform'u
-   her karta ayrı bir yığın bağlamı veriyor, o yüzden menünün z-index'i tek
-   başına altındaki tablo kartını aşmaya yetmiyor. */
+/* Menüyü taşıyan kabın kendisi de yükselmeli.
+   
+   AOS animasyonu bittiğinde `transform: translateZ(0)` bırakıyor ve o transform
+   kalıcı: her `data-aos` elemanı kalıcı bir yığın bağlamı oluşturuyor. Menünün
+   z-index'i o bağlamın İÇİNDE kalıyor, dolayısıyla tek başına dışarıdaki bir
+   kardeşi aşamıyor — kap da yükseltilmezse menü, kendisinden sonra gelen
+   (ve o da transform taşıyan) bloğun arkasında kalıyor.
+   
+   .page-header de listede: sistem sağlık ekranında menü kartın içinde değil
+   sayfa başlığında duruyor ve hemen altındaki durum bloğu onu örtüyordu. */
 .card-dark:has(.export-menu),
-.card-glass:has(.export-menu) {
+.card-glass:has(.export-menu),
+.page-header:has(.export-menu) {
   position: relative;
   z-index: 5;
 }
