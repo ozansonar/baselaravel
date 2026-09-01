@@ -391,6 +391,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api-verification', fn (Request $request): Limit => Limit::perMinute($limits['verification'] ?? 3)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
 
+        // Sosyal giriş: gövdede `email` yok, kova IP başına. Sağlayıcının
+        // jetonu zaten imzalı ve tahmin edilemez; sınır kaba kuvvete karşı
+        // değil, geçersiz jetonla imza doğrulamasını meşgul etmeye karşı.
+        RateLimiter::for('api-social', fn (Request $request): Limit => Limit::perMinute($limits['social'] ?? 10)
+            ->by((string) $request->ip()));
+
         // Yorum ve bülten: ikisi de kimliksiz, ikisi de spam hedefi. API'de
         // reCAPTCHA olmadığı için tek fren burası.
         RateLimiter::for('api-comment', fn (Request $request): Limit => Limit::perMinute($limits['comment'] ?? 3)

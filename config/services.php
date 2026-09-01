@@ -37,6 +37,33 @@ return [
         ],
     ],
 
+    /*
+    | Sosyal giriş — Google ve Apple.
+    |
+    | Akış mobilin akışı: uygulama sağlayıcının SDK'sıyla bir kimlik jetonu
+    | alıyor, sunucu onu sağlayıcının açık anahtarıyla doğruluyor. Yani
+    | istemci sırrı (client secret) gerekmiyor; gereken tek şey jetonun kime
+    | düzenlendiğini bilmek.
+    |
+    | `client_ids` virgülle ayrılmış liste: aynı ürünün iOS, Android ve web
+    | istemcileri ayrı kimlik taşıyor ve üçü de aynı hesaba giriyor.
+    |
+    |   Google  → Google Cloud Console → Kimlik bilgileri → OAuth istemci
+    |             kimlikleri (iOS / Android / Web ayrı ayrı)
+    |   Apple   → Bundle ID (mobil) ve/veya Services ID (web)
+    |
+    | Boş bırakılan sağlayıcı kapalı sayılıyor: `aud` doğrulaması yapılamayan
+    | bir jeton kabul edilemez — başka bir uygulamaya alınmış geçerli bir
+    | Google jetonu buraya girerdi.
+    */
+    'google' => [
+        'client_ids' => env('GOOGLE_CLIENT_IDS', ''),
+    ],
+
+    'apple' => [
+        'client_ids' => env('APPLE_CLIENT_IDS', ''),
+    ],
+
     'recaptcha' => [
         'site_key'   => env('RECAPTCHA_SITE_KEY'),
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),

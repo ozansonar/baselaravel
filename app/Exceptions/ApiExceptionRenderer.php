@@ -87,6 +87,16 @@ final class ApiExceptionRenderer
                 status: 403,
             ),
 
+            // Sosyal sağlayıcı adresi doğrulamamış ve aynı adresle bir hesap
+            // zaten var. Bağlamak hesap devralma, yeni hesap açmak da yanlış
+            // olurdu; istemcinin yapması gereken kişiyi şifreyle giriş
+            // ekranına yönlendirmek — o yüzden 401 değil, kendi kodu var.
+            $original instanceof EmailNotVerifiedBySocialProviderException => ApiResponse::error(
+                __('api.social.email_unverified', ['provider' => $original->provider->label()]),
+                ['id_token' => ['email_unverified']],
+                409,
+            ),
+
             // Şifre doğru, ikinci adım eksik. 401'den ayrı bir kod taşıyor
             // çünkü istemcinin yapacağı şey farklı: kişiyi giriş ekranına
             // geri göndermek değil, kod ekranını açıp aynı isteği `code` ile

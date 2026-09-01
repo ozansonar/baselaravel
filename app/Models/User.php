@@ -102,6 +102,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Hesaba bağlı sosyal kimlikler (Google, Apple).
+     *
+     * @return HasMany<SocialAccount, $this>
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    /**
      * @return HasMany<AdminNotification, $this>
      */
     public function adminNotifications(): HasMany

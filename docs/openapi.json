@@ -1276,6 +1276,659 @@
     }
   },
   "paths": {
+    "/account": {
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "closeAccount",
+        "summary": "Hesabımı kapat",
+        "description": "Hesabı yumuşak siler: kişi bir daha giriş yapamaz, bütün oturumları ve jetonları düşer, e-posta adresi serbest kalır. Şifre onayı zorunlu — jeton tek başına yetmiyor. Panele erişebilen hesaplar buradan kapanmaz (403).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "Mevcut şifre."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hesap kapatıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/comments": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "myComments",
+        "summary": "Yorumlarım",
+        "description": "Kişinin kendi yorumları, onay bekleyenler dahil: yorumunun neden henüz görünmediğini ancak böyle öğreniyor. Eşleşme e-postayla, çünkü yorum girişsiz de bırakılabiliyor. Durum alanı yalnız bu uçta var — herkese açık yorum listesinde onay bekleyenlerin varlığı bile söylenmez.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Yorumlar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "body": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "approved",
+                              "rejected"
+                            ]
+                          },
+                          "post": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "slug": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/account/comments/{comment}": {
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "deleteMyComment",
+        "summary": "Yorumumu sil",
+        "description": "Yalnız kendi adresine ait yorum silinebilir; başkasınınki 404 döner — \"yetkin yok\" cevabı o yorumun var olduğunu söylerdi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "comment",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Silindi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/account/export": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "exportAccountData",
+        "summary": "Verilerimi indir",
+        "description": "Kişinin kendi verisinin kopyası: profil, yorumlar, iletişim mesajları, bülten kaydı, çerez rızaları ve bağlı cihazların adları. Şifre, iki adımlı doğrulama anahtarı ve jetonlar hiçbir koşulda dönmez. Yanıt no-store ile işaretlidir.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kişinin verisi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/notification-preferences": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "getNotificationPreferences",
+        "summary": "Bildirim tercihlerim",
+        "description": "Türlerin listesi, etiketleri ve kişinin kararları. Etiketler sunucudan geliyor ki yeni bir tür mağaza güncellemesi beklemeden görünsün. Güvenlik postaları (şifre sıfırlama, doğrulama, adres değişikliği uyarısı) listede yok ve kapatılamıyor.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tercihler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newsletter": {
+                          "type": "boolean",
+                          "description": "Kaynağı abone tablosu, tercih tablosu değil."
+                        },
+                        "preferences": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "boolean"
+                          }
+                        },
+                        "types": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "key",
+                              "label",
+                              "description"
+                            ],
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "updateNotificationPreferences",
+        "summary": "Bildirim tercihlerimi güncelle",
+        "description": "Gönderilmeyen tür değişmiyor; tek anahtar çevirmek için bütün listeyi taşımak gerekmiyor. Tanınmayan anahtar 422 ile reddediliyor — sessizce yutulsaydı istemci kapattım sanır, posta gelmeye devam ederdi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newsletter": {
+                    "type": "boolean"
+                  },
+                  "preferences": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Güncellendi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newsletter": {
+                          "type": "boolean",
+                          "description": "Kaynağı abone tablosu, tercih tablosu değil."
+                        },
+                        "preferences": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "boolean"
+                          }
+                        },
+                        "types": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "key",
+                              "label",
+                              "description"
+                            ],
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/account/password": {
+      "put": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "changePassword",
+        "summary": "Şifremi değiştir",
+        "description": "Mevcut şifreyi kanıtlamak zorunlu. logout_other_devices true gönderilirse bu isteği yapan jeton dışındaki bütün jetonlar düşer; varsayılan false, çünkü şifresini rutin olarak yenileyen biri bütün cihazlarından atılmayı beklemiyor. Ayrı bir uç: profil güncelleme TAM bir güncelleme olduğu için yalnız şifre değiştirecek istemcinin bütün profili taşıması gerekirdi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "current_password",
+                  "password",
+                  "password_confirmation"
+                ],
+                "properties": {
+                  "current_password": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "password_confirmation": {
+                    "type": "string"
+                  },
+                  "logout_other_devices": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Şifre güncellendi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
     "/account/profile": {
       "put": {
         "tags": [
@@ -1432,6 +2085,846 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/account/push-tokens": {
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "registerPushToken",
+        "summary": "Bildirim adresini kaydet",
+        "description": "Uygulama bunu her açılışta gönderir: jeton işletim sistemi tarafından yenilenebiliyor ve yenilenen jetonu sunucunun bilmemesi, bildirimlerin sessizce kesilmesi demek. Aynı jeton başka bir hesapta kayıtlıysa o hesaptan alınır — telefon el değiştirmiş demektir ve bildirim yeni sahibine gitmeli. Hesap pasife alındığında ya da kapatıldığında jetonlar düşer.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token",
+                  "platform"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "maxLength": 191
+                  },
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "ios",
+                      "android",
+                      "web"
+                    ]
+                  },
+                  "device_name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kaydedildi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "forgetPushToken",
+        "summary": "Bildirim adresini sil",
+        "description": "Bildirimleri kapatan ya da çıkış yapan cihaz adresini geri alır.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Silindi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/account/social-accounts": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "listSocialAccounts",
+        "summary": "Bağlı sosyal hesaplar",
+        "description": "Kişinin hangi sağlayıcılarla giriş yapabildiği.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "accounts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "provider": {
+                                "type": "string",
+                                "enum": [
+                                  "google",
+                                  "apple"
+                                ]
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "linked_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                              },
+                              "last_login_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/account/social-accounts/{provider}": {
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "unlinkSocialAccount",
+        "summary": "Sosyal hesap bağını kaldır",
+        "description": "Son bağlantı, hesabın ulaşılabilir bir e-posta adresi yoksa koparılamaz (422): sosyal girişle açılan hesabın şifresi rastgeledir ve kişi 'şifremi unuttum' ile kendini kurtaramazsa hesabına bir daha giremez.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "google",
+                "apple"
+              ]
+            },
+            "description": "Sosyal sağlayıcı. Yapılandırılmamış sağlayıcı 404 döner."
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bağlantı kaldırıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/two-factor": {
+      "get": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "getTwoFactorStatus",
+        "summary": "İki adımlı doğrulama durumum",
+        "description": "Uygulamanın güvenlik ekranını çizmesi için durum. Anahtarın kendisi burada DÖNMEZ — onu yalnız kurulumu başlatan istek görür. `pending` yarıda kalmış bir kurulumu bildirir (anahtar üretilmiş ama ilk kod girilmemiş); istemci bunu bilmezse kullanıcıyı baştan başlatır ve okuttuğu kare geçersiz olur. `required` açıkken kapatma ucu reddeder.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Durum.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "enabled",
+                        "pending",
+                        "recovery_codes_remaining",
+                        "required"
+                      ],
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "pending": {
+                          "type": "boolean",
+                          "description": "Kurulum başlatılmış ama onaylanmamış."
+                        },
+                        "confirmed_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "recovery_codes_remaining": {
+                          "type": "integer",
+                          "description": "Kalan tek kullanımlık kod sayısı."
+                        },
+                        "required": {
+                          "type": "boolean",
+                          "description": "Yönetici zorunluluğu bu kullanıcı için açık mı."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "startTwoFactorSetup",
+        "summary": "İki adımlı doğrulama kurulumunu başlat",
+        "description": "Anahtar üretilir ama doğrulama AÇILMAZ: açılması ilk doğru kodun girilmesine bağlı (`/account/two-factor/confirm`). Tek istekte açılsaydı kareyi okutmayı beceremeyen kişi kendi hesabından kilitlenirdi. Yanıt üç biçim birden taşır: `otpauth_uri` kimlik doğrulayıcıyı doğrudan açmak için, `secret` kareyi okutamayan kullanıcının elle girmesi için, `qr_svg` ise ekranda kare göstermek için — kullanıcı çoğu zaman kodu başka bir cihazdaki uygulamayla okutur. Yarıda kalmış bir kurulum varsa anahtar yenilenir.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kurulum başladı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "secret",
+                        "otpauth_uri",
+                        "qr_svg"
+                      ],
+                      "properties": {
+                        "secret": {
+                          "type": "string",
+                          "description": "Base32, 32 karakter."
+                        },
+                        "otpauth_uri": {
+                          "type": "string",
+                          "description": "otpauth://totp/... — kimlik doğrulayıcıya verilecek adres."
+                        },
+                        "qr_svg": {
+                          "type": "string",
+                          "description": "Satır içi SVG gövdesi (XML bildirimi olmadan)."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "disableTwoFactor",
+        "summary": "İki adımlı doğrulamayı kapat",
+        "description": "Şifre onaylı: jeton tek başına yetmez, çünkü telefonu birkaç dakika eline geçiren biri açık uygulamadan hesabın ikinci adımını sessizce kaldırabilirdi. Yönetici zorunluluğu açıkken yönetici kendi ikinci adımını kaldıramaz — kaldırabilseydi ayar bir kural değil öneri olurdu; o durumda 422 döner.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Hesabın mevcut şifresi."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kapatıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/two-factor/confirm": {
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "confirmTwoFactorSetup",
+        "summary": "Kurulumu ilk kodla tamamla",
+        "description": "Kimlik doğrulayıcının verdiği altı haneli kod. Doğruysa doğrulama açılır ve kurtarma kodları BU YANITTA bir kez döner — her istekte dönselerdi ele geçirilen bir jeton onları istediği zaman okuyabilirdi. Kod yanlışsa hiçbir şey değişmez, kullanıcı yeniden deneyebilir. Kurulum başlatılmadan çağrılırsa 409 döner.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[0-9]{6}$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Açıldı; kurtarma kodları yanıtta.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "recovery_codes"
+                      ],
+                      "properties": {
+                        "recovery_codes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Sekiz tek kullanımlık kod. Yalnız burada dönüyor; bir daha gösterilmiyor."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/account/two-factor/recovery-codes": {
+      "post": {
+        "tags": [
+          "Hesap"
+        ],
+        "operationId": "regenerateTwoFactorRecoveryCodes",
+        "summary": "Kurtarma kodlarını yenile",
+        "description": "Şifre onaylı. Yeni bir liste üretilir ve eski liste geçersiz olur — yenilemenin bütün anlamı bu. Doğrulama açık değilken 409 döner.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Hesabın mevcut şifresi."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Yeni kodlar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "recovery_codes"
+                      ],
+                      "properties": {
+                        "recovery_codes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Sekiz tek kullanımlık kod. Yalnız burada dönüyor; bir daha gösterilmiyor."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }
@@ -2354,6 +3847,141 @@
         }
       }
     },
+    "/auth/social/{provider}": {
+      "post": {
+        "tags": [
+          "Kimlik"
+        ],
+        "operationId": "socialLogin",
+        "summary": "Google / Apple ile giriş",
+        "description": "Uygulama sağlayıcının SDK'sıyla bir kimlik jetonu alır, sunucu onu sağlayıcının açık anahtarıyla doğrular; tarayıcı yönlendirmesi yoktur. İmza, iss, aud ve exp dördü de doğrulanır — biri tutmazsa 401. Hesap eşleştirmenin anahtarı sağlayıcının kullanıcı kimliği (sub), e-posta değil. Aynı e-postayla bir hesap varsa YALNIZCA sağlayıcı o adresi doğruladıysa bağlanır; doğrulamadıysa 409 döner ve kişinin şifresiyle girip hesabını bağlaması gerekir. first_name/last_name yalnız Apple için: Apple adı sadece ilk yetkilendirmede ve jetonun dışında gönderir.",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "google",
+                "apple"
+              ]
+            },
+            "description": "Sosyal sağlayıcı. Yapılandırılmamış sağlayıcı 404 döner."
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_token"
+                ],
+                "properties": {
+                  "id_token": {
+                    "type": "string",
+                    "maxLength": 4096,
+                    "description": "Sağlayıcıdan alınan OIDC kimlik jetonu (JWT)."
+                  },
+                  "device_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Jetonun etiketi. Aynı adla yeniden giriş eskisini geçersiz kılar."
+                  },
+                  "abilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "profile:read",
+                        "profile:write",
+                        "devices:manage"
+                      ]
+                    },
+                    "description": "İsteğe bağlı. YALNIZCA daraltır."
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "Apple'ın yalnız ilk yetkilendirmede verdiği ad."
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "maxLength": 50
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Giriş yapıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AuthResult"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-Language": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Yanıtın hangi dilde üretildiği."
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
     "/blog/categories": {
       "get": {
         "tags": [
@@ -3207,6 +4835,92 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Sistem"
+        ],
+        "operationId": "health",
+        "summary": "Sağlık ve sürüm",
+        "description": "Uygulamanın sunucuya ilk sorduğu soru: bakım var mı, hangi sürüm destekleniyor, sunucu ayakta mı. Jeton istemiyor ve BAKIM MODUNDA DA AÇIK — kapalı olsaydı uygulama bakımı öğrenemez, her isteği hata sanardı. İstemci sürümünü `X-Client-Version` başlığıyla bildirirse ve panelde tanımlı asgari sürümün altındaysa `update_required` true döner; sürüm bildirmeyen istemci engellenmez.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/XLocale"
+          },
+          {
+            "$ref": "#/components/parameters/LangQuery"
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Uygulamanın sürümü, ör. 1.4.0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Durum bilgisi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "const": "ok"
+                        },
+                        "api_version": {
+                          "type": "string"
+                        },
+                        "maintenance": {
+                          "type": "boolean"
+                        },
+                        "minimum_client_version": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "update_required": {
+                          "type": "boolean"
+                        },
+                        "server_time": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -4297,1416 +6011,6 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
-          }
-        }
-      }
-    },
-    "/account/export": {
-      "get": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "exportAccountData",
-        "summary": "Verilerimi indir",
-        "description": "Kişinin kendi verisinin kopyası: profil, yorumlar, iletişim mesajları, bülten kaydı, çerez rızaları ve bağlı cihazların adları. Şifre, iki adımlı doğrulama anahtarı ve jetonlar hiçbir koşulda dönmez. Yanıt no-store ile işaretlidir.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Kişinin verisi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/account": {
-      "delete": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "closeAccount",
-        "summary": "Hesabımı kapat",
-        "description": "Hesabı yumuşak siler: kişi bir daha giriş yapamaz, bütün oturumları ve jetonları düşer, e-posta adresi serbest kalır. Şifre onayı zorunlu — jeton tek başına yetmiyor. Panele erişebilen hesaplar buradan kapanmaz (403).",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "password"
-                ],
-                "properties": {
-                  "password": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "description": "Mevcut şifre."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Hesap kapatıldı.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/account/password": {
-      "put": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "changePassword",
-        "summary": "Şifremi değiştir",
-        "description": "Mevcut şifreyi kanıtlamak zorunlu. logout_other_devices true gönderilirse bu isteği yapan jeton dışındaki bütün jetonlar düşer; varsayılan false, çünkü şifresini rutin olarak yenileyen biri bütün cihazlarından atılmayı beklemiyor. Ayrı bir uç: profil güncelleme TAM bir güncelleme olduğu için yalnız şifre değiştirecek istemcinin bütün profili taşıması gerekirdi.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "current_password",
-                  "password",
-                  "password_confirmation"
-                ],
-                "properties": {
-                  "current_password": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string",
-                    "minLength": 8
-                  },
-                  "password_confirmation": {
-                    "type": "string"
-                  },
-                  "logout_other_devices": {
-                    "type": "boolean",
-                    "default": false
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Şifre güncellendi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/account/notification-preferences": {
-      "get": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "getNotificationPreferences",
-        "summary": "Bildirim tercihlerim",
-        "description": "Türlerin listesi, etiketleri ve kişinin kararları. Etiketler sunucudan geliyor ki yeni bir tür mağaza güncellemesi beklemeden görünsün. Güvenlik postaları (şifre sıfırlama, doğrulama, adres değişikliği uyarısı) listede yok ve kapatılamıyor.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tercihler.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "newsletter": {
-                          "type": "boolean",
-                          "description": "Kaynağı abone tablosu, tercih tablosu değil."
-                        },
-                        "preferences": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "boolean"
-                          }
-                        },
-                        "types": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "required": [
-                              "key",
-                              "label",
-                              "description"
-                            ],
-                            "properties": {
-                              "key": {
-                                "type": "string"
-                              },
-                              "label": {
-                                "type": "string"
-                              },
-                              "description": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "updateNotificationPreferences",
-        "summary": "Bildirim tercihlerimi güncelle",
-        "description": "Gönderilmeyen tür değişmiyor; tek anahtar çevirmek için bütün listeyi taşımak gerekmiyor. Tanınmayan anahtar 422 ile reddediliyor — sessizce yutulsaydı istemci kapattım sanır, posta gelmeye devam ederdi.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "newsletter": {
-                    "type": "boolean"
-                  },
-                  "preferences": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "boolean"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Güncellendi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "newsletter": {
-                          "type": "boolean",
-                          "description": "Kaynağı abone tablosu, tercih tablosu değil."
-                        },
-                        "preferences": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "boolean"
-                          }
-                        },
-                        "types": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "required": [
-                              "key",
-                              "label",
-                              "description"
-                            ],
-                            "properties": {
-                              "key": {
-                                "type": "string"
-                              },
-                              "label": {
-                                "type": "string"
-                              },
-                              "description": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/health": {
-      "get": {
-        "tags": [
-          "Sistem"
-        ],
-        "operationId": "health",
-        "summary": "Sağlık ve sürüm",
-        "description": "Uygulamanın sunucuya ilk sorduğu soru: bakım var mı, hangi sürüm destekleniyor, sunucu ayakta mı. Jeton istemiyor ve BAKIM MODUNDA DA AÇIK — kapalı olsaydı uygulama bakımı öğrenemez, her isteği hata sanardı. İstemci sürümünü `X-Client-Version` başlığıyla bildirirse ve panelde tanımlı asgari sürümün altındaysa `update_required` true döner; sürüm bildirmeyen istemci engellenmez.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          },
-          {
-            "name": "X-Client-Version",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Uygulamanın sürümü, ör. 1.4.0"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Durum bilgisi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "status": {
-                          "type": "string",
-                          "const": "ok"
-                        },
-                        "api_version": {
-                          "type": "string"
-                        },
-                        "maintenance": {
-                          "type": "boolean"
-                        },
-                        "minimum_client_version": {
-                          "type": [
-                            "string",
-                            "null"
-                          ]
-                        },
-                        "update_required": {
-                          "type": "boolean"
-                        },
-                        "server_time": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/account/push-tokens": {
-      "post": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "registerPushToken",
-        "summary": "Bildirim adresini kaydet",
-        "description": "Uygulama bunu her açılışta gönderir: jeton işletim sistemi tarafından yenilenebiliyor ve yenilenen jetonu sunucunun bilmemesi, bildirimlerin sessizce kesilmesi demek. Aynı jeton başka bir hesapta kayıtlıysa o hesaptan alınır — telefon el değiştirmiş demektir ve bildirim yeni sahibine gitmeli. Hesap pasife alındığında ya da kapatıldığında jetonlar düşer.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "token",
-                  "platform"
-                ],
-                "properties": {
-                  "token": {
-                    "type": "string",
-                    "maxLength": 191
-                  },
-                  "platform": {
-                    "type": "string",
-                    "enum": [
-                      "ios",
-                      "android",
-                      "web"
-                    ]
-                  },
-                  "device_name": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "maxLength": 100
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Kaydedildi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "forgetPushToken",
-        "summary": "Bildirim adresini sil",
-        "description": "Bildirimleri kapatan ya da çıkış yapan cihaz adresini geri alır.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "token"
-                ],
-                "properties": {
-                  "token": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Silindi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/account/comments": {
-      "get": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "myComments",
-        "summary": "Yorumlarım",
-        "description": "Kişinin kendi yorumları, onay bekleyenler dahil: yorumunun neden henüz görünmediğini ancak böyle öğreniyor. Eşleşme e-postayla, çünkü yorum girişsiz de bırakılabiliyor. Durum alanı yalnız bu uçta var — herkese açık yorum listesinde onay bekleyenlerin varlığı bile söylenmez.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          },
-          {
-            "name": "per_page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Yorumlar.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "body": {
-                            "type": "string"
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "pending",
-                              "approved",
-                              "rejected"
-                            ]
-                          },
-                          "post": {
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "properties": {
-                              "id": {
-                                "type": "integer"
-                              },
-                              "title": {
-                                "type": "string"
-                              },
-                              "slug": {
-                                "type": "string"
-                              }
-                            }
-                          },
-                          "created_at": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
-    "/account/comments/{comment}": {
-      "delete": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "deleteMyComment",
-        "summary": "Yorumumu sil",
-        "description": "Yalnız kendi adresine ait yorum silinebilir; başkasınınki 404 döner — \"yetkin yok\" cevabı o yorumun var olduğunu söylerdi.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          },
-          {
-            "name": "comment",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Silindi.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          }
-        }
-      }
-    },
-    "/account/two-factor": {
-      "get": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "getTwoFactorStatus",
-        "summary": "İki adımlı doğrulama durumum",
-        "description": "Uygulamanın güvenlik ekranını çizmesi için durum. Anahtarın kendisi burada DÖNMEZ — onu yalnız kurulumu başlatan istek görür. `pending` yarıda kalmış bir kurulumu bildirir (anahtar üretilmiş ama ilk kod girilmemiş); istemci bunu bilmezse kullanıcıyı baştan başlatır ve okuttuğu kare geçersiz olur. `required` açıkken kapatma ucu reddeder.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Durum.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "required": [
-                        "enabled",
-                        "pending",
-                        "recovery_codes_remaining",
-                        "required"
-                      ],
-                      "properties": {
-                        "enabled": {
-                          "type": "boolean"
-                        },
-                        "pending": {
-                          "type": "boolean",
-                          "description": "Kurulum başlatılmış ama onaylanmamış."
-                        },
-                        "confirmed_at": {
-                          "type": [
-                            "string",
-                            "null"
-                          ],
-                          "format": "date-time"
-                        },
-                        "recovery_codes_remaining": {
-                          "type": "integer",
-                          "description": "Kalan tek kullanımlık kod sayısı."
-                        },
-                        "required": {
-                          "type": "boolean",
-                          "description": "Yönetici zorunluluğu bu kullanıcı için açık mı."
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "startTwoFactorSetup",
-        "summary": "İki adımlı doğrulama kurulumunu başlat",
-        "description": "Anahtar üretilir ama doğrulama AÇILMAZ: açılması ilk doğru kodun girilmesine bağlı (`/account/two-factor/confirm`). Tek istekte açılsaydı kareyi okutmayı beceremeyen kişi kendi hesabından kilitlenirdi. Yanıt üç biçim birden taşır: `otpauth_uri` kimlik doğrulayıcıyı doğrudan açmak için, `secret` kareyi okutamayan kullanıcının elle girmesi için, `qr_svg` ise ekranda kare göstermek için — kullanıcı çoğu zaman kodu başka bir cihazdaki uygulamayla okutur. Yarıda kalmış bir kurulum varsa anahtar yenilenir.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Kurulum başladı.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "required": [
-                        "secret",
-                        "otpauth_uri",
-                        "qr_svg"
-                      ],
-                      "properties": {
-                        "secret": {
-                          "type": "string",
-                          "description": "Base32, 32 karakter."
-                        },
-                        "otpauth_uri": {
-                          "type": "string",
-                          "description": "otpauth://totp/... — kimlik doğrulayıcıya verilecek adres."
-                        },
-                        "qr_svg": {
-                          "type": "string",
-                          "description": "Satır içi SVG gövdesi (XML bildirimi olmadan)."
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "disableTwoFactor",
-        "summary": "İki adımlı doğrulamayı kapat",
-        "description": "Şifre onaylı: jeton tek başına yetmez, çünkü telefonu birkaç dakika eline geçiren biri açık uygulamadan hesabın ikinci adımını sessizce kaldırabilirdi. Yönetici zorunluluğu açıkken yönetici kendi ikinci adımını kaldıramaz — kaldırabilseydi ayar bir kural değil öneri olurdu; o durumda 422 döner.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "password"
-                ],
-                "properties": {
-                  "password": {
-                    "type": "string",
-                    "description": "Hesabın mevcut şifresi."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Kapatıldı.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/account/two-factor/confirm": {
-      "post": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "confirmTwoFactorSetup",
-        "summary": "Kurulumu ilk kodla tamamla",
-        "description": "Kimlik doğrulayıcının verdiği altı haneli kod. Doğruysa doğrulama açılır ve kurtarma kodları BU YANITTA bir kez döner — her istekte dönselerdi ele geçirilen bir jeton onları istediği zaman okuyabilirdi. Kod yanlışsa hiçbir şey değişmez, kullanıcı yeniden deneyebilir. Kurulum başlatılmadan çağrılırsa 409 döner.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "code"
-                ],
-                "properties": {
-                  "code": {
-                    "type": "string",
-                    "pattern": "^[0-9]{6}$"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Açıldı; kurtarma kodları yanıtta.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "required": [
-                        "recovery_codes"
-                      ],
-                      "properties": {
-                        "recovery_codes": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          },
-                          "description": "Sekiz tek kullanımlık kod. Yalnız burada dönüyor; bir daha gösterilmiyor."
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/account/two-factor/recovery-codes": {
-      "post": {
-        "tags": [
-          "Hesap"
-        ],
-        "operationId": "regenerateTwoFactorRecoveryCodes",
-        "summary": "Kurtarma kodlarını yenile",
-        "description": "Şifre onaylı. Yeni bir liste üretilir ve eski liste geçersiz olur — yenilemenin bütün anlamı bu. Doğrulama açık değilken 409 döner.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/AcceptLanguage"
-          },
-          {
-            "$ref": "#/components/parameters/XLocale"
-          },
-          {
-            "$ref": "#/components/parameters/LangQuery"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "password"
-                ],
-                "properties": {
-                  "password": {
-                    "type": "string",
-                    "description": "Hesabın mevcut şifresi."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Yeni kodlar.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "required": [
-                        "recovery_codes"
-                      ],
-                      "properties": {
-                        "recovery_codes": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          },
-                          "description": "Sekiz tek kullanımlık kod. Yalnız burada dönüyor; bir daha gösterilmiyor."
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "İşlem şu anki duruma uymuyor (zaten açık, hiç başlatılmamış ya da kapalı).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }

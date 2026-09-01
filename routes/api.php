@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AccountCommentController;
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\TwoFactorController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\SocialAuthController;
 use App\Http\Controllers\Api\V1\BlogCategoryController;
 use App\Http\Controllers\Api\V1\BlogCommentController;
 use App\Http\Controllers\Api\V1\BlogPostController;
@@ -69,6 +70,15 @@ Route::prefix('auth')->name('api.v1.auth.')->group(function (): void {
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware('throttle:api-login')
         ->name('login');
+
+    // Google / Apple ile giriş.
+    //
+    // Uygulama sağlayıcının SDK'sıyla bir kimlik jetonu alıyor, biz onu
+    // sağlayıcının açık anahtarıyla doğruluyoruz. Kova giriş kovasıyla aynı
+    // olamaz: o kovanın anahtarı `email` ve burada öyle bir alan yok.
+    Route::post('/social/{provider}', [SocialAuthController::class, 'store'])
+        ->middleware('throttle:api-social')
+        ->name('social');
 
     // Şifre sıfırlama — altı haneli kod. Kodun kırılmaması hız sınırına
     // bağlı: bir milyon olasılık, sınırsız denemeye açık bırakılsaydı dakikalar
@@ -155,6 +165,16 @@ Route::prefix('account')
         Route::delete('/push-tokens', [AccountController::class, 'destroyPushToken'])
             ->middleware('abilities:profile:write')
             ->name('push-tokens.destroy');
+
+        // Bağlı sosyal hesaplar. Kişi hangi sağlayıcılarla girebildiğini
+        // görebilmeli ve bağı koparabilmeli — Apple mağaza kuralı bunu
+        // hesabın kendisini silebilmekle birlikte istiyor.
+        Route::get('/social-accounts', [SocialAuthController::class, 'index'])
+            ->middleware('abilities:profile:read')
+            ->name('social-accounts.index');
+        Route::delete('/social-accounts/{provider}', [SocialAuthController::class, 'destroy'])
+            ->middleware(['abilities:profile:write', 'throttle:api-password'])
+            ->name('social-accounts.destroy');
 
         // Bildirim tercihleri. Güvenlik postaları listede yok ve
         // kapatılamıyor; gerekçe NotificationPreference enum'unda.
