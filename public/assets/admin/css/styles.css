@@ -33341,3 +33341,63 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
   display: flex;
   justify-content: flex-end;
 }
+
+/* ==========================================================================
+   Bildirimler — "Nasıl kullanılır?" ipuçları
+   ==========================================================================
+   Dört ipucu düz bir liste yerine ikili ızgarada duruyor. Tam genişlik
+   çizgilerle ayrılmış dört satır, yanındaki özet kartından iki kat uzun bir
+   blok üretiyor ve sayfanın geri kalanının dilini konuşmuyordu; ikon yongası
+   bu ekranın kendi deseni (.nt-card-icon) ve burada küçültülmüş hâliyle
+   tekrar ediyor.
+
+   Dar ekranda tek sütuna düşüyor: iki sütun 480 pikselde okunmaz oluyor.
+   ========================================================================== */
+
+.nt-hints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.nt-hint {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: var(--radius-md, 10px);
+  background: var(--bg-hover, rgba(148, 163, 184, 0.06));
+  border: 1px solid var(--border-color);
+}
+
+.nt-hint__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  color: var(--c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.nt-hint > div {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.nt-hint strong {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 575.98px) {
+  .nt-hints { grid-template-columns: 1fr; }
+}
