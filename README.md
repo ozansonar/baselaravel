@@ -41,6 +41,10 @@ Node.js **gerekmez**.
 > **Sunucuya kuruyorsanız → [`SETUP.md`](SETUP.md).** Orada adım adım üretim
 > kurulumu var: izinler, `.env`, cron, kuyruk, web sunucusu ayarları ve kurulum
 > sonrası kontrol listesi. Aşağıdaki kısayol geliştirme makinesi içindir.
+>
+> **Bu kit'ten yeni bir proje türetiyorsanız → [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md).**
+> Neyin değişmesi gerektiği, demo içeriği atlayarak kurulum ve kontrol listesi
+> orada.
 
 ```bash
 git clone <depo-adresi> proje-adi && cd proje-adi
@@ -975,6 +979,7 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 - `docs/PROJE-DURUMU-V2.md` — denetim kaydı: bulunan kusurlar, çözümleri, kurulan bekçiler
 - `docs/BOSLUK-ANALIZI.md` — mimari denetim: on beş bulgu, gerekçeleri ve kapanışları
 - `docs/YOL-HARITASI.md` — fazlar ve kabul ölçütleri
+- `docs/YENI-PROJE.md` — kit'ten yeni proje türetme: marka, demo içerik, kit izleri
 - `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
 - `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)

@@ -4,6 +4,11 @@ Bu proje web sitesi, mobil API ve yönetim panelini birlikte taşıyan bir **bas
 kit**. Bu dosya, sıfırdan bir sunucuya kurarken ya da yeni bir projeye
 klonlarken izlenecek adımların tamamı — sırasıyla, kopyala-yapıştır komutlarla.
 
+> **Kit'ten yeni bir proje mi türetiyorsunuz?** Önce
+> [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md) okuyun — projenin kimliğini
+> (ad, marka, demo içerik, kit izleri) değiştirmeyi o belge anlatıyor. Sonra
+> buraya dönüp sunucuya kurun.
+
 Baştan sona **15 dakika** sürer. Atlanması hiçbir şeyi hemen bozmayan ama
 haftalar sonra "mailler neden gitmiyor" diye aratan tek adım **8. bölümdeki
 cron**; oraya gelene kadar hiçbir şeyi atlamayın.
@@ -660,6 +665,7 @@ Sonra **mutlaka**: `https://alanadi.com/admin/sistem-saglik` → hepsi yeşil mi
 
 | Dosya | İçerik |
 |---|---|
+| [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md) | Kit'ten yeni proje türetme: neyi değiştirmeli, demo içeriği nasıl atlamalı |
 | [`docs/SHARED-HOSTING.md`](docs/SHARED-HOSTING.md) | Paylaşımlı hosting kısıtları, cron ve kuyruğun gerekçesi |
 | [`docs/API.md`](docs/API.md) | Mobil API uçları, kimlik doğrulama, sosyal giriş, bildirimler |
 | [`CLAUDE.md`](CLAUDE.md) | Proje kuralları ve kırmızı çizgiler |
