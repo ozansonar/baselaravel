@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Role;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\ContentSecurityPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +34,153 @@ class ContentSecurityPolicyTest extends TestCase
 
         $this->seedAuthorization();
         $this->seed(\Database\Seeders\LanguageSeeder::class);
+    }
+
+    /**
+     * Politikadaki alan adı listesi.
+     */
+    private function policy(): string
+    {
+        return (string) $this->get('/tr')->assertOk()->headers->get('Content-Security-Policy');
+    }
+
+    /**
+     * Bir yönergenin içeriği — `script-src ...` parçası.
+     */
+    private function directive(string $name): string
+    {
+        foreach (explode(';', $this->policy()) as $part) {
+            $part = trim($part);
+
+            if (str_starts_with($part, $name . ' ')) {
+                return $part;
+            }
+        }
+
+        return '';
+    }
+
+    // ── Üçüncü taraflar: kullanılmayan aracın kapısı açık durmuyor ──
+
+    /**
+     * Bu bölüm nonce'un tek gerçek zayıf noktasını bekliyor.
+     *
+     * Politika "jetonu olan satır içi betikler **VEYA** şu alan adları" diyor;
+     * ikinci kısım jeton koşulunu atlıyor. `googletagmanager.com` ve
+     * `www.google.com` bilinen CSP atlatma kaynakları — sayfaya HTML sokabilen
+     * biri jetonu hiç bilmeden o hostlardan betik yükleyip korumayı devre dışı
+     * bırakabiliyor.
+     *
+     * Kullanılmayan bir aracın alan adını politikada tutmak, kazanç olmadan
+     * saldırı yüzeyini genişletmek demek.
+     */
+    public function test_a_fresh_install_allows_no_third_party_script_host(): void
+    {
+        $script = $this->directive('script-src');
+
+        foreach ([
+            'googletagmanager.com',
+            'google-analytics.com',
+            'www.google.com',
+            'gstatic.com',
+        ] as $host) {
+            $this->assertStringNotContainsString(
+                $host,
+                $script,
+                "Kurulumda kullanılmayan {$host} politikada açık duruyor.",
+            );
+        }
+    }
+
+    public function test_analytics_hosts_appear_once_an_id_is_entered(): void
+    {
+        Setting::setValue('google_analytics_id', 'G-SINAMA123');
+
+        $script = $this->directive('script-src');
+
+        $this->assertStringContainsString('https://www.googletagmanager.com', $script);
+        $this->assertStringContainsString('https://www.google-analytics.com', $script);
+    }
+
+    /**
+     * GA4 çerçeve kullanmıyor; `noscript` iframe'i basan Tag Manager.
+     * İkisi tek blokta dursaydı yalnız GA4 kullanan kurulum, hiç basmadığı bir
+     * çerçeveye izin vermiş olurdu.
+     */
+    public function test_analytics_alone_does_not_open_a_frame(): void
+    {
+        Setting::setValue('google_analytics_id', 'G-SINAMA123');
+
+        $this->assertStringNotContainsString('googletagmanager.com', $this->directive('frame-src'));
+    }
+
+    public function test_tag_manager_opens_the_frame_it_actually_prints(): void
+    {
+        Setting::setValue('google_tag_manager_id', 'GTM-SINAMA');
+
+        $this->assertStringContainsString('https://www.googletagmanager.com', $this->directive('frame-src'));
+    }
+
+    // ── reCAPTCHA: koşul bileşik ──
+
+    /**
+     * @param array<string, string> $extra
+     */
+    private function enableRecaptcha(array $extra = []): void
+    {
+        foreach (array_merge([
+            'recaptcha_enabled'    => '1',
+            'recaptcha_site_key'   => 'site-anahtari',
+            'recaptcha_secret_key' => 'gizli-anahtar',
+        ], $extra) as $key => $value) {
+            Setting::setValue($key, $value);
+        }
+    }
+
+    public function test_recaptcha_hosts_appear_when_it_is_switched_on(): void
+    {
+        $this->enableRecaptcha();
+
+        $script = $this->directive('script-src');
+
+        $this->assertStringContainsString('https://www.google.com', $script);
+        $this->assertStringContainsString('https://www.gstatic.com', $script);
+    }
+
+    /**
+     * Kapatılmış bir anahtar "dolu" sayılmamalı.
+     *
+     * Anahtarlar `'0'` olarak saklanıyor ve `'0'` boş dizge değil. Bu ayrım
+     * yapılmasaydı, reCAPTCHA'yı kapatan bir kurulumda `www.google.com`
+     * politikada açık kalırdı — üstelik anahtarlar kayıtlı olduğu için
+     * yönetici aracı kapattığını sanarak.
+     */
+    public function test_switching_recaptcha_off_closes_its_hosts(): void
+    {
+        $this->enableRecaptcha(['recaptcha_enabled' => '0']);
+
+        $this->assertStringNotContainsString('https://www.google.com', $this->directive('script-src'));
+    }
+
+    /**
+     * Politika ile sayfa aynı soruyu sormalı.
+     *
+     * Ayrışırlarsa iki kötü sonuçtan biri çıkıyor: betik basılıyor ama CSP onu
+     * engelliyor (araç sessizce çalışmaz, sebebi görünmez), ya da betik hiç
+     * basılmıyor ama alan adı açık duruyor (bedavaya yüzey). reCAPTCHA'nın
+     * koşulu bileşik olduğu için burada ayrışma riski en yüksek.
+     */
+    public function test_the_policy_and_the_page_agree_on_recaptcha(): void
+    {
+        $needle = 'https://www.google.com/recaptcha/api.js';
+
+        $this->get('/tr')->assertOk()->assertDontSee($needle, false);
+        $this->assertStringNotContainsString('https://www.google.com', $this->directive('script-src'));
+
+        $this->enableRecaptcha();
+
+        $this->get('/tr')->assertOk()->assertSee($needle, false);
+        $this->assertStringContainsString('https://www.google.com', $this->directive('script-src'));
     }
 
     // ── Başlık ──

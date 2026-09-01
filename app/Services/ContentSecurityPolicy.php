@@ -174,10 +174,10 @@ final class ContentSecurityPolicy
         $sources = [];
 
         foreach ($vendors as $vendor) {
-            // Koşullu sağlayıcı: ilgili ayar boşken alan adı hiç yayılmıyor.
-            // Kullanılmayan bir kaynağı sürekli açık tutmak, politikayı
-            // gereksiz yere genişletmek olurdu.
-            if (($vendor['requires'] ?? null) !== null && ! $this->settingIsFilled((string) $vendor['requires'])) {
+            // Koşullu sağlayıcı: araç kullanımda değilken alan adı hiç
+            // yayılmıyor. Kullanılmayan bir kaynağı sürekli açık tutmak,
+            // politikayı kazanç olmadan genişletmek olurdu.
+            if (($vendor['requires'] ?? null) !== null && ! $this->vendorIsInUse((string) $vendor['requires'])) {
                 continue;
             }
 
@@ -187,6 +187,42 @@ final class ContentSecurityPolicy
         }
 
         return $sources;
+    }
+
+    /**
+     * Sağlayıcı fiilen kullanımda mı?
+     *
+     * Çoğu araç için soru tek bir ayarın dolu olup olmadığı. Bazılarında koşul
+     * bileşik oluyor (reCAPTCHA: anahtar + iki ayrı anahtar + .env yedeği) ve
+     * o zaman betiği sayfaya basan servisin kendisine soruluyor. Politika ile
+     * sayfa aynı soruyu sormalı — biri açıkken diğeri kapalı kalırsa araç
+     * sessizce çalışmaz ve sebebi görünmez.
+     *
+     * Koşul yapılandırmada dizge olarak duruyor, kapanış olarak değil:
+     * `config:cache` kapanışları serileştiremiyor ve üretimin varsayılan
+     * durumu önbelleğe alınmış yapılandırma.
+     */
+    private function vendorIsInUse(string $condition): bool
+    {
+        if (str_starts_with($condition, 'service:')) {
+            return $this->serviceIsEnabled(substr($condition, strlen('service:')));
+        }
+
+        return $this->settingIsFilled($condition);
+    }
+
+    private function serviceIsEnabled(string $name): bool
+    {
+        try {
+            return match ($name) {
+                'recaptcha' => app(RecaptchaService::class)->isEnabled(),
+                // Tanımsız koşul "kullanımda değil" sayılıyor: yazım hatası
+                // politikayı sessizce genişletmemeli, daraltmalı.
+                default => false,
+            };
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**
@@ -205,7 +241,10 @@ final class ContentSecurityPolicy
             return false;
         }
 
-        return $value !== null && $value !== '';
+        // Kapalı bir anahtar "dolu" sayılmıyor. Anahtarlar '0' olarak
+        // saklanıyor ve '0' boş dizge değil; bu ayrım yapılmasaydı kapatılmış
+        // bir aracın alan adı politikada açık kalırdı.
+        return $value !== null && $value !== '' && $value !== '0';
     }
 
     /**

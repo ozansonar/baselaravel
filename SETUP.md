@@ -165,14 +165,18 @@ QUEUE_CONNECTION=database
 CACHE_STORE=database
 ```
 
-HTTPS varsa bu satırı **ekleyin** (`.env.example`'da yok):
+HTTPS varsa `.env`'deki bu satırın **başındaki `#` işaretini kaldırın**:
 
 ```env
 SESSION_SECURE_COOKIE=true
 ```
 
 > Bu satır olmadan oturum çerezi HTTP üzerinden de gönderilir; araya giren biri
-> onu okuyabilir.
+> onu okuyup oturumu devralabilir. Laravel'in kendi varsayılanı yok — yazılmadığı
+> sürece kapalı sayılır.
+>
+> Yerelde açmayın: `http://localhost` üzerinden çerez hiç kurulmaz, giriş
+> yapılamaz ve hata da vermez — form sessizce başa döner.
 
 ### 3.4 Mail
 
