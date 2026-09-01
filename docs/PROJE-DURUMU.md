@@ -1599,11 +1599,14 @@ Tam tur ayrı bir MySQL veritabanında elle yapıldı:
 gibi davranılarak): paylaşımlı hostingde çalışacak olan yol bu ve aynı 563
 ifadeyi doğru uyguladı.
 
-### Kalan yarı
+### Kalan yarı — ✅ sonraki turda kapandı
 
-Yedeğin **dış kopyası** hâlâ yok: arşiv yedeklediği veriyle aynı diskte
-duruyor. Geri yükleme artık mümkün olduğu için dosyanın başka bir yerde
-durması da anlamlı hâle geldi — sonraki tur.
+Denetim günü yedeğin **dış kopyası** yoktu: arşiv yedeklediği veriyle aynı
+diskte duruyordu ve diski kaybeden yedeği de kaybediyordu. Yol haritasının
+5.1 maddesinde kapandı: yapılandırılabilir dış hedef (S3 uyumlu ya da FTP),
+yükleme sonrası doğrulama, başarısızlıkta yöneticiye bildirim ve dış kopyada
+ayrı saklama süresi. Hedef erişilemezse iş "başarılı" sayılmıyor.
+Ayar `config/backups.php` → `offsite`. Test: `BackupOffsiteTest`.
 
 
 ---

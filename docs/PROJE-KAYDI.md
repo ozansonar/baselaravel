@@ -220,8 +220,9 @@ arşiv bölümünde olduğunu söylüyor.
 
 ## 3. Kalan işler ve plan
 
-Bilinen **iki büyük açık madde** var; ikisi de gerçek iş: içerik sürümleme ve
-dinamik form oluşturucu.
+Bilinen **üç açık madde** var: içerik sürümleme, dinamik form oluşturucu ve
+API'de iki adımlı doğrulama kurulumu (sonuncusu 3.2'deki ikinci taramada
+çıktı).
 
 Belge taramasından çıkan dört küçük kalem ve altı belge borcunun **dokuzu 1
 Eylül'de kapatıldı**; geriye yalnız izlemedeki K-4 kaldı (bir koşuda tek
@@ -236,7 +237,8 @@ durduğu. İkisi de düzeltildi, ikisinin de bekçisi yazıldı.
 |---|---|---|---|
 | ~~1~~ | ~~Satır içi olay işleyicilerini JS'e taşımak~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | **1** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
-| **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
+| **2** | API'de iki adımlı doğrulama kurulumu | Küçük | Yalnız mobilden giren kullanıcı 2FA'yı hiç açamıyor; servisler hazır, eksik olan uçlar |
+| **3** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
 | ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 
@@ -328,6 +330,79 @@ Beklenen: ~365 ms'lik sabit maliyet 40-80 ms'ye iner.
   dönüyor, yanıtta `Content-Security-Policy` başlığı yok — 1 Eylül'ün hiçbir
   işi sunucuda değil. "Son eklenenler yavaşlattı" ihtimali zaten fiilen
   mümkün değildi.
+
+---
+
+### 3.2 İkinci belge taraması (1 Eylül, akşam) — "başka ne kaldı"
+
+Yedi belge bir kez daha, bu sefer **öneri diliyle** tarandı: yalnız durum
+işaretleri değil, metnin içine gömülü "önerilir / yapılabilir / şimdilik /
+sonraki tur / kalan" ifadeleri de arandı. Her bulgu koda karşı doğrulandı.
+
+Sonuç: **bir tane gerçek eksik çıktı**, bir belge borcu, bir de yanlış teşhis
+düzeltildi.
+
+#### Yeni bulgu — API'de iki adımlı doğrulama kurulumu yok
+
+`API.md`'de bir cümle olarak duruyordu: *"İki adımlı doğrulamanın **kurulumu**
+şimdilik yalnız web'de."* Üç yüz tablosunda da nitelikli bir işaretle:
+**"✅ giriş"**. İkisi de aynı şeyi söylüyor ama hiçbir yerde açık iş olarak
+listelenmemiş.
+
+Somut hâli şu: web tarafında dört uç var — kurulum başlat, QR onayla, kapat,
+kurtarma kodlarını yenile. **API tarafında sıfır.** Yani yalnız mobil
+uygulamadan giren bir kullanıcı 2FA'yı hiç açamıyor; açmak için tarayıcı
+bulup siteye girmesi gerekiyor.
+
+Bu, mobil uygulama API'lerini de hedefleyen bir kit için gerçek bir boşluk.
+İş kapsanabilir görünüyor: `TwoFactorService` ve `TwoFactorChallengeService`
+zaten yazılı ve web denetleyicisi onları çağırıyor; eksik olan API
+denetleyicisi, rotalar, OpenAPI girdileri ve testler.
+
+| Yüz | Kurulum başlat | Onayla | Kapat | Kurtarma kodları | Girişte kullan |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Web | ✅ | ✅ | ✅ | ✅ | ✅ |
+| API | ⬜ | ⬜ | ⬜ | ⬜ | ✅ |
+
+#### Belge borcu — B-7
+
+`PROJE-DURUMU.md`'nin yedekleme bölümünde *"Kalan yarı: yedeğin dış kopyası
+hâlâ yok — sonraki tur"* yazıyordu. O sonraki tur geldi: yol haritası 5.1'de
+kapandı (dış hedef, yükleme sonrası doğrulama, başarısızlıkta bildirim,
+ayrı saklama süresi; `BackupOffsiteTest`). Metin düzeltildi.
+
+#### Yanlış teşhis düzeltildi — `X-XSS-Protection`
+
+Boşluk analizi bu başlığın kaldırılmasını öneriyordu (güncel hiçbir tarayıcı
+desteklemiyor, bazı eski sürümlerde filtrenin kendisi XSS'i kolaylaştırıyor).
+Canlı sitenin yanıtında başlık **hâlâ duruyor** — ilk bakışta sunucu
+yapılandırmasından geliyor sandım.
+
+Değilmiş: `SecurityHeaders` middleware'ı onu **basmıyor** ve yerinde neden
+basmadığını anlatan bir yorum duruyor. Kaldırıldığı commit `c40c427` — yani
+1 Eylül'ün işlerinden biri. Canlıdaki sürüm o günden eski olduğu için başlık
+orada görünmeye devam ediyor. **Deploy edildiğinde kendiliğinden gidecek**,
+yapılacak bir iş yok.
+
+#### Bilerek kapsam dışı — karar verilmiş, iş değil
+
+Yol haritasının kendi listesi; tekrar tartışılmasın diye buraya da yazıldı:
+e-ticaret (ürün/sipariş/ödeme), sosyal giriş (Google/Apple) ve çok kiracılı
+yapı. Üçü de "unutuldu" değil, "bilerek dışarıda".
+
+#### Taranıp temiz çıkanlar
+
+- `BOSLUK-ANALIZI.md`'deki bütün "Öneri (denetim)" blokları uygulanmış
+  (nonce tabanlı CSP, `CacheKeys`, önek bazlı önbellek temizliği, parça
+  önbelleği). On beş bulgunun tamamı kapalı.
+- Modül önerileri tablosundaki on üç modülün on biri ✅; kalan ikisi zaten
+  bildiğimiz iki büyük iş.
+- API yüzeyi web'e göre eksiksiz sayılır: iletişim formu, bülten aboneliği,
+  yorum gönderme, arama, ayarlar, çeviriler, hesap uçları, cihaz yönetimi,
+  push jetonları, avatar yükleme — hepsi var. Tek fark yukarıdaki 2FA
+  kurulumu.
+- SEO ve PWA'nın API'de olmaması boşluk değil: sitemap ve servis çalışanı
+  tarayıcının işi.
 
 ---
 
