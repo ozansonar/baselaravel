@@ -1,6 +1,6 @@
 # Proje Kaydı — Laravel Base Kit
 
-**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `KOMIT`
+**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `97d0ae3`
 
 Bu belge, projenin dört ayrı kaydını **tek yerde** toplar. Dört belge birbirine
 bağlıydı ama ayrı ayrı okunması gerekiyordu; bir maddenin durumunu öğrenmek için
@@ -210,7 +210,7 @@ arşiv bölümünde olduğunu söylüyor.
 | **SEO denetleyici modülü** (9 kural, 2 yüzey, 43 test) | `748254a` | ✅ |
 | CSP satır içi işleyici kusuru + kapak görseli kusuru | `03e2bba` | ✅ |
 | Dört durum belgesi tek kayıtta toplandı | `4aeb75d` | ✅ |
-| **219 satır içi işleyici JS'e taşındı, CSP tavizi kalktı** | `KOMIT` | ✅ |
+| **219 satır içi işleyici JS'e taşındı, CSP tavizi kalktı** | `97d0ae3` | ✅ |
 
 ---
 
