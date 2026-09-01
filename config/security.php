@@ -64,31 +64,65 @@ return [
         |----------------------------------------------------------------------
         | Kullanılan üçüncü taraflar
         |----------------------------------------------------------------------
-        | Panelden açılıp kapanabilen araçların alan adları. Ayar kapalıyken
-        | betik zaten sayfaya basılmıyor, ama politika istek anında değil
-        | yapılandırmadan okunduğu için liste sabit tutuluyor: aracı açan
-        | yöneticinin ayrıca CSP düzenlemesi gerekmiyor.
+        | Panelden açılıp kapanabilen araçların alan adları.
+        |
+        | Panelden açılıp kapanabilen her sağlayıcı `requires` taşır: aracın
+        | fiilen kullanımda olup olmadığını söyleyen koşul. Koşul sağlanmıyorsa
+        | alan adı politikaya **hiç** yazılmaz. Koşulsuz duran tek sağlayıcı
+        | `avatars`; o bir üçüncü taraf aracı değil, avatarı olmayan kullanıcı
+        | için her sayfada gereken görsel kaynağı.
+        |
+        | Bu, nonce'un tek gerçek zayıf noktasını kapatıyor. Politika
+        | "jetonu olan satır içi betikler VEYA şu alan adları" diyor; ikinci
+        | kısım jeton koşulunu atlıyor. `googletagmanager.com` ve
+        | `www.google.com` bilinen CSP atlatma kaynakları — üzerlerinde
+        | saldırganın parametreyle kod çalıştırabildiği uç noktalar var. Sayfaya
+        | HTML sokabilen biri, jetonu hiç bilmeden o hostlardan betik yükleyip
+        | korumayı devre dışı bırakabiliyor.
+        |
+        | Kullanmadığın bir aracın kapısını sürekli açık tutmak, kazanç olmadan
+        | saldırı yüzeyini genişletmek demek. Aracı açtığında kapı kendiliğinden
+        | açılıyor; koşul istek anında okunuyor, `config:cache` sonrası da
+        | geçerli.
+        |
+        | `requires` iki biçim alır:
+        |   'ayar_adi'          → o ayar panelde dolu mu (kapalı anahtar sayılmaz)
+        |   'service:<ad>'      → ilgili servise sor (bileşik koşullar için)
         */
         'vendors' => [
-            // Google Analytics / Tag Manager
+            // Google Analytics 4 — gtag.js googletagmanager'dan yükleniyor,
+            // ölçümler google-analytics'e gidiyor. Çerçeve kullanmıyor.
             'analytics' => [
-                'script'  => ['https://www.googletagmanager.com', 'https://www.google-analytics.com'],
-                'img'     => ['https://www.google-analytics.com', 'https://www.googletagmanager.com'],
-                'connect' => ['https://www.google-analytics.com', 'https://www.googletagmanager.com', 'https://analytics.google.com'],
-                'frame'   => ['https://www.googletagmanager.com'],
+                'requires' => 'google_analytics_id',
+                'script'   => ['https://www.googletagmanager.com', 'https://www.google-analytics.com'],
+                'img'      => ['https://www.google-analytics.com', 'https://www.googletagmanager.com'],
+                'connect'  => ['https://www.google-analytics.com', 'https://www.googletagmanager.com', 'https://analytics.google.com'],
+            ],
+            // Tag Manager ayrı: GA4'ten farklı olarak betiğe ek bir de
+            // `noscript` iframe'i basıyor (ns.html). Tek blokta dursalardı
+            // yalnız GA4 kullanan kurulum, hiç basmadığı bir çerçeveye izin
+            // vermiş olurdu.
+            'tag_manager' => [
+                'requires' => 'google_tag_manager_id',
+                'script'   => ['https://www.googletagmanager.com'],
+                'img'      => ['https://www.googletagmanager.com'],
+                'connect'  => ['https://www.googletagmanager.com'],
+                'frame'    => ['https://www.googletagmanager.com'],
             ],
             // reCAPTCHA — betik www.google.com'dan, kaynaklar gstatic'ten,
             // kutu bir iframe içinde geliyor.
+            //
+            // Koşul tek bir ayar değil: açık/kapalı anahtarı, site anahtarı ve
+            // gizli anahtarın üçü birden gerekiyor ve hiçbiri panelde yoksa
+            // .env'e düşülüyor. Betiği sayfaya basan koşulun aynısı sorulmalı,
+            // yoksa CSP ile sayfa ayrışır — biri açıkken diğeri kapalı kalır.
             'recaptcha' => [
-                'script' => ['https://www.google.com', 'https://www.gstatic.com'],
-                'frame'  => ['https://www.google.com'],
-                'img'    => ['https://www.gstatic.com'],
+                'requires' => 'service:recaptcha',
+                'script'   => ['https://www.google.com', 'https://www.gstatic.com'],
+                'frame'    => ['https://www.google.com'],
+                'img'      => ['https://www.gstatic.com'],
             ],
-            // Meta (Facebook) Pixel. Yalnız panelde bir Pixel kimliği
-            // girilmişken yayılıyor: `requires` alanı dolu olan sağlayıcı,
-            // o ayar boşken CSP'ye hiç eklenmiyor. Kullanılmayan bir alan
-            // adını sürekli açık tutmak, kazanç olmadan yüzeyi genişletmek
-            // olurdu.
+            // Meta (Facebook) Pixel.
             'meta_pixel' => [
                 'requires' => 'facebook_pixel_id',
                 'script'   => ['https://connect.facebook.net'],
