@@ -291,8 +291,8 @@ class ListExportTest extends TestCase
     {
         // Bağlam isteyen listeler (bir kampanyanın alıcıları gibi) dışarıda:
         // sorguları tek bir üst kayda bağlı, kayıt sayısıyla büyümüyorlar.
-        if ($key === 'campaign-recipients') {
-            $this->markTestSkipped('Kampanya alıcıları tek kampanyaya bağlı.');
+        if (in_array($key, ['campaign-recipients', 'content-revisions'], true)) {
+            $this->markTestSkipped("{$key} listesi tek bir üst kayda bağlı; kayıt sayısıyla büyümüyor.");
         }
 
         $export = app(ExportRegistry::class)->get($key);
@@ -453,11 +453,13 @@ class ListExportTest extends TestCase
      */
     private function requiredQueryFor(string $key): string
     {
-        if ($key !== 'campaign-recipients') {
-            return '';
-        }
-
-        return '?campaign=' . Campaign::factory()->create()->getKey();
+        // Bağlam isteyen listeler: dosya, hangi kaydın listesi olduğu
+        // bilinmeden okunamaz.
+        return match ($key) {
+            'campaign-recipients' => '?campaign=' . Campaign::factory()->create()->getKey(),
+            'content-revisions'   => '?type=sayfa&id=' . \App\Models\Page::factory()->create()->getKey(),
+            default               => '',
+        };
     }
 
     private function admin(): User

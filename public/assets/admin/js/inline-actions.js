@@ -78,6 +78,10 @@
         /* Dosya yöneticisi */
         'dosya-sil-onay': function (el) { cagir(window.fmgrConfirmDelete, [el]); },
 
+        /* İçerik sürümleri: önizleme ve geri yükleme onayı */
+        'surum-onizle': function (el) { cagir(window.openRevisionPreview, [el.dataset.id]); },
+        'surum-geri-yukle': function (el) { cagir(window.openRevisionRestore, [el.dataset.id, el.dataset.label]); },
+
         /* Push duyurusu: sıradaki gönderimi iptal etme onayı */
         'push-iptal': function (el) { cagir(window.openPushCancel, [el.dataset.label]); },
 

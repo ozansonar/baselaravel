@@ -44,15 +44,15 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 
 | | | | |
 |---|---|---|---|
-| **38** model | **102** servis | **27** policy | **80** migration |
-| **138** test dosyası | **1951** test | **7845** doğrulama | **34** dışa aktarma tanımı |
+| **39** model | **103** servis | **27** policy | **81** migration |
+| **139** test dosyası | **1979** test | **7900** doğrulama | **35** dışa aktarma tanımı |
 | **373** rota | **258** admin rotası | **48** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1951 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1979 geçiyor, 9 gerekçeli atlama |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -196,7 +196,7 @@ arşiv bölümünde olduğunu söylüyor.
 | API katmanı (Sanctum) | Orta | ✅ |
 | **SEO denetleyici** | Orta | ✅ *(1 Eyl)* |
 | Satır içi olay işleyicilerini JS'e taşımak | Orta | ✅ *(1 Eyl)* |
-| **İçerik sürümleme (revisions)** | Orta | ⬜ **açık** |
+| **İçerik sürümleme (revisions)** | Orta | ✅ *(1 Eyl)* |
 | **Dinamik form oluşturucu** | Büyük | ⬜ **açık** |
 
 ### 2.6 Son turda eklenenler (1 Eylül, bu belgeye yeni giren)
@@ -218,14 +218,14 @@ arşiv bölümünde olduğunu söylüyor.
 | Tarayıcı kutuları kaldırıldı, iki bekçi, belge borcu | `c982c45` | ✅ |
 | Sistem sağlığına OPcache + uygulama önbelleği kontrolleri | `55a54d3` | ✅ |
 | **API'de iki adımlı doğrulama kurulumu** (4 uç, 18 test) | — | ✅ |
+| **İçerik sürümleme** (sayfa + blog, 20 sürüm, dil başına, 24 test) | — | ✅ |
 
 ---
 
 ## 3. Kalan işler ve plan
 
-Bilinen **iki açık madde** var: içerik sürümleme ve dinamik form oluşturucu.
-İkinci taramada çıkan üçüncü madde — API'de iki adımlı doğrulama kurulumu —
-1 Eylül'de kapandı.
+Bilinen **tek açık madde** kaldı: dinamik form oluşturucu. İçerik sürümleme
+ve API'de iki adımlı doğrulama kurulumu 1 Eylül'de kapandı.
 
 Belge taramasından çıkan dört küçük kalem ve altı belge borcunun **dokuzu 1
 Eylül'de kapatıldı**; geriye yalnız izlemedeki K-4 kaldı (bir koşuda tek
@@ -239,9 +239,9 @@ durduğu. İkisi de düzeltildi, ikisinin de bekçisi yazıldı.
 | Sıra | İş | Efor | Neden bu sırada |
 |---|---|---|---|
 | ~~1~~ | ~~Satır içi olay işleyicilerini JS'e taşımak~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
-| **1** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
+| ~~1~~ | ~~İçerik sürümleme (revisions)~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~2~~ | ~~API'de iki adımlı doğrulama kurulumu~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
-| **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
+| **1** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
 | ~~3~~ | ~~Panelden push bildirim gönderme ekranı~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 | ~~4~~ | ~~`session.serialization = json`~~ | Küçük | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
 
@@ -462,7 +462,7 @@ iş dışında kalan her şey ya kapanmış ya da küçük kalem.
 
 | # | Madde | Efor | Not |
 |---|---|---|---|
-| 1 | İçerik sürümleme (revisions) | Orta | Üç karar bekliyor: hangi modeller, kaç sürüm, dil mi dil grubu mu |
+| ~~1~~ | ~~İçerik sürümleme (revisions)~~ | Orta | ✅ **1 Eylül'de tamamlandı** |
 | 2 | Dinamik form oluşturucu | Büyük | Kapsam kararı bekliyor |
 
 #### Küçük kalemler — koda karşı doğrulanmış
@@ -710,23 +710,87 @@ kararlı.
 
 ---
 
-### İş 1 — İçerik sürümleme (revisions)
+### ✅ Tamamlandı — İçerik sürümleme (revisions)
 
-**Durum:** ⬜ açık · **Efor:** orta · **Tür:** yetenek
+**Durum:** ✅ kapandı (1 Eylül 2026) · **Tür:** yetenek
 
-**Neden.** Denetim izi *neyin* değiştiğini gösteriyor ama geri döndüremiyor.
-Çok yazarlı içerikte "dün çalışan hâline dön" kaçınılmaz olarak isteniyor.
+**Sorundu.** Denetim izi *neyin* değiştiğini gösteriyor ama geri
+döndüremiyor. Yanlışlıkla silinen bir paragrafın tek karşılığı, onu
+hatırlayan birinin yeniden yazmasıydı.
 
-**Neyin üstüne oturur.** `HasTranslations`, `lang_group_id`, mevcut geri
-yükleme akışları (`BackupRestoreService` deseni), denetim izi altyapısı.
+**Üç karar.** Açık sorular kullanıcıya soruldu ve en dar kapsam seçildi —
+kitin geri kalanında işe yaramış desen:
 
-**Açık sorular.** Hangi modeller sürümlenecek (blog + sayfa yeter mi, galeri ve
-SSS de mi), kaç sürüm saklanacak, sürümler dile göre mi yoksa dil grubuna göre
-mi tutulacak.
+| Soru | Karar | Gerekçe |
+|---|---|---|
+| Hangi modeller? | **Sayfa + blog yazısı** | En çok düzenlenen, kaybı en pahalı ikisi. Galeri/SSS/slider/popup'ta düzenleme genelde tek alanlık |
+| Kaç sürüm? | **Son 20** | Sabit sayı, zaman aralığı değil: disk böyle tahmin edilebilir oluyor |
+| Dile mi, dil grubuna mı? | **Dile bağlı** | İki dili iki ayrı kişi düzenlediğinde biri ötekinin işini silmemeli |
+
+**Nasıl çalışıyor.** Her kaydetmede o anki hâl `content_revisions` tablosuna
+yazılıyor; listenin başındaki sürüm **her zaman** içeriğin şu anki hâli.
+Geri yükleme yeni satır açmıyor, mevcut kaydı güncelliyor — adres, kimlik ve
+bağlantılar korunuyor — ve **kendisi de bir sürüm doğuruyor**, yani "yanlış
+sürüme döndüm" diyen kişi bir öncekine dönebiliyor.
+
+**Sürüm ne zaman yazılmaz.** Yalnız `config/revisions.php`'de listelenen
+alanlardan biri değiştiğinde yazılıyor. Karar Eloquent'in değişiklik izine
+değil, **son sürümle karşılaştırmaya** bakıyor — ve bu, yazarken ölçülen bir
+hatanın sonucu:
+
+> Hiçbir alanı kirletmeyen bir `save()` çağrısında Eloquent güncelleme
+> sorgusunu atlıyor ve `getChanges()` bir önceki kaydın değerlerini taşımaya
+> devam ediyor. `wasChanged()` o anda "evet" diyor. İlk kurgu buna
+> dayanıyordu ve alakasız bir alanı kaydetmek sahte bir sürüm doğuruyordu;
+> hatayı yazılan sınav yakaladı, kurgu değiştirildi.
+
+Bunun ikinci bir kazancı da var: blog yazısının `views` sayacı her ziyarette
+artıyor ve `increment()` model olayı doğuruyor. Sayaç tetikleyici sayılsaydı
+popüler bir yazının yirmi sürümlük geçmişi bir günde dolar, gerçek
+düzenlemeler listeden düşerdi. Ayrıca sınanıyor.
+
+**Yazılan dosyalar.**
+
+| Katman | Dosya |
+|---|---|
+| Yapılandırma | `config/revisions.php` — tavan ve sürümlenen alanlar, tek kaynak |
+| Şema | `content_revisions` (polimorfik + `locale`, hedef indeksi) |
+| Model | `ContentRevision` (+ fabrika) |
+| Trait | `HasRevisions` — `Page` ve `BlogPost`'a takılı |
+| Servis | `ContentRevisionService` — yakala / buda / geri yükle |
+| Ekran | `admin/revisions/index.blade.php` — iki içerik türü için tek ekran |
+| JS | `content-revisions.js` (önizleme + geri yükleme onayı) |
+| Dışa aktarma | `ContentRevisionExport` + kayıt defterine bir satır |
+| Test | `ContentRevisionTest` — 24 test |
+
+**Budama kalıcı.** Yumuşak silme trait'i projedeki kurala uyuyor ama tavanı
+aşan sürümler `forceDelete()` ile gidiyor: tavanın var olma sebebi disk ve
+yumuşak silinen satır diskte durmaya devam ederdi. İçerik kalıcı silindiğinde
+geçmişi de gidiyor; yumuşak silmede duruyor, çünkü geri alınan içerik
+geçmişiyle birlikte dönmeli.
+
+**Ekran nerede.** Ayrı bir sayfada (`/admin/surumler/{tür}/{id}`), düzenleme
+formunun içinde değil: o form zaten yedi bölümlü ve geçmiş listesi dil
+sekmelerinin içine sıkışmıyordu. Düzenleme ekranının başlığına bir
+**Sürümler** düğmesi eklendi — mevcut düğme grubunun `btn-glass` biçimiyle
+aynı, yeni bir tasarım öğesi değil.
+
+**Yol üzerinde kendi bekçim yakaladı.** Yeni ekran tablo çiziyor ama dışa
+aktarma sunmuyordu; aynı gün yazılan `ListScreensOfferExportTest` düştü.
+Kural kullanıcının kendi koyduğu kuraldı ("bütün liste ekranlarına export"),
+istisna yazmak yerine `content-revisions` tanımı eklendi — geçmiş artık
+Excel/CSV/PDF olarak da inebiliyor.
+
+**Doğrulama.** 1979 test yeşil (24'ü yeni), Pint sapmasız, PHPStan temiz.
+Şema MySQL 8'de kuruldu, `down()` gidiş-dönüşü yapıldı, ilgili testler MySQL'e
+karşı da koştu. Tarayıcıda: liste ekranı, sürüm önizlemesi, geri yükleme
+onayı ve gerçek geri yükleme (başlık eski hâline döndü, önceki hâl listenin
+başına yeni sürüm olarak yazıldı), üç biçimde dışa aktarma ve düzenleme
+ekranındaki düğme tek tek denendi; konsol temiz.
 
 ---
 
-### İş 2 — Dinamik form oluşturucu
+### İş 1 — Dinamik form oluşturucu
 
 **Durum:** ⬜ açık · **Efor:** büyük · **Tür:** yetenek
 

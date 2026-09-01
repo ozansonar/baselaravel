@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\ContentRevisionController;
 use App\Http\Controllers\Admin\PushNotificationController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SeoAuditController;
@@ -392,6 +393,24 @@ Route::patch('blog-posts/toplu-durum/{status}', [BlogPostController::class, 'bul
     ->whereIn('status', ['publish', 'draft'])->name('blog-posts.bulk-status');
 Route::resource('blog-posts', BlogPostController::class);
 Route::patch('blog-posts/{blogPost}/restore', [BlogPostController::class, 'restore'])->name('blog-posts.restore')->withTrashed();
+
+// İçerik sürümleri (sayfa ve blog yazısı).
+//
+// Tek rota çifti iki içerik türüne birden hizmet ediyor; hangi tür olduğu
+// adres satırındaki `type` ile geliyor ve denetleyicideki sabit haritadan
+// çözülüyor — serbest bırakılsaydı adres satırındaki değer doğrudan sınıf
+// adına dönerdi.
+Route::prefix('surumler')->name('revisions.')->group(function (): void {
+    Route::get('{type}/{id}', [ContentRevisionController::class, 'index'])
+        ->whereIn('type', ['sayfa', 'blog'])
+        ->whereNumber('id')
+        ->name('index');
+
+    Route::post('{type}/{id}/{revision}/geri-yukle', [ContentRevisionController::class, 'restore'])
+        ->whereIn('type', ['sayfa', 'blog'])
+        ->whereNumber('id')
+        ->name('restore');
+});
 
 // Blog Comments
 Route::get('blog-comments', [BlogCommentController::class, 'index'])->name('blog-comments.index');

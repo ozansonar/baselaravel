@@ -29,6 +29,12 @@
         </div>
     </div>
     <div class="d-flex gap-2 flex-wrap">
+        {{-- Sürüm geçmişi ayrı bir ekranda: bu form zaten yedi bölümlü ve
+             geçmiş listesi dil sekmelerinin içine sıkıştırılamıyor. --}}
+        <a href="{{ route('admin.revisions.index', ['type' => 'sayfa', 'id' => $page->id]) }}"
+           class="btn-glass" title="Bu sayfanın kayıtlı sürümleri">
+            <i class="bi bi-clock-history me-1"></i>Sürümler
+        </a>
         <a href="{{ route('admin.pages.index') }}" class="btn-glass">
             <i class="bi bi-x-lg me-1"></i>Vazgeç
         </a>
