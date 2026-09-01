@@ -70,7 +70,7 @@
         // reddedilirdi; bu desen FormRequest'lerdeki regex ile birebir aynı.
         allRules.letters = {
             regex: /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]+$/,
-            alertText: 'Bu alanda sadece harf kullanılabilir'
+            alertText: window.siteText('onlyLetters')
         };
     }
 
@@ -92,11 +92,11 @@
         var accepted = (input.dataset.accept || 'image/jpeg,image/png,image/webp').split(',');
 
         if (accepted.indexOf(file.type) === -1) {
-            return 'Görsel JPG, PNG veya WebP formatında olmalıdır';
+            return window.siteText('imageType');
         }
 
         if (file.size > maxMb * 1024 * 1024) {
-            return 'Görsel en fazla ' + maxMb + ' MB olabilir';
+            return window.siteText('imageSize', { max: maxMb });
         }
     };
 
@@ -117,7 +117,7 @@
         var other = otherId ? document.getElementById(otherId) : null;
 
         if (other && other.value.trim() !== '' && input.value.trim() === '') {
-            return 'Şifrenizi değiştirmek için mevcut şifrenizi girin';
+            return window.siteText('currentPasswordRequired');
         }
     };
 
@@ -260,7 +260,7 @@
         button.dataset.fvLabel = button.innerHTML;
         button.innerHTML =
             '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
-            'Gönderiliyor...';
+            window.siteText('sending');
     }
 
     /**

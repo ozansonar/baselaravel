@@ -122,7 +122,9 @@ final class BrowserDialogsAreForbiddenTest extends TestCase
         $expected = [
             'public/assets/admin/js/bulk-actions.js'   => 'AdminModal yüklenmedi',
             'public/assets/admin/js/inline-actions.js' => 'AdminModal yüklenmedi',
-            'public/js/app.js'                         => 'bulunamadı',
+            // Ön yüz betiklerinde artık yazılı metin yok; geliştiriciye
+            // bakan konsol satırı İngilizce, ziyaretçiye görünmüyor.
+            'public/js/app.js'                         => 'is missing',
         ];
 
         foreach ($expected as $file => $needle) {

@@ -624,4 +624,17 @@ return [
         'last_name_required'          => 'Soyad alanı zorunludur.',
         'last_name_letters'           => 'Soyad yalnızca harf ve boşluk içerebilir.',
     ],
+    // Betiklerin yazdığı metinler — ön yüz JS dosyaları bunları
+    // window.SiteText üzerinden okuyor, bkz. App\Support\FrontScriptText.
+    'js' => [
+        'title_success'             => 'Başarılı',
+        'title_error'               => 'Hata',
+        'title_warning'             => 'Uyarı',
+        'title_info'                => 'Bilgi',
+        'failed'                    => 'İşlem tamamlanamadı.',
+        'only_letters'              => 'Bu alanda sadece harf kullanılabilir',
+        'image_type'                => 'Görsel JPG, PNG veya WebP formatında olmalıdır',
+        'image_size'                => 'Görsel en fazla :max MB olabilir',
+        'current_password_required' => 'Şifrenizi değiştirmek için mevcut şifrenizi girin',
+    ],
 ];

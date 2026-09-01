@@ -48,9 +48,7 @@
         root.setAttribute('data-bs-theme', theme);
 
         document.querySelectorAll('[data-theme-toggle]').forEach(function (button) {
-            var label = theme === 'dark'
-                ? (button.dataset.labelLight || 'Light theme')
-                : (button.dataset.labelDark || 'Dark theme');
+            var label = window.siteText(theme === 'dark' ? 'themeLight' : 'themeDark');
 
             button.setAttribute('aria-label', label);
             button.setAttribute('title', label);

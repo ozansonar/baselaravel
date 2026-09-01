@@ -199,16 +199,16 @@ window.showResultModal = function (type, message, title) {
        basılıyor) ve proje onu yasaklıyor: sayfayı kilitliyor, ekranın diliyle
        konuşmuyor ve biçimlenmiyor. */
     if (!el) {
-        console.error('Sonuç kutusu bulunamadı, mesaj gösterilemedi: ' + lines.join(' '));
+        console.error('Result modal is missing; message not shown: ' + lines.join(' '));
 
         return;
     }
 
     const map = {
-        success: { icon: 'fa-circle-check',        cls: 'result-icon--success', title: 'Başarılı' },
-        error:   { icon: 'fa-circle-exclamation',  cls: 'result-icon--error',   title: 'Hata' },
-        warning: { icon: 'fa-triangle-exclamation',cls: 'result-icon--warning', title: 'Uyarı' },
-        info:    { icon: 'fa-circle-info',          cls: 'result-icon--info',    title: 'Bilgi' },
+        success: { icon: 'fa-circle-check',        cls: 'result-icon--success', title: window.siteText('titleSuccess') },
+        error:   { icon: 'fa-circle-exclamation',  cls: 'result-icon--error',   title: window.siteText('titleError') },
+        warning: { icon: 'fa-triangle-exclamation',cls: 'result-icon--warning', title: window.siteText('titleWarning') },
+        info:    { icon: 'fa-circle-info',          cls: 'result-icon--info',    title: window.siteText('titleInfo') },
     };
     const cfg = map[type] || map.info;
 
@@ -237,16 +237,16 @@ window.showConfirmModal = function (options) {
     // taraf; sebep konsola yazılıyor ki sessizce çalışmayan bir düğme olarak
     // kalmasın.
     if (!el) {
-        console.error('Onay kutusu bulunamadı: işlem çalıştırılmadı.');
+        console.error('Confirm modal is missing; the action was not run.');
 
         return;
     }
 
-    document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || 'Emin misiniz?';
+    document.getElementById('confirmModalTitle').textContent = window.plainText(options.title) || window.siteText('confirmTitle');
     document.getElementById('confirmModalBody').textContent = window.plainText(options.message);
 
     const confirmBtn = document.getElementById('confirmModalConfirmBtn');
-    confirmBtn.textContent = window.plainText(options.confirmText) || 'Evet';
+    confirmBtn.textContent = window.plainText(options.confirmText) || window.siteText('confirmYes');
 
     // Reset listener by cloning
     const fresh = confirmBtn.cloneNode(true);
@@ -318,12 +318,12 @@ window.showConfirmModal = function (options) {
                     }
 
                     var errors = result.data.errors || {};
-                    show(errors.email ? errors.email[0] : (result.data.message || 'İşlem tamamlanamadı.'), false);
+                    show(errors.email ? errors.email[0] : (result.data.message || window.siteText('failed')), false);
                 })
                 .catch(function () {
                     button.disabled = false;
                     button.innerHTML = original;
-                    show('Bağlantı hatası. Lütfen tekrar deneyin.', false);
+                    show(window.siteText('errorRetry'), false);
                 });
         });
 

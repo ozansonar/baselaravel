@@ -620,4 +620,17 @@ return [
         'last_name_required'          => 'The last name is required.',
         'last_name_letters'           => 'The last name may contain only letters and spaces.',
     ],
+    // Betiklerin yazdığı metinler — ön yüz JS dosyaları bunları
+    // window.SiteText üzerinden okuyor, bkz. App\Support\FrontScriptText.
+    'js' => [
+        'title_success'             => 'Success',
+        'title_error'               => 'Error',
+        'title_warning'             => 'Warning',
+        'title_info'                => 'Information',
+        'failed'                    => 'The action could not be completed.',
+        'only_letters'              => 'This field accepts letters only',
+        'image_size'                => 'The image may be at most :max MB',
+        'image_type'                => 'The image must be a JPG, PNG or WebP file',
+        'current_password_required' => 'Enter your current password to change it',
+    ],
 ];

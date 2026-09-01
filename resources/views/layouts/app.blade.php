@@ -225,6 +225,7 @@
     @include('partials.lightbox')
 
     {{-- JS --}}
+    @include('partials.js-lang')
     <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     {{-- Form doğrulama motoru. jQuery yalnızca bunun için yükleniyor; kendi
          kodumuz vanilla. Front dosyası admin'inkinden ayrı: js/form-validation.js --}}
@@ -238,10 +239,8 @@
     {{-- Koyu/açık kip düğmesi. Kipin kendisini <head>'deki satır içi betik
          yazıyor; bu dosya yalnızca düğmeyi bağlıyor. --}}
     <script src="{{ versioned_asset('js/theme.js') }}"></script>
-    {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı sayfanın dilinden geliyor. --}}
-    <script src="{{ versioned_asset('js/password-toggle.js') }}"
-            data-show-label="{{ __('site.actions.show_password') }}"
-            data-hide-label="{{ __('site.actions.hide_password') }}"></script>
+    {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı window.SiteText'ten. --}}
+    <script src="{{ versioned_asset('js/password-toggle.js') }}"></script>
     @include('partials.flash-message')
 
     @if(app(\App\Services\RecaptchaService::class)->isEnabled())

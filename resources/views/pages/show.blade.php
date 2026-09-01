@@ -57,16 +57,7 @@
 @endsection
 
 @push('scripts')
-{{-- Büyütme penceresinin etiketleri sunucudan: pencere ziyaretçinin dilinde
-     açılmalı, JS içine gömülü metin İngilizce sayfada yanlış olurdu. --}}
-@php
-    $attachmentLabels = [
-        'close'    => __('site.attachments.close'),
-        'prev'     => __('site.attachments.prev'),
-        'next'     => __('site.attachments.next'),
-        'download' => __('site.attachments.download'),
-    ];
-@endphp
-<script type="application/json" id="attachmentsLabels" nonce="{{ csp_nonce() }}">@json($attachmentLabels)</script>
+{{-- Pencerenin etiketleri window.SiteText'ten geliyor (partials/js-lang);
+     aynı @php bloğu iki sayfada birden duruyordu. --}}
 <script src="{{ versioned_asset('js/content-attachments.js') }}" defer></script>
 @endpush

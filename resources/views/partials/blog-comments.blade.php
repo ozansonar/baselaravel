@@ -111,14 +111,10 @@
 </div>
 
 @push('scripts')
-{{-- Metinler sunucudan: JS içine gömülü Türkçe, İngilizce sayfada yanlış
-     olurdu. reCAPTCHA'nın açık olup olmadığı da buradan geçiyor — istemci,
-     kutu işaretlenmeden isteği hiç göndermesin. --}}
+{{-- Metinler window.SiteText'ten geliyor (partials/js-lang). reCAPTCHA'nın
+     açık olup olmadığı sayfaya özel bir ayar, o yüzden burada kalıyor —
+     istemci, kutu işaretlenmeden isteği hiç göndermesin. --}}
 <script src="{{ versioned_asset('js/blog-comments.js') }}"
-        data-sending="{{ __('site.misc.sending') }}"
-        data-error-generic="{{ __('site.misc.error_generic') }}"
-        data-error-retry="{{ __('site.misc.error_retry') }}"
-        data-recaptcha-required="{{ __('site.forms.recaptcha') }}"
         data-recaptcha-enabled="{{ app(\App\Services\RecaptchaService::class)->isEnabled() ? '1' : '0' }}"
         defer></script>
 @endpush

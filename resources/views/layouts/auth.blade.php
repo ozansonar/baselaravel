@@ -94,6 +94,7 @@
     @include('partials.result-modal')
 
     {{-- JS --}}
+    @include('partials.js-lang')
     <script src="{{ asset('assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     {{-- Form doğrulama motoru. jQuery yalnızca bunun için yükleniyor; kendi
          kodumuz vanilla. Front dosyası admin'inkinden ayrı: js/form-validation.js --}}
@@ -106,9 +107,7 @@
     <script src="{{ versioned_asset('js/app.js') }}"></script>
     <script src="{{ versioned_asset('js/theme.js') }}"></script>
     {{-- Şifre alanlarındaki göster/gizle düğmesi; okunur adı sayfanın dilinden geliyor. --}}
-    <script src="{{ versioned_asset('js/password-toggle.js') }}"
-            data-show-label="{{ __('site.actions.show_password') }}"
-            data-hide-label="{{ __('site.actions.hide_password') }}"></script>
+    <script src="{{ versioned_asset('js/password-toggle.js') }}"></script>
 
     @if(app(\App\Services\RecaptchaService::class)->isEnabled())
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
