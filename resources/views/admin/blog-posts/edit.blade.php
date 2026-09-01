@@ -35,7 +35,7 @@
         </div>
         <div class="d-flex gap-2 flex-wrap">
           <button type="button" class="btn-glass"
-                  onclick="shareBlogToSocial({{ $post->id }})"
+                  data-action="blog-paylas" data-id="{{ $post->id }}"
                   title="Bu yazıyı Instagram + Facebook'ta paylaşmak için taslak oluşturur">
             <i class="bi bi-share me-1"></i>Sosyal Medyada Paylaş
           </button>

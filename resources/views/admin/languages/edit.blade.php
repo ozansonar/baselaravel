@@ -76,7 +76,7 @@
                 @can('delete', $language)
                     @unless($language->is_default)
                         <button type="button" class="btn-glass text-neon-red"
-                                onclick="openLanguageDelete({{ $language->id }}, @js($language->native_name ?: $language->name), {{ $contentCount }})">
+                                data-action="dil-sil" data-id="{{ $language->id }}" data-label="@js($language->native_name ?: $language->name)" data-count="{{ $contentCount }}">
                             <i class="bi bi-trash"></i> Dili Sil
                         </button>
                     @endunless

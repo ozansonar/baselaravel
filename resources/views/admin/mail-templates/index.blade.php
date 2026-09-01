@@ -174,7 +174,7 @@
                     <div class="mt-field">
                         <span>Değişken</span>
                         <select class="cl-filter-select" name="variable" aria-label="Değişken"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm değişkenler</option>
                             @foreach($variableOptions as $variableKey => $option)
                                 <option value="{{ $variableKey }}" {{ $filters['variable'] === (string) $variableKey ? 'selected' : '' }}>
@@ -187,7 +187,7 @@
                     <div class="mt-field">
                         <span>İçerik</span>
                         <select class="cl-filter-select" name="origin" aria-label="İçerik durumu"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm içerikler</option>
                             <option value="customized" {{ $filters['origin'] === 'customized' ? 'selected' : '' }}>Özelleştirildi</option>
                             <option value="default" {{ $filters['origin'] === 'default' ? 'selected' : '' }}>Varsayılan</option>
@@ -197,7 +197,7 @@
                     <div class="mt-field">
                         <span>Sıralama</span>
                         <select class="cl-filter-select" name="sort" aria-label="Sıralama"
-                                onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                                data-submit-form="filterForm" data-fv-ignore>
                             @foreach($sortOptions as $sortValue => $sortLabel)
                                 <option value="{{ $sortValue }}" {{ ($filters['sort'] ?: 'name') === $sortValue ? 'selected' : '' }}>{{ $sortLabel }}</option>
                             @endforeach

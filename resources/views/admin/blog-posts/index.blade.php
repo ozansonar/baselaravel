@@ -130,7 +130,7 @@
 
                 {{-- Filters Row --}}
                 <div class="cl-filters">
-                    <select class="cl-filter-select" id="filterCategory" name="category_id" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" id="filterCategory" name="category_id" data-submit-form="filterForm" data-fv-ignore>
                         <option value="">Tüm Kategoriler</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
@@ -147,7 +147,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select id="perPage" name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select id="perPage" name="per_page" data-submit-form="filterForm" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ (int) request('per_page', 25) === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -310,7 +310,7 @@
                                                 <a class="usr-action-btn success" title="Sitede Görüntüle" href="{{ route('blog.show', [$post->category->slug, $post->slug]) }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
                                             @endif
                                             <a class="usr-action-btn" title="Düzenle" href="{{ route('admin.blog-posts.edit', $post) }}"><i class="bi bi-pencil"></i></a>
-                                            <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal('{{ e($post->title) }}', {{ $post->id }})"><i class="bi bi-trash"></i></button>
+                                            <button class="usr-action-btn danger" title="Sil" data-action="sil-tersine" data-label="'{{ e($post->title) }}'" data-id="{{ $post->id }}"><i class="bi bi-trash"></i></button>
                                         @endif
                                     </div>
                                 </td>

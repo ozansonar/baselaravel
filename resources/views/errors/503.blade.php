@@ -48,7 +48,7 @@
                 <span>{{ __('site.errors.503_sub') }}</span>
             </div>
 
-            <button type="button" class="maintenance__btn" onclick="window.location.reload()">
+            <button type="button" class="maintenance__btn" data-action="yenile">
                 <i class="fa-solid fa-rotate-right"></i> {{ __('site.misc.retry') }}
             </button>
         </div>

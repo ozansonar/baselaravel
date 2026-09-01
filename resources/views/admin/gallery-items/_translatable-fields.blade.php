@@ -10,7 +10,7 @@
 
         {{-- Mobile Section Jumper --}}
         <div class="d-lg-none mb-4" data-aos="fade-up">
-            <select class="form-select form-select-sm" onchange="scrollToSection(this.value, null); this.selectedIndex=0" data-fv-ignore>
+            <select class="form-select form-select-sm" data-scroll-select data-fv-ignore>
                 <option value="" disabled selected>Bölüme git...</option>
                 <option value="section-basic_{{ $language->code }}">Temel Bilgiler</option>
                 <option value="section-media_{{ $language->code }}">Görsel</option>
@@ -24,15 +24,15 @@
             {{-- Sol Navigasyon (desktop) --}}
             <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right">
                 <div class="stg-nav-inner position-sticky stg-nav-sticky">
-                    <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" onclick="scrollToSection('section-basic_{{ $language->code }}', this)">
+                    <a href="#section-basic_{{ $language->code }}" class="stg-nav-item active" data-scroll-to="section-basic_{{ $language->code }}">
                         <i class="bi bi-info-circle"></i>
                         <div><span>Temel Bilgiler</span><small>Başlık, tür, kategori, durum</small></div>
                     </a>
-                    <a href="#section-media_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-media_{{ $language->code }}', this)">
+                    <a href="#section-media_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-media_{{ $language->code }}">
                         <i class="bi bi-image"></i>
                         <div><span>Görsel</span><small>Fotoğraf yükleme</small></div>
                     </a>
-                    <a href="#section-video_{{ $language->code }}" class="stg-nav-item" onclick="scrollToSection('section-video_{{ $language->code }}', this)">
+                    <a href="#section-video_{{ $language->code }}" class="stg-nav-item" data-scroll-to="section-video_{{ $language->code }}">
                         <i class="bi bi-camera-video"></i>
                         <div><span>Video Bilgileri</span><small>Video URL ve süre</small></div>
                     </a>

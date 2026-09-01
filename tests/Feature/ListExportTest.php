@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\AuditLog;
 use App\Models\Campaign;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\Role;
 use App\Models\User;
@@ -310,6 +311,12 @@ class ListExportTest extends TestCase
 
         $admin = $this->admin();
         $query = $this->requiredQueryFor($key);
+
+        // Ölçüm önbellek durumuna duyarlı: ısınmış bir anahtar bir sorguyu
+        // gizler, düşmüş bir anahtar fazladan bir sorgu doğurur. Tam paket
+        // içinde koşarken önceki testlerin bıraktığı önbellek bu ölçümü
+        // kaydırabiliyordu — sayım kendi bilinen durumundan başlasın.
+        Cache::flush();
 
         $model::factory()->create();
 

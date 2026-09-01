@@ -195,7 +195,7 @@
                             <input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp" class="d-none"
                                    data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]"
                                    data-max-size="1" data-accept="image/jpeg,image/png,image/webp">
-                            <button type="button" class="prf-btn prf-btn-primary w-100 mt-3" onclick="document.getElementById('avatarInput').click()">
+                            <button type="button" class="prf-btn prf-btn-primary w-100 mt-3" data-click-target="avatarInput">
                                 <i class="bi bi-upload"></i> Fotoğraf Seç
                             </button>
                             @if($user->avatar)

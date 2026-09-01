@@ -28,7 +28,7 @@
                 <input type="hidden" name="type" value="{{ $type->value }}">
                 <div class="rpr-date-range">
                     <i class="bi bi-calendar3"></i>
-                    <select class="rpr-date-select" name="range" onchange="document.getElementById('rangeForm').submit()" data-fv-ignore>
+                    <select class="rpr-date-select" name="range" data-submit-form="rangeForm" data-fv-ignore>
                         @foreach($ranges as $key => $label)
                             {{-- (string) şart: '7', '30', '90' sayısal anahtarlar
                                  olduğu için PHP onları tamsayıya çeviriyor ve
@@ -39,7 +39,7 @@
                 </div>
             </form>
             @can('manage-reports')
-                <button class="btn-teal" onclick="openScheduleModal(null)">
+                <button class="btn-teal" data-action="rapor-zamanla">
                     <i class="bi bi-alarm"></i> Yeni Plan
                 </button>
             @endcan
@@ -123,11 +123,11 @@
                             <i class="bi bi-play-circle me-1"></i> Oluştur
                         </a>
                         @can('manage-reports')
-                            <button type="button" class="btn-glass rpr-schedule-btn" onclick="openScheduleModal(null, '{{ $reportType->value }}')" title="Planla">
+                            <button type="button" class="btn-glass rpr-schedule-btn" data-action="rapor-zamanla" data-type="{{ $reportType->value }}" title="Planla">
                                 <i class="bi bi-alarm"></i>
                             </button>
                         @endcan
-                        <button type="button" class="btn-glass rpr-preview-btn" onclick="openPreviewModal('{{ $reportType->value }}')" title="Önizle">
+                        <button type="button" class="btn-glass rpr-preview-btn" data-action="rapor-onizle" data-type="{{ $reportType->value }}" title="Önizle">
                             <i class="bi bi-eye"></i>
                         </button>
                     </div>
@@ -249,7 +249,7 @@
                     <p class="rpr-chart-sub">Otomatik çalışan ve planlanan raporlar</p>
                 </div>
                 @can('manage-reports')
-                    <button class="btn-teal btn-sm" onclick="openScheduleModal(null)">
+                    <button class="btn-teal btn-sm" data-action="rapor-zamanla">
                         <i class="bi bi-plus-lg me-1"></i> Yeni Plan
                     </button>
                 @endcan
@@ -316,7 +316,7 @@
                                     <div class="usr-actions">
                                         @can('manage-reports')
                                             <button type="button" class="usr-action-btn" title="Düzenle"
-                                                    onclick="openScheduleModal({!! $scheduleJson !!})">
+                                                    data-action="rapor-zamanla" data-schedule="{{ $scheduleJson }}">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" action="{{ route('admin.reports.schedules.run', $schedule) }}" class="d-inline">
@@ -326,7 +326,7 @@
                                                 </button>
                                             </form>
                                             <button type="button" class="usr-action-btn danger" title="Sil"
-                                                    onclick="openDeleteScheduleModal({{ $schedule->id }}, '{{ $schedule->type->label() }}')">
+                                                    data-action="rapor-zamanlama-sil" data-id="{{ $schedule->id }}" data-label="{{ $schedule->type->label() }}">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         @endcan

@@ -125,7 +125,7 @@
                     <div class="al-field">
                         <span>Kullanıcı</span>
                         <select class="cl-filter-select" name="user_id" aria-label="Kullanıcı"
-                                onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="alFilterForm" data-fv-ignore>
                             <option value="">Tüm kullanıcılar</option>
                             <option value="0" {{ $filters['user_id'] === '0' ? 'selected' : '' }}>Sistem (kullanıcısız)</option>
                             @foreach($users as $user)
@@ -139,7 +139,7 @@
                     <div class="al-field">
                         <span>Kayıt türü</span>
                         <select class="cl-filter-select" name="model" aria-label="Kayıt türü"
-                                onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="alFilterForm" data-fv-ignore>
                             <option value="">Tüm kayıt türleri</option>
                             @foreach($modelOptions as $class => $option)
                                 <option value="{{ $class }}" {{ $filters['model'] === $class ? 'selected' : '' }}>
@@ -152,7 +152,7 @@
                     <div class="al-field">
                         <span>IP adresi</span>
                         <select class="cl-filter-select" name="ip" aria-label="IP adresi"
-                                onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
+                                data-submit-form="alFilterForm" data-fv-ignore>
                             <option value="">Tüm IP adresleri</option>
                             @foreach($ipOptions as $ip => $count)
                                 <option value="{{ $ip }}" {{ $filters['ip'] === (string) $ip ? 'selected' : '' }}>
@@ -180,7 +180,7 @@
                             </a>
                             <div class="cl-per-page">
                                 <label for="alPerPage">Göster:</label>
-                                <select id="alPerPage" name="per_page" onchange="document.getElementById('alFilterForm').submit()" data-fv-ignore>
+                                <select id="alPerPage" name="per_page" data-submit-form="alFilterForm" data-fv-ignore>
                                     @foreach($perPageOptions as $option)
                                         <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
                                     @endforeach

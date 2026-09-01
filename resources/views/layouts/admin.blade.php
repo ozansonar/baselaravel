@@ -92,6 +92,7 @@
 <script src="{{ versioned_asset('assets/admin/js/file-input.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/password-toggle.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/select2-init.js') }}"></script>
+<script src="{{ versioned_asset('assets/admin/js/inline-actions.js') }}" nonce="{{ csp_nonce() }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/export-menu.js') }}"></script>
 {{-- Toplu işlem motoru: işaretleri olmayan sayfada hiçbir şey yapmıyor,
      olan her listede aynı şekilde çalışıyor. --}}

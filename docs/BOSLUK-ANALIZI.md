@@ -215,10 +215,14 @@ yüzden fazla var — süzgeç seçicileri, karakter sayaçları, toplu işlem d
 bildirildiği için sayfa açılışında konsol temiz görünüyordu; kusur, SEO
 modülünün kontrol turunda ortaya çıktı.
 
-Çözüm ayrı bir yönerge: `script-src-attr 'unsafe-inline'` yalnız nitelik
-işleyicilerini kapsıyor, `<script>` bloklarına enjeksiyon nonce'a bağlı
-kalıyor. Taviz dar ve bilinçli; işleyicileri JS dosyalarına taşımak yönergeyi
-tamamen kaldırır (yukarıdaki modül önerileri tablosunda).
+Önce ayrı bir yönergeyle geçici çözüm kondu: `script-src-attr 'unsafe-inline'`
+yalnız nitelik işleyicilerini kapsıyor, `<script>` bloklarına enjeksiyon
+nonce'a bağlı kalıyordu.
+
+**Taviz sonradan tamamen kalktı.** 219 işleyicinin hepsi `data-*` kancalarına
+ve merkezi bir bağlayıcıya (`inline-actions.js`) taşındı; politika artık
+`script-src-attr 'none'` diyor ve enjekte edilen bir `onerror=` niteliği de
+çalışmıyor. Bekçisi: `InlineHandlersAreForbiddenTest`.
 
 ---
 
@@ -435,7 +439,7 @@ yedekleme ve sistem sağlığı.
 | İçerik sürümleme (revisions) | Denetim izi geri döndüremez | Orta | ⬜ |
 | SEO denetleyici | Kaydetmeden önce başlık/alt/H1 uyarısı | Orta | ✅ *(1 Eyl)* |
 | Dinamik form oluşturucu | Her projede en az bir form isteniyor | Büyük | ⬜ |
-| Satır içi olay işleyicilerini JS'e taşımak | CSP'nin `script-src-attr` tavizini kaldırır (219 işleyici, 50 dosya) | Orta | ⬜ |
+| Satır içi olay işleyicilerini JS'e taşımak | CSP'nin `script-src-attr` tavizini kaldırdı (219 işleyici, 50 dosya) | Orta | ✅ *(1 Eyl)* |
 
 ---
 

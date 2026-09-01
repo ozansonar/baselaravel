@@ -125,7 +125,7 @@
 
                 {{-- Filters Row --}}
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="type" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" name="type" data-submit-form="filterForm" data-fv-ignore>
                         <option value="">Tüm Türler</option>
                         @foreach($types as $type)
                             <option value="{{ $type->value }}" {{ request('type') === $type->value ? 'selected' : '' }}>
@@ -134,7 +134,7 @@
                         @endforeach
                     </select>
 
-                    <select class="cl-filter-select" name="category" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" name="category" data-submit-form="filterForm" data-fv-ignore>
                         <option value="">Tüm Kategoriler</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ (int) request('category') === $cat->id ? 'selected' : '' }}>
@@ -151,7 +151,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select id="perPage" name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select id="perPage" name="per_page" data-submit-form="filterForm" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -298,7 +298,7 @@
                                             </form>
                                         @else
                                             <a class="usr-action-btn" title="Düzenle" href="{{ route('admin.gallery-items.edit', $item) }}"><i class="bi bi-pencil"></i></a>
-                                            <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal('{{ e($item->title) }}', {{ $item->id }})"><i class="bi bi-trash"></i></button>
+                                            <button class="usr-action-btn danger" title="Sil" data-action="sil-tersine" data-label="'{{ e($item->title) }}'" data-id="{{ $item->id }}"><i class="bi bi-trash"></i></button>
                                         @endif
                                     </div>
                                 </td>
@@ -379,7 +379,7 @@
                                 @else
                                     <a class="usr-action-btn" title="Düzenle" href="{{ route('admin.gallery-items.edit', $item) }}"><i class="bi bi-pencil"></i></a>
                                     <button type="button" class="usr-action-btn danger" title="Sil"
-                                            onclick="openDeleteModal('{{ e($item->title) }}', {{ $item->id }})"><i class="bi bi-trash"></i></button>
+                                            data-action="sil-tersine" data-label="'{{ e($item->title) }}'" data-id="{{ $item->id }}"><i class="bi bi-trash"></i></button>
                                 @endif
                             </div>
                         </article>

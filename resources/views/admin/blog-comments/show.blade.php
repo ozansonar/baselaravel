@@ -163,7 +163,7 @@
                             @method('PATCH')
                             {{-- Onay penceresi zorunlu: tıklama anında iş bitiyor. --}}
                             <button type="button" class="btn-teal w-100 justify-content-center"
-                                    onclick="confirmCommentAction('restore', {{ $comment->id }}, @js($comment->name))">
+                                    data-action="yorum-eylem" data-eylem="restore" data-id="{{ $comment->id }}" data-label="@js($comment->name)">
                                 <i class="bi bi-arrow-counterclockwise"></i> Geri Yükle
                             </button>
                         </form>
@@ -173,7 +173,7 @@
                                 @csrf
                                 @method('PATCH')
                                 <button type="button" class="btn-teal w-100 justify-content-center"
-                                        onclick="confirmCommentAction('approve', {{ $comment->id }}, @js($comment->name))">
+                                        data-action="yorum-eylem" data-eylem="approve" data-id="{{ $comment->id }}" data-label="@js($comment->name)">
                                     <i class="bi bi-check-lg"></i> Onayla ve Yayınla
                                 </button>
                             </form>
@@ -184,7 +184,7 @@
                                 @csrf
                                 @method('PATCH')
                                 <button type="button" class="btn-glass w-100 justify-content-center"
-                                        onclick="confirmCommentAction('reject', {{ $comment->id }}, @js($comment->name))">
+                                        data-action="yorum-eylem" data-eylem="reject" data-id="{{ $comment->id }}" data-label="@js($comment->name)">
                                     <i class="bi bi-x-lg"></i> Reddet
                                 </button>
                             </form>
@@ -194,7 +194,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn-glass danger w-100 justify-content-center"
-                                    onclick="openDeleteModal({{ $comment->id }}, @js($comment->name))">
+                                    data-action="sil" data-id="{{ $comment->id }}" data-label="@js($comment->name)">
                                 <i class="bi bi-trash"></i> Sil
                             </button>
                         </form>

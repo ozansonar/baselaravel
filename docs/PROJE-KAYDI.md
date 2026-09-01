@@ -1,6 +1,6 @@
 # Proje Kaydı — Laravel Base Kit
 
-**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `03e2bba`
+**Son güncelleme:** 1 Eylül 2026 · **Dal:** `feat/laravel-13-upgrade` · **Son commit:** `KOMIT`
 
 Bu belge, projenin dört ayrı kaydını **tek yerde** toplar. Dört belge birbirine
 bağlıydı ama ayrı ayrı okunması gerekiyordu; bir maddenin durumunu öğrenmek için
@@ -45,14 +45,14 @@ paylaşımlı hosting gerçeğine göre kurulu (pcntl yok, kuyruk ve cron buna g
 | | | | |
 |---|---|---|---|
 | **37** model | **100** servis | **26** policy | **79** migration |
-| **131** test dosyası | **1873** test | **7596** doğrulama | **33** dışa aktarma tanımı |
+| **133** test dosyası | **1875** test | **7601** doğrulama | **33** dışa aktarma tanımı |
 | **359** rota | **249** admin rotası | **43** API rotası | **2** dil (tr, en) |
 
 ### Kalite kapıları
 
 | Kapı | Durum |
 |---|---|
-| Test paketi (`composer test`) | ✅ 1873 geçiyor, 8 gerekçeli atlama |
+| Test paketi (`composer test`) | ✅ 1875 geçiyor, 8 gerekçeli atlama (üç ardışık koşuda kararlı) |
 | Kod stili (`pint --test`) | ✅ sıfır sapma |
 | Statik analiz (Larastan seviye 1) | ✅ sıfır hata |
 | CI (GitHub Actions, MySQL 8'e karşı) | ✅ kurulu |
@@ -195,6 +195,7 @@ arşiv bölümünde olduğunu söylüyor.
 | Raporlama ekranı | Orta | ✅ |
 | API katmanı (Sanctum) | Orta | ✅ |
 | **SEO denetleyici** | Orta | ✅ *(1 Eyl)* |
+| Satır içi olay işleyicilerini JS'e taşımak | Orta | ✅ *(1 Eyl)* |
 | **İçerik sürümleme (revisions)** | Orta | ⬜ **açık** |
 | **Dinamik form oluşturucu** | Büyük | ⬜ **açık** |
 
@@ -208,53 +209,89 @@ arşiv bölümünde olduğunu söylüyor.
 | Boşluk analizi arşive alındı, S-05/12/13/14 kapatıldı | `c40c427` | ✅ |
 | **SEO denetleyici modülü** (9 kural, 2 yüzey, 43 test) | `748254a` | ✅ |
 | CSP satır içi işleyici kusuru + kapak görseli kusuru | `03e2bba` | ✅ |
+| Dört durum belgesi tek kayıtta toplandı | `4aeb75d` | ✅ |
+| **219 satır içi işleyici JS'e taşındı, CSP tavizi kalktı** | `KOMIT` | ✅ |
 
 ---
 
 ## 3. Kalan işler ve plan
 
-Bilinen **beş açık madde** var. İkisi bilinçli erteleme (kod değil, zamanlama
-ve tasarım meselesi), üçü gerçek iş.
+Bilinen **dört açık madde** var. İkisi bilinçli erteleme (kod değil, zamanlama
+ve tasarım meselesi), ikisi gerçek iş.
 
 ### Öncelik sırası ve gerekçesi
 
 | Sıra | İş | Efor | Neden bu sırada |
 |---|---|---|---|
-| **1** | Satır içi olay işleyicilerini JS'e taşımak | Orta | Güvenlik borcu: CSP'de açık duran tek taviz bu. Ötekiler yetenek, bu ise var olan bir korumanın tamamlanması |
-| **2** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
-| **3** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
-| **4** | Panelden push bildirim gönderme ekranı | Küçük | **Tasarım bekliyor** — sunucu tarafı hazır, admin temada bu ekranın tasarımı yok |
-| **5** | `session.serialization = json` | Küçük | **Bakım penceresi bekliyor** — çevirmek açık oturumları düşürüyor |
+| ~~1~~ | ~~Satır içi olay işleyicilerini JS'e taşımak~~ | Orta | ✅ **1 Eylül'de tamamlandı** — aşağıya bakın |
+| **1** | İçerik sürümleme (revisions) | Orta | Çok yazarlı içerikte kaçınılmaz olarak isteniyor; denetim izi neyin değiştiğini gösteriyor ama geri döndüremiyor |
+| **2** | Dinamik form oluşturucu | Büyük | Her projede en az bir form isteniyor ve her seferinde elle kodlanıyor |
+| **3** | Panelden push bildirim gönderme ekranı | Küçük | **Tasarım bekliyor** — sunucu tarafı hazır, admin temada bu ekranın tasarımı yok |
+| **4** | `session.serialization = json` | Küçük | **Bakım penceresi bekliyor** — çevirmek açık oturumları düşürüyor |
 
 ---
 
-### İş 1 — Satır içi olay işleyicilerini JS'e taşımak
+### ✅ Tamamlandı — Satır içi olay işleyicilerini JS'e taşımak
 
-**Durum:** ⬜ açık · **Efor:** orta · **Tür:** güvenlik borcu
+**Durum:** ✅ kapandı (1 Eylül 2026) · **Tür:** güvenlik borcu
 
-**Sorun.** Nonce tabanlı CSP, `onclick`/`onchange`/`oninput` niteliklerini
-engelliyor — nitelik değeri betiğin kendisi olduğu için oraya nonce konulamıyor.
-Panelde bunlardan **219 tane** var, **50 dosyada**: süzgeç seçicileri, karakter
-sayaçları, toplu işlem düğmeleri.
+**Sorundu.** Nonce tabanlı CSP, `onclick`/`onchange`/`oninput` niteliklerini
+engelliyor — nitelik değeri betiğin kendisi olduğu için oraya nonce
+konulamıyor. Panelde bunlardan **219 tane** vardı, **50 dosyada**. Geçici çözüm
+olarak `script-src-attr 'unsafe-inline'` yönergesi duruyordu; politikada açık
+kalan tek taviz oydu.
 
-**Bugünkü durum.** Geçici çözüm yürürlükte: `script-src-attr 'unsafe-inline'`
-yönergesi yalnız nitelik işleyicilerini serbest bırakıyor; `<script>` bloklarına
-enjeksiyon hâlâ nonce'a bağlı ve kapalı. Yani **panel çalışıyor ve XSS'in asıl
-yolu kapalı**, ama dar bir taviz duruyor.
+**Yapıldı.** Davranış `data-*` kancalarına ve merkezi bir bağlayıcıya taşındı
+(`public/assets/admin/js/inline-actions.js`). Kancalar:
 
-**Yapılacak.** İşleyicileri olay dinleyicilerine çevirmek (`data-*` kancaları +
-merkezi JS), sonra `script-src-attr` yönergesini kaldırmak.
+| Kanca | Ne yapıyor | Sayı |
+|---|---|---|
+| `data-submit-form` | Süzgeç formunu gönderir | 75 |
+| `data-scroll-to` / `data-scroll-select` | Uzun formda bölüme atlar | 55 |
+| `data-action` + beyaz liste | Modül eylemleri (silme onayı, moderasyon, rapor) | ~45 |
+| `data-settings-tab` | Ayarlar sekmesi | 11 |
+| `data-char-counter` / `data-seo-preview` | Karakter sayacı, arama önizlemesi | 13 |
+| `data-click-target` | Gizli dosya girdisini tetikler | 7 |
+| `data-toggle-class` / `data-hint-target` | Anahtar ve açıklama alanı | 6 |
+| `data-confirm-submit` | Onay isteyip formu gönderir | 1 |
+| `data-share-window` (ön yüz) | Paylaşımı ayrı pencerede açar | 4 |
 
-**Kabul ölçütü.** Politikadan `script-src-attr` düştüğünde panelin bütün
-süzgeçleri, sayaçları ve toplu işlemleri çalışmaya devam ediyor.
-`ContentSecurityPolicyTest` içindeki *"panel hâlâ işleyici taşıyor"* testi
-tersine çevrilir: artık taşımamalı.
+**Politika sıkılaştı:** `script-src-attr 'unsafe-inline'` → **`'none'`**. Artık
+enjekte edilen bir `onerror=` niteliği de çalışmıyor.
 
-**Dağılım.** `onclick` 118 · `onchange` 91 · `oninput` 10
+**Tasarım kararı.** Bağlayıcı kanca değerinden fonksiyon adı türetmiyor
+(`window[el.dataset.fn]` yok): öyle olsaydı CSP'yi kaldırıp yerine aynı kapıyı
+açardık. Eylem haritası sabit ve her çağrı yazılı (`cagir(window.openDeleteModal, …)`).
+Bunu bir test bekliyor — ve yazarken **kendi bekçim beni yakaladı**: ilk
+sürümde `window[ad]` kullanıyordum.
+
+**Bekçi.** `InlineHandlersAreForbiddenTest` — üç test: görünüm ağacında satır
+içi işleyici kalmadığı, bağlayıcının her panel sayfasında yüklendiği, ve
+işaretlemeden fonksiyon çözümlemediği.
+
+**Doğrulandı (tarayıcı).** Süzgeç seçicisi formu gönderiyor, ayarlar sekmesi
+geçiş yapıyor (`stg-general` → `stg-social`), karakter sayacı 0→19 güncelleniyor,
+bölüm gezinme aktifleşiyor, anahtar kutuyu gizliyor, gizli dosya girdisi
+tetikleniyor, `data-action` doğru fonksiyona doğru argümanla gidiyor
+(`openMessage(19)`), ön yüz paylaşımı `600×400` penceresi açıyor. On iki
+ekranda **sıfır** satır içi nitelik, konsol temiz.
+
+**Yol üzerinde.** İki test eski biçimi (`confirmCommentAction('approve'`)
+arıyordu; sınadıkları şey değişmedi, kanca biçimine çevrildi. Ayrıca
+`ListExportTest`'in sorgu bütçesi ölçümü tam paket içinde bir kez kaydı —
+ölçüm artık kendi bilinen önbellek durumundan başlıyor ve üç ardışık koşuda
+kararlı.
+
+**Değişen dosyalar:** `public/assets/admin/js/inline-actions.js` (yeni),
+`public/js/share-window.js` (yeni), 50 görünüm,
+`app/Services/ContentSecurityPolicy.php`, `resources/views/layouts/admin.blade.php`,
+`tests/Feature/InlineHandlersAreForbiddenTest.php` (yeni),
+`tests/Feature/ContentSecurityPolicyTest.php`, `tests/Feature/BlogCommentAdminScreenTest.php`,
+`tests/Feature/ListExportTest.php`
 
 ---
 
-### İş 2 — İçerik sürümleme (revisions)
+### İş 1 — İçerik sürümleme (revisions)
 
 **Durum:** ⬜ açık · **Efor:** orta · **Tür:** yetenek
 
@@ -270,7 +307,7 @@ mi tutulacak.
 
 ---
 
-### İş 3 — Dinamik form oluşturucu
+### İş 2 — Dinamik form oluşturucu
 
 **Durum:** ⬜ açık · **Efor:** büyük · **Tür:** yetenek
 
@@ -286,7 +323,7 @@ mevcut).
 
 ---
 
-### İş 4 — Panelden push bildirim gönderme ekranı
+### İş 3 — Panelden push bildirim gönderme ekranı
 
 **Durum:** 🟡 tasarım bekliyor · **Efor:** küçük
 
@@ -302,7 +339,7 @@ ve tasarımda olmayan bir ekranı uydurmak proje kuralına aykırı.
 
 ---
 
-### İş 5 — `session.serialization = json`
+### İş 4 — `session.serialization = json`
 
 **Durum:** 🟡 bakım penceresi bekliyor · **Efor:** küçük
 

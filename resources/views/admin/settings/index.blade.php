@@ -78,47 +78,47 @@
     {{-- Settings Nav --}}
     <div class="stg-nav">
         <div class="stg-nav-inner">
-            <a href="#stg-general" class="stg-nav-item active" onclick="switchSettingsTab(this,'stg-general')">
+            <a href="#stg-general" class="stg-nav-item active" data-settings-tab="stg-general">
                 <i class="bi bi-sliders2"></i>
                 <div><span>Genel</span><small>Proje bilgileri & temel ayarlar</small></div>
             </a>
-            <a href="#stg-contact" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-contact')">
+            <a href="#stg-contact" class="stg-nav-item" data-settings-tab="stg-contact">
                 <i class="bi bi-telephone"></i>
                 <div><span>İletişim & Adres</span><small>Telefon, e-posta, adres bilgileri</small></div>
             </a>
-            <a href="#stg-social" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-social')">
+            <a href="#stg-social" class="stg-nav-item" data-settings-tab="stg-social">
                 <i class="bi bi-share"></i>
                 <div><span>Sosyal Medya</span><small>Facebook, Instagram, YouTube</small></div>
             </a>
-            <a href="#stg-seo" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-seo')">
+            <a href="#stg-seo" class="stg-nav-item" data-settings-tab="stg-seo">
                 <i class="bi bi-search"></i>
                 <div><span>SEO & Meta</span><small>Title, description, keywords</small></div>
             </a>
-            <a href="#stg-appearance" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-appearance')">
+            <a href="#stg-appearance" class="stg-nav-item" data-settings-tab="stg-appearance">
                 <i class="bi bi-palette"></i>
                 <div><span>Görünüm</span><small>OG görseli, bakım modu</small></div>
             </a>
-            <a href="#stg-email" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-email')">
+            <a href="#stg-email" class="stg-nav-item" data-settings-tab="stg-email">
                 <i class="bi bi-envelope-at"></i>
                 <div><span>E-posta (SMTP)</span><small>Giden e-posta sunucu ayarları</small></div>
             </a>
-            <a href="#stg-mail-theme" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-mail-theme')">
+            <a href="#stg-mail-theme" class="stg-nav-item" data-settings-tab="stg-mail-theme">
                 <i class="bi bi-palette2"></i>
                 <div><span>Mail Teması</span><small>Renk, footer & sosyal medya</small></div>
             </a>
-            <a href="#stg-recaptcha" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-recaptcha')">
+            <a href="#stg-recaptcha" class="stg-nav-item" data-settings-tab="stg-recaptcha">
                 <i class="bi bi-shield-check"></i>
                 <div><span>reCAPTCHA</span><small>Google reCAPTCHA v2 doğrulama</small></div>
             </a>
-            <a href="#stg-telegram" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-telegram')">
+            <a href="#stg-telegram" class="stg-nav-item" data-settings-tab="stg-telegram">
                 <i class="bi bi-telegram"></i>
                 <div><span>Telegram</span><small>Hata bildirimleri</small></div>
             </a>
-            <a href="#stg-regional" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-regional')">
+            <a href="#stg-regional" class="stg-nav-item" data-settings-tab="stg-regional">
                 <i class="bi bi-clock"></i>
                 <div><span>Saat Dilimi</span><small>Tarih ve saat gösterimi</small></div>
             </a>
-            <a href="#stg-system" class="stg-nav-item" onclick="switchSettingsTab(this,'stg-system')">
+            <a href="#stg-system" class="stg-nav-item" data-settings-tab="stg-system">
                 <i class="bi bi-gear"></i>
                 <div><span>Sistem</span><small>Sistem durumu & tehlikeli bölge</small></div>
             </a>
@@ -200,7 +200,7 @@
                             </div>
                             <div class="stg-logo-actions">
                                 <input type="file" id="logoFileInput" name="files[site_logo]" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/png,image/jpeg,image/svg+xml,image/webp">
-                                <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('logoFileInput').click()">
+                                <button type="button" class="stg-btn stg-btn-sm" data-click-target="logoFileInput">
                                     <i class="bi bi-upload"></i> Logo Yükle
                                 </button>
                                 <small class="text-muted">PNG, JPG, SVG veya WebP. Maks. 1 MB. Önerilen: 400×400px</small>
@@ -223,7 +223,7 @@
                             </div>
                             <div class="stg-logo-actions">
                                 <input type="file" id="faviconFileInput" name="files[site_favicon]" accept="image/png,image/x-icon,image/svg+xml" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/png,image/x-icon,image/svg+xml">
-                                <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('faviconFileInput').click()">
+                                <button type="button" class="stg-btn stg-btn-sm" data-click-target="faviconFileInput">
                                     <i class="bi bi-upload"></i> Favicon Yükle
                                 </button>
                                 <small class="text-muted">ICO, PNG veya SVG. Maks. 1 MB. Önerilen: 64×64px</small>
@@ -547,7 +547,7 @@
                             </div>
                             <div class="stg-logo-actions">
                                 <input type="file" id="ogImageInput" name="files[og_image]" accept="image/*" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml">
-                                <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('ogImageInput').click()">
+                                <button type="button" class="stg-btn stg-btn-sm" data-click-target="ogImageInput">
                                     <i class="bi bi-upload"></i> Görsel Yükle
                                 </button>
                                 <small class="text-muted">1200x630px boyutunda PNG veya JPG önerilir</small>
@@ -595,7 +595,7 @@
                                 <input type="hidden" name="settings[pwa_enabled]" value="0">
                                 <input type="checkbox" name="settings[pwa_enabled]" value="1"
                                        {{ $s('pwa_enabled', '1') === '1' ? 'checked' : '' }}
-                                       onchange="document.getElementById('pwaDetails').classList.toggle('d-none', !this.checked)" data-fv-ignore>
+                                       data-toggle-class="pwaDetails" data-toggle-class-name="d-none" data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
                         </div>
@@ -608,7 +608,7 @@
                                 <input type="hidden" name="settings[maintenance_mode]" value="0">
                                 <input type="checkbox" name="settings[maintenance_mode]" value="1"
                                        {{ $s('maintenance_mode') === '1' ? 'checked' : '' }}
-                                       onchange="document.getElementById('maintenanceDetails').classList.toggle('d-none', !this.checked)" data-fv-ignore>
+                                       data-toggle-class="maintenanceDetails" data-toggle-class-name="d-none" data-fv-ignore>
                                 <span class="stg-switch-slider"></span>
                             </label>
                         </div>
@@ -837,7 +837,7 @@
                             </div>
                             <div class="stg-logo-actions">
                                 <input type="file" id="mailLogoFileInput" name="files[mail_logo]" accept="image/png,image/jpeg,image/webp" hidden data-validation-engine="validate[funcCall[FormValidation.rules.imageFile]]" data-max-size="1" data-accept="image/png,image/jpeg,image/webp">
-                                <button type="button" class="stg-btn stg-btn-sm" onclick="document.getElementById('mailLogoFileInput').click()">
+                                <button type="button" class="stg-btn stg-btn-sm" data-click-target="mailLogoFileInput">
                                     <i class="bi bi-upload"></i> Logo Yükle
                                 </button>
                                 @if($s('mail_logo'))

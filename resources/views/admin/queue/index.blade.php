@@ -125,7 +125,7 @@
 
                 <div class="cl-filters">
                     <select class="cl-filter-select" name="queue" aria-label="Kuyruk"
-                            onchange="document.getElementById('qFilterForm').submit()" data-fv-ignore>
+                            data-submit-form="qFilterForm" data-fv-ignore>
                         <option value="">Tüm kuyruklar</option>
                         @foreach($queueOptions as $queue)
                             <option value="{{ $queue }}" {{ $filters['queue'] === $queue ? 'selected' : '' }}>{{ $queue }}</option>
@@ -139,7 +139,7 @@
                         </a>
                         <div class="cl-per-page">
                             <label for="qPerPage">Göster:</label>
-                            <select id="qPerPage" name="per_page" onchange="document.getElementById('qFilterForm').submit()" data-fv-ignore>
+                            <select id="qPerPage" name="per_page" data-submit-form="qFilterForm" data-fv-ignore>
                                 @foreach($perPageOptions as $option)
                                     <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
                                 @endforeach

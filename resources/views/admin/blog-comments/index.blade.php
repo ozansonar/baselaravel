@@ -139,7 +139,7 @@
                      ötekini sıfırlamıyor. --}}
                 <div class="cl-filters">
                     <select class="cl-filter-select" name="post_id"
-                            onchange="document.getElementById('filterForm').submit()"
+                            data-submit-form="filterForm"
                             data-placeholder="Tüm Yazılar" data-fv-ignore>
                         <option value="">Tüm Yazılar</option>
                         @foreach($posts as $post)
@@ -153,12 +153,12 @@
                         <label for="dateFrom" class="cmt-date-range__label">Tarih</label>
                         <input type="date" class="cl-filter-select" id="dateFrom" name="date_from"
                                value="{{ request('date_from') }}" max="{{ now()->toDateString() }}"
-                               onchange="document.getElementById('filterForm').submit()"
+                               data-submit-form="filterForm"
                                aria-label="Başlangıç tarihi" data-fv-ignore>
                         <span class="cmt-date-range__sep">—</span>
                         <input type="date" class="cl-filter-select" id="dateTo" name="date_to"
                                value="{{ request('date_to') }}" max="{{ now()->toDateString() }}"
-                               onchange="document.getElementById('filterForm').submit()"
+                               data-submit-form="filterForm"
                                aria-label="Bitiş tarihi" data-fv-ignore>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                     </a>
                     <div class="cl-per-page">
                         <label>Göster:</label>
-                        <select name="per_page" id="perPage" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select name="per_page" id="perPage" data-submit-form="filterForm" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ $perPage === $pp ? 'selected' : '' }}>{{ $pp }}</option>
                             @endforeach
@@ -286,7 +286,7 @@
                                             <form method="POST" action="{{ route('admin.blog-comments.restore', $comment->id) }}" id="restoreForm-{{ $comment->id }}" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="button" class="usr-action-btn success" title="Geri Yükle" onclick="confirmCommentAction('restore', {{ $comment->id }}, '{{ addslashes($comment->name) }}')"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                                <button type="button" class="usr-action-btn success" title="Geri Yükle" data-action="yorum-eylem" data-eylem="restore" data-id="{{ $comment->id }}" data-label="'{{ addslashes($comment->name) }}'"><i class="bi bi-arrow-counterclockwise"></i></button>
                                             </form>
                                         @else
                                             <a href="{{ route('admin.blog-comments.show', $comment) }}" class="usr-action-btn" title="Detay"><i class="bi bi-eye"></i></a>
@@ -294,17 +294,17 @@
                                                 <form method="POST" action="{{ route('admin.blog-comments.approve', $comment) }}" id="approveForm-{{ $comment->id }}" class="d-inline">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="button" class="usr-action-btn success" title="Onayla" onclick="confirmCommentAction('approve', {{ $comment->id }}, '{{ addslashes($comment->name) }}')"><i class="bi bi-check-lg"></i></button>
+                                                    <button type="button" class="usr-action-btn success" title="Onayla" data-action="yorum-eylem" data-eylem="approve" data-id="{{ $comment->id }}" data-label="'{{ addslashes($comment->name) }}'"><i class="bi bi-check-lg"></i></button>
                                                 </form>
                                             @endif
                                             @if($comment->status !== \App\Enums\CommentStatus::Rejected)
                                                 <form method="POST" action="{{ route('admin.blog-comments.reject', $comment) }}" id="rejectForm-{{ $comment->id }}" class="d-inline">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="button" class="usr-action-btn warning" title="Reddet" onclick="confirmCommentAction('reject', {{ $comment->id }}, '{{ addslashes($comment->name) }}')"><i class="bi bi-x-lg"></i></button>
+                                                    <button type="button" class="usr-action-btn warning" title="Reddet" data-action="yorum-eylem" data-eylem="reject" data-id="{{ $comment->id }}" data-label="'{{ addslashes($comment->name) }}'"><i class="bi bi-x-lg"></i></button>
                                                 </form>
                                             @endif
-                                            <button class="usr-action-btn danger" title="Sil" onclick="openDeleteModal({{ $comment->id }}, '{{ addslashes($comment->name) }}')"><i class="bi bi-trash"></i></button>
+                                            <button class="usr-action-btn danger" title="Sil" data-action="sil" data-id="{{ $comment->id }}" data-label="'{{ addslashes($comment->name) }}'"><i class="bi bi-trash"></i></button>
                                         @endif
                                     </div>
                                 </td>

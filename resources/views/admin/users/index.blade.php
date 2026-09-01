@@ -103,7 +103,7 @@
                     </div>
 
                     <div class="usr-filters">
-                        <select class="usr-filter-select" name="role" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select class="usr-filter-select" name="role" data-submit-form="filterForm" data-fv-ignore>
                             <option value="">Tüm Roller</option>
                             @foreach($roles as $role)
                                 <option value="{{ $role->slug }}" {{ request('role') === $role->slug ? 'selected' : '' }}>
@@ -114,7 +114,7 @@
                     </div>
 
                     <div class="usr-toolbar-actions">
-                        <select class="usr-filter-select" name="per_page" onchange="document.getElementById('filterForm').submit()" data-fv-ignore>
+                        <select class="usr-filter-select" name="per_page" data-submit-form="filterForm" data-fv-ignore>
                             @foreach([10, 25, 50, 100] as $pp)
                                 <option value="{{ $pp }}" {{ (int) request('per_page', 10) === $pp ? 'selected' : '' }}>
                                     {{ $pp }} / sayfa
@@ -122,10 +122,10 @@
                             @endforeach
                         </select>
                         <div class="usr-view-toggle">
-                            <button type="button" class="usr-view-btn active" onclick="switchView('table', this)" title="Tablo Görünümü">
+                            <button type="button" class="usr-view-btn active" data-action="gorunum" data-view="table" title="Tablo Görünümü">
                                 <i class="bi bi-list-ul"></i>
                             </button>
-                            <button type="button" class="usr-view-btn" onclick="switchView('grid', this)" title="Kart Görünümü">
+                            <button type="button" class="usr-view-btn" data-action="gorunum" data-view="grid" title="Kart Görünümü">
                                 <i class="bi bi-grid-3x3-gap"></i>
                             </button>
                         </div>
@@ -229,7 +229,7 @@
                                         <a class="usr-action-btn" title="Düzenle" href="{{ route('admin.users.edit', $user) }}"><i class="bi bi-pencil"></i></a>
                                         @if(auth()->id() !== $user->id)
                                             <button type="button" class="usr-action-btn danger" title="Sil"
-                                                    onclick="openDeleteModal({{ $user->id }}, '{{ $user->full_name }}')">
+                                                    data-action="sil" data-id="{{ $user->id }}" data-label="'{{ $user->full_name }}'">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         @endif

@@ -87,14 +87,14 @@
 
         <div class="cl-filters">
             <select name="type" class="cl-filter-select" data-fv-ignore
-                    onchange="document.getElementById('filterForm').submit()">
+                    data-submit-form="filterForm">
                 <option value="">Tüm türler</option>
                 <option value="page" {{ ($filters['type'] ?? '') === 'page' ? 'selected' : '' }}>Sayfalar</option>
                 <option value="blog_post" {{ ($filters['type'] ?? '') === 'blog_post' ? 'selected' : '' }}>Blog Yazıları</option>
             </select>
 
             <select name="locale" class="cl-filter-select" data-fv-ignore
-                    onchange="document.getElementById('filterForm').submit()">
+                    data-submit-form="filterForm">
                 <option value="">Tüm diller</option>
                 @foreach($languages as $language)
                     <option value="{{ $language->code }}" {{ ($filters['locale'] ?? '') === $language->code ? 'selected' : '' }}>
@@ -106,7 +106,7 @@
             <div class="cl-per-page">
                 <label for="perPage">Göster:</label>
                 <select name="per_page" id="perPage" data-fv-ignore
-                        onchange="document.getElementById('filterForm').submit()">
+                        data-submit-form="filterForm">
                     @foreach($perPageOptions as $option)
                         <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>{{ $option }}</option>
                     @endforeach

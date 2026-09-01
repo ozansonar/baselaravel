@@ -134,7 +134,7 @@
                                     <span class="cmp-attachment__name">{{ $attachment->original_name }}</span>
                                     <span class="cmp-attachment__size">{{ $attachment->humanSize() }}</span>
                                     <button type="button" class="usr-action-btn danger"
-                                            onclick="removeAttachment({{ $attachment->id }})" title="Kaldır">
+                                            data-action="ek-kaldir" data-id="{{ $attachment->id }}" title="Kaldır">
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                 </div>

@@ -175,7 +175,7 @@
                 </div>
 
                 <div class="cl-filters">
-                    <select class="cl-filter-select" name="sort" onchange="document.getElementById('bkFilterForm').submit()" data-fv-ignore>
+                    <select class="cl-filter-select" name="sort" data-submit-form="bkFilterForm" data-fv-ignore>
                         @foreach([
                             'newest'   => 'Önce en yeni',
                             'oldest'   => 'Önce en eski',

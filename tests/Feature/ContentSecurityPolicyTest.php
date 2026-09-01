@@ -359,54 +359,19 @@ class ContentSecurityPolicyTest extends TestCase
     }
 
     /**
-     * Nitelik olarak yazılmış olay işleyicileri ayrı yönergeyle serbest.
+     * Nitelik olarak yazılan olay işleyicileri tamamen yasak.
      *
-     * `onclick`/`onchange`/`oninput` nonce taşıyamıyor — nitelik değeri
-     * betiğin kendisi olduğu için oraya anahtar konulamaz. Panelde bunlardan
-     * iki yüzden fazla var (süzgeç seçicileri, karakter sayaçları, toplu işlem
-     * düğmeleri) ve hepsi engellendiğinde panelin yarısı çalışmıyordu.
-     *
-     * Taviz dar olmalı: yalnız `script-src-attr` gevşiyor, `<script>`
-     * bloklarına enjeksiyon — XSS'in asıl yolu — nonce'a bağlı kalıyor.
+     * Bir süre burada `'unsafe-inline'` duruyordu: panelde 219 satır içi
+     * işleyici vardı ve nitelik değeri betiğin kendisi olduğu için oraya nonce
+     * konulamıyordu. Hepsi `data-*` kancalarına taşındıktan sonra taviz
+     * kalktı — bu test onun geri gelmesini engelliyor.
      */
-    public function test_attribute_handlers_are_allowed_without_opening_script_blocks(): void
+    public function test_attribute_handlers_are_forbidden_outright(): void
     {
         $policy = app(ContentSecurityPolicy::class)->header();
 
-        $this->assertStringContainsString("script-src-attr 'unsafe-inline'", $policy);
-
-        preg_match('/script-src ([^;]+)/', $policy, $match);
-
-        $this->assertArrayHasKey(1, $match);
-        $this->assertStringNotContainsString("'unsafe-inline'", $match[1]);
-    }
-
-    /**
-     * Panelin satır içi işleyicileri gerçekten çalışıyor mu?
-     *
-     * Bu, yönergenin varlığından ayrı bir soru: yönerge yazılıp da işleyiciler
-     * başka bir sebeple engellenirse (yanlış yönerge adı, sıralama) panel
-     * yine bozuk kalırdı. Sınav, ekranların hâlâ işleyici taşıdığını ve
-     * politikanın onları kapsadığını birlikte doğruluyor.
-     */
-    public function test_the_panel_still_carries_the_handlers_the_policy_allows(): void
-    {
-        $response = $this->actingAs($this->admin())->get('/admin/pages/create');
-
-        $response->assertOk();
-
-        $html = (string) $response->getContent();
-
-        $this->assertMatchesRegularExpression(
-            '/on(?:input|change|click)="/',
-            $html,
-            'Panelde satır içi işleyici kalmamış; yönerge artık gereksiz olabilir.',
-        );
-
-        $this->assertStringContainsString(
-            "script-src-attr 'unsafe-inline'",
-            (string) $response->headers->get('Content-Security-Policy'),
-        );
+        $this->assertStringContainsString("script-src-attr 'none'", $policy);
+        $this->assertStringNotContainsString("script-src-attr 'unsafe-inline'", $policy);
     }
 
     // ── Yardımcılar ──

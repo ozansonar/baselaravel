@@ -66,7 +66,7 @@
                         <label class="form-label" for="target_route">Hedef sayfa <span class="text-danger">*</span></label>
                         <select class="form-select @error('target_route') is-invalid @enderror"
                                 id="target_route" name="target_route" data-fv-ignore
-                                onchange="customRouteParams(this.value)">
+                                data-route-params>
                             @foreach($targets as $ad => $etiket)
                                 <option value="{{ $ad }}" {{ $seciliHedef === $ad ? 'selected' : '' }}>{{ $etiket }}</option>
                             @endforeach
@@ -108,7 +108,7 @@
             <div class="card-body-custom">
                 <label class="form-label" for="type">Yönlendirme türü <span class="text-danger">*</span></label>
                 <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" data-fv-ignore
-                        onchange="document.getElementById('type_hint').textContent = this.selectedOptions[0].dataset.hint || ''">
+                        data-hint-target="type_hint" data-hint-default="">
                     @foreach($types as $tur)
                         <option value="{{ $tur->value }}" data-hint="{{ $tur->description() }}"
                                 {{ $seciliTur === $tur->value ? 'selected' : '' }}>{{ $tur->label() }}</option>
