@@ -154,13 +154,22 @@ final class AdminLinksFollowTheLocaleTest extends TestCase
 
     public function test_a_custom_menu_link_follows_the_visitor(): void
     {
-        $menu = Menu::where('location', 'header')->where('locale', 'tr')->firstOrFail();
+        // Öğe her dilin kendi menüsüne, ortak grup kimliğiyle ekleniyor —
+        // panelin çeviri sekmesinin kurduğu şekil. Yalnız Türkçe menüye
+        // eklendiğinde sınanan şey adresin dili değil, üst menünün Türkçeye
+        // düşmesi oluyordu; artık İngilizce üst menü de var.
+        $group = (string) Str::uuid();
 
-        MenuItem::create([
-            'locale' => 'tr', 'menu_id' => $menu->id, 'label' => 'Kampanya',
-            'link_type' => 'url', 'url' => 'kampanya',
-            'display_type' => 'link', 'is_active' => true, 'sort_order' => 99,
-        ]);
+        foreach (['tr', 'en'] as $locale) {
+            $menu = Menu::where('location', 'header')->where('locale', $locale)->firstOrFail();
+
+            MenuItem::create([
+                'locale' => $locale, 'lang_group_id' => $group,
+                'menu_id' => $menu->id, 'label' => 'Kampanya',
+                'link_type' => 'url', 'url' => 'kampanya',
+                'display_type' => 'link', 'is_active' => true, 'sort_order' => 99,
+            ]);
+        }
 
         app(\App\Services\MenuService::class)->clearAllCaches();
 

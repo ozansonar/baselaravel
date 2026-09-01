@@ -32,7 +32,7 @@
             <span class="content-langs__note">
                 <i class="fa-solid fa-circle-info"></i>
                 {{ __('site.misc.reading_original', [
-                    'language' => $languageService->findByCode($contentLocale)?->native_name
+                    'language' => $languageService->findByCode($contentLocale)?->displayName()
                         ?? strtoupper($contentLocale),
                 ]) }}
             </span>
@@ -48,7 +48,7 @@
                      gidiyorsa "Read in English" diyor. Sayfanın dilinde
                      yazılsaydı Türkçe sayfada "English oku" gibi ikisi de
                      olmayan bir cümle çıkıyordu. --}}
-                {{ __('site.misc.read_in', ['language' => $language->native_name ?: $language->name], $language->code) }}
+                {{ __('site.misc.read_in', ['language' => $language->displayName()], $language->code) }}
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
         @endforeach

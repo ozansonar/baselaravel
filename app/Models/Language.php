@@ -51,12 +51,23 @@ class Language extends Model
     }
 
     /**
+     * The language's name in its own language.
+     *
+     * name sütunu dili Türkçe adlandırıyor ("İngilizce"); ön yüzde okunan ad
+     * bu olamaz. Aynı ifade üç ayrı görünümde elle yazılmıştı ve biri geride
+     * kalmıştı: dil değiştiricinin listesi "English" derken ekran okuyucuya
+     * "İngilizce" diyordu.
+     */
+    public function displayName(): string
+    {
+        return $this->native_name ?: $this->name;
+    }
+
+    /**
      * Label for pickers: flag plus the name in its own language.
      */
     public function label(): string
     {
-        $name = $this->native_name ?: $this->name;
-
-        return trim(($this->flag ? $this->flag . ' ' : '') . $name);
+        return trim(($this->flag ? $this->flag . ' ' : '') . $this->displayName());
     }
 }
