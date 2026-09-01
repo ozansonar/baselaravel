@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Blade;
+use App\Services\ServiceCredentialResolver;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -115,6 +116,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Panelden girilen servis anahtarları config'in üzerine yazılıyor.
+        // Zamanlayıcıdan önce: `applyConfiguredTimezone` gibi bu da konsolda
+        // da çalışmalı — kuyruğu ve cron'u süren süreçler de aynı anahtarları
+        // kullanıyor.
+        app(ServiceCredentialResolver::class)->apply();
+
         $this->applyConfiguredTimezone();
 
         $this->registerFragmentDirective();

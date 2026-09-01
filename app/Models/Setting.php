@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\CacheKeys;
+use App\Support\ServiceCredentials;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -61,10 +64,10 @@ class Setting extends Model
         // Boş bir çeviri "çevrilmedi" demek: yönetici alanı boş bıraktığında
         // ziyaretçi boş bir alt bilgi değil, asıl değeri görmeli.
         if (isset($row[$locale]) && $row[$locale] !== null && $row[$locale] !== '') {
-            return $row[$locale];
+            return static::reveal($key, $row[$locale]) ?? $default;
         }
 
-        return $row[''] ?? $default;
+        return static::reveal($key, $row[''] ?? null) ?? $default;
     }
 
     /**
@@ -94,10 +97,49 @@ class Setting extends Model
     {
         static::updateOrCreate(
             ['key' => $key, 'locale' => $locale],
-            ['value' => $value, 'group' => $group, 'type' => $type],
+            ['value' => static::protect($key, $value), 'group' => $group, 'type' => $type],
         );
 
         static::clearSettingsCache();
+    }
+
+    /**
+     * Gizli bir anahtarsa şifreleyerek saklar.
+     *
+     * Servis anahtarları düz metin dursaydı bir veritabanı dökümü —yedek
+     * dosyası, yanlış paylaşılan bir dump, okuma yetkisi olan bir hesap—
+     * bütün üçüncü taraf hesaplarını birden ele verirdi. Hangi anahtarın gizli
+     * olduğunu ServiceCredentials söylüyor.
+     *
+     * @see \App\Support\ServiceCredentials
+     */
+    private static function protect(string $key, ?string $value): ?string
+    {
+        if ($value === null || $value === '' || ! ServiceCredentials::isSecret($key)) {
+            return $value;
+        }
+
+        return Crypt::encryptString($value);
+    }
+
+    /**
+     * Şifreli saklanan bir değeri okunur hâle getirir.
+     *
+     * Çözülemeyen değer null dönüyor, istisna fırlatmıyor: APP_KEY değişmiş
+     * bir kurulumda tek bir ayar yüzünden bütün site açılmaz hâle gelmemeli.
+     * Panelde alan boş görünür, yönetici anahtarı yeniden girer.
+     */
+    private static function reveal(string $key, ?string $value): ?string
+    {
+        if ($value === null || $value === '' || ! ServiceCredentials::isSecret($key)) {
+            return $value;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (DecryptException) {
+            return null;
+        }
     }
 
     /**
@@ -111,9 +153,11 @@ class Setting extends Model
         $flat = [];
 
         foreach (static::allByLocale() as $key => $byLocale) {
-            $flat[$key] = ($byLocale[$locale] ?? '') !== '' && ($byLocale[$locale] ?? null) !== null
+            $raw = ($byLocale[$locale] ?? '') !== '' && ($byLocale[$locale] ?? null) !== null
                 ? $byLocale[$locale]
                 : ($byLocale[''] ?? null);
+
+            $flat[$key] = static::reveal($key, $raw);
         }
 
         return $flat;

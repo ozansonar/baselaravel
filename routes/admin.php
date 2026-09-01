@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\PushNotificationController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SeoAuditController;
 use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Admin\ServiceCredentialController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\SubscriberListController;
@@ -369,6 +370,12 @@ Route::put('settings', [SettingController::class, 'update'])->name('settings.upd
 Route::post('settings/test-email', [SettingController::class, 'testEmail'])->name('settings.test-email');
 Route::post('settings/clear-cache', [SettingController::class, 'clearCache'])->name('settings.clear-cache');
 Route::post('settings/test-telegram', [SettingController::class, 'testTelegram'])->name('settings.test-telegram');
+
+// API ve servis anahtarları. Ayarların yanında ayrı bir ekran: üçüncü taraf
+// kimlik bilgilerinin hepsi tek yerde toplansın ve her alanın yanında o
+// anahtarın nereden alınacağı yazsın.
+Route::get('api-ayarlari', [ServiceCredentialController::class, 'index'])->name('service-credentials.index');
+Route::put('api-ayarlari', [ServiceCredentialController::class, 'update'])->name('service-credentials.update');
 
 // Blog Categories
 // Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {blogCategory} kalıbına

@@ -40,8 +40,11 @@ return [
     | ezmek istenirse gerekiyor.
     */
     'fcm' => [
-        'credentials' => env('FCM_CREDENTIALS', ''),
-        'project_id'  => env('FCM_PROJECT_ID', ''),
+        // Dosya yolu (.env ile kurulum) ya da JSON'un kendisi (panelden
+        // yapıştırma). İkisi de aynı anahtarı taşıyor; panelden gelen kazanıyor.
+        'credentials'      => env('FCM_CREDENTIALS', ''),
+        'credentials_json' => '',
+        'project_id'       => env('FCM_PROJECT_ID', ''),
     ],
 
     /*

@@ -106,10 +106,10 @@
                 <i class="bi bi-palette2"></i>
                 <div><span>Mail Teması</span><small>Renk, footer & sosyal medya</small></div>
             </a>
-            <a href="#stg-recaptcha" class="stg-nav-item" data-settings-tab="stg-recaptcha">
-                <i class="bi bi-shield-check"></i>
-                <div><span>reCAPTCHA</span><small>Google reCAPTCHA v2 doğrulama</small></div>
-            </a>
+            {{-- reCAPTCHA buradan taşındı: üçüncü taraf anahtarlarının hepsi
+                 "API ve Servisler" ekranında toplandı ve her alanın yanında
+                 anahtarın nereden alınacağı yazıyor. Aynı ayarı iki formdan
+                 yönetmek, ikisinin sessizce ayrışması demekti. --}}
             <a href="#stg-telegram" class="stg-nav-item" data-settings-tab="stg-telegram">
                 <i class="bi bi-telegram"></i>
                 <div><span>Telegram</span><small>Hata bildirimleri</small></div>
@@ -1075,66 +1075,6 @@
         </div>
 
         {{-- ══════════════ 9. reCAPTCHA ══════════════ --}}
-        <div class="stg-panel" id="stg-recaptcha">
-            <form method="POST" action="{{ route('admin.settings.update') }}" data-validate novalidate>
-                @csrf
-                @method('PUT')
-
-                <div class="stg-panel-header">
-                    <div>
-                        <h5><i class="bi bi-shield-check"></i> Google reCAPTCHA v2</h5>
-                        <p>Form spam koruması için Google reCAPTCHA onay kutusu ayarları</p>
-                    </div>
-                    <button type="submit" class="stg-save-btn"><i class="bi bi-check-lg"></i> Kaydet</button>
-                </div>
-
-                {{-- reCAPTCHA Durumu --}}
-                <div class="stg-section">
-                    <div class="stg-section-title">
-                        <h6>reCAPTCHA Durumu</h6>
-                        <p>Form doğrulamasını açıp kapatabilirsiniz</p>
-                    </div>
-
-                    <div class="stg-toggle-list">
-                        <div class="stg-toggle-item">
-                            <div class="stg-toggle-info">
-                                <span>reCAPTCHA Doğrulama</span>
-                                <small>Açık olduğunda formlarda "Ben robot değilim" onay kutusu gösterilir</small>
-                            </div>
-                            <label class="stg-switch">
-                                <input type="hidden" name="settings[recaptcha_enabled]" value="0">
-                                <input type="checkbox" name="settings[recaptcha_enabled]" value="1"
-                                       {{ $s('recaptcha_enabled', '0') === '1' ? 'checked' : '' }} data-fv-ignore>
-                                <span class="stg-switch-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- API Anahtarları --}}
-                <div class="stg-section">
-                    <div class="stg-section-title">
-                        <h6>API Anahtarları</h6>
-                        <p>Google reCAPTCHA v2 "I'm not a robot" Checkbox anahtarları</p>
-                    </div>
-
-                    <div class="stg-field">
-                        <label class="stg-label">Site Key (Public Key)</label>
-                        <input type="text" class="stg-input" name="settings[recaptcha_site_key]"
-                               value="{{ $s('recaptcha_site_key') }}" placeholder="6Lc..." data-validation-engine="validate[maxSize[10000]]">
-                        <small class="stg-hint">Google reCAPTCHA admin panelinden aldığınız site anahtarı</small>
-                    </div>
-
-                    <div class="stg-field">
-                        <label class="stg-label">Secret Key (Private Key)</label>
-                        <input type="password" class="stg-input" name="settings[recaptcha_secret_key]"
-                               value="" placeholder="{{ $s('recaptcha_secret_key') ? '●●●●●●●● (değiştirmek için yeni key girin)' : '' }}" data-validation-engine="validate[maxSize[10000]]">
-                        <small class="stg-hint">Google reCAPTCHA admin panelinden aldığınız gizli anahtar</small>
-                    </div>
-                </div>
-
-            </form>
-        </div>
 
 
         {{-- ══════════════ TELEGRAM BİLDİRİMLERİ ══════════════ --}}

@@ -159,6 +159,10 @@
            class="nav-link {{ Route::is('admin.settings.*') ? 'active' : '' }}">
             <i class="bi bi-gear-fill"></i> Ayarlar
         </a>
+        <a href="{{ route('admin.service-credentials.index') }}"
+           class="nav-link {{ Route::is('admin.service-credentials.*') ? 'active' : '' }}">
+            <i class="bi bi-key-fill"></i> API ve Servisler
+        </a>
         @endcan
 
 
