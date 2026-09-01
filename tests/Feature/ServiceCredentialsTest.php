@@ -260,6 +260,47 @@ final class ServiceCredentialsTest extends TestCase
         $this->assertDatabaseMissing('settings', ['key' => 'app_key']);
     }
 
+    // ── "Bu alan nereden besleniyor" rozeti ──
+
+    /**
+     * Rozet `env()` çağırarak hesaplanamaz: `config:cache` sonrası —üretimin
+     * varsayılan durumu— env() null döner ve rozet asla ".env" demezdi.
+     * Cevabı, config'i ezmeden hemen önce gördüğü değerle çözümleyici veriyor.
+     */
+    public function test_the_badge_reports_a_value_that_comes_from_env(): void
+    {
+        config(['services.google.client_ids' => 'env-den-gelen']);
+        $this->resolve();
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.service-credentials.index'))
+            ->assertOk()
+            ->assertSee('svc-badge--env', false);
+    }
+
+    public function test_the_badge_reports_a_value_that_comes_from_the_panel(): void
+    {
+        Setting::setValue('google_client_ids', 'panelden', 'services');
+        $this->resolve();
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.service-credentials.index'))
+            ->assertOk()
+            ->assertSee('svc-badge--panel', false);
+    }
+
+    /**
+     * Çözümleyici paylaşılmazsa ekran boş bir kayıt görür ve rozet hep "boş"
+     * der. Bu sınav tekilliği tutuyor.
+     */
+    public function test_the_resolver_is_shared(): void
+    {
+        $this->assertSame(
+            app(ServiceCredentialResolver::class),
+            app(ServiceCredentialResolver::class),
+        );
+    }
+
     // ── Sızıntı ──
 
     /**

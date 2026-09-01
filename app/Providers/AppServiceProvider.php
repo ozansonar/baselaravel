@@ -55,6 +55,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(MenuService::class);
         $this->app->singleton(MenuItemService::class);
 
+        // Servis anahtarları çözümleyicisi paylaşılmalı: boot'ta config'i
+        // ezerken, ezmeden önceki değeri (yani .env'den geleni) örnekte
+        // saklıyor. Ayarlar ekranı "bu alan nereden besleniyor" diye ona
+        // soruyor; ikinci bir örnek o kaydı boş görürdü ve rozet asla
+        // ".env" demezdi.
+        $this->app->singleton(ServiceCredentialResolver::class);
+
         // Shared instance on purpose: the loader holds one of these and keeps a
         // per-request memo of the overrides. A second instance would clear its
         // own memo on save while the loader kept serving the stale one.

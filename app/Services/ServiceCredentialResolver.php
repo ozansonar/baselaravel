@@ -28,6 +28,19 @@ use Throwable;
  */
 final class ServiceCredentialResolver
 {
+    /**
+     * Panel değeri yazılmadan ÖNCE config'te duran değer — yani .env'den ya da
+     * config dosyasının varsayılanından gelen.
+     *
+     * Ekran "bu alan nereden besleniyor" diye soruyor ve cevabı `env()`
+     * çağırarak veremez: `config:cache` sonrası —üretimin varsayılan durumu—
+     * `env()` null döner ve rozet asla ".env" demezdi. Değer yalnız burada,
+     * ezilmeden hemen önce görülebiliyor.
+     *
+     * @var array<string, mixed>
+     */
+    private array $fallbacks = [];
+
     public function apply(): void
     {
         // Uygulama veritabanı olmadan da ayağa kalkabilmeli: taze bir klon,
@@ -47,6 +60,8 @@ final class ServiceCredentialResolver
                 continue;
             }
 
+            $this->fallbacks[$key] = config($field['config']);
+
             $value = $settings[$key] ?? null;
 
             if ($value === null || $value === '') {
@@ -55,6 +70,19 @@ final class ServiceCredentialResolver
 
             config([$field['config'] => $this->cast($field, $value)]);
         }
+    }
+
+    /**
+     * Bu alan panel dışında bir kaynaktan besleniyor mu?
+     *
+     * `apply()` çalışmadan sorulursa cevap "hayır": henüz kimse bakmamış
+     * demektir ve uydurmak yanlış olurdu.
+     */
+    public function hasFallback(string $key): bool
+    {
+        $value = $this->fallbacks[$key] ?? null;
+
+        return $value !== null && $value !== '' && $value !== 'null';
     }
 
     /**

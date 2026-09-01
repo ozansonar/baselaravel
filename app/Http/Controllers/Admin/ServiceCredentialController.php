@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\Push\FcmAccessToken;
+use App\Services\ServiceCredentialResolver;
 use App\Services\SettingService;
 use App\Support\ServiceCredentials;
 use Illuminate\Http\RedirectResponse;
@@ -27,6 +28,7 @@ final class ServiceCredentialController extends Controller
     public function __construct(
         private readonly SettingService $settings,
         private readonly FcmAccessToken $fcm,
+        private readonly ServiceCredentialResolver $resolver,
     ) {}
 
     public function index(): View
@@ -38,17 +40,20 @@ final class ServiceCredentialController extends Controller
 
         foreach (ServiceCredentials::fields() as $key => $field) {
             $stored = Setting::getValue($key);
-            $fromEnv = $field['env'] !== '' ? env($field['env']) : null;
 
             // Gizli değerler ekrana bir daha basılmıyor: bir kere girildikten
             // sonra ne panelde, ne sayfa kaynağında, ne de tarayıcı geçmişinde
             // görünüyorlar. Ekran yalnız "dolu mu" diyor.
             $values[$key] = $field['secret'] ? '' : (string) ($stored ?? '');
 
+            // "Panel dışında bir değer var mı" sorusunu çözümleyici
+            // cevaplıyor. Burada env() çağrılamaz: `config:cache` sonrası —ki
+            // üretimin varsayılan durumu bu— env() null döner ve rozet asla
+            // ".env" demezdi.
             $filled[$key] = match (true) {
-                $stored !== null && $stored !== ''   => 'panel',
-                $fromEnv !== null && $fromEnv !== '' => 'env',
-                default                              => 'bos',
+                $stored !== null && $stored !== '' => 'panel',
+                $this->resolver->hasFallback($key) => 'env',
+                default                            => 'bos',
             };
         }
 
