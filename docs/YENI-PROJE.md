@@ -307,6 +307,7 @@ Kopyaladıktan sonra sırayla:
 ## İlgili belgeler
 
 - **`SETUP.md`** — sunucuya kurulum, cron, kuyruk, sağlık kontrolü
+- **`docs/CANLIYA-ALMA.md`** — yayın günü kontrolü, yeniden dağıtım, geri alma
 - **`README.md`** — kit'in yetenekleri, mimari kararlar
 - **`docs/SHARED-HOSTING.md`** — paylaşımlı hosting kısıtları
 - **`docs/API.md`** — mobil uygulama için API

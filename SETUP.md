@@ -9,6 +9,10 @@ klonlarken izlenecek adımların tamamı — sırasıyla, kopyala-yapıştır ko
 > (ad, marka, demo içerik, kit izleri) değiştirmeyi o belge anlatıyor. Sonra
 > buraya dönüp sunucuya kurun.
 
+> **Zaten yayında olan bir kurulumu mu güncelliyorsunuz?** Buraya değil,
+> [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md)'ya bakın — yeniden dağıtımın
+> sırası burada anlatılmıyor ve sıra önemli.
+
 Baştan sona **15 dakika** sürer. Atlanması hiçbir şeyi hemen bozmayan ama
 haftalar sonra "mailler neden gitmiyor" diye aratan tek adım **8. bölümdeki
 cron**; oraya gelene kadar hiçbir şeyi atlamayın.
@@ -666,6 +670,7 @@ Sonra **mutlaka**: `https://alanadi.com/admin/sistem-saglik` → hepsi yeşil mi
 | Dosya | İçerik |
 |---|---|
 | [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md) | Kit'ten yeni proje türetme: neyi değiştirmeli, demo içeriği nasıl atlamalı |
+| [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md) | Yayın günü kontrolü, yeniden dağıtım sırası, geri alma, izleme |
 | [`docs/SHARED-HOSTING.md`](docs/SHARED-HOSTING.md) | Paylaşımlı hosting kısıtları, cron ve kuyruğun gerekçesi |
 | [`docs/API.md`](docs/API.md) | Mobil API uçları, kimlik doğrulama, sosyal giriş, bildirimler |
 | [`CLAUDE.md`](CLAUDE.md) | Proje kuralları ve kırmızı çizgiler |
