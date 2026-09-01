@@ -105,6 +105,7 @@ return [
         'content-list'        => App\Exports\ContentListExport::class,
         'custom-routes'       => App\Exports\CustomRouteExport::class,
         'failed-jobs'         => App\Exports\FailedJobExport::class,
+        'seo-audit'           => App\Exports\SeoAuditExport::class,
     ],
 
 ];

@@ -35,6 +35,8 @@ use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\LanguageController;
+use App\Http\Controllers\Admin\SeoAuditController;
+use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\SubscriberListController;
@@ -64,6 +66,18 @@ Route::get('/', DashboardController::class)->name('dashboard');
 Route::get('disa-aktar/{key}/{format}', ExportController::class)
     ->middleware('throttle:30,1')
     ->name('export');
+
+// SEO denetimi.
+//
+// Form ekranı, yazar daha kaydetmeden buraya soruyor: gövde istekle geliyor,
+// yanıt bulgular. Hız sınırı var çünkü panel her yazı duraksamasında çağırıyor;
+// ekran kendi tarafında da bekletiyor ama sunucu tarafı ona güvenmemeli.
+Route::post('seo/denetle', SeoAuditController::class)
+    ->middleware('throttle:60,1')
+    ->name('seo.audit');
+
+// Toplu denetim: bütün içeriklerin SEO durumu tek listede, en kötü başta.
+Route::get('seo', [SeoController::class, 'index'])->name('seo.index');
 
 // Pages
 // Toplu işlemler kaynak rotalarından ÖNCE: "toplu-sil" de bir {page} kalıbına

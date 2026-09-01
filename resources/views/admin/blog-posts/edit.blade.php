@@ -88,6 +88,7 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ versioned_asset('assets/admin/js/seo-audit.js') }}" nonce="{{ csp_nonce() }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/slug.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-form.js') }}"></script>
 <script src="{{ versioned_asset('assets/admin/js/content-add.js') }}"></script>

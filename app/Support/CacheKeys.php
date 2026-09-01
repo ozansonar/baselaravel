@@ -77,6 +77,16 @@ final class CacheKeys
     public const PREFIX_FRAGMENT = 'fragment.';
 
     /**
+     * Toplu SEO denetimi sonuçları.
+     *
+     * Anahtar içeriğin güncelleme zamanını taşıyor; kayıt değişince eski
+     * anahtar kendiliğinden terk ediliyor. Önek yine de gerekli: ayarlar
+     * değiştiğinde (karakter sınırı gibi) bütün denetimler bayatlıyor ve
+     * hepsinin birden düşmesi gerekiyor.
+     */
+    public const PREFIX_SEO_AUDIT = 'seo.audit.';
+
+    /**
      * İçerik değiştiğinde bayatlayan ön yüz anahtarları.
      *
      * Tek tek hatırlanması gereken listeyi tek yerde tutmak, yeni bir içerik
@@ -111,6 +121,7 @@ final class CacheKeys
             self::PREFIX_ANALYTICS,
             self::PREFIX_POPUPS,
             self::PREFIX_FRAGMENT,
+            self::PREFIX_SEO_AUDIT,
         ];
     }
 }

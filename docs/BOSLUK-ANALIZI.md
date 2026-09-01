@@ -415,7 +415,7 @@ yedekleme ve sistem sağlığı.
 | Raporlama ekranı | `reports.html` hazır bekliyor | Orta | ✅ |
 | API katmanı (Sanctum) | `routes/api.php` hiç yok | Orta | ✅ |
 | İçerik sürümleme (revisions) | Denetim izi geri döndüremez | Orta | ⬜ |
-| SEO denetleyici | Kaydetmeden önce başlık/alt/H1 uyarısı | Orta | ⬜ |
+| SEO denetleyici | Kaydetmeden önce başlık/alt/H1 uyarısı | Orta | ✅ *(1 Eyl)* |
 | Dinamik form oluşturucu | Her projede en az bir form isteniyor | Büyük | ⬜ |
 
 ---

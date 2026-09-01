@@ -60,6 +60,7 @@ class AdminAuthorizationTest extends TestCase
             '/admin/gallery-categories' => [200, 200, 403],
             '/admin/icerikler'          => [200, 200, 403],
             '/admin/raporlar'           => [200, 200, 403],
+            '/admin/seo'                => [200, 200, 403],
             // Mailing is content work too: the editor writes and sends it
             '/admin/aboneler'           => [200, 200, 403],
             '/admin/kampanyalar'        => [200, 200, 403],

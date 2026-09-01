@@ -239,6 +239,14 @@ return [
             'icon'  => 'bi-link-45deg',
         ],
         [
+            'route' => 'admin.seo.index',
+            'title' => 'SEO Denetimi',
+            'description' => 'Bütün sayfa ve yazıların SEO durumu tek listede, en düşük puanlı başta. Eksik meta açıklama, fazladan H1 başlığı, alt metni olmayan görsel ve kırık iç bağlantı burada görünür. Aynı denetim içerik formunda da çalışıyor: kaydetmeden önce uyarıyor ve kaydetmeyi engellemiyor.',
+            'badge' => 'İleri',
+            'cover' => 'blue',
+            'icon'  => 'bi-search-heart',
+        ],
+        [
             'route' => 'admin.analytics.index',
             'title' => 'Analitik',
             'description' => 'Ziyaret istatistikleri: hangi sayfa kaç kez açıldı, ziyaretçiler nereden geldi, hangi cihazı kullandı. Panel kullanıcılarının gezinmesi sayılmaz.',

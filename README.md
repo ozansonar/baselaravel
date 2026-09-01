@@ -1037,6 +1037,47 @@ yetkinin çalıştığı ve satır başına sorgu atmadığı sınanır.
 
 ---
 
+## SEO denetleyici
+
+Editör kaydetmeden **önce** sayfasının SEO sorunlarını görüyor. Denetim iki
+yerde çalışıyor ve ikisi de aynı motoru kullanıyor:
+
+- **İçerik formunda** (blog ve sayfa, her dil sekmesinde ayrı) — yazarken
+  kendiliğinden koşuyor. Bulgular seviyeye göre sıralı, her bulgunun yanında
+  ilgili alana götüren bir düğme var. Denetim kaydedilmiş kayda değil **formun
+  o anki hâline** bakıyor; asıl değeri bu.
+- **Admin → SEO Denetimi** (`/admin/seo`) — bütün içerikler tek listede, en
+  düşük puanlı başta. Tür, dil ve seviye süzgeci; Excel/CSV/PDF dışa aktarma.
+
+**Bulgular kaydetmeyi engellemiyor.** Uyarıdırlar, doğrulama değil — bir yazarın
+"şimdilik taslak" kaydetme hakkı var ve SEO kuralını zorunlu doğrulamaya
+çevirmek onu kuralı atlatmaya iter. Kaydetmeyi FormRequest sınırlar.
+
+### Ne denetleniyor
+
+| Seviye | Kural |
+|---|---|
+| **Hata** | Gövdede ikinci bir H1, alt metni olmayan görsel, hiçbir yere çıkmayan iç bağlantı |
+| **Uyarı** | Eksik/kısa/uzun meta başlık ve açıklama, atlanan başlık seviyesi, kapak görseli yokluğu, "buraya tıklayın" gibi bağlantı metni, metinsiz bağlantı, biçimsiz adres, boş gövde |
+| **Öneri** | Meta başlığın sayfa başlığının kopyası olması, başlıkla ilgisiz adres, ince içerik |
+
+Kırık bağlantı denetimi **rota tablosuna ve içeriğe** birlikte soruyor:
+`/tr/olmayan-sayfa` adresi rota kalıbına uysa da karşılığı yoksa kırık sayılıyor.
+Panelden açılmış özel adresler ve tanımlı yönlendirmeler kırık sayılmıyor —
+ikisi de ziyaretçiyi bir yere götürüyor.
+
+### Yeni kural eklemek
+
+`App\Services\Seo\SeoCheck` arayüzünü uygulayan bir sınıf yazıp
+`config/seo.php`'ye bir satır eklemek yeterli; motor gerisini biliyor. Bir kural
+patlarsa atlanıyor ve sebep loga düşüyor — denetim bir kolaylık, kaydetmenin
+şartı değil.
+
+Karakter sınırları (`config/seo.php`) tek kaynak: sunucu doğrulaması, formdaki
+sayaç ve denetleyici aynı sayıyı okuyor.
+
+---
+
 ## Rapor merkezi
 
 **Admin → Raporlar** altı raporu tek ekranda toplar: trafik, içerik, kullanıcı,

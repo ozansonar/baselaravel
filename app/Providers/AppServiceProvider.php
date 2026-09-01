@@ -210,6 +210,22 @@ class AppServiceProvider extends ServiceProvider
             $view->with('popups', app(\App\Services\PopupService::class)->getForPage($currentPage));
         });
 
+        // SEO sınırları tek kaynaktan: sunucu kuralı, formdaki sayaç ve
+        // denetleyici aynı sayıyı okuyor. Eskiden üçü ayrışıyordu — sayfa
+        // formu 70 karaktere izin verirken sayacı 60 gösteriyordu.
+        View::composer([
+            'admin.pages._translatable-fields',
+            'admin.blog-posts._translatable-fields',
+            'partials.admin.seo-panel',
+        ], static function (\Illuminate\View\View $view): void {
+            $view->with([
+                'seoTitleMin' => (int) config('seo.title.min'),
+                'seoTitleMax' => (int) config('seo.title.max'),
+                'seoDescMin'  => (int) config('seo.description.min'),
+                'seoDescMax'  => (int) config('seo.description.max'),
+            ]);
+        });
+
         // Share admin badge counts once across sidebar & topbar
         View::composer(['partials.admin.sidebar', 'partials.admin.topbar'], function (\Illuminate\View\View $view): void {
             static $unreadMessageCount = null;

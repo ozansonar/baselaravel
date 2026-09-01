@@ -32923,3 +32923,203 @@ a.cmt-detail-meta__item:hover { color: var(--teal-light); }
 
 /* Bildirim açılır listesi */
 .nt-dropdown { width: 380px; max-height: 500px; overflow-y: auto; }
+
+/* ============================================
+   SEO DENETİM PANELİ
+   İçerik formlarının içinde duran denetim kutusu. Bulgular seviyeye göre
+   renkli; renk tek başına anlam taşımıyor, yanında metin de var.
+   ============================================ */
+
+.seo-panel {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-top: 20px;
+}
+
+.seo-panel__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.seo-panel__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-primary, #e6edf3);
+}
+
+.seo-panel__score {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.seo-score {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.seo-score--good { color: #4ade80; }
+.seo-score--fair { color: #fbbf24; }
+.seo-score--poor { color: #f87171; }
+
+.seo-score__label {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+}
+
+.seo-panel__idle,
+.seo-panel__busy,
+.seo-panel__clean,
+.seo-panel__failed,
+.seo-panel__note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.55;
+}
+
+.seo-panel__clean  { color: #4ade80; }
+.seo-panel__failed { color: #fbbf24; }
+
+.seo-panel__note {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.78rem;
+}
+
+.seo-panel__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.seo-issue {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.seo-issue--error   { border-left-color: #f87171; }
+.seo-issue--warning { border-left-color: #fbbf24; }
+.seo-issue--info    { border-left-color: #60a5fa; }
+
+.seo-issue__level {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+.seo-issue--error   .seo-issue__level { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+.seo-issue--warning .seo-issue__level { background: rgba(251, 191, 36, 0.15);  color: #fbbf24; }
+.seo-issue--info    .seo-issue__level { background: rgba(96, 165, 250, 0.15);  color: #60a5fa; }
+
+.seo-issue__body { min-width: 0; }
+
+.seo-issue__message {
+    margin: 0;
+    font-size: 0.87rem;
+    color: var(--text-primary, #e6edf3);
+    line-height: 1.5;
+}
+
+.seo-issue__hint {
+    margin: 3px 0 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.5;
+}
+
+.seo-issue__goto {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: var(--text-secondary, #94a3b8);
+    cursor: pointer;
+    padding: 2px 8px;
+    line-height: 1.4;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.seo-issue__goto:hover,
+.seo-issue__goto:focus-visible {
+    color: #2dd4bf;
+    border-color: rgba(45, 212, 191, 0.5);
+}
+
+/* ── SEO denetim listesi ── */
+
+.seo-count-group { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.seo-count {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.seo-count--error   { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+.seo-count--warning { background: rgba(251, 191, 36, 0.15);  color: #fbbf24; }
+.seo-count--info    { background: rgba(96, 165, 250, 0.15);  color: #60a5fa; }
+
+.seo-details { margin-top: 6px; }
+
+.seo-details > summary {
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--text-secondary, #94a3b8);
+    list-style: none;
+}
+
+.seo-details > summary::-webkit-details-marker { display: none; }
+
+.seo-details > summary::before {
+    content: "▸ ";
+    display: inline-block;
+    transition: transform 0.15s;
+}
+
+.seo-details[open] > summary::before { content: "▾ "; }
+
+.seo-details__list {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.seo-details__item {
+    font-size: 0.78rem;
+    color: var(--text-secondary, #94a3b8);
+    padding-left: 10px;
+    border-left: 2px solid transparent;
+    line-height: 1.5;
+}
+
+.seo-details__item--error   { border-left-color: #f87171; }
+.seo-details__item--warning { border-left-color: #fbbf24; }
+.seo-details__item--info    { border-left-color: #60a5fa; }

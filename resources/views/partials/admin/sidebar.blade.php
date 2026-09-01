@@ -143,6 +143,13 @@
         </a>
         @endcan
 
+        @can('viewAny', \App\Models\Page::class)
+        <a href="{{ route('admin.seo.index') }}"
+           class="nav-link {{ Route::is('admin.seo.*') ? 'active' : '' }}">
+            <i class="bi bi-search-heart-fill"></i> SEO Denetimi
+        </a>
+        @endcan
+
 
         {{-- ─── SİSTEM ───────────────────────────────────────── --}}
         <div class="nav-section-title">Sistem</div>
