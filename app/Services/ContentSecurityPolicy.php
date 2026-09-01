@@ -78,6 +78,20 @@ final class ContentSecurityPolicy
                 $this->extraSources('script'),
             ),
 
+            // Nitelik olarak yazılmış olay işleyicileri (onclick, onchange,
+            // oninput) nonce taşıyamaz — nitelik değeri betik olduğu için
+            // oraya anahtar konulamıyor. Panelde bunlardan iki yüzden fazla
+            // var: süzgeç seçicileri, karakter sayaçları, toplu işlem
+            // düğmeleri. Hepsini engellemek panelin yarısını çalışmaz hâle
+            // getiriyordu.
+            //
+            // Bu yüzden ayrı bir yönerge: `script-src-attr` yalnız nitelik
+            // işleyicilerini kapsıyor. `<script>` bloklarına enjeksiyon —
+            // XSS'in asıl ve en tehlikeli yolu — hâlâ nonce'a bağlı ve kapalı.
+            // Taviz dar ve bilinçli; işleyicileri JS dosyalarına taşımak
+            // yönergeyi kaldırır (bkz. docs/BOSLUK-ANALIZI.md).
+            'script-src-attr' => ["'unsafe-inline'"],
+
             // Stil tarafında nonce yetmiyor: Bootstrap'in konumlandırıcısı
             // (Popper) açılır menü ve ipuçlarını yerleştirirken elemanın
             // `style` niteliğini doğrudan yazıyor. Bunu engellemek panelin

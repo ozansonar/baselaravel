@@ -56,20 +56,43 @@
         return panel.dataset.seoType === 'page' ? 'content' : 'body';
     }
 
+    /**
+     * Kapak görseli seçili mi?
+     *
+     * Görsel alanı x-image-field bileşeninden geliyor ve dile bağlı:
+     * translations[tr][image]. İki durumda dolu sayılıyor — ya bu oturumda
+     * yeni bir dosya seçilmiş, ya da kayıtlı bir görsel duruyor. İkincisini
+     * bileşenin önizleme kutusu ele veriyor (görsel yokken d-none ile gizli),
+     * çünkü kayıtlı yol formda bir alan olarak taşınmıyor.
+     *
+     * "Kaldır" işaretlenmişse görsel gidiyor demektir; o durumda boş sayılıyor.
+     */
     function kapakGorseli(panel) {
         var form = panel.closest('form');
         if (!form) return '';
 
-        /* Kapak görseli dile bağlı değil: formda tek bir alan var ve dosya
-           girdisi ile mevcut değeri taşıyan gizli alan birlikte duruyor. */
-        var mevcut = form.querySelector('[name="image"], [name="existing_image"], [data-cover-image]');
-        if (!mevcut) return '';
+        var dil = panel.dataset.seoLocale;
 
-        if (mevcut.type === 'file') {
-            return mevcut.files && mevcut.files.length ? mevcut.files[0].name : '';
+        var kaldir = form.querySelector('[name="translations[' + dil + '][remove_image]"]');
+        if (kaldir && kaldir.checked) return '';
+
+        var dosya = form.querySelector('[name="translations[' + dil + '][image]"]')
+            || form.querySelector('[name="image"]');
+
+        if (dosya && dosya.type === 'file' && dosya.files && dosya.files.length) {
+            return dosya.files[0].name;
         }
 
-        return mevcut.value || '';
+        /* Kayıtlı görsel: önizleme kutusu açıksa bir görsel var. */
+        var kutu = dosya && dosya.closest('[data-cover]');
+        var onizleme = kutu && kutu.querySelector('[data-cover-box]');
+
+        if (onizleme && !onizleme.classList.contains('d-none')) {
+            var ad = kutu.querySelector('[data-cover-name]');
+            return ad && ad.textContent.trim() !== '' ? ad.textContent.trim() : 'kapak';
+        }
+
+        return '';
     }
 
     /* ---- İstek ---- */

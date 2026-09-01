@@ -202,6 +202,19 @@ ucu (`/csp-ihlali`, hız sınırlı ve alan beyaz listeli), panel için ayrı ve
 daha geniş politika (TinyMCE'nin `blob:` ihtiyacı). `X-XSS-Protection`
 kaldırıldı. Ayrıntı: [`PROJE-DURUMU-V2.md`](PROJE-DURUMU-V2.md) → *Tur 3*.
 
+**Sonradan bulunan ve düzeltilen kusur.** İlk sürüm satır içi *olay
+işleyicilerini* (`onclick`, `onchange`, `oninput`) engelliyordu: nitelik değeri
+betiğin kendisi olduğu için oraya nonce konulamıyor. Panelde bunlardan iki
+yüzden fazla var — süzgeç seçicileri, karakter sayaçları, toplu işlem düğmeleri
+— ve hepsi sessizce çalışmaz olmuştu. İhlal yalnız işleyici *tetiklendiğinde*
+bildirildiği için sayfa açılışında konsol temiz görünüyordu; kusur, SEO
+modülünün kontrol turunda ortaya çıktı.
+
+Çözüm ayrı bir yönerge: `script-src-attr 'unsafe-inline'` yalnız nitelik
+işleyicilerini kapsıyor, `<script>` bloklarına enjeksiyon nonce'a bağlı
+kalıyor. Taviz dar ve bilinçli; işleyicileri JS dosyalarına taşımak yönergeyi
+tamamen kaldırır (yukarıdaki modül önerileri tablosunda).
+
 ---
 
 ## S-06 — `robots.txt` statik ve eski projenin alan adını taşıyor · ✅
@@ -417,6 +430,7 @@ yedekleme ve sistem sağlığı.
 | İçerik sürümleme (revisions) | Denetim izi geri döndüremez | Orta | ⬜ |
 | SEO denetleyici | Kaydetmeden önce başlık/alt/H1 uyarısı | Orta | ✅ *(1 Eyl)* |
 | Dinamik form oluşturucu | Her projede en az bir form isteniyor | Büyük | ⬜ |
+| Satır içi olay işleyicilerini JS'e taşımak | CSP'nin `script-src-attr` tavizini kaldırır (219 işleyici, 50 dosya) | Orta | ⬜ |
 
 ---
 
