@@ -91,8 +91,11 @@ görünür ve indirilebilir.
 - [ ] `optimize:clear && optimize` çalıştırıldı
 - [ ] Kendi yönetici hesabı açıldı, demo hesaplar silindi
 - [ ] `SEED_PASSWORD` `.env`'den kaldırıldı
-- [ ] `/.env` ve `/uploads/deneme.php` erişilemiyor
+- [ ] `/.env` ve `/uploads/deneme.php` tarayıcıdan erişilemiyor
+- [ ] Sunucuda `chmod 600 .env` uygulandı (paylaşımlı hosting'de kritik)
 - [ ] Sistem Sağlık ekranında *Queue Worker* yeşil
+- [ ] *PHP Modülleri* yeşil — "GD yüklü ama WebP yok" derse görsel yükleme çalışmaz
+- [ ] Bir görsel yüklenip görüntülendi (Admin → Dosya Yöneticisi)
 - [ ] Telegram bildirimleri açık
 - [ ] İlk yedek alındı
 - [ ] Test e-postası gönderildi (Admin → Ayarlar → **E-posta (SMTP)** → *Test E-postası Gönder*)

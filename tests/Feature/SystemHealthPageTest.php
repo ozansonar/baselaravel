@@ -128,6 +128,39 @@ class SystemHealthPageTest extends TestCase
     }
 
     /**
+     * "gd yüklü" ile "görsel yüklenebiliyor" aynı şey değil.
+     *
+     * GD, WebP desteği **olmadan** da derlenebiliyor ve paylaşımlı hosting'de
+     * sık sık öyle geliyor. Projedeki her görsel WebP'ye çevrildiği için o
+     * kurulumda tek bir görsel bile yüklenemiyor — ama ekran `extension_loaded('gd')`
+     * dediği için yeşil yanıyordu. Yönetici sorunu, ilk yüklemeyi denerken
+     * öğreniyordu.
+     *
+     * Kontrolün kendisi `imagewebp()` fonksiyonuna bakıyor; bu sınav da o
+     * kontrolün ekranda gerçekten koştuğunu doğruluyor.
+     */
+    public function test_the_extension_check_looks_for_webp_not_just_gd(): void
+    {
+        $check = collect($this->health()['checks'])->firstWhere('key', 'php_ext');
+
+        $this->assertNotNull($check, 'PHP modül kontrolü ekranda yok');
+
+        // Sınav ortamında WebP var; kontrolün onu gördüğünü söylemesi gerekiyor.
+        $this->assertTrue(
+            function_exists('imagewebp'),
+            'Bu sınav WebP destekli bir PHP bekliyor; ortam eksik.',
+        );
+
+        $this->assertSame(HealthCheckService::STATUS_OK, $check['status']);
+
+        // Kontrolün WebP'ye baktığı hem sonuçta hem de ekrandaki açıklamada
+        // görünmeli: yönetici "modüller tamam" yazısının neyi kapsadığını
+        // bilmeli. (`hint` yalnız sorunlu kontrollerde doluyor, burada değil.)
+        $this->assertStringContainsString('WebP', (string) $check['detail']);
+        $this->assertStringContainsString('WebP', (string) $check['what']);
+    }
+
+    /**
      * Testler `php artisan optimize` çalıştırılmadan koşuyor, yani config ve
      * rota önbelleği kurulu değil — kontrol bunu uyarı olarak söylemeli ve ne
      * yapılacağını yazmalı.
