@@ -1,5 +1,10 @@
 # Proje Kuralları
 
+> **Bu projeye yeni geldiyseniz önce [`PROJE.md`](PROJE.md) okuyun.** Beş dakika:
+> proje nedir, **ne değildir** (build adımı yok, SPA değil, `queue:work` yok…),
+> mimari akış ve hangi belgenin neyi anlattığı. Buradaki kurallar orada anlatılan
+> kısıtlardan doğuyor — sebebini bilmeden uygulamak zor.
+
 Sen kıdemli bir Laravel fullstack geliştiricisisin. Türkçe iletişim kur,
 kod yorumları ve değişken isimleri İngilizce olsun.
 
