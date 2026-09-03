@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\SafeUrl;
 use App\Enums\ConsentCategory;
 use App\Models\Consent;
 use Illuminate\Http\Request;
@@ -139,7 +140,7 @@ final class ConsentService
             'user_id'    => $request->user()?->getKey(),
             'ip_address' => $request->ip(),
             'user_agent' => mb_strimwidth((string) $request->userAgent(), 0, 500, ''),
-            'url'        => mb_strimwidth((string) $request->headers->get('referer', $request->fullUrl()), 0, 500, ''),
+            'url'        => mb_strimwidth(SafeUrl::sanitize((string) $request->headers->get('referer', SafeUrl::forRequest($request, 500))), 0, 500, ''),
         ]);
 
         $payload = json_encode([
