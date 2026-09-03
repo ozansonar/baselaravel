@@ -68,6 +68,52 @@ Değişmeyen dört kural:
 
 ---
 
+## Neler var — arazi haritası
+
+Proje küçük değil: **39 panel ekranı, 41 model, 82 servis, 88 tablo.** Kaybolmamak
+için önce hangi alanların olduğunu bilin.
+
+| Alan | Panel ekranları |
+|---|---|
+| **İçerik** (9) | Sayfalar · Blog yazıları · Blog kategorileri · Yorumlar · SSS · Slider · Popup · Genel içerik listesi · Sürümler |
+| **Medya** (4) | Galeri kategorileri · Galeri · Dosya yöneticisi · Dosya seçici |
+| **İletişim & pazarlama** (5) | Mesajlar · Aboneler · Kampanyalar · Bildirimler · Push duyuruları |
+| **Site yapısı** (5) | Menüler · Menü ögeleri · Yönlendirmeler · Özel adresler · SEO denetimi |
+| **Çok dillilik** (2) | Diller · Dil yazıları |
+| **Kullanıcılar** (2) | Kullanıcılar · Roller |
+| **Sistem** (12) | Ayarlar · API ve servisler · Mail şablonları · Mail logları · Kuyruk · Yedekler · Sistem sağlık · Hata kayıtları · Aktivite logları · Analitik · Raporlar · Yardım |
+
+### Çekirdek modeller
+
+Kırk bir modelin hepsini bilmeniz gerekmiyor. Sistemi anlamak için yeten yedi
+tanesi:
+
+| Model | Neden merkezî |
+|---|---|
+| `User` · `Role` · `Permission` | Yetkilendirmenin tamamı; kodda rol adı değil `PermissionKey` karşılaştırılır |
+| `Setting` | Site adı, logo, SMTP, API anahtarları — panelden yönetilen ne varsa. `(key, locale)` çifti benzersiz |
+| `Language` · `Translation` | Çok dilliliğin iki ayağı: hangi diller açık, arayüz metinleri ne diyor |
+| `Page` · `BlogPost` | İçerik modellerinin kalıbı: `HasTranslations` + `HasRevisions` + `SoftDeletes` |
+
+Bir içerik modeli yazacaksanız `Page`'i örnek alın — çok dillilik, sürümleme,
+SEO alanları ve yumuşak silme orada bir arada.
+
+### Okumaya nereden başlanır
+
+Seksen iki servisin hepsine bakmayın. Sistemin her yerine dokunan altı tanesi
+(parantezdeki sayı, projede kaç dosyadan çağrıldığı):
+
+| Servis | Ne yapar |
+|---|---|
+| `LanguageService` (47) | Aktif diller, varsayılan dil — neredeyse her istek buradan geçer |
+| `UploadService` (26) | Tüm dosya yüklemeleri; WebP dönüşümü + dört boy varyant |
+| `AuditLogger` (13) | Kim ne yaptı kaydı |
+| `MailService` (11) | Giden her e-posta |
+| `LocalizedUrlService` (11) | Dile göre adres üretimi |
+| `NotificationCenter` (7) | Panel bildirimleri |
+
+---
+
 ## Bu repo kendini korur
 
 Kuralları ezberlemenize gerek yok. **134 test dosyası, 2144 test** var ve önemli
@@ -126,8 +172,10 @@ Aşağıdakiler geçmiş kaydıdır, rehber değildir. Toplam **8.217 satır**; 
 1. Bu dosyayı bitirin (bitti).
 2. [`CLAUDE.md`](CLAUDE.md) — 147 satır, kuralların tamamı.
 3. `php artisan test` koşun. Yeşil görmek, ortamınızın çalıştığının kanıtı.
-4. `app/Services/` dizinine bakın — iş mantığının tamamı orada, dosya adları
-   ne yaptıklarını söylüyor.
-5. `routes/admin.php` ve `routes/web.php` — projenin yüzeyi.
+4. Yukarıdaki **arazi haritasına** dönün: hangi alanla ilgileniyorsanız o
+   alanın ekranını panelde açın, sonra `routes/admin.php` içinde adını aratın.
+5. Oradan denetleyiciye, denetleyiciden servise inin. İş mantığının tamamı
+   `app/Services/` altında — ama seksen iki dosyanın hepsine değil, yalnız
+   işinize düşene bakın.
 
 Bir şeyi değiştirmeden önce sorun: **bunun bir bekçisi var mı?** Genelde vardır.
