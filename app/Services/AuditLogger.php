@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\SafeUrl;
 use App\Enums\AuditEvent;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Model;
@@ -51,7 +52,7 @@ final class AuditLogger
                 'new_values'     => self::sanitize($newValues),
                 'ip_address'     => Request::ip(),
                 'user_agent'     => substr((string) Request::header('User-Agent', ''), 0, 500),
-                'url'            => substr((string) Request::fullUrl(), 0, 500),
+                'url'            => SafeUrl::forRequest(request(), 500),
                 'created_at'     => now(),
             ]);
         } catch (\Throwable) {
@@ -77,7 +78,7 @@ final class AuditLogger
                 'new_values'     => self::sanitize($context),
                 'ip_address'     => Request::ip(),
                 'user_agent'     => substr((string) Request::header('User-Agent', ''), 0, 500),
-                'url'            => substr((string) Request::fullUrl(), 0, 500),
+                'url'            => SafeUrl::forRequest(request(), 500),
                 'created_at'     => now(),
             ]);
         } catch (\Throwable) {

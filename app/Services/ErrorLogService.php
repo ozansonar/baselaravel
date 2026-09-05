@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\ErrorLog;
 use App\Support\LikeSearch;
+use App\Support\SafeUrl;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -174,7 +175,9 @@ final class ErrorLogService
             $request = request();
 
             return [
-                'url'        => mb_substr($request->fullUrl(), 0, 2048),
+                // Sırlar maskeleniyor: şifre sıfırlama jetonu yolun içinde
+                // geliyor ve kayıt altmış gün duruyor.
+                'url'        => SafeUrl::forRequest($request, 2048),
                 'method'     => $request->method(),
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),

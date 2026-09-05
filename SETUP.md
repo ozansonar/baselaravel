@@ -4,6 +4,15 @@ Bu proje web sitesi, mobil API ve yönetim panelini birlikte taşıyan bir **bas
 kit**. Bu dosya, sıfırdan bir sunucuya kurarken ya da yeni bir projeye
 klonlarken izlenecek adımların tamamı — sırasıyla, kopyala-yapıştır komutlarla.
 
+> **Kit'ten yeni bir proje mi türetiyorsunuz?** Önce
+> [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md) okuyun — projenin kimliğini
+> (ad, marka, demo içerik, kit izleri) değiştirmeyi o belge anlatıyor. Sonra
+> buraya dönüp sunucuya kurun.
+
+> **Zaten yayında olan bir kurulumu mu güncelliyorsunuz?** Buraya değil,
+> [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md)'ya bakın — yeniden dağıtımın
+> sırası burada anlatılmıyor ve sıra önemli.
+
 Baştan sona **15 dakika** sürer. Atlanması hiçbir şeyi hemen bozmayan ama
 haftalar sonra "mailler neden gitmiyor" diye aratan tek adım **8. bölümdeki
 cron**; oraya gelene kadar hiçbir şeyi atlamayın.
@@ -59,6 +68,18 @@ php -m | grep -iE '^(pdo_mysql|gd|mbstring|intl|zip|json|curl|openssl)$'
 `gd` görsel işleme (WebP dönüşümü), `zip` yedekleme, `intl` tarih ve para
 biçimlendirme, `openssl` mobil bildirim ve sosyal giriş imzaları için gerekiyor.
 
+> **`gd` listede görünmesi yetmiyor — WebP desteği de olmalı.** GD, WebP
+> olmadan da derlenebiliyor ve paylaşımlı hosting'de sık sık öyle geliyor.
+> Projedeki her görsel WebP'ye çevrildiği için o kurulumda tek bir görsel bile
+> yüklenemez. Ayrı bir komutla sınayın:
+>
+> ```bash
+> php -r 'echo function_exists("imagewebp") ? "WebP destegi VAR" : "WebP destegi YOK", PHP_EOL;'
+> ```
+>
+> "YOK" diyorsa hosting sağlayıcısından GD'nin WebP destekli derlenmesini
+> isteyin. Kurulum sonrası **Sistem Sağlık** ekranı da bunu ayrıca kontrol eder.
+
 **Önerilen ayarlar** (`php.ini`):
 
 ```ini
@@ -106,6 +127,18 @@ chmod -R 775 storage bootstrap/cache public/uploads
 
 > `public/uploads` içindeki `.htaccess` **silinmemeli**: yüklenen dosyaların
 > çalıştırılmasını engelliyor.
+
+`.env` dosyası ise tam tersi — kimse okuyamamalı:
+
+```bash
+chmod 600 .env
+```
+
+> Paylaşımlı hosting'de sunucuyu başka müşterilerle paylaşırsınız. Varsayılan
+> `644` izniyle `.env`'i **aynı sunucudaki başka bir kullanıcı okuyabilir** ve
+> içinde veritabanı şifresi, uygulama anahtarı ve mail parolası durur.
+> Web tarafından erişimi ayrıca [10. bölümdeki](#10-web-sunucusu-notları)
+> sunucu yapılandırması kapatıyor; bu ikisi farklı kapı, ikisi de kapanmalı.
 
 ---
 
@@ -186,10 +219,25 @@ MAIL_HOST=smtp.alanadi.com
 MAIL_PORT=587
 MAIL_USERNAME=noreply@alanadi.com
 MAIL_PASSWORD=***
-MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@alanadi.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```
+
+> **`MAIL_ENCRYPTION` yazmayın — bu Laravel sürümü onu okumaz.** Eski
+> rehberlerde geçen o satır sessizce yok sayılır; yazdığınıza bakıp TLS
+> kurduğunuzu sanırsınız. Şifreleme **porttan** belirlenir:
+>
+> | Port | Ne olur |
+> |---|---|
+> | `587` | STARTTLS kendiliğinden devreye girer — en yaygın seçim |
+> | `465` | Baştan şifreli bağlantı (`smtps`) kendiliğinden seçilir |
+>
+> Sunucunuz farklı bir davranış istiyorsa `MAIL_SCHEME=smtp` ya da
+> `MAIL_SCHEME=smtps` ile elle zorlayabilirsiniz; olağan durumda gerekmez.
+
+Kaydettikten sonra **Admin → Ayarlar → E-posta (SMTP)** ekranındaki
+*Test E-postası Gönder* düğmesiyle doğrulayın. Ulaşmazsa **Mail Logları**
+ekranı hatanın ne olduğunu yazar.
 
 ### 3.5 Seed şifresi
 
@@ -465,7 +513,7 @@ Bu ekran on başlığı tek tek denetliyor ve **hepsi yeşil olmalı**:
 |---|---|
 | Veritabanı | `.env` bağlantı bilgileri |
 | **Queue Worker** | **cron tanımlı değil** → [8.1](#81-cron-görev-zamanlayıcı) |
-| PHP Modülleri | eksik eklenti → [1](#1-ön-gereksinimler) |
+| PHP Modülleri | eksik eklenti → [1](#1-ön-gereksinimler). *GD yüklü ama WebP yok* diyorsa görsel yükleme çalışmaz; hosting sağlayıcısından GD'nin WebP destekli derlenmesini isteyin |
 | Storage Yazma | izinler → [2](#2-klonlama-ve-dosya-izinleri) |
 | OPcache | `php.ini` |
 | Disk alanı | sunucu |
@@ -475,17 +523,33 @@ Bu ekran on başlığı tek tek denetliyor ve **hepsi yeşil olmalı**:
 
 **6. Mail gerçekten gidiyor mu**
 
-`https://alanadi.com/admin/settings` → **Mail** sekmesi → "Test maili gönder".
-Mail kuyruğa girer ve **bir dakika içinde** (cron turunda) gider. Gelmiyorsa
-`https://alanadi.com/admin/mail-logs` ekranında hatayı görürsünüz.
+`https://alanadi.com/admin/settings` → **E-posta (SMTP)** sekmesi →
+*Test E-postası Gönder*. Mail kuyruğa girer ve **bir dakika içinde** (cron
+turunda) gider. Gelmiyorsa `https://alanadi.com/admin/mail-logs` ekranında
+hatayı görürsünüz.
 
 > Test mailinin bir dakika gecikmesi normaldir ve kuyruğun çalıştığının
 > kanıtıdır. Hiç gelmiyorsa cron yoktur.
 
 **7. Dosya yükleme**
 
-`https://alanadi.com/admin/files` → bir görsel yükleyin. Yüklenmiyorsa `public/uploads`
-izinleri; görünmüyorsa `APP_URL` yanlış.
+`https://alanadi.com/admin/files` → bir görsel yükleyin. Her görsel WebP'ye
+çevrilip dört boyda kaydedilir; yükleme başarılıysa GD tarafı da tamamdır.
+
+| Belirti | Sebep |
+|---|---|
+| Yüklenmiyor | `public/uploads` izinleri → [2](#2-klonlama-ve-dosya-izinleri) |
+| "WebP desteği bulunamadı" hatası | GD, WebP olmadan derlenmiş → Sistem Sağlık ekranı bunu da söyler |
+| Yükleniyor ama görünmüyor | `APP_URL` yanlış |
+
+**8. Hata kayıtları boş mu**
+
+`https://alanadi.com/admin/hata-kayitlari` → kurulum sırasında beklenmedik bir
+hata oluştuysa burada durur: ne olduğu, hangi dosyada ve kaç kez. Liste boşsa
+kurulum temiz demektir.
+
+> Bu ekran canlı hayatın da ilk bakılacak yeri. Sunucu hataları buraya tek
+> satır hâlinde düşer ve kaç kez tekrar ettikleri yazar → [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md)
 
 ---
 
@@ -643,8 +707,9 @@ Yukarıdakileri okuduysanız, sonraki kurulumlarda bu blok yeter:
 ```bash
 git clone <REPO_URL> /var/www/proje && cd /var/www/proje
 chmod -R 775 storage bootstrap/cache public/uploads
-cp .env.example .env
-# .env'i düzenleyin: APP_URL, APP_DEBUG=false, DB_*, MAIL_*, SEED_PASSWORD
+cp .env.example .env && chmod 600 .env
+# .env'i düzenleyin: APP_NAME, APP_URL, APP_ENV=production, APP_DEBUG=false,
+#                    SESSION_SECURE_COOKIE=true (HTTPS varsa), DB_*, MAIL_*, SEED_PASSWORD
 composer install --no-dev --optimize-autoloader
 php artisan key:generate
 php artisan migrate --force --seed
@@ -654,12 +719,17 @@ crontab -l | { cat; echo "* * * * * cd /var/www/proje && php artisan schedule:ru
 
 Sonra **mutlaka**: `https://alanadi.com/admin/sistem-saglik` → hepsi yeşil mi?
 
+Canlıya çıkmadan önceki son kontrol listesi (demo hesaplar, `.env` erişimi,
+Telegram, ilk yedek) → [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md)
+
 ---
 
 ## İlgili belgeler
 
 | Dosya | İçerik |
 |---|---|
+| [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md) | Kit'ten yeni proje türetme: neyi değiştirmeli, demo içeriği nasıl atlamalı |
+| [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md) | Yayın günü kontrolü, yeniden dağıtım sırası, geri alma, izleme |
 | [`docs/SHARED-HOSTING.md`](docs/SHARED-HOSTING.md) | Paylaşımlı hosting kısıtları, cron ve kuyruğun gerekçesi |
 | [`docs/API.md`](docs/API.md) | Mobil API uçları, kimlik doğrulama, sosyal giriş, bildirimler |
 | [`CLAUDE.md`](CLAUDE.md) | Proje kuralları ve kırmızı çizgiler |

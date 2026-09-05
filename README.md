@@ -13,6 +13,11 @@ ekranı hazır gelir.
 
 **Stack:** PHP 8.4 · Laravel 13 · Blade · MySQL 8 · Bootstrap 5.3.8 · Vanilla JS
 
+> **Bu depoya ilk kez mi bakıyorsunuz?** Bu dosya bir **özellik kataloğu** —
+> 27 bölüm, ne varsa tek tek anlatılıyor. Önce [`PROJE.md`](PROJE.md) okuyun:
+> beş dakikada projenin ne olduğunu, **ne olmadığını** ve hangi belgenin neyi
+> anlattığını söylüyor.
+
 > **Build tool yok.** Vite, npm, Node.js, Webpack kullanılmaz. Tüm vendor
 > kütüphaneleri `public/assets/vendor/` altında hazır dosya olarak durur ve
 > `asset()` ile dahil edilir. Cache busting için `versioned_asset()` dosyanın
@@ -41,6 +46,13 @@ Node.js **gerekmez**.
 > **Sunucuya kuruyorsanız → [`SETUP.md`](SETUP.md).** Orada adım adım üretim
 > kurulumu var: izinler, `.env`, cron, kuyruk, web sunucusu ayarları ve kurulum
 > sonrası kontrol listesi. Aşağıdaki kısayol geliştirme makinesi içindir.
+>
+> **Bu kit'ten yeni bir proje türetiyorsanız → [`docs/YENI-PROJE.md`](docs/YENI-PROJE.md).**
+> Neyin değişmesi gerektiği, demo içeriği atlayarak kurulum ve kontrol listesi
+> orada.
+>
+> **Yayındaki bir kurulumu güncelliyorsanız → [`docs/CANLIYA-ALMA.md`](docs/CANLIYA-ALMA.md).**
+> Yeniden dağıtımın sırası, geri alma ve izleme orada.
 
 ```bash
 git clone <depo-adresi> proje-adi && cd proje-adi
@@ -968,17 +980,25 @@ Aynı arama API'de de var: `GET /api/v1/search?q=...`. İki taraf aynı servisi
 
 ## Ek dokümanlar
 
-- `CLAUDE.md` — proje kuralları (zorunlu)
-- **`docs/PROJE-KAYDI.md` — tek kayıt: güncel durum tablosu, kalan iş planı ve
-  aşağıdaki dört belgenin tamamı. Bir maddenin durumunu öğrenmek için önce buraya bakın.**
-- `docs/PROJE-DURUMU.md` — mevcut durum, bilinen eksikler, yapılacaklar
-- `docs/PROJE-DURUMU-V2.md` — denetim kaydı: bulunan kusurlar, çözümleri, kurulan bekçiler
-- `docs/BOSLUK-ANALIZI.md` — mimari denetim: on beş bulgu, gerekçeleri ve kapanışları
-- `docs/YOL-HARITASI.md` — fazlar ve kabul ölçütleri
-- `docs/SHARED-HOSTING.md` — cron, kuyruk ve hosting kısıtlamaları (zorunlu)
+**Rehberler — işinize göre buraya bakın:**
+
+- **`PROJE.md` — projeye ilk giriş: ne olduğu, ne olmadığı, belge haritası. Önce bu.**
+- `CLAUDE.md` — kod yazarken uyulacak kurallar (zorunlu)
+- `SETUP.md` — sunucuya kurulum: izinler, cron, kuyruk, web sunucusu
+- `docs/YENI-PROJE.md` — kit'ten yeni proje türetme: marka, demo içerik, kit izleri
+- `docs/CANLIYA-ALMA.md` — yayın günü, yeniden dağıtım, geri alma, izleme
+- `docs/SHARED-HOSTING.md` — cron ve kuyruğun neden böyle kurulduğu (zorunlu)
 - `docs/API.md` — mobil ve harici istemciler için API (v1) referansı
 - `docs/openapi.json` — API'nin makine okunur şeması (OpenAPI 3.1)
-- `resources/views/admin-theme/README.md` — tema referansı
+- `resources/views/admin-theme/README.md` — panel tema referansı
+
+**Arşiv — geçmiş kaydı, rehber değil.** Toplam 8.217 satır. "Bu neden böyle
+yapılmış, ne zaman değişti" sorusunu araştırmıyorsanız açmanız gerekmez:
+
+- `docs/PROJE-KAYDI.md` — çalışma günlüğü (4.685 satır)
+- `docs/PROJE-DURUMU.md` · `docs/PROJE-DURUMU-V2.md` — denetim kayıtları
+- `docs/BOSLUK-ANALIZI.md` — mimari denetim bulguları
+- `docs/YOL-HARITASI.md` — fazlar ve kabul ölçütleri
 
 ---
 

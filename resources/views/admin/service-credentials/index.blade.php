@@ -149,7 +149,7 @@
                         <a href="{{ route('admin.settings.index') }}#stg-email" class="btn-glass">
                             <i class="bi bi-envelope-at"></i> Mail (SMTP) Ayarları
                         </a>
-                        <a href="{{ route('admin.settings.index') }}#stg-system" class="btn-glass">
+                        <a href="{{ route('admin.settings.index') }}#stg-telegram" class="btn-glass">
                             <i class="bi bi-telegram"></i> Telegram Bildirimleri
                         </a>
                     </div>

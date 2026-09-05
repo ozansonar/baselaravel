@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\SafeUrl;
 use App\Enums\NotificationLevel;
 use App\Models\ErrorLog;
 use Illuminate\Support\Facades\Cache;
@@ -161,7 +162,8 @@ final class ExceptionNotifier
 
         $request = request();
 
-        $context['adres'] = $request->method() . ' ' . $request->fullUrl();
+        // Telegram sunucunun dışı: sır oraya hiç gitmemeli.
+        $context['adres'] = $request->method() . ' ' . SafeUrl::forRequest($request);
 
         $userId = rescue(static fn (): ?int => auth()->id(), null, false);
 

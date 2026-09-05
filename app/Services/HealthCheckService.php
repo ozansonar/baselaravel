@@ -75,8 +75,8 @@ final class HealthCheckService
         ],
         'php_ext' => [
             'icon'  => 'bi-plug-fill',
-            'what'  => 'Uygulamanın ihtiyaç duyduğu PHP modüllerinin yüklü olduğuna bakar.',
-            'hint'  => 'Eksik modülü hosting panelinden ya da php.ini üzerinden etkinleştirin.',
+            'what'  => 'Gerekli PHP modüllerinin yüklü olduğuna ve GD\'nin WebP üretebildiğine bakar.',
+            'hint'  => 'Eksik modülü hosting panelinden ya da php.ini üzerinden etkinleştirin. WebP eksikse GD\'nin yeniden derlenmesi gerekir; hosting sağlayıcısına iletin.',
             'route' => null,
         ],
         'logs' => [
@@ -313,9 +313,20 @@ final class HealthCheckService
                 'php.ini kontrol et');
         }
 
+        // Modülün yüklü olması yetmiyor: GD, WebP desteği **olmadan** da
+        // derlenebiliyor ve paylaşımlı hosting'de sık sık öyle geliyor.
+        // Projedeki her görsel WebP'ye çevrildiği için o kurulumda tek bir
+        // görsel bile yüklenemiyor — oysa bu ekran "gd yüklü" deyip yeşil
+        // yanıyordu. Yönetici sorunu ilk yüklemeyi denerken öğreniyordu.
+        if (! function_exists('imagewebp')) {
+            return $this->result('php_ext', 'PHP Modülleri', self::STATUS_CRITICAL,
+                'GD yüklü ama WebP desteği yok — görsel yükleme çalışmaz',
+                'GD, --with-webp ile yeniden derlenmeli (hosting sağlayıcısına sorun)');
+        }
+
         return $this->result('php_ext', 'PHP Modülleri', self::STATUS_OK,
             'Tüm gerekli modüller yüklü',
-            'PHP ' . PHP_VERSION . ' — ' . count($required) . ' modül OK');
+            'PHP ' . PHP_VERSION . ' — ' . count($required) . ' modül + WebP OK');
     }
 
     /**
